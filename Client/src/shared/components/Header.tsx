@@ -19,9 +19,17 @@ import { MenuPopup } from "./Menus";
 import { useAppContext } from "@/app/AppContext";
 import { UserAvatar } from "@/app/user/components/UserAvatar";
 import { ListItemType } from "../types";
-import { Home } from "@mui/icons-material";
+import {
+  AccountCircle,
+  Home,
+  Inbox,
+  Logout,
+  Message,
+  Notifications,
+  Settings,
+} from "@mui/icons-material";
 import { SearchBar } from "./Search";
-import { useAuth } from "@/app/auth/hooks/useAuth";
+import { useAuth } from "@/app/auth/authHooks";
 import { Drawer } from "./Drawer";
 import { MobileNavContents } from "./Contents";
 
@@ -45,24 +53,24 @@ export const Header: React.FC = () => {
     },
     {
       title: "Notifications",
-      icon: <Home />,
+      icon: <Notifications />,
       url: "#",
     },
     {
       title: "Inbox",
-      icon: <Home />,
+      icon: <Message />,
       url: "#",
     },
   ];
   const userItems: Item[] = [
     {
       title: "Settings",
-      icon: <Home />,
+      icon: <Settings />,
       url: "#",
     },
     {
       title: "Logout",
-      icon: <Home />,
+      icon: <Logout />,
       action: () => {
         handleLogout();
       },
@@ -70,7 +78,7 @@ export const Header: React.FC = () => {
   ];
   const profileItem: Item = {
     title: "Profile",
-    icon: <Home />,
+    icon: <AccountCircle />,
     url: "#",
   };
 
@@ -183,9 +191,7 @@ export const Header: React.FC = () => {
   });
 
   return (
-    <AppBar
-      position="sticky"
-      sx={{ backgroundColor: theme.palette.gray[0], zIndex: 500 }}>
+    <AppBar position="sticky" sx={{ zIndex: 500 }}>
       <Toolbar
         sx={{
           alignItems: "center",
@@ -199,7 +205,6 @@ export const Header: React.FC = () => {
           alt="logo"
           src="/assets/images/logo.png"
           style={{ borderRadius: `${theme.radius[2]}`, width: "40px" }}></img>
-
         {/* Search Bar */}
         <SearchBar />
 

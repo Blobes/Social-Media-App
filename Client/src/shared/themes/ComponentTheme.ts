@@ -133,7 +133,7 @@ const componentTheme = createTheme({
       styleOverrides: {
         root: ({ theme }) =>
           theme.unstable_sx({
-            gap: theme.boxSpacing(2),
+            gap: theme.gap(2),
           }),
         avatar: ({ theme }) =>
           theme.unstable_sx({
