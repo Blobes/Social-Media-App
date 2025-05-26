@@ -1,72 +1,121 @@
-import * as React from "react";
-import { TextareaAutosize as BaseTextareaAutosize } from "@mui/material";
-import { styled } from "@mui/system";
+import { styled } from "@mui/material/styles";
+import { TextareaAutosize } from "@mui/material";
+import { GenericObject } from "../types";
+import { useState } from "react";
+import { useStyles } from "../helpers/styles";
 
-export default function MaxHeightTextarea() {
-  const blue = {
-    100: "#DAECFF",
-    200: "#b6daff",
-    400: "#3399FF",
-    500: "#007FFF",
-    600: "#0072E5",
-    900: "#003A75",
+const StyledLabel = styled("label")<{ shrink: boolean }>(
+  ({ theme, shrink }) =>
+    ({
+      position: "absolute",
+      left: theme.boxSpacing(2),
+      top: shrink ? theme.boxSpacing(1) : theme.boxSpacing(3),
+      fontSize: shrink ? 12 : 17,
+      color: theme.palette.gray[200],
+      transition: "all 0.2s ease",
+      pointerEvents: "none",
+      width: "100%",
+      textWrap: "nowrap",
+      textOverflow: "ellipsis",
+      overflow: "hidden",
+      padding: theme.boxSpacing(0),
+    } as any)
+);
+
+interface TextAreaProps {
+  style?: {
+    default: GenericObject<string>;
+    focused: GenericObject<string>;
+    hover: GenericObject<string>;
   };
-
-  const grey = {
-    50: "#F3F6F9",
-    100: "#E5EAF2",
-    200: "#DAE2ED",
-    300: "#C7D0DD",
-    400: "#B0B8C4",
-    500: "#9DA8B7",
-    600: "#6B7A90",
-    700: "#434D5B",
-    800: "#303740",
-    900: "#1C2025",
-  };
-
-  const Textarea = styled(BaseTextareaAutosize)(
-    ({ theme }) => `
-    box-sizing: border-box;
-    width: 320px;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 0.875rem;
-    font-weight: 400;
-    line-height: 1.5;
-    padding: 8px 12px;
-    border-radius: 8px;
-    color: ${theme.palette.mode === "dark" ? grey[300] : grey[900]};
-    background: ${theme.palette.mode === "dark" ? grey[900] : "#fff"};
-    border: 1px solid ${theme.palette.mode === "dark" ? grey[700] : grey[200]};
-    box-shadow: 0 2px 2px ${
-      theme.palette.mode === "dark" ? grey[900] : grey[50]
-    };
-
-    &:hover {
-      border-color: ${blue[400]};
-    }
-
-    &:focus {
-      border-color: ${blue[400]};
-      box-shadow: 0 0 0 3px ${
-        theme.palette.mode === "dark" ? blue[600] : blue[200]
-      };
-    }
-
-    /* firefox */
-    &:focus-visible {
-      outline: 0;
-    }
-  `
-  );
-
-  return (
-    <Textarea
-      maxRows={4}
-      aria-label="maximum height"
-      placeholder="Maximum 4 rows"
-      defaultValue="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-        ut labore et dolore magna aliqua."
-    />
-  );
+  maxRows?: number;
+  minRows?: number;
+  placeholder?: string;
+  label?: string;
+  defaultValue?: string;
+  maxLength?: number | null;
+  onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onFocus?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
+  onBlur?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
 }
+
+const StyledTextarea = styled(TextareaAutosize, {
+  shouldForwardProp: (prop) => prop !== "customStyle",
+})<{ customStyle: TextAreaProps["style"]; label: TextAreaProps["label"] }>(
+  ({ label, customStyle, theme }) => {
+    const styles = {
+      width: "100%",
+      padding: label
+        ? theme.boxSpacing(10, 0, 2, 2)
+        : theme.boxSpacing(3, 2, 2),
+      boxSizing: "border-box",
+      fontFamily: "inherit",
+      fontSize: "17px",
+      lineHeight: 1.4,
+      color: theme.palette.gray[300],
+      backgroundColor: "unset",
+      resize: "none",
+      border: "none",
+      ...useStyles().scrollBarStyle(),
+      ...customStyle?.default,
+      "&:focus": {
+        border: "none",
+        outline: "none",
+        ...customStyle?.focused,
+      },
+      "&:hover": {
+        ...customStyle?.hover,
+      },
+    };
+    return styles as any;
+  }
+);
+
+export const ResponsiveTextarea = ({
+  style = { default: {}, focused: {}, hover: {} },
+  maxRows = 4,
+  minRows = 1,
+  placeholder = "Type here...",
+  label,
+  defaultValue = "",
+  maxLength = null,
+  onChange,
+  onFocus,
+  onBlur,
+}: TextAreaProps) => {
+  const [focused, setFocused] = useState(false);
+  const [value, setValue] = useState("");
+  const shrink = focused || value.length > 0;
+  return (
+    <>
+      {label && (
+        <StyledLabel htmlFor="textarea" shrink={shrink}>
+          {label}
+        </StyledLabel>
+      )}
+      <StyledTextarea
+        id="textarea"
+        aria-label="Text area"
+        customStyle={style}
+        maxRows={maxRows}
+        minRows={minRows}
+        label={label}
+        placeholder={label ? "" : placeholder}
+        defaultValue={defaultValue}
+        maxLength={maxLength ?? undefined}
+        onChange={(e) => {
+          setValue(e.target.value);
+          onChange && onChange(e);
+        }}
+        onFocus={(e) => {
+          setFocused(true);
+          onFocus && onFocus(e);
+        }}
+        onBlur={(e) => {
+          setFocused(false);
+          onBlur && onBlur(e);
+        }}
+      />
+    </>
+  );
+};

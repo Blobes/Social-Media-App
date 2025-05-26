@@ -1,25 +1,32 @@
 "use client";
 
 import React from "react";
-import { useAuth } from "@/app/auth/hooks/useAuth";
-import { Button, Box, Typography } from "@mui/material";
+import { useAuth } from "@/app/auth/authHooks";
+import { Box, Typography } from "@mui/material";
 import { useAppContext } from "@/app/AppContext";
+import { CustomButton } from "@/shared/components/Buttons";
 
 export const Login: React.FC = () => {
   const { handleLogin } = useAuth();
-  const { setCurrentPage, feedback: message, isLoading } = useAppContext();
+  const { setCurrentPage, feedback, isLoading } = useAppContext();
 
   const handleSubmit = () => {
-    handleLogin("1");
+    handleLogin({ email: "nick@gmail.com", password: "nick123" });
     setCurrentPage("home");
     localStorage.setItem("currentPage", "home");
   };
   return (
     <Box>
-      <Button variant={"contained"} onClick={handleSubmit} disabled={isLoading}>
-        Login
-      </Button>
-      {message && <Typography variant="body2">{message.content}</Typography>}
+      <CustomButton
+        variant="contained"
+        label="Login"
+        onClick={handleSubmit}
+        style={{}}
+        overrideStyle="full"
+      />
+      {feedback.message.fixed && (
+        <Typography variant="body2">{feedback.message.fixed}</Typography>
+      )}
     </Box>
   );
 };

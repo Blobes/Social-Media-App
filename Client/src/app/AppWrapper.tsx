@@ -14,7 +14,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     <Stack sx={{ position: "fixed", height: "100vh", width: "100%", gap: 0 }}>
       <BlurEffect />
       <Header />
-      {feedback.message && <FeedbackSnackBar />}
+      {feedback.message.timed && <FeedbackSnackBar />}
       {children}
       <Footer />
     </Stack>

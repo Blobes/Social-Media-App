@@ -5,7 +5,7 @@ import { Avatar, IconButton, Typography } from "@mui/material";
 import { deepOrange } from "@mui/material/colors";
 import { extractInitials } from "src/shared/helpers/helpers";
 import { BasicTooltip } from "src/shared/components/Tooltips";
-import { User } from "../../../data/models";
+import { User } from "@/shared/types";
 import { GenericObject } from "@/shared/types";
 import { useTheme } from "@mui/material/styles";
 
@@ -14,7 +14,7 @@ interface UserAvatarProps {
   action?: () => void;
   url?: string;
   style?: GenericObject<string>;
-  tootTipValue?: string;
+  toolTipValue?: string;
 }
 
 export const UserAvatar = ({
@@ -22,7 +22,7 @@ export const UserAvatar = ({
   action,
   url,
   style = { bgcolor: deepOrange[500], width: "30px", height: "30px" },
-  tootTipValue = "",
+  toolTipValue = "",
 }: UserAvatarProps) => {
   const theme = useTheme();
   if (!user) {
@@ -33,17 +33,20 @@ export const UserAvatar = ({
   const { marginTop, ...others } = style;
 
   return (
-    <BasicTooltip
-      title={tootTipValue}
-      sx={{ marginTop: marginTop, borderRadius: theme.radius[3] }}>
+    <BasicTooltip title={toolTipValue} sx={{ borderRadius: theme.radius[3] }}>
       <IconButton
         {...(url ? { href: url } : {})}
         onClick={action && action}
+        sx={{
+          borderRadius: theme.radius[100],
+          padding: theme.boxSpacing(2),
+          ...(marginTop !== undefined ? { marginTop } : {}),
+        }}
         aria-label="User profile">
         <Avatar
           sx={{
             ...others,
-            borderRadius: theme.radius[3],
+            borderRadius: theme.radius[100],
           }}
           alt={`${firstName} ${lastName}`}
           children={initials}

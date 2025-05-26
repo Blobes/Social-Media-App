@@ -1,6 +1,5 @@
 "use client";
 
-import { Padding } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 
 export const useStyles = () => {
@@ -9,11 +8,10 @@ export const useStyles = () => {
   const scrollBarStyle = () => {
     return {
       "&::-webkit-scrollbar": {
-        height: "8px",
-        width: "8px",
+        height: "6px",
+        width: "6px",
       },
       "&::-webkit-scrollbar-track": {
-        background: theme.palette.gray.trans[1] /* Track background */,
         borderRadius: theme.radius[2],
         margin: "0px 8px",
       },

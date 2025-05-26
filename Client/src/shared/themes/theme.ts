@@ -17,11 +17,11 @@ let designSystem = createTheme({
           0: "#ffffff",
           50: grey[50],
           100: grey[200],
-          200: grey[700],
+          200: grey[600],
           300: grey[900],
           trans: {
             1: "rgba(0, 0, 0, 0.06)",
-            2: "rgba(0, 0, 0, 0.20)",
+            2: "rgba(0, 0, 0, 0.12)",
             overlay: "rgba(0, 0, 0, 0.50)",
           },
         },
@@ -49,7 +49,7 @@ let designSystem = createTheme({
           0: grey[900],
           50: grey[800],
           100: grey[700],
-          200: grey[50],
+          200: grey[500],
           300: "#ffffff",
           trans: {
             1: "rgba(255, 255, 255, 0.09)",

@@ -71,3 +71,78 @@ root.render(
 // position: "fixed",
 // top: 0,
 // ...(entryDir === "LEFT" ? { left: 0 } : { right: 0 }),
+
+// useEffect(() => {
+// if (!feedback.message.timed) return;
+
+// const intervalId = setInterval(() => {
+// setFeedback((prevState) => {
+// const newSeconds = prevState.progressBar.seconds - 1;
+// const newWidth = prevState.progressBar.width - 40;
+
+// if (newSeconds < 1) {
+// clearInterval(intervalId);
+// setFeedbackMessage({ timedMessage: null }, null, 0); // ✅ Clear message now
+// console.log(feedback);
+// // Delay resetting progress bar
+// setTimeout(() => {
+// setFeedback((prev) => progressBarState(5, 100, prev));
+// }, 300);
+// return prevState; // No immediate update
+// }
+// return progressBarState(newSeconds, newWidth, prevState);
+// });
+// }, 1000);
+// console.log(feedback);
+
+// return () => clearInterval(intervalId);
+// }, [feedback.message.timed]);
+
+const { feedback, setFeedback } = useAppContext();
+
+const setFeedbackMessage = (
+{
+timedMessage,
+fixedMessage,
+}: { timedMessage?: string | null; fixedMessage?: string | null },
+type: "SUCCESS" | "ERROR" | "INFO" | "WARNING" | null = null,
+delay = 0
+) => {
+if (fixedMessage !== undefined) {
+setFeedback((prev) => ({
+...prev,
+message: { ...prev.message, fixed: fixedMessage },
+type,
+}));
+}
+
+    if (timedMessage !== undefined) {
+      setTimeout(() => {
+        setFeedback((prev) => ({
+          ...prev,
+          message: { ...prev.message, timed: timedMessage },
+          type,
+        }));
+      }, delay);
+    }
+
+};
+
+const progressBarState = (
+seconds: number,
+width: number,
+prevState?: Feedback
+): Feedback => {
+const updatedState: Feedback = {
+...(prevState ?? feedback),
+progressBar: {
+seconds,
+width: width > 0 ? width : 0,
+},
+};
+setFeedback(updatedState);
+return updatedState;
+};
+
+return { setFeedbackMessage, progressBarState };
+};

@@ -2,14 +2,14 @@
 
 import React, { createContext, useContext, useState } from "react";
 import { LoginStatus } from "@/app/auth/authTypes";
-import { User } from "@/data/models";
+import { IUser } from "@/shared/types";
 import { Feedback } from "@/shared/types";
 
 interface AppContextType {
   isLoggedIn: LoginStatus;
   setLoginStatus: React.Dispatch<React.SetStateAction<LoginStatus>>;
-  user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  user: IUser | null;
+  setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
   feedback: Feedback;
   setFeedback: React.Dispatch<React.SetStateAction<Feedback>>;
   isLoading: boolean;
@@ -25,11 +25,14 @@ export const ContextProvider = ({
   children: React.ReactNode;
 }) => {
   const [isLoggedIn, setLoginStatus] = useState<LoginStatus>(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
   const [feedback, setFeedback] = useState<Feedback>({
-    message: null,
+    message: {
+      timed: null,
+      fixed: null,
+    },
     type: null,
-    progressBar: { seconds: 5, width: 100 },
+    progress: { seconds: 5, width: 100 },
   });
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState<string>(() => {
