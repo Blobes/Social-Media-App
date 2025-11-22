@@ -1,55 +1,180 @@
 "use client";
-
 import { useAppContext } from "@/app/AppContext";
-import { useFeedback } from "@/shared/sharedHooks";
-import { fetcher } from "@/shared/helpers/fetcher";
-import { IUser } from "@/shared/types";
+import { useSharedHooks } from "@/hooks";
+import { fetcher } from "@/helpers/fetcher";
+import { IUser, SingleResponse } from "@/types";
+import { useRouter } from "next/navigation";
+import { ModalRef } from "@/components/Modal";
+import {
+  clearLoginLock,
+  deleteCookie,
+  formatRemainingTime,
+  getCookie,
+  getLockRemaining,
+  setCookie,
+} from "@/helpers/others";
+import { useRef } from "react";
 
 interface LoginCredentials {
   email: string;
   password: string;
 }
-interface LoginResponse {
-  message: string;
-  payload?: IUser;
-  status: "SUCCESS" | "ERROR";
+interface LoginResponse extends SingleResponse<IUser> {
+  fixedMsg?: string;
 }
 
-export const useAuth = () => {
-  const { setUser, setLoginStatus, setIsLoading } = useAppContext();
-  const { setFbMessage } = useFeedback();
+export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
+  const {
+    setAuthUser,
+    setLoginStatus,
+    setPage,
+    setSnackBarMsgs,
+    setInlineMsg,
+  } = useAppContext();
+  const { setSBMessage: setFbMessage } = useSharedHooks();
+  const router = useRouter();
+  const MAX_ATTEMPTS = 3;
+  const LOCKOUT_MIN = 2;
+  const loginAttempts = parseInt(getCookie("loginAttempts") || "0", 10);
+  const lockTimestamp = getCookie("loginLockTime");
+  const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleLogin = async (credentials: LoginCredentials) => {
-    setIsLoading(true);
+  const startLockCountdown = (lockTimestamp: number | string) => {
+    // Prevent countdown if user isn't really locked out
+    if (loginAttempts < MAX_ATTEMPTS && !lockTimestamp) {
+      clearLoginLock();
+      return;
+    }
+    // Clear any existing interval
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    // Parse timestamp to number
+    const lockTime =
+      typeof lockTimestamp === "string" ? Number(lockTimestamp) : lockTimestamp;
 
-    //Login Api call
+    // Start countdown
+    let remainingSec = getLockRemaining(lockTime, LOCKOUT_MIN);
+    countdownRef.current = setInterval(() => {
+      if (remainingSec <= 0) {
+        clearInterval(countdownRef.current!);
+        countdownRef.current = null;
+        clearLoginLock();
+        setFbMessage({
+          msg: { content: "Login Activated", msgStatus: "SUCCESS" },
+        });
+        setInlineMsg(null);
+      } else {
+        setInlineMsg(
+          `You've exceeded the maximum login attempts. Try again in ${formatRemainingTime(
+            remainingSec
+          )}. Or reset your password.`
+        );
+      }
+      remainingSec--;
+    }, 1000);
+  };
+
+  const handleLogin = async (
+    credentials: LoginCredentials
+  ): Promise<LoginResponse | null> => {
+    // Step 1: Check if user is currently locked out
+    const isLocked = loginAttempts >= MAX_ATTEMPTS && lockTimestamp;
+    const remainingSec = isLocked
+      ? getLockRemaining(lockTimestamp, LOCKOUT_MIN)
+      : 0;
+
+    if (remainingSec <= 0) clearLoginLock(); // Unlock if time expired
+
     try {
-      const response = await fetcher<LoginResponse>("/auth/login", {
+      // Step 2: Attempt login request
+      const res = await fetcher<LoginResponse>("/auth/login", {
         method: "POST",
         body: JSON.stringify(credentials),
       });
-      const { message, payload, status } = response;
-      setUser(payload!);
-      setLoginStatus((prev) => !prev);
-      setIsLoading(false);
-      setFbMessage({ timedMessage: message }, status);
-      console.log(message);
+
+      // Step 3: On success — reset auth state
+      const { message: message, payload, status } = res;
+      setAuthUser(payload!);
+      setLoginStatus("AUTHENTICATED");
+      deleteCookie("loginAttempts"); // reset attempt count
+
+      return {
+        payload: payload!,
+        message: message,
+        status: status,
+      };
     } catch (error: any) {
-      console.error(error);
-      setFbMessage(
-        {
-          timedMessage: error.message,
-          fixedMessage: "You entered a wrong email or password",
-        },
-        error.status
+      // Step 4: Handle login failure
+      const msg = error.message || "";
+      const isPasswordErr = msg.toLowerCase().includes("password");
+      const isEmailOrNetworkErr = ["server", "network", "email"].some((sub) =>
+        msg.toLowerCase().includes(sub)
       );
+      // Increment attempt count if password is wrong
+      if (isPasswordErr) {
+        setCookie("loginAttempts", String(loginAttempts + 1), LOCKOUT_MIN);
+      }
+
+      // Step 5: Determine fixed feedback message
+      let fixedMessage = error.message;
+      if (isEmailOrNetworkErr) {
+        fixedMessage = msg;
+      } else if (isPasswordErr && loginAttempts + 1 < MAX_ATTEMPTS) {
+        fixedMessage = `Wrong password. You have ${
+          MAX_ATTEMPTS - loginAttempts - 1
+        } attempt(s) left.`;
+      } else if (isPasswordErr && loginAttempts + 1 >= MAX_ATTEMPTS) {
+        const lockTime = Date.now();
+        setCookie("loginLockTime", String(lockTime), LOCKOUT_MIN);
+        startLockCountdown(lockTime); // Start countdown
+        return null;
+      }
+
+      return {
+        payload: null,
+        message: error.message,
+        fixedMsg: fixedMessage,
+        status: error.status,
+      };
     }
   };
 
-  const handleLogout = () => {
-    setLoginStatus((prev) => !prev);
-    setUser(null);
+  const handleLogout = async () => {
+    try {
+      // Step 1: Send logout request to backend
+      await fetcher("/auth/logout", { method: "POST" });
+
+      // Step 2: Reset login status, currentPage and feedback state
+      setLoginStatus("UNKNOWN");
+      setPage("home");
+      setSnackBarMsgs((prev) => ({ ...prev, messgages: [], inlineMsg: null }));
+
+      // Step 3: Check if stored user exists for drawer experience
+      const stored = getCookie("user");
+      if (stored && stored !== "null") {
+        const parsedUser = JSON.parse(stored) as IUser;
+        setAuthUser(parsedUser);
+        // Prompt login with drawer after a short delay
+        setTimeout(() => {
+          drawerRef?.current?.openModal();
+        }, 50);
+      } else {
+        // No stored user, redirect to login
+        setAuthUser(null);
+        router.replace("/auth/login");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+      setAuthUser(null);
+      router.replace("/auth/login");
+    }
   };
 
-  return { handleLogin, handleLogout };
+  return {
+    handleLogin,
+    handleLogout,
+    loginAttempts,
+    MAX_ATTEMPTS,
+    lockTimestamp,
+    startLockCountdown,
+  };
 };

@@ -1,24 +1,25 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { UserModel } from "@/models";
 
 export const checkUsername = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<any> => {
-  const { username } = req.query as { username?: string };
+  const { username } = req.body as { username?: string };
   if (!username) {
     return res.status(400).json({
       message: "username query is required",
     });
   }
-  // 1. Check if the exact username is IsAvailable
+  // Check if the exact username is IsAvailable
   const exists = await UserModel.exists({ username });
   if (!exists) {
     // It’s free—no need for suggestions
     return res.json({ IsAvailable: true });
   }
 
-  // 2. Generate candidate suggestions
+  //Generate username suggestions
   const suggestions: string[] = [];
   const maxSuggestions = 5;
 
@@ -42,19 +43,18 @@ export const checkUsername = async (
     }
     counter++;
   }
-
-  // 4. Return “taken” plus your suggestions
   return res.json({
     IsAvailable: false,
     suggestions,
   });
+  next();
 };
 
 export const checkEmail = async (req: Request, res: Response): Promise<any> => {
-  const { email } = req.query as { email?: string };
+  const { email } = req.body as { email?: string };
   if (!email) {
     return res.status(400).json({ message: "email query is required" });
   }
   const exists = await UserModel.exists({ email });
-  res.json({ IsAvailable: !exists });
+  return res.json({ IsAvailable: !exists });
 };

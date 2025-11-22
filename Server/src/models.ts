@@ -43,8 +43,18 @@ const userSchema = new mongoose.Schema(
     location: String,
     worksAt: String,
     relationship: String,
-    followers: [],
-    following: [],
+    followers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Users",
+      },
+    ],
+    following: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Users",
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -54,12 +64,12 @@ export const UserModel = mongoose.model("Users", userSchema);
 //Post Schema
 const postSchema = new mongoose.Schema(
   {
-    userId: {
+    authorId: {
       type: String,
       required: true,
     },
-    description: String,
-    image: String,
+    content: String,
+    postImage: String,
     likes: [],
   },
   { timestamps: true }
