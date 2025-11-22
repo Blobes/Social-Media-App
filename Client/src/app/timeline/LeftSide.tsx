@@ -3,8 +3,8 @@
 import { Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ProfileCard } from "./Cards";
-import { FollowersCard } from "./Cards";
-import { ScrollableContainer } from "@/shared/components/Containers";
+import { Followers } from "./Followers";
+import { ScrollableContainer } from "@/components/Containers";
 
 export default function LeftSide() {
   const theme = useTheme();
@@ -22,7 +22,7 @@ export default function LeftSide() {
       <Typography variant="subtitle1" sx={{ width: "100%" }}>
         Those following you
       </Typography>
-      <FollowersCard />
+      <Followers />
     </ScrollableContainer>
   );
 }

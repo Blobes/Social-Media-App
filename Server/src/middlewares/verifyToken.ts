@@ -1,9 +1,18 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
-
 import { Request, Response, NextFunction } from "express";
 
-interface AuthRequest extends Request {
-  user?: JwtPayload | string;
+export interface JwtUserPayload {
+  id: any;
+  email?: string;
+  username?: string;
+  isAdmin: boolean;
+  password?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface AuthRequest extends Request {
+  user?: JwtUserPayload;
 }
 
 const verifyToken = (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -23,12 +32,13 @@ const verifyToken = (req: AuthRequest, res: Response, next: NextFunction) => {
       err: jwt.VerifyErrors | null,
       payload: JwtPayload | string | undefined
     ) => {
-      if (err)
+      if (err || typeof payload !== "object" || !("id" in payload)) {
         return res
           .status(403)
           .json({ message: "Invalid token", status: "FORBIDDEN" });
+      }
 
-      req.user = payload; //attach user data to the request
+      req.user = payload as JwtUserPayload; //attach user data to the request
       next();
     }
   );

@@ -1,5 +1,5 @@
 import "@mui/material/styles";
-import { GenericObject } from "../shared/types";
+import { GenericObject } from "../types";
 
 type ExtendedGenericObject<T> = GenericObject<T> & {
   trans: GenericObject<T>;

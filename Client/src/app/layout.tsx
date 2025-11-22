@@ -1,5 +1,5 @@
 import { ThemeProvider } from "@mui/material/styles";
-import theme from "@/shared/themes/theme";
+import theme from "@/themes/theme";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ContextProvider } from "./AppContext";
 import { AppWrapper } from "./AppWrapper";

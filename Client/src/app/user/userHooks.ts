@@ -1,45 +1,82 @@
 "use client";
 
-import { useAppContext } from "@/app/AppContext";
-import { userData as users } from "@/data/userData";
-import { useFeedback } from "@/shared/sharedHooks";
+import { fetcher } from "@/helpers/fetcher";
+import { useSharedHooks } from "@/hooks";
+import { IUser, ListResponse, SingleResponse } from "@/types";
 
 export const useUser = () => {
-  const { user: me, setUser } = useAppContext();
-  const { setFbMessage } = useFeedback();
+  const { setSBMessage } = useSharedHooks();
 
-  const handleFollow = async (userInvolvedId: string) => {
-    const userInvolved = users.find((user) => user.id === userInvolvedId);
-    //const myData = users.find((user) => user.email === me!.email);
-
-    if (!me || !userInvolved) {
-      setFbMessage({ timedMessage: "User not found!" }, "ERROR", 500);
-      return;
-    }
-    if (userInvolved.followers.includes(me._id)) {
-      const updatedFollowers = userInvolved.followers.filter(
-        (follower: string) => {
-          return follower !== me._id;
-        }
-      );
-      userInvolved.followers = updatedFollowers;
-
-      const myFollowings = me.following!.filter((userFollowing) => {
-        return userFollowing !== userInvolved.id;
+  const getUser = async (
+    userId: string
+  ): Promise<{
+    payload: IUser | null;
+    message: string;
+  }> => {
+    try {
+      const res = await fetcher<SingleResponse<IUser>>(`/users/${userId}`, {
+        method: "GET",
       });
-      me.following = myFollowings;
-      setFbMessage(
-        { timedMessage: "Unfollowed successfully!" },
-        "SUCCESS",
-        500
-      );
-    } else {
-      userInvolved.followers = [...userInvolved.followers, me._id];
-      me.following = [...me.following!, userInvolved.id];
-      setFbMessage({ timedMessage: "Followed successfully!" }, "SUCCESS", 500);
+      return { payload: res.payload ?? null, message: res.message };
+    } catch (error: any) {
+      return {
+        payload: null,
+        message: error.message ?? "Something went wrong",
+      };
     }
-    setUser(me);
   };
 
-  return { handleFollow };
+  interface Followers {
+    payload: any[] | null;
+    message: string;
+  }
+  const getFollowers = async (userId: string): Promise<Followers> => {
+    try {
+      const res = await fetcher<ListResponse<any>>(
+        `/users/${userId}/followers`,
+        { method: "GET" }
+      );
+
+      return { payload: res.payload ?? null, message: res.message };
+    } catch (error: any) {
+      return {
+        payload: null,
+        message: error.message ?? "Something went wrong",
+      };
+    }
+  };
+
+  interface FollowResponse {
+    payload: { currentUser: IUser; targetUser: IUser } | null;
+    message: string;
+  }
+  const handleFollow = async (userId: string): Promise<FollowResponse> => {
+    try {
+      const res = await fetcher<FollowResponse>(`/users/${userId}/follow`, {
+        method: "PUT",
+      });
+      setSBMessage({
+        msg: {
+          content: res.message,
+          duration: 2,
+          msgStatus: "SUCCESS",
+        },
+      });
+      return { payload: res.payload ?? null, message: res.message };
+    } catch (error: any) {
+      setSBMessage({
+        msg: {
+          content: error.message,
+          duration: 2,
+          msgStatus: "ERROR",
+        },
+      });
+      return {
+        payload: null,
+        message: error.message ?? "Something went wrong",
+      };
+    }
+  };
+
+  return { handleFollow, getFollowers, getUser };
 };

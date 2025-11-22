@@ -5,36 +5,38 @@ import {
   Card,
   Typography,
   Divider,
-  Button,
   IconButton,
   CardHeader,
   CardMedia,
   CardContent,
   CardActions,
-  Link,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useAppContext } from "@/app/AppContext";
 import Image from "next/image";
-import { UserAvatar } from "@/app/user/components/UserAvatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { userData as users } from "@/data/userData";
 import { Favorite, Share, MoreHoriz, Bookmark } from "@mui/icons-material";
 import { useUser } from "@/app/user/userHooks";
-import { GenericObject } from "@/shared/types";
-import { useState } from "react";
-import { heartBeat } from "@/shared/helpers/animations";
-import { usePost } from "./usePost";
-import { Post } from "@/shared/types";
+import { GenericObject, IUser, SingleResponse } from "@/types";
+import { useCallback, useEffect, useState } from "react";
+import { heartBeat } from "@/helpers/animations";
+import { usePost } from "./postHooks";
+import { Post } from "@/types";
 import { red } from "@mui/material/colors";
-import { CustomButton } from "@/shared/components/Buttons";
+import { AnchorLink, AppButton } from "@/components/Buttons";
+import { fetcher } from "@/helpers/fetcher";
+import { useSharedHooks } from "@/hooks";
+import { summarizeNum } from "@/helpers/others";
+import { Strip } from "@/components/StripBar";
 
 export const ProfileCard = () => {
   const theme = useTheme();
-  const { user } = useAppContext();
-  if (!user) {
-    return null;
-  }
-  const { firstName, lastName, coverImage, email, followers, following } = user;
+  const { authUser } = useAppContext();
+
+  if (!authUser) return null;
+  const { firstName, lastName, coverImage, email, followers, following } =
+    authUser;
   return (
     <Stack
       sx={{
@@ -55,13 +57,14 @@ export const ProfileCard = () => {
         style={{ objectFit: "cover", width: "100%" }}
       />
       <UserAvatar
-        user={user}
+        userInfo={authUser}
         toolTipValue="User profile"
         style={{
           border: `3px solid ${theme.palette.gray[0]}`,
           marginTop: theme.boxSpacing(-20),
           width: "70px",
           height: "70px",
+          fontSize: "30px",
         }}
       />
       <Stack
@@ -87,86 +90,127 @@ export const ProfileCard = () => {
               width: "inherit",
               borderRight: `1px solid ${theme.palette.gray.trans[1]}`,
             }}>
-            <Typography variant="subtitle1">{followers?.length}</Typography>
+            <Typography variant="subtitle1">
+              {summarizeNum(followers?.length!)}
+            </Typography>
             <Typography variant="body3">Followers</Typography>
           </Stack>
           <Stack sx={{ width: "inherit" }} spacing={`${theme.gap(-5)}`}>
-            <Typography variant="subtitle1">{following?.length}</Typography>
+            <Typography variant="subtitle1">
+              {summarizeNum(following?.length!)}
+            </Typography>
             <Typography variant="body3">Following</Typography>
           </Stack>
         </Stack>
         <Divider />
-        <CustomButton
+        <AppButton
           variant="outlined"
-          label=" View profile"
-          style={{ alignSelf: "center", width: "100%" }}
-        />
+          style={{
+            alignSelf: "center",
+            width: "100%",
+            fontSize: "14px",
+            padding: theme.boxSpacing(2, 5),
+            borderColor: theme.palette.gray.trans[2],
+          }}>
+          My profile
+        </AppButton>
       </Stack>
     </Stack>
   );
 };
 
-export const FollowersCard = () => {
+interface FollowerProps {
+  followerId: string;
+}
+export const FollowerCard = ({ followerId }: FollowerProps) => {
   const theme = useTheme();
-  const { user: me } = useAppContext();
-  const { handleFollow } = useUser();
+  const { authUser, setAuthUser } = useAppContext();
+  const [follower, setFollower] = useState<IUser | null>(null);
+  const { handleFollow, getUser } = useUser();
 
-  if (!me || !users) {
-    return null;
-  }
+  useEffect(() => {
+    if (!followerId) return;
+    const fetchUser = async () => {
+      try {
+        const res = await getUser(followerId);
+        if (res.payload) setFollower(res.payload);
+      } catch (err) {
+        setFollower(null);
+      }
+    };
+    fetchUser();
+  }, [followerId]);
 
-  const myFollowers = users.filter((user) => {
-    return me.followers?.includes(user._id);
-  });
+  if (!authUser || !follower) return null;
+
+  const { _id, username, firstName, lastName, profileImage, followers } =
+    follower!;
+  const isFollowing = followers?.includes(authUser._id);
+  const followingEachOther =
+    followers?.includes(authUser._id) && authUser.followers?.includes(_id);
+
+  const handleFollower = async () => {
+    const updated = await handleFollow(_id);
+    if (updated && updated.payload) {
+      const { currentUser, targetUser } = updated.payload;
+      setFollower(targetUser);
+      setAuthUser(currentUser);
+    }
+  };
 
   return (
-    <Stack gap={2}>
-      {myFollowers.length === 0 ? (
-        <Typography>No followers</Typography>
-      ) : (
-        myFollowers.map((follower) => {
-          const {
-            id,
-            firstName,
-            lastName,
-            email,
-            followers: theirFollowers,
-          } = follower;
-          const isFollowingBack = theirFollowers?.includes(me._id);
+    <Stack
+      direction="row"
+      alignItems="center"
+      sx={{ width: "100%", gap: theme.gap(6) }}>
+      <AnchorLink
+        url="#"
+        style={{
+          width: "100%",
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "row",
+          gap: theme.gap(4),
+          textDecoration: "none",
+        }}>
+        <UserAvatar
+          userInfo={{ firstName, lastName, profileImage }}
+          style={{
+            width: "35px",
+            height: "35px",
+          }}
+        />
+        <Stack sx={{ width: "100%", gap: theme.gap(2) }}>
+          <Typography
+            variant="body2"
+            fontWeight={600}
+            sx={{ textAlign: "left" }}>
+            {`${firstName} ${lastName}`}
+          </Typography>
+          <Typography
+            variant="body3"
+            sx={{ margin: "unset!important", textAlign: "left" }}
+            noWrap={true}>
+            <Strip
+              items={[
+                { text: username },
+                ...(followingEachOther ? [{ text: "Following" }] : []),
+              ]}
+            />
+          </Typography>
+        </Stack>
+      </AnchorLink>
 
-          return (
-            <Stack key={id} direction="row" alignItems="center" spacing={1}>
-              <UserAvatar
-                user={follower}
-                style={{
-                  width: "35px",
-                  height: "35px",
-                }}
-              />
-              <Link
-                href="#"
-                noWrap
-                sx={{
-                  flexGrow: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: theme.spacing(0.5),
-                  textDecoration: "none",
-                }}>
-                <Typography variant="body2" fontWeight={600}>
-                  {`${firstName} ${lastName}`}
-                </Typography>
-                <Typography variant="body3">{email}</Typography>
-              </Link>
-              <CustomButton
-                variant="outlined"
-                label={isFollowingBack ? "Unfollow" : "Follow back"}
-                onClick={() => handleFollow(id)}
-              />
-            </Stack>
-          );
-        })
-      )}
+      <AppButton
+        variant="outlined"
+        style={{
+          fontSize: "13px",
+          padding: theme.boxSpacing(1, 5),
+          borderColor: theme.palette.gray.trans[2],
+        }}
+        onClick={() => handleFollower()}>
+        {isFollowing ? "Unfollow" : "Follow back"}
+      </AppButton>
     </Stack>
   );
 };
@@ -177,24 +221,85 @@ interface PostProps {
 }
 export const PostCard = ({ post, style = {} }: PostProps) => {
   const theme = useTheme();
-  const { id, authorId, content, postImage, createdOn, likes } = post;
-  const author = users.find((user) => user.id === authorId);
-  const authorFullName = `${author!.firstName} ${author!.lastName}`;
-
-  const { user: currentUser } = useAppContext();
-  const alreadyLiked = post.likes.includes(currentUser!._id) ? true : false;
-
+  const { authUser, isGlobalLoading: isLoading } = useAppContext();
+  const { handlePostLike, getPendingLike, setPendingLike, clearPendingLike } =
+    usePost();
   const [isLiking, setLiking] = useState(false);
-  const { handlePostLike } = usePost();
-  const handleLike = () => {
-    setLiking(!isLiking);
-    setTimeout(() => setLiking(false), 200); // Animation only
-    handlePostLike(id);
+  const [latestPost, setLatestPost] = useState<Post>(post);
+  const [author, setAuthor] = useState<IUser | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const { authorId, content, postImage, createdAt, likes } = latestPost;
+  const userId = authUser?._id ?? "";
+  const alreadyLiked = latestPost.likes.includes(authUser?._id ?? "");
+
+  // Fetch Author
+  const fetchAuthor = useCallback(async () => {
+    if (!authorId) return;
+    try {
+      const res = await fetcher<SingleResponse<IUser>>(`/users/${authorId}`);
+      setAuthor(res.payload);
+      setMessage(res.message);
+    } catch {
+      setMessage("Failed to load author");
+    }
+  }, [authorId]);
+
+  // Reconcile pending likes + author
+  useEffect(() => {
+    if (!authUser) return;
+    fetchAuthor();
+
+    const pending = getPendingLike(post._id);
+    if (pending !== null) {
+      setLatestPost((prev) => {
+        const liked = prev.likes.includes(userId);
+        return pending && !liked
+          ? { ...prev, likes: [...prev.likes, userId] }
+          : !pending && liked
+          ? { ...prev, likes: prev.likes.filter((id) => id !== userId) }
+          : prev;
+      });
+    }
+  }, [authUser, post._id, getPendingLike, fetchAuthor, userId]);
+
+  // Like Handler
+  const handleLike = async () => {
+    if (!authUser) return;
+
+    const userId = authUser._id;
+    // Optimistically update
+    setLatestPost((prev) => ({
+      ...prev,
+      likes: !alreadyLiked
+        ? [...prev.likes, userId]
+        : prev.likes.filter((id) => id !== userId),
+    }));
+    setPendingLike(post._id, !alreadyLiked);
+    setLiking(true);
+
+    // Sync like on server
+    try {
+      const res = await handlePostLike(post._id);
+      if (res) {
+        setLatestPost(res);
+      }
+    } catch (err) {
+      console.error("Failed to sync like:", err);
+      clearPendingLike(post._id);
+    } finally {
+      setTimeout(() => setLiking(false), 200);
+    }
   };
+
+  // ✅ Early return
+  if (!authUser || !author) return null;
+  //if (!author) return <Stack>{message ?? "Author not found"}</Stack>;
+
+  const authorFullName = author ? `${author.firstName} ${author.lastName}` : "";
 
   return (
     <Card
-      key={id}
       sx={{
         backgroundColor: "unset",
         backgroundImage: "unset",
@@ -205,18 +310,22 @@ export const PostCard = ({ post, style = {} }: PostProps) => {
         gap: theme.gap(4),
         ...style,
       }}>
-      {/* Post meta details */}
+      {/* Post meta */}
       <CardHeader
         sx={{ padding: theme.boxSpacing(0, 8, 0, 4) }}
         avatar={
           <UserAvatar
-            style={{ transform: "scale(1)" }}
-            user={author!}
+            userInfo={{
+              firstName: author.firstName,
+              lastName: author.lastName,
+              profileImage: author.profileImage,
+            }}
+            style={{ width: "40px", height: "40px", fontSize: "20px" }}
             aria-label={authorFullName}
           />
         }
         action={
-          <IconButton aria-label="settings">
+          <IconButton>
             <MoreHoriz sx={{ fill: theme.palette.gray[200] }} />
           </IconButton>
         }
@@ -226,62 +335,53 @@ export const PostCard = ({ post, style = {} }: PostProps) => {
           </Typography>
         }
         subheader={
-          <Typography
-            variant="body3"
-            component="p"
-            sx={{ color: theme.palette.gray[200] }}>
-            {createdOn.toString()}
+          <Typography variant="body3" sx={{ color: theme.palette.gray[200] }}>
+            {createdAt.toString()}
           </Typography>
         }
       />
-      {/* Post content */}
+
+      {/* Content */}
       <CardContent sx={{ padding: theme.boxSpacing(0, 8) }}>
         <Typography variant="body2">{content}</Typography>
       </CardContent>
-      {/* Post media */}
-      {postImage && (
-        <CardMedia
-          component="img"
-          image={postImage}
-          alt="Post image"
-          sx={{
-            backgroundColor: "rgba(2, 2, 2, 0.03)",
-          }}
-        />
+
+      {/* Media */}
+      {postImage && postImage !== "" && (
+        <CardMedia component="img" image={postImage} alt="Post image" />
       )}
 
-      {/* Post actions */}
+      {/* Actions */}
       <CardActions sx={{ padding: theme.boxSpacing(0, 4) }} disableSpacing>
-        <Stack direction={"row"} gap={theme.gap(2)} width={"100%"}>
+        <Stack direction="row" gap={theme.gap(2)} width="100%">
           <IconButton
             sx={{
               padding: theme.boxSpacing(4),
               borderRadius: theme.radius[3],
             }}
-            aria-label="add to favorites"
             onClick={handleLike}>
             <Favorite
               sx={{
-                width: "22px",
-                marginRight: theme.boxSpacing(2),
-                ...(isLiking && {
-                  animation: `${heartBeat} 0.3s linear`,
-                }),
+                width: 22,
+                mr: theme.boxSpacing(2),
+                ...(isLiking && { animation: `${heartBeat} 0.3s linear` }),
                 fill: alreadyLiked ? red[500] : theme.palette.gray[200],
               }}
             />
             <Typography variant="body2">
-              <b>{likes.length}</b>
+              <b>{summarizeNum(likes.length)}</b>
             </Typography>
           </IconButton>
 
           <IconButton
-            sx={{ padding: theme.boxSpacing(4), borderRadius: theme.radius[3] }}
-            aria-label="add to bookmarks">
+            sx={{
+              padding: theme.boxSpacing(4),
+              borderRadius: theme.radius[3],
+            }}>
             <Bookmark
               sx={{
-                width: "22px",
-                marginRight: theme.boxSpacing(2),
+                width: 22,
+                mr: theme.boxSpacing(2),
                 fill: theme.palette.gray[200],
               }}
             />
@@ -290,8 +390,7 @@ export const PostCard = ({ post, style = {} }: PostProps) => {
             </Typography>
           </IconButton>
         </Stack>
-
-        <IconButton aria-label="share">
+        <IconButton>
           <Share sx={{ fill: theme.palette.gray[200] }} />
         </IconButton>
       </CardActions>
