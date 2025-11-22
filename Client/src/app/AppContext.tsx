@@ -1,21 +1,21 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
-import { LoginStatus } from "@/app/auth/authTypes";
-import { IUser } from "@/shared/types";
-import { Feedback } from "@/shared/types";
+import { IUser, SnackBarMsg, LoginStatus } from "@/types";
 
 interface AppContextType {
-  isLoggedIn: LoginStatus;
+  loginStatus: LoginStatus;
   setLoginStatus: React.Dispatch<React.SetStateAction<LoginStatus>>;
-  user: IUser | null;
-  setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
-  feedback: Feedback;
-  setFeedback: React.Dispatch<React.SetStateAction<Feedback>>;
-  isLoading: boolean;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  authUser: IUser | null;
+  setAuthUser: React.Dispatch<React.SetStateAction<IUser | null>>;
+  snackBarMsgs: SnackBarMsg;
+  setSnackBarMsgs: React.Dispatch<React.SetStateAction<SnackBarMsg>>;
+  inlineMsg: string | null;
+  setInlineMsg: React.Dispatch<React.SetStateAction<string | null>>;
+  isGlobalLoading: boolean;
+  setGlobalLoading: React.Dispatch<React.SetStateAction<boolean>>;
   currentPage: string;
-  setCurrentPage: React.Dispatch<React.SetStateAction<string>>;
+  setPage: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const context = createContext<AppContextType | null>(null);
@@ -24,35 +24,35 @@ export const ContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [isLoggedIn, setLoginStatus] = useState<LoginStatus>(false);
-  const [user, setUser] = useState<IUser | null>(null);
-  const [feedback, setFeedback] = useState<Feedback>({
-    message: {
-      timed: null,
-      fixed: null,
-    },
-    type: null,
-    progress: { seconds: 5, width: 100 },
+  const [loginStatus, setLoginStatus] = useState<LoginStatus>("UNKNOWN");
+  const [authUser, setAuthUser] = useState<IUser | null>(null);
+  const [snackBarMsgs, setSnackBarMsgs] = useState<SnackBarMsg>({
+    messgages: [],
+    defaultDur: 5,
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState<string>(() => {
+  const [inlineMsg, setInlineMsg] = useState<string | null>(null);
+  const [isGlobalLoading, setGlobalLoading] = useState(false);
+  const [currentPage, setPage] = useState<string>(() => {
     const savedPage = localStorage.getItem("currentPage") || "home";
     localStorage.setItem("currentPage", savedPage);
     return savedPage;
   });
+
   return (
     <context.Provider
       value={{
-        isLoggedIn,
+        loginStatus,
         setLoginStatus,
-        user,
-        setUser,
-        feedback,
-        setFeedback,
-        isLoading,
-        setIsLoading,
+        authUser,
+        setAuthUser,
+        snackBarMsgs,
+        setSnackBarMsgs,
+        inlineMsg,
+        setInlineMsg,
+        isGlobalLoading,
+        setGlobalLoading,
         currentPage,
-        setCurrentPage,
+        setPage,
       }}>
       {children}
     </context.Provider>

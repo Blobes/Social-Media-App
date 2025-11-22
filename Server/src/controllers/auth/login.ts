@@ -14,10 +14,19 @@ const loginUser = async (req: LoginRequest, res: Response): Promise<any> => {
   const { email, password } = req.body;
   try {
     const user = await UserModel.findOne({ email });
-    // Check if user exists
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    // Check if email exists
+    if (!user) {
       return res.status(400).json({
-        message: "Invalid email or password",
+        message: "Email not found. Please try again with a different email.",
+        status: "ERROR",
+        payload: null,
+      });
+    }
+
+    // Check if password is correct
+    if (!(await bcrypt.compare(password, user.password))) {
+      return res.status(400).json({
+        message: "Incorrect password",
         status: "ERROR",
         payload: null,
       });

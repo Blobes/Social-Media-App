@@ -11,10 +11,15 @@ interface RegRequest extends Request {
     password: string;
     firstName: string;
     lastName: string;
+    profileImage: string;
   };
 }
-const registerUser = async (req: RegRequest, res: Response): Promise<any> => {
-  const { email, username, password, firstName, lastName } = req.body;
+export const registerUser = async (
+  req: RegRequest,
+  res: Response
+): Promise<any> => {
+  const { email, username, password, firstName, lastName, profileImage } =
+    req.body;
 
   // Hashing password
   const salt = await bcrypt.genSalt(10);
@@ -26,6 +31,7 @@ const registerUser = async (req: RegRequest, res: Response): Promise<any> => {
     password: hashedPassword,
     firstName,
     lastName,
+    profileImage,
   });
 
   try {
@@ -55,4 +61,3 @@ const registerUser = async (req: RegRequest, res: Response): Promise<any> => {
     }
   }
 };
-export default registerUser;

@@ -3,14 +3,14 @@
 import { Stack, FormControl } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useAppContext } from "@/app/AppContext";
-import { UserAvatar } from "@/app/user/components/UserAvatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Image, PlayCircle } from "@mui/icons-material";
-import { ResponsiveTextarea } from "@/shared/components/TextArea";
-import { CustomButton } from "@/shared/components/Buttons";
+import { ResponsiveTextarea } from "@/components/TextArea";
+import { AppButton } from "@/components/Buttons";
 
 export const CreatePost = () => {
   const theme = useTheme();
-  const { user } = useAppContext();
+  const { authUser: user } = useAppContext();
   if (!user) {
     return null;
   }
@@ -33,7 +33,7 @@ export const CreatePost = () => {
           gap: theme.gap(2),
         }}>
         <UserAvatar
-          user={user}
+          userInfo={user}
           style={{
             width: "26px",
             height: "26px",
@@ -52,10 +52,9 @@ export const CreatePost = () => {
           flexDirection: "row",
           alignItems: "center",
         }}>
-        <CustomButton
+        <AppButton
           variant="contained"
-          label="Image"
-          icon={<Image sx={{ width: "20px", fill: "#E9741B" }} />}
+          iconLeft={<Image sx={{ width: "20px", fill: "#E9741B" }} />}
           style={{
             fontSize: "14px",
             backgroundColor: theme.palette.gray.trans[1],
@@ -63,12 +62,12 @@ export const CreatePost = () => {
             "&:hover": {
               backgroundColor: theme.palette.gray.trans[2],
             },
-          }}
-        />
-        <CustomButton
+          }}>
+          Image
+        </AppButton>
+        <AppButton
           variant="contained"
-          label="Video"
-          icon={<PlayCircle sx={{ width: "20px", fill: "#18CD63" }} />}
+          iconLeft={<PlayCircle sx={{ width: "20px", fill: "#18CD63" }} />}
           style={{
             fontSize: "14px",
             backgroundColor: theme.palette.gray.trans[1],
@@ -76,8 +75,9 @@ export const CreatePost = () => {
             "&:hover": {
               backgroundColor: theme.palette.gray.trans[2],
             },
-          }}
-        />
+          }}>
+          Video
+        </AppButton>
       </Stack>
     </Stack>
   );

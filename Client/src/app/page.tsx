@@ -1,19 +1,17 @@
 "use client";
 
-import { Box, Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import LeftSide from "./timeline/LeftSide";
 import { Posts } from "./timeline/Posts";
-import { useAppContext } from "./AppContext";
-import { Login } from "./auth/login/Login";
-import { useStyles } from "@/shared/helpers/styles";
-import { ScrollableContainer } from "@/shared/components/Containers";
+import { useStyles } from "@/helpers/styles";
+import { ScrollableContainer } from "@/components/Containers";
 
 export default function HomePage() {
   const theme = useTheme();
   const { scrollBarStyle } = useStyles();
-  const { isLoggedIn } = useAppContext();
-  return isLoggedIn ? (
+
+  return (
     <Stack
       sx={{
         height: "100%",
@@ -46,19 +44,6 @@ export default function HomePage() {
         }}>
         Col 3
       </ScrollableContainer>
-    </Stack>
-  ) : (
-    <Stack
-      sx={{
-        height: "100%",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: theme.gap(12),
-      }}>
-      <Typography component="h4" variant="h6">
-        You are logged currently out!
-      </Typography>
-      <Login />
     </Stack>
   );
 }
