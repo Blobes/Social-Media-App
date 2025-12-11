@@ -20,12 +20,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const [origin, setOrigin] = useState("");
 
-  const excludedRoutes = [
-    window.location.origin,
-    "/auth/login",
-    "/auth/signup",
-    "/web/home",
-  ];
+  const excludedRoutes = [origin, "/auth/login", "/auth/signup", "/web/home"];
   const isExcludedRoute = excludedRoutes.includes(pathname);
   const modalRef = useRef<ModalRef>(null);
   const router = useRouter();
