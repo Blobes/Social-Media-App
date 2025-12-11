@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { IUser, SnackBarMsg, LoginStatus } from "@/types";
 
 interface AppContextType {
@@ -14,6 +14,8 @@ interface AppContextType {
   setInlineMsg: React.Dispatch<React.SetStateAction<string | null>>;
   isGlobalLoading: boolean;
   setGlobalLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  isAuthLoading: boolean;
+  setAuthLoading: React.Dispatch<React.SetStateAction<boolean>>;
   currentPage: string;
   setPage: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -32,11 +34,14 @@ export const ContextProvider = ({
   });
   const [inlineMsg, setInlineMsg] = useState<string | null>(null);
   const [isGlobalLoading, setGlobalLoading] = useState(false);
+  const [isAuthLoading, setAuthLoading] = useState(false);
   const [currentPage, setPage] = useState<string>(() => {
-    const savedPage = localStorage.getItem("currentPage") || "home";
-    localStorage.setItem("currentPage", savedPage);
-    return savedPage;
+    return localStorage.getItem("currentPage") || "";
   });
+
+  useEffect(() => {
+    localStorage.setItem("currentPage", currentPage);
+  }, [currentPage]);
 
   return (
     <context.Provider
@@ -51,6 +56,8 @@ export const ContextProvider = ({
         setInlineMsg,
         isGlobalLoading,
         setGlobalLoading,
+        isAuthLoading,
+        setAuthLoading,
         currentPage,
         setPage,
       }}>

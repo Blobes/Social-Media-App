@@ -56,5 +56,5 @@ export const checkEmail = async (req: Request, res: Response): Promise<any> => {
     return res.status(400).json({ message: "email query is required" });
   }
   const exists = await UserModel.exists({ email });
-  return res.json({ IsAvailable: !exists });
+  return res.json({ emailNotTaken: !exists });
 };

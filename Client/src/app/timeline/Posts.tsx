@@ -10,18 +10,21 @@ import { Post } from "@/types";
 import { usePost } from "./postHooks";
 import { HourglassEmptyOutlined } from "@mui/icons-material";
 import { useAppContext } from "../AppContext";
-import { getCookie, setCookie } from "@/helpers/others";
+import { delay, getCookie, setCookie } from "@/helpers/others";
 
 export const Posts = () => {
   const theme = useTheme();
   const { getAllPost } = usePost();
   const [posts, setPosts] = useState<Post[]>([]);
   const [message, setMessage] = useState<string | null>(null);
-  const { loginStatus, isGlobalLoading, setGlobalLoading } = useAppContext();
+  const { loginStatus } = useAppContext();
+  const [isLoading, setLoading] = useState(false);
 
   const renderPosts = async () => {
-    setGlobalLoading(true);
     try {
+      setLoading(true);
+      await delay();
+
       const res = await getAllPost();
       const offlinePosts = getCookie("offlinePosts");
 
@@ -37,7 +40,7 @@ export const Posts = () => {
         setMessage("Login to view posts");
       }
     } finally {
-      setGlobalLoading(false);
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -55,51 +58,25 @@ export const Posts = () => {
       }}>
       <CreatePost />
 
-      {isGlobalLoading && posts.length < 1 ? (
+      {isLoading ? (
         <CircularProgress size={40} />
-      ) : !isGlobalLoading && posts.length < 1 ? (
+      ) : posts.length < 1 ? (
         <Stack>
           <HourglassEmptyOutlined
             sx={{ transform: "scale(1.5)", stroke: theme.palette.gray[200] }}
           />
-          <Typography variant="h6" component={"h6"}>
-            No post available!
-          </Typography>
+          <Typography variant="h6">No post available!</Typography>
         </Stack>
-      ) : isGlobalLoading === false && posts && posts.length > 0 ? (
+      ) : (
         <Stack
           sx={{
             gap: "unset",
             height: "fit-content",
             padding: theme.boxSpacing(0),
           }}>
-          {posts.map((post) => {
-            return (
-              <PostCard
-                key={post._id}
-                post={{
-                  _id: post._id,
-                  authorId: post.authorId,
-                  content: post.content,
-                  postImage: post.postImage,
-                  likes: post.likes,
-                  createdAt: post.createdAt,
-                }}
-                style={{
-                  borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
-                }}
-              />
-            );
-          })}
-        </Stack>
-      ) : (
-        <Stack>
-          <HourglassEmptyOutlined
-            sx={{ transform: "scale(1.5)", stroke: theme.palette.gray[200] }}
-          />
-          <Typography variant="h6" component={"h6"}>
-            {message}
-          </Typography>
+          {posts.map((post) => (
+            <PostCard key={post._id} post={post} />
+          ))}
         </Stack>
       )}
     </ScrollableContainer>

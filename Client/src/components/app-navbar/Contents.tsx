@@ -17,7 +17,7 @@ import {
   AccountCircle,
   Mail,
 } from "@mui/icons-material";
-import { useAuth } from "@/app/auth/authHooks";
+import { useAuth } from "@/app/auth/login/authHooks";
 import { NavItem, GenericObject } from "@/types";
 import { UserAvatar } from "../UserAvatar";
 import { AppButton } from "../Buttons";
@@ -29,10 +29,15 @@ import { summarizeNum } from "@/helpers/others";
 export const useContent = () => {
   const { handleLogout } = useAuth(); // Access logout logic
   const theme = useTheme(); // Access current theme for styling
+  const { loginStatus } = useAppContext();
 
   // Navigation items visible to all users
   const defaultNavList: NavItem[] = [
-    { title: "Home", element: <Home />, url: "#" },
+    {
+      title: loginStatus === "AUTHENTICATED" ? "Timeline" : "Home",
+      element: <Home />,
+      url: loginStatus === "AUTHENTICATED" ? "/timeline" : "/web/home",
+    },
     {
       title: "Explore",
       element: <Notifications />,
@@ -121,14 +126,10 @@ export const useContent = () => {
           return (
             <NavItemWrapper
               key={index}
-              href={item.url || "#"}
+              href={!isCurrent ? item.url : "#"}
               onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                e.preventDefault();
                 if (item.action) item.action();
-                if (item.title) {
-                  const page = item.title.toLowerCase();
-                  setCurrentPage(page);
-                }
+                if (item.title) setCurrentPage(item.title.toLowerCase());
                 if (closePopup) closePopup();
               }}
               aria-current={isCurrent ? "page" : undefined}

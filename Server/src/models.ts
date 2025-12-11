@@ -6,43 +6,53 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
     password: {
       type: String,
       required: true,
     },
-    isEmailVerified: {
+    phoneNumber: String,
+    isPhoneVerified: {
       type: Boolean,
       default: false,
     },
     username: {
       type: String,
-      required: function (this: any) {
-        return this.isEmailVerified;
-      },
       unique: true,
+      sparse: true,
     },
     firstName: {
       type: String,
-      required: function (this: any) {
-        return this.isEmailVerified;
-      },
+      required: true,
     },
     lastName: {
       type: String,
-      required: function (this: any) {
-        return this.isEmailVerified;
-      },
+      required: true,
     },
     isAdmin: {
       type: Boolean,
       default: false,
     },
+    verificationCode: String, // hashed code
+    verificationExpiry: Date,
+    gender: String,
+    dateOfBirth: String,
     profileImage: String,
     coverImage: String,
     about: String,
     location: String,
-    worksAt: String,
+    onboardingStep: {
+      type: String,
+      default: null,
+    },
+    country: { type: String, default: null },
+    state: { type: String, default: null },
+    occupation: String,
     relationship: String,
+    interests: [],
     followers: [
       {
         type: mongoose.Schema.Types.ObjectId,

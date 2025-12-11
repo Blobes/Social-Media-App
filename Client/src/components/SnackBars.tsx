@@ -73,7 +73,7 @@ export const SnackBars = ({
           animation: isTimed ? boxAnimation : "none",
         }}>
         {msg.msgStatus === "SUCCESS" ? (
-          <CheckCircle />
+          <CheckCircle sx={{ fill: theme.palette.success.main }} />
         ) : msg.msgStatus === "INFO" ? (
           <Info />
         ) : (

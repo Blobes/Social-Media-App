@@ -12,8 +12,11 @@ interface UserInfoRequest extends AuthRequest {
     profileImage: string;
     coverImage: string;
     about: string;
+    gender: string;
+    dateOfBirth: string;
+    interests: string[];
     location: string;
-    worksAt: string;
+    occupation: string;
     relationship: string;
   };
 }
@@ -39,7 +42,7 @@ export const updateUserInfo = async (
     coverImage,
     about,
     location,
-    worksAt,
+    occupation,
     relationship,
   } = req.body;
 
@@ -68,7 +71,7 @@ export const updateUserInfo = async (
       coverImage,
       about,
       location,
-      worksAt,
+      occupation,
       relationship,
     };
 

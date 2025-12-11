@@ -7,6 +7,7 @@ import {
   Stack,
   useMediaQuery,
   IconButton,
+  Link,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useAppContext } from "@/app/AppContext";
@@ -60,11 +61,13 @@ export const Header: React.FC = () => {
           gap: theme.gap(6),
         }}>
         {/* Brand Logo */}
-        <img
-          alt="logo"
-          src="/assets/images/logo.png"
-          style={{ borderRadius: `${theme.radius[2]}`, width: "40px" }}
-        />
+        <Link href="/web/home" onClick={() => setCurrentPage("home")}>
+          <img
+            alt="logo"
+            src="/assets/images/logo.png"
+            style={{ borderRadius: `${theme.radius[2]}`, width: "40px" }}
+          />
+        </Link>
 
         {/* Search bar centered in header */}
         <SearchBar />

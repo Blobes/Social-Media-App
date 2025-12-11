@@ -1,21 +1,40 @@
 "use client";
 
-import { Login } from "@/app/auth/login/Login";
 import { useTheme } from "@mui/material/styles";
 import { useAppContext } from "@/app/AppContext";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { AuthStepper } from "./AuthStepper";
+import { Stack } from "@mui/material";
 
 export default function LoginPage() {
   const theme = useTheme();
-  const { loginStatus, currentPage } = useAppContext();
+  const { loginStatus } = useAppContext();
   const router = useRouter();
 
   useEffect(() => {
     if (loginStatus === "AUTHENTICATED") {
-      router.replace("/");
+      router.replace("/timeline");
     }
   });
 
-  return <Login redirectTo={currentPage} />;
+  return (
+    <Stack
+      sx={{
+        width: "100%",
+        height: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: theme.boxSpacing(10),
+      }}>
+      <AuthStepper
+        style={{
+          container: {
+            width: "400px",
+            padding: theme.boxSpacing(16, 10),
+          },
+        }}
+      />
+    </Stack>
+  );
 }

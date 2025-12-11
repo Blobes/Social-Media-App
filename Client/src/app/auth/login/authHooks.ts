@@ -5,14 +5,12 @@ import { fetcher } from "@/helpers/fetcher";
 import { IUser, SingleResponse } from "@/types";
 import { useRouter } from "next/navigation";
 import { ModalRef } from "@/components/Modal";
+import { deleteCookie, getCookie, setCookie } from "@/helpers/others";
 import {
   clearLoginLock,
-  deleteCookie,
   formatRemainingTime,
-  getCookie,
   getLockRemaining,
-  setCookie,
-} from "@/helpers/others";
+} from "@/helpers/auth";
 import { useRef } from "react";
 
 interface LoginCredentials {
@@ -21,6 +19,9 @@ interface LoginCredentials {
 }
 interface LoginResponse extends SingleResponse<IUser> {
   fixedMsg?: string;
+}
+interface CheckEmailResponse {
+  emailNotTaken: boolean;
 }
 
 export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
@@ -38,6 +39,15 @@ export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
   const loginAttempts = parseInt(getCookie("loginAttempts") || "0", 10);
   const lockTimestamp = getCookie("loginLockTime");
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
+
+  const checkEmail = async (email: string): Promise<CheckEmailResponse> => {
+    const res = await fetcher<CheckEmailResponse>("/auth/check-email", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+    console.log(res);
+    return res;
+  };
 
   const startLockCountdown = (lockTimestamp: number | string) => {
     // Prevent countdown if user isn't really locked out
@@ -145,7 +155,7 @@ export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
 
       // Step 2: Reset login status, currentPage and feedback state
       setLoginStatus("UNKNOWN");
-      setPage("home");
+      setPage("");
       setSnackBarMsgs((prev) => ({ ...prev, messgages: [], inlineMsg: null }));
 
       // Step 3: Check if stored user exists for drawer experience
@@ -160,16 +170,17 @@ export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
       } else {
         // No stored user, redirect to login
         setAuthUser(null);
-        router.replace("/auth/login");
+        router.replace("/web/home");
       }
     } catch (error) {
       console.error("Logout failed:", error);
       setAuthUser(null);
-      router.replace("/auth/login");
+      router.replace("/web/home");
     }
   };
 
   return {
+    checkEmail,
     handleLogin,
     handleLogout,
     loginAttempts,

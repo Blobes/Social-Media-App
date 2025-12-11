@@ -58,7 +58,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
       overlay,
       content: {
         width = { xs: "80%", sm: "80%", md: "40%" },
-        maxWidth = { xs: "100%", sm: "350px", md: "350px" },
+        maxWidth = { xs: "100%", sm: "350px", md: "400px" },
       } = {},
     } = style || {};
 
@@ -111,7 +111,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
           marginLeft: "0!important",
           padding: {
             xs: theme.boxSpacing(4, 2),
-            sm: theme.boxSpacing(6, 4),
+            sm: theme.boxSpacing(12, 12),
           },
           backgroundColor: theme.palette.gray.trans.overlay,
           ...(isOpen && overlay),
@@ -120,9 +120,10 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
         {/* Drawer Content Container */}
         <Stack
           sx={{
-            height: "100%",
+            maxHeight: "100%",
             width: width.xs,
             maxWidth: maxWidth.xs,
+            padding: theme.boxSpacing(10, 10),
             [theme.breakpoints.up("sm")]: {
               width: width.sm,
               maxWidth: maxWidth.sm,
@@ -130,6 +131,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
             [theme.breakpoints.up("md")]: {
               width: width.md,
               maxWidth: maxWidth.md,
+              padding: theme.boxSpacing(16, 16),
             },
             gap: theme.gap(0),
             backgroundColor: theme.palette.gray[0],

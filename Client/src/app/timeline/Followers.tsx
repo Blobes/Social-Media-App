@@ -5,6 +5,7 @@ import { useUser } from "../user/userHooks";
 import React, { useEffect, useState } from "react";
 import { HourglassEmptyOutlined } from "@mui/icons-material";
 import { FollowerCard } from "./Cards";
+import { delay } from "@/helpers/others";
 
 export const Followers = () => {
   const theme = useTheme();
@@ -12,29 +13,36 @@ export const Followers = () => {
   const [followersId, setFollowersId] = useState<any[]>();
   const [message, setMessage] = useState<string | null>(null);
   const { getFollowers } = useUser();
+  const [isLoading, setLoading] = useState(false);
 
   const renderFollowers = async () => {
     if (!authUser) return null;
     try {
+      setLoading(true);
+      await delay();
+
       const idRes = await getFollowers(authUser._id);
+
       if (idRes.payload) {
         setFollowersId(idRes.payload);
         setMessage(idRes.message);
       }
     } catch (error: any) {
       setMessage(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (authUser) renderFollowers();
-  }, [authUser]);
+    if (authUser?._id) renderFollowers();
+  }, [authUser?._id]);
 
   return (
     <>
-      {!authUser ? (
+      {isLoading ? (
         <CircularProgress size={40} />
-      ) : followersId && followersId.length < 1 ? (
+      ) : authUser && followersId && followersId.length < 1 ? (
         <Stack>
           <HourglassEmptyOutlined
             sx={{ transform: "scale(1.5)", stroke: theme.palette.gray[200] }}

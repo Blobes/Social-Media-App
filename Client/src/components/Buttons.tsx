@@ -13,7 +13,9 @@ interface ButtonProps {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   href?: string;
   options?: GenericObject<any>;
+  submit?: boolean;
 }
+
 export const AppButton = ({
   variant = "contained",
   children = "children",
@@ -23,7 +25,8 @@ export const AppButton = ({
   overrideStyle = "partial",
   onClick,
   href,
-  options,
+  options = {},
+  submit = false,
 }: ButtonProps) => {
   const theme = useTheme();
 
@@ -36,20 +39,34 @@ export const AppButton = ({
     display: "flex",
     gap: theme.gap(2),
     alignItems: "center",
-    color: theme.palette.gray[300],
   };
+
   const mergedStyle =
     overrideStyle === "full" ? style : { ...defaultStyle, ...style };
-  return href ? (
-    <AnchorLink url={href}>
-      <Button variant={variant} sx={mergedStyle} onClick={onClick}>
-        {iconLeft}
-        {children}
-        {iconRight}
-      </Button>
-    </AnchorLink>
-  ) : (
-    <Button variant={variant} sx={mergedStyle} onClick={onClick} {...options}>
+  // If it's a link, wrap button inside AnchorLink
+  if (href) {
+    return (
+      <AnchorLink url={href}>
+        <Button
+          variant={variant}
+          sx={mergedStyle}
+          onClick={onClick}
+          {...options}>
+          {iconLeft}
+          {children}
+          {iconRight}
+        </Button>
+      </AnchorLink>
+    );
+  }
+  // Normal button OR form submit button
+  return (
+    <Button
+      variant={variant}
+      sx={mergedStyle}
+      type={submit ? "submit" : "button"}
+      onClick={!submit ? onClick : undefined} // Only attach onClick if NOT submit
+      {...options}>
       {iconLeft}
       {children}
       {iconRight}

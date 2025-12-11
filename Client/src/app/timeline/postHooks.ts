@@ -1,8 +1,6 @@
 "use client";
 
-import { useAppContext } from "@/app/AppContext";
 import { fetcher } from "@/helpers/fetcher";
-import { useSharedHooks } from "@/hooks";
 import { Post, SingleResponse, ListResponse } from "@/types";
 import { useCallback } from "react";
 import {
@@ -11,7 +9,7 @@ import {
   clearPendingLike,
   enqueueLike,
   processQueue,
-} from "@/helpers/others";
+} from "@/helpers/post";
 
 export const usePost = () => {
   const getAllPost = async (): Promise<{

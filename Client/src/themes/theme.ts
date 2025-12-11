@@ -10,8 +10,8 @@ let designSystem = createTheme({
     light: {
       palette: {
         primary: {
-          main: "#5f8a2e",
-          dark: "#416a24",
+          main: "#506AFF",
+          dark: "#4355DC",
         },
         gray: {
           0: "#ffffff",
@@ -26,9 +26,9 @@ let designSystem = createTheme({
           },
         },
         success: {
-          light: green[100],
-          main: green["A700"],
-          dark: "#1C300F",
+          light: "#CBD3F1",
+          main: "#425BEF",
+          dark: "#161C3D",
         },
         error: {
           light: red[50],
@@ -42,8 +42,8 @@ let designSystem = createTheme({
     dark: {
       palette: {
         primary: {
-          main: "#78B44E",
-          dark: "#588c35",
+          main: "#6F81EE",
+          dark: "#4355DC",
         },
         gray: {
           0: grey[900],
@@ -52,19 +52,19 @@ let designSystem = createTheme({
           200: grey[500],
           300: "#ffffff",
           trans: {
-            1: "rgba(255, 255, 255, 0.09)",
+            1: "rgba(255, 255, 255, 0.08)",
             2: "rgba(255, 255, 255, 0.20)",
             overlay: "rgba(0, 0, 0, 0.50)",
           },
         },
         success: {
-          light: "#142509",
-          main: "#0AB936",
-          dark: green[100],
+          light: "#10142C",
+          main: "#506AFF",
+          dark: "#BBC4E8",
         },
         error: {
           light: "#1D0505",
-          main: red[400],
+          main: red[300],
           dark: red[100],
         },
         tonalOffset: 0.6,
@@ -75,24 +75,24 @@ let designSystem = createTheme({
   // Fixed colors
   fixedColors: {
     gray50: grey[50],
-    gray800: grey[800],
-    mainTrans: "rgba(72, 118, 38, 0.16)",
+    gray800: "#333437",
+    mainTrans: "rgba(63, 121, 228, 0.14)",
   },
 
   // Overriding & Setting Typography
   typography: {
-    fontFamily: "'Cabinet Grotesk', Arial, sans-serif",
-    h1: { fontWeight: 400 },
-    h2: { fontWeight: 400 },
-    h4: { fontWeight: 500 },
-    h5: { fontWeight: 400 },
+    fontFamily: "'Manrope','Cabinet Grotesk', Arial, sans-serif",
+    h1: { fontWeight: 600 },
+    h2: { fontWeight: 600 },
+    h4: { fontWeight: 600 },
+    h5: { fontWeight: 600, fontSize: "26px" },
     h6: { fontSize: "24px" },
     subtitle1: {
       fontSize: "20px",
       fontWeight: 600,
     },
     body1: { fontSize: "18px" },
-    body2: { fontSize: "16px" },
+    body2: { fontSize: "15px" },
     body3: { fontSize: "14px" },
     caption: {},
     overline: {},

@@ -3,15 +3,14 @@
 import React from "react";
 import Tooltip, { TooltipProps } from "@mui/material/Tooltip";
 import Zoom from "@mui/material/Zoom";
-import { Box } from "@mui/material";
+import { Fade } from "@mui/material";
 
 export const BasicTooltip = ({ className, ...props }: TooltipProps) => {
   return (
     <Tooltip
       {...props}
-      TransitionComponent={Zoom}
-      leaveDelay={200}
-      arrow
+      TransitionComponent={Fade}
+      leaveDelay={300}
       classes={{ popper: className }}
     />
   );

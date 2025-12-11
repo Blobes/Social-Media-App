@@ -86,3 +86,15 @@ export interface ListResponse<T> {
   payload?: T[] | null;
   status: ResponseStatus;
 }
+
+export interface InputValidation {
+  status: "valid" | "invalid";
+  message: string;
+}
+
+export interface Step {
+  name: string;
+  element: React.ReactNode;
+  action?: () => void;
+  allowPrevious?: boolean;
+}

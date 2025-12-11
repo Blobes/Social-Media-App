@@ -10,16 +10,21 @@ import { useAppContext } from "./AppContext";
 import { Footer } from "@/components/Footer";
 import { Modal, ModalRef } from "@/components/Modal";
 import { useRouter } from "next/navigation";
-import { Login } from "./auth/login/Login";
 import { getCookie } from "@/helpers/others";
 import { IUser } from "@/types";
 import { fetchUserWithTokenCheck } from "@/helpers/fetcher";
 import { useSharedHooks } from "@/hooks";
+import { AuthStepper } from "./auth/login/AuthStepper";
 
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
-  const excludedRoutes = ["/auth/login"];
-  const shouldRender = !excludedRoutes.includes(pathname);
+  const excludedRoutes = [
+    window.location.origin,
+    "/auth/login",
+    "/auth/signup",
+    "/web/home",
+  ];
+  const isExcludedRoute = excludedRoutes.includes(pathname);
   const modalRef = useRef<ModalRef>(null);
   const router = useRouter();
   const { setSBMessage } = useSharedHooks();
@@ -29,6 +34,8 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     loginStatus,
     setLoginStatus,
     setInlineMsg,
+    currentPage,
+    setPage,
   } = useAppContext();
 
   useEffect(() => {
@@ -57,7 +64,8 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         return;
       }
       setLoginStatus("UNAUTHENTICATED");
-      router.replace("/auth/login");
+      setPage("/web/home");
+      !isExcludedRoute && router.replace(currentPage);
     };
 
     // Verify auth once when component mounts
@@ -112,24 +120,24 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <Stack sx={{ position: "fixed", height: "100vh", width: "100%", gap: 0 }}>
       <BlurEffect />
-      {shouldRender && <Header />}
+      {!["/auth/login", "/auth/signup"].includes(pathname) && <Header />}
       {snackBarMsgs.messgages && <SnackBars snackBarMsg={snackBarMsgs} />}
       {children}
-      {shouldRender && (
+      {!isExcludedRoute && (
         <>
           <Modal
             ref={modalRef}
             children={{
               contentElement: (
-                <Login modalRef={modalRef} redirectTo={pathname} />
+                <AuthStepper modalRef={modalRef} redirectTo={currentPage} />
               ),
             }}
             shouldClose={false}
             entryDir="CENTER"
           />
-          <Footer />
         </>
       )}
+      <Footer />
     </Stack>
   );
 };

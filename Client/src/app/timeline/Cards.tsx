@@ -15,7 +15,6 @@ import { useTheme } from "@mui/material/styles";
 import { useAppContext } from "@/app/AppContext";
 import Image from "next/image";
 import { UserAvatar } from "@/components/UserAvatar";
-import { userData as users } from "@/data/userData";
 import { Favorite, Share, MoreHoriz, Bookmark } from "@mui/icons-material";
 import { useUser } from "@/app/user/userHooks";
 import { GenericObject, IUser, SingleResponse } from "@/types";
@@ -26,7 +25,6 @@ import { Post } from "@/types";
 import { red } from "@mui/material/colors";
 import { AnchorLink, AppButton } from "@/components/Buttons";
 import { fetcher } from "@/helpers/fetcher";
-import { useSharedHooks } from "@/hooks";
 import { summarizeNum } from "@/helpers/others";
 import { Strip } from "@/components/StripBar";
 
@@ -172,6 +170,7 @@ export const FollowerCard = ({ followerId }: FollowerProps) => {
           flexDirection: "row",
           gap: theme.gap(4),
           textDecoration: "none",
+          alignItems: "center",
         }}>
         <UserAvatar
           userInfo={{ firstName, lastName, profileImage }}
@@ -180,10 +179,11 @@ export const FollowerCard = ({ followerId }: FollowerProps) => {
             height: "35px",
           }}
         />
-        <Stack sx={{ width: "100%", gap: theme.gap(2) }}>
+        <Stack sx={{ width: "100%", gap: theme.gap(0) }}>
           <Typography
             variant="body2"
             fontWeight={600}
+            noWrap={true}
             sx={{ textAlign: "left" }}>
             {`${firstName} ${lastName}`}
           </Typography>
@@ -294,7 +294,6 @@ export const PostCard = ({ post, style = {} }: PostProps) => {
 
   // ✅ Early return
   if (!authUser || !author) return null;
-  //if (!author) return <Stack>{message ?? "Author not found"}</Stack>;
 
   const authorFullName = author ? `${author.firstName} ${author.lastName}` : "";
 
@@ -310,7 +309,7 @@ export const PostCard = ({ post, style = {} }: PostProps) => {
         gap: theme.gap(4),
         ...style,
       }}>
-      {/* Post meta */}
+      {/* Post Header */}
       <CardHeader
         sx={{ padding: theme.boxSpacing(0, 8, 0, 4) }}
         avatar={

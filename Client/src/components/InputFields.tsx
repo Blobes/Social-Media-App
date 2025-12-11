@@ -1,6 +1,5 @@
-import { styled } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import { IconButton, InputAdornment, TextField } from "@mui/material";
-import { GenericObject } from "../types";
 import { useState } from "react";
 import { AccountCircle, Visibility, VisibilityOff } from "@mui/icons-material";
 
@@ -8,12 +7,14 @@ interface TextInputProps {
   variant?: "outlined" | "filled";
   id?: string;
   type?: "text" | "number" | "email" | "search" | "password";
+  defaultValue?: string;
   placeholder?: string;
   label?: string;
   helperText?: string;
   required?: boolean;
   disabled?: boolean;
   error?: boolean;
+
   onChange?: (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => void;
@@ -28,6 +29,7 @@ export const TextInput = ({
   variant = "outlined",
   id = "",
   type = "text",
+  defaultValue,
   placeholder = "Type here...",
   label = "Input Label",
   helperText = "",
@@ -38,28 +40,27 @@ export const TextInput = ({
   onFocus,
   onBlur,
 }: TextInputProps) => {
-  const [focused, setFocused] = useState(false);
-  // const [value, setValue] = useState("");
   return (
     <TextField
       variant={variant}
       id={id}
       type={type}
+      defaultValue={defaultValue}
       placeholder={placeholder}
       label={label}
       helperText={helperText}
       required={required}
       disabled={disabled}
       error={error}
+      size="small"
+      fullWidth
       onChange={(e) => {
         onChange && onChange(e);
       }}
       onFocus={(e) => {
-        setFocused(true);
         onFocus && onFocus(e);
       }}
       onBlur={(e) => {
-        setFocused(false);
         onBlur && onBlur(e);
       }}
     />
@@ -74,6 +75,7 @@ export const AffixedInput = ({
   variant = "outlined",
   id = "",
   type = "text",
+  defaultValue,
   placeholder = "Type here...",
   label = "Input Label",
   helperText = "",
@@ -86,18 +88,20 @@ export const AffixedInput = ({
   onFocus,
   onBlur,
 }: AffixedInputProps) => {
-  const [focused, setFocused] = useState(false);
   return (
     <TextField
       variant={variant}
       id={id}
       type={type}
+      defaultValue={defaultValue}
       placeholder={placeholder}
       label={label}
       helperText={helperText}
       required={required}
       disabled={disabled}
       error={error}
+      size="small"
+      fullWidth
       slotProps={{
         input: {
           [affixPosition === "start" ? "startAdornment" : "endAdornment"]: (
@@ -109,11 +113,9 @@ export const AffixedInput = ({
         onChange && onChange(e);
       }}
       onFocus={(e) => {
-        setFocused(true);
         onFocus && onFocus(e);
       }}
       onBlur={(e) => {
-        setFocused(false);
         onBlur && onBlur(e);
       }}
     />
@@ -124,6 +126,7 @@ export const AffixedInput = ({
 export const PasswordInput = ({
   variant = "outlined",
   id = "",
+  defaultValue,
   placeholder = "Type here...",
   label = "Input Label",
   helperText = "",
@@ -132,9 +135,10 @@ export const PasswordInput = ({
   error = false,
   affixPosition = "end",
   onBlur,
+  onChange,
+  onFocus,
 }: AffixedInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
-
   const toggleShowPassword = () => setShowPassword((show) => !show);
   const handleMouseDown = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -142,17 +146,21 @@ export const PasswordInput = ({
   const handleMouseUp = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
+  const theme = useTheme();
   return (
     <TextField
       variant={variant}
       id={id}
       type={showPassword ? "text" : "password"}
+      defaultValue={defaultValue}
       placeholder={placeholder}
       label={label}
       helperText={helperText}
       required={required}
       disabled={disabled}
       error={error}
+      size="small"
+      fullWidth
       slotProps={{
         input: {
           [affixPosition === "start" ? "startAdornment" : "endAdornment"]: (
@@ -165,7 +173,11 @@ export const PasswordInput = ({
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
                 edge="end">
-                {showPassword ? <VisibilityOff /> : <Visibility />}
+                {showPassword ? (
+                  <Visibility sx={{ fill: theme.palette.gray[200] }} />
+                ) : (
+                  <VisibilityOff sx={{ fill: theme.palette.gray[200] }} />
+                )}
               </IconButton>
             </InputAdornment>
           ),
@@ -173,6 +185,12 @@ export const PasswordInput = ({
       }}
       onBlur={(e) => {
         onBlur && onBlur(e);
+      }}
+      onChange={(e) => {
+        onChange && onChange(e);
+      }}
+      onFocus={(e) => {
+        onFocus && onFocus(e);
       }}
     />
   );

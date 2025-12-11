@@ -1,23 +1,41 @@
 "use client";
 
-import { useAuth } from "@/app/auth/authHooks";
+import { useAuth } from "@/app/auth/login/authHooks";
 import { CircularProgress, Stack, Typography } from "@mui/material";
 import { useAppContext } from "@/app/AppContext";
 import { AppButton } from "@/components/Buttons";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import { ModalRef } from "@/components/Modal";
-import { setCookie } from "@/helpers/others";
+import { delay, setCookie } from "@/helpers/others";
 import { useEffect, useState } from "react";
 import { useSharedHooks } from "@/hooks";
-import { ResponseStatus } from "@/types";
+import { PasswordInput } from "@/components/InputFields";
+import { InlineMsg } from "@/components/InlineMsg";
+import { Edit } from "@mui/icons-material";
+import { BasicTooltip } from "@/components/Tooltips";
+import { GenericObject } from "@/types";
 
 interface LoginProps {
+  email: string;
+  step?: string;
+  setStep?: (step: string) => void;
   modalRef?: React.RefObject<ModalRef>;
   redirectTo?: string;
+  style?: {
+    headline?: GenericObject<string>;
+    tagline?: GenericObject<string>;
+  };
 }
 
-export const Login: React.FC<LoginProps> = ({ modalRef, redirectTo }) => {
+export const Login: React.FC<LoginProps> = ({
+  email,
+  step,
+  setStep,
+  modalRef,
+  redirectTo,
+  style = {},
+}) => {
   const {
     handleLogin,
     loginAttempts,
@@ -28,25 +46,49 @@ export const Login: React.FC<LoginProps> = ({ modalRef, redirectTo }) => {
   const {
     inlineMsg,
     setInlineMsg,
-    isGlobalLoading,
-    setGlobalLoading,
+    isAuthLoading,
+    setAuthLoading,
     setAuthUser,
     setLoginStatus,
   } = useAppContext();
   const { setSBMessage, setCurrentPage } = useSharedHooks();
-  const [inlineStatus, setInlineStatus] = useState<ResponseStatus>(null);
+  const [msg, setMsg] = useState("");
+  const [passwordValidity, setPasswordValidity] = useState<
+    "valid" | "invalid"
+  >();
+  const [password, setPassword] = useState("");
   const theme = useTheme();
   const router = useRouter();
 
   useEffect(() => {
     startLockCountdown(Number(lockTimestamp));
-  }, []);
+    setInlineMsg(null);
+  }, [step]);
 
-  const handleSubmit = async () => {
-    setGlobalLoading(true);
+  const onPasswordChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    if (value.length >= 6) {
+      setPassword(e.target.value);
+      setPasswordValidity("valid");
+      setMsg("");
+    } else if (value.length === 0) {
+      setPasswordValidity("invalid");
+      setMsg("Password is required.");
+    } else {
+      setPasswordValidity(undefined);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    await delay();
+
     const res = await handleLogin({
-      email: "nick@gmail.co",
-      password: "nick123",
+      email: email,
+      password: password,
     });
     if (res) {
       const { payload, message: timedMsg, fixedMsg, status } = res;
@@ -55,49 +97,111 @@ export const Login: React.FC<LoginProps> = ({ modalRef, redirectTo }) => {
         setLoginStatus("AUTHENTICATED");
         setAuthUser(res.payload);
 
-        !isGlobalLoading &&
+        !isAuthLoading &&
           setSBMessage({
             msg: { content: timedMsg, msgStatus: status },
           });
 
         const page =
-          redirectTo === undefined || redirectTo === null || redirectTo === "/"
-            ? "home"
-            : redirectTo.split("/").filter(Boolean).pop() || "";
+          redirectTo === undefined || redirectTo === null || redirectTo === ""
+            ? "timeline"
+            : redirectTo || "";
         setCurrentPage(page);
         setCookie("user", JSON.stringify(res), 60 * 24);
 
-        // Close drawer
-        modalRef?.current?.closeModal();
-        router.push(redirectTo || "");
+        setStep?.("email");
+        modalRef?.current?.closeModal(); // Close drawer
+        router.push(page || "");
       } else {
         setInlineMsg(fixedMsg ?? null);
-        setInlineStatus(status);
       }
     }
-    setGlobalLoading(false);
+    setAuthLoading(false);
   };
 
   return (
-    <Stack
-      sx={{
-        height: "100%",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: theme.gap(12),
-      }}>
-      <Typography component="h4" variant="h6">
-        You are logged currently out!
-      </Typography>
-      {inlineMsg && <Typography variant="body2">{inlineMsg}</Typography>}
-      <AppButton
-        variant="contained"
-        {...(isGlobalLoading && { iconLeft: <CircularProgress size={40} /> })}
-        onClick={handleSubmit}
-        style={{ fontSize: "16px", padding: theme.boxSpacing(2, 8) }}
-        options={{ disabled: loginAttempts >= MAX_ATTEMPTS }}>
-        Login
-      </AppButton>
-    </Stack>
+    <>
+      <Stack>
+        <Typography
+          component="h4"
+          variant="h5"
+          sx={{ textAlign: "center", ...style.headline }}>
+          Welcome back buzzer!
+        </Typography>
+        <Typography
+          component="p"
+          variant="body2"
+          sx={{
+            color: theme.palette.gray[200],
+            paddingBottom: theme.boxSpacing(8),
+            textAlign: "center",
+            ...style.tagline,
+          }}>
+          Enter your password to login.
+        </Typography>
+      </Stack>
+
+      {inlineMsg && <InlineMsg msg={inlineMsg} type="ERROR" />}
+
+      <Stack
+        sx={{ gap: theme.gap(8) }}
+        component="form"
+        onSubmit={handleSubmit}>
+        <Stack direction="row">
+          <Typography
+            component="p"
+            variant="body2"
+            sx={{
+              textAlign: "left",
+              padding: theme.boxSpacing(4, 6),
+              borderRadius: theme.radius[2],
+              color: theme.palette.gray[200],
+              border: `1px solid ${theme.palette.gray.trans[1]}`,
+              backgroundColor: theme.palette.gray.trans[1],
+              width: "100%",
+            }}>
+            {email}
+          </Typography>
+          <AppButton
+            variant="outlined"
+            style={{
+              padding: theme.boxSpacing(3, 4),
+              color: theme.palette.gray[200],
+              borderColor: theme.palette.gray[100],
+            }}
+            onClick={() => {
+              setStep?.("email");
+            }}>
+            <BasicTooltip title={"Change email"}>
+              <Edit sx={{ width: "20px" }} />
+            </BasicTooltip>
+          </AppButton>
+        </Stack>
+        <PasswordInput
+          label="Password"
+          placeholder="Password"
+          onChange={onPasswordChange}
+          helperText={msg}
+          error={password === "" && passwordValidity === "invalid"}
+        />
+        <AppButton
+          variant="contained"
+          {...(isAuthLoading && { iconLeft: <CircularProgress size={30} /> })}
+          submit
+          style={{
+            fontSize: "16px",
+            padding: theme.boxSpacing(3, 8),
+            width: "100%",
+          }}
+          options={{
+            disabled:
+              passwordValidity === "invalid" ||
+              password === "" ||
+              loginAttempts >= MAX_ATTEMPTS,
+          }}>
+          {!isAuthLoading && "Login"}
+        </AppButton>
+      </Stack>
+    </>
   );
 };

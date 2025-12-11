@@ -47,10 +47,12 @@ export const fetcher = async <T>(
     throw error;
   }
 };
+
 interface TokenCheckResponse {
   payload: IUser | null;
   message?: string;
 }
+
 export const fetchUserWithTokenCheck =
   async (): Promise<TokenCheckResponse> => {
     try {

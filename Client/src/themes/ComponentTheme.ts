@@ -1,6 +1,7 @@
 "use client";
 
 import { createTheme } from "@mui/material/styles";
+import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 
 // Theme configuration
 const componentTheme = createTheme({
@@ -38,6 +39,11 @@ const componentTheme = createTheme({
             "&:hover": {
               backgroundColor: theme.palette.primary.dark,
             },
+            "&:disabled": {
+              backgroundColor: theme.palette.primary.main,
+              color: theme.fixedColors.gray50,
+              opacity: 0.6,
+            },
           }),
         outlined: ({ theme }) =>
           theme.unstable_sx({
@@ -56,10 +62,10 @@ const componentTheme = createTheme({
       styleOverrides: {
         tooltip: ({ theme }) =>
           theme.unstable_sx({
-            padding: theme.boxSpacing(3, 7),
+            padding: theme.boxSpacing(3, 6),
             backgroundColor: theme.fixedColors.gray800,
             color: theme.fixedColors.gray50,
-            fontSize: "14px",
+            fontSize: "13px",
             borderRadius: theme.radius[1],
             maxWidth: 420,
             margin: theme.boxSpacing(0, 6),
@@ -67,7 +73,7 @@ const componentTheme = createTheme({
         arrow: ({ theme }) =>
           theme.unstable_sx({
             color: theme.fixedColors.gray800,
-            fontSize: "16px",
+            fontSize: "13px",
           }),
       },
     },
@@ -197,6 +203,51 @@ const componentTheme = createTheme({
           theme.unstable_sx({
             width: "100%",
             margin: theme.boxSpacing(4, 0),
+          }),
+      },
+    },
+
+    MuiTextField: {
+      styleOverrides: {
+        root: ({ theme }) =>
+          theme.unstable_sx({
+            "--TextField-default": theme.palette.gray[50],
+            "--TextField-success": theme.palette.success.main,
+            "--TextField-error": theme.palette.error.main,
+
+            "& .MuiInputBase-input": {
+              fontSize: "15px",
+            },
+            "& label": {
+              fontSize: "14px",
+            },
+            "& label.Mui-error": {
+              color: "var(--TextField-error)",
+            },
+            "& label.Mui-focused, & label.MuiInputLabel-shrink": {
+              transform: "translate(14px, -9px) scale(0.95)",
+            },
+
+            "& .MuiFormHelperText-root": {
+              fontSize: "13px",
+              lineHeight: "1.2em",
+              margin: theme.boxSpacing(2, 0, 0, 0),
+            },
+          }),
+      },
+    },
+
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: ({ theme }) =>
+          theme.unstable_sx({
+            borderColor: "var(--TextField-default)",
+            borderRadius: theme.radius[2],
+            maxWidth: "600px",
+            minWidth: "150px",
+            [`& .Mui-error .${outlinedInputClasses.notchedOutline}`]: {
+              borderColor: "var(--TextField-error)",
+            },
           }),
       },
     },

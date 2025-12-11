@@ -7,11 +7,17 @@ import userRoutes from "@/routes/userRoutes";
 import postRoutes from "@/routes/postRoutes";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import path from "path";
 
-dotenv.config();
+dotenv.config({
+  path: path.resolve(
+    process.cwd(),
+    `.env.${process.env.NODE_ENV || "development"}`
+  ),
+});
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 4000;
 const mongoUri = process.env.MONGO_URI || "";
 
 // ====== Middlewares ======
