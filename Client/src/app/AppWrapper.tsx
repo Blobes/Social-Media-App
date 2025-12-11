@@ -17,9 +17,21 @@ import { useSharedHooks } from "@/hooks";
 import { AuthStepper } from "./auth/login/AuthStepper";
 
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
+  if (
+    typeof window === "undefined" ||
+    typeof document === "undefined" ||
+    typeof navigator === "undefined"
+  )
+    return;
+
   const pathname = usePathname();
-  const page = typeof window !== "undefined" ? window.location.origin : "";
-  const excludedRoutes = [page, "/auth/login", "/auth/signup", "/web/home"];
+
+  const excludedRoutes = [
+    window.location.origin,
+    "/auth/login",
+    "/auth/signup",
+    "/web/home",
+  ];
   const isExcludedRoute = excludedRoutes.includes(pathname);
   const modalRef = useRef<ModalRef>(null);
   const router = useRouter();
