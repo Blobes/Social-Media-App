@@ -1,3 +1,5 @@
+"use client";
+
 import { InputValidation } from "@/types";
 
 export function validateEmail(email: string): InputValidation {

@@ -1,3 +1,5 @@
+"use client";
+
 import { deleteCookie } from "./others";
 
 export const getLockRemaining = (

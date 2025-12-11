@@ -1,3 +1,5 @@
+"use client";
+
 import { fetcher } from "./fetcher";
 
 // POST LIKE HANDLING HELPERS
