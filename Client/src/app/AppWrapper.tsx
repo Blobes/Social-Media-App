@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Stack } from "@mui/material";
 import { BlurEffect } from "../components/BlurEffect";
@@ -17,14 +17,8 @@ import { useSharedHooks } from "@/hooks";
 import { AuthStepper } from "./auth/login/AuthStepper";
 
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
-  if (
-    typeof window === "undefined" ||
-    typeof document === "undefined" ||
-    typeof navigator === "undefined"
-  )
-    return;
-
   const pathname = usePathname();
+  const [origin, setOrigin] = useState("");
 
   const excludedRoutes = [
     window.location.origin,
@@ -45,6 +39,10 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     currentPage,
     setPage,
   } = useAppContext();
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   useEffect(() => {
     const verifyAuth = async () => {

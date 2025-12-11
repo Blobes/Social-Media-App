@@ -25,7 +25,6 @@
     "build": "next build",
     "start": "next start"
   },
-  
   "browserslist": {
     "production": [
       ">0.2%",
@@ -40,8 +39,8 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.25.9",
-    "@next/eslint-plugin-next": "^16.0.9",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "^16.0.9"
+    "@next/eslint-plugin-next": "^16.0.10",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "^16.0.10"
   }
 }
