@@ -1,4 +1,0 @@
-{
-  "extends": ["next", "next/core-web-vitals"],
-  "plugins": ["@next/eslint-plugin-next"]
-}
