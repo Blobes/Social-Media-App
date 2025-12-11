@@ -19,7 +19,7 @@ import { AuthStepper } from "./auth/login/AuthStepper";
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const excludedRoutes = [
-    window.location.origin,
+    window && window.location.origin,
     "/auth/login",
     "/auth/signup",
     "/web/home",
