@@ -1,4 +1,5 @@
 import express from "express";
+import { Request, Response } from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
@@ -32,6 +33,11 @@ app.use(
   bodyParser.urlencoded({ limit: "30mb", inflate: true, extended: true })
 );
 app.use(cookieParser());
+
+// Site health
+app.get("/healthz", (_req: Request, res: Response): void => {
+  res.status(200).send("OK");
+});
 
 // ====== Routes ======
 app.use("/auth", authRoutes);
