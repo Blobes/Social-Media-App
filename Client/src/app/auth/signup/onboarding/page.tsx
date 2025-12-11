@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
 
-export const OnboardingPage = () => {
+export default function OnboardingPage() {
   return <Typography>Onboarding page</Typography>;
-};
+}
