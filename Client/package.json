@@ -45,7 +45,10 @@
     ]
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.25.9",
     "@next/eslint-plugin-next": "^16.0.9",
-    "eslint-config-next": "^16.0.9"
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^16.0.9",
+    "eslint-config-react-app": "^7.0.1"
   }
 }

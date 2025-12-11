@@ -1,4 +1,5 @@
 {
-  "extends": ["next", "next/core-web-vitals"],
-  "plugins": ["@next/eslint-plugin-next"]
+  // "extends": ["next", "next/core-web-vitals"],
+  // "plugins": ["@next/eslint-plugin-next"]
+  "extends": ["react-app", "react-app/jest"]
 }
