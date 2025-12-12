@@ -18,16 +18,21 @@ import { AuthStepper } from "./auth/login/AuthStepper";
 
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
-  const [origin, setOrigin] = useState("");
+  // const [origin, setOrigin] = useState("");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    setOrigin(window.location.origin);
+    // setOrigin(window.location.origin);
   }, []);
   if (!mounted) return null;
 
-  const excludedRoutes = [origin, "/auth/login", "/auth/signup", "/web/home"];
+  const excludedRoutes = [
+    window.location.origin,
+    "/auth/login",
+    "/auth/signup",
+    "/web/home",
+  ];
   const isExcludedRoute = excludedRoutes.includes(pathname);
   const modalRef = useRef<ModalRef>(null);
   const router = useRouter();
