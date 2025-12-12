@@ -14,6 +14,7 @@ import { IUser } from "@/types";
 import { fetchUserWithTokenCheck } from "@/helpers/fetcher";
 import { useSharedHooks } from "@/hooks";
 import { AuthStepper } from "./auth/login/AuthStepper";
+import { verifyAuth } from "./auth/verifyAuth";
 
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -51,45 +52,65 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     ];
     const isExcludedRoute = excludedRoutes.includes(pathname);
 
-    const verifyAuth = async () => {
-      const user = await fetchUserWithTokenCheck();
-      const msg = user.message?.toLowerCase() ?? "";
+    // const verifyAuth = async () => {
+    //   const user = await fetchUserWithTokenCheck();
+    //   const msg = user.message?.toLowerCase() ?? "";
 
-      if (navigator.onLine && user.payload) {
-        setAuthUser(user.payload);
-        setLoginStatus("AUTHENTICATED");
-        return;
-      }
+    //   if (navigator.onLine && user.payload) {
+    //     setAuthUser(user.payload);
+    //     setLoginStatus("AUTHENTICATED");
+    //     return;
+    //   }
 
-      const storedUser = getCookie("user");
-      if (storedUser && storedUser !== "null") {
-        const parsed = JSON.parse(storedUser) as IUser;
-        setAuthUser(parsed);
-        if (!msg.includes("no token provided")) {
-          setSBMessage({
-            msg: { content: user.message, msgStatus: "ERROR", hasClose: true },
-          });
-        } else {
-          setLoginStatus("UNAUTHENTICATED");
-          setTimeout(() => modalRef.current?.openModal(), 50);
-        }
-        return;
-      }
+    //   const storedUser = getCookie("user");
+    //   if (storedUser && storedUser !== "null") {
+    //     const parsed = JSON.parse(storedUser) as IUser;
+    //     setAuthUser(parsed);
+    //     if (!msg.includes("no token provided")) {
+    //       setSBMessage({
+    //         msg: { content: user.message, msgStatus: "ERROR", hasClose: true },
+    //       });
+    //     } else {
+    //       setLoginStatus("UNAUTHENTICATED");
+    //       setTimeout(() => modalRef.current?.openModal(), 50);
+    //     }
+    //     return;
+    //   }
 
-      setLoginStatus("UNAUTHENTICATED");
-      setPage("/web/home");
-      if (!isExcludedRoute) {
-        router.replace(currentPage);
-      }
-    };
+    //   setLoginStatus("UNAUTHENTICATED");
+    //   setPage("/web/home");
+    //   if (!isExcludedRoute) {
+    //     router.replace(currentPage);
+    //   }
+    // };
 
-    verifyAuth();
+    verifyAuth(
+      useAppContext,
+      useSharedHooks,
+      modalRef,
+      isExcludedRoute,
+      router
+    );
 
     // Event handlers
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") verifyAuth();
+      if (document.visibilityState === "visible")
+        verifyAuth(
+          useAppContext,
+          useSharedHooks,
+          modalRef,
+          isExcludedRoute,
+          router
+        );
     };
-    const handleFocus = () => verifyAuth();
+    const handleFocus = () =>
+      verifyAuth(
+        useAppContext,
+        useSharedHooks,
+        modalRef,
+        isExcludedRoute,
+        router
+      );
     const handleOnline = () => {
       setSBMessage({
         msg: { content: "You are now online", msgStatus: "SUCCESS" },
