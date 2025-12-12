@@ -9,6 +9,7 @@ import postRoutes from "@/routes/postRoutes";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
+import { connectDB, corsConfig } from "@/helper";
 
 dotenv.config({
   path: path.resolve(
@@ -22,12 +23,7 @@ const port = process.env.PORT || 4000;
 const mongoUri = process.env.MONGO_URI || "";
 
 // ====== Middlewares ======
-app.use(
-  cors({
-    origin: "http://localhost:3000", // change for production
-    credentials: true,
-  })
-);
+app.use(corsConfig());
 app.use(bodyParser.json({ limit: "30mb", inflate: true }));
 app.use(
   bodyParser.urlencoded({ limit: "30mb", inflate: true, extended: true })
@@ -45,21 +41,7 @@ app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
 
 // ====== DB Connection ======
-const connectDB = async () => {
-  try {
-    await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 10000, // fail fast if cannot connect
-      socketTimeoutMS: 45000, // drop dead sockets
-      // keepAlive: true,
-    });
-    // prevent query buffer from timing out too fast
-    mongoose.set("bufferTimeoutMS", 20000);
-    console.log("✅ DB Connected successfully");
-  } catch (err: any) {
-    console.error("❌ Initial DB connection failed:", err.message);
-    setTimeout(connectDB, 10000); // retry after 10s
-  }
-};
+connectDB(mongoUri);
 
 // Reconnect on disconnect
 mongoose.connection.on("disconnected", () => {
@@ -73,7 +55,7 @@ mongoose.connection.on("error", (err) => {
 
 // ====== Start Server ======
 const startServer = async () => {
-  await connectDB(); // ensure DB connection before starting server
+  await connectDB(mongoUri); // ensure DB connection before starting server
 
   app.listen(port, () => {
     console.log(`🚀 Server running on http://localhost:${port}`);

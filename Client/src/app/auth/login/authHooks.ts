@@ -54,7 +54,6 @@ export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
       return res;
     } catch (error: any) {
       setInlineMsg(error.message || "Something went wrong.");
-      // console.log(error + "Hello");
       return null;
     }
   };
