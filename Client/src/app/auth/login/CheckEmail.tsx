@@ -73,14 +73,16 @@ export const CheckEmail: React.FC<CheckProps> = ({
     await delay();
 
     const res = await checkEmail(email);
-
-    if (res && res.emailNotTaken === false) {
-      setEmailProp?.(email);
-      setStep?.("login");
-    } else {
-      modalRef?.current?.closeModal(); // Close drawer
-      router.push(`/auth/signup?email=${email}`);
+    if (res) {
+      if (res.emailNotTaken === false) {
+        setEmailProp?.(email);
+        setStep?.("login");
+      } else {
+        modalRef?.current?.closeModal(); // Close drawer
+        router.push(`/auth/signup?email=${email}`);
+      }
     }
+
     setAuthLoading(false);
   };
 

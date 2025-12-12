@@ -10,8 +10,12 @@ export type GenericObject<T> = {
 export interface IUser {
   _id: string;
   email: string;
-  password?: string; // Often excluded on frontend for security
   isEmailVerified?: boolean;
+  password?: string; // Often excluded on frontend for security
+  phoneNumber?: string;
+  isPhoneVerified?: boolean;
+  verificationCode?: string;
+  verificationExpiry?: string | Date;
   username?: string;
   firstName?: string;
   lastName?: string;
@@ -22,8 +26,13 @@ export interface IUser {
   location?: string;
   worksAt?: string;
   relationship?: string;
+  occupation?: string;
+  interests?: any[]; // could also be string[]
   followers?: string[];
   following?: string[];
+  onboardingStep?: string | null;
+  country?: string | null;
+  state?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }

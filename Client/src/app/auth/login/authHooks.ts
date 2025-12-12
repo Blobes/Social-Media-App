@@ -41,13 +41,20 @@ export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
   const lockTimestamp = getCookie("loginLockTime");
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
-  const checkEmail = async (email: string): Promise<CheckEmailResponse> => {
-    const res = await fetcher<CheckEmailResponse>("/auth/check-email", {
-      method: "POST",
-      body: JSON.stringify({ email }),
-    });
-    console.log(res);
-    return res;
+  const checkEmail = async (
+    email: string
+  ): Promise<CheckEmailResponse | null> => {
+    try {
+      const res = await fetcher<CheckEmailResponse>("/auth/check-email", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      });
+      console.log(res);
+      return res;
+    } catch (error: any) {
+      setInlineMsg(error.message);
+      return null;
+    }
   };
 
   const startLockCountdown = (lockTimestamp: number | string) => {
