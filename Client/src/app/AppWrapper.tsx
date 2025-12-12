@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Stack } from "@mui/material";
 import { BlurEffect } from "../components/BlurEffect";
 import { Header } from "@/components/app-navbar/Header";
@@ -9,7 +9,6 @@ import { SnackBars } from "@/components/SnackBars";
 import { useAppContext } from "./AppContext";
 import { Footer } from "@/components/Footer";
 import { Modal, ModalRef } from "@/components/Modal";
-import { useRouter } from "next/navigation";
 import { getCookie } from "@/helpers/others";
 import { IUser } from "@/types";
 import { fetchUserWithTokenCheck } from "@/helpers/fetcher";
@@ -18,24 +17,10 @@ import { AuthStepper } from "./auth/login/AuthStepper";
 
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
-  // const [origin, setOrigin] = useState("");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    // setOrigin(window.location.origin);
-  }, []);
-  if (!mounted) return null;
-
-  const excludedRoutes = [
-    window.location.origin,
-    "/auth/login",
-    "/auth/signup",
-    "/web/home",
-  ];
-  const isExcludedRoute = excludedRoutes.includes(pathname);
-  const modalRef = useRef<ModalRef>(null);
   const router = useRouter();
+
+  // Always initialize hooks here — top of the component
+  const modalRef = useRef<ModalRef>(null);
   const { setSBMessage } = useSharedHooks();
   const {
     snackBarMsgs,
@@ -47,7 +32,25 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     setPage,
   } = useAppContext();
 
+  // Client-only UI rendering
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // All client-only or window-dependent logic goes inside useEffect
+  useEffect(() => {
+    if (!mounted) return;
+
+    const excludedRoutes = [
+      window.location.origin,
+      "/auth/login",
+      "/auth/signup",
+      "/web/home",
+    ];
+    const isExcludedRoute = excludedRoutes.includes(pathname);
+
     const verifyAuth = async () => {
       const user = await fetchUserWithTokenCheck();
       const msg = user.message?.toLowerCase() ?? "";
@@ -72,22 +75,21 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         }
         return;
       }
+
       setLoginStatus("UNAUTHENTICATED");
       setPage("/web/home");
-      !isExcludedRoute && router.replace(currentPage);
-    };
-
-    // Verify auth once when component mounts
-    verifyAuth();
-    // Verify auth again when tab becomes visible (user revisits tab)
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        verifyAuth();
+      if (!isExcludedRoute) {
+        router.replace(currentPage);
       }
     };
-    // Verify auth again when window regains focus
+
+    verifyAuth();
+
+    // Event handlers
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") verifyAuth();
+    };
     const handleFocus = () => verifyAuth();
-    // Handle online and offline status
     const handleOnline = () => {
       setSBMessage({
         msg: { content: "You are now online", msgStatus: "SUCCESS" },
@@ -103,12 +105,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
           msgStatus: "ERROR",
           behavior: "FIXED",
           hasClose: true,
-          cta: {
-            label: "Refresh",
-            action: () => {
-              window.location.reload();
-            },
-          },
+          cta: { label: "Refresh", action: () => window.location.reload() },
         },
       });
     };
@@ -124,27 +121,40 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("focus", handleFocus);
     };
-  }, [loginStatus, pathname]);
+  }, [
+    mounted,
+    loginStatus,
+    pathname,
+    router,
+    currentPage,
+    setSBMessage,
+    setAuthUser,
+    setLoginStatus,
+    setInlineMsg,
+    setPage,
+  ]);
+
+  if (!mounted) return null;
+
+  const excludedUIRoutes = ["/auth/login", "/auth/signup"];
 
   return (
     <Stack sx={{ position: "fixed", height: "100vh", width: "100%", gap: 0 }}>
       <BlurEffect />
-      {!["/auth/login", "/auth/signup"].includes(pathname) && <Header />}
+      {!excludedUIRoutes.includes(pathname) && <Header />}
       {snackBarMsgs.messgages && <SnackBars snackBarMsg={snackBarMsgs} />}
       {children}
-      {!isExcludedRoute && (
-        <>
-          <Modal
-            ref={modalRef}
-            children={{
-              contentElement: (
-                <AuthStepper modalRef={modalRef} redirectTo={currentPage} />
-              ),
-            }}
-            shouldClose={false}
-            entryDir="CENTER"
-          />
-        </>
+      {!excludedUIRoutes.includes(pathname) && (
+        <Modal
+          ref={modalRef}
+          children={{
+            contentElement: (
+              <AuthStepper modalRef={modalRef} redirectTo={currentPage} />
+            ),
+          }}
+          shouldClose={false}
+          entryDir="CENTER"
+        />
       )}
       <Footer />
     </Stack>
