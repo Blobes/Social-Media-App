@@ -91,7 +91,7 @@ export const Signup: React.FC<InfoProps> = ({
           component="h3"
           variant="h5"
           sx={{ textAlign: "center", ...style.headline }}>
-          Blobes Socials, A Place For Nigerians
+          Sign up to FunStakes, and stake higher.
         </Typography>
         <Typography
           component="p"

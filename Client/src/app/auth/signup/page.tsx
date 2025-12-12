@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { SignUpStepper } from "./SignupStepper";
 import { Stack } from "@mui/material";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const theme = useTheme();
   const { loginStatus } = useAppContext();
   const router = useRouter();

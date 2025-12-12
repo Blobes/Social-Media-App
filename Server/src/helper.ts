@@ -1,7 +1,9 @@
+import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { Response, Request } from "express";
 import crypto from "crypto";
 import fetch from "node-fetch";
+import cors from "cors";
 
 export const genAccessTokens = (user: any, res: Response) => {
   if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
@@ -96,4 +98,48 @@ export const generateTestEmail = (email: string): string => {
   const [username, domain] = email.split("@");
   const randomNumber = Math.floor(1000 + Math.random() * 9000); // random 4-digit
   return `${username}${randomNumber}@${domain}`;
+};
+
+// Configure cors
+export const corsConfig = (): any => {
+  const allowedOrigins = [
+    "http://localhost:3000",
+    "https://funstakes.vercel.app", // your PROD domain if you add one later
+  ];
+  return cors({
+    origin: (origin, callback) => {
+      // Allow server-to-server, Postman, curl
+      if (!origin) return callback(null, true);
+
+      // Allow localhost & production explicitly
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // ✅ Allow ALL Vercel preview deployments
+      if (origin.endsWith(".vercel.app")) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("CORS: Origin not allowed"));
+    },
+    credentials: true,
+  });
+};
+
+//DB Connector
+export const connectDB = async (mongoUri: any) => {
+  try {
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 10000, // fail fast if cannot connect
+      socketTimeoutMS: 45000, // drop dead sockets
+      // keepAlive: true,
+    });
+    // prevent query buffer from timing out too fast
+    mongoose.set("bufferTimeoutMS", 20000);
+    console.log("✅ DB Connected successfully");
+  } catch (err: any) {
+    console.error("❌ Initial DB connection failed:", err.message);
+    setTimeout(connectDB, 10000); // retry after 10s
+  }
 };

@@ -19,6 +19,7 @@ export const Posts = () => {
   const [message, setMessage] = useState<string | null>(null);
   const { loginStatus } = useAppContext();
   const [isLoading, setLoading] = useState(false);
+  console.log("Hel");
 
   const renderPosts = async () => {
     try {
