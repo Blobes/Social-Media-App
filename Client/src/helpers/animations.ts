@@ -1,3 +1,5 @@
+"use client";
+
 import { keyframes } from "@mui/system";
 
 export const fadeIn = keyframes`

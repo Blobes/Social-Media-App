@@ -1,11 +1,11 @@
 "use client";
 
-import { User } from "./models";
+//import { User } from "./models";
 
 const img1 = "/assets/images/img1.png";
 const logo = "/assets/images/logo.png";
 
-export const userData: User[] = [
+export const userData = [
   {
     id: "1",
     firstName: "Mike",

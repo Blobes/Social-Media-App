@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Stack } from "@mui/material";
 import { BlurEffect } from "../components/BlurEffect";
@@ -18,6 +18,15 @@ import { AuthStepper } from "./auth/login/AuthStepper";
 
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
+  // const [origin, setOrigin] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // setOrigin(window.location.origin);
+  }, []);
+  if (!mounted) return null;
+
   const excludedRoutes = [
     window.location.origin,
     "/auth/login",

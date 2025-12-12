@@ -1,11 +1,11 @@
 "use client";
 
-import { Post } from "./models";
+//import { Post } from "@/types";
 const postPic1 = "/assets/images/postpic1.jpg";
 const postPic2 = "/assets/images/postpic2.jpg";
 const postPic3 = "/assets/images/postpic3.jpg";
 
-export const postData: Post[] = [
+export const postData = [
   {
     id: "post1",
     authorId: "1",
