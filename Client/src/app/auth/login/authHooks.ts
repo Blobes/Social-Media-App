@@ -23,6 +23,7 @@ interface LoginResponse extends SingleResponse<IUser> {
 }
 interface CheckEmailResponse {
   emailNotTaken: boolean;
+  message: string;
 }
 
 export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {

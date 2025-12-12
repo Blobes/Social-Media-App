@@ -53,13 +53,17 @@ export const checkUsername = async (
 export const checkEmail = async (req: Request, res: Response): Promise<any> => {
   const { email } = req.body as { email?: string };
   if (!email) {
-    return res.status(400).json({ message: "email query is required" });
+    return res
+      .status(400)
+      .json({ emailNotTaken: null, message: "email query is required" });
   }
 
   try {
     const exists = await UserModel.exists({ email });
-    return res.json({ emailNotTaken: !exists });
+    return res.status(200).json({ emailNotTaken: !exists, message: email });
   } catch (error: any) {
-    return res.status(500).json({ message: error.message });
+    return res
+      .status(500)
+      .json({ emailNotTaken: null, message: error.message });
   }
 };
