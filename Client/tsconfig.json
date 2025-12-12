@@ -1,7 +1,12 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["es5", "dom", "dom.iterable", "esnext"],
+    "lib": [
+      "es5",
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
@@ -18,12 +23,19 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "paths": {
-      "@mui/*": ["node_modules/@mui/*"],
-      "@/*": ["./src/*"]
+      "@mui/*": [
+        "node_modules/@mui/*"
+      ],
+      "@/*": [
+        "./src/*"
+      ]
     },
-    "typeRoots": ["node_modules/@types", "./src/@types"],
+    "typeRoots": [
+      "node_modules/@types",
+      "./src/@types"
+    ],
     "incremental": true,
     "plugins": [
       {
@@ -31,6 +43,14 @@
       }
     ]
   },
-  "include": ["./src/@types", "src", ".next/types/**/*.ts", "playground.js"],
-  "exclude": ["node_modules"]
+  "include": [
+    "./src/@types",
+    "src",
+    ".next/types/**/*.ts",
+    "playground.js",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
