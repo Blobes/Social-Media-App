@@ -22,6 +22,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "lint": "eslint --ignore-path .eslintignore .",
     "build": "next build",
     "start": "next start"
   },
