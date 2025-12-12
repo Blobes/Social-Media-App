@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { TextInput } from "@/components/InputFields";
 import { GenericObject } from "@/types";
 import { delay } from "@/helpers/others";
+import { InlineMsg } from "@/components/InlineMsg";
 
 interface CheckProps {
   modalRef?: React.RefObject<ModalRef>;
@@ -34,7 +35,7 @@ export const CheckEmail: React.FC<CheckProps> = ({
   style = {},
 }) => {
   const { checkEmail } = useAuth(modalRef);
-  const { isAuthLoading, setAuthLoading } = useAppContext();
+  const { isAuthLoading, setAuthLoading, inlineMsg } = useAppContext();
   const [validity, setValidity] = useState<"valid" | "invalid">();
   const [msg, setMsg] = useState("");
   const [email, setEmail] = useState(existingEmail ?? "");
@@ -107,6 +108,8 @@ export const CheckEmail: React.FC<CheckProps> = ({
           Enter your email address to continue.
         </Typography>
       </Stack>
+
+      {inlineMsg && <InlineMsg msg={inlineMsg} type="ERROR" />}
 
       <Stack
         sx={{ gap: theme.gap(8) }}
