@@ -182,16 +182,12 @@ export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
       if (snapshot) setCookie("user_snapshot", JSON.stringify(snapshot), 20);
 
       const userSnapshot = getCookie("user_snapshot");
-      if (userSnapshot && userSnapshot !== "null") {
-        // Prompt login with drawer after a short delay
-        // setTimeout(() => {
-        //   drawerRef?.current?.openModal();
-        // }, 50);
+      if (userSnapshot) {
+        setAuthUser(JSON.parse(userSnapshot));
       } else {
         router.replace("/web/home");
+        setAuthUser(null);
       }
-      // Clear user state
-      setAuthUser(null);
     } catch (error) {
       console.error("Logout failed:", error);
     }

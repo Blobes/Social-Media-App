@@ -51,9 +51,14 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
 
     // Verify User Auth
     verifyAuth(useAppContext, useSharedHooks, router);
-    if (loginStatus === "LOCKED") modalRef.current?.openModal();
-    if (!isExcludedRoute && loginStatus === "UNAUTHENTICATED")
+    if (!isExcludedRoute && loginStatus === "LOCKED")
+      modalRef.current?.openModal();
+
+    if (!isExcludedRoute && loginStatus === "UNAUTHENTICATED") {
+      setPage("/web/home");
       router.replace("/web/home");
+    }
+
     if (loginStatus === "AUTHENTICATED") modalRef.current?.closeModal();
 
     // Event handlers

@@ -13,20 +13,23 @@ export const verifyAuth = async (
   const { setSBMessage } = useSharedHooks();
 
   const res = await fetchUserWithTokenCheck();
-  const snapshot: any = getCookie("user_snapshot");
+  const userSnapshot: any = getCookie("user_snapshot");
 
   // ✅ Fully authenticated
   if (navigator.onLine && res.payload) {
     setAuthUser(res.payload);
     setLoginStatus("AUTHENTICATED");
-    if (snapshot) router.replace(snapshot.lastRoute);
+    if (userSnapshot) {
+      setPage(userSnapshot.lastRoute);
+      router.replace(userSnapshot.lastRoute);
+    }
     deleteCookie("user_snapshot");
     return;
   }
 
   // 🔒 Token invalid but snapshot exists → LOCKED
-  if (snapshot) {
-    setAuthUser(JSON.parse(snapshot));
+  if (userSnapshot) {
+    setAuthUser(JSON.parse(userSnapshot));
     setLoginStatus("LOCKED");
     if (!res.message?.includes("no token provided")) {
       setSBMessage({
@@ -39,5 +42,4 @@ export const verifyAuth = async (
   // 🚫 Fully logged out
   setAuthUser(null);
   setLoginStatus("UNAUTHENTICATED");
-  setPage("/web/home");
 };
