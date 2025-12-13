@@ -110,7 +110,6 @@ export const Login: React.FC<LoginProps> = ({
         setCookie("user", JSON.stringify(res), 60 * 24);
 
         setStep?.("email");
-        modalRef?.current?.closeModal(); // Close drawer
         router.push(page || "");
       } else {
         setInlineMsg(fixedMsg ?? null);

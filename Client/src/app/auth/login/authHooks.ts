@@ -3,7 +3,7 @@
 import { useAppContext } from "@/app/AppContext";
 import { useSharedHooks } from "@/hooks";
 import { fetcher } from "@/helpers/fetcher";
-import { IUser, SingleResponse } from "@/types";
+import { IUser, SingleResponse, UserSnapshot } from "@/types";
 import { useRouter } from "next/navigation";
 import { ModalRef } from "@/components/Modal";
 import { deleteCookie, getCookie, setCookie } from "@/helpers/others";
@@ -28,11 +28,13 @@ interface CheckEmailResponse {
 
 export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
   const {
+    authUser,
     setAuthUser,
     setLoginStatus,
     setPage,
     setSnackBarMsgs,
     setInlineMsg,
+    currentPage,
   } = useAppContext();
   const { setSBMessage: setFbMessage } = useSharedHooks();
   const router = useRouter();
@@ -158,33 +160,41 @@ export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
   };
 
   const handleLogout = async () => {
+    const snapshot: UserSnapshot | null = authUser
+      ? {
+          id: authUser._id,
+          firstName: authUser.firstName,
+          username: authUser.lastName,
+          profileImage: authUser.profileImage,
+          lastRoute: currentPage,
+        }
+      : null;
     try {
       // Step 1: Send logout request to backend
       await fetcher("/auth/logout", { method: "POST" });
 
       // Step 2: Reset login status, currentPage and feedback state
-      setLoginStatus("UNKNOWN");
+      setLoginStatus("LOCKED");
       setPage("");
       setSnackBarMsgs((prev) => ({ ...prev, messgages: [], inlineMsg: null }));
 
       // Step 3: Check if stored user exists for drawer experience
-      const stored = getCookie("user");
-      if (stored && stored !== "null") {
-        const parsedUser = JSON.parse(stored) as IUser;
-        setAuthUser(parsedUser);
+      if (snapshot) setCookie("user_snapshot", JSON.stringify(snapshot), 20);
+
+      const userSnapshot = getCookie("user_snapshot");
+      if (userSnapshot && userSnapshot !== "null") {
         // Prompt login with drawer after a short delay
         setTimeout(() => {
           drawerRef?.current?.openModal();
         }, 50);
-      } else {
-        // No stored user, redirect to login
-        setAuthUser(null);
-        router.replace("/web/home");
       }
-    } catch (error) {
-      console.error("Logout failed:", error);
+      // Clear user state and redirect to login
       setAuthUser(null);
       router.replace("/web/home");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // setAuthUser(null);
+      // router.replace("/web/home");
     }
   };
 

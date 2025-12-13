@@ -1,6 +1,10 @@
 "use client";
 
-export type LoginStatus = "UNKNOWN" | "AUTHENTICATED" | "UNAUTHENTICATED";
+export type LoginStatus =
+  | "UNKNOWN"
+  | "AUTHENTICATED"
+  | "UNAUTHENTICATED"
+  | "LOCKED";
 export type ResponseStatus = "SUCCESS" | "ERROR" | "INFO" | "WARNING" | null;
 
 export type GenericObject<T> = {
@@ -35,6 +39,14 @@ export interface IUser {
   state?: string | null;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface UserSnapshot {
+  id: string;
+  firstName?: string;
+  username?: string;
+  profileImage?: string;
+  lastRoute?: string;
 }
 
 export interface Post {

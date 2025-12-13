@@ -50,33 +50,18 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     const isExcludedRoute = excludedRoutes.includes(pathname);
 
     // Verify User Auth
-    verifyAuth(
-      useAppContext,
-      useSharedHooks,
-      modalRef,
-      isExcludedRoute,
-      router
-    );
+    verifyAuth(useAppContext, useSharedHooks);
+    if (loginStatus === "LOCKED") modalRef.current?.openModal();
+    if (!isExcludedRoute && loginStatus === "UNAUTHENTICATED")
+      router.replace("/web/home");
+    if (loginStatus === "AUTHENTICATED") modalRef.current?.closeModal();
 
     // Event handlers
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible")
-        verifyAuth(
-          useAppContext,
-          useSharedHooks,
-          modalRef,
-          isExcludedRoute,
-          router
-        );
+        verifyAuth(useAppContext, useSharedHooks);
     };
-    const handleFocus = () =>
-      verifyAuth(
-        useAppContext,
-        useSharedHooks,
-        modalRef,
-        isExcludedRoute,
-        router
-      );
+    const handleFocus = () => verifyAuth(useAppContext, useSharedHooks);
     const handleOnline = () => {
       setSBMessage({
         msg: { content: "You are now online", msgStatus: "SUCCESS" },

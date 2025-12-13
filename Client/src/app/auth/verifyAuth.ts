@@ -1,46 +1,38 @@
 "use client";
 
-import { getCookie } from "@/helpers/others";
-import { IUser } from "@/types";
+import { deleteCookie, getCookie } from "@/helpers/others";
+//import { IUser, UserSnapshot } from "@/types";
 import { fetchUserWithTokenCheck } from "@/helpers/fetcher";
 
-export const verifyAuth = async (
-  appContext: any,
-  sharedHooks: any,
-  modalRef: any,
-  isExcludedRoute: boolean,
-  router: any
-) => {
-  const { setSBMessage } = sharedHooks();
-  const { setAuthUser, setLoginStatus, currentPage, setPage } = appContext();
+export const verifyAuth = async (appContext: any, useSharedHooks: any) => {
+  const { setAuthUser, setLoginStatus, setPage } = appContext();
+  const { setSBMessage } = useSharedHooks();
 
-  const user = await fetchUserWithTokenCheck();
-  const msg = user.message?.toLowerCase() ?? "";
+  const res = await fetchUserWithTokenCheck();
+  const snapshot = getCookie("user_snapshot");
 
-  if (navigator.onLine && user.payload) {
-    setAuthUser(user.payload);
+  // ✅ Fully authenticated
+  if (navigator.onLine && res.payload) {
+    setAuthUser(res.payload);
     setLoginStatus("AUTHENTICATED");
+    deleteCookie("user_snapshot");
     return;
   }
 
-  const storedUser = getCookie("user");
-  if (storedUser && storedUser !== "null") {
-    const parsed = JSON.parse(storedUser) as IUser;
-    setAuthUser(parsed);
-    if (!msg.includes("no token provided")) {
+  // 🔒 Token invalid but snapshot exists → LOCKED
+  if (snapshot) {
+    setAuthUser(JSON.parse(snapshot));
+    setLoginStatus("LOCKED");
+    if (!res.message?.includes("no token provided")) {
       setSBMessage({
-        msg: { content: user.message, msgStatus: "ERROR", hasClose: true },
+        msg: { content: res.message, msgStatus: "ERROR", hasClose: true },
       });
-    } else {
-      setLoginStatus("UNAUTHENTICATED");
-      setTimeout(() => modalRef.current?.openModal(), 50);
     }
     return;
   }
 
+  // 🚫 Fully logged out
+  setAuthUser(null);
   setLoginStatus("UNAUTHENTICATED");
   setPage("/web/home");
-  if (!isExcludedRoute) {
-    router.replace(currentPage);
-  }
 };
