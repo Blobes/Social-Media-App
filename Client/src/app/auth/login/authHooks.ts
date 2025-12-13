@@ -164,6 +164,7 @@ export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
       ? {
           _id: authUser._id,
           firstName: authUser.firstName,
+          lastName: authUser.lastName,
           username: authUser.lastName,
           profileImage: authUser.profileImage,
           lastRoute: currentPage,
