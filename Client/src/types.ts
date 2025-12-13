@@ -13,7 +13,7 @@ export type GenericObject<T> = {
 
 export interface IUser {
   _id: string;
-  email: string;
+  email?: string;
   isEmailVerified?: boolean;
   password?: string; // Often excluded on frontend for security
   phoneNumber?: string;
@@ -41,11 +41,7 @@ export interface IUser {
   updatedAt?: string;
 }
 
-export interface UserSnapshot {
-  id: string;
-  firstName?: string;
-  username?: string;
-  profileImage?: string;
+export interface UserSnapshot extends IUser {
   lastRoute?: string;
 }
 

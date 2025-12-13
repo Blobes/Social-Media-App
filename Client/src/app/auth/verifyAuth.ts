@@ -4,17 +4,22 @@ import { deleteCookie, getCookie } from "@/helpers/others";
 //import { IUser, UserSnapshot } from "@/types";
 import { fetchUserWithTokenCheck } from "@/helpers/fetcher";
 
-export const verifyAuth = async (appContext: any, useSharedHooks: any) => {
+export const verifyAuth = async (
+  appContext: any,
+  useSharedHooks: any,
+  router: any
+) => {
   const { setAuthUser, setLoginStatus, setPage } = appContext();
   const { setSBMessage } = useSharedHooks();
 
   const res = await fetchUserWithTokenCheck();
-  const snapshot = getCookie("user_snapshot");
+  const snapshot: any = getCookie("user_snapshot");
 
   // ✅ Fully authenticated
   if (navigator.onLine && res.payload) {
     setAuthUser(res.payload);
     setLoginStatus("AUTHENTICATED");
+    if (snapshot) router.replace(snapshot.lastRoute);
     deleteCookie("user_snapshot");
     return;
   }
