@@ -2,7 +2,7 @@
 
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import LeftSide from "./LeftSide";
+import { LeftSide } from "./LeftSide";
 import { Posts } from "./Posts";
 import { useStyles } from "@/helpers/styles";
 import { ScrollableContainer } from "@/components/Containers";
