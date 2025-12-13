@@ -32,7 +32,7 @@ export const LeftSide = () => {
           <Followers />
         </>
       ) : (
-        <Stack>
+        <Stack sx={{ alignItems: "center", textAlign: "center" }}>
           <Typography component="h5">
             Join millions of stakers on FunStakes
           </Typography>

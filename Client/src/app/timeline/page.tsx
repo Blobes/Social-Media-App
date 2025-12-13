@@ -19,7 +19,7 @@ export default function TimelinePage() {
         backgroundColor: theme.palette.gray[0],
         padding: {
           sm: theme.boxSpacing(0),
-          md: theme.boxSpacing(0, 32),
+          md: theme.boxSpacing(0, 12),
         },
         overflowY: "hidden",
         overflowX: "auto",
