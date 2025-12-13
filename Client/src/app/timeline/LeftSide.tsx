@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 export const LeftSide = () => {
   const theme = useTheme();
   const { loginStatus } = useAppContext();
+  const router = useRouter();
 
   return (
     <ScrollableContainer
@@ -36,7 +37,7 @@ export const LeftSide = () => {
           <Typography component="h5">
             Join millions of stakers on FunStakes
           </Typography>
-          <AppButton onClick={() => useRouter().replace("/auth/login")}>
+          <AppButton onClick={() => router.replace("/auth/login")}>
             Get started
           </AppButton>
         </Stack>

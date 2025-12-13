@@ -18,7 +18,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { Favorite, Share, MoreHoriz, Bookmark } from "@mui/icons-material";
 import { useUser } from "@/app/user/userHooks";
 import { GenericObject, IUser, SingleResponse } from "@/types";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { heartBeat } from "@/helpers/animations";
 import { usePost } from "./postHooks";
 import { Post } from "@/types";
@@ -27,6 +27,7 @@ import { AnchorLink, AppButton } from "@/components/Buttons";
 import { fetcher } from "@/helpers/fetcher";
 import { summarizeNum } from "@/helpers/others";
 import { Strip } from "@/components/StripBar";
+import { ModalRef } from "@/components/Modal";
 
 export const ProfileCard = () => {
   const theme = useTheme();
@@ -214,14 +215,15 @@ export const FollowerCard = ({ followerId }: FollowerProps) => {
     </Stack>
   );
 };
-
 interface PostProps {
   post: Post;
   style?: GenericObject<string>;
 }
+
 export const PostCard = ({ post, style = {} }: PostProps) => {
   const theme = useTheme();
-  const { authUser, isGlobalLoading: isLoading } = useAppContext();
+  const { authUser, loginStatus } = useAppContext();
+  const modalRef = useRef<ModalRef>(null);
   const { handlePostLike, getPendingLike, setPendingLike, clearPendingLike } =
     usePost();
   const [isLiking, setLiking] = useState(false);
@@ -265,7 +267,10 @@ export const PostCard = ({ post, style = {} }: PostProps) => {
 
   // Like Handler
   const handleLike = async () => {
-    if (!authUser) return;
+    if (!authUser || loginStatus === "LOCKED") {
+      modalRef.current?.openModal();
+      return;
+    }
 
     const userId = authUser._id;
     // Optimistically update
