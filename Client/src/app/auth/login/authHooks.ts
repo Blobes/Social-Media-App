@@ -185,7 +185,7 @@ export const useAuth = () => {
       if (userSnapshot) {
         setAuthUser(JSON.parse(userSnapshot));
       } else {
-        setCurrentPage("/web/home");
+        setCurrentPage("home");
         router.replace("/web/home");
         setAuthUser(null);
       }

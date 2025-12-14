@@ -8,7 +8,7 @@ export const verifyAuth = async (
   useSharedHooks: any,
   router: any
 ) => {
-  const { setAuthUser, setLoginStatus, setPage } = appContext();
+  const { setAuthUser, setLoginStatus } = appContext();
   const { setSBMessage, setCurrentPage } = useSharedHooks();
 
   const res = await fetchUserWithTokenCheck();
@@ -19,7 +19,7 @@ export const verifyAuth = async (
     setAuthUser(res.payload);
     setLoginStatus("AUTHENTICATED");
     if (userSnapshot) {
-      setCurrentPage(userSnapshot.lastRoute || "/timeline");
+      setCurrentPage(userSnapshot.lastRoute || "timeline");
       router.replace(userSnapshot.lastRoute || "/timeline");
     }
     deleteCookie("user_snapshot");
