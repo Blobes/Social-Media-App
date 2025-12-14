@@ -12,6 +12,7 @@ import { Modal, ModalRef } from "@/components/Modal";
 import { useSharedHooks } from "@/hooks";
 import { AuthStepper } from "./auth/login/AuthStepper";
 import { verifyAuth } from "./auth/verifyAuth";
+import { getCookie } from "@/helpers/others";
 
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -35,11 +36,50 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // Client-only UI rendering
   const [mounted, setMounted] = useState(false);
 
+  const excludedRoutes = ["/auth/login", "/auth/signup", "/web/home"];
+  const isExcludedRoute = excludedRoutes.includes(pathname);
+
+  // ─────────────────────────────
+  // 1️⃣ MOUNT + INITIAL AUTH CHECK
+  // ─────────────────────────────
   useEffect(() => {
     setMounted(true);
+    verifyAuth(useAppContext, useSharedHooks);
   }, []);
 
-  // All client-only or window-dependent logic goes inside useEffect
+  // ─────────────────────────────
+  // 2️⃣ AUTH STATE REACTIONS
+  // ─────────────────────────────
+  useEffect(() => {
+    if (!mounted) return;
+
+    const snapshotCookie = getCookie("user_snapshot");
+    const userSnapshot = snapshotCookie ? JSON.parse(snapshotCookie) : null;
+
+    if (loginStatus === "AUTHENTICATED") {
+      setCurrentPage(userSnapshot.lastRoute || "timeline");
+      router.replace(userSnapshot.lastRoute || "/timeline");
+      setModalContent(null);
+      return;
+    }
+
+    if (loginStatus === "LOCKED" && !isExcludedRoute) {
+      setModalContent({
+        content: <AuthStepper />,
+        shouldClose: false,
+      });
+      return;
+    }
+
+    if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
+      setCurrentPage("home");
+      router.replace("/web/home");
+    }
+  }, [mounted, loginStatus]);
+
+  // ─────────────────────────────
+  // 3️⃣ MODAL OPEN / CLOSE
+  // ─────────────────────────────
   useEffect(() => {
     if (!mounted) return;
 
@@ -48,41 +88,27 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     } else {
       modalRef.current?.closeModal();
     }
+  }, [modalContent, mounted]);
 
-    const excludedRoutes = [
-      window.location.origin,
-      "/auth/login",
-      "/auth/signup",
-      "/web/home",
-    ];
-    const isExcludedRoute = excludedRoutes.includes(pathname);
+  //─────────────────────────────
+  // 4️⃣ BROWSER EVENTS
+  // ─────────────────────────────
+  useEffect(() => {
+    if (!mounted) return;
 
-    // Verify User Auth
-    verifyAuth(useAppContext, useSharedHooks, router);
-    if (loginStatus === "AUTHENTICATED") setModalContent(null);
-    if (loginStatus === "LOCKED" && !isExcludedRoute)
-      setModalContent({
-        content: <AuthStepper />,
-        shouldClose: false,
-      });
-    if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
-      setCurrentPage("home");
-      router.replace("/web/home");
-    }
+    const reverify = () => verifyAuth(useAppContext, useSharedHooks);
 
-    // Event handlers
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible")
-        verifyAuth(useAppContext, useSharedHooks, router);
-    };
-    const handleFocus = () => verifyAuth(useAppContext, useSharedHooks, router);
     const handleOnline = () => {
       setSBMessage({
-        msg: { content: "You are now online", msgStatus: "SUCCESS" },
+        msg: {
+          content: "You are now online",
+          msgStatus: "SUCCESS",
+        },
         override: true,
       });
-      setInlineMsg(null);
+      reverify();
     };
+
     const handleOffline = () => {
       setSBMessage({
         msg: {
@@ -91,35 +117,114 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
           msgStatus: "ERROR",
           behavior: "FIXED",
           hasClose: true,
-          cta: { label: "Refresh", action: () => window.location.reload() },
+          cta: {
+            label: "Refresh",
+            action: () => window.location.reload(),
+          },
         },
       });
     };
 
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") reverify();
+    };
+
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("focus", handleFocus);
+    window.addEventListener("focus", reverify);
+    document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("focus", reverify);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [
-    mounted,
-    modalContent,
-    loginStatus,
-    pathname,
-    router,
-    currentPage,
-    setSBMessage,
-    setAuthUser,
-    setLoginStatus,
-    setInlineMsg,
-    setPage,
-  ]);
+  }, [mounted]);
+
+  // All client-only or window-dependent logic goes inside useEffect
+  // useEffect(() => {
+  //   if (!mounted) return;
+
+  //   if (modalContent) {
+  //     modalRef.current?.openModal();
+  //   } else {
+  //     modalRef.current?.closeModal();
+  //   }
+
+  //   const excludedRoutes = [
+  //     window.location.origin,
+  //     "/auth/login",
+  //     "/auth/signup",
+  //     "/web/home",
+  //   ];
+  //   const isExcludedRoute = excludedRoutes.includes(pathname);
+
+  //   console.log(loginStatus);
+
+  //   // Verify User Auth
+  //   verifyAuth(useAppContext, useSharedHooks, router);
+  //   if (loginStatus === "AUTHENTICATED") setModalContent(null);
+  //   if (loginStatus === "LOCKED" && !isExcludedRoute)
+  //     setModalContent({
+  //       content: <AuthStepper />,
+  //       shouldClose: false,
+  //     });
+  //   if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
+  //     setCurrentPage("home");
+  //     router.replace("/web/home");
+  //   }
+
+  //   // Event handlers
+  //   const handleVisibilityChange = () => {
+  //     if (document.visibilityState === "visible")
+  //       verifyAuth(useAppContext, useSharedHooks, router);
+  //   };
+  //   const handleFocus = () => verifyAuth(useAppContext, useSharedHooks, router);
+  //   const handleOnline = () => {
+  //     setSBMessage({
+  //       msg: { content: "You are now online", msgStatus: "SUCCESS" },
+  //       override: true,
+  //     });
+  //     setInlineMsg(null);
+  //   };
+  //   const handleOffline = () => {
+  //     setSBMessage({
+  //       msg: {
+  //         title: "No internet connection",
+  //         content: "Check your network and refresh the page",
+  //         msgStatus: "ERROR",
+  //         behavior: "FIXED",
+  //         hasClose: true,
+  //         cta: { label: "Refresh", action: () => window.location.reload() },
+  //       },
+  //     });
+  //   };
+
+  //   window.addEventListener("online", handleOnline);
+  //   window.addEventListener("offline", handleOffline);
+  //   document.addEventListener("visibilitychange", handleVisibilityChange);
+  //   window.addEventListener("focus", handleFocus);
+
+  //   return () => {
+  //     window.removeEventListener("online", handleOnline);
+  //     window.removeEventListener("offline", handleOffline);
+  //     document.removeEventListener("visibilitychange", handleVisibilityChange);
+  //     window.removeEventListener("focus", handleFocus);
+  //   };
+  // }, [
+  //   mounted,
+  //   modalContent,
+  //   loginStatus,
+  //   pathname,
+  //   router,
+  //   currentPage,
+  //   setSBMessage,
+  //   setAuthUser,
+  //   setLoginStatus,
+  //   setInlineMsg,
+  //   setPage,
+  // ]);
 
   if (!mounted) return null;
 

@@ -61,6 +61,7 @@ export const Login: React.FC<LoginProps> = ({
   useEffect(() => {
     startLockCountdown(Number(lockTimestamp));
     setInlineMsg(null);
+    if (loginStatus === "AUTHENTICATED") console.log(loginStatus);
   }, [step]);
 
   const onPasswordChange = (
@@ -106,7 +107,7 @@ export const Login: React.FC<LoginProps> = ({
         //     : redirectTo || "";
         // setCurrentPage(page);
         // setCookie("user", JSON.stringify(res), 60 * 24);
-        console.log(loginStatus);
+        // console.log(loginStatus);
         setStep?.("email");
         // router.push(page || "");
       } else {

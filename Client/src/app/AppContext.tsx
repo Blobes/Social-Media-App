@@ -28,7 +28,8 @@ export const ContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [loginStatus, setLoginStatus] = useState<LoginStatus>("UNKNOWN");
+  const [loginStatus, setLoginStatus] =
+    useState<LoginStatus>("UNAUTHENTICATED");
   const [authUser, setAuthUser] = useState<IUser | null>(null);
   const [snackBarMsgs, setSnackBarMsgs] = useState<SnackBarMsg>({
     messgages: [],
