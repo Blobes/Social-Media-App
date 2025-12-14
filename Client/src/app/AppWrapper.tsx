@@ -66,7 +66,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         shouldClose: false,
       });
     if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
-      setCurrentPage("/web/home");
+      setCurrentPage("home");
       router.replace("/web/home");
     }
 

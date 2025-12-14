@@ -37,12 +37,12 @@ export const ContextProvider = ({
   const [inlineMsg, setInlineMsg] = useState<string | null>(null);
   const [isGlobalLoading, setGlobalLoading] = useState(false);
   const [isAuthLoading, setAuthLoading] = useState(false);
-  const [currentPage, setPage] = useState<string>("");
+  const [currentPage, setPage] = useState<string>("home");
   const [modalContent, setModalContent] = useState<ModalContent | null>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem("currentPage");
-    if (saved) setPage(saved);
+    const savedPage = localStorage.getItem("currentPage");
+    setPage(savedPage || "home");
   }, []);
 
   useEffect(() => {
