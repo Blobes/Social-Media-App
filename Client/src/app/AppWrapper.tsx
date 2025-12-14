@@ -21,23 +21,15 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // Always initialize hooks here — top of the component
   const modalRef = useRef<ModalRef>(null);
   const { setSBMessage, setCurrentPage } = useSharedHooks();
-  const {
-    snackBarMsgs,
-    setAuthUser,
-    loginStatus,
-    setLoginStatus,
-    setInlineMsg,
-    currentPage,
-    setPage,
-    modalContent,
-    setModalContent,
-  } = useAppContext();
+  const { snackBarMsgs, loginStatus, modalContent, setModalContent } =
+    useAppContext();
 
   // Client-only UI rendering
   const [mounted, setMounted] = useState(false);
 
   const excludedRoutes = ["/auth/login", "/auth/signup", "/web/home"];
   const isExcludedRoute = excludedRoutes.includes(pathname);
+  const excludedUIRoutes = ["/auth/login", "/auth/signup"];
 
   // ─────────────────────────────
   // 1️⃣ MOUNT + INITIAL AUTH CHECK
@@ -54,7 +46,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     if (!mounted) return;
 
     const runAuth = async () => {
-      await verifyAuth(useAppContext, useSharedHooks);
+      //  await verifyAuth(useAppContext, useSharedHooks);
 
       // Handle modal based on loginStatus
       if (loginStatus === "LOCKED" && !isExcludedRoute) {
@@ -65,12 +57,13 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
 
       // Redirect if unauthenticated
       if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
+        setCurrentPage("home");
         router.replace("/web/home");
       }
     };
 
     runAuth();
-  }, [mounted, loginStatus]);
+  }, [mounted, loginStatus, isExcludedRoute]);
 
   // ─────────────────────────────
   // 3️⃣ MODAL OPEN / CLOSE
@@ -138,8 +131,6 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   }, [mounted]);
 
   if (!mounted) return null;
-
-  const excludedUIRoutes = ["/auth/login", "/auth/signup"];
 
   return (
     <Stack sx={{ position: "fixed", height: "100vh", width: "100%", gap: 0 }}>
