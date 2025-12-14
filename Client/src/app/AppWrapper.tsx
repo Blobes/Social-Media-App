@@ -26,6 +26,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
 
   // Client-only UI rendering
   const [mounted, setMounted] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   const excludedRoutes = ["/auth/login", "/auth/signup", "/web/home"];
   const isExcludedRoute = excludedRoutes.includes(pathname);
@@ -37,16 +38,17 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     setMounted(true);
     verifyAuth(useAppContext, useSharedHooks);
+    setAuthChecked(true);
   }, []);
 
   // ─────────────────────────────
   // 2️⃣ AUTH STATE REACTIONS
   // ─────────────────────────────
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || !authChecked) return;
 
     const runAuth = async () => {
-      //  await verifyAuth(useAppContext, useSharedHooks);
+      await verifyAuth(useAppContext, useSharedHooks);
 
       // Handle modal based on loginStatus
       if (loginStatus === "LOCKED" && !isExcludedRoute) {
@@ -63,7 +65,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     };
 
     runAuth();
-  }, [mounted, loginStatus, isExcludedRoute]);
+  }, [mounted, authChecked, loginStatus]);
 
   // ─────────────────────────────
   // 3️⃣ MODAL OPEN / CLOSE
