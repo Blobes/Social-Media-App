@@ -95,6 +95,8 @@ export const useAuth = () => {
   const handleLogin = async (
     credentials: LoginCredentials
   ): Promise<LoginResponse | null> => {
+    const { setCurrentPage } = useSharedHooks();
+
     // Step 1: Check if user is currently locked out
     const isLocked = loginAttempts >= MAX_ATTEMPTS && lockTimestamp;
     const remainingSec = isLocked
@@ -111,9 +113,16 @@ export const useAuth = () => {
       });
 
       // Step 3: On success — reset auth state
+
+      const snapshotCookie = getCookie("user_snapshot");
+      const userSnapshot = snapshotCookie ? JSON.parse(snapshotCookie) : null;
+      const lastRoute = userSnapshot?.lastRoute || "/timeline";
       const { message: message, payload, status } = res;
+
       setAuthUser(payload!);
       setLoginStatus("AUTHENTICATED");
+      setCurrentPage(lastRoute.replace("/", ""));
+      deleteCookie("user_snapshot");
       deleteCookie("loginAttempts"); // reset attempt count
 
       return {
@@ -172,11 +181,9 @@ export const useAuth = () => {
       // Step 1: Send logout request to backend
       await fetcher("/auth/logout", { method: "POST" });
 
-      // Step 2: Reset login status, currentPage and feedback state
       setLoginStatus("LOCKED");
-      setSnackBarMsgs((prev) => ({ ...prev, messgages: [], inlineMsg: null }));
 
-      // Step 3: Check if stored user exists for drawer experience
+      // Step 2: Check if stored user exists for drawer experience
       if (snapshot) setCookie("user_snapshot", JSON.stringify(snapshot), 20);
 
       const userSnapshot = getCookie("user_snapshot");
@@ -189,9 +196,15 @@ export const useAuth = () => {
         setCurrentPage("home");
         router.replace("/web/home");
       }
-    } catch (error) {
+    } catch (error: any) {
+      setSBMessage({
+        msg: { content: error.message, msgStatus: "ERROR" },
+      });
       console.error("Logout failed:", error);
     }
+
+    //Reset feedback state
+    setSnackBarMsgs((prev) => ({ ...prev, messgages: [], inlineMsg: null }));
   };
 
   return {
