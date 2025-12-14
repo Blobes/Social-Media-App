@@ -51,7 +51,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     if (!mounted || !authChecked) return;
 
     const runAuth = async () => {
-      // await verifyAuth(useAppContext, useSharedHooks);
+      await verifyAuth(useAppContext, useSharedHooks);
 
       // Handle modal based on loginStatus
       if (loginStatus === "LOCKED" && !isExcludedRoute) {
