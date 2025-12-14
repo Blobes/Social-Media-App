@@ -117,14 +117,6 @@ export const useAuth = () => {
       // Step 3: Reset auth state
       setAuthUser(payload);
       setLoginStatus("AUTHENTICATED");
-
-      // Use last route from snapshot if exists
-      const snapshotCookie = getCookie("user_snapshot");
-      const userSnapshot = snapshotCookie ? JSON.parse(snapshotCookie) : null;
-      const lastRoute = userSnapshot?.lastRoute || "/timeline";
-
-      setCurrentPage(lastRoute.replace("/", ""));
-      router.replace(lastRoute); // ✅ use lastRoute directly
       deleteCookie("user_snapshot");
       deleteCookie("loginAttempts");
 

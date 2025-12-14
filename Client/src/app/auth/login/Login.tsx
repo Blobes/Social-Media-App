@@ -7,7 +7,7 @@ import { AppButton } from "@/components/Buttons";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import { ModalRef } from "@/components/Modal";
-import { delay, setCookie } from "@/helpers/others";
+import { delay, getCookie, setCookie } from "@/helpers/others";
 import { useEffect, useState } from "react";
 import { useSharedHooks } from "@/hooks";
 import { PasswordInput } from "@/components/InputFields";
@@ -61,7 +61,6 @@ export const Login: React.FC<LoginProps> = ({
   useEffect(() => {
     startLockCountdown(Number(lockTimestamp));
     setInlineMsg(null);
-    if (loginStatus === "AUTHENTICATED") console.log(loginStatus);
   }, [step]);
 
   const onPasswordChange = (
@@ -97,6 +96,13 @@ export const Login: React.FC<LoginProps> = ({
           setSBMessage({
             msg: { content: timedMsg, msgStatus: status },
           });
+
+        const snapshotCookie = getCookie("user_snapshot");
+        const userSnapshot = snapshotCookie ? JSON.parse(snapshotCookie) : null;
+        const lastRoute = userSnapshot?.lastRoute || "/timeline";
+        setCurrentPage(lastRoute.replace("/", ""));
+        router.replace(lastRoute);
+
         setStep?.("email");
       } else {
         setInlineMsg(fixedMsg ?? null);
