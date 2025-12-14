@@ -46,6 +46,7 @@ export const Login: React.FC<LoginProps> = ({
     isAuthLoading,
     setAuthLoading,
     setAuthUser,
+    loginStatus,
     setLoginStatus,
   } = useAppContext();
   const { setSBMessage, setCurrentPage } = useSharedHooks();
@@ -105,6 +106,7 @@ export const Login: React.FC<LoginProps> = ({
         //     : redirectTo || "";
         // setCurrentPage(page);
         // setCookie("user", JSON.stringify(res), 60 * 24);
+        console.log(loginStatus);
         setStep?.("email");
         // router.push(page || "");
       } else {

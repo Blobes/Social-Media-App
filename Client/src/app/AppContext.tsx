@@ -45,11 +45,11 @@ export const ContextProvider = ({
     setPage(savedPage || "home");
   }, []);
 
-  useEffect(() => {
-    if (currentPage) {
-      localStorage.setItem("currentPage", currentPage);
-    }
-  }, [currentPage]);
+  // useEffect(() => {
+  //   if (currentPage) {
+  //     setCurr("currentPage", currentPage);
+  //   }
+  // }, [currentPage]);
 
   return (
     <context.Provider
