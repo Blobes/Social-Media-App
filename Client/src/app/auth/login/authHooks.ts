@@ -164,8 +164,6 @@ export const useAuth = () => {
       // Step 1: Send logout request to backend
       await fetcher("/auth/logout", { method: "POST" });
 
-      setLoginStatus("LOCKED");
-
       // Step 2: Check if stored user exists for drawer experience
       if (snapshot) setCookie("user_snapshot", JSON.stringify(snapshot), 20);
 
@@ -174,9 +172,11 @@ export const useAuth = () => {
         const parsed = JSON.parse(userSnapshot);
         setAuthUser(parsed);
         setCurrentPage(parsed.lastRoute);
+        setLoginStatus("LOCKED");
       } else {
         setAuthUser(null);
         setCurrentPage("home");
+        setLoginStatus("UNAUTHENTICATED");
         router.replace("/web/home");
       }
     } catch (error: any) {
