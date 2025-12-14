@@ -46,7 +46,7 @@ export const ContextProvider = ({
     setPage(savedPage || "home");
   }, []);
 
-  // useEffect(() => {
+  //useEffect(() => {
   //   if (currentPage) {
   //     setCurr("currentPage", currentPage);
   //   }
