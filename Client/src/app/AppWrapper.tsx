@@ -57,8 +57,9 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     const userSnapshot = snapshotCookie ? JSON.parse(snapshotCookie) : null;
 
     if (loginStatus === "AUTHENTICATED") {
-      setCurrentPage(userSnapshot.lastRoute || "timeline");
-      router.replace(userSnapshot.lastRoute || "/timeline");
+      const targetRoute = userSnapshot?.lastRoute || "/timeline";
+      setCurrentPage(targetRoute.replace("/", ""));
+      router.replace(targetRoute);
       setModalContent(null);
       return;
     }
