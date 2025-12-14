@@ -37,8 +37,11 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // ─────────────────────────────
   useEffect(() => {
     setMounted(true);
-    verifyAuth(useAppContext, useSharedHooks);
-    setAuthChecked(true);
+    const initAuth = async () => {
+      await verifyAuth(useAppContext, useSharedHooks);
+      setAuthChecked(true); // mark that auth has finished verifying
+    };
+    initAuth();
   }, []);
 
   // ─────────────────────────────
