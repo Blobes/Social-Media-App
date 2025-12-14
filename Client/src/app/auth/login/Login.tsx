@@ -93,23 +93,11 @@ export const Login: React.FC<LoginProps> = ({
       const { payload, message: timedMsg, fixedMsg, status } = res;
 
       if (payload && status === "SUCCESS") {
-        // setLoginStatus("AUTHENTICATED");
-        //  setAuthUser(res.payload);
-
         !isAuthLoading &&
           setSBMessage({
             msg: { content: timedMsg, msgStatus: status },
           });
-
-        // const page =
-        //   redirectTo === undefined || redirectTo === null || redirectTo === ""
-        //     ? "timeline"
-        //     : redirectTo || "";
-        // setCurrentPage(page);
-        // setCookie("user", JSON.stringify(res), 60 * 24);
-        // console.log(loginStatus);
         setStep?.("email");
-        // router.push(page || "");
       } else {
         setInlineMsg(fixedMsg ?? null);
       }

@@ -165,7 +165,7 @@ export const useAuth = () => {
           lastName: authUser.lastName,
           username: authUser.lastName,
           profileImage: authUser.profileImage,
-          lastRoute: currentPage,
+          lastRoute: window.location.pathname,
         }
       : null;
     try {
@@ -185,9 +185,9 @@ export const useAuth = () => {
         setAuthUser(parsed);
         setCurrentPage(parsed.lastRoute);
       } else {
+        setAuthUser(null);
         setCurrentPage("home");
         router.replace("/web/home");
-        setAuthUser(null);
       }
     } catch (error) {
       console.error("Logout failed:", error);

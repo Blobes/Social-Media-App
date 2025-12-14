@@ -5,7 +5,7 @@ import { fetchUserWithTokenCheck } from "@/helpers/fetcher";
 
 export const verifyAuth = async (appContext: any, useSharedHooks: any) => {
   const { setAuthUser, setLoginStatus } = appContext();
-  const { setSBMessage } = useSharedHooks();
+  const { setSBMessage, setCurrentPage } = useSharedHooks();
 
   try {
     const res = await fetchUserWithTokenCheck();
@@ -15,6 +15,11 @@ export const verifyAuth = async (appContext: any, useSharedHooks: any) => {
     // ✅ Fully authenticated
     if (navigator.onLine && res.payload) {
       setAuthUser(res.payload);
+      setLoginStatus("AUTHENTICATED");
+
+      // Resume last route if snapshot exists
+      const lastRoute = userSnapshot?.lastRoute || "/timeline";
+      setCurrentPage(lastRoute.replace("/", ""));
       deleteCookie("user_snapshot");
       return;
     }
@@ -23,6 +28,7 @@ export const verifyAuth = async (appContext: any, useSharedHooks: any) => {
     if (userSnapshot) {
       setAuthUser(userSnapshot);
       setLoginStatus("LOCKED");
+      setCurrentPage(userSnapshot.lastRoute?.replace("/", "") || "timeline");
       if (!res.message?.includes("no token provided")) {
         setSBMessage({
           msg: { content: res.message, msgStatus: "ERROR", hasClose: true },
@@ -34,8 +40,13 @@ export const verifyAuth = async (appContext: any, useSharedHooks: any) => {
     // 🚫 Fully logged out
     setAuthUser(null);
     setLoginStatus("UNAUTHENTICATED");
-  } catch {
+    setCurrentPage("home");
+  } catch (err: any) {
     setAuthUser(null);
     setLoginStatus("UNAUTHENTICATED");
+    setCurrentPage("home");
+    setSBMessage({
+      msg: { content: "Unable to verify session", msgStatus: "ERROR" },
+    });
   }
 };
