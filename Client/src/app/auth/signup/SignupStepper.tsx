@@ -37,7 +37,6 @@ export const SignUpStepper: React.FC<StepperProps> = ({
           setStep={setCurrStep}
           existingEmail={email}
           setEmailProp={setEmail}
-          modalRef={modalRef}
           style={{ ...style.headline, ...style.tagline }}
         />
       ),
@@ -49,7 +48,6 @@ export const SignUpStepper: React.FC<StepperProps> = ({
           step={currStep}
           setStep={setCurrStep}
           email={email}
-          modalRef={modalRef}
           redirectTo={redirectTo}
           style={{ ...style.headline, ...style.tagline }}
         />
