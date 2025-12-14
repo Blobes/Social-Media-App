@@ -19,7 +19,7 @@ export const genAccessTokens = (user: any, res: Response) => {
   // Set token in cookie
   res.cookie("access_token", accessToken, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production" && !process.env.IS_LOCAL_DEV,
     sameSite: "none",
     maxAge: 60 * 60 * 1000, // 60 minutes
   });
@@ -40,7 +40,7 @@ export const genRefreshTokens = (user: any, res: Response) => {
   // Set token in cookie
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production" && !process.env.IS_LOCAL_DEV,
     sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
