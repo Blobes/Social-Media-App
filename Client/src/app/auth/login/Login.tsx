@@ -91,8 +91,8 @@ export const Login: React.FC<LoginProps> = ({
       const { payload, message: timedMsg, fixedMsg, status } = res;
 
       if (payload && status === "SUCCESS") {
-        setLoginStatus("AUTHENTICATED");
-        setAuthUser(res.payload);
+        // setLoginStatus("AUTHENTICATED");
+        //  setAuthUser(res.payload);
 
         !isAuthLoading &&
           setSBMessage({
