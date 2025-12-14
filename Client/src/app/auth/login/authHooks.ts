@@ -95,8 +95,6 @@ export const useAuth = () => {
   const handleLogin = async (
     credentials: LoginCredentials
   ): Promise<LoginResponse | null> => {
-    const { setCurrentPage } = useSharedHooks();
-
     // Step 1: Check if user is locked
     const isLocked = loginAttempts >= MAX_ATTEMPTS && lockTimestamp;
     const remainingSec = isLocked

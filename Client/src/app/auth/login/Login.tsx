@@ -6,8 +6,7 @@ import { useAppContext } from "@/app/AppContext";
 import { AppButton } from "@/components/Buttons";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
-import { ModalRef } from "@/components/Modal";
-import { delay, getCookie, setCookie } from "@/helpers/others";
+import { delay, getCookie } from "@/helpers/others";
 import { useEffect, useState } from "react";
 import { useSharedHooks } from "@/hooks";
 import { PasswordInput } from "@/components/InputFields";
@@ -40,15 +39,8 @@ export const Login: React.FC<LoginProps> = ({
     lockTimestamp,
     startLockCountdown,
   } = useAuth();
-  const {
-    inlineMsg,
-    setInlineMsg,
-    isAuthLoading,
-    setAuthLoading,
-    setAuthUser,
-    loginStatus,
-    setLoginStatus,
-  } = useAppContext();
+  const { inlineMsg, setInlineMsg, isAuthLoading, setAuthLoading } =
+    useAppContext();
   const { setSBMessage, setCurrentPage } = useSharedHooks();
   const [msg, setMsg] = useState("");
   const [passwordValidity, setPasswordValidity] = useState<
@@ -101,7 +93,7 @@ export const Login: React.FC<LoginProps> = ({
         const userSnapshot = snapshotCookie ? JSON.parse(snapshotCookie) : null;
         const lastRoute = userSnapshot?.lastRoute || "/timeline";
         setCurrentPage(lastRoute.replace("/", ""));
-        router.replace(lastRoute);
+        //router.replace(lastRoute);
 
         setStep?.("email");
       } else {
