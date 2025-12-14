@@ -37,6 +37,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // ─────────────────────────────
   useEffect(() => {
     setMounted(true);
+    verifyAuth(useAppContext, useSharedHooks);
     // const initAuth = async () => {
     //   await verifyAuth(useAppContext, useSharedHooks);
     //   setAuthChecked(true); // mark that auth has finished verifying
@@ -70,7 +71,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     };
 
     runAuth();
-  }, [mounted, authChecked, loginStatus]);
+  }, [mounted, loginStatus]);
 
   // ─────────────────────────────
   // 3️⃣ MODAL OPEN / CLOSE
