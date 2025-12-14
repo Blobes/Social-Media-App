@@ -1,7 +1,6 @@
 "use client";
 
 import { deleteCookie, getCookie } from "@/helpers/others";
-//import { IUser, UserSnapshot } from "@/types";
 import { fetchUserWithTokenCheck } from "@/helpers/fetcher";
 
 export const verifyAuth = async (
@@ -10,7 +9,7 @@ export const verifyAuth = async (
   router: any
 ) => {
   const { setAuthUser, setLoginStatus, setPage } = appContext();
-  const { setSBMessage } = useSharedHooks();
+  const { setSBMessage, setCurrentPage } = useSharedHooks();
 
   const res = await fetchUserWithTokenCheck();
   const userSnapshot: any = getCookie("user_snapshot");
@@ -20,8 +19,8 @@ export const verifyAuth = async (
     setAuthUser(res.payload);
     setLoginStatus("AUTHENTICATED");
     if (userSnapshot) {
-      setPage(userSnapshot.lastRoute);
-      router.replace(userSnapshot.lastRoute);
+      setCurrentPage(userSnapshot.lastRoute || "/timeline");
+      router.replace(userSnapshot.lastRoute || "/timeline");
     }
     deleteCookie("user_snapshot");
     return;

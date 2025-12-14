@@ -20,7 +20,6 @@ interface LoginProps {
   email: string;
   step?: string;
   setStep?: (step: string) => void;
-  modalRef?: React.RefObject<ModalRef>;
   redirectTo?: string;
   style?: {
     headline?: GenericObject<string>;
@@ -32,8 +31,6 @@ export const Login: React.FC<LoginProps> = ({
   email,
   step,
   setStep,
-  modalRef,
-  redirectTo,
   style = {},
 }) => {
   const {
@@ -42,7 +39,7 @@ export const Login: React.FC<LoginProps> = ({
     MAX_ATTEMPTS,
     lockTimestamp,
     startLockCountdown,
-  } = useAuth(modalRef);
+  } = useAuth();
   const {
     inlineMsg,
     setInlineMsg,
@@ -102,15 +99,14 @@ export const Login: React.FC<LoginProps> = ({
             msg: { content: timedMsg, msgStatus: status },
           });
 
-        const page =
-          redirectTo === undefined || redirectTo === null || redirectTo === ""
-            ? "timeline"
-            : redirectTo || "";
-        setCurrentPage(page);
-        setCookie("user", JSON.stringify(res), 60 * 24);
-
+        // const page =
+        //   redirectTo === undefined || redirectTo === null || redirectTo === ""
+        //     ? "timeline"
+        //     : redirectTo || "";
+        // setCurrentPage(page);
+        // setCookie("user", JSON.stringify(res), 60 * 24);
         setStep?.("email");
-        router.push(page || "");
+        // router.push(page || "");
       } else {
         setInlineMsg(fixedMsg ?? null);
       }

@@ -19,7 +19,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
 
   // Always initialize hooks here — top of the component
   const modalRef = useRef<ModalRef>(null);
-  const { setSBMessage } = useSharedHooks();
+  const { setSBMessage, setCurrentPage } = useSharedHooks();
   const {
     snackBarMsgs,
     setAuthUser,
@@ -28,6 +28,8 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     setInlineMsg,
     currentPage,
     setPage,
+    modalContent,
+    setModalContent,
   } = useAppContext();
 
   // Client-only UI rendering
@@ -41,6 +43,12 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!mounted) return;
 
+    if (modalContent) {
+      modalRef.current?.openModal();
+    } else {
+      modalRef.current?.closeModal();
+    }
+
     const excludedRoutes = [
       window.location.origin,
       "/auth/login",
@@ -51,15 +59,16 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
 
     // Verify User Auth
     verifyAuth(useAppContext, useSharedHooks, router);
-    if (!isExcludedRoute && loginStatus === "LOCKED")
-      modalRef.current?.openModal();
-
-    if (!isExcludedRoute && loginStatus === "UNAUTHENTICATED") {
-      setPage("/web/home");
+    if (loginStatus === "AUTHENTICATED") setModalContent(null);
+    if (loginStatus === "LOCKED" && !isExcludedRoute)
+      setModalContent({
+        content: <AuthStepper />,
+        shouldClose: false,
+      });
+    if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
+      setCurrentPage("/web/home");
       router.replace("/web/home");
     }
-
-    if (loginStatus === "AUTHENTICATED") modalRef.current?.closeModal();
 
     // Event handlers
     const handleVisibilityChange = () => {
@@ -100,6 +109,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     };
   }, [
     mounted,
+    modalContent,
     loginStatus,
     pathname,
     router,
@@ -121,15 +131,13 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       {!excludedUIRoutes.includes(pathname) && <Header />}
       {snackBarMsgs.messgages && <SnackBars snackBarMsg={snackBarMsgs} />}
       {children}
-      {!excludedUIRoutes.includes(pathname) && (
+      {modalContent && (
         <Modal
           ref={modalRef}
           children={{
-            contentElement: (
-              <AuthStepper modalRef={modalRef} redirectTo={currentPage} />
-            ),
+            contentElement: modalContent.content,
           }}
-          shouldClose={false}
+          shouldClose={modalContent.shouldClose}
           entryDir="CENTER"
         />
       )}

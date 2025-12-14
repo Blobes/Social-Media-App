@@ -27,14 +27,13 @@ interface CheckProps {
 }
 
 export const CheckEmail: React.FC<CheckProps> = ({
-  modalRef,
   step,
   setStep,
   existingEmail,
   setEmailProp,
   style = {},
 }) => {
-  const { checkEmail } = useAuth(modalRef);
+  const { checkEmail } = useAuth();
   const { isAuthLoading, setAuthLoading, inlineMsg } = useAppContext();
   const [validity, setValidity] = useState<"valid" | "invalid">();
   const [msg, setMsg] = useState("");
@@ -79,7 +78,6 @@ export const CheckEmail: React.FC<CheckProps> = ({
         setEmailProp?.(email);
         setStep?.("login");
       } else {
-        modalRef?.current?.closeModal(); // Close drawer
         router.push(`/auth/signup?email=${email}`);
       }
     }

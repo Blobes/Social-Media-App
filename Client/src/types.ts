@@ -73,6 +73,11 @@ export interface ListItemType {
   action?: () => void | null;
 }
 
+export interface ModalContent {
+  content: React.ReactNode;
+  shouldClose?: boolean;
+}
+
 export interface MsgType {
   id?: number;
   title?: string | null;

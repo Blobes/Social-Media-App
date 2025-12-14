@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { IUser, SnackBarMsg, LoginStatus } from "@/types";
+import { IUser, SnackBarMsg, LoginStatus, ModalContent } from "@/types";
 
 interface AppContextType {
   loginStatus: LoginStatus;
@@ -18,6 +18,8 @@ interface AppContextType {
   setAuthLoading: React.Dispatch<React.SetStateAction<boolean>>;
   currentPage: string;
   setPage: React.Dispatch<React.SetStateAction<string>>;
+  modalContent: ModalContent | null;
+  setModalContent: React.Dispatch<React.SetStateAction<ModalContent | null>>;
 }
 
 const context = createContext<AppContextType | null>(null);
@@ -36,6 +38,7 @@ export const ContextProvider = ({
   const [isGlobalLoading, setGlobalLoading] = useState(false);
   const [isAuthLoading, setAuthLoading] = useState(false);
   const [currentPage, setPage] = useState<string>("");
+  const [modalContent, setModalContent] = useState<ModalContent | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("currentPage");
@@ -65,6 +68,8 @@ export const ContextProvider = ({
         setAuthLoading,
         currentPage,
         setPage,
+        modalContent,
+        setModalContent,
       }}>
       {children}
     </context.Provider>

@@ -27,7 +27,7 @@ import { AnchorLink, AppButton } from "@/components/Buttons";
 import { fetcher } from "@/helpers/fetcher";
 import { summarizeNum } from "@/helpers/others";
 import { Strip } from "@/components/StripBar";
-import { ModalRef } from "@/components/Modal";
+import { AuthStepper } from "../auth/login/AuthStepper";
 
 export const ProfileCard = () => {
   const theme = useTheme();
@@ -222,8 +222,7 @@ interface PostProps {
 
 export const PostCard = ({ post, style = {} }: PostProps) => {
   const theme = useTheme();
-  const { authUser, loginStatus } = useAppContext();
-  const modalRef = useRef<ModalRef>(null);
+  const { authUser, loginStatus, setModalContent } = useAppContext();
   const { handlePostLike, getPendingLike, setPendingLike, clearPendingLike } =
     usePost();
   const [isLiking, setLiking] = useState(false);
@@ -268,7 +267,7 @@ export const PostCard = ({ post, style = {} }: PostProps) => {
   // Like Handler
   const handleLike = async () => {
     if (!authUser || loginStatus === "LOCKED") {
-      modalRef.current?.openModal();
+      setModalContent({ content: <AuthStepper />, shouldClose: false });
       return;
     }
 

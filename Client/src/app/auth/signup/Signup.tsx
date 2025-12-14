@@ -14,7 +14,6 @@ import { GenericObject } from "@/types";
 import { delay } from "@/helpers/others";
 
 interface InfoProps {
-  modalRef?: React.RefObject<ModalRef>;
   step?: string;
   setStep?: (step: string) => void;
   existingEmail?: string;
@@ -26,14 +25,13 @@ interface InfoProps {
 }
 
 export const Signup: React.FC<InfoProps> = ({
-  modalRef,
   step,
   setStep,
   existingEmail,
   setEmailProp,
   style = {},
 }) => {
-  const { checkEmail } = useAuth(modalRef);
+  const { checkEmail } = useAuth();
   const { isAuthLoading, setAuthLoading } = useAppContext();
   const [validity, setValidity] = useState<"valid" | "invalid">();
   const [msg, setMsg] = useState("");
@@ -78,7 +76,6 @@ export const Signup: React.FC<InfoProps> = ({
       setEmailProp?.(email);
       setStep?.("login");
     } else {
-      modalRef?.current?.closeModal(); // Close drawer
       router.push(`/auth/signup?email=${email}`);
     }
     setAuthLoading(false);

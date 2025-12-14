@@ -5,7 +5,6 @@ import { useSharedHooks } from "@/hooks";
 import { fetcher } from "@/helpers/fetcher";
 import { IUser, SingleResponse, UserSnapshot } from "@/types";
 import { useRouter } from "next/navigation";
-import { ModalRef } from "@/components/Modal";
 import { deleteCookie, getCookie, setCookie } from "@/helpers/others";
 import {
   clearLoginLock,
@@ -26,7 +25,7 @@ interface CheckEmailResponse {
   message: string;
 }
 
-export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
+export const useAuth = () => {
   const {
     authUser,
     setAuthUser,
@@ -36,7 +35,7 @@ export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
     setInlineMsg,
     currentPage,
   } = useAppContext();
-  const { setSBMessage: setFbMessage } = useSharedHooks();
+  const { setSBMessage, setCurrentPage } = useSharedHooks();
   const router = useRouter();
   const MAX_ATTEMPTS = 3;
   const LOCKOUT_MIN = 2;
@@ -79,7 +78,7 @@ export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
         clearInterval(countdownRef.current!);
         countdownRef.current = null;
         clearLoginLock();
-        setFbMessage({
+        setSBMessage({
           msg: { content: "Login Activated", msgStatus: "SUCCESS" },
         });
         setInlineMsg(null);
@@ -186,6 +185,7 @@ export const useAuth = (drawerRef?: React.RefObject<ModalRef>) => {
       if (userSnapshot) {
         setAuthUser(JSON.parse(userSnapshot));
       } else {
+        setCurrentPage("/web/home");
         router.replace("/web/home");
         setAuthUser(null);
       }

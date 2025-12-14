@@ -3,15 +3,12 @@
 import React, { useState } from "react";
 import { CheckEmail } from "./CheckEmail";
 import { useTheme } from "@mui/material/styles";
-import { ModalRef } from "@/components/Modal";
 import { Login } from "./Login";
 import { GenericObject, Step } from "@/types";
 import { Stepper } from "@/components/Stepper";
 import { Stack } from "@mui/material";
 
 interface StepperProps {
-  modalRef?: React.RefObject<ModalRef>;
-  redirectTo?: string;
   style?: {
     container?: GenericObject<string>;
     headline?: GenericObject<string>;
@@ -19,11 +16,7 @@ interface StepperProps {
   };
 }
 
-export const AuthStepper: React.FC<StepperProps> = ({
-  modalRef,
-  redirectTo,
-  style = {},
-}) => {
+export const AuthStepper: React.FC<StepperProps> = ({ style = {} }) => {
   const theme = useTheme();
   const [email, setEmail] = useState("");
   const [currStep, setCurrStep] = useState("email");
@@ -37,7 +30,6 @@ export const AuthStepper: React.FC<StepperProps> = ({
           setStep={setCurrStep}
           existingEmail={email}
           setEmailProp={setEmail}
-          modalRef={modalRef}
           style={{ ...style.headline, ...style.tagline }}
         />
       ),
@@ -49,8 +41,6 @@ export const AuthStepper: React.FC<StepperProps> = ({
           step={currStep}
           setStep={setCurrStep}
           email={email}
-          modalRef={modalRef}
-          redirectTo={redirectTo}
           style={{ ...style.headline, ...style.tagline }}
         />
       ),
