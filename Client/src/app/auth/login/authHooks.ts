@@ -97,63 +97,56 @@ export const useAuth = () => {
   ): Promise<LoginResponse | null> => {
     const { setCurrentPage } = useSharedHooks();
 
-    // Step 1: Check if user is currently locked out
+    // Step 1: Check if user is locked
     const isLocked = loginAttempts >= MAX_ATTEMPTS && lockTimestamp;
     const remainingSec = isLocked
       ? getLockRemaining(lockTimestamp, LOCKOUT_MIN)
       : 0;
-
-    if (remainingSec <= 0) clearLoginLock(); // Unlock if time expired
+    if (remainingSec <= 0) clearLoginLock();
 
     try {
-      // Step 2: Attempt login request
+      // Step 2: Login request
       const res = await fetcher<LoginResponse>("/auth/login", {
         method: "POST",
         body: JSON.stringify(credentials),
       });
 
-      // Step 3: On success — reset auth state
+      const { payload, message, status } = res;
+      if (!payload || status !== "SUCCESS") return null;
 
+      // Step 3: Reset auth state
+      setAuthUser(payload);
+      setLoginStatus("AUTHENTICATED");
+
+      // Use last route from snapshot if exists
       const snapshotCookie = getCookie("user_snapshot");
       const userSnapshot = snapshotCookie ? JSON.parse(snapshotCookie) : null;
       const lastRoute = userSnapshot?.lastRoute || "/timeline";
-      const { message: message, payload, status } = res;
 
-      setAuthUser(payload!);
-      setLoginStatus("AUTHENTICATED");
       setCurrentPage(lastRoute.replace("/", ""));
+      router.replace(lastRoute); // ✅ use lastRoute directly
       deleteCookie("user_snapshot");
-      deleteCookie("loginAttempts"); // reset attempt count
+      deleteCookie("loginAttempts");
 
-      return {
-        payload: payload!,
-        message: message,
-        status: status,
-      };
+      return { payload, message, status };
     } catch (error: any) {
-      // Step 4: Handle login failure
+      // Step 4: Handle failure
       const msg = error.message || "";
       const isPasswordErr = msg.toLowerCase().includes("password");
-      const isEmailOrNetworkErr = ["server", "network", "email"].some((sub) =>
-        msg.toLowerCase().includes(sub)
-      );
-      // Increment attempt count if password is wrong
+
       if (isPasswordErr) {
         setCookie("loginAttempts", String(loginAttempts + 1), LOCKOUT_MIN);
       }
 
-      // Step 5: Determine fixed feedback message
-      let fixedMessage = error.message;
-      if (isEmailOrNetworkErr) {
-        fixedMessage = msg;
-      } else if (isPasswordErr && loginAttempts + 1 < MAX_ATTEMPTS) {
+      let fixedMessage = msg;
+      if (isPasswordErr && loginAttempts + 1 < MAX_ATTEMPTS) {
         fixedMessage = `Wrong password. You have ${
           MAX_ATTEMPTS - loginAttempts - 1
         } attempt(s) left.`;
       } else if (isPasswordErr && loginAttempts + 1 >= MAX_ATTEMPTS) {
         const lockTime = Date.now();
         setCookie("loginLockTime", String(lockTime), LOCKOUT_MIN);
-        startLockCountdown(lockTime); // Start countdown
+        startLockCountdown(lockTime);
         return null;
       }
 
