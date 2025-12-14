@@ -37,11 +37,6 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     setMounted(true);
-    if (modalContent) {
-      modalRef.current?.openModal();
-    } else {
-      modalRef.current?.closeModal();
-    }
   }, []);
 
   // All client-only or window-dependent logic goes inside useEffect

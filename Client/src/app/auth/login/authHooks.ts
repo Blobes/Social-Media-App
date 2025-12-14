@@ -30,7 +30,6 @@ export const useAuth = () => {
     authUser,
     setAuthUser,
     setLoginStatus,
-    setPage,
     setSnackBarMsgs,
     setInlineMsg,
     currentPage,
@@ -175,7 +174,6 @@ export const useAuth = () => {
 
       // Step 2: Reset login status, currentPage and feedback state
       setLoginStatus("LOCKED");
-      setPage("");
       setSnackBarMsgs((prev) => ({ ...prev, messgages: [], inlineMsg: null }));
 
       // Step 3: Check if stored user exists for drawer experience
@@ -183,7 +181,9 @@ export const useAuth = () => {
 
       const userSnapshot = getCookie("user_snapshot");
       if (userSnapshot) {
-        setAuthUser(JSON.parse(userSnapshot));
+        const parsed = JSON.parse(userSnapshot);
+        setAuthUser(parsed);
+        setCurrentPage(parsed.lastRoute);
       } else {
         setCurrentPage("home");
         router.replace("/web/home");
