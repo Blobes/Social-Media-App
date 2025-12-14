@@ -5,8 +5,6 @@ import crypto from "crypto";
 import fetch from "node-fetch";
 import cors from "cors";
 
-const isLocalDev = process.env.IS_LOCAL_DEV === "true";
-
 export const genAccessTokens = (user: any, res: Response) => {
   if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
     throw new Error("JWT_SECRET is not defined in environment variables");
@@ -21,7 +19,7 @@ export const genAccessTokens = (user: any, res: Response) => {
   // Set token in cookie
   res.cookie("access_token", accessToken, {
     httpOnly: true,
-    secure: isLocalDev,
+    secure: process.env.NODE_ENV === "production" && !process.env.IS_LOCAL_DEV,
     sameSite: "none",
     maxAge: 60 * 60 * 1000, // 60 minutes
   });
@@ -42,7 +40,7 @@ export const genRefreshTokens = (user: any, res: Response) => {
   // Set token in cookie
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true,
-    secure: isLocalDev,
+    secure: process.env.NODE_ENV === "production" && !process.env.IS_LOCAL_DEV,
     sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
@@ -110,9 +108,19 @@ export const corsConfig = (): any => {
   ];
   return cors({
     origin: (origin, callback) => {
+      // Allow server-to-server, Postman, curl
       if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      if (origin.endsWith(".vercel.app")) return callback(null, true);
+
+      // Allow localhost & production explicitly
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // ✅ Allow ALL Vercel preview deployments
+      if (origin.endsWith(".vercel.app")) {
+        return callback(null, true);
+      }
+
       return callback(new Error("CORS: Origin not allowed"));
     },
     credentials: true,
