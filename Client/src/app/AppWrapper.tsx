@@ -64,6 +64,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       }
     };
     initAuth();
+    setMounted(true);
     return () => {
       alive = false;
     };
@@ -76,7 +77,6 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     console.log("called in second useEffect");
     if (loginStatus === "UNKNOWN") return;
 
-    setMounted(true);
     // Handle modal based on loginStatus
     if (loginStatus === "LOCKED" && !isExcludedRoute) {
       setModalContent({ content: <AuthStepper />, shouldClose: false });
@@ -123,7 +123,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         },
         override: true,
       });
-      // reverify();
+      reverify();
     };
 
     const handleOffline = () => {
