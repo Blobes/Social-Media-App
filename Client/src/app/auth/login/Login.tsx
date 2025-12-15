@@ -41,7 +41,7 @@ export const Login: React.FC<LoginProps> = ({
   } = useAuth();
   const { inlineMsg, setInlineMsg, isAuthLoading, setAuthLoading } =
     useAppContext();
-  const { setSBMessage, setCurrentPage } = useSharedHooks();
+  const { setSBMessage, setLastPage: setCurrentPage } = useSharedHooks();
   const [msg, setMsg] = useState("");
   const [passwordValidity, setPasswordValidity] = useState<
     "valid" | "invalid"
@@ -88,13 +88,6 @@ export const Login: React.FC<LoginProps> = ({
           setSBMessage({
             msg: { content: timedMsg, msgStatus: status },
           });
-
-        const snapshotCookie = getCookie("user_snapshot");
-        const userSnapshot = snapshotCookie ? JSON.parse(snapshotCookie) : null;
-        const lastRoute = userSnapshot?.lastRoute || "/timeline";
-        setCurrentPage(lastRoute.replace("/", ""));
-        //router.replace(lastRoute);
-
         setStep?.("email");
       } else {
         setInlineMsg(fixedMsg ?? null);

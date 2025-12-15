@@ -1,7 +1,7 @@
 "use client";
 
 import { useAppContext } from "@/app/AppContext";
-import { MsgType } from "@/types";
+import { MsgType, SavedPage } from "@/types";
 import { useEffect } from "react";
 
 export const useSharedHooks = () => {
@@ -78,10 +78,16 @@ export const useSharedHooks = () => {
     setSBTimer();
   }, [setSnackBarMsgs]);
 
-  const setCurrentPage = (page: string) => {
-    setPage(page);
-    localStorage.setItem("currentPage", page);
+  const setLastPage = ({ title, path }: SavedPage) => {
+    const pageInfo = { title: title, path: path };
+    setPage(pageInfo);
+    localStorage.setItem("saved_page", JSON.stringify(pageInfo));
   };
 
-  return { setSBMessage, setSBTimer, removeMessage, setCurrentPage };
+  return {
+    setSBMessage,
+    setSBTimer,
+    removeMessage,
+    setLastPage,
+  };
 };

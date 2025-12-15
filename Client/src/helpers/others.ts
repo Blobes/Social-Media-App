@@ -81,3 +81,29 @@ export const summarizeNum = (digit: string | number): string => {
 // Delay function
 export const delay = (ms: number = 1500) =>
   new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+// Extract page title from path
+export const extractPageTitle = (path: string) => {
+  return path.split("/")[path.length - 1];
+};
+
+interface LocalItem {
+  key?: string;
+  fallback?: any;
+}
+export const getFromLocalStorage = <T = unknown | any>({
+  key = "saved_page",
+  fallback,
+}: LocalItem = {}): T | null => {
+  const savedItem = localStorage.getItem(key);
+  if (savedItem) {
+    return JSON.parse(savedItem) as T;
+  }
+  return (fallback as T) ?? null;
+};
+
+// default page
+export const defaultPage = {
+  title: "home",
+  path: "/web/home",
+};

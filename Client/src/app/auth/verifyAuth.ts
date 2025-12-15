@@ -1,6 +1,11 @@
 "use client";
 
-import { deleteCookie, getCookie } from "@/helpers/others";
+import {
+  defaultPage,
+  deleteCookie,
+  extractPageTitle,
+  getCookie,
+} from "@/helpers/others";
 import { fetchUserWithTokenCheck } from "@/helpers/fetcher";
 import { LoginStatus } from "@/types";
 
@@ -8,15 +13,17 @@ interface VerifyParams {
   setAuthUser: Function;
   setLoginStatus: Function;
   setSBMessage: Function;
-  setCurrentPage: Function;
+  setLastPage: Function;
+  pathname: string;
 }
 
 export const verifyAuth = async ({
   setAuthUser,
   setLoginStatus,
   setSBMessage,
-  setCurrentPage,
-}: VerifyParams): Promise<LoginStatus> => {
+  setLastPage,
+  pathname,
+}: VerifyParams) => {
   try {
     const res = await fetchUserWithTokenCheck();
     const snapshotCookie = getCookie("user_snapshot");
@@ -26,39 +33,34 @@ export const verifyAuth = async ({
     if (navigator.onLine && res.payload) {
       setAuthUser(res.payload);
       setLoginStatus("AUTHENTICATED");
-
-      // Resume last route if snapshot exists
-      const lastRoute = userSnapshot?.lastRoute || "/timeline";
-      setCurrentPage(lastRoute.replace("/", ""));
-      deleteCookie("user_snapshot");
-      return "AUTHENTICATED";
+      setLastPage({ title: extractPageTitle(pathname), path: pathname });
+      return;
     }
 
     // 🔒 Token invalid but snapshot exists → LOCKED
     if (userSnapshot) {
       setAuthUser(userSnapshot);
       setLoginStatus("LOCKED");
-      setCurrentPage(userSnapshot.lastRoute?.replace("/", "") || "timeline");
       if (!res.message?.includes("no token provided")) {
         setSBMessage({
           msg: { content: res.message, msgStatus: "ERROR", hasClose: true },
         });
       }
-      return "LOCKED";
+      return;
     }
 
     // 🚫 Fully logged out
     setAuthUser(null);
     setLoginStatus("UNAUTHENTICATED");
-    setCurrentPage("home");
-    return "UNAUTHENTICATED";
+    setLastPage({ title: defaultPage.title, path: defaultPage.path });
+    return;
   } catch (err: any) {
     setAuthUser(null);
     setLoginStatus("UNAUTHENTICATED");
-    setCurrentPage("home");
+    setLastPage({ title: defaultPage.title, path: defaultPage.path });
     setSBMessage({
       msg: { content: "Unable to verify session", msgStatus: "ERROR" },
     });
-    return "UNAUTHENTICATED";
+    return;
   }
 };

@@ -1,7 +1,15 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { IUser, SnackBarMsg, LoginStatus, ModalContent } from "@/types";
+import {
+  IUser,
+  SnackBarMsg,
+  LoginStatus,
+  ModalContent,
+  SavedPage,
+} from "@/types";
+import { defaultPage, getFromLocalStorage } from "@/helpers/others";
+import { useSharedHooks } from "@/hooks";
 
 interface AppContextType {
   loginStatus: LoginStatus;
@@ -16,8 +24,8 @@ interface AppContextType {
   setGlobalLoading: React.Dispatch<React.SetStateAction<boolean>>;
   isAuthLoading: boolean;
   setAuthLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  currentPage: string;
-  setPage: React.Dispatch<React.SetStateAction<string>>;
+  lastPage: SavedPage;
+  setPage: React.Dispatch<React.SetStateAction<SavedPage>>;
   modalContent: ModalContent | null;
   setModalContent: React.Dispatch<React.SetStateAction<ModalContent | null>>;
 }
@@ -37,19 +45,16 @@ export const ContextProvider = ({
   const [inlineMsg, setInlineMsg] = useState<string | null>(null);
   const [isGlobalLoading, setGlobalLoading] = useState(false);
   const [isAuthLoading, setAuthLoading] = useState(false);
-  const [currentPage, setPage] = useState<string>("home");
+  const [lastPage, setPage] = useState<SavedPage>(defaultPage);
   const [modalContent, setModalContent] = useState<ModalContent | null>(null);
+  const { setLastPage } = useSharedHooks();
 
   useEffect(() => {
-    const savedPage = localStorage.getItem("currentPage");
-    setPage(savedPage || "home");
+    const savedPage = getFromLocalStorage<SavedPage>();
+    if (savedPage) {
+      setLastPage(savedPage);
+    }
   }, []);
-
-  //useEffect(() => {
-  //   if (currentPage) {
-  //     setCurr("currentPage", currentPage);
-  //   }
-  // }, [currentPage]);
 
   return (
     <context.Provider
@@ -66,7 +71,7 @@ export const ContextProvider = ({
         setGlobalLoading,
         isAuthLoading,
         setAuthLoading,
-        currentPage,
+        lastPage: lastPage,
         setPage,
         modalContent,
         setModalContent,

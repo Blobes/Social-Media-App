@@ -26,10 +26,10 @@ import { ThemeSwitcher } from "../ThemeSwitcher";
 // Header component: Renders the top navigation bar, adapting to screen size and login state
 export const Header: React.FC = () => {
   // Global app context
-  const { loginStatus, authUser, currentPage } = useAppContext();
+  const { loginStatus, authUser, lastPage: currentPage } = useAppContext();
   const { firstName, lastName, profileImage } = authUser || {};
   // Shared hooks
-  const { setCurrentPage } = useSharedHooks();
+  const { setLastPage: setCurrentPage } = useSharedHooks();
 
   // Theme and responsive breakpoint
   const theme = useTheme();

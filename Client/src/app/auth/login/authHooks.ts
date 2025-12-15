@@ -3,9 +3,16 @@
 import { useAppContext } from "@/app/AppContext";
 import { useSharedHooks } from "@/hooks";
 import { fetcher } from "@/helpers/fetcher";
-import { IUser, SingleResponse, UserSnapshot } from "@/types";
+import { IUser, SavedPage, SingleResponse, UserSnapshot } from "@/types";
 import { useRouter } from "next/navigation";
-import { deleteCookie, getCookie, setCookie } from "@/helpers/others";
+import {
+  defaultPage,
+  deleteCookie,
+  extractPageTitle,
+  getCookie,
+  getFromLocalStorage,
+  setCookie,
+} from "@/helpers/others";
 import {
   clearLoginLock,
   formatRemainingTime,
@@ -32,9 +39,8 @@ export const useAuth = () => {
     setLoginStatus,
     setSnackBarMsgs,
     setInlineMsg,
-    currentPage,
   } = useAppContext();
-  const { setSBMessage, setCurrentPage } = useSharedHooks();
+  const { setSBMessage, setLastPage } = useSharedHooks();
   const router = useRouter();
   const MAX_ATTEMPTS = 3;
   const LOCKOUT_MIN = 2;
@@ -103,7 +109,7 @@ export const useAuth = () => {
     if (remainingSec <= 0) clearLoginLock();
 
     try {
-      // Step 2: Login request
+      // Login request
       const res = await fetcher<LoginResponse>("/auth/login", {
         method: "POST",
         body: JSON.stringify(credentials),
@@ -112,9 +118,17 @@ export const useAuth = () => {
       const { payload, message, status } = res;
       if (!payload || status !== "SUCCESS") return null;
 
-      // Step 3: Reset auth state
       setAuthUser(payload);
       setLoginStatus("AUTHENTICATED");
+
+      const savedPage = getFromLocalStorage<SavedPage>({
+        fallback: { title: "timeline", path: "/timeline" },
+      });
+      if (savedPage) {
+        setLastPage(savedPage);
+      }
+
+      //Clear cookies
       deleteCookie("user_snapshot");
       deleteCookie("loginAttempts");
 
@@ -157,9 +171,9 @@ export const useAuth = () => {
           lastName: authUser.lastName,
           username: authUser.lastName,
           profileImage: authUser.profileImage,
-          lastRoute: window.location.pathname,
         }
       : null;
+    let pagePath;
     try {
       // Step 1: Send logout request to backend
       await fetcher("/auth/logout", { method: "POST" });
@@ -168,16 +182,18 @@ export const useAuth = () => {
       if (snapshot) setCookie("user_snapshot", JSON.stringify(snapshot), 20);
 
       const userSnapshot = getCookie("user_snapshot");
+
       if (userSnapshot) {
         const parsed = JSON.parse(userSnapshot);
         setAuthUser(parsed);
-        setCurrentPage(parsed.lastRoute);
+        pagePath = window.location.pathname;
+        setLastPage({ title: extractPageTitle(pagePath), path: pagePath });
         setLoginStatus("LOCKED");
       } else {
         setAuthUser(null);
-        setCurrentPage("home");
+        setLastPage({ title: defaultPage.title, path: defaultPage.path });
         setLoginStatus("UNAUTHENTICATED");
-        router.replace("/web/home");
+        router.replace(defaultPage.path);
       }
     } catch (error: any) {
       setSBMessage({
@@ -185,7 +201,6 @@ export const useAuth = () => {
       });
       console.error("Logout failed:", error);
     }
-
     //Reset feedback state
     setSnackBarMsgs((prev) => ({ ...prev, messgages: [], inlineMsg: null }));
   };

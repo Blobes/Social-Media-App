@@ -5,8 +5,6 @@ import crypto from "crypto";
 import fetch from "node-fetch";
 import cors from "cors";
 
-const isLocalDev = process.env.IS_LOCAL_DEV === "true";
-
 export const genAccessTokens = (user: any, res: Response) => {
   if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
     throw new Error("JWT_SECRET is not defined in environment variables");

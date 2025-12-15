@@ -12,7 +12,7 @@ import { Modal, ModalRef } from "@/components/Modal";
 import { useSharedHooks } from "@/hooks";
 import { AuthStepper } from "./auth/login/AuthStepper";
 import { verifyAuth } from "./auth/verifyAuth";
-import { delay, getCookie } from "@/helpers/others";
+import { defaultPage, delay, getCookie } from "@/helpers/others";
 
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -20,7 +20,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
 
   // Always initialize hooks here — top of the component
   const modalRef = useRef<ModalRef>(null);
-  const { setSBMessage, setCurrentPage } = useSharedHooks();
+  const { setSBMessage, setLastPage } = useSharedHooks();
   const {
     snackBarMsgs,
     loginStatus,
@@ -40,27 +40,15 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // 1️⃣ MOUNT + INITIAL AUTH CHECK
   // ─────────────────────────────
   useEffect(() => {
-    //  let alive = true;
+    setMounted(true);
+
     verifyAuth({
       setAuthUser,
       setLoginStatus,
       setSBMessage,
-      setCurrentPage,
+      setLastPage: setLastPage,
+      pathname,
     });
-
-    // const initAuth = async () => {
-    //   console.log("called in init");
-    //   await verifyAuth({
-    //     setAuthUser,
-    //     setLoginStatus,
-    //     setSBMessage,
-    //     setCurrentPage,
-    //   });
-    //   console.log("called in try block");
-    // };
-
-    // initAuth();
-    setMounted(true);
   }, []);
 
   // ─────────────────────────────
@@ -75,23 +63,20 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     }
     // Redirect if unauthenticated
     if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
-      setCurrentPage("home");
-      router.replace("/web/home");
+      router.replace(defaultPage.path);
     }
-  }, [loginStatus, pathname]);
+  }, [loginStatus]);
 
   // ─────────────────────────────
   // 3️⃣ MODAL OPEN / CLOSE
   // ─────────────────────────────
   useEffect(() => {
-    if (!mounted) return;
-
     if (modalContent) {
       modalRef.current?.openModal();
     } else {
       modalRef.current?.closeModal();
     }
-  }, [modalContent, loginStatus]);
+  }, [modalContent]);
 
   //─────────────────────────────
   // 4️⃣ BROWSER EVENTS
@@ -102,7 +87,8 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         setAuthUser,
         setLoginStatus,
         setSBMessage,
-        setCurrentPage,
+        setLastPage: setLastPage,
+        pathname,
       });
 
     const handleOnline = () => {
@@ -140,7 +126,6 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     window.addEventListener("offline", handleOffline);
     window.addEventListener("focus", reverify);
     document.addEventListener("visibilitychange", handleVisibility);
-
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);

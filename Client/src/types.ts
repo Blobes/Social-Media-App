@@ -120,3 +120,8 @@ export interface Step {
   action?: () => void;
   allowPrevious?: boolean;
 }
+
+export interface SavedPage {
+  title: string;
+  path: string;
+}
