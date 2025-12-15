@@ -34,18 +34,10 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const excludedRoutes = ["/auth/login", "/auth/signup", "/web/home"];
   const isExcludedRoute = excludedRoutes.includes(pathname);
   const excludedUIRoutes = ["/auth/login", "/auth/signup"];
-  const [authChecked, setAuthChecked] = useState(false);
 
   // ─────────────────────────────
   // 1️⃣ MOUNT + INITIAL AUTH CHECK
   // ─────────────────────────────
-  // useEffect(() => {
-  //   setMounted(true);
-  //   verifyAuth(useAppContext, useSharedHooks).finally(() => {
-  //     setAuthChecked(true);
-  //   });
-  // }, []);
-
   useEffect(() => {
     let alive = true;
 
@@ -64,10 +56,8 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         if (alive) setLoginStatus("UNAUTHENTICATED");
       }
     };
-
     setMounted(true);
     initAuth();
-
     return () => {
       alive = false;
     };
@@ -77,22 +67,16 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // 2️⃣ AUTH STATE REACTIONS
   // ─────────────────────────────
   useEffect(() => {
-    // if (!mounted) return;
-    // if (loginStatus === "UNKNOWN") return;
-
-    // await verifyAuth(useAppContext, useSharedHooks);
-
     // Handle modal based on loginStatus
     if (loginStatus === "LOCKED" && !isExcludedRoute) {
       setModalContent({ content: <AuthStepper />, shouldClose: false });
     } else {
       setModalContent(null);
     }
-
     // Redirect if unauthenticated
     if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
       setCurrentPage("home");
-      //router.replace("/web/home");
+      router.replace("/web/home");
     }
   }, [loginStatus, pathname]);
 
@@ -159,7 +143,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       window.removeEventListener("focus", reverify);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [mounted, loginStatus]);
+  }, [loginStatus]);
 
   if (!mounted || loginStatus === "UNKNOWN") {
     return null; // or splash loader
