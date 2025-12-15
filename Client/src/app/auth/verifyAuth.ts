@@ -4,12 +4,21 @@ import { deleteCookie, getCookie } from "@/helpers/others";
 import { fetchUserWithTokenCheck } from "@/helpers/fetcher";
 import { LoginStatus } from "@/types";
 
-export const verifyAuth = async (
-  appContext: any,
-  useSharedHooks: any
-): Promise<LoginStatus> => {
-  const { setAuthUser, setLoginStatus } = appContext();
-  const { setSBMessage, setCurrentPage } = useSharedHooks();
+interface VerifyParams {
+  setAuthUser: Function;
+  setLoginStatus: Function;
+  setSBMessage: Function;
+  setCurrentPage: Function;
+}
+
+export const verifyAuth = async ({
+  setAuthUser,
+  setLoginStatus,
+  setSBMessage,
+  setCurrentPage,
+}: VerifyParams): Promise<LoginStatus> => {
+  // const { setAuthUser, setLoginStatus } = appContext();
+  // const { setSBMessage, setCurrentPage } = useSharedHooks();
 
   console.log("called in Auth");
 

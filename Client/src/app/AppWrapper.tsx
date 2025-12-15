@@ -27,6 +27,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     setLoginStatus,
     modalContent,
     setModalContent,
+    setAuthUser,
   } = useAppContext();
 
   // Client-only UI rendering
@@ -44,7 +45,12 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     const initAuth = async () => {
       console.log("called in init");
       try {
-        const result = await verifyAuth(useAppContext, useSharedHooks);
+        const result = await verifyAuth({
+          setAuthUser,
+          setLoginStatus,
+          setSBMessage,
+          setCurrentPage,
+        });
         console.log("called in try block");
         if (!alive) return;
 
@@ -102,7 +108,12 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // ─────────────────────────────
   useEffect(() => {
     const reverify = async () =>
-      await verifyAuth(useAppContext, useSharedHooks);
+      await verifyAuth({
+        setAuthUser,
+        setLoginStatus,
+        setSBMessage,
+        setCurrentPage,
+      });
 
     const handleOnline = () => {
       setSBMessage({
