@@ -39,9 +39,9 @@ export const Login: React.FC<LoginProps> = ({
     lockTimestamp,
     startLockCountdown,
   } = useAuth();
-  const { inlineMsg, setInlineMsg, isAuthLoading, setAuthLoading } =
+  const { inlineMsg, setInlineMsg, isAuthLoading, setAuthLoading, lastPage } =
     useAppContext();
-  const { setSBMessage, setLastPage: setCurrentPage } = useSharedHooks();
+  const { setSBMessage } = useSharedHooks();
   const [msg, setMsg] = useState("");
   const [passwordValidity, setPasswordValidity] = useState<
     "valid" | "invalid"
@@ -89,6 +89,7 @@ export const Login: React.FC<LoginProps> = ({
             msg: { content: timedMsg, msgStatus: status },
           });
         setStep?.("email");
+        router.push(lastPage.path);
       } else {
         setInlineMsg(fixedMsg ?? null);
       }

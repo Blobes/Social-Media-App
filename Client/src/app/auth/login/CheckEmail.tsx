@@ -78,7 +78,7 @@ export const CheckEmail: React.FC<CheckProps> = ({
         setEmailProp?.(email);
         setStep?.("login");
       } else {
-        router.push(`/auth/signup?email=${email}`);
+        router.replace(`/auth/signup?email=${email}`);
       }
     }
 
