@@ -45,7 +45,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       console.log("called in init");
       try {
         const result = await verifyAuth(useAppContext, useSharedHooks);
-
+        console.log("called in try block");
         if (!alive) return;
 
         if (result === "AUTHENTICATED") {
