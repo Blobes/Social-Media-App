@@ -42,7 +42,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     let alive = true;
 
     const initAuth = async () => {
-      console.log("called");
+      console.log("called in init");
       try {
         const result = await verifyAuth(useAppContext, useSharedHooks);
 

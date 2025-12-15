@@ -11,6 +11,8 @@ export const verifyAuth = async (
   const { setAuthUser, setLoginStatus } = appContext();
   const { setSBMessage, setCurrentPage } = useSharedHooks();
 
+  console.log("called in Auth");
+
   try {
     const res = await fetchUserWithTokenCheck();
     const snapshotCookie = getCookie("user_snapshot");
