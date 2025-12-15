@@ -34,10 +34,10 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // 1️⃣ MOUNT + INITIAL AUTH CHECK
   // ─────────────────────────────
   useEffect(() => {
-    delay();
     setMounted(true);
-    delay();
     verifyAuth(useAppContext, useSharedHooks);
+
+    if (loginStatus === "UNKNOWN") return;
   }, []);
 
   // ─────────────────────────────
