@@ -21,11 +21,12 @@ export const fetcher = async <T>(
     };
 
     const response = await fetch(`${BASE_URL}${endpoint}`, {
+      ...options,
       method: options.method || "GET",
       headers,
       signal,
       credentials: "include", // Needed for cookie-based auth
-      ...options,
+      cache: "no-store",
     });
 
     clearTimeout(timeoutId);

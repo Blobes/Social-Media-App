@@ -26,7 +26,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
 
   // Client-only UI rendering
   const [mounted, setMounted] = useState(false);
-  // const [authChecked, setAuthChecked] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   const excludedRoutes = ["/auth/login", "/auth/signup", "/web/home"];
   const isExcludedRoute = excludedRoutes.includes(pathname);
@@ -37,7 +37,10 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // ─────────────────────────────
   useEffect(() => {
     setMounted(true);
-    verifyAuth(useAppContext, useSharedHooks);
+    verifyAuth(useAppContext, useSharedHooks).finally(() =>
+      setAuthChecked(true)
+    );
+
     // const initAuth = async () => {
     //   await verifyAuth(useAppContext, useSharedHooks);
     //   setAuthChecked(true); // mark that auth has finished verifying
@@ -49,7 +52,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // 2️⃣ AUTH STATE REACTIONS
   // ─────────────────────────────
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || !authChecked) return;
 
     if (loginStatus === "UNKNOWN") return;
 

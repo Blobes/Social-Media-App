@@ -21,8 +21,9 @@ export const genAccessTokens = (user: any, res: Response) => {
   // Set token in cookie
   res.cookie("access_token", accessToken, {
     httpOnly: true,
-    secure: !isLocalDev,
+    secure: true,
     sameSite: "none",
+    path: "/",
     maxAge: 60 * 60 * 1000, // 60 minutes
   });
   return accessToken;
@@ -42,8 +43,9 @@ export const genRefreshTokens = (user: any, res: Response) => {
   // Set token in cookie
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true,
-    secure: !isLocalDev,
+    secure: true,
     sameSite: "none",
+    path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
   return refreshToken;
