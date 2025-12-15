@@ -48,6 +48,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     if (!mounted) return;
 
     //  console.log("not authenticated");
+    if (loginStatus === "UNKNOWN") return;
 
     const runAuth = async () => {
       // await verifyAuth(useAppContext, useSharedHooks);
@@ -57,6 +58,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         setModalContent({ content: <AuthStepper />, shouldClose: false });
       } else {
         setModalContent(null);
+        console.log("Authenticated");
       }
 
       // Redirect if unauthenticated

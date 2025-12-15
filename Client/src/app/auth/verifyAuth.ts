@@ -3,12 +3,7 @@
 import { deleteCookie, getCookie } from "@/helpers/others";
 import { fetchUserWithTokenCheck } from "@/helpers/fetcher";
 
-let authCheckInProgress = false;
-
 export const verifyAuth = async (appContext: any, useSharedHooks: any) => {
-  if (authCheckInProgress) return;
-  authCheckInProgress = true;
-
   const { setAuthUser, setLoginStatus } = appContext();
   const { setSBMessage, setCurrentPage } = useSharedHooks();
 
@@ -53,7 +48,5 @@ export const verifyAuth = async (appContext: any, useSharedHooks: any) => {
     setSBMessage({
       msg: { content: "Unable to verify session", msgStatus: "ERROR" },
     });
-  } finally {
-    authCheckInProgress = false;
   }
 };
