@@ -2,12 +2,13 @@
 
 import { defaultPage, extractPageTitle, getCookie } from "@/helpers/others";
 import { fetchUserWithTokenCheck } from "@/helpers/fetcher";
+import { SavedPage } from "@/types";
 
 interface VerifyParams {
   setAuthUser: Function;
   setLoginStatus: Function;
   setSBMessage: Function;
-  setLastPage: Function;
+  setLastPage: (page: SavedPage) => void;
   pathname: string;
   isExcludedRoute: boolean;
 }

@@ -84,7 +84,7 @@ export const delay = (ms: number = 1500) =>
 
 // Extract page title from path
 export const extractPageTitle = (path: string) => {
-  return path.split("/")[path.length - 1];
+  return path.split("/").pop() || "";
 };
 
 interface LocalItem {
