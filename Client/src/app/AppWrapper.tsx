@@ -57,8 +57,10 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         if (alive) setLoginStatus("UNAUTHENTICATED");
       }
     };
-    setMounted(true);
+
     initAuth();
+    delay();
+    setMounted(true);
     return () => {
       alive = false;
     };
