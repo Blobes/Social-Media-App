@@ -5,6 +5,7 @@ const logoutUser = (req: Request, res: Response) => {
     httpOnly: true,
     secure: true,
     sameSite: "none",
+
     path: "/",
   });
   res.clearCookie("refresh_token", {

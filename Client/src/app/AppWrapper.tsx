@@ -97,9 +97,8 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // 4️⃣ BROWSER EVENTS
   // ─────────────────────────────
   useEffect(() => {
-    if (!mounted) return;
-
-    const reverify = () => verifyAuth(useAppContext, useSharedHooks);
+    const reverify = async () =>
+      await verifyAuth(useAppContext, useSharedHooks);
 
     const handleOnline = () => {
       setSBMessage({
@@ -109,7 +108,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         },
         override: true,
       });
-      reverify();
+      // reverify();
     };
 
     const handleOffline = () => {
