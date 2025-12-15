@@ -37,15 +37,8 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // ─────────────────────────────
   useEffect(() => {
     setMounted(true);
-    verifyAuth(useAppContext, useSharedHooks).finally(() =>
-      setAuthChecked(true)
-    );
-
-    // const initAuth = async () => {
-    //   await verifyAuth(useAppContext, useSharedHooks);
-    //   setAuthChecked(true); // mark that auth has finished verifying
-    // };
-    // initAuth();
+    verifyAuth(useAppContext, useSharedHooks);
+    setAuthChecked(true);
   }, []);
 
   // ─────────────────────────────
@@ -54,7 +47,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!mounted) return;
 
-    if (loginStatus === "UNKNOWN") return;
+    //  console.log("not authenticated");
 
     const runAuth = async () => {
       // await verifyAuth(useAppContext, useSharedHooks);
@@ -73,6 +66,8 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         //  router.replace("/web/home");
       }
     };
+
+    console.log(loginStatus);
 
     runAuth();
   }, [mounted, loginStatus]);
@@ -106,7 +101,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         },
         override: true,
       });
-      reverify();
+      // reverify();
     };
 
     const handleOffline = () => {
