@@ -26,19 +26,22 @@ export const Posts = () => {
       await delay();
 
       const res = await getAllPost();
-      const offlinePosts = getCookie("offlinePosts");
+      const offlinePosts = getCookie("offline_posts");
 
       if (loginStatus === "AUTHENTICATED" && res?.payload) {
         const firstFourPosts = res.payload.slice(0, 4);
         setPosts(res.payload);
         setMessage(res.message);
-        setCookie("offlinePosts", JSON.stringify(firstFourPosts), 60 * 24);
-      } else if (loginStatus !== "AUTHENTICATED" && offlinePosts) {
+        setCookie("offline_posts", JSON.stringify(firstFourPosts), 60 * 24);
+        return;
+      }
+      if (loginStatus !== "AUTHENTICATED" && offlinePosts) {
         const parsed = JSON.parse(offlinePosts) as Post[];
         setPosts(parsed);
-      } else {
-        setMessage("Login to view posts");
+        return;
       }
+      setMessage("Login to view posts");
+      return;
     } finally {
       setLoading(false);
     }
@@ -65,7 +68,7 @@ export const Posts = () => {
           <HourglassEmptyOutlined
             sx={{ transform: "scale(1.5)", stroke: theme.palette.gray[200] }}
           />
-          <Typography variant="h6">No post available!</Typography>
+          <Typography variant="h6">{message}</Typography>
         </Stack>
       ) : (
         <Stack

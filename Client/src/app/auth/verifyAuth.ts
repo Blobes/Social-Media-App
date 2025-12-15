@@ -39,7 +39,7 @@ export const verifyAuth = async ({
     if (userSnapshot) {
       setAuthUser(userSnapshot);
       setLoginStatus("LOCKED");
-      if (!res.message?.includes("no token provided")) {
+      if (!res.message?.toLowerCase().includes("no token")) {
         setSBMessage({
           msg: { content: res.message, msgStatus: "ERROR", hasClose: true },
         });
