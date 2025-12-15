@@ -52,7 +52,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // 2️⃣ AUTH STATE REACTIONS
   // ─────────────────────────────
   useEffect(() => {
-    if (!mounted || !authChecked) return;
+    if (!mounted) return;
 
     if (loginStatus === "UNKNOWN") return;
 
@@ -68,8 +68,9 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
 
       // Redirect if unauthenticated
       if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
+        console.log("not authenticated");
         setCurrentPage("home");
-        router.replace("/web/home");
+        //  router.replace("/web/home");
       }
     };
 
