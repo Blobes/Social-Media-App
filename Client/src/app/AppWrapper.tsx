@@ -36,9 +36,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     setMounted(true);
     verifyAuth(useAppContext, useSharedHooks);
-
-    if (loginStatus === "UNKNOWN") return;
-  }, []);
+  }, [mounted]);
 
   // ─────────────────────────────
   // 2️⃣ AUTH STATE REACTIONS
