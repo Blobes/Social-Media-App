@@ -25,28 +25,34 @@ export const Posts = () => {
       setLoading(true);
       await delay();
 
-      const res = await getAllPost();
+      // IF UNAUTHENTICATED → USE OFFLINE FIRST
       const offlinePosts = getCookie("offline_posts");
+      if (loginStatus !== "AUTHENTICATED") {
+        if (offlinePosts) {
+          setPosts(JSON.parse(offlinePosts));
+          console.log("Showing cached posts");
+          return;
+        }
+        setMessage("Login to view posts");
+        return;
+      }
 
-      if (loginStatus === "AUTHENTICATED" && res?.payload) {
-        const firstFourPosts = res.payload.slice(0, 4);
+      // IF AUTHENTICATED → FETCH FROM API
+      const res = await getAllPost();
+      if (res?.payload) {
         setPosts(res.payload);
         setMessage(res.message);
-        setCookie("offline_posts", JSON.stringify(firstFourPosts), 60 * 24);
-        return;
+        setCookie(
+          "offline_posts",
+          JSON.stringify(res.payload.slice(0, 4)),
+          60 * 24
+        );
       }
-      if (loginStatus !== "AUTHENTICATED" && offlinePosts) {
-        const parsed = JSON.parse(offlinePosts) as Post[];
-        setPosts(parsed);
-        console.log(posts);
-        return;
-      }
-      setMessage("Login to view posts");
-      return;
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     renderPosts();
   }, [loginStatus]);
