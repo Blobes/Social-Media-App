@@ -42,7 +42,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // 2️⃣ AUTH STATE REACTIONS
   // ─────────────────────────────
   useEffect(() => {
-    if (!mounted) return;
+    // if (!mounted) return;
 
     if (loginStatus === "UNKNOWN") return;
 
