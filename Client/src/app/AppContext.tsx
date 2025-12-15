@@ -8,7 +8,7 @@ import {
   ModalContent,
   SavedPage,
 } from "@/types";
-import { defaultPage } from "@/helpers/others";
+import { defaultPage } from "@/helpers/info";
 
 interface AppContextType {
   loginStatus: LoginStatus;
