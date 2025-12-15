@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 
 export default function Main() {
   const router = useRouter();
-  const { loginStatus } = useAppContext();
+  const { loginStatus, lastPage } = useAppContext();
 
   useEffect(() => {
-    router.replace(loginStatus === "AUTHENTICATED" ? "timeline" : "web/home");
+    router.replace(lastPage.path);
   }, [loginStatus]);
   return;
 }

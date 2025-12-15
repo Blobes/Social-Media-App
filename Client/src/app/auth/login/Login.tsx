@@ -89,7 +89,7 @@ export const Login: React.FC<LoginProps> = ({
             msg: { content: timedMsg, msgStatus: status },
           });
         setStep?.("email");
-        router.push(lastPage.path);
+        router.replace(lastPage.path);
       } else {
         setInlineMsg(fixedMsg ?? null);
       }
