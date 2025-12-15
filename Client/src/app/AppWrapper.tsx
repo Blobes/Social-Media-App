@@ -41,19 +41,25 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // ─────────────────────────────
   useEffect(() => {
     //  let alive = true;
+    verifyAuth({
+      setAuthUser,
+      setLoginStatus,
+      setSBMessage,
+      setCurrentPage,
+    });
 
-    const initAuth = async () => {
-      console.log("called in init");
-      await verifyAuth({
-        setAuthUser,
-        setLoginStatus,
-        setSBMessage,
-        setCurrentPage,
-      });
-      console.log("called in try block");
-    };
+    // const initAuth = async () => {
+    //   console.log("called in init");
+    //   await verifyAuth({
+    //     setAuthUser,
+    //     setLoginStatus,
+    //     setSBMessage,
+    //     setCurrentPage,
+    //   });
+    //   console.log("called in try block");
+    // };
 
-    initAuth();
+    // initAuth();
     setMounted(true);
   }, []);
 
