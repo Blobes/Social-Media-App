@@ -108,7 +108,7 @@ export const generateTestEmail = (email: string): string => {
 export const corsConfig = (): any => {
   const allowedOrigins = [
     "http://localhost:3000",
-    "https://funstakes.vercel.app", // your PROD domain if you add one later
+    "https://funstakes.vercel.app",
   ];
   return cors({
     origin: (origin, callback) => {
