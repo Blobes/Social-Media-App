@@ -57,10 +57,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         if (alive) setLoginStatus("UNAUTHENTICATED");
       }
     };
-
     initAuth();
-    delay();
-    setMounted(true);
     return () => {
       alive = false;
     };
@@ -70,6 +67,10 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // 2️⃣ AUTH STATE REACTIONS
   // ─────────────────────────────
   useEffect(() => {
+    console.log("called in second useEffect");
+    if (loginStatus === "UNKNOWN") return;
+
+    setMounted(true);
     // Handle modal based on loginStatus
     if (loginStatus === "LOCKED" && !isExcludedRoute) {
       setModalContent({ content: <AuthStepper />, shouldClose: false });
