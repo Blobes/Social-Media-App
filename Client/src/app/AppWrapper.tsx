@@ -21,8 +21,13 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // Always initialize hooks here — top of the component
   const modalRef = useRef<ModalRef>(null);
   const { setSBMessage, setCurrentPage } = useSharedHooks();
-  const { snackBarMsgs, loginStatus, modalContent, setModalContent } =
-    useAppContext();
+  const {
+    snackBarMsgs,
+    loginStatus,
+    setLoginStatus,
+    modalContent,
+    setModalContent,
+  } = useAppContext();
 
   // Client-only UI rendering
   const [mounted, setMounted] = useState(false);
@@ -34,11 +39,38 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // ─────────────────────────────
   // 1️⃣ MOUNT + INITIAL AUTH CHECK
   // ─────────────────────────────
+  // useEffect(() => {
+  //   setMounted(true);
+  //   verifyAuth(useAppContext, useSharedHooks).finally(() => {
+  //     setAuthChecked(true);
+  //   });
+  // }, []);
+
   useEffect(() => {
+    let alive = true;
+
+    const initAuth = async () => {
+      try {
+        const result = await verifyAuth(useAppContext, useSharedHooks);
+
+        if (!alive) return;
+
+        if (result === "AUTHENTICATED") {
+          setLoginStatus("AUTHENTICATED");
+        } else {
+          setLoginStatus("UNAUTHENTICATED");
+        }
+      } catch {
+        if (alive) setLoginStatus("UNAUTHENTICATED");
+      }
+    };
+
     setMounted(true);
-    verifyAuth(useAppContext, useSharedHooks).finally(() => {
-      setAuthChecked(true);
-    });
+    initAuth();
+
+    return () => {
+      alive = false;
+    };
   }, []);
 
   // ─────────────────────────────
@@ -48,25 +80,21 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     // if (!mounted) return;
     // if (loginStatus === "UNKNOWN") return;
 
-    const runAuth = async () => {
-      // await verifyAuth(useAppContext, useSharedHooks);
+    // await verifyAuth(useAppContext, useSharedHooks);
 
-      // Handle modal based on loginStatus
-      if (loginStatus === "LOCKED" && !isExcludedRoute) {
-        setModalContent({ content: <AuthStepper />, shouldClose: false });
-      } else {
-        setModalContent(null);
-      }
+    // Handle modal based on loginStatus
+    if (loginStatus === "LOCKED" && !isExcludedRoute) {
+      setModalContent({ content: <AuthStepper />, shouldClose: false });
+    } else {
+      setModalContent(null);
+    }
 
-      // Redirect if unauthenticated
-      if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
-        setCurrentPage("home");
-        router.replace("/web/home");
-      }
-    };
-
-    runAuth();
-  }, [mounted, loginStatus]);
+    // Redirect if unauthenticated
+    if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
+      setCurrentPage("home");
+      //router.replace("/web/home");
+    }
+  }, [loginStatus, pathname]);
 
   // ─────────────────────────────
   // 3️⃣ MODAL OPEN / CLOSE
@@ -79,7 +107,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     } else {
       modalRef.current?.closeModal();
     }
-  }, [modalContent, mounted]);
+  }, [modalContent, loginStatus]);
 
   //─────────────────────────────
   // 4️⃣ BROWSER EVENTS
@@ -133,9 +161,9 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     };
   }, [mounted, loginStatus]);
 
-  if (!mounted) return null;
-  if (!authChecked) return;
-
+  if (!mounted || loginStatus === "UNKNOWN") {
+    return null; // or splash loader
+  }
   return (
     <Stack sx={{ position: "fixed", height: "100vh", width: "100%", gap: 0 }}>
       <BlurEffect />

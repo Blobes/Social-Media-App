@@ -2,8 +2,12 @@
 
 import { deleteCookie, getCookie } from "@/helpers/others";
 import { fetchUserWithTokenCheck } from "@/helpers/fetcher";
+import { LoginStatus } from "@/types";
 
-export const verifyAuth = async (appContext: any, useSharedHooks: any) => {
+export const verifyAuth = async (
+  appContext: any,
+  useSharedHooks: any
+): Promise<LoginStatus> => {
   const { setAuthUser, setLoginStatus } = appContext();
   const { setSBMessage, setCurrentPage } = useSharedHooks();
 
@@ -21,7 +25,7 @@ export const verifyAuth = async (appContext: any, useSharedHooks: any) => {
       const lastRoute = userSnapshot?.lastRoute || "/timeline";
       setCurrentPage(lastRoute.replace("/", ""));
       deleteCookie("user_snapshot");
-      return;
+      return "AUTHENTICATED";
     }
 
     // 🔒 Token invalid but snapshot exists → LOCKED
@@ -34,13 +38,14 @@ export const verifyAuth = async (appContext: any, useSharedHooks: any) => {
           msg: { content: res.message, msgStatus: "ERROR", hasClose: true },
         });
       }
-      return;
+      return "LOCKED";
     }
 
     // 🚫 Fully logged out
     setAuthUser(null);
     setLoginStatus("UNAUTHENTICATED");
     setCurrentPage("home");
+    return "UNAUTHENTICATED";
   } catch (err: any) {
     setAuthUser(null);
     setLoginStatus("UNAUTHENTICATED");
@@ -48,5 +53,6 @@ export const verifyAuth = async (appContext: any, useSharedHooks: any) => {
     setSBMessage({
       msg: { content: "Unable to verify session", msgStatus: "ERROR" },
     });
+    return "UNAUTHENTICATED";
   }
 };
