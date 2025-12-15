@@ -22,7 +22,7 @@ import { Menu } from "@mui/icons-material";
 import { AppButton } from "../Buttons";
 import { useSharedHooks } from "../../hooks";
 import { ThemeSwitcher } from "../ThemeSwitcher";
-import { defaultPage } from "@/helpers/others";
+import { defaultPage } from "@/helpers/info";
 
 // Header component: Renders the top navigation bar, adapting to screen size and login state
 export const Header: React.FC = () => {
