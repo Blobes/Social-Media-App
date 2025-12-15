@@ -12,7 +12,7 @@ import { Modal, ModalRef } from "@/components/Modal";
 import { useSharedHooks } from "@/hooks";
 import { AuthStepper } from "./auth/login/AuthStepper";
 import { verifyAuth } from "./auth/verifyAuth";
-import { getCookie } from "@/helpers/others";
+import { delay, getCookie } from "@/helpers/others";
 
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -36,6 +36,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     setMounted(true);
     verifyAuth(useAppContext, useSharedHooks);
+    delay();
   }, []);
 
   // ─────────────────────────────
@@ -43,6 +44,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // ─────────────────────────────
   useEffect(() => {
     // if (!mounted) return;
+    if (loginStatus === "UNKNOWN") return;
 
     const runAuth = async () => {
       // await verifyAuth(useAppContext, useSharedHooks);
@@ -130,7 +132,6 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   }, [mounted, loginStatus]);
 
   if (!mounted) return null;
-  if (loginStatus === "UNKNOWN") return;
 
   return (
     <Stack sx={{ position: "fixed", height: "100vh", width: "100%", gap: 0 }}>
