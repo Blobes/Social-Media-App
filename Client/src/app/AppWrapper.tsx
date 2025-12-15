@@ -69,8 +69,6 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       }
     };
 
-    console.log(loginStatus);
-
     runAuth();
   }, [mounted, loginStatus]);
 
@@ -103,7 +101,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         },
         override: true,
       });
-      // reverify();
+      reverify();
     };
 
     const handleOffline = () => {
@@ -137,7 +135,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       window.removeEventListener("focus", reverify);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [mounted]);
+  }, [mounted, loginStatus]);
 
   if (!mounted) return null;
 
