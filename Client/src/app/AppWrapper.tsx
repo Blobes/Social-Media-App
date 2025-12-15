@@ -44,8 +44,6 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // if (!mounted) return;
 
-    if (loginStatus === "UNKNOWN") return;
-
     const runAuth = async () => {
       // await verifyAuth(useAppContext, useSharedHooks);
 
@@ -131,7 +129,8 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     };
   }, [mounted, loginStatus]);
 
-  // if (!mounted) return null;
+  if (!mounted) return null;
+  if (loginStatus === "UNKNOWN") return;
 
   return (
     <Stack sx={{ position: "fixed", height: "100vh", width: "100%", gap: 0 }}>
