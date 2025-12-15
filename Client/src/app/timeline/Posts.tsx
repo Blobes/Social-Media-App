@@ -38,6 +38,7 @@ export const Posts = () => {
       if (loginStatus !== "AUTHENTICATED" && offlinePosts) {
         const parsed = JSON.parse(offlinePosts) as Post[];
         setPosts(parsed);
+        console.log(posts);
         return;
       }
       setMessage("Login to view posts");
