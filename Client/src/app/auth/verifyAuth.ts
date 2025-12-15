@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  defaultPage,
-  deleteCookie,
-  extractPageTitle,
-  getCookie,
-} from "@/helpers/others";
+import { defaultPage, extractPageTitle, getCookie } from "@/helpers/others";
 import { fetchUserWithTokenCheck } from "@/helpers/fetcher";
-import { LoginStatus } from "@/types";
 
 interface VerifyParams {
   setAuthUser: Function;
@@ -15,6 +9,7 @@ interface VerifyParams {
   setSBMessage: Function;
   setLastPage: Function;
   pathname: string;
+  isExcludedRoute: boolean;
 }
 
 export const verifyAuth = async ({
@@ -23,6 +18,7 @@ export const verifyAuth = async ({
   setSBMessage,
   setLastPage,
   pathname,
+  isExcludedRoute,
 }: VerifyParams) => {
   try {
     const res = await fetchUserWithTokenCheck();
@@ -33,7 +29,8 @@ export const verifyAuth = async ({
     if (navigator.onLine && res.payload) {
       setAuthUser(res.payload);
       setLoginStatus("AUTHENTICATED");
-      setLastPage({ title: extractPageTitle(pathname), path: pathname });
+      const pagePath = !isExcludedRoute ? pathname : "/timeline";
+      setLastPage({ title: extractPageTitle(pagePath), path: pagePath });
       return;
     }
 

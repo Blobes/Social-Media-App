@@ -32,9 +32,9 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
 
   // Client-only UI rendering
   const [mounted, setMounted] = useState(false);
-  const excludedRoutes = ["/auth/login", "/auth/signup", "/web/home"];
-  const isExcludedRoute = excludedRoutes.includes(pathname);
-  const excludedUIRoutes = ["/auth/login", "/auth/signup"];
+  const excludedRoutes = ["/auth/login", "/auth/signup"];
+  const isExcludedRoute = [...excludedRoutes, "/web/home"].includes(pathname);
+  const isExcludedAuthRoute = excludedRoutes.includes(pathname);
 
   // ─────────────────────────────
   // 1️⃣ MOUNT + INITIAL AUTH CHECK
@@ -46,8 +46,9 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       setAuthUser,
       setLoginStatus,
       setSBMessage,
-      setLastPage: setLastPage,
+      setLastPage,
       pathname,
+      isExcludedRoute: isExcludedAuthRoute,
     });
   }, []);
 
@@ -62,7 +63,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       setModalContent(null);
     }
     // Redirect if unauthenticated
-    if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
+    if (loginStatus === "UNAUTHENTICATED" && !isExcludedAuthRoute) {
       router.replace(defaultPage.path);
     }
   }, [loginStatus]);
@@ -89,6 +90,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         setSBMessage,
         setLastPage: setLastPage,
         pathname,
+        isExcludedRoute: isExcludedAuthRoute,
       });
 
     const handleOnline = () => {
@@ -140,7 +142,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <Stack sx={{ position: "fixed", height: "100vh", width: "100%", gap: 0 }}>
       <BlurEffect />
-      {!excludedUIRoutes.includes(pathname) && <Header />}
+      {!isExcludedAuthRoute && <Header />}
       {snackBarMsgs.messgages && <SnackBars snackBarMsg={snackBarMsgs} />}
       {children}
       {modalContent && (
