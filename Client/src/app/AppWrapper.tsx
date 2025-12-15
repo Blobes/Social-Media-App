@@ -12,7 +12,7 @@ import { Modal, ModalRef } from "@/components/Modal";
 import { useSharedHooks } from "@/hooks";
 import { AuthStepper } from "./auth/login/AuthStepper";
 import { verifyAuth } from "./auth/verifyAuth";
-import { defaultPage, delay, getCookie } from "@/helpers/others";
+import { defaultPage, excludedRoutes } from "@/helpers/info";
 
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -28,11 +28,14 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     modalContent,
     setModalContent,
     setAuthUser,
+    lastPage,
   } = useAppContext();
   const [mounted, setMounted] = useState(false);
-  const excludedRoutes = ["/auth/login", "/auth/signup"];
-  const isExcludedRoute = [...excludedRoutes, "/web/home"].includes(pathname);
-  const isExcludedAuthRoute = excludedRoutes.includes(pathname);
+  const isExcludedRoute = [
+    ...excludedRoutes.auth,
+    ...excludedRoutes.others,
+  ].includes(pathname);
+  const isExcludedAuthRoute = excludedRoutes.auth.includes(pathname);
 
   // ─────────────────────────────
   // 1️⃣ MOUNT + INITIAL AUTH CHECK
@@ -64,7 +67,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     if (loginStatus === "UNAUTHENTICATED" && !isExcludedAuthRoute) {
       router.replace(defaultPage.path);
     }
-  }, [loginStatus]);
+  }, [loginStatus, lastPage]);
 
   // ─────────────────────────────
   // 3️⃣ MODAL OPEN / CLOSE

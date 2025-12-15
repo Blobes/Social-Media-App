@@ -6,7 +6,6 @@ import { fetcher } from "@/helpers/fetcher";
 import { IUser, SavedPage, SingleResponse, UserSnapshot } from "@/types";
 import { useRouter } from "next/navigation";
 import {
-  defaultPage,
   deleteCookie,
   extractPageTitle,
   getCookie,
@@ -19,6 +18,7 @@ import {
   getLockRemaining,
 } from "@/helpers/auth";
 import { useRef } from "react";
+import { defaultPage, excludedRoutes } from "@/helpers/info";
 
 interface LoginCredentials {
   email: string;
@@ -121,10 +121,15 @@ export const useAuth = () => {
       setAuthUser(payload);
       setLoginStatus("AUTHENTICATED");
 
-      const savedPage = getFromLocalStorage<SavedPage>({
-        fallback: { title: "timeline", path: "/timeline" },
-      });
-      if (savedPage) {
+      const currentPath = window.location.pathname;
+      const isExcludedRoute = excludedRoutes.auth.includes(currentPath);
+
+      let savedPage = getFromLocalStorage<SavedPage>();
+
+      if (isExcludedRoute && !savedPage) {
+        savedPage = { title: "timeline", path: "/timeline" };
+        setLastPage(savedPage);
+      } else if (savedPage) {
         setLastPage(savedPage);
       }
 
@@ -186,8 +191,10 @@ export const useAuth = () => {
       if (userSnapshot) {
         const parsed = JSON.parse(userSnapshot);
         setAuthUser(parsed);
+
         pagePath = window.location.pathname;
         setLastPage({ title: extractPageTitle(pagePath), path: pagePath });
+
         setLoginStatus("LOCKED");
       } else {
         setAuthUser(null);

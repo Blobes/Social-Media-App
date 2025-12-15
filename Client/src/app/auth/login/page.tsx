@@ -9,14 +9,8 @@ import { Stack } from "@mui/material";
 
 export default function LoginPage() {
   const theme = useTheme();
-  const { loginStatus } = useAppContext();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (loginStatus === "AUTHENTICATED") {
-      router.replace("/timeline");
-    }
-  });
+  // const { loginStatus } = useAppContext();
+  // const router = useRouter();
 
   return (
     <Stack

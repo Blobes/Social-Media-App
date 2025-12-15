@@ -1,8 +1,9 @@
 "use client";
 
-import { defaultPage, extractPageTitle, getCookie } from "@/helpers/others";
+import { extractPageTitle, getCookie } from "@/helpers/others";
 import { fetchUserWithTokenCheck } from "@/helpers/fetcher";
 import { SavedPage } from "@/types";
+import { defaultPage } from "@/helpers/info";
 
 interface VerifyParams {
   setAuthUser: Function;
@@ -26,7 +27,11 @@ export const verifyAuth = async ({
     const snapshotCookie = getCookie("user_snapshot");
     const userSnapshot = snapshotCookie ? JSON.parse(snapshotCookie) : null;
     const pagePath =
-      !isExcludedRoute && pathname !== "" ? pathname : "/timeline";
+      !isExcludedRoute && pathname !== "/"
+        ? pathname
+        : pathname === "/"
+        ? defaultPage.path
+        : "/timeline";
 
     // Fully authenticated
     if (navigator.onLine && res.payload) {

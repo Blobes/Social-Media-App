@@ -84,7 +84,7 @@ export const delay = (ms: number = 1500) =>
 
 // Extract page title from path
 export const extractPageTitle = (path: string) => {
-  return path.replace(/\/$/, "").split("/").pop() || "";
+  return path === "/" ? "home" : path.replace(/\/$/, "").split("/").pop() || "";
 };
 
 interface LocalItem {
@@ -100,10 +100,4 @@ export const getFromLocalStorage = <T = unknown | any>({
     return JSON.parse(savedItem) as T;
   }
   return (fallback as T) ?? null;
-};
-
-// default page
-export const defaultPage = {
-  title: "home",
-  path: "/web/home",
 };
