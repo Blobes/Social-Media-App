@@ -131,7 +131,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     };
   }, [mounted, loginStatus]);
 
-  if (!mounted) return null;
+  // if (!mounted) return null;
 
   return (
     <Stack sx={{ position: "fixed", height: "100vh", width: "100%", gap: 0 }}>
