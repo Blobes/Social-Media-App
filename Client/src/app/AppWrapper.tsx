@@ -40,43 +40,27 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // 1️⃣ MOUNT + INITIAL AUTH CHECK
   // ─────────────────────────────
   useEffect(() => {
-    let alive = true;
+    //  let alive = true;
 
     const initAuth = async () => {
       console.log("called in init");
-      try {
-        const result = await verifyAuth({
-          setAuthUser,
-          setLoginStatus,
-          setSBMessage,
-          setCurrentPage,
-        });
-        console.log("called in try block");
-        if (!alive) return;
-
-        if (result === "AUTHENTICATED") {
-          setLoginStatus("AUTHENTICATED");
-        } else {
-          setLoginStatus("UNAUTHENTICATED");
-        }
-      } catch {
-        if (alive) setLoginStatus("UNAUTHENTICATED");
-      }
+      await verifyAuth({
+        setAuthUser,
+        setLoginStatus,
+        setSBMessage,
+        setCurrentPage,
+      });
+      console.log("called in try block");
     };
+
     initAuth();
     setMounted(true);
-    return () => {
-      alive = false;
-    };
   }, []);
 
   // ─────────────────────────────
   // 2️⃣ AUTH STATE REACTIONS
   // ─────────────────────────────
   useEffect(() => {
-    console.log("called in second useEffect");
-    if (loginStatus === "UNKNOWN") return;
-
     // Handle modal based on loginStatus
     if (loginStatus === "LOCKED" && !isExcludedRoute) {
       setModalContent({ content: <AuthStepper />, shouldClose: false });
