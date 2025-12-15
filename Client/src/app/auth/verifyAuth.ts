@@ -25,20 +25,21 @@ export const verifyAuth = async ({
     const res = await fetchUserWithTokenCheck();
     const snapshotCookie = getCookie("user_snapshot");
     const userSnapshot = snapshotCookie ? JSON.parse(snapshotCookie) : null;
+    const pagePath = !isExcludedRoute ? pathname : "/timeline";
 
-    // ✅ Fully authenticated
+    // Fully authenticated
     if (navigator.onLine && res.payload) {
       setAuthUser(res.payload);
       setLoginStatus("AUTHENTICATED");
-      const pagePath = !isExcludedRoute ? pathname : "/timeline";
       setLastPage({ title: extractPageTitle(pagePath), path: pagePath });
       return;
     }
 
-    // 🔒 Token invalid but snapshot exists → LOCKED
+    // Token invalid but snapshot exists → LOCKED
     if (userSnapshot) {
       setAuthUser(userSnapshot);
       setLoginStatus("LOCKED");
+      setLastPage({ title: extractPageTitle(pagePath), path: pagePath });
       if (!res.message?.toLowerCase().includes("no token")) {
         setSBMessage({
           msg: { content: res.message, msgStatus: "ERROR", hasClose: true },

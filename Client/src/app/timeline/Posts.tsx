@@ -30,7 +30,7 @@ export const Posts = () => {
       if (loginStatus !== "AUTHENTICATED") {
         if (offlinePosts) {
           setPosts(JSON.parse(offlinePosts));
-          console.log("Showing cached posts");
+          console.log("Showing cached posts:", posts);
           return;
         }
         setMessage("Login to view posts");

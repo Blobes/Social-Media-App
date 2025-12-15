@@ -29,8 +29,6 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     setModalContent,
     setAuthUser,
   } = useAppContext();
-
-  // Client-only UI rendering
   const [mounted, setMounted] = useState(false);
   const excludedRoutes = ["/auth/login", "/auth/signup"];
   const isExcludedRoute = [...excludedRoutes, "/web/home"].includes(pathname);
@@ -134,7 +132,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       window.removeEventListener("focus", reverify);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [loginStatus]);
+  }, []);
 
   if (!mounted || loginStatus === "UNKNOWN") {
     return null; // or splash loader

@@ -10,11 +10,11 @@ import { AppButton } from "@/components/Buttons";
 
 export const CreatePost = () => {
   const theme = useTheme();
-  const { authUser: user } = useAppContext();
-  if (!user) {
+  const { authUser } = useAppContext();
+  if (!authUser) {
     return null;
   }
-  const { firstName } = user;
+  const { firstName } = authUser;
   return (
     <Stack
       sx={{
@@ -33,7 +33,7 @@ export const CreatePost = () => {
           gap: theme.gap(2),
         }}>
         <UserAvatar
-          userInfo={user}
+          userInfo={authUser}
           style={{
             width: "26px",
             height: "26px",
