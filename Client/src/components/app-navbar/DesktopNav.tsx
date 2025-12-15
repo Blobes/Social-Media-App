@@ -13,8 +13,8 @@ interface DestopNavProps extends NavBarProps {
 }
 
 export const DesktopNav: React.FC<DestopNavProps> = ({
-  currentPage,
-  setCurrentPage,
+  lastPage,
+  setLastPage,
   defaultNavList,
   loggedInNavList,
   menuRef = null,
@@ -37,8 +37,8 @@ export const DesktopNav: React.FC<DestopNavProps> = ({
       }}>
       <RenderList
         list={defaultNavList}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
+        lastPage={lastPage}
+        setLastPage={setLastPage}
         closePopup={closePopup}
         style={{
           padding: theme.boxSpacing(1, 5, 1, 4),
@@ -58,8 +58,8 @@ export const DesktopNav: React.FC<DestopNavProps> = ({
           contentElement={
             <RenderList
               list={loggedInNavList}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
+              lastPage={lastPage}
+              setLastPage={setLastPage}
               closePopup={closePopup}
               style={{
                 padding: theme.boxSpacing(4, 8),

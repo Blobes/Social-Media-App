@@ -22,14 +22,15 @@ import { Menu } from "@mui/icons-material";
 import { AppButton } from "../Buttons";
 import { useSharedHooks } from "../../hooks";
 import { ThemeSwitcher } from "../ThemeSwitcher";
+import { defaultPage } from "@/helpers/others";
 
 // Header component: Renders the top navigation bar, adapting to screen size and login state
 export const Header: React.FC = () => {
   // Global app context
-  const { loginStatus, authUser, lastPage: currentPage } = useAppContext();
+  const { loginStatus, authUser, lastPage } = useAppContext();
   const { firstName, lastName, profileImage } = authUser || {};
   // Shared hooks
-  const { setLastPage: setCurrentPage } = useSharedHooks();
+  const { setLastPage } = useSharedHooks();
 
   // Theme and responsive breakpoint
   const theme = useTheme();
@@ -61,7 +62,7 @@ export const Header: React.FC = () => {
           gap: theme.gap(6),
         }}>
         {/* Brand Logo */}
-        <Link href="/web/home" onClick={() => setCurrentPage("home")}>
+        <Link href={defaultPage.path} onClick={() => setLastPage(defaultPage)}>
           <img
             alt="logo"
             src="/assets/images/logo.png"
@@ -77,8 +78,8 @@ export const Header: React.FC = () => {
           {/* Navigation changes based on screen size */}
           {isDesktop ? (
             <DesktopNav
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
+              lastPage={lastPage}
+              setLastPage={setLastPage}
               defaultNavList={defaultNavList}
               loggedInNavList={loggedInNavList}
               menuRef={menuRef}
@@ -89,8 +90,8 @@ export const Header: React.FC = () => {
             />
           ) : (
             <MobileNav
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
+              lastPage={lastPage}
+              setLastPage={setLastPage}
               defaultNavList={defaultNavList}
               loggedInNavList={loggedInNavList}
               drawerRef={drawerRef}

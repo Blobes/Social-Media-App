@@ -62,8 +62,8 @@ export interface NavItem {
 }
 
 export interface NavBarProps {
-  currentPage: string;
-  setCurrentPage: (page: string) => void;
+  lastPage: SavedPage;
+  setLastPage: (page: SavedPage) => void;
   defaultNavList: NavItem[];
   loggedInNavList: NavItem[];
 }

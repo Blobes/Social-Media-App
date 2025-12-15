@@ -18,7 +18,7 @@ import {
   Mail,
 } from "@mui/icons-material";
 import { useAuth } from "@/app/auth/login/authHooks";
-import { NavItem, GenericObject } from "@/types";
+import { NavItem, GenericObject, SavedPage } from "@/types";
 import { UserAvatar } from "../UserAvatar";
 import { AppButton } from "../Buttons";
 import { useAppContext } from "@/app/AppContext";
@@ -101,16 +101,16 @@ export const useContent = () => {
   // Props for the reusable nav renderer
   interface RenderListProps {
     list: NavItem[];
-    currentPage: string;
-    setCurrentPage: (page: string) => void;
+    lastPage: SavedPage;
+    setLastPage: (page: SavedPage) => void;
     closePopup?: () => void;
     style?: GenericObject<string>;
   }
   // Renders a nav list (either default or logged-in) with accessibility support
   const RenderList: React.FC<RenderListProps> = ({
     list,
-    currentPage,
-    setCurrentPage,
+    lastPage,
+    setLastPage,
     closePopup,
     style = {},
   }) => {
@@ -122,14 +122,18 @@ export const useContent = () => {
             return <React.Fragment key={index}>{item.element}</React.Fragment>;
           }
 
-          const isCurrent = item.title?.toLowerCase() === currentPage;
+          const isCurrent = item.title?.toLowerCase() === lastPage.title;
           return (
             <NavItemWrapper
               key={index}
               href={!isCurrent ? item.url : "#"}
               onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
                 if (item.action) item.action();
-                if (item.title) setCurrentPage(item.title.toLowerCase());
+                if (item.title)
+                  setLastPage({
+                    title: item.title.toLowerCase(),
+                    path: `/${item.title.toLowerCase()}`,
+                  });
                 if (closePopup) closePopup();
               }}
               aria-current={isCurrent ? "page" : undefined}
@@ -235,8 +239,8 @@ export const useContent = () => {
 
   const MobileNavContent: React.FC<RenderListProps> = ({
     list,
-    currentPage,
-    setCurrentPage,
+    lastPage: currentPage,
+    setLastPage: setCurrentPage,
     closePopup,
   }) => {
     return (
@@ -244,8 +248,8 @@ export const useContent = () => {
         <UserInfo />
         <Divider />
         <RenderList
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
+          lastPage={currentPage}
+          setLastPage={setCurrentPage}
           list={list}
           closePopup={closePopup}
           style={{

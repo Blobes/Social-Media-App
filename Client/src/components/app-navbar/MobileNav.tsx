@@ -12,8 +12,8 @@ interface MobileNavProps extends NavBarProps {
 export const MobileNav: React.FC<MobileNavProps> = ({
   defaultNavList,
   loggedInNavList,
-  currentPage,
-  setCurrentPage,
+  lastPage: lastPage,
+  setLastPage,
   drawerRef = null,
   closePopup,
 }) => {
@@ -32,8 +32,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({
                 ? [...defaultNavList, ...loggedInNavList]
                 : defaultNavList
             }
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
+            lastPage={lastPage}
+            setLastPage={setLastPage}
             closePopup={closePopup}
           />
         ),
