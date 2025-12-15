@@ -63,6 +63,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     };
 
     runAuth();
+    setMounted(false);
   }, [mounted, loginStatus]);
 
   // ─────────────────────────────
