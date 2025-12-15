@@ -26,8 +26,6 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
 
   // Client-only UI rendering
   const [mounted, setMounted] = useState(false);
-  const [authChecked, setAuthChecked] = useState(false);
-
   const excludedRoutes = ["/auth/login", "/auth/signup", "/web/home"];
   const isExcludedRoute = excludedRoutes.includes(pathname);
   const excludedUIRoutes = ["/auth/login", "/auth/signup"];
@@ -38,7 +36,6 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     setMounted(true);
     verifyAuth(useAppContext, useSharedHooks);
-    setAuthChecked(true);
   }, []);
 
   // ─────────────────────────────
@@ -47,7 +44,6 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!mounted) return;
 
-    //  console.log("not authenticated");
     if (loginStatus === "UNKNOWN") return;
 
     const runAuth = async () => {
@@ -58,14 +54,12 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         setModalContent({ content: <AuthStepper />, shouldClose: false });
       } else {
         setModalContent(null);
-        console.log("Authenticated");
       }
 
       // Redirect if unauthenticated
       if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
-        console.log("not authenticated");
         setCurrentPage("home");
-        //  router.replace("/web/home");
+        router.replace("/web/home");
       }
     };
 

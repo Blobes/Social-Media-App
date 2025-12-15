@@ -7,7 +7,19 @@ export const verifyAuth = async (appContext: any, useSharedHooks: any) => {
   const { setAuthUser, setLoginStatus } = appContext();
   const { setSBMessage, setCurrentPage } = useSharedHooks();
 
+  const waitForCookies = async (maxRetries = 5, delayMs = 100) => {
+    for (let i = 0; i < maxRetries; i++) {
+      const cookie = getCookie("access_token");
+      if (cookie) return true;
+      await new Promise((res) => setTimeout(res, delayMs));
+    }
+    return false;
+  };
+
   try {
+    const hasCookie = await waitForCookies();
+    if (!hasCookie) throw new Error("No token cookie yet");
+
     const res = await fetchUserWithTokenCheck();
     const snapshotCookie = getCookie("user_snapshot");
     const userSnapshot = snapshotCookie ? JSON.parse(snapshotCookie) : null;
