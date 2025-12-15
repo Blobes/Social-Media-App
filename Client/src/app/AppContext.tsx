@@ -8,8 +8,7 @@ import {
   ModalContent,
   SavedPage,
 } from "@/types";
-import { defaultPage, getFromLocalStorage } from "@/helpers/others";
-import { useSharedHooks } from "@/hooks";
+import { defaultPage } from "@/helpers/others";
 
 interface AppContextType {
   loginStatus: LoginStatus;
@@ -47,12 +46,11 @@ export const ContextProvider = ({
   const [isAuthLoading, setAuthLoading] = useState(false);
   const [lastPage, setPage] = useState<SavedPage>(defaultPage);
   const [modalContent, setModalContent] = useState<ModalContent | null>(null);
-  const { setLastPage } = useSharedHooks();
 
   useEffect(() => {
-    const savedPage = getFromLocalStorage<SavedPage>();
+    const savedPage = localStorage.getItem("saved_page");
     if (savedPage) {
-      setLastPage(savedPage);
+      setPage(JSON.parse(savedPage) as SavedPage);
     }
   }, []);
 
