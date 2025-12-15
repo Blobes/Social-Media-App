@@ -29,21 +29,24 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const excludedRoutes = ["/auth/login", "/auth/signup", "/web/home"];
   const isExcludedRoute = excludedRoutes.includes(pathname);
   const excludedUIRoutes = ["/auth/login", "/auth/signup"];
+  const [authChecked, setAuthChecked] = useState(false);
 
   // ─────────────────────────────
   // 1️⃣ MOUNT + INITIAL AUTH CHECK
   // ─────────────────────────────
   useEffect(() => {
     setMounted(true);
-    verifyAuth(useAppContext, useSharedHooks);
-  }, [mounted]);
+    verifyAuth(useAppContext, useSharedHooks).finally(() => {
+      setAuthChecked(true);
+    });
+  }, []);
 
   // ─────────────────────────────
   // 2️⃣ AUTH STATE REACTIONS
   // ─────────────────────────────
   useEffect(() => {
     // if (!mounted) return;
-    if (loginStatus === "UNKNOWN") return;
+    // if (loginStatus === "UNKNOWN") return;
 
     const runAuth = async () => {
       // await verifyAuth(useAppContext, useSharedHooks);
@@ -63,7 +66,6 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     };
 
     runAuth();
-    setMounted(false);
   }, [mounted, loginStatus]);
 
   // ─────────────────────────────
@@ -132,6 +134,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   }, [mounted, loginStatus]);
 
   if (!mounted) return null;
+  if (!authChecked) return;
 
   return (
     <Stack sx={{ position: "fixed", height: "100vh", width: "100%", gap: 0 }}>
