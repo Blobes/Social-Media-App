@@ -91,6 +91,7 @@ export const useContent = () => {
       textDecoration: "none",
       padding: theme.boxSpacing(2, 6),
       color: theme.palette.gray[300],
+      cursor: "pointer",
       borderRadius: theme.radius[2],
       transition: theme.transitions.create("background"),
       "&:hover, &:focus": {
