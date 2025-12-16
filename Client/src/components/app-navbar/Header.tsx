@@ -23,6 +23,7 @@ import { AppButton } from "../Buttons";
 import { useSharedHooks } from "../../hooks";
 import { ThemeSwitcher } from "../ThemeSwitcher";
 import { defaultPage } from "@/helpers/info";
+import { useRouter } from "next/navigation";
 
 // Header component: Renders the top navigation bar, adapting to screen size and login state
 export const Header: React.FC = () => {
@@ -35,6 +36,7 @@ export const Header: React.FC = () => {
   // Theme and responsive breakpoint
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const router = useRouter();
 
   // Refs for controlling drawers and menus
   const drawerRef = useRef<ModalRef>(null);
@@ -62,7 +64,13 @@ export const Header: React.FC = () => {
           gap: theme.gap(6),
         }}>
         {/* Brand Logo */}
-        <Link href={defaultPage.path} onClick={() => setLastPage(defaultPage)}>
+        <Link
+          href={defaultPage.path}
+          onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+            e.preventDefault();
+            router.push(defaultPage.path);
+            setLastPage(defaultPage);
+          }}>
           <img
             alt="logo"
             src="/assets/images/logo.png"

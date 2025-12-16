@@ -34,6 +34,7 @@ export const verifyAuth = async ({
       setLoginStatus("AUTHENTICATED");
       setLastPage({ title: extractPageTitle(pagePath), path: pagePath });
       console.log("Ran in auth");
+      console.log(pathname);
       return;
     }
 

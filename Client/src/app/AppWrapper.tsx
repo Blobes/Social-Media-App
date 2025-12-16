@@ -67,7 +67,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     if (loginStatus === "UNAUTHENTICATED" && !isExcludedAuthRoute) {
       router.replace(defaultPage.path);
     }
-  }, [loginStatus, lastPage]);
+  }, [loginStatus]);
 
   // ─────────────────────────────
   // 3️⃣ MODAL OPEN / CLOSE
@@ -135,7 +135,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       window.removeEventListener("focus", reverify);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, []);
+  }, [pathname]);
 
   if (!mounted || loginStatus === "UNKNOWN") {
     return null; // or splash loader

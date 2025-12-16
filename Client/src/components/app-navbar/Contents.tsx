@@ -130,8 +130,11 @@ export const useContent = () => {
           return (
             <NavItemWrapper
               key={index}
+              href={item.url ?? "#"}
               onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                e.preventDefault();
                 router.push(item.url ?? "#");
+
                 if (item.action) item.action();
                 if (item.title)
                   setLastPage({
