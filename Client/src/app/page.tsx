@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAppContext } from "./AppContext";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Home } from "./web/home/Home";
 import { getFromLocalStorage } from "@/helpers/others";
 import { useSharedHooks } from "@/hooks";
@@ -15,7 +14,7 @@ export default function HomePage() {
     const savedPage = getFromLocalStorage();
     if (savedPage) {
       setLastPage(savedPage);
-      router.replace(savedPage.path);
+      router.prefetch(savedPage.path);
     }
   }, []);
   return <Home />;
