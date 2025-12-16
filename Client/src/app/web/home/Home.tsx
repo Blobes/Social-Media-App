@@ -2,6 +2,6 @@
 
 import { Box } from "@mui/material";
 
-export default function HomePage() {
+export const Home = () => {
   return <Box>This is the web home page!</Box>;
-}
+};

@@ -3,13 +3,14 @@
 import { useEffect } from "react";
 import { useAppContext } from "./AppContext";
 import { useRouter } from "next/navigation";
+import { Home } from "./web/home/Home";
 
-export default function Main() {
+export default function HomePage() {
   const router = useRouter();
-  const { loginStatus, lastPage } = useAppContext();
+  const { lastPage } = useAppContext();
 
   useEffect(() => {
     router.replace(lastPage.path);
   }, []);
-  return;
+  return <Home />;
 }

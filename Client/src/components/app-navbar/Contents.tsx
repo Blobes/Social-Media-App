@@ -136,7 +136,7 @@ export const useContent = () => {
                 if (item.title)
                   setLastPage({
                     title: item.title.toLowerCase(),
-                    path: `/${item.title.toLowerCase()}`,
+                    path: item.url ?? "#",
                   });
                 if (closePopup) closePopup();
               }}
