@@ -47,12 +47,12 @@ export const ContextProvider = ({
   const [lastPage, setPage] = useState<SavedPage>(defaultPage);
   const [modalContent, setModalContent] = useState<ModalContent | null>(null);
 
-  useEffect(() => {
-    const savedPage = localStorage.getItem("saved_page");
-    if (savedPage) {
-      setPage(JSON.parse(savedPage) as SavedPage);
-    }
-  }, []);
+  // useEffect(() => {
+  //   const savedPage = localStorage.getItem("saved_page");
+  //   if (savedPage) {
+  //     setPage(JSON.parse(savedPage) as SavedPage);
+  //   }
+  // }, []);
 
   return (
     <context.Provider
