@@ -10,6 +10,6 @@ export default function Main() {
 
   useEffect(() => {
     router.replace(lastPage.path);
-  }, [loginStatus]);
+  }, []);
   return;
 }
