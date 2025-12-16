@@ -39,8 +39,14 @@ export const Login: React.FC<LoginProps> = ({
     lockTimestamp,
     startLockCountdown,
   } = useAuth();
-  const { inlineMsg, setInlineMsg, isAuthLoading, setAuthLoading, lastPage } =
-    useAppContext();
+  const {
+    inlineMsg,
+    setInlineMsg,
+    isAuthLoading,
+    setAuthLoading,
+    loginStatus,
+    lastPage,
+  } = useAppContext();
   const { setSBMessage } = useSharedHooks();
   const [msg, setMsg] = useState("");
   const [passwordValidity, setPasswordValidity] = useState<
@@ -53,7 +59,7 @@ export const Login: React.FC<LoginProps> = ({
   useEffect(() => {
     startLockCountdown(Number(lockTimestamp));
     setInlineMsg(null);
-  }, [step]);
+  }, [step, loginStatus]);
 
   const onPasswordChange = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>

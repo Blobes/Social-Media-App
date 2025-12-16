@@ -9,8 +9,8 @@ import { Stack } from "@mui/material";
 
 export default function LoginPage() {
   const theme = useTheme();
-  // const { loginStatus } = useAppContext();
-  // const router = useRouter();
+  const { loginStatus } = useAppContext();
+  const router = useRouter();
 
   return (
     <Stack
