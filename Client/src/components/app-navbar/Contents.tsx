@@ -104,7 +104,7 @@ export const useContent = () => {
   // Props for the reusable nav renderer
   interface RenderListProps {
     list: NavItem[];
-    lastPage: SavedPage;
+    lastPage: SavedPage | null;
     setLastPage: (page: SavedPage) => void;
     closePopup?: () => void;
     style?: GenericObject<string>;
@@ -126,7 +126,7 @@ export const useContent = () => {
             return <React.Fragment key={index}>{item.element}</React.Fragment>;
           }
 
-          const isCurrent = item.title?.toLowerCase() === lastPage.title;
+          const isCurrent = item.title?.toLowerCase() === lastPage?.title;
           return (
             <NavItemWrapper
               key={index}
