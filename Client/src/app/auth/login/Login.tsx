@@ -6,7 +6,7 @@ import { useAppContext } from "@/app/AppContext";
 import { AppButton } from "@/components/Buttons";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
-import { delay, getCookie, getFromLocalStorage } from "@/helpers/others";
+import { delay, getFromLocalStorage } from "@/helpers/others";
 import { useEffect, useState } from "react";
 import { useSharedHooks } from "@/hooks";
 import { PasswordInput } from "@/components/InputFields";
@@ -39,14 +39,8 @@ export const Login: React.FC<LoginProps> = ({
     lockTimestamp,
     startLockCountdown,
   } = useAuth();
-  const {
-    inlineMsg,
-    setInlineMsg,
-    isAuthLoading,
-    setAuthLoading,
-    loginStatus,
-    lastPage,
-  } = useAppContext();
+  const { inlineMsg, setInlineMsg, isAuthLoading, setAuthLoading } =
+    useAppContext();
   const { setSBMessage } = useSharedHooks();
   const [msg, setMsg] = useState("");
   const [passwordValidity, setPasswordValidity] = useState<

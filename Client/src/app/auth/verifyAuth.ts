@@ -26,12 +26,7 @@ export const verifyAuth = async ({
     const res = await fetchUserWithTokenCheck();
     const snapshotCookie = getCookie("user_snapshot");
     const userSnapshot = snapshotCookie ? JSON.parse(snapshotCookie) : null;
-    const pagePath =
-      !isExcludedRoute && pathname !== "/"
-        ? pathname
-        : pathname === "/"
-        ? defaultPage.path
-        : "/timeline";
+    const pagePath = !isExcludedRoute ? pathname : "/timeline";
 
     // Fully authenticated
     if (navigator.onLine && res.payload) {
