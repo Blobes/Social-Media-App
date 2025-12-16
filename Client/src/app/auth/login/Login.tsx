@@ -6,7 +6,7 @@ import { useAppContext } from "@/app/AppContext";
 import { AppButton } from "@/components/Buttons";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
-import { delay, getCookie } from "@/helpers/others";
+import { delay, getCookie, getFromLocalStorage } from "@/helpers/others";
 import { useEffect, useState } from "react";
 import { useSharedHooks } from "@/hooks";
 import { PasswordInput } from "@/components/InputFields";
@@ -59,7 +59,7 @@ export const Login: React.FC<LoginProps> = ({
   useEffect(() => {
     startLockCountdown(Number(lockTimestamp));
     setInlineMsg(null);
-  }, [step, loginStatus]);
+  }, [step]);
 
   const onPasswordChange = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
@@ -95,7 +95,9 @@ export const Login: React.FC<LoginProps> = ({
             msg: { content: timedMsg, msgStatus: status },
           });
         setStep?.("email");
-        router.push(lastPage.path);
+        router.push(
+          getFromLocalStorage() ? getFromLocalStorage().path : "/timeline"
+        );
       } else {
         setInlineMsg(fixedMsg ?? null);
       }
