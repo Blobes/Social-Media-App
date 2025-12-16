@@ -33,6 +33,7 @@ export const verifyAuth = async ({
       setAuthUser(res.payload);
       setLoginStatus("AUTHENTICATED");
       setLastPage({ title: extractPageTitle(pagePath), path: pagePath });
+      console.log("Ran in auth");
       return;
     }
 

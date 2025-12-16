@@ -1,17 +1,11 @@
 "use client";
 
 import { useTheme } from "@mui/material/styles";
-import { useAppContext } from "@/app/AppContext";
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { AuthStepper } from "./AuthStepper";
 import { Stack } from "@mui/material";
 
 export default function LoginPage() {
   const theme = useTheme();
-  const { loginStatus } = useAppContext();
-  const router = useRouter();
-
   return (
     <Stack
       sx={{
