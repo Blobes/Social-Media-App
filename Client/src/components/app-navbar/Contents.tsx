@@ -24,6 +24,8 @@ import { AppButton } from "../Buttons";
 import { useAppContext } from "@/app/AppContext";
 import { Strip } from "../StripBar";
 import { summarizeNum } from "@/helpers/others";
+import { defaultPage } from "@/helpers/info";
+import { useRouter } from "next/navigation";
 
 // Custom hook that centralizes nav content, styling, and reusable nav rendering
 export const useContent = () => {
@@ -36,7 +38,7 @@ export const useContent = () => {
     {
       title: loginStatus === "AUTHENTICATED" ? "Timeline" : "Home",
       element: <Home />,
-      url: loginStatus === "AUTHENTICATED" ? "/timeline" : "/web/home",
+      url: loginStatus === "AUTHENTICATED" ? "/timeline" : defaultPage.path,
     },
     {
       title: "Explore",
@@ -114,6 +116,7 @@ export const useContent = () => {
     closePopup,
     style = {},
   }) => {
+    const router = useRouter();
     return (
       <React.Fragment>
         {list.map((item, index) => {
@@ -126,8 +129,8 @@ export const useContent = () => {
           return (
             <NavItemWrapper
               key={index}
-              href={!isCurrent ? item.url : "#"}
               onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                router.push(item.url ?? "#");
                 if (item.action) item.action();
                 if (item.title)
                   setLastPage({
