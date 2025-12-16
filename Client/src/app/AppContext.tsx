@@ -8,7 +8,6 @@ import {
   ModalContent,
   SavedPage,
 } from "@/types";
-import { defaultPage } from "@/helpers/info";
 
 interface AppContextType {
   loginStatus: LoginStatus;
@@ -23,8 +22,8 @@ interface AppContextType {
   setGlobalLoading: React.Dispatch<React.SetStateAction<boolean>>;
   isAuthLoading: boolean;
   setAuthLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  lastPage: SavedPage;
-  setPage: React.Dispatch<React.SetStateAction<SavedPage>>;
+  lastPage: SavedPage | null;
+  setPage: React.Dispatch<React.SetStateAction<SavedPage | null>>;
   modalContent: ModalContent | null;
   setModalContent: React.Dispatch<React.SetStateAction<ModalContent | null>>;
 }
@@ -44,7 +43,7 @@ export const ContextProvider = ({
   const [inlineMsg, setInlineMsg] = useState<string | null>(null);
   const [isGlobalLoading, setGlobalLoading] = useState(false);
   const [isAuthLoading, setAuthLoading] = useState(false);
-  const [lastPage, setPage] = useState<SavedPage>(defaultPage);
+  const [lastPage, setPage] = useState<SavedPage | null>(null);
   const [modalContent, setModalContent] = useState<ModalContent | null>(null);
 
   return (
