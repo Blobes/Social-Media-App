@@ -135,7 +135,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       window.removeEventListener("focus", reverify);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [pathname]);
+  }, [pathname, lastPage]);
 
   if (!mounted || loginStatus === "UNKNOWN") {
     return null; // or splash loader

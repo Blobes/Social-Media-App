@@ -15,7 +15,6 @@ export default function HomePage() {
     const savedPage = getFromLocalStorage<SavedPage>();
     if (savedPage) {
       setLastPage(savedPage);
-      console.log("Ran one");
       router.push(savedPage.path);
     }
   }, []);
