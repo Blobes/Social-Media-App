@@ -124,12 +124,11 @@ export const useAuth = () => {
       const currentPath = window.location.pathname;
       const isExcludedRoute = excludedRoutes.auth.includes(currentPath);
 
-      let savedPage = getFromLocalStorage<SavedPage>();
-
-      if (isExcludedRoute && !savedPage) {
-        savedPage = { title: "timeline", path: "/timeline" };
-        setLastPage(savedPage);
-      } else if (savedPage) {
+      const fallbackPage = { title: "timeline", path: "/timeline" };
+      if (isExcludedRoute) {
+        setLastPage(fallbackPage);
+      } else {
+        const savedPage = getFromLocalStorage<SavedPage>() ?? fallbackPage;
         setLastPage(savedPage);
       }
 
