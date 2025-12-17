@@ -126,6 +126,9 @@ export const Header: React.FC = () => {
           {/* Right-side user controls */}
           <ThemeSwitcher />
 
+          {/* Show logged in user nav list on desktop */}
+          {isLoggedIn && isDesktop && <DesktopUserNav menuRef={menuRef} />}
+
           {isLoggedIn && (
             // Show avatar if user is authenticated
             <UserAvatar
@@ -153,8 +156,6 @@ export const Header: React.FC = () => {
               }}
             />
           )}
-          {/* Show logged in user nav list on desktop */}
-          {isLoggedIn && isDesktop && <DesktopUserNav menuRef={menuRef} />}
 
           {!isLoggedIn && (
             // If not logged in, show login button and menu icon on mobile

@@ -10,7 +10,7 @@ import { useSharedHooks } from "@/hooks";
 export const DesktopUserNav = ({
   menuRef,
 }: {
-  menuRef?: React.RefObject<MenuRef>;
+  menuRef: React.RefObject<MenuRef>;
 }) => {
   const theme = useTheme();
   const { userNavList } = useNavLists();
@@ -34,7 +34,7 @@ export const DesktopUserNav = ({
             list={userNavList}
             setLastPage={setLastPage}
             closePopup={() => {
-              menuRef?.current?.closeMenu();
+              menuRef.current?.closeMenu();
               setModalContent(null);
             }}
             style={{
