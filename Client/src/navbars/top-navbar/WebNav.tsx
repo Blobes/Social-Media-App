@@ -1,6 +1,11 @@
 "use client";
-import React, { useRef } from "react";
-import { Stack, svgIconClasses, typographyClasses } from "@mui/material";
+import React, { useEffect, useRef } from "react";
+import {
+  Stack,
+  svgIconClasses,
+  typographyClasses,
+  useMediaQuery,
+} from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useAppContext } from "@/app/AppContext";
 import { RenderList } from "../RenderNavLists";
@@ -17,6 +22,17 @@ export const WebNav: React.FC<WebNavProps> = ({ style }) => {
   const menuRef = useRef<MenuRef>(null);
   const { setLastPage } = useSharedHooks();
   const { setModalContent } = useAppContext();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+
+  useEffect(() => {
+    const handleResize = () => {
+      isDesktop && setModalContent(null);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   return (
     <Stack sx={{ ...style }}>

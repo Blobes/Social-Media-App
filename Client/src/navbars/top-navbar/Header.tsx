@@ -56,22 +56,20 @@ export const Header: React.FC = () => {
         {!isLoggedIn && !isDesktop && (
           <IconButton
             onClick={() =>
-              !isDesktop
-                ? setModalContent({
-                    content: (
-                      <WebNav
-                        style={{
-                          display: {
-                            xs: "flex",
-                            md: "none",
-                          },
-                          flexDirection: "column",
-                          gap: theme.gap(4),
-                        }}
-                      />
-                    ),
-                  })
-                : setModalContent(null)
+              setModalContent({
+                content: (
+                  <WebNav
+                    style={{
+                      display: {
+                        xs: "flex",
+                        md: "none",
+                      },
+                      flexDirection: "column",
+                      gap: theme.gap(4),
+                    }}
+                  />
+                ),
+              })
             }>
             <Menu />
           </IconButton>
