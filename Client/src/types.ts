@@ -74,14 +74,16 @@ export interface ListItemType {
 export interface ModalContent {
   content: React.ReactNode;
   shouldClose?: boolean;
+  entryDir?: "LEFT" | "RIGHT" | "CENTER";
+  source?: string;
   style?: {
     overlay?: GenericObject<string>;
     content?: {
       width?: { xs?: string; sm?: string; md?: string };
       maxWidth?: { xs?: string; sm?: string; md?: string };
+      otherStyles?: GenericObject<string>;
     };
   };
-  source?: string;
 }
 
 export interface MsgType {

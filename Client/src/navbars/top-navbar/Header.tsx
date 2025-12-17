@@ -73,17 +73,26 @@ export const Header: React.FC = () => {
         />
       ),
       source: "navbar",
+      entryDir: "RIGHT",
+      style: {
+        // overlay: {
+        //   display: { xs: "flex", md: "none" },
+        // },
+        content: { otherStyles: { height: "100%" } },
+      },
     });
 
   const openMobileUserNav = () =>
     setModalContent({
       content: <MobileUserNav />,
-      style: {
-        overlay: {
-          display: { xs: "flex", md: "none" },
-        },
-      },
       source: "navbar",
+      entryDir: "RIGHT",
+      style: {
+        // overlay: {
+        //   display: { xs: "flex", md: "none" },
+        // },
+        content: { otherStyles: { height: "100%" } },
+      },
     });
 
   /* ---------------------------------- render ---------------------------------- */

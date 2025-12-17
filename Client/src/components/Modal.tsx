@@ -32,6 +32,7 @@ interface ModalProps {
     content?: {
       width?: { xs?: string; sm?: string; md?: string };
       maxWidth?: { xs?: string; sm?: string; md?: string };
+      otherStyles?: GenericObject<string>;
     };
   };
 }
@@ -59,6 +60,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
       content: {
         width = { xs: "80%", sm: "80%", md: "40%" },
         maxWidth = { xs: "100%", sm: "350px", md: "400px" },
+        otherStyles,
       } = {},
     } = style || {};
 
@@ -142,6 +144,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
               ? `${moveIn(entryDir, "-0px", "4px")} 0.2s linear forwards`
               : `${moveOut(entryDir, "4px", "-10px")} 0.2s linear forwards`,
             ...(scrollBarStyle() as any),
+            ...otherStyles,
           }}>
           {
             /* Modal Header */

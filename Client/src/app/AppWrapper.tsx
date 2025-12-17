@@ -153,7 +153,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
             contentElement: modalContent.content,
           }}
           shouldClose={modalContent.shouldClose}
-          entryDir="CENTER"
+          entryDir={modalContent.entryDir ?? "CENTER"}
           style={modalContent.style}
         />
       )}
