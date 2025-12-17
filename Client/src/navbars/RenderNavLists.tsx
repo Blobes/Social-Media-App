@@ -4,7 +4,7 @@ import React from "react";
 import { Typography, Link } from "@mui/material";
 import { useTheme, styled } from "@mui/material/styles";
 import { NavItem, GenericObject, SavedPage } from "@/types";
-import { isCurrent } from "@/helpers/others";
+import { matchPaths } from "@/helpers/others";
 import { usePathname, useRouter } from "next/navigation";
 
 // Styled wrapper for individual nav items
@@ -52,7 +52,7 @@ export const RenderList: React.FC<RenderListProps> = ({
           return <React.Fragment key={index}>{item.element}</React.Fragment>;
         }
 
-        const isCurrentPage = isCurrent(pathname, item.url);
+        const isCurrentPage = matchPaths(pathname, item.url);
         return (
           <NavItemWrapper
             key={index}

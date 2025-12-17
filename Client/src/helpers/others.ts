@@ -102,7 +102,7 @@ export const getFromLocalStorage = <T = unknown | any>({
   return (fallback as T) ?? null;
 };
 
-export const isCurrent = (pathname: string, pagePath: string | undefined) => {
+export const matchPaths = (pathname: string, pagePath: string | undefined) => {
   return (
     pathname === pagePath?.toLowerCase() || pathname.startsWith(`${pagePath}/`)
   );

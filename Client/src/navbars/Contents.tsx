@@ -14,7 +14,7 @@ import { UserAvatar } from "../components/UserAvatar";
 import { AppButton } from "../components/Buttons";
 import { useAppContext } from "@/app/AppContext";
 import { Strip } from "../components/StripBar";
-import { isCurrent, summarizeNum } from "@/helpers/others";
+import { matchPaths, summarizeNum } from "@/helpers/others";
 import { usePathname, useRouter } from "next/navigation";
 
 // Custom hook that centralizes nav content, styling, and reusable nav rendering
@@ -65,7 +65,7 @@ export const useContent = () => {
             return <React.Fragment key={index}>{item.element}</React.Fragment>;
           }
 
-          const isCurrentPage = isCurrent(pathname, item.url);
+          const isCurrentPage = matchPaths(pathname, item.url);
           return (
             <NavItemWrapper
               key={index}
