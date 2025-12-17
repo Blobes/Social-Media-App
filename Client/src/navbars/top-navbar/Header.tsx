@@ -1,171 +1,163 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, MouseEvent } from "react";
 import {
   AppBar,
   Toolbar,
   Stack,
-  useMediaQuery,
   IconButton,
   Link,
+  useMediaQuery,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import { Menu } from "@mui/icons-material";
+import { useRouter } from "next/navigation";
+
 import { useAppContext } from "@/app/AppContext";
+import { useSharedHooks } from "../../hooks";
+
+import { WebNav } from "./WebNav";
 import { DesktopUserNav } from "./DesktopUserNav";
+import { MobileUserNav } from "./MobileUserNav";
+
 import { SearchBar } from "../../components/Search";
 import { UserAvatar } from "@/components/UserAvatar";
-import { Menu } from "@mui/icons-material";
-import { AppButton } from "../../components/Buttons";
-import { useSharedHooks } from "../../hooks";
 import { ThemeSwitcher } from "../../components/ThemeSwitcher";
-import { defaultPage, routes } from "@/helpers/info";
-import { useRouter } from "next/navigation";
-import { MobileUserNav } from "./MobileUserNav";
-import { WebNav } from "./WebNav";
+import { AppButton } from "../../components/Buttons";
 import { MenuRef } from "@/components/Menus";
 
-// Header component: Renders the top navigation bar, adapting to screen size and login state
+import { defaultPage, routes } from "@/helpers/info";
+
 export const Header: React.FC = () => {
-  // Global app context
   const { loginStatus, authUser, modalContent, setModalContent } =
     useAppContext();
   const { setLastPage } = useSharedHooks();
-  const { firstName, lastName, profileImage } = authUser || {};
 
-  // Theme and responsive breakpoint
   const theme = useTheme();
+  const router = useRouter();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const isLoggedIn = loginStatus === "AUTHENTICATED";
 
   const menuRef = useRef<MenuRef>(null);
 
-  const router = useRouter();
-  const isLoggedIn = loginStatus === "AUTHENTICATED";
+  const { firstName, lastName, profileImage } = authUser || {};
 
+  /* ---------------------------------- effects --------------------------------- */
   useEffect(() => {
     const handleResize = () => {
-      isDesktop && modalContent?.source === "navbar" && setModalContent(null);
+      if (isDesktop && modalContent?.source === "navbar") {
+        setModalContent(null);
+      }
     };
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
 
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isDesktop, modalContent, setModalContent]);
+
+  /* -------------------------------- handlers --------------------------------- */
+  const handleLogoClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    router.push(defaultPage.path);
+    setLastPage(defaultPage);
+  };
+
+  const openMobileWebNav = () =>
+    setModalContent({
+      content: (
+        <WebNav
+          style={{
+            display: { xs: "flex", md: "none" },
+            flexDirection: "column",
+            gap: theme.gap(4),
+          }}
+        />
+      ),
+      source: "navbar",
+    });
+
+  const openMobileUserNav = () =>
+    setModalContent({
+      content: <MobileUserNav />,
+      style: {
+        overlay: {
+          display: { xs: "flex", md: "none" },
+        },
+      },
+      source: "navbar",
+    });
+
+  /* ---------------------------------- render ---------------------------------- */
   return (
     <AppBar
       position="sticky"
-      sx={{ zIndex: 500 }}
-      component={"nav"}
+      component="nav"
       aria-label="Main navigation"
-      role="navigation">
+      role="navigation"
+      sx={{ zIndex: 500 }}>
       <Toolbar
         sx={{
-          alignItems: "center",
+          display: "flex",
           justifyContent: "space-between",
-          borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
-          padding: theme.boxSpacing(6, 10),
+          alignItems: "center",
           gap: theme.gap(6),
+          padding: theme.boxSpacing(6, 10),
+          borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
         }}>
-        {/* Mobile & logged out user hamburger */}
+        {/* Mobile hamburger (logged out only) */}
         {!isLoggedIn && !isDesktop && (
-          <IconButton
-            onClick={() =>
-              setModalContent({
-                content: (
-                  <WebNav
-                    style={{
-                      display: {
-                        xs: "flex",
-                        md: "none",
-                      },
-                      flexDirection: "column",
-                      gap: theme.gap(4),
-                    }}
-                  />
-                ),
-                source: "navbar",
-              })
-            }>
+          <IconButton onClick={openMobileWebNav} aria-label="Open menu">
             <Menu />
           </IconButton>
         )}
-        {/* Brand Logo */}
-        <Link
-          href={defaultPage.path}
-          onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-            e.preventDefault();
-            router.push(defaultPage.path);
-            setLastPage(defaultPage);
-          }}>
+
+        {/* Logo */}
+        <Link href={defaultPage.path} onClick={handleLogoClick}>
           <img
-            alt="logo"
             src="/assets/images/logo.png"
-            style={{ borderRadius: `${theme.radius[2]}`, width: "40px" }}
+            alt="logo"
+            style={{ width: 40, borderRadius: `${theme.radius[2]}` }}
           />
         </Link>
 
-        {/* Search bar centered in header */}
+        {/* Search */}
         {isLoggedIn && <SearchBar />}
 
-        {/* Right-side navigation stack */}
+        {/* Right controls */}
         <Stack direction="row" alignItems="center" spacing={theme.gap(8)}>
-          {/* Navigation changes based on screen size */}
           {!isLoggedIn && isDesktop && (
             <WebNav
               style={{
-                display: {
-                  xs: "none",
-                  md: "flex",
-                },
-                flexDirection: "row",
+                display: { xs: "none", md: "flex" },
                 gap: theme.gap(4),
               }}
             />
           )}
 
-          {/* Right-side user controls */}
           <ThemeSwitcher />
 
-          {/* Show logged in user nav list on desktop */}
           {isLoggedIn && isDesktop && <DesktopUserNav menuRef={menuRef} />}
 
           {isLoggedIn && (
-            // Show avatar if user is authenticated
             <UserAvatar
               userInfo={{ firstName, lastName, profileImage }}
               toolTipValue="Open menu"
+              style={{ width: "30", height: "30" }}
               action={(e) =>
-                !isDesktop
-                  ? setModalContent({
-                      content: <MobileUserNav />,
-                      style: {
-                        overlay: {
-                          display: {
-                            xs: "flex",
-                            md: "none",
-                          },
-                        },
-                      },
-                      source: "navbar",
-                    })
-                  : menuRef.current?.openMenu(e.currentTarget)
+                isDesktop
+                  ? menuRef.current?.openMenu(e.currentTarget)
+                  : openMobileUserNav()
               }
-              style={{
-                width: "30px",
-                height: "30px",
-              }}
             />
           )}
 
           {!isLoggedIn && (
-            // If not logged in, show login button and menu icon on mobile
             <AppButton
-              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+              href={routes.login}
+              style={{ fontSize: "14px" }}
+              onClick={(e) => {
                 e.preventDefault();
                 router.push(routes.login);
-              }}
-              style={{ fontSize: "14px" }}
-              href={routes.login}>
+              }}>
               Login
             </AppButton>
           )}
