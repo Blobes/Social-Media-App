@@ -136,7 +136,7 @@ export const Header: React.FC = () => {
           {!isLoggedIn && isDesktop && (
             <WebNav
               style={{
-                display: { xs: "none", md: "flex" },
+                display: { xs: "none", md: "flex", flexDirection: "column" },
                 gap: theme.gap(4),
               }}
             />
