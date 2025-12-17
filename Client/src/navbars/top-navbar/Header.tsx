@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import {
   AppBar,
   Toolbar,
@@ -26,7 +26,8 @@ import { WebNav } from "./WebNav";
 // Header component: Renders the top navigation bar, adapting to screen size and login state
 export const Header: React.FC = () => {
   // Global app context
-  const { loginStatus, authUser, setModalContent } = useAppContext();
+  const { loginStatus, authUser, modalContent, setModalContent } =
+    useAppContext();
   const { setLastPage } = useSharedHooks();
   const { firstName, lastName, profileImage } = authUser || {};
 
@@ -36,6 +37,16 @@ export const Header: React.FC = () => {
 
   const router = useRouter();
   const isLoggedIn = loginStatus === "AUTHENTICATED";
+
+  useEffect(() => {
+    const handleResize = () => {
+      isDesktop && modalContent?.source === "navbar" && setModalContent(null);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   return (
     <AppBar
@@ -69,6 +80,7 @@ export const Header: React.FC = () => {
                     }}
                   />
                 ),
+                source: "navbar",
               })
             }>
             <Menu />
@@ -127,6 +139,7 @@ export const Header: React.FC = () => {
                       },
                     },
                   },
+                  source: "navbar",
                 })
               }
               style={{

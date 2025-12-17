@@ -81,6 +81,7 @@ export interface ModalContent {
       maxWidth?: { xs?: string; sm?: string; md?: string };
     };
   };
+  source?: string;
 }
 
 export interface MsgType {
