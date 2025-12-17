@@ -154,7 +154,7 @@ export const Header: React.FC = () => {
             />
           )}
           {/* Show logged in user nav list on desktop */}
-          {isLoggedIn && isDesktop && <DesktopUserNav />}
+          {isLoggedIn && isDesktop && <DesktopUserNav menuRef={menuRef} />}
 
           {!isLoggedIn && (
             // If not logged in, show login button and menu icon on mobile
