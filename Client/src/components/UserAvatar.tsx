@@ -38,8 +38,9 @@ export const UserAvatar = ({
         {...(url ? { href: url } : {})}
         onClick={action && action}
         sx={{
-          borderRadius: theme.radius[100],
+          borderRadius: theme.radius.full,
           padding: theme.boxSpacing(2),
+          marginLeft: "0px!important",
           ...(marginTop !== undefined ? { marginTop } : {}),
         }}
         aria-label="User profile">
