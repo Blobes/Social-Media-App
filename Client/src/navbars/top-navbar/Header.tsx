@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   AppBar,
   Toolbar,
@@ -22,6 +22,7 @@ import { defaultPage, routes } from "@/helpers/info";
 import { useRouter } from "next/navigation";
 import { MobileUserNav } from "./MobileUserNav";
 import { WebNav } from "./WebNav";
+import { MenuRef } from "@/components/Menus";
 
 // Header component: Renders the top navigation bar, adapting to screen size and login state
 export const Header: React.FC = () => {
@@ -34,6 +35,8 @@ export const Header: React.FC = () => {
   // Theme and responsive breakpoint
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+
+  const menuRef = useRef<MenuRef>(null);
 
   const router = useRouter();
   const isLoggedIn = loginStatus === "AUTHENTICATED";
@@ -123,24 +126,26 @@ export const Header: React.FC = () => {
           {/* Right-side user controls */}
           <ThemeSwitcher />
 
-          {isLoggedIn && !isDesktop && (
+          {isLoggedIn && (
             // Show avatar if user is authenticated
             <UserAvatar
               userInfo={{ firstName, lastName, profileImage }}
               toolTipValue="Open menu"
               action={(e) =>
-                setModalContent({
-                  content: <MobileUserNav />,
-                  style: {
-                    overlay: {
-                      display: {
-                        xs: "flex",
-                        md: "none",
+                !isDesktop
+                  ? setModalContent({
+                      content: <MobileUserNav />,
+                      style: {
+                        overlay: {
+                          display: {
+                            xs: "flex",
+                            md: "none",
+                          },
+                        },
                       },
-                    },
-                  },
-                  source: "navbar",
-                })
+                      source: "navbar",
+                    })
+                  : menuRef.current?.openMenu(e.currentTarget)
               }
               style={{
                 width: "30px",
@@ -148,6 +153,7 @@ export const Header: React.FC = () => {
               }}
             />
           )}
+          {/* Show logged in user nav list on desktop */}
           {isLoggedIn && isDesktop && <DesktopUserNav />}
 
           {!isLoggedIn && (

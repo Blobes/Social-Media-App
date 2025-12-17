@@ -43,7 +43,7 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
           vertical: "top",
           horizontal: "left",
         }}
-        MenuListProps={{ disablePadding: true }}
+        slotProps={{ list: { disablePadding: true } }}
         sx={{
           alignItems: "center",
           zIndex: 1000,

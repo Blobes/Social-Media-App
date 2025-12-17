@@ -1,5 +1,4 @@
 "use client";
-import { useRef } from "react";
 import { Stack, svgIconClasses } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useAppContext } from "@/app/AppContext";
@@ -8,12 +7,15 @@ import { MenuPopup, MenuRef } from "@/components/Menus";
 import { useNavLists } from "../NavLists";
 import { useSharedHooks } from "@/hooks";
 
-export const DesktopUserNav = () => {
+export const DesktopUserNav = ({
+  menuRef,
+}: {
+  menuRef?: React.RefObject<MenuRef>;
+}) => {
   const theme = useTheme();
   const { userNavList } = useNavLists();
   const { setLastPage } = useSharedHooks();
   const { setModalContent } = useAppContext();
-  const menuRef = useRef<MenuRef>(null);
 
   return (
     <Stack
@@ -32,7 +34,7 @@ export const DesktopUserNav = () => {
             list={userNavList}
             setLastPage={setLastPage}
             closePopup={() => {
-              menuRef.current?.closeMenu();
+              menuRef?.current?.closeMenu();
               setModalContent(null);
             }}
             style={{
