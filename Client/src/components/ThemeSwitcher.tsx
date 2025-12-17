@@ -28,9 +28,9 @@ export const ThemeSwitcher: React.FC = () => {
         justifyContent: "center",
         padding: theme.boxSpacing(3),
         cursor: "pointer",
-        borderRadius: "8px",
-        width: "32px",
-        height: "32px",
+        borderRadius: theme.radius.full,
+        width: "38px",
+        height: "38px",
         "&:hover": {
           backgroundColor: theme.palette.gray.trans[2],
         },
