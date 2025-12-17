@@ -153,7 +153,7 @@ export const Header: React.FC = () => {
             <UserAvatar
               userInfo={{ firstName, lastName, profileImage }}
               toolTipValue="Open menu"
-              style={{ width: "30px", height: "30px" }}
+              style={{ width: "34px", height: "34px" }}
               action={(e) =>
                 isDesktop
                   ? menuRef.current?.openMenu(e.currentTarget)
