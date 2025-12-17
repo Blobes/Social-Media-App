@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import {
   AppBar,
   Toolbar,
@@ -11,41 +11,29 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useAppContext } from "@/app/AppContext";
-import { DesktopNav } from "./DesktopNav";
-import { MobileNav } from "./MobileNav";
-import { SearchBar } from "../Search";
-import { ModalRef } from "../Modal";
-import { MenuRef } from "../Menus";
+import { DesktopUserNav } from "./DesktopUserNav";
+import { SearchBar } from "../../components/Search";
 import { UserAvatar } from "@/components/UserAvatar";
-import { useContent } from "./Contents";
 import { Menu } from "@mui/icons-material";
-import { AppButton } from "../Buttons";
+import { AppButton } from "../../components/Buttons";
 import { useSharedHooks } from "../../hooks";
-import { ThemeSwitcher } from "../ThemeSwitcher";
+import { ThemeSwitcher } from "../../components/ThemeSwitcher";
 import { defaultPage } from "@/helpers/info";
 import { useRouter } from "next/navigation";
+import { MobileUserNav } from "./MobileUserNav";
+import { WebNav } from "./WebNav";
 
 // Header component: Renders the top navigation bar, adapting to screen size and login state
 export const Header: React.FC = () => {
   // Global app context
-  const { loginStatus, authUser, lastPage } = useAppContext();
-  const { firstName, lastName, profileImage } = authUser || {};
-  // Shared hooks
+  const { loginStatus, authUser, setModalContent } = useAppContext();
   const { setLastPage } = useSharedHooks();
+  const { firstName, lastName, profileImage } = authUser || {};
 
   // Theme and responsive breakpoint
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const router = useRouter();
-
-  // Refs for controlling drawers and menus
-  const drawerRef = useRef<ModalRef>(null);
-  const menuRef = useRef<MenuRef>(null);
-
-  // Navigation items for logged-in and default views
-  const { defaultNavList, loggedInNavList } = useContent();
-
-  // Check if user is logged in
   const isLoggedIn = loginStatus === "AUTHENTICATED";
 
   return (
@@ -63,6 +51,28 @@ export const Header: React.FC = () => {
           padding: theme.boxSpacing(6, 10),
           gap: theme.gap(6),
         }}>
+        {/* Mobile & logged out user hamburger */}
+        {!isLoggedIn && !isDesktop && (
+          <IconButton
+            onClick={() =>
+              setModalContent({
+                content: (
+                  <WebNav
+                    style={{
+                      display: {
+                        xs: "flex",
+                        md: "none",
+                      },
+                      flexDirection: "column",
+                      gap: theme.gap(4),
+                    }}
+                  />
+                ),
+              })
+            }>
+            <Menu />
+          </IconButton>
+        )}
         {/* Brand Logo */}
         <Link
           href={defaultPage.path}
@@ -79,68 +89,64 @@ export const Header: React.FC = () => {
         </Link>
 
         {/* Search bar centered in header */}
-        <SearchBar />
+        {isLoggedIn && <SearchBar />}
 
         {/* Right-side navigation stack */}
         <Stack direction="row" alignItems="center" spacing={theme.gap(8)}>
           {/* Navigation changes based on screen size */}
-          {isDesktop ? (
-            <DesktopNav
-              lastPage={lastPage}
-              setLastPage={setLastPage}
-              defaultNavList={defaultNavList}
-              loggedInNavList={loggedInNavList}
-              menuRef={menuRef}
-              closePopup={() => {
-                drawerRef.current?.closeModal();
-                menuRef.current?.closeMenu();
-              }}
-            />
-          ) : (
-            <MobileNav
-              lastPage={lastPage}
-              setLastPage={setLastPage}
-              defaultNavList={defaultNavList}
-              loggedInNavList={loggedInNavList}
-              drawerRef={drawerRef}
-              closePopup={() => {
-                drawerRef.current?.closeModal();
-                menuRef.current?.closeMenu();
+          {!isLoggedIn && isDesktop && (
+            <WebNav
+              style={{
+                display: {
+                  xs: "none",
+                  md: "flex",
+                },
+                flexDirection: "row",
+                gap: theme.gap(4),
               }}
             />
           )}
 
           {/* Right-side user controls */}
           <ThemeSwitcher />
-          {isLoggedIn ? (
+
+          {isLoggedIn && !isDesktop && (
             // Show avatar if user is authenticated
             <UserAvatar
               userInfo={{ firstName, lastName, profileImage }}
               toolTipValue="Open menu"
               action={(e) =>
-                isDesktop
-                  ? menuRef.current?.openMenu(e.currentTarget)
-                  : drawerRef.current?.openModal()
+                setModalContent({
+                  content: <MobileUserNav />,
+                  style: {
+                    overlay: {
+                      display: {
+                        xs: "flex",
+                        md: "none",
+                      },
+                    },
+                  },
+                })
               }
               style={{
                 width: "30px",
                 height: "30px",
               }}
             />
-          ) : (
-            // If not logged in, show login button and menu icon on mobile
-            <React.Fragment>
-              <AppButton style={{ fontSize: "14px" }} href="/auth/login">
-                Login
-              </AppButton>
+          )}
+          {isLoggedIn && isDesktop && <DesktopUserNav />}
 
-              {/* Only show hamburger menu if not desktop */}
-              {!isDesktop && (
-                <IconButton onClick={() => drawerRef.current?.openModal()}>
-                  <Menu />
-                </IconButton>
-              )}
-            </React.Fragment>
+          {!isLoggedIn && (
+            // If not logged in, show login button and menu icon on mobile
+            <AppButton
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                e.preventDefault();
+                router.push("/auth/login");
+              }}
+              style={{ fontSize: "14px" }}
+              href="/auth/login">
+              Login
+            </AppButton>
           )}
         </Stack>
       </Toolbar>

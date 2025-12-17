@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Stack } from "@mui/material";
 import { BlurEffect } from "../components/BlurEffect";
-import { Header } from "@/components/app-navbar/Header";
+import { Header } from "@/navbars/top-navbar/Header";
 import { SnackBars } from "@/components/SnackBars";
 import { useAppContext } from "./AppContext";
 import { Footer } from "@/components/Footer";
@@ -154,6 +154,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
           }}
           shouldClose={modalContent.shouldClose}
           entryDir="CENTER"
+          style={modalContent.style}
         />
       )}
       <Footer />

@@ -1,12 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [
-      "es5",
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["es5", "dom", "dom.iterable", "esnext"],
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
@@ -25,12 +20,8 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "@mui/*": [
-        "node_modules/@mui/*"
-      ],
-      "@/*": [
-        "./src/*"
-      ]
+      "@mui/*": ["node_modules/@mui/*"],
+      "@/*": ["./src/*"]
     },
     "incremental": true,
     "plugins": [
@@ -44,9 +35,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "src/navbars/NavLists.tsx"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

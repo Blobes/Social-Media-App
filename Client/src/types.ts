@@ -62,10 +62,8 @@ export interface NavItem {
 }
 
 export interface NavBarProps {
-  lastPage: SavedPage;
   setLastPage: (page: SavedPage) => void;
-  defaultNavList: NavItem[];
-  loggedInNavList: NavItem[];
+  list: NavItem[];
 }
 
 export interface ListItemType {
@@ -76,6 +74,13 @@ export interface ListItemType {
 export interface ModalContent {
   content: React.ReactNode;
   shouldClose?: boolean;
+  style?: {
+    overlay?: GenericObject<string>;
+    content?: {
+      width?: { xs?: string; sm?: string; md?: string };
+      maxWidth?: { xs?: string; sm?: string; md?: string };
+    };
+  };
 }
 
 export interface MsgType {

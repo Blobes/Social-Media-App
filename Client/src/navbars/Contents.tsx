@@ -9,78 +9,18 @@ import {
   svgIconClasses,
 } from "@mui/material";
 import { useTheme, styled } from "@mui/material/styles";
-import {
-  Home,
-  Notifications,
-  Settings,
-  Logout,
-  AccountCircle,
-  Mail,
-} from "@mui/icons-material";
-import { useAuth } from "@/app/auth/login/authHooks";
 import { NavItem, GenericObject, SavedPage } from "@/types";
-import { UserAvatar } from "../UserAvatar";
-import { AppButton } from "../Buttons";
+import { UserAvatar } from "../components/UserAvatar";
+import { AppButton } from "../components/Buttons";
 import { useAppContext } from "@/app/AppContext";
-import { Strip } from "../StripBar";
-import { summarizeNum } from "@/helpers/others";
-import { defaultPage } from "@/helpers/info";
-import { useRouter } from "next/navigation";
+import { Strip } from "../components/StripBar";
+import { isCurrent, summarizeNum } from "@/helpers/others";
+import { usePathname, useRouter } from "next/navigation";
 
 // Custom hook that centralizes nav content, styling, and reusable nav rendering
 export const useContent = () => {
-  const { handleLogout } = useAuth(); // Access logout logic
   const theme = useTheme(); // Access current theme for styling
-  const { loginStatus } = useAppContext();
-
-  // Navigation items visible to all users
-  const defaultNavList: NavItem[] = [
-    {
-      title: loginStatus === "AUTHENTICATED" ? "Timeline" : "Home",
-      element: <Home />,
-      url: loginStatus === "AUTHENTICATED" ? "/timeline" : defaultPage.path,
-    },
-    {
-      title: "Explore",
-      element: <Notifications />,
-      url: "#",
-    },
-  ];
-
-  // Navigation items visible to only logged-in users
-  const loggedInNavList: NavItem[] = [
-    {
-      title: "Profile",
-      element: <AccountCircle />,
-      url: "#",
-    },
-    {
-      title: "Notifications",
-      element: <Notifications />,
-      url: "#",
-    },
-    {
-      title: "Inbox",
-      element: <Mail />,
-      url: "#",
-    },
-    {
-      element: <Divider />,
-    },
-    {
-      title: "Settings",
-      element: <Settings />,
-      url: "#",
-    },
-    {
-      element: <Divider />,
-    },
-    {
-      title: "Logout",
-      element: <Logout />,
-      action: async () => await handleLogout(), // Trigger logout on click
-    },
-  ];
+  const pathname = usePathname();
 
   // Styled wrapper for individual nav items
   const NavItemWrapper = styled(Link)(({ theme }) =>
@@ -112,7 +52,6 @@ export const useContent = () => {
   // Renders a nav list (either default or logged-in) with accessibility support
   const RenderList: React.FC<RenderListProps> = ({
     list,
-    lastPage,
     setLastPage,
     closePopup,
     style = {},
@@ -126,7 +65,7 @@ export const useContent = () => {
             return <React.Fragment key={index}>{item.element}</React.Fragment>;
           }
 
-          const isCurrent = item.title?.toLowerCase() === lastPage.title;
+          const isCurrentPage = isCurrent(pathname, item.url);
           return (
             <NavItemWrapper
               key={index}
@@ -143,11 +82,11 @@ export const useContent = () => {
                   });
                 if (closePopup) closePopup();
               }}
-              aria-current={isCurrent ? "page" : undefined}
+              aria-current={isCurrentPage ? "page" : undefined}
               role="link"
               tabIndex={0}
               sx={{
-                backgroundColor: isCurrent
+                backgroundColor: isCurrentPage
                   ? theme.palette.gray.trans[1]
                   : "none",
                 ...style,
@@ -272,5 +211,5 @@ export const useContent = () => {
     );
   };
 
-  return { defaultNavList, loggedInNavList, RenderList, MobileNavContent };
+  return { RenderList, MobileNavContent };
 };
