@@ -1,6 +1,6 @@
 "use client";
 import { useAuth } from "@/app/auth/login/authHooks";
-import { defaultPage } from "@/helpers/info";
+import { defaultPage, routes } from "@/helpers/info";
 import { NavItem } from "@/types";
 import {
   Home,
@@ -19,22 +19,22 @@ export const useNavLists = () => {
     {
       title: "About",
       element: <Home />,
-      url: "/about",
+      url: routes.about,
     },
     {
       title: "Pricing",
       element: <Notifications />,
-      url: "/pricing",
+      url: routes.pricing,
     },
     {
-      title: "News & Blogs",
+      title: "Blogs",
       element: <Notifications />,
-      url: "/blogs",
+      url: routes.blogs,
     },
     {
       title: "Support",
       element: <Notifications />,
-      url: "/support",
+      url: routes.support,
     },
   ];
 
@@ -50,12 +50,12 @@ export const useNavLists = () => {
     {
       title: "Profile",
       element: <AccountCircle />,
-      url: "/profile",
+      url: routes.profile,
     },
     {
       title: "Bookmarks",
       element: <Mail />,
-      url: "/bookmarks",
+      url: routes.bookmarks,
     },
 
     {
@@ -64,7 +64,7 @@ export const useNavLists = () => {
     {
       title: "Premium",
       element: <Mail />,
-      url: "/pricing",
+      url: routes.pricing,
     },
     {
       title: "Logout",
@@ -78,22 +78,22 @@ export const useNavLists = () => {
     {
       title: "Timeline",
       element: <AccountCircle />,
-      url: "/timeline",
+      url: routes.timeline,
     },
     {
       title: "Stakes",
       element: <AccountCircle />,
-      url: "/stakes",
+      url: routes.stakes,
     },
     {
       title: "Explore",
       element: <Notifications />,
-      url: "/explore",
+      url: routes.explore,
     },
     {
       title: "Inbox",
       element: <Mail />,
-      url: "/inbox",
+      url: routes.inbox,
     },
     {
       element: <Divider />,
@@ -101,7 +101,7 @@ export const useNavLists = () => {
     {
       title: "Settings",
       element: <Settings />,
-      url: "/settings",
+      url: routes.settings,
     },
   ];
 

@@ -64,7 +64,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       setModalContent(null);
     }
     // Redirect if unauthenticated
-    if (loginStatus === "UNAUTHENTICATED" && !isExcludedAuthRoute) {
+    if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
       router.replace(defaultPage.path);
     }
   }, [loginStatus]);

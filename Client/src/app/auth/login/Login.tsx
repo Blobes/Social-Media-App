@@ -14,6 +14,7 @@ import { InlineMsg } from "@/components/InlineMsg";
 import { Edit } from "@mui/icons-material";
 import { BasicTooltip } from "@/components/Tooltips";
 import { GenericObject } from "@/types";
+import { routes } from "@/helpers/info";
 
 interface LoginProps {
   email: string;
@@ -90,7 +91,7 @@ export const Login: React.FC<LoginProps> = ({
           });
         setStep?.("email");
         router.push(
-          getFromLocalStorage() ? getFromLocalStorage().path : "/timeline"
+          getFromLocalStorage() ? getFromLocalStorage().path : routes.timeline
         );
       } else {
         setInlineMsg(fixedMsg ?? null);

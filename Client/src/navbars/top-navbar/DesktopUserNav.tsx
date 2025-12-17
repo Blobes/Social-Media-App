@@ -1,18 +1,12 @@
 "use client";
-import React, { useRef } from "react";
-import { Stack, svgIconClasses, typographyClasses } from "@mui/material";
+import { useRef } from "react";
+import { Stack, svgIconClasses } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { NavBarProps } from "@/types";
 import { useAppContext } from "@/app/AppContext";
 import { RenderList } from "../RenderNavLists";
 import { MenuPopup, MenuRef } from "@/components/Menus";
 import { useNavLists } from "../NavLists";
 import { useSharedHooks } from "@/hooks";
-
-interface DestopNavProps extends NavBarProps {
-  menuRef?: React.RefObject<MenuRef>;
-  closePopup?: () => void;
-}
 
 export const DesktopUserNav = () => {
   const theme = useTheme();

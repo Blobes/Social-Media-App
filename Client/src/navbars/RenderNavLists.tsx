@@ -6,7 +6,6 @@ import { useTheme, styled } from "@mui/material/styles";
 import { NavItem, GenericObject, SavedPage } from "@/types";
 import { isCurrent } from "@/helpers/others";
 import { usePathname, useRouter } from "next/navigation";
-import { useAppContext } from "@/app/AppContext";
 
 // Styled wrapper for individual nav items
 const NavItemWrapper = styled(Link)(({ theme }) =>

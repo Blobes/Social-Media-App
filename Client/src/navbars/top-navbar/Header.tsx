@@ -18,7 +18,7 @@ import { Menu } from "@mui/icons-material";
 import { AppButton } from "../../components/Buttons";
 import { useSharedHooks } from "../../hooks";
 import { ThemeSwitcher } from "../../components/ThemeSwitcher";
-import { defaultPage } from "@/helpers/info";
+import { defaultPage, routes } from "@/helpers/info";
 import { useRouter } from "next/navigation";
 import { MobileUserNav } from "./MobileUserNav";
 import { WebNav } from "./WebNav";
@@ -33,6 +33,7 @@ export const Header: React.FC = () => {
   // Theme and responsive breakpoint
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+
   const router = useRouter();
   const isLoggedIn = loginStatus === "AUTHENTICATED";
 
@@ -141,10 +142,10 @@ export const Header: React.FC = () => {
             <AppButton
               onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.preventDefault();
-                router.push("/auth/login");
+                router.push(routes.login);
               }}
               style={{ fontSize: "14px" }}
-              href="/auth/login">
+              href={routes.login}>
               Login
             </AppButton>
           )}

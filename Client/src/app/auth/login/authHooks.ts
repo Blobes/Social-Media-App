@@ -18,7 +18,7 @@ import {
   getLockRemaining,
 } from "@/helpers/auth";
 import { useRef } from "react";
-import { defaultPage, excludedRoutes } from "@/helpers/info";
+import { defaultPage, excludedRoutes, routes } from "@/helpers/info";
 
 interface LoginCredentials {
   email: string;
@@ -56,7 +56,6 @@ export const useAuth = () => {
         method: "POST",
         body: JSON.stringify({ email }),
       });
-      console.log(res);
       return res;
     } catch (error: any) {
       setInlineMsg(error.message || "Something went wrong.");
@@ -124,7 +123,10 @@ export const useAuth = () => {
       const currentPath = window.location.pathname;
       const isExcludedRoute = excludedRoutes.auth.includes(currentPath);
 
-      const fallbackPage = { title: "timeline", path: "/timeline" };
+      const fallbackPage = {
+        title: extractPageTitle(routes.timeline),
+        path: routes.timeline,
+      };
       if (isExcludedRoute) {
         setLastPage(fallbackPage);
       } else {
@@ -192,8 +194,8 @@ export const useAuth = () => {
         setAuthUser(parsed);
 
         pagePath = window.location.pathname;
-        setLastPage({ title: extractPageTitle(pagePath), path: pagePath });
 
+        setLastPage({ title: extractPageTitle(pagePath), path: pagePath });
         setLoginStatus("LOCKED");
       } else {
         setAuthUser(null);
