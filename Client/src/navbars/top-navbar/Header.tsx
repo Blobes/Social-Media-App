@@ -67,13 +67,13 @@ export const Header: React.FC = () => {
         <WebNav
           style={{
             display: { xs: "flex", md: "none" },
-            flexDirection: "column",
+            // flexDirection: "column",
             gap: theme.gap(4),
           }}
         />
       ),
       source: "navbar",
-      entryDir: "RIGHT",
+      entryDir: "LEFT",
       style: {
         // overlay: {
         //   display: { xs: "flex", md: "none" },
@@ -136,7 +136,7 @@ export const Header: React.FC = () => {
           {!isLoggedIn && isDesktop && (
             <WebNav
               style={{
-                display: { xs: "none", md: "flex", flexDirection: "column" },
+                display: { xs: "none", md: "flex", flexDirection: "row" },
                 gap: theme.gap(4),
               }}
             />
