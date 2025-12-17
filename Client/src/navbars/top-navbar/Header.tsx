@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Menu } from "@mui/icons-material";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { useAppContext } from "@/app/AppContext";
 import { useSharedHooks } from "../../hooks";
@@ -26,7 +26,7 @@ import { ThemeSwitcher } from "../../components/ThemeSwitcher";
 import { AppButton } from "../../components/Buttons";
 import { MenuRef } from "@/components/Menus";
 
-import { defaultPage, routes } from "@/helpers/info";
+import { defaultPage, flaggedRoutes, routes } from "@/helpers/info";
 
 export const Header: React.FC = () => {
   const { loginStatus, authUser, modalContent, setModalContent } =
@@ -41,6 +41,9 @@ export const Header: React.FC = () => {
   const menuRef = useRef<MenuRef>(null);
 
   const { firstName, lastName, profileImage } = authUser || {};
+
+  const pathname = usePathname();
+  const isWeb = flaggedRoutes.web.includes(pathname);
 
   /* ---------------------------------- effects --------------------------------- */
   useEffect(() => {
@@ -113,7 +116,7 @@ export const Header: React.FC = () => {
           borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
         }}>
         {/* Mobile hamburger (logged out only) */}
-        {!isLoggedIn && !isDesktop && (
+        {isWeb && !isDesktop && (
           <IconButton onClick={openMobileWebNav} aria-label="Open menu">
             <Menu />
           </IconButton>
@@ -133,7 +136,7 @@ export const Header: React.FC = () => {
 
         {/* Right controls */}
         <Stack direction="row" alignItems="center" spacing={theme.gap(8)}>
-          {!isLoggedIn && isDesktop && (
+          {isWeb && isDesktop && (
             <WebNav
               style={{
                 display: { xs: "none", md: "flex", flexDirection: "row" },

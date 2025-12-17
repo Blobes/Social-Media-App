@@ -18,7 +18,7 @@ import {
   getLockRemaining,
 } from "@/helpers/auth";
 import { useRef } from "react";
-import { defaultPage, excludedRoutes, routes } from "@/helpers/info";
+import { defaultPage, flaggedRoutes, routes } from "@/helpers/info";
 
 interface LoginCredentials {
   email: string;
@@ -121,7 +121,7 @@ export const useAuth = () => {
       setLoginStatus("AUTHENTICATED");
 
       const currentPath = window.location.pathname;
-      const isExcludedRoute = excludedRoutes.auth.includes(currentPath);
+      const isExcludedRoute = flaggedRoutes.auth.includes(currentPath);
 
       const fallbackPage = {
         title: extractPageTitle(routes.timeline),

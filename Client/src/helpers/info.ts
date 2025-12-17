@@ -21,9 +21,9 @@ export const routes = {
   settings: "/settings",
 };
 
-export const excludedRoutes = {
+export const flaggedRoutes = {
   auth: [routes.login, routes.signup],
-  others: [
+  web: [
     defaultPage.path,
     routes.about,
     routes.pricing,

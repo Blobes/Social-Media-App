@@ -12,7 +12,7 @@ import { Modal, ModalRef } from "@/components/Modal";
 import { useSharedHooks } from "@/hooks";
 import { AuthStepper } from "./auth/login/AuthStepper";
 import { verifyAuth } from "./auth/verifyAuth";
-import { defaultPage, excludedRoutes } from "@/helpers/info";
+import { defaultPage, flaggedRoutes } from "@/helpers/info";
 
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -32,10 +32,10 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   } = useAppContext();
   const [mounted, setMounted] = useState(false);
   const isExcludedRoute = [
-    ...excludedRoutes.auth,
-    ...excludedRoutes.others,
+    ...flaggedRoutes.auth,
+    ...flaggedRoutes.web,
   ].includes(pathname);
-  const isExcludedAuthRoute = excludedRoutes.auth.includes(pathname);
+  const isExcludedAuthRoute = flaggedRoutes.auth.includes(pathname);
 
   // ─────────────────────────────
   // 1️⃣ MOUNT + INITIAL AUTH CHECK
