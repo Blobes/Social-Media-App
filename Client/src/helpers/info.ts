@@ -19,6 +19,7 @@ export const routes = {
   explore: "/explore",
   inbox: "/inbox",
   settings: "/settings",
+  post: "/timeline/post",
 };
 
 export const flaggedRoutes = {
@@ -30,4 +31,5 @@ export const flaggedRoutes = {
     routes.blogs,
     routes.support,
   ],
+  app: [routes.timeline, routes.post],
 };

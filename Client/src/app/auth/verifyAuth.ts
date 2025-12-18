@@ -11,7 +11,7 @@ interface VerifyParams {
   setSBMessage: Function;
   setLastPage: (page: SavedPage) => void;
   pathname: string;
-  isExcludedRoute: boolean;
+  isAllowedAuthRoutes: boolean;
 }
 
 export const verifyAuth = async ({
@@ -20,13 +20,13 @@ export const verifyAuth = async ({
   setSBMessage,
   setLastPage,
   pathname,
-  isExcludedRoute,
+  isAllowedAuthRoutes,
 }: VerifyParams) => {
   try {
     const res = await fetchUserWithTokenCheck();
     const snapshotCookie = getCookie("user_snapshot");
     const userSnapshot = snapshotCookie ? JSON.parse(snapshotCookie) : null;
-    const pagePath = !isExcludedRoute ? pathname : routes.timeline;
+    const pagePath = !isAllowedAuthRoutes ? pathname : routes.timeline;
 
     // Fully authenticated
     if (navigator.onLine && res.payload) {

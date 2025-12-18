@@ -19,13 +19,12 @@ export interface ModalRef {
   closeModal: () => void;
 }
 
-interface ModalProps {
-  children: {
-    headerElement?: React.ReactNode;
-    contentElement: React.ReactNode;
-  };
+export interface ModalProps {
+  header?: React.ReactNode;
+  content: React.ReactNode;
   shouldClose?: boolean;
   showHeader?: boolean;
+  onClose?: () => void;
   entryDir?: "LEFT" | "RIGHT" | "CENTER";
   style?: {
     overlay?: GenericObject<string>;
@@ -40,10 +39,12 @@ interface ModalProps {
 export const Modal = forwardRef<ModalRef, ModalProps>(
   (
     {
-      children,
+      header,
+      content,
       entryDir = "RIGHT",
       shouldClose = true,
       showHeader = true,
+      onClose,
       style,
     },
     ref
@@ -52,7 +53,6 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
     const [shouldRemove, setShouldRemove] = useState(true);
     const containerRef = useRef<HTMLDivElement>(null);
     const closeRef = useRef<HTMLButtonElement>(null);
-    const { headerElement, contentElement } = children;
     const { scrollBarStyle } = useStyles();
     const theme = useTheme();
     const {
@@ -86,6 +86,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
       ) {
         setOpen(false);
         setTimeout(() => setShouldRemove(true), 200);
+        if (onClose) onClose();
       }
     };
 
@@ -160,7 +161,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
                   padding: theme.boxSpacing(2),
                   justifyContent: "flex-end",
                 }}>
-                {headerElement}
+                {header}
                 {shouldClose && (
                   <IconButton
                     aria-label="Drawer closer"
@@ -174,7 +175,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
               </Stack>
             )
           }
-          {contentElement}
+          {content}
         </Stack>
       </Stack>
     );

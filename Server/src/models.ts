@@ -81,6 +81,7 @@ const postSchema = new mongoose.Schema(
     content: String,
     postImage: String,
     likes: [],
+    status: String,
   },
   { timestamps: true }
 );

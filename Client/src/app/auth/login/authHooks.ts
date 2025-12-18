@@ -4,7 +4,7 @@ import { useAppContext } from "@/app/AppContext";
 import { useSharedHooks } from "@/hooks";
 import { fetcher } from "@/helpers/fetcher";
 import { IUser, SavedPage, SingleResponse, UserSnapshot } from "@/types";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   deleteCookie,
   extractPageTitle,
@@ -47,6 +47,7 @@ export const useAuth = () => {
   const loginAttempts = parseInt(getCookie("loginAttempts") || "0", 10);
   const lockTimestamp = getCookie("loginLockTime");
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
+  const pathname = usePathname();
 
   const checkEmail = async (
     email: string
@@ -176,7 +177,6 @@ export const useAuth = () => {
           firstName: authUser.firstName,
           lastName: authUser.lastName,
           username: authUser.lastName,
-          profileImage: authUser.profileImage,
         }
       : null;
     let pagePath;
@@ -186,17 +186,15 @@ export const useAuth = () => {
 
       // Step 2: Check if stored user exists for drawer experience
       if (snapshot) setCookie("user_snapshot", JSON.stringify(snapshot), 20);
-
       const userSnapshot = getCookie("user_snapshot");
 
       if (userSnapshot) {
         const parsed = JSON.parse(userSnapshot);
         setAuthUser(parsed);
 
-        pagePath = window.location.pathname;
-
+        pagePath = pathname;
         setLastPage({ title: extractPageTitle(pagePath), path: pagePath });
-        setLoginStatus("LOCKED");
+        setLoginStatus("UNAUTHENTICATED");
       } else {
         setAuthUser(null);
         setLastPage({ title: defaultPage.title, path: defaultPage.path });

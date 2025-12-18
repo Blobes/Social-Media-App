@@ -1,10 +1,8 @@
 "use client";
 
-export type LoginStatus =
-  | "UNKNOWN"
-  | "AUTHENTICATED"
-  | "UNAUTHENTICATED"
-  | "LOCKED";
+import { ModalProps } from "./components/Modal";
+
+export type LoginStatus = "UNKNOWN" | "AUTHENTICATED" | "UNAUTHENTICATED";
 export type ResponseStatus = "SUCCESS" | "ERROR" | "INFO" | "WARNING" | null;
 
 export type GenericObject<T> = {
@@ -52,6 +50,7 @@ export interface Post {
   postImage: string | null;
   likes: string[];
   createdAt: number;
+  status: "ACTIVE" | "DELETED";
 }
 
 export interface NavItem {
@@ -71,19 +70,8 @@ export interface ListItemType {
   action?: () => void | null;
 }
 
-export interface ModalContent {
-  content: React.ReactNode;
-  shouldClose?: boolean;
-  entryDir?: "LEFT" | "RIGHT" | "CENTER";
+export interface ModalContent extends ModalProps {
   source?: string;
-  style?: {
-    overlay?: GenericObject<string>;
-    content?: {
-      width?: { xs?: string; sm?: string; md?: string };
-      maxWidth?: { xs?: string; sm?: string; md?: string };
-      otherStyles?: GenericObject<string>;
-    };
-  };
 }
 
 export interface MsgType {

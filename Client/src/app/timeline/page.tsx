@@ -2,8 +2,8 @@
 
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { LeftSide } from "./LeftSide";
-import { Posts } from "./Posts";
+import { RightSidebar } from "./RightSidebar";
+import { Posts } from "./post/Posts";
 import { useStyles } from "@/helpers/styles";
 import { ScrollableContainer } from "@/components/Containers";
 
@@ -33,7 +33,6 @@ export default function TimelinePage() {
         },
         ...scrollBarStyle(),
       }}>
-      <LeftSide />
       <Posts />
       <ScrollableContainer
         sx={{
@@ -44,6 +43,7 @@ export default function TimelinePage() {
         }}>
         Col 3
       </ScrollableContainer>
+      <RightSidebar />
     </Stack>
   );
 }

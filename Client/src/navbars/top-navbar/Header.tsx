@@ -52,10 +52,9 @@ export const Header: React.FC = () => {
         setModalContent(null);
       }
     };
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [isDesktop, modalContent, setModalContent]);
+  }, []);
 
   /* -------------------------------- handlers --------------------------------- */
   const handleLogoClick = (e: MouseEvent<HTMLAnchorElement>) => {
@@ -77,10 +76,8 @@ export const Header: React.FC = () => {
       ),
       source: "navbar",
       entryDir: "LEFT",
+      onClose: () => setModalContent(null),
       style: {
-        // overlay: {
-        //   display: { xs: "flex", md: "none" },
-        // },
         content: { otherStyles: { height: "100%" } },
       },
     });
@@ -90,10 +87,8 @@ export const Header: React.FC = () => {
       content: <MobileUserNav />,
       source: "navbar",
       entryDir: "RIGHT",
+      onClose: () => setModalContent(null),
       style: {
-        // overlay: {
-        //   display: { xs: "flex", md: "none" },
-        // },
         content: { otherStyles: { height: "100%" } },
       },
     });
@@ -115,21 +110,23 @@ export const Header: React.FC = () => {
           padding: theme.boxSpacing(6, 10),
           borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
         }}>
-        {/* Mobile hamburger (logged out only) */}
-        {isWeb && !isDesktop && (
-          <IconButton onClick={openMobileWebNav} aria-label="Open menu">
-            <Menu />
-          </IconButton>
-        )}
+        <Stack direction="row" alignItems="center" spacing={theme.gap(8)}>
+          {/* Mobile hamburger (logged out only) */}
+          {isWeb && !isDesktop && (
+            <IconButton onClick={openMobileWebNav} aria-label="Open menu">
+              <Menu />
+            </IconButton>
+          )}
 
-        {/* Logo */}
-        <Link href={defaultPage.path} onClick={handleLogoClick}>
-          <img
-            src="/assets/images/logo.png"
-            alt="logo"
-            style={{ width: 40, borderRadius: `${theme.radius[2]}` }}
-          />
-        </Link>
+          {/* Logo */}
+          <Link href={defaultPage.path} onClick={handleLogoClick}>
+            <img
+              src="/assets/images/logo.png"
+              alt="logo"
+              style={{ width: 40, borderRadius: `${theme.radius[2]}` }}
+            />
+          </Link>
+        </Stack>
 
         {/* Search */}
         {isLoggedIn && <SearchBar />}

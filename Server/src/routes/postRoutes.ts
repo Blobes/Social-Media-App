@@ -7,9 +7,9 @@ import { getAllPost } from "@/controllers/post/getAllPost";
 import verifyToken from "@/middlewares/verifyToken";
 
 const router = express.Router();
-router.get("/", verifyToken, getAllPost);
+router.get("/", getAllPost);
 router.post("/create", verifyToken, createPost);
-router.get("/:id", verifyToken, getPost);
+router.get("/:id", getPost);
 router.put("/:id/like", verifyToken, likePost);
 router.put("/:id/edit", verifyToken, editPost);
 

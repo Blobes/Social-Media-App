@@ -2,14 +2,14 @@
 
 import { CircularProgress, Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { PostCard } from "./Cards";
+import { PostCard } from "./Post";
 import { ScrollableContainer } from "@/components/Containers";
 import { CreatePost } from "./CreatePost";
 import { useEffect, useState } from "react";
 import { Post } from "@/types";
 import { usePost } from "./postHooks";
 import { HourglassEmptyOutlined } from "@mui/icons-material";
-import { useAppContext } from "../AppContext";
+import { useAppContext } from "@/app/AppContext";
 import { delay, getCookie, setCookie } from "@/helpers/others";
 
 export const Posts = () => {
@@ -24,29 +24,27 @@ export const Posts = () => {
     try {
       setLoading(true);
       await delay();
-
       // IF UNAUTHENTICATED → USE OFFLINE FIRST
-      const offlinePosts = getCookie("offline_posts");
-      if (loginStatus !== "AUTHENTICATED") {
-        if (offlinePosts) {
-          setPosts(JSON.parse(offlinePosts));
-          console.log("Showing cached posts:", posts);
-          return;
-        }
-        setMessage("Login to view posts");
-        return;
-      }
-
+      // const offlinePosts = getCookie("offline_posts");
+      // if (loginStatus !== "AUTHENTICATED") {
+      //   if (offlinePosts) {
+      //     setPosts(JSON.parse(offlinePosts));
+      //     console.log("Showing cached posts:", posts);
+      //     return;
+      //   }
+      //   setMessage("Login to view posts");
+      //   return;
+      // }
       // IF AUTHENTICATED → FETCH FROM API
       const res = await getAllPost();
       if (res?.payload) {
         setPosts(res.payload);
         setMessage(res.message);
-        setCookie(
-          "offline_posts",
-          JSON.stringify(res.payload.slice(0, 4)),
-          60 * 24
-        );
+        // setCookie(
+        //   "offline_posts",
+        //   JSON.stringify(res.payload.slice(0, 4)),
+        //   60 * 24
+        // );
       }
     } finally {
       setLoading(false);
@@ -66,7 +64,7 @@ export const Posts = () => {
         maxWidth: "650px",
         minWidth: "400px",
       }}>
-      <CreatePost />
+      {loginStatus === "AUTHENTICATED" && <CreatePost />}
 
       {isLoading ? (
         <CircularProgress size={40} />

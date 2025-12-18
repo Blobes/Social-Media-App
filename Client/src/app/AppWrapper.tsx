@@ -13,6 +13,7 @@ import { useSharedHooks } from "@/hooks";
 import { AuthStepper } from "./auth/login/AuthStepper";
 import { verifyAuth } from "./auth/verifyAuth";
 import { defaultPage, flaggedRoutes } from "@/helpers/info";
+import { matchPaths } from "@/helpers/others";
 
 export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -31,11 +32,17 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     lastPage,
   } = useAppContext();
   const [mounted, setMounted] = useState(false);
-  const isExcludedRoute = [
+
+  const flaggedAppRoutes = flaggedRoutes.app.filter((route) =>
+    matchPaths(pathname, route)
+  );
+
+  const isAllowedRoutes = [
     ...flaggedRoutes.auth,
     ...flaggedRoutes.web,
+    ...flaggedAppRoutes,
   ].includes(pathname);
-  const isExcludedAuthRoute = flaggedRoutes.auth.includes(pathname);
+  const isAllowedAuthRoutes = flaggedRoutes.auth.includes(pathname);
 
   // ─────────────────────────────
   // 1️⃣ MOUNT + INITIAL AUTH CHECK
@@ -49,7 +56,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       setSBMessage,
       setLastPage,
       pathname,
-      isExcludedRoute: isExcludedAuthRoute,
+      isAllowedAuthRoutes,
     });
   }, []);
 
@@ -58,15 +65,31 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // ─────────────────────────────
   useEffect(() => {
     // Handle modal based on loginStatus
-    if (loginStatus === "LOCKED" && !isExcludedRoute) {
-      setModalContent({ content: <AuthStepper />, shouldClose: false });
-    } else {
+    // if (loginStatus === "LOCKED" && !isExcludedRoute) {
+    //   setModalContent({ content: <AuthStepper />, shouldClose: false });
+    // } else {
+    //   setModalContent(null);
+    // }
+    if (loginStatus === "AUTHENTICATED" || modalContent) {
       setModalContent(null);
+      return;
     }
-    // Redirect if unauthenticated
-    if (loginStatus === "UNAUTHENTICATED" && !isExcludedRoute) {
+
+    if (!isAllowedRoutes) {
       router.replace(defaultPage.path);
+      return;
     }
+
+    const showModal = () =>
+      setModalContent({
+        content: <AuthStepper />,
+        onClose: () => setModalContent(null),
+      });
+
+    showModal(); // Show modal first
+    const id = setInterval(showModal, 10 * 60 * 1000);
+
+    return () => clearInterval(id);
   }, [loginStatus]);
 
   // ─────────────────────────────
@@ -91,7 +114,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         setSBMessage,
         setLastPage: setLastPage,
         pathname,
-        isExcludedRoute: isExcludedAuthRoute,
+        isAllowedAuthRoutes,
       });
 
     const handleOnline = () => {
@@ -143,18 +166,18 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <Stack sx={{ position: "fixed", height: "100vh", width: "100%", gap: 0 }}>
       <BlurEffect />
-      {!isExcludedAuthRoute && <Header />}
+      {!isAllowedAuthRoutes && <Header />}
       {snackBarMsgs.messgages && <SnackBars snackBarMsg={snackBarMsgs} />}
       {children}
       {modalContent && (
         <Modal
           ref={modalRef}
-          children={{
-            contentElement: modalContent.content,
-          }}
+          content={modalContent.content}
+          header={modalContent.header}
           shouldClose={modalContent.shouldClose}
           entryDir={modalContent.entryDir ?? "CENTER"}
           style={modalContent.style}
+          onClose={modalContent.onClose}
         />
       )}
       <Footer />

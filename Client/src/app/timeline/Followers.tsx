@@ -4,7 +4,7 @@ import { useAppContext } from "../AppContext";
 import { useUser } from "../user/userHooks";
 import React, { useEffect, useState } from "react";
 import { HourglassEmptyOutlined } from "@mui/icons-material";
-import { FollowerCard } from "./Cards";
+import { FollowerCard } from "./RightSidebarCards";
 import { delay } from "@/helpers/others";
 
 export const Followers = () => {

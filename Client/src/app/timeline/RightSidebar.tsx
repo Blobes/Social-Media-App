@@ -2,14 +2,14 @@
 
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { ProfileCard } from "./Cards";
+import { ProfileCard } from "./RightSidebarCards";
 import { Followers } from "./Followers";
 import { ScrollableContainer } from "@/components/Containers";
 import { useAppContext } from "../AppContext";
 import { AppButton } from "@/components/Buttons";
 import { useRouter } from "next/navigation";
 
-export const LeftSide = () => {
+export const RightSidebar = () => {
   const theme = useTheme();
   const { loginStatus } = useAppContext();
   const router = useRouter();
