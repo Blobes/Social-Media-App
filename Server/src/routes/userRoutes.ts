@@ -14,7 +14,7 @@ import { getFollowers } from "@/controllers/user/getFollowers";
 
 const router = express.Router();
 
-router.get("/:id", verifyToken, getUser);
+router.get("/:id", getUser);
 router.put("/:id/update-user-info", verifyToken, updateUserInfo);
 router.put("/:id/update-user-email", verifyToken, updateUserEmail);
 router.put("/:id/update-user-password", verifyToken, updateUserPassword);

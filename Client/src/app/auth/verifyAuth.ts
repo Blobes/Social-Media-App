@@ -39,7 +39,7 @@ export const verifyAuth = async ({
     // Token invalid but snapshot exists → LOCKED
     if (userSnapshot) {
       setAuthUser(userSnapshot);
-      setLoginStatus("LOCKED");
+      setLoginStatus("UNAUTHENTICATED");
       setLastPage({ title: extractPageTitle(pagePath), path: pagePath });
       if (!res.message?.toLowerCase().includes("no token")) {
         setSBMessage({
@@ -53,6 +53,7 @@ export const verifyAuth = async ({
     setAuthUser(null);
     setLoginStatus("UNAUTHENTICATED");
     setLastPage({ title: defaultPage.title, path: defaultPage.path });
+
     return;
   } catch (err: any) {
     setAuthUser(null);

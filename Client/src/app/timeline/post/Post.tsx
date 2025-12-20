@@ -104,7 +104,7 @@ export const PostCard = ({ post, style = {} }: PostProps) => {
   };
 
   // ✅ Early return
-  if (!authUser || !author)
+  if (!author)
     return (
       <Stack>
         <Typography>{message}</Typography>

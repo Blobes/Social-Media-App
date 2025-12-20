@@ -36,13 +36,13 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   const flaggedAppRoutes = flaggedRoutes.app.filter((route) =>
     matchPaths(pathname, route)
   );
-
   const isAllowedRoutes = [
     ...flaggedRoutes.auth,
     ...flaggedRoutes.web,
     ...flaggedAppRoutes,
   ].includes(pathname);
   const isAllowedAuthRoutes = flaggedRoutes.auth.includes(pathname);
+  const isAllowedAppRoutes = flaggedRoutes.app.includes(pathname);
 
   // ─────────────────────────────
   // 1️⃣ MOUNT + INITIAL AUTH CHECK
@@ -64,30 +64,24 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // 2️⃣ AUTH STATE REACTIONS
   // ─────────────────────────────
   useEffect(() => {
-    // Handle modal based on loginStatus
-    // if (loginStatus === "LOCKED" && !isExcludedRoute) {
-    //   setModalContent({ content: <AuthStepper />, shouldClose: false });
-    // } else {
-    //   setModalContent(null);
-    // }
-    if (loginStatus === "AUTHENTICATED" || modalContent) {
+    if (loginStatus === "AUTHENTICATED" || !isAllowedAppRoutes) {
       setModalContent(null);
       return;
     }
-
     if (!isAllowedRoutes) {
       router.replace(defaultPage.path);
       return;
     }
-
-    const showModal = () =>
+    const showModal = () => {
       setModalContent({
         content: <AuthStepper />,
         onClose: () => setModalContent(null),
       });
+      modalContent && console.log("none");
+    };
 
     showModal(); // Show modal first
-    const id = setInterval(showModal, 10 * 60 * 1000);
+    const id = setInterval(showModal, 60 * 1000);
 
     return () => clearInterval(id);
   }, [loginStatus]);
