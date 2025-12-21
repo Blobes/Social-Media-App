@@ -1,11 +1,12 @@
 "use client";
 
 import { useAppContext } from "@/app/AppContext";
-import { MsgType, SavedPage } from "@/types";
+import { ModalContent, MsgType, SavedPage } from "@/types";
 import { useEffect } from "react";
 
 export const useSharedHooks = () => {
-  const { snackBarMsgs, setSnackBarMsgs, setPage } = useAppContext();
+  const { snackBarMsgs, setSnackBarMsgs, setPage, setModalContent } =
+    useAppContext();
 
   interface SBMessage {
     msg?: MsgType;
@@ -84,10 +85,19 @@ export const useSharedHooks = () => {
     localStorage.setItem("saved_page", JSON.stringify(pageInfo));
   };
 
+  const openModal = (update: ModalContent) => {
+    setModalContent((prev) => (prev ? prev : update));
+  };
+
+  const closeModal = () => {
+    setModalContent(null);
+  };
   return {
     setSBMessage,
     setSBTimer,
     removeMessage,
     setLastPage,
+    openModal,
+    closeModal,
   };
 };

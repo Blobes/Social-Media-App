@@ -20,8 +20,7 @@ export const WebNav: React.FC<WebNavProps> = ({ style }) => {
   const theme = useTheme();
   const { webNavList } = useNavLists();
   const menuRef = useRef<MenuRef>(null);
-  const { setLastPage } = useSharedHooks();
-  const { setModalContent } = useAppContext();
+  const { setLastPage, closeModal } = useSharedHooks();
 
   return (
     <Stack sx={{ ...style }}>
@@ -30,7 +29,7 @@ export const WebNav: React.FC<WebNavProps> = ({ style }) => {
         setLastPage={setLastPage}
         closePopup={() => {
           menuRef.current?.closeMenu();
-          setModalContent(null);
+          closeModal();
         }}
         style={{
           padding: theme.boxSpacing(1, 5, 1, 4),

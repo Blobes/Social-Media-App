@@ -29,19 +29,14 @@ import { MenuRef } from "@/components/Menus";
 import { defaultPage, flaggedRoutes, routes } from "@/helpers/info";
 
 export const Header: React.FC = () => {
-  const { loginStatus, authUser, modalContent, setModalContent } =
-    useAppContext();
-  const { setLastPage } = useSharedHooks();
-
+  const { loginStatus, authUser, modalContent } = useAppContext();
+  const { setLastPage, openModal, closeModal } = useSharedHooks();
   const theme = useTheme();
   const router = useRouter();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const isLoggedIn = loginStatus === "AUTHENTICATED";
-
   const menuRef = useRef<MenuRef>(null);
-
   const { firstName, lastName, profileImage } = authUser || {};
-
   const pathname = usePathname();
   const isWeb = flaggedRoutes.web.includes(pathname);
 
@@ -49,7 +44,7 @@ export const Header: React.FC = () => {
   useEffect(() => {
     const handleResize = () => {
       if (isDesktop && modalContent?.source === "navbar") {
-        setModalContent(null);
+        closeModal();
       }
     };
     window.addEventListener("resize", handleResize);
@@ -64,7 +59,7 @@ export const Header: React.FC = () => {
   };
 
   const openMobileWebNav = () =>
-    setModalContent({
+    openModal({
       content: (
         <WebNav
           style={{
@@ -76,18 +71,18 @@ export const Header: React.FC = () => {
       ),
       source: "navbar",
       entryDir: "LEFT",
-      onClose: () => setModalContent(null),
+      onClose: () => closeModal(),
       style: {
         content: { otherStyles: { height: "100%" } },
       },
     });
 
   const openMobileUserNav = () =>
-    setModalContent({
+    openModal({
       content: <MobileUserNav />,
       source: "navbar",
       entryDir: "RIGHT",
-      onClose: () => setModalContent(null),
+      onClose: () => closeModal(),
       style: {
         content: { otherStyles: { height: "100%" } },
       },

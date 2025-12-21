@@ -21,13 +21,12 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
 
   // Always initialize hooks here — top of the component
   const modalRef = useRef<ModalRef>(null);
-  const { setSBMessage, setLastPage } = useSharedHooks();
+  const { setSBMessage, setLastPage, openModal, closeModal } = useSharedHooks();
   const {
     snackBarMsgs,
     loginStatus,
     setLoginStatus,
     modalContent,
-    setModalContent,
     setAuthUser,
     lastPage,
   } = useAppContext();
@@ -42,7 +41,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
     ...flaggedAppRoutes,
   ].includes(pathname);
   const isAllowedAuthRoutes = flaggedRoutes.auth.includes(pathname);
-  const isAllowedAppRoutes = flaggedRoutes.app.includes(pathname);
+  const isOnAppRoute = flaggedRoutes.app.includes(pathname);
 
   // ─────────────────────────────
   // 1️⃣ MOUNT + INITIAL AUTH CHECK
@@ -64,28 +63,32 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // 2️⃣ AUTH STATE REACTIONS
   // ─────────────────────────────
   useEffect(() => {
-    if (loginStatus === "AUTHENTICATED" || !isAllowedAppRoutes) {
-      setModalContent(null);
+    let intervalId: NodeJS.Timeout | null = null;
+    // AUTHENTICATED or not on app route → clean exit
+    if (loginStatus === "AUTHENTICATED" || !isOnAppRoute) {
+      closeModal();
       return;
     }
+    // Not allowed → redirect + exit
     if (!isAllowedRoutes) {
       router.replace(defaultPage.path);
       return;
     }
     const showModal = () => {
-      setModalContent({
+      openModal({
         content: <AuthStepper />,
-        onClose: () => setModalContent(null),
+        onClose: () => closeModal(),
       });
-      // modalContent && console.log("none");
     };
-    console.log(isAllowedAppRoutes);
-
-    showModal(); // Show modal first
-    const id = setInterval(showModal, 60 * 1000);
-
-    return () => clearInterval(id);
-  }, [loginStatus]);
+    // show once
+    showModal();
+    // repeat every 60s
+    intervalId = setInterval(showModal, 60 * 1000);
+    // single cleanup
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [loginStatus, isOnAppRoute, isAllowedRoutes, router, defaultPage.path]);
 
   // ─────────────────────────────
   // 3️⃣ MODAL OPEN / CLOSE
@@ -107,7 +110,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         setAuthUser,
         setLoginStatus,
         setSBMessage,
-        setLastPage: setLastPage,
+        setLastPage,
         pathname,
         isAllowedAuthRoutes,
       });
