@@ -3,12 +3,12 @@ import { Request, Response } from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import authRoutes from "@/routes/authRoutes";
-import userRoutes from "@/routes/userRoutes";
-import postRoutes from "@/routes/postRoutes";
+import authRoutes from "./routes/authRoutes";
+import userRoutes from "./routes/userRoutes";
+import postRoutes from "./routes/postRoutes";
 import cookieParser from "cookie-parser";
 import path from "path";
-import { connectDB, corsConfig } from "@/helper";
+import { connectDB, corsConfig } from "./helper";
 
 dotenv.config({
   path: path.resolve(
