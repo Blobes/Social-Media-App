@@ -21,13 +21,12 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
 
   // Always initialize hooks here — top of the component
   const modalRef = useRef<ModalRef>(null);
-  const { setSBMessage, setLastPage } = useSharedHooks();
+  const { setSBMessage, setLastPage, openModal, closeModal } = useSharedHooks();
   const {
     snackBarMsgs,
     loginStatus,
     setLoginStatus,
     modalContent,
-    setModalContent,
     setAuthUser,
     lastPage,
   } = useAppContext();
@@ -64,11 +63,10 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
   // 2️⃣ AUTH STATE REACTIONS
   // ─────────────────────────────
   useEffect(() => {
-    // always declare refs at the top
     let intervalId: NodeJS.Timeout | null = null;
     // AUTHENTICATED or not on app route → clean exit
     if (loginStatus === "AUTHENTICATED" || !isOnAppRoute) {
-      setModalContent(null);
+      closeModal();
       return;
     }
     // Not allowed → redirect + exit
@@ -77,14 +75,10 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     const showModal = () => {
-      setModalContent((prev) =>
-        prev
-          ? prev
-          : {
-              content: <AuthStepper />,
-              onClose: () => setModalContent(null),
-            }
-      );
+      openModal({
+        content: <AuthStepper />,
+        onClose: () => closeModal(),
+      });
     };
     // show once
     showModal();
@@ -116,7 +110,7 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         setAuthUser,
         setLoginStatus,
         setSBMessage,
-        setLastPage: setLastPage,
+        setLastPage,
         pathname,
         isAllowedAuthRoutes,
       });

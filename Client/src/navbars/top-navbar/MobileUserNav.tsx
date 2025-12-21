@@ -92,8 +92,7 @@ const UserInfo = () => {
 export const MobileUserNav = ({}) => {
   const theme = useTheme();
   const { userNavList } = useNavLists();
-  const { setLastPage } = useSharedHooks();
-  const { setModalContent } = useAppContext();
+  const { setLastPage, closeModal } = useSharedHooks();
   const menuRef = useRef<MenuRef>(null);
 
   return (
@@ -105,7 +104,7 @@ export const MobileUserNav = ({}) => {
         setLastPage={setLastPage}
         closePopup={() => {
           menuRef.current?.closeMenu();
-          setModalContent(null);
+          closeModal();
         }}
         style={{
           gap: theme.gap(10),
