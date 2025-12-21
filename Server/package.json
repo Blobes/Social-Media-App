@@ -7,7 +7,7 @@
 
 "scripts": {
   "dev": " NODE_ENV=development nodemon --watch src --ext ts,json --exec ts-node -r tsconfig-paths/register src/index.ts",
-  "build": "tsc",
+  "build": "tsc && tsc-alias",
   "start": "NODE_ENV=production node -r tsconfig-paths/register dist/index.js"
 },
 
