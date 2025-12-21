@@ -139,7 +139,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
             gap: theme.gap(0),
             backgroundColor: theme.palette.gray[0],
             borderRadius: theme.radius[3],
-            border: `1px solid ${theme.palette.gray.trans[1]}`,
+            border: `1px solid ${theme.palette.gray.trans[2]}`,
             overflow: "auto",
             animation: isOpen
               ? `${moveIn(entryDir, "-0px", "4px")} 0.2s linear forwards`

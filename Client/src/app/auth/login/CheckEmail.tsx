@@ -124,7 +124,6 @@ export const CheckEmail: React.FC<CheckProps> = ({
         <AppButton
           variant="contained"
           {...(isAuthLoading && { iconLeft: <CircularProgress size={25} /> })}
-          //  action={handleSubmit}
           submit
           style={{
             fontSize: "16px",
