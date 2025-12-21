@@ -77,20 +77,24 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     const showModal = () => {
-      setModalContent({
-        content: <AuthStepper />,
-        onClose: () => setModalContent(null),
-      });
+      setModalContent((prev) =>
+        prev
+          ? prev
+          : {
+              content: <AuthStepper />,
+              onClose: () => setModalContent(null),
+            }
+      );
     };
     // show once
     showModal();
     // repeat every 60s
-    intervalId = setInterval(showModal, 60 * 1000);
+    intervalId = setInterval(showModal, 60 * 10000);
     // single cleanup
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [loginStatus, isOnAppRoute, isAllowedRoutes, router, defaultPage.path]);
+  }, [loginStatus, isOnAppRoute, isAllowedRoutes]);
 
   // ─────────────────────────────
   // 3️⃣ MODAL OPEN / CLOSE
