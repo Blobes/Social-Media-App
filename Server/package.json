@@ -4,11 +4,13 @@
   "description": "",
   "main": "index.ts",
   "type": "commonjs",
-  "scripts": {
-  "dev": "NODE_ENV=development nodemon --watch index.ts --watch src --ext ts,json --exec ts-node -r tsconfig-paths/register index.ts",
+
+"scripts": {
+  "dev": " NODE_ENV=development nodemon --watch src --ext ts,json --exec ts-node -r tsconfig-paths/register src/index.ts",
   "build": "tsc",
   "start": "NODE_ENV=production node dist/index.js"
 },
+
 
   "keywords": [],
   "author": "",
