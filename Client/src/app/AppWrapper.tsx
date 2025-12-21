@@ -77,8 +77,9 @@ export const AppWrapper = ({ children }: { children: React.ReactNode }) => {
         content: <AuthStepper />,
         onClose: () => setModalContent(null),
       });
-      modalContent && console.log("none");
+      // modalContent && console.log("none");
     };
+    console.log(isAllowedAppRoutes);
 
     showModal(); // Show modal first
     const id = setInterval(showModal, 60 * 1000);
