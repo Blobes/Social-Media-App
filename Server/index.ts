@@ -6,7 +6,6 @@ import dotenv from "dotenv";
 import authRoutes from "@/routes/authRoutes";
 import userRoutes from "@/routes/userRoutes";
 import postRoutes from "@/routes/postRoutes";
-import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
 import { connectDB, corsConfig } from "@/helper";
@@ -19,7 +18,7 @@ dotenv.config({
 });
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 8080;
 const mongoUri = process.env.MONGO_URI || "";
 
 // ====== Middlewares ======
@@ -30,7 +29,7 @@ app.use(
 );
 app.use(cookieParser());
 
-// Site health
+// Site health check
 app.get("/healthz", (_req: Request, res: Response): void => {
   res.status(200).send("OK");
 });

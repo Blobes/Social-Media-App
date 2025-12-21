@@ -33,7 +33,6 @@ export default function TimelinePage() {
         },
         ...scrollBarStyle(),
       }}>
-      <Posts />
       <ScrollableContainer
         sx={{
           width: "28%",
@@ -43,6 +42,7 @@ export default function TimelinePage() {
         }}>
         Col 3
       </ScrollableContainer>
+      <Posts />
       <RightSidebar />
     </Stack>
   );
