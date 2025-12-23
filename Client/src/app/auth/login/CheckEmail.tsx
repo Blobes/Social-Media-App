@@ -127,7 +127,7 @@ export const CheckEmail: React.FC<CheckProps> = ({
           submit
           style={{
             fontSize: "16px",
-            padding: theme.boxSpacing(3, 8),
+            padding: theme.boxSpacing(4, 8),
             width: "100%",
           }}
           options={{

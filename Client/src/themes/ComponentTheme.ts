@@ -220,6 +220,7 @@ const componentTheme = createTheme({
             },
             "& label": {
               fontSize: "14px",
+              transform: "translate(14px, 12px)",
             },
             "& label.Mui-error": {
               color: "var(--TextField-error)",
@@ -245,6 +246,7 @@ const componentTheme = createTheme({
             borderRadius: theme.radius[2],
             maxWidth: "600px",
             minWidth: "150px",
+            padding: theme.boxSpacing(2),
             [`& .Mui-error .${outlinedInputClasses.notchedOutline}`]: {
               borderColor: "var(--TextField-error)",
             },
