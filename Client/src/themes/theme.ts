@@ -2,7 +2,7 @@
 
 import { grey, red } from "@mui/material/colors";
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
-import componentTheme from "./ComponentTheme";
+import componentTheme from "./UIThemes";
 
 // Theme configuration
 let designSystem = createTheme({

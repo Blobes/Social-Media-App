@@ -1,7 +1,7 @@
 import { useTheme } from "@mui/material/styles";
 import { Stack } from "@mui/material";
 import { useGlobalContext } from "@/app/GlobalContext";
-import { useUser } from "../../user/userHooks";
+import { useUser } from "../../profile/userHooks";
 import { useEffect, useState } from "react";
 import { PersonOffSharp } from "@mui/icons-material";
 import { FollowerCard } from "./FollowerCard";

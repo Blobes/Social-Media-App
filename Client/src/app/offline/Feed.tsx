@@ -13,7 +13,7 @@ import { GistCard } from "@/app/(app)/(features)/gist/card/GistCard";
 import { getCachedFeed } from "@/helpers/cache";
 import { usePage } from "@/hooks/page";
 import { clientRoutes } from "@/helpers/routes";
-import { FeedItem } from "../(app)/(home)/useFeed";
+import { FeedItem } from "../(app)/(feed)/useFeed";
 import { StakeCard } from "../(app)/(features)/stake/StakeCard";
 
 export const Feed = () => {

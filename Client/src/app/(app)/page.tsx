@@ -3,10 +3,10 @@
 import { useController } from "@/hooks/global";
 import { useTheme } from "@mui/material/styles";
 import { Stack } from "@mui/material";
-import { RightSidebar } from "./(home)/sidebar/RightSidebar";
+import { RightSidebar } from "./(feed)/sidebar/RightSidebar";
 import { useGlobalContext } from "../GlobalContext";
 import { Welcome } from "./Welcome";
-import { Feed } from "./(home)/Feed";
+import { Feed } from "./(feed)/Feed";
 
 export default function HomePage() {
   const { isDesktop } = useController();

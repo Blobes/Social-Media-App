@@ -1,4 +1,4 @@
-import { FeedItem } from "@/app/(app)/(home)/useFeed";
+import { FeedItem } from "@/app/(app)/(feed)/useFeed";
 import { IUser } from "@/types";
 import { get, set } from "idb-keyval";
 

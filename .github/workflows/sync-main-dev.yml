@@ -1,18 +1,24 @@
-name: Sync dev into main
+name: V1 Sync dev into main
 
 on:
   pull_request:
-    branches: [main]
+    branches:
+      - main
     types: [closed]
+    # Stop listening if only V3 files are changed
+    paths-ignore:
+      - "backend/**"
+      - "frontend/**"
+      - "libs/**"
 
 jobs:
   sync-dev:
+    # Only run if merged, and the branches are specifically the old V1 names
     if: >
       github.event.pull_request.merged == true &&
       github.event.pull_request.base.ref == 'main' &&
       github.event.pull_request.head.ref == 'dev'
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
         with:

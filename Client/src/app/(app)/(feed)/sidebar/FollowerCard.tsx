@@ -4,7 +4,7 @@ import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGlobalContext } from "@/app/GlobalContext";
 import { UserAvatar } from "@/components/UserAvatar";
-import { useUser } from "@/app/(app)/user/userHooks";
+import { useUser } from "@/app/(app)/profile/userHooks";
 import { IUser } from "@/types";
 import { useEffect, useState } from "react";
 import { AnchorLink, AppButton } from "@/components/Buttons";

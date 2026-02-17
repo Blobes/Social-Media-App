@@ -521,3 +521,34 @@ style={{
         },
       }}
 />
+
+name: Sync dev into main
+
+on:
+pull_request:
+branches: [main]
+types: [closed]
+
+jobs:
+sync-dev:
+if: >
+github.event.pull_request.merged == true &&
+github.event.pull_request.base.ref == 'main' &&
+github.event.pull_request.head.ref == 'dev'
+runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync dev to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin
+          git checkout dev
+          git reset --hard origin/main
+          git push origin dev --force-with-lease
