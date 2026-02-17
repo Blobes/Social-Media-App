@@ -1,0 +1,51 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["es5", "dom", "dom.iterable", "esnext"],
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@mui/*": ["node_modules/@mui/*"],
+      "@/*": ["./src/*"],
+      "@funstakes/helpers": ["libs/helpers/index.ts"],
+      "@funstakes/hooks": ["libs/hooks/index.ts"],
+      "@funstakes/theme": ["libs/theme/index.tsx"],
+      "@funstakes/shared-ui": ["libs/shared-ui/index.ts"],
+      "@funstakes/shared-state": ["libs/shared-state/index.ts"],
+      "@funstakes/assets": ["libs/assets/index.ts"],
+      "@funstakes/types": ["libs/helpers/types.ts"],
+      "@funstakes/theme-types": ["libs/theme/theme-types/theme.d.ts"]
+    },
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "shared-fed.config.js",
+    "libs/theme/**/*.d.ts"
+  ],
+  "exclude": ["node_modules"]
+}

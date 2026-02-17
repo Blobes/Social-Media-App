@@ -1,0 +1,13 @@
+# Default owner for everything
+* @Blobes
+
+# Backend Team
+/backend/ @BackendLead
+
+# Frontend Team
+/frontend/apps/feed/ @FeedTeamLead
+/frontend/apps/gist/ @GistTeamLead
+
+# ONLY YOU can approve changes to shared state and the shell
+/frontend/libs/shared-state/ @Blobes
+/frontend/apps/shell/ @Blobes
