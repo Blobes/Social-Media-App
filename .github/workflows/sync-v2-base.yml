@@ -1,4 +1,4 @@
-name: V2 Monorepo Sync
+name: fs V2 Sync
 
 on:
   pull_request:
