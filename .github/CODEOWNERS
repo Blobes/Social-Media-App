@@ -2,11 +2,11 @@
 * @Blobes
 
 # Backend Team
-/backend/ @BackendLead
+/backend/ @Blobes
 
 # Frontend Team
-/frontend/apps/feed/ @FeedTeamLead
-/frontend/apps/gist/ @GistTeamLead
+/frontend/apps/feed/ @Blobes
+/frontend/apps/gist/ @Blobes
 
 # ONLY YOU can approve changes to shared state and the shell
 /frontend/libs/shared-state/ @Blobes

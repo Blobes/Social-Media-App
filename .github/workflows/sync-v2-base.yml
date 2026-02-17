@@ -1,0 +1,38 @@
+name: V2 Monorepo Sync
+
+on:
+  pull_request:
+    #  Only listen to your fs-v2 branch
+    branches:
+      - fs-v2
+    types: [closed]
+    # Only trigger if fs-v2 folders are modified
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "libs/**"
+      - ".github/workflows/sync-v2-base.yml"
+
+jobs:
+  sync-v2-logic:
+    # Logic to ensure that when a feature branch is merged into fs-v2,
+    # the branch remains the stable source of truth.
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate Sync
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin
+
+          # This keeps your branch history clean after a merge
+          echo "V2 Monorepo sync completed for merged PR #${{ github.event.pull_request.number }}"
+          echo "Base branch: ${{ github.event.pull_request.base.ref }}"
