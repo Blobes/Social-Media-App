@@ -1,5 +1,16 @@
-name: FunStakes CI
-on: [pull_request]
+name: fs-v2 CI
+
+on:
+  pull_request:
+    # Only listen to the v2 branch
+    branches:
+      - fs-v2
+    # Only trigger if files in your monorepo folders change
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "libs/**"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,4 +21,5 @@ jobs:
           node-version: 20
           cache: "npm"
       - run: npm install
-      - run: npm run build # This will fail if Team Feed breaks the Shell
+      # This specifically protects your Lite Federation
+      - run: npm run build
