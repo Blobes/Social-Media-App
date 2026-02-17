@@ -1,4 +1,4 @@
-name: fs-v2 CI
+name: fs v2 CI
 
 on:
   pull_request:
