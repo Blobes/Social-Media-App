@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 export * from "./src/animations";
 export * from "./src/auth/timer";
 export * from "./src/dateTime";

@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { useGlobalContext } from "@funstakes/shared-state";
+import { sharedRegistry, useGlobalContext } from "@funstakes/shared-state";
 import { Drawer, DrawerRef, Modal, ModalRef, SnackBars, PageLoaderUI } from "@funstakes/shared-ui"
 import { useMisc, usePage, useEvent } from "@funstakes/hooks";
 import { usePathname } from "next/navigation";
 import { registerSW, delay } from "@funstakes/helpers";
 import { DefaultWrapper } from "./default/DefaultWrapper";
-import { useAuth } from "@funstakes/hooks";
+
 
 
 export const UIManager = ({ children }: { children: React.ReactNode }) => {
@@ -20,6 +20,8 @@ export const UIManager = ({ children }: { children: React.ReactNode }) => {
         authStatus, networkStatus, setGlobalLoading,
         hideDefaultHub, hideDefaultHeader } = useGlobalContext();
     const pathname = usePathname();
+
+    const useAuth = sharedRegistry.hooks["useAuth"];
     const { verifyAuth } = useAuth();
 
     useEffect(() => {

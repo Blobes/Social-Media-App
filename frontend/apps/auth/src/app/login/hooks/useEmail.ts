@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useGlobalContext } from "@shared-state";
+import { useGlobalContext } from "@funstakes/shared-state";
 import { useLoginService } from "../service";
-import { validateEmail, delay } from "@helpers";
+import { validateEmail, delay } from "@funstakes/helpers";
 
 interface EmailProps {
   existingEmail?: string;

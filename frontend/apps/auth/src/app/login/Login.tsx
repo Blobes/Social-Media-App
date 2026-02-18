@@ -3,12 +3,12 @@
 import { useTheme } from "@mui/material/styles";
 import { LoginStepper } from "./LoginStepper";
 import { Stack } from "@mui/material";
-import { useGlobalContext } from "@shared-state";
-import { clientRoutes } from "@helpers";
-import { Empty } from "@shared-ui";
+import { useGlobalContext } from "@funstakes/shared-state";
+import { clientRoutes } from "@funstakes/helpers";
+import { Empty } from "@funstakes/shared-ui";
 import { ShieldCheck } from "lucide-react";
-import { useStyles, usePage, useMisc } from "@hooks";
-import { ComfirmLogout } from "@shared-ui";
+import { useStyles, usePage, useMisc } from "@funstakes/hooks";
+import { ComfirmLogout } from "../logout/Logout";
 
 
 export const Login = () => {

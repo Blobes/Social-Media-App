@@ -1,4 +1,3 @@
-//@ts-ignore
 export * from "./src/media/MediaGallery";
 export * from "./src/media/MediaVideo";
 export * from "./src/media/Media";
@@ -30,5 +29,5 @@ export * from "./src/Tooltips";
 export * from "./src/Transition";
 export * from "./src/UserAvatar";
 export * from "./src/OfflinePromptUI";
-export * from "./src/Logout";
+// export * from "./src/Logout";
 export * from "./src/Footer";

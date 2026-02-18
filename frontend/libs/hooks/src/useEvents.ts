@@ -3,14 +3,14 @@
 import { useRouter } from "next/navigation";
 import { useSnackbar } from "./useSnackbar";
 import { getCookie, setCookie } from "@funstakes/helpers";
-import { useGlobalContext } from "@funstakes/shared-state";
-import { useAuth } from "./auth/useAuth";
+import { sharedRegistry, useGlobalContext } from "@funstakes/shared-state";
 import { useOffline } from "./useOffline";
 
 export const useEvent = () => {
   const router = useRouter();
   const { setSBMessage, removeSBMessage } = useSnackbar();
   const { setNetworkStatus } = useGlobalContext();
+  const useAuth = sharedRegistry.hooks["useAuth"];
   const { verifyAuth } = useAuth();
   const { switchToOnlineMode } = useOffline();
 

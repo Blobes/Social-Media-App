@@ -1,16 +1,16 @@
 
 import { Signup } from './signup/Signup';
 import { Login } from './login/Login';
-import { useGlobalContext } from 'libs/shared-state/GlobalContext';
+import { useGlobalContext } from '@funstakes/shared-state';
 import { useEffect } from 'react';
-import { RootUIContainer } from '@shared-ui';
+import { RootUIContainer } from '@funstakes/shared-ui';
 
 interface WrapperProps {
     view: "login" | "signup";
     children?: React.ReactNode;
 }
 
-export default function AuthWrapper({ view, children }: WrapperProps) {
+export const AuthWrapper = ({ view, children }: WrapperProps) => {
 
     const { setHideDefaultHub } = useGlobalContext();
 

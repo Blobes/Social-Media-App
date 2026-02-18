@@ -8,8 +8,8 @@ import {
   IconButton,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext } from "@funstakes/shared-state";
-import { Strip, RenderItemList, MenuRef, MenuPopup, ThemeSwitcher, Logout } from "@funstakes/shared-ui";
+import { sharedRegistry, useGlobalContext } from "@funstakes/shared-state";
+import { Strip, RenderItemList, MenuRef, MenuPopup, ThemeSwitcher } from "@funstakes/shared-ui";
 import { summarizeNum } from "@funstakes/helpers";
 import { useNavLists } from "./NavLists";
 import { useMisc } from "@funstakes/hooks";
@@ -67,6 +67,7 @@ export const DesktopNav = ({
 const UserInfo = () => {
   const theme = useTheme();
   const { authUser } = useGlobalContext();
+
   if (!authUser) return null;
 
   const { firstName, lastName, profileImage, username, followers, following } =
@@ -134,6 +135,7 @@ export const MobileNav = ({ }) => {
   const { userNavList } = useNavLists();
   const { closeDrawer } = useMisc();
   const menuRef = useRef<MenuRef>(null);
+  const Logout = sharedRegistry.components["Logout"];
 
   return (
     <Stack>
