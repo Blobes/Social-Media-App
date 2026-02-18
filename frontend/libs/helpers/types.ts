@@ -140,3 +140,8 @@ export interface IMedia {
   type?: "image" | "video";
   viewMode?: "list" | "isolated";
 }
+
+export interface IModule {
+  Component: React.ComponentType<any>;
+  getFeedData: () => Promise<any>;
+}

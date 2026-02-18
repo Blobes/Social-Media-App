@@ -120,13 +120,30 @@ export const generateTestEmail = (email: string): string => {
 export const corsConfig = (): any => {
   const allowedOrigins = [
     "http://localhost:3000",
+    "http://localhost:3001", // Shell
+    "http://localhost:3002", // Auth
+    "http://localhost:3003", // Feed
+    "http://localhost:3004", // Stake
+    "http://localhost:3005", // Profile
+    "http://localhost:3006", // Admin/Extra
     "https://funstakes.vercel.app",
+    "https://funstakes.onrender.com",
   ];
+
   return cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
+
+      // Check if the origin is in our hardcoded list
       if (allowedOrigins.includes(origin)) return callback(null, true);
+
+      // Pattern match for any localhost port between 3000-3006
+      const localhostMatch = origin.match(/^http:\/\/localhost:300[0-6]$/);
+      if (localhostMatch) return callback(null, true);
+
+      // Allow Vercel preview deployments
       if (origin.endsWith(".vercel.app")) return callback(null, true);
+
       return callback(new Error("CORS: Origin not allowed"));
     },
     credentials: true,

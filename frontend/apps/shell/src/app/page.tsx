@@ -1,3 +1,5 @@
+"use client"
+
 import { FederatedComponent } from "./Federated";
 
 export default function HomePage() {

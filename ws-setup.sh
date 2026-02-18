@@ -10,7 +10,7 @@ if [ "$TEAM" == "frontend" ]; then
 
 elif [ "$TEAM" == "frontend-shell" ]; then
     echo "Setting up Frontend Shell Workspace"
-    git sparse-checkout set .github frontend/apps/shell frontend/public frontend/libs frontend/package.json frontend/package-lock.json frontend/next.config.js
+    git sparse-checkout set .github frontend/apps/shell frontend/apps/feed frontend/public frontend/libs frontend/.next
   
 elif [ "$TEAM" == "backend" ]; then
     echo "Setting up Backend Feature Workspace..."

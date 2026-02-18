@@ -1,6 +1,7 @@
 import { SplashUI } from '@funstakes/shared-ui';
 import dynamic from 'next/dynamic';
 import React, { Suspense, useMemo } from 'react';
+import { IModule } from '@funstakes/helpers/types';
 
 const loaderMap = {
     feed: () => import('@apps/feed/src/exported'),
