@@ -3,7 +3,7 @@
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGlobalContext } from "@funstakes/shared-state";
-import { GenericObject, UIMode, IGist } from "libs/type/type";
+import { GenericObject, UIMode, IGist } from "@funstakes/types";
 import { useGistService } from "../service";
 import { summarizeNum } from "@funstakes/helpers";
 //@ts-ignore

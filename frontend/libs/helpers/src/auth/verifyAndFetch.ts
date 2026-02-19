@@ -1,6 +1,6 @@
 import { serverApi } from "../routes";
 import { fetcher } from "../fetcher";
-import { IUser } from "libs/type/type";
+import { IUser } from "@funstakes/types";
 
 interface TokenCheckResponse {
   payload: IUser | null;
