@@ -8,7 +8,7 @@ import {
   enqueueLike,
   serverApi,
 } from "@funstakes/helpers";
-import { IGist, ISingleResponse, IListResponse, IUser } from "libs/type/type";
+import { IGist, ISingleResponse, IListResponse, IUser } from "@funstakes/types";
 import { useCallback } from "react";
 
 export const useGistService = () => {
