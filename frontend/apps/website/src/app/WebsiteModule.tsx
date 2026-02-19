@@ -17,7 +17,7 @@ export const WebsiteModule = ({ view, children }: IWebsiteModule) => {
     useEffect(() => {
         setDefaultWrapper(false);
         return () => setDefaultWrapper(true);
-    }, []);
+    }, [setDefaultWrapper]);
 
     return (
         <RootUIContainer>

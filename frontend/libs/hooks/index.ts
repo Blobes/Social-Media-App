@@ -8,7 +8,5 @@ export * from "./src/usePage";
 export * from "./src/usePageScroll";
 export * from "./src/useSnackbar";
 export * from "./src/useStyle";
-// export * from "./src/auth/useAuth";
-// export * from "./src/auth/useLogout";
 export * from "./src/useOffline";
 export * from "./src/useNavLists";

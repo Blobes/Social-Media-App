@@ -1,7 +1,7 @@
 "use client";
 
 import { clientRoutes } from "@funstakes/helpers";
-import { INavItem } from "libs/type/type";
+import { INavItem } from "@funstakes/types";
 import { BadgeQuestionMark, Gem, } from "lucide-react";
 
 export const useNavLists = () => {

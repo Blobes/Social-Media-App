@@ -1,4 +1,4 @@
-import { NetworkStatus } from "../../types";
+import { NetworkStatus } from "@funstakes/types";
 
 export const checkSignal = async (): Promise<NetworkStatus> => {
   if (!navigator.onLine) {

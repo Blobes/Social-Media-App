@@ -1,7 +1,7 @@
 "use client";
 
 import { useGlobalContext } from "@funstakes/shared-state";
-import { IMessage } from "libs/type/type";
+import { IMessage } from "@funstakes/types";
 
 export const useSnackbar = () => {
   const { snackBarMsg, setSnackBarMsg } = useGlobalContext();

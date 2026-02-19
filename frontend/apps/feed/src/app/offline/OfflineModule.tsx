@@ -15,14 +15,16 @@ import { RootUIContainer } from "@funstakes/shared-ui";
 export const OfflineModule = ({ children }: { children: React.ReactNode }) => {
   const { isDesktop, isOnline } = useMisc();
   const theme = useTheme();
-  const { networkStatus } = useGlobalContext();
+  const { networkStatus, setDefaultWrapper } = useGlobalContext();
   const { scrollBarStyle } = useStyles();
   const scrollRef = useRef<HTMLDivElement>(null);
   const { switchToOnlineMode } = useOffline()
 
   useEffect(() => {
     if (isOnline) switchToOnlineMode();
-  }, [networkStatus]);
+    setDefaultWrapper(false);
+    return () => setDefaultWrapper(true);
+  }, [networkStatus, setDefaultWrapper]);
 
   return (
     <RootUIContainer>

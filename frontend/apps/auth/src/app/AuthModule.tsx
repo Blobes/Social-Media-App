@@ -12,7 +12,7 @@ export const AuthModule = ({ view, children }: IAuthModule) => {
     useEffect(() => {
         setDefaultWrapper(false);
         return () => setDefaultWrapper(true);
-    }, []);
+    }, [setDefaultWrapper]);
 
     return (
         <RootUIContainer>

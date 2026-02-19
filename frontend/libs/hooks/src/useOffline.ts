@@ -3,7 +3,7 @@
 import { usePage } from "./usePage";
 import { useGlobalContext } from "@funstakes/shared-state";
 import { clientRoutes, getFromLocalStorage } from "@funstakes/helpers";
-import { IPage } from "libs/type/type";
+import { IPage } from "@funstakes/types";
 
 export const useOffline = () => {
   const { setOfflineMode } = useGlobalContext();

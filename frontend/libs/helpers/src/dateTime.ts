@@ -1,4 +1,4 @@
-import { DateType } from "../../types";
+import { DateType } from "@funstakes/types";
 
 export const formatDate = (
   dateValue: string | number | Date,
