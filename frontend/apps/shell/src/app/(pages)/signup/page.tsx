@@ -1,7 +1,6 @@
 "use client"
 
 import { IAuthModule } from "@funstakes/types";
-import { Typography } from "@mui/material";
 import { FederatedComponent } from "../../Federated";
 
 
