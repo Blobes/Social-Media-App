@@ -2,7 +2,7 @@
 
 import { grey, red } from "@mui/material/colors";
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
-import componentTheme from "./uiDefault";
+import baseStyles from "./baseStyles";
 
 // Theme configuration
 let designSystem = createTheme({
@@ -125,7 +125,7 @@ designSystem = responsiveFontSizes(designSystem);
 const theme = createTheme({
   ...designSystem,
   components: {
-    ...componentTheme.components,
+    ...baseStyles.components,
   },
 });
 export default theme;

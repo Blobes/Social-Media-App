@@ -11,7 +11,7 @@
     ".next/types/**/*.ts",
     "../../apps/**/*",
     "../../libs/**/*",
-    "../../libs/theme/**/*.d.ts"
+    "../../libs/theme/theme-types/theme.d.ts"
   ],
   "exclude": ["node_modules"]
 }

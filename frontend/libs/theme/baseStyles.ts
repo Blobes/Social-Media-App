@@ -3,7 +3,7 @@
 import { createTheme } from "@mui/material/styles";
 import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 
-const componentTheme = createTheme({
+const baseStyles = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: (theme) => ({
@@ -256,4 +256,4 @@ const componentTheme = createTheme({
   },
 });
 
-export default componentTheme;
+export default baseStyles;
