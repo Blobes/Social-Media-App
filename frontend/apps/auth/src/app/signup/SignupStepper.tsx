@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Signup } from "./Signup";
+import { EmailStep } from "./EmailStep";
 import { useTheme } from "@mui/material/styles";
 import { DrawerRef, Stepper } from "@funstakes/shared-ui";
 import { PasswordStep } from "../login/PasswordStep";
@@ -33,7 +33,7 @@ export const SignUpStepper: React.FC<StepperProps> = ({
     {
       name: "email",
       element: (
-        <Signup
+        <EmailStep
           step={currStep}
           setStep={setCurrStep}
           existingEmail={email}

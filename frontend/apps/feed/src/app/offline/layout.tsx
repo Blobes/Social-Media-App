@@ -7,5 +7,5 @@ export default function AppLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <OfflineModule>{children}</OfflineModule>
+  return <>{children}</>
 }
