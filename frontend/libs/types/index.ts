@@ -141,7 +141,22 @@ export interface IMedia {
   viewMode?: "list" | "isolated";
 }
 
+export type IFeed = (IGist & { type: "gist" }) | (IStake & { type: "stake" });
+
 export interface IModule {
-  Component: React.ComponentType<any>;
-  getFeedData: () => Promise<any>;
+  [key: string]: React.ComponentType<any> | (() => any); // Allow dynamic string access
+  useCallBack: () => void;
 }
+
+export interface IWebsiteModule {
+  view: "about" | "pricing" | "support";
+  children?: React.ReactNode;
+}
+
+export interface IAuthModule {
+  view: "login" | "signup";
+  children?: React.ReactNode;
+}
+
+export interface ISharedComponents {}
+export interface ISharedHooks {}

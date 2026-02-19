@@ -1,60 +1,67 @@
 "use client";
 
+import { ISharedComponents, ISharedHooks } from "@funstakes/types";
+
 export const sharedRegistry = {
-  components: {} as Record<string, React.ComponentType<any>>,
-  hooks: {} as Record<string, (...args: any[]) => any>,
-  // Internal sets to track unique references
-  _rawComponents: new Set<React.ComponentType<any>>(),
+  components: {} as ISharedComponents,
+  hooks: {} as ISharedHooks,
+  _rawComponents: new Set<any>(),
   _rawHooks: new Set<Function>(),
 };
 
 export const registerItem = {
-  component: (name: string, comp: React.ComponentType<any>) => {
-    // 1. Check if the name is already taken
-    if (sharedRegistry.components[name]) {
+  // Use <K extends keyof ISharedComponents> to lock the name to your interface keys
+  component: <K extends keyof ISharedComponents>(
+    name: K,
+    comp: ISharedComponents[K],
+  ) => {
+    const components = sharedRegistry.components as Record<string, any>;
+
+    // 1. Check if name is taken
+    if (components[name as string]) {
       console.warn(
-        `Registry Warning: Component name "${name}" is already registered.`,
+        `Registry Warning: Component name "${name as string}" is already registered.`,
       );
       return;
     }
 
-    // 2. Check if the exact component reference already exists under a different name
-    if (sharedRegistry._rawComponents.has(comp)) {
-      const existingName = Object.keys(sharedRegistry.components).find(
-        (key) => sharedRegistry.components[key] === comp,
+    // 2. Check if exact reference exists
+    if (sharedRegistry._rawComponents.has(comp as any)) {
+      const existingName = Object.keys(components).find(
+        (key) => components[key] === comp,
       );
       console.warn(
-        `Registry Warning: This component is already registered as "${existingName}". Skipping duplicate registration for "${name}".`,
+        `Registry Warning: Component already registered as "${existingName}". Skipping "${name as string}".`,
       );
       return;
     }
 
-    // 3. Register if unique
-    sharedRegistry.components[name] = comp;
-    sharedRegistry._rawComponents.add(comp);
+    // 3. Register
+    components[name as string] = comp;
+    sharedRegistry._rawComponents.add(comp as any);
   },
 
-  hook: (name: string, hookFn: (...args: any[]) => any) => {
-    // 1. Check name
-    if (sharedRegistry.hooks[name]) {
+  hook: <K extends keyof ISharedHooks>(name: K, hookFn: ISharedHooks[K]) => {
+    const hooks = sharedRegistry.hooks as Record<string, any>;
+
+    if (hooks[name as string]) {
       console.warn(
-        `Registry Warning: Hook name "${name}" is already registered.`,
+        `Registry Warning: Hook name "${name as string}" is already registered.`,
       );
       return;
     }
 
-    // 2. Check reference
-    if (sharedRegistry._rawHooks.has(hookFn)) {
-      const existingName = Object.keys(sharedRegistry.hooks).find(
-        (key) => sharedRegistry.hooks[key] === hookFn,
+    if (sharedRegistry._rawHooks.has(hookFn as any)) {
+      const existingName = Object.keys(hooks).find(
+        (key) => hooks[key] === hookFn,
       );
       console.warn(
-        `Registry Warning: This hook is already registered as "${existingName}". Skipping duplicate.`,
+        `Registry Warning: Hook already registered as "${existingName}". Skipping "${name as string}".`,
       );
       return;
     }
 
-    sharedRegistry.hooks[name] = hookFn;
-    sharedRegistry._rawHooks.add(hookFn);
+    hooks[name as string] = hookFn;
+    sharedRegistry._rawHooks.add(hookFn as any);
   },
 };

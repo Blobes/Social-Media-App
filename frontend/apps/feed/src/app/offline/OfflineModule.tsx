@@ -1,18 +1,18 @@
 "use client";
 
-import { useMisc, useStyles, useOffline } from "@hooks";
+import { useMisc, useStyles, useOffline } from "@funstakes/hooks";
 import { Stack } from "@mui/material";
-import { useGlobalContext } from "@shared-state";
+import { useGlobalContext } from "@funstakes/shared-state";
 import { useTheme } from "@mui/material/styles";
 import { useEffect, useRef } from "react";
 import { Header } from "./navbars/Header";
 import { LeftNav } from "./navbars/LeftNav";
 import { BottomNav } from "./navbars/BottomNav";
 import { RightSidebar } from "./navbars/right-sidebar/Sidebar";
-import { RootUIContainer } from "@shared-ui";
+import { RootUIContainer } from "@funstakes/shared-ui";
 
 
-export const OfflineWrapper = ({ children }: { children: React.ReactNode }) => {
+export const OfflineModule = ({ children }: { children: React.ReactNode }) => {
   const { isDesktop, isOnline } = useMisc();
   const theme = useTheme();
   const { networkStatus } = useGlobalContext();

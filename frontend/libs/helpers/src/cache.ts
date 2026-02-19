@@ -1,13 +1,13 @@
-import { FeedItem } from "./app/online/useFeed";
+import { IFeed } from "@funstakes/types";
 import { IUser } from "@funstakes/types";
 import { get, set } from "idb-keyval";
 
 // CACHING FEED POSTS
 export interface CacheFeed {
-  post: FeedItem;
+  post: IFeed;
   lastViewed: Date;
 }
-export const cacheFeed = async (newFeed: FeedItem[]) => {
+export const cacheFeed = async (newFeed: IFeed[]) => {
   const now = new Date();
   const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -55,7 +55,7 @@ export const cacheFeed = async (newFeed: FeedItem[]) => {
   ]);
 };
 
-export const getCachedFeed = async (): Promise<FeedItem[]> => {
+export const getCachedFeed = async (): Promise<IFeed[]> => {
   try {
     const cachedPost = (await get("feed")) as CacheFeed[] | undefined;
 

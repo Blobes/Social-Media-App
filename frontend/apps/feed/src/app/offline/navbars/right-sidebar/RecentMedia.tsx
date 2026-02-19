@@ -2,7 +2,7 @@
 
 import { Stack, Typography, Divider } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext } from "@shared-state"
+import { useGlobalContext } from "@funstakes/shared-state"
 
 export const RecentMedia = () => {
   const theme = useTheme();

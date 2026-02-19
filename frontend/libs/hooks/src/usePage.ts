@@ -1,7 +1,7 @@
 "use client";
 
 import { useGlobalContext } from "@funstakes/shared-state";
-import { IPage } from "@funstakes/types";
+import { IPage } from "libs/type/type";
 import {
   clientRoutes,
   disallowedRoutes,

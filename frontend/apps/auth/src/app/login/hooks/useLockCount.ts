@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { getLockRemaining, clearLoginLock } from "@helpers";
+import { getLockRemaining, clearLoginLock } from "@funstakes/helpers";
 
 interface CountdownResult {
   remainingSec: number;

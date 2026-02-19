@@ -2,18 +2,14 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { IGist, IStake } from "@funstakes/types";
-import { cacheFeed, getCachedFeed } from "../../cache";
+import { IFeed, IGist, IStake } from "@funstakes/types";
+import { cacheFeed, getCachedFeed } from "@funstakes/helpers";
 import { delay } from "@funstakes/helpers";
 import { sharedRegistry } from "@funstakes/shared-state";
 
-export type FeedItem =
-  | (IGist & { type: "gist" })
-  | (IStake & { type: "stake" });
-
 export const useFeed = (mode: "online" | "offline" = "online") => {
   const router = useRouter();
-  const [feed, setFeed] = useState<FeedItem[]>([]);
+  const [feed, setFeed] = useState<IFeed[]>([]);
   const [isLoading, setLoading] = useState(false);
 
   const useGists = sharedRegistry.hooks["useGists"];
@@ -26,11 +22,11 @@ export const useFeed = (mode: "online" | "offline" = "online") => {
     try {
       setLoading(true);
       // Map Posts from the server
-      const gistList: FeedItem[] = gists.map((gist: IGist) => ({
+      const gistList: IFeed[] = gists.map((gist: IGist) => ({
         ...gist,
         type: "gist",
       }));
-      const stakeList: FeedItem[] = stakes.map((stake: IStake) => ({
+      const stakeList: IFeed[] = stakes.map((stake: IStake) => ({
         ...stake,
         type: "stake",
       }));

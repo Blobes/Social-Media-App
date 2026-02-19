@@ -1,1 +1,2 @@
-export { FeedWrapper as FeedModule } from "./app/online/FeedWrapper";
+export { FeedModule } from "./app/online/FeedModule";
+export { OfflineModule } from "./app/offline/OfflineModule";

@@ -1,13 +1,13 @@
 "use client";
 
 import { CircularProgress, Stack, Typography } from "@mui/material";
-import { useGlobalContext } from "@shared-state";
-import { AppButton, TextInput } from "@shared-ui";
+import { useGlobalContext } from "@funstakes/shared-state";
+import { AppButton, TextInput } from "@funstakes/shared-ui";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
-import { validateEmail } from "@helpers";
+import { validateEmail } from "@funstakes/helpers";
 import { useEffect, useState } from "react";
-import { GenericObject } from "libs/helper/src/types";
+import { GenericObject } from "@funstakes/types";
 import { useEmail } from "../login/hooks/useEmail";
 
 interface InfoProps {

@@ -1,10 +1,10 @@
 "use client"
 
 import { Stack, Typography } from "@mui/material";
-import { useGlobalContext } from "@shared-state";
-import { AppButton, TextInput, DrawerRef, InlineMsg, ProgressIcon } from "@shared-ui";
+import { useGlobalContext } from "@funstakes/shared-state";
+import { AppButton, TextInput, DrawerRef, InlineMsg, ProgressIcon } from "@funstakes/shared-ui";
 import { useTheme } from "@mui/material/styles";
-import { GenericObject } from "libs/helper/src/types";
+import { GenericObject } from "@funstakes/types";
 import { Mail } from "lucide-react";
 import { useEmail } from "./hooks/useEmail";
 

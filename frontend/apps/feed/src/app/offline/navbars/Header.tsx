@@ -2,13 +2,12 @@
 
 import { AppBar, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext } from "@shared-state";
-import { useMisc } from "@hooks";
-import { img } from "@assets"
-import { AnchorLink, AppButton } from "@shared-ui";
-import { clientRoutes, zIndexes } from "@helpers";
+import { useGlobalContext } from "@funstakes/shared-state";
+import { useMisc, usePage, usePageScroll } from "@funstakes/hooks";
+import { img } from "@funstakes/assets"
+import { AnchorLink, AppButton } from "@funstakes/shared-ui";
+import { clientRoutes, zIndexes } from "@funstakes/helpers";
 import Image from "next/image";
-import { usePage, usePageScroll } from "@hooks";
 
 interface AppHeaderProps {
   scrollRef?: React.RefObject<HTMLElement | null>;

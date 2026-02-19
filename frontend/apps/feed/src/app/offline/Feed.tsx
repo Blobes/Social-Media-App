@@ -3,23 +3,22 @@
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { delay, clientRoutes } from "@helpers";
-import { ProgressIcon, Empty } from "@shared-ui";
+import { delay, clientRoutes } from "@funstakes/helpers";
+import { ProgressIcon, Empty } from "@funstakes/shared-ui";
 import { CircleSlash2 } from "lucide-react";
-import { useStyles, usePage } from "@hooks";
-//@ts-ignore
-import { GistCard } from "gist/GistCard";
-import { getCachedFeed } from "../../cache";
-import { FeedItem } from "../online/useFeed";
-//@ts-ignore
-import { StakeCard } from "stake/StakeCard";
+import { useStyles, usePage } from "@funstakes/hooks";
+import { getCachedFeed } from "@funstakes/helpers";
+import { IFeed } from "@funstakes/types";
+
 
 export const CachedFeed = () => {
   const theme = useTheme();
-  const [feed, setFeed] = useState<FeedItem[]>([]);
+  const [feed, setFeed] = useState<IFeed[]>([]);
   const [isLoading, setLoading] = useState(false);
   const { navigateTo } = usePage();
   const { autoScroll } = useStyles();
+  const GistCard = sharedRegistry.components['GistCard'];
+  const StakeCard = sharedRegistry.components['StakeCard'];
 
   const handleFeed = useCallback(async () => {
     try {
@@ -115,4 +114,5 @@ export const CachedFeed = () => {
   </Stack>)
   )
 
-};
+}; import { sharedRegistry } from "@funstakes/shared-state";
+

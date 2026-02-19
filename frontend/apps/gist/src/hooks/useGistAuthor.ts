@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
-import { IUser, UIMode } from "@/types";
-import { cacheAuthor, getCachedAuthor } from "@/helpers/cache";
+import { IUser, UIMode } from "@funstakes/types";
+import { cacheAuthor, getCachedAuthor } from "@funstakes/helpers";
 
 export const useGistAuthor = (
   authorId: string,

@@ -10,7 +10,7 @@ import { Box, IconButton, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { X } from "lucide-react";
 import { useStyles, useMisc, useDragClose } from "@funstakes/hooks";
-import { Direction, GenericObject } from "@funstakes/types"
+import { Direction, GenericObject } from "libs/type/type"
 import { Transition } from "./Transition";
 import { zIndexes } from "@funstakes/helpers";
 

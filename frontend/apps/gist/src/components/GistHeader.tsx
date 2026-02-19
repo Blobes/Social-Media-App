@@ -1,7 +1,7 @@
 import { Stack, Typography, IconButton } from "@mui/material";
 import { UserAvatar, SmartDate } from "@funstakes/shared-ui";
 import { UserPlus, EllipsisVertical } from "lucide-react";
-import { IUser } from "@funstakes/types";
+import { IUser } from "libs/type/type";
 import { useTheme } from "@mui/material/styles";
 
 interface HeaderProps {

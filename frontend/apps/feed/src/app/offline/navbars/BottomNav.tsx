@@ -1,7 +1,6 @@
 import { AppBar, Typography, useTheme } from "@mui/material";
-import { usePageScroll } from "@hooks";
-
-import { zIndexes } from "@helpers";
+import { usePageScroll } from "@funstakes/hooks";
+import { zIndexes } from "@funstakes/helpers";
 
 interface NavProps {
   scrollRef?: React.RefObject<HTMLElement | null>;

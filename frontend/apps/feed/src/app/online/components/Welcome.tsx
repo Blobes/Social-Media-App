@@ -1,11 +1,10 @@
 "use client"
 
-import { AppButton } from "@funstakes/shared-ui";
+import { AppButton, Footer } from "@funstakes/shared-ui";
 import { clientRoutes } from "@funstakes/helpers";
 import { usePage } from "@funstakes/hooks";
 import { Stack, Typography } from "@mui/material"
 import { useTheme } from "@mui/material/styles";
-import { Footer } from "@funstakes/shared-ui";
 
 export const Welcome = () => {
     const { navigateTo } = usePage();

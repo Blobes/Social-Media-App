@@ -1,5 +1,5 @@
 import { Stack, Typography, useTheme } from "@mui/material";
-import { useStyles } from "@hooks";
+import { useStyles } from "@funstakes/hooks";
 import { useRouter } from "next/navigation";
 
 export const LeftNav = () => {

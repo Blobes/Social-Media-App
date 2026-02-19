@@ -3,12 +3,12 @@
 import React, { useState } from "react";
 import { Signup } from "./Signup";
 import { useTheme } from "@mui/material/styles";
-import { DrawerRef, Stepper } from "@shared-ui";
+import { DrawerRef, Stepper } from "@funstakes/shared-ui";
 import { PasswordStep } from "../login/PasswordStep";
-import { GenericObject, IStep } from "libs/helper/src/types";
+import { GenericObject, IStep } from "@funstakes/types"
 import { Stack } from "@mui/material";
 import Image from "next/image";
-import { img } from "@assets";
+import { img } from "@funstakes/assets";
 
 interface StepperProps {
   modalRef?: React.RefObject<DrawerRef>;

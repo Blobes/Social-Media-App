@@ -2,11 +2,11 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { GenericObject, IStep } from "libs/helper/src/types";
-import { Stepper } from "@shared-ui";
+import { GenericObject, IStep } from "@funstakes/types"
+import { Stepper } from "@funstakes/shared-ui";
 import { Stack } from "@mui/material";
 import Image from "next/image";
-import { img } from "@assets";
+import { img } from "@funstakes/assets";
 import { PasswordStep } from "./PasswordStep";
 import { EmailStep } from "./EmailStep";
 

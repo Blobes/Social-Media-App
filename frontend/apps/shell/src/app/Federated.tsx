@@ -1,25 +1,26 @@
 import { SplashUI } from '@funstakes/shared-ui';
 import dynamic from 'next/dynamic';
 import React, { Suspense, useMemo } from 'react';
-import { IModule } from '@funstakes/helpers/types';
+import { IModule } from '@funstakes/types';
+
 
 const loaderMap = {
     feed: () => import('@apps/feed/src/exported'),
+    website: () => import('@apps/website/src/exported'),
+    auth: () => import('@apps/auth/src/exported'),
+    offline: () => import('@apps/feed/src/exported'),
 };
 
 type AppNames = keyof typeof loaderMap;
 
-export function FederatedComponent({
-    appName,
-    moduleName,
-    props = {}
-}: {
+interface Props {
     appName: AppNames;
     moduleName: string;
     props?: any;
-}) {
-    // ✅ WRAP IN USEMEMO
-    // This stops the infinite recreation loop
+}
+
+export function FederatedComponent({ appName, moduleName, props = {} }: Props) {
+
     const RemoteNode = useMemo(() => {
         return dynamic(
             () => loaderMap[appName]().then((mod) => {

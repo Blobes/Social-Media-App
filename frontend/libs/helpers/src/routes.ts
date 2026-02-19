@@ -1,6 +1,6 @@
 "use client";
 
-import { IPage } from "../types";
+import { IPage } from "../../types";
 
 export const clientRoutes: Record<string, IPage> = {
   // Web

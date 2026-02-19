@@ -6,7 +6,7 @@ import { VibeSlider } from "./vibezSlider/Slider";
 import { ProgressIcon, Empty } from "@funstakes/shared-ui";
 import { Milestone } from "lucide-react";
 import { useFeed } from "./useFeed";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useStyles } from "@funstakes/hooks";
 import { useTheme } from "@mui/material/styles";
 

@@ -22,13 +22,14 @@
     "paths": {
       "@mui/*": ["node_modules/@mui/*"],
       "@/*": ["./src/*"],
+      "@apps/*": ["apps/*"],
+      "@funstakes/types": ["libs/types/index.ts"],
       "@funstakes/helpers": ["libs/helpers/index.ts"],
       "@funstakes/hooks": ["libs/hooks/index.ts"],
       "@funstakes/theme": ["libs/theme/index.tsx"],
       "@funstakes/shared-ui": ["libs/shared-ui/index.ts"],
       "@funstakes/shared-state": ["libs/shared-state/index.ts"],
       "@funstakes/assets": ["libs/assets/index.ts"],
-      "@funstakes/types": ["libs/helpers/types.ts"],
       "@funstakes/theme-types": ["libs/theme/theme-types/theme.d.ts"]
     },
     "incremental": true,
@@ -44,7 +45,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "shared-fed.config.js",
     "libs/theme/**/*.d.ts"
   ],
   "exclude": ["node_modules"]

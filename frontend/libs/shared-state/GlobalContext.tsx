@@ -33,10 +33,10 @@ interface Context {
   setSignalCheck: React.Dispatch<React.SetStateAction<boolean>>;
   offlineMode: boolean;
   setOfflineMode: React.Dispatch<React.SetStateAction<boolean>>;
-  hideDefaultHeader: boolean;
-  setHideDefaultHeader: React.Dispatch<React.SetStateAction<boolean>>;
-  hideDefaultHub: boolean;
-  setHideDefaultHub: React.Dispatch<React.SetStateAction<boolean>>;
+  defaultHeader: boolean;
+  setDefaultHeader: React.Dispatch<React.SetStateAction<boolean>>;
+  defaultWrapper: boolean;
+  setDefaultWrapper: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const context = createContext<Context | null>(null);
@@ -61,8 +61,8 @@ export const ContextProvider = ({
   const [networkStatus, setNetworkStatus] = useState<NetworkStatus>("UNKNOWN");
   const [checkingSignal, setSignalCheck] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
-  const [hideDefaultHeader, setHideDefaultHeader] = useState(false);
-  const [hideDefaultWrapper, setHideDefaultWrapper] = useState(false);
+  const [defaultHeader, setDefaultHeader] = useState(true);
+  const [defaultWrapper, setDefaultWrapper] = useState(true);
 
   return (
     <context.Provider
@@ -91,10 +91,10 @@ export const ContextProvider = ({
         setSignalCheck,
         offlineMode,
         setOfflineMode,
-        hideDefaultHeader,
-        setHideDefaultHeader,
-        hideDefaultHub: hideDefaultWrapper,
-        setHideDefaultHub: setHideDefaultWrapper
+        defaultHeader,
+        setDefaultHeader,
+        defaultWrapper,
+        setDefaultWrapper
       }}>
       {children}
     </context.Provider>

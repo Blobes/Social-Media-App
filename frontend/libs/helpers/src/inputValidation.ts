@@ -1,6 +1,6 @@
 "use client";
 
-import { InputValidation } from "../types";
+import { InputValidation } from "../../types";
 
 export function validateEmail(email: string): InputValidation {
   if (!email || email.trim().length === 0) {

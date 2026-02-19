@@ -4,7 +4,7 @@ import { AnimatedWrapper } from "@funstakes/shared-ui";
 import { pulse } from "@funstakes/helpers";
 import { red } from "@mui/material/colors";
 import { useTheme } from "@mui/material/styles";
-import { UIMode } from "@funstakes/types";
+import { UIMode } from "libs/type/type";
 
 interface EngagementProps {
     likedByMe: boolean;

@@ -2,20 +2,15 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "plugins": [{ "name": "next" }],
-    "moduleResolution": "bundler",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"],
-      "@apps/*": ["../../apps/*"],
-      "@libs/*": ["../../libs/*"]
-    }
+    "moduleResolution": "bundler"
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".../../libs/**/*",
+    "../../apps/**/*",
+    "../../libs/**/*",
     "../../libs/theme/**/*.d.ts"
   ],
   "exclude": ["node_modules"]

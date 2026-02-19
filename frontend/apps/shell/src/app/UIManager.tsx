@@ -6,8 +6,7 @@ import { Drawer, DrawerRef, Modal, ModalRef, SnackBars, PageLoaderUI } from "@fu
 import { useMisc, usePage, useEvent } from "@funstakes/hooks";
 import { usePathname } from "next/navigation";
 import { registerSW, delay } from "@funstakes/helpers";
-import { DefaultWrapper } from "./default/DefaultWrapper";
-
+import { DefaultWrapper } from "./default/Wrapper";
 
 
 export const UIManager = ({ children }: { children: React.ReactNode }) => {
@@ -16,9 +15,8 @@ export const UIManager = ({ children }: { children: React.ReactNode }) => {
     const modalRef = useRef<ModalRef>(null);
     const { openDrawer, openModal, verifySignal } = useMisc();
     const { handleCurrentPage } = usePage()
-    const { snackBarMsg, drawerContent, modalContent, isGlobalLoading,
-        authStatus, networkStatus, setGlobalLoading,
-        hideDefaultHub, hideDefaultHeader } = useGlobalContext();
+    const { snackBarMsg, drawerContent, modalContent, isGlobalLoading, authStatus,
+        networkStatus, setGlobalLoading, defaultWrapper } = useGlobalContext();
     const pathname = usePathname();
 
     const useAuth = sharedRegistry.hooks["useAuth"];
@@ -69,9 +67,8 @@ export const UIManager = ({ children }: { children: React.ReactNode }) => {
     // Render the app UIs
     return (
         <>
-            {hideDefaultHub ? <>{children}</> :
-                <DefaultWrapper> {children} </DefaultWrapper>
-            }
+            {defaultWrapper ? <DefaultWrapper> {children} </DefaultWrapper>
+                : <>{children}</>}
             {snackBarMsg.messages && <SnackBars snackBarMsg={snackBarMsg} />}
             {drawerContent && <Drawer ref={drawerRef} {...drawerContent} />}
             {modalContent && <Modal ref={modalRef} {...modalContent} />}

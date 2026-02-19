@@ -4,7 +4,7 @@ import { useImageColors, useMisc } from "@funstakes/hooks";
 import { useTheme } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import Image from "next/image";
-import { IMedia } from "@funstakes/types";
+import { IMedia } from "libs/type/type";
 import { DoubleTap } from "../DoubleTap";
 
 

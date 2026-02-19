@@ -8,7 +8,7 @@ import { useGlobalContext } from "@funstakes/shared-state";
 import { Welcome } from "./components/Welcome";
 import { Feed } from "./Feed";
 
-export const FeedWrapper = () => {
+export const FeedModule = () => {
   const { isDesktop } = useMisc();
   const theme = useTheme();
   const { authStatus } = useGlobalContext();

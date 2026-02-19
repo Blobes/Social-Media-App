@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext } from "@shared-state";
+import { useGlobalContext } from "@funstakes/shared-state";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { SignUpStepper } from "./SignupStepper";

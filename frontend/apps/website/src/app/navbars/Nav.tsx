@@ -2,10 +2,10 @@
 import React, { useRef } from "react";
 import { Divider, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { RenderItemList, MenuRef, AppButton } from "@shared-ui";
-import { useMisc, useNavLists, usePage } from "@hooks";
-import { useGlobalContext } from "@shared-state";
-import { clientRoutes } from "@helpers";
+import { RenderItemList, MenuRef, AppButton } from "@funstakes/shared-ui";
+import { useMisc, useNavLists, usePage } from "@funstakes/hooks";
+import { useGlobalContext } from "@funstakes/shared-state";
+import { clientRoutes } from "@funstakes/helpers";
 
 
 interface NavProps {

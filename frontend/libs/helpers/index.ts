@@ -12,3 +12,4 @@ export * from "./src/sync";
 export * from "./src/textColorExtractor";
 export * from "./src/fetcher";
 export * from "./src/auth/verifyAndFetch";
+export * from "./src/cache";

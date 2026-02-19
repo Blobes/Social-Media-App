@@ -1,19 +1,10 @@
 "use client";
+
 import { clientRoutes } from "@funstakes/helpers";
 import { INavItem } from "@funstakes/types";
 import {
-  AudioLines,
-  Bell,
-  Bookmark,
-  CircleDashed,
-  Gem,
-  House,
-  Mail,
-  Pentagon,
-  Search,
-  Settings,
-  User,
-  WalletMinimal,
+  AudioLines, Bell, Bookmark, CircleDashed, Gem, House, Mail, Pentagon,
+  Search, Settings, User, WalletMinimal
 } from "lucide-react";
 
 export const useNavLists = () => {

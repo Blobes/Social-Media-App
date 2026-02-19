@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { useGlobalContext } from "@shared-state";
+import { useGlobalContext } from "@funstakes/shared-state";
 import { useLoginService } from "../service";
 import { useLockCountdown } from "./useLockCount";
 import {
@@ -10,9 +10,9 @@ import {
   delay,
   clientRoutes,
   formatRemainingTime,
-} from "@helpers";
-import { IPage } from "libs/helper/src/types";
-import { useSnackbar, usePage } from "@hooks";
+} from "@funstakes/helpers";
+import { IPage } from "@funstakes/types";
+import { useSnackbar, usePage } from "@funstakes/hooks";
 
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MIN = 2;

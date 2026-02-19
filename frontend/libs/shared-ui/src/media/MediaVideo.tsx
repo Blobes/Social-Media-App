@@ -1,6 +1,6 @@
 "use client"
 
-import { IMedia } from "@funstakes/types";
+import { IMedia } from "libs/type/type";
 import { Box } from "@mui/material";
 import { Play } from "lucide-react";
 import { useState } from "react";

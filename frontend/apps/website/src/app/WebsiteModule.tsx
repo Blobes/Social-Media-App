@@ -1,24 +1,22 @@
 "use client"
 
-import { useGlobalContext } from '@shared-state';
+import { useGlobalContext } from '@funstakes/shared-state';
 import { useEffect } from 'react';
 import { About } from './about/About';
 import Pricing from './pricing/Pricing';
 import Support from './support/Support';
-import { BlurEffect, Footer, RootUIContainer } from '@shared-ui';
-import { Header } from 'apps/website/navbars/Header';
+import { BlurEffect, Footer, RootUIContainer } from '@funstakes/shared-ui';
+import { Header } from '@apps/website/src/app/navbars/Header';
+import { IWebsiteModule } from '@funstakes/types';
 
-interface WrapperProps {
-    view: "about" | "pricing" | "support";
-    children?: React.ReactNode;
-}
 
-export default function WebsiteWrapper({ view, children }: WrapperProps) {
+export const WebsiteModule = ({ view, children }: IWebsiteModule) => {
 
-    const { setHideDefaultHub } = useGlobalContext();
+    const { setDefaultWrapper } = useGlobalContext();
 
     useEffect(() => {
-        setHideDefaultHub(true)
+        setDefaultWrapper(false);
+        return () => setDefaultWrapper(true);
     }, []);
 
     return (

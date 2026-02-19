@@ -3,7 +3,7 @@
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { RecentMedia } from "./RecentMedia";
-import { useStyles } from "@hooks";
+import { useStyles } from "@funstakes/hooks";
 
 export const RightSidebar = () => {
   const theme = useTheme();

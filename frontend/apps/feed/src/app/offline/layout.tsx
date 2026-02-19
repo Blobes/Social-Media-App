@@ -1,11 +1,11 @@
 "use client"
 
-import { OfflineWrapper } from "./OfflineWrapper";
+import { OfflineModule } from "./OfflineModule";
 
 export default function AppLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <OfflineWrapper>{children}</OfflineWrapper>
+  return <OfflineModule>{children}</OfflineModule>
 }

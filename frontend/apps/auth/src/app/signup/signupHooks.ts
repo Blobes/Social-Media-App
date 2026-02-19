@@ -1,10 +1,10 @@
 "use client";
 
-import { useGlobalContext } from "@shared-state";
-import { fetcher, deleteCookie } from "@helpers";
-import { IUser, ISingleResponse } from "libs/helper/src/types";
+import { useGlobalContext } from "@funstakes/shared-state";
+import { fetcher, deleteCookie } from "@funstakes/helpers";
+import { IUser, ISingleResponse } from "@funstakes/types";
 import { useRouter } from "next/navigation";
-import { DrawerRef } from "@shared-ui";
+import { DrawerRef } from "@funstakes/shared-ui";
 
 interface LoginCredentials {
   email: string;

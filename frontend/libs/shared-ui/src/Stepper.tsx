@@ -1,6 +1,6 @@
 "use client";
 
-import { GenericObject, IStep } from "@funstakes/types";
+import { GenericObject, IStep } from "libs/type/type";
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AppButton } from "./Buttons";

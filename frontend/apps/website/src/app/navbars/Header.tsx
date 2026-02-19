@@ -3,14 +3,14 @@
 import React, { useEffect } from "react";
 import { AppBar, Stack, IconButton } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext } from "@shared-state";
-import { useMisc, usePage } from "@hooks";
+import { useGlobalContext } from "@funstakes/shared-state";
+import { useMisc, usePage } from "@funstakes/hooks";
 import { DesktopNav, MobileNav } from "./Nav";
-import { AnchorLink, AppButton } from "@shared-ui";
-import { clientRoutes, zIndexes } from "@helpers";
+import { AnchorLink, AppButton } from "@funstakes/shared-ui";
+import { clientRoutes, zIndexes } from "@funstakes/helpers";
 import Image from "next/image";
 import { Menu } from "lucide-react";
-import { img } from "@assets";
+import { img } from "@funstakes/assets";
 
 export const Header: React.FC = () => {
   const { authStatus } = useGlobalContext();

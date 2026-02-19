@@ -1,11 +1,14 @@
 {
-	"folders": [
-		{
-			"path": "."
-		},
-		{
-			"path": "../../libs"
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": ".",
+    },
+    {
+      "path": "../../libs",
+    },
+    {
+      "path": "../feed",
+    },
+  ],
+  "settings": {},
 }

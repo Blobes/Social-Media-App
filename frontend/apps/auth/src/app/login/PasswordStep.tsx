@@ -1,9 +1,9 @@
 "use client"
 
 import { IconButton, Stack, Typography } from "@mui/material";
-import { AppButton, PasswordInput, InlineMsg, BasicTooltip, ProgressIcon } from "@shared-ui";
+import { AppButton, PasswordInput, InlineMsg, BasicTooltip, ProgressIcon } from "@funstakes/shared-ui";
 import { useTheme } from "@mui/material/styles";
-import { GenericObject } from "libs/helper/src/types";
+import { GenericObject } from "@funstakes/types";
 import { Pencil } from "lucide-react";
 import { useLogin } from "./hooks/useLogin";
 

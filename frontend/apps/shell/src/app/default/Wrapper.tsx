@@ -14,7 +14,7 @@ import { AppHeader } from "./navbars/Header";
 export const DefaultWrapper = ({ children }: { children: React.ReactNode }) => {
   const { isDesktop, isUnstableNetwork, isOffline } = useMisc();
   const theme = useTheme();
-  const { authStatus, offlineMode, hideDefaultHeader } = useGlobalContext();
+  const { authStatus, offlineMode, defaultHeader } = useGlobalContext();
   const { scrollBarStyle } = useStyles();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -37,7 +37,7 @@ export const DefaultWrapper = ({ children }: { children: React.ReactNode }) => {
             overflowY: "hidden",
             flexDirection: "column",
           }}>
-          {!hideDefaultHeader && <AppHeader />}
+          {defaultHeader && <AppHeader />}
           <Stack
             sx={{
               height: "100%",
@@ -68,7 +68,7 @@ export const DefaultWrapper = ({ children }: { children: React.ReactNode }) => {
             paddingBottom: theme.boxSpacing(23),
             ...scrollBarStyle(),
           }}>
-          <AppHeader scrollRef={scrollRef} />
+          {defaultHeader && <AppHeader scrollRef={scrollRef} />}
           {children}
           <BottomNav scrollRef={scrollRef} />
         </Stack>
@@ -88,7 +88,7 @@ export const DefaultWrapper = ({ children }: { children: React.ReactNode }) => {
             },
             ...scrollBarStyle(),
           }}>
-          <AppHeader />
+          {defaultHeader && <AppHeader />}
           {children}
         </Stack>
       )}

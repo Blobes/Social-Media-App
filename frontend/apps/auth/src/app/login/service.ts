@@ -1,5 +1,5 @@
-import { fetcher, serverApi } from "@helpers";
-import { IUser, ISingleResponse } from "libs/helper/src/types";
+import { fetcher, serverApi } from "@funstakes/helpers";
+import { IUser, ISingleResponse } from "@funstakes/types";
 
 interface LoginCredentials {
   email: string;

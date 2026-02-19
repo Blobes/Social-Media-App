@@ -4,18 +4,14 @@ import { Login } from './login/Login';
 import { useGlobalContext } from '@funstakes/shared-state';
 import { useEffect } from 'react';
 import { RootUIContainer } from '@funstakes/shared-ui';
+import { IAuthModule } from '@funstakes/types';
 
-interface WrapperProps {
-    view: "login" | "signup";
-    children?: React.ReactNode;
-}
-
-export const AuthWrapper = ({ view, children }: WrapperProps) => {
-
-    const { setHideDefaultHub } = useGlobalContext();
+export const AuthModule = ({ view, children }: IAuthModule) => {
+    const { setDefaultWrapper } = useGlobalContext();
 
     useEffect(() => {
-        setHideDefaultHub(true)
+        setDefaultWrapper(false);
+        return () => setDefaultWrapper(true);
     }, []);
 
     return (
