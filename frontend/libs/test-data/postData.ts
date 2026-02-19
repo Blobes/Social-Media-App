@@ -1,8 +1,8 @@
 "use client";
 
-import { MediaProps } from "@/components/media/SingleMedia";
-import { img } from "@/assets/exported";
-import { IStake } from "@/types";
+import { MediaProps } from "@funstakes/shared-ui";
+import { img } from "@funstakes/assets";
+import { IStake } from "@funstakes/types";
 
 export const stakeData: IStake[] = [
   {

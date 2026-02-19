@@ -30,8 +30,9 @@
       "@funstakes/shared-ui": ["libs/shared-ui/index.ts"],
       "@funstakes/shared-state": ["libs/shared-state/index.ts"],
       "@funstakes/assets": ["libs/assets/index.ts"],
-      "@funstakes/theme-types": ["libs/theme/theme-types/theme.d.ts"]
+      "@funstakes/theme-types": ["libs/types/theme.d.ts"]
     },
+    "typeRoots": ["./node_modules/@types", "./libs/types"],
     "incremental": true,
     "plugins": [
       {
