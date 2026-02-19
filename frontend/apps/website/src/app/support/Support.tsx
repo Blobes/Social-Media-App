@@ -2,6 +2,6 @@
 
 import { Box } from "@mui/material";
 
-export default function Support() {
+export const Support = () => {
   return <Box>This is the support page!</Box>;
 }
