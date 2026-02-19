@@ -3,16 +3,17 @@
 import { useRouter } from "next/navigation";
 import { useSnackbar } from "./useSnackbar";
 import { getCookie, setCookie } from "@funstakes/helpers";
-import { sharedRegistry, useGlobalContext } from "@funstakes/shared-state";
+import { useGlobalContext } from "@funstakes/shared-state";
+import { sharedRegistry } from "@funstakes/helpers";
 import { useOffline } from "./useOffline";
 
 export const useEvent = () => {
   const router = useRouter();
   const { setSBMessage, removeSBMessage } = useSnackbar();
   const { setNetworkStatus } = useGlobalContext();
-  const useAuth = sharedRegistry.hooks["useAuth"];
-  const { verifyAuth } = useAuth();
   const { switchToOnlineMode } = useOffline();
+  const useAuth = sharedRegistry.hooks["useAuth"];
+  const auth = typeof useAuth === "function" ? useAuth() : null;
 
   const handleBrowserEvents = () => {
     const online = () => {
@@ -20,8 +21,7 @@ export const useEvent = () => {
       // Switch back to online mode
       switchToOnlineMode();
       setNetworkStatus("STABLE");
-
-      verifyAuth();
+      auth?.verifyAuth();
     };
 
     const offline = () => {
@@ -46,7 +46,7 @@ export const useEvent = () => {
 
       if (document.visibilityState === "visible") {
         if (!recentlyAway) {
-          await verifyAuth();
+          await auth?.verifyAuth();
         }
       }
       if (document.visibilityState === "hidden") {

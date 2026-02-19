@@ -1,5 +1,6 @@
 // apps/gist/src/exported.ts
-import { registerItem } from "@funstakes/shared-state";
+
+import { registerItem } from "@funstakes/helpers";
 import { GistCard } from "./components/GistCard";
 import { useGists } from "./hooks/useGists";
 import { Gists } from "./app/Gists";

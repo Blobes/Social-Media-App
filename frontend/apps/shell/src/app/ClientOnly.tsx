@@ -3,6 +3,7 @@
 import { SplashUI, Prefetcher } from '@funstakes/shared-ui';
 import dynamic from 'next/dynamic';
 import React from 'react';
+import "@apps/auth/src/exported";
 
 
 const UIManager = dynamic(

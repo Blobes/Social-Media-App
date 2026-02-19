@@ -2,7 +2,8 @@
 
 import { useTheme } from "@mui/material/styles";
 import { Stack } from "@mui/material";
-import { sharedRegistry, useGlobalContext } from "@funstakes/shared-state";
+import { useGlobalContext } from "@funstakes/shared-state";
+import { sharedRegistry } from "@funstakes/helpers";
 import { useEffect, useState } from "react";
 import { PersonOffSharp } from "@mui/icons-material";
 import { FollowerCard } from "../components/FollowerCard";

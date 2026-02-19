@@ -1,5 +1,5 @@
 import { useUser } from "./app/useUser";
-import { registerItem } from "@funstakes/shared-state";
+import { registerItem } from "@funstakes/helpers";
 
 // Declare the components and hooks
 declare module "@funstakes/types" {

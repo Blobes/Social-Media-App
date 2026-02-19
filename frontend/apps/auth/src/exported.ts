@@ -1,4 +1,4 @@
-import { registerItem } from "@funstakes/shared-state";
+import { registerItem } from "@funstakes/helpers";
 import { Logout } from "./app/logout/Logout";
 import { Login } from "./app/login/Login";
 import { useAuth } from "./app/useAuth";

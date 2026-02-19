@@ -9,6 +9,7 @@ import { CircleSlash2 } from "lucide-react";
 import { useStyles, usePage } from "@funstakes/hooks";
 import { getCachedFeed } from "@funstakes/helpers";
 import { IFeed } from "@funstakes/types";
+import { sharedRegistry } from "@funstakes/helpers";
 
 
 export const CachedFeed = () => {
@@ -113,6 +114,5 @@ export const CachedFeed = () => {
     })}
   </Stack>)
   )
-
-}; import { sharedRegistry } from "@funstakes/shared-state";
+}
 

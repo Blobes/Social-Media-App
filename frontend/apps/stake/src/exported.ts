@@ -1,4 +1,4 @@
-import { registerItem } from "@funstakes/shared-state";
+import { registerItem } from "@funstakes/helpers";
 import { useStake } from "./app/useStake";
 import { StakeCard } from "./app/StakeCard";
 

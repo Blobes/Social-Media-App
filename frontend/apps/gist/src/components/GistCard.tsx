@@ -2,7 +2,8 @@
 
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { sharedRegistry, useGlobalContext } from "@funstakes/shared-state";
+import { useGlobalContext } from "@funstakes/shared-state";
+import { sharedRegistry } from "@funstakes/helpers";
 import { GenericObject, UIMode, IGist } from "@funstakes/types";
 import { useGistService } from "../service";
 import { summarizeNum } from "@funstakes/helpers";

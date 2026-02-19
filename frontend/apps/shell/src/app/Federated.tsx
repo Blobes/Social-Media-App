@@ -1,7 +1,7 @@
 import { SplashUI } from '@funstakes/shared-ui';
 import dynamic from 'next/dynamic';
 import React, { Suspense, useMemo } from 'react';
-import { IModule } from '@funstakes/types';
+//import { IModule } from '@funstakes/types';
 
 
 const loaderMap = {

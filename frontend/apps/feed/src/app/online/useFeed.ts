@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { IFeed, IGist, IStake } from "@funstakes/types";
 import { cacheFeed, getCachedFeed } from "@funstakes/helpers";
 import { delay } from "@funstakes/helpers";
-import { sharedRegistry } from "@funstakes/shared-state";
+import { sharedRegistry } from "@funstakes/helpers";
 
 export const useFeed = (mode: "online" | "offline" = "online") => {
   const router = useRouter();

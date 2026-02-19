@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { sharedRegistry, useGlobalContext } from "@funstakes/shared-state";
+import { useGlobalContext } from "@funstakes/shared-state";
+import { sharedRegistry } from "@funstakes/helpers";
 import { Drawer, DrawerRef, Modal, ModalRef, SnackBars, PageLoaderUI } from "@funstakes/shared-ui"
 import { useMisc, usePage, useEvent } from "@funstakes/hooks";
 import { usePathname } from "next/navigation";
@@ -18,25 +19,28 @@ export const UIManager = ({ children }: { children: React.ReactNode }) => {
     const { snackBarMsg, drawerContent, modalContent, isGlobalLoading, authStatus,
         networkStatus, setGlobalLoading, defaultWrapper } = useGlobalContext();
     const pathname = usePathname();
-
     const useAuth = sharedRegistry.hooks["useAuth"];
-    const { verifyAuth } = useAuth();
+    const auth = typeof useAuth === "function" ? useAuth() : null;
 
     useEffect(() => {
         const init = async () => {
+            // if (!auth) return;
             try {
-                registerSW();
                 setGlobalLoading(true);
+                registerSW();
                 await delay();
-                // Initial check only
                 await verifySignal();
-                await verifyAuth();
+
+
+                if (auth) await auth.verifyAuth();
+                console.log(authStatus)
+
             } finally {
                 setGlobalLoading(false);
             }
         };
         init();
-    }, []);
+    }, [!!auth]);
 
     // Drawer & Modal Open / Close
     useEffect(() => {
@@ -60,7 +64,7 @@ export const UIManager = ({ children }: { children: React.ReactNode }) => {
     const isInitializing =
         isGlobalLoading ||
         authStatus === "PENDING" ||
-        networkStatus === "UNKNOWN";
+        networkStatus === "UNKNOWN"
     if (isInitializing) return <PageLoaderUI />;
 
 

@@ -13,3 +13,4 @@ export * from "./src/textColorExtractor";
 export * from "./src/fetcher";
 export * from "./src/auth/verifyAndFetch";
 export * from "./src/cache";
+export * from "./src/registry";

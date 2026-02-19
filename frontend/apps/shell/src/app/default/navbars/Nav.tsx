@@ -8,7 +8,8 @@ import {
   IconButton,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { sharedRegistry, useGlobalContext } from "@funstakes/shared-state";
+import { useGlobalContext } from "@funstakes/shared-state";
+import { sharedRegistry } from "@funstakes/helpers";
 import { Strip, RenderItemList, MenuRef, MenuPopup, ThemeSwitcher } from "@funstakes/shared-ui";
 import { summarizeNum } from "@funstakes/helpers";
 import { useNavLists } from "./NavLists";

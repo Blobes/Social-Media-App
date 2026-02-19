@@ -1,7 +1,7 @@
 "use client";
 
 import { Stack, Typography } from "@mui/material";
-import { sharedRegistry } from "@funstakes/shared-state";
+import { sharedRegistry } from "@funstakes/helpers";
 import { VibeSlider } from "./vibezSlider/Slider";
 import { ProgressIcon, Empty } from "@funstakes/shared-ui";
 import { Milestone } from "lucide-react";
