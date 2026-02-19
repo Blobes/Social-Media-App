@@ -2,7 +2,7 @@
 
 import { IconButton, Paper, Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { ISnackBarMsg } from "libs/type/type";
+import { ISnackBarMsg } from "@funstakes/types";
 import { AppButton } from "./Buttons";
 import { Info, CircleCheck, CircleAlert, X } from "lucide-react";
 import { useEffect } from "react";

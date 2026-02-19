@@ -2,7 +2,7 @@
 
 import { styled } from "@mui/material/styles";
 import { TextareaAutosize } from "@mui/material";
-import { GenericObject } from "libs/type/type";
+import { GenericObject } from "@funstakes/types";
 import { useState } from "react";
 import { useStyles } from "@funstakes/hooks";
 

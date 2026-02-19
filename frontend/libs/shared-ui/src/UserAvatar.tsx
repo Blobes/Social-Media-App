@@ -4,7 +4,7 @@ import React from "react";
 import { Avatar, IconButton } from "@mui/material";
 import { getInitialsAndColors } from "@funstakes/helpers";
 import { BasicTooltip } from "./Tooltips";
-import { GenericObject } from "libs/type/type";
+import { GenericObject } from "@funstakes/types";
 import { useTheme } from "@mui/material/styles";
 import { useGlobalContext } from "@funstakes/shared-state";
 

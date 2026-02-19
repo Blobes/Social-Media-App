@@ -4,7 +4,7 @@ import React, { useImperativeHandle, forwardRef, useRef, useState, } from "react
 import { IconButton, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useStyles, useMisc } from "@funstakes/hooks";
-import { Direction, GenericObject } from "libs/type/type";
+import { Direction, GenericObject } from "@funstakes/types";
 import { Transition, TransitionType } from "./Transition";
 import { zIndexes } from "@funstakes/helpers";
 import { X } from "lucide-react";

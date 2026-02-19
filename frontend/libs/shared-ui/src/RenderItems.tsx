@@ -3,7 +3,7 @@
 import React from "react";
 import { Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { INavItem, IPage } from "libs/type/type";
+import { INavItem, IPage } from "@funstakes/types";
 import { matchPaths } from "@funstakes/helpers";
 import { usePathname } from "next/navigation";
 import { AnchorLink } from "./Buttons";

@@ -2,7 +2,7 @@
 
 import { formatDate } from "@funstakes/helpers";
 import { useAdaptiveTime } from "@funstakes/hooks";
-import { DateType } from "libs/type/type";
+import { DateType } from "@funstakes/types";
 import { Typography } from "@mui/material";
 import type { TypographyProps } from "@mui/material";
 import { useMemo } from "react";

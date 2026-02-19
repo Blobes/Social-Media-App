@@ -1,6 +1,6 @@
 "use client"
 
-import { GenericObject } from "libs/type/type";
+import { GenericObject } from "@funstakes/types";
 import { Box, Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import React from "react";
