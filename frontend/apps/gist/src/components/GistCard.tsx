@@ -2,12 +2,10 @@
 
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext } from "@funstakes/shared-state";
+import { sharedRegistry, useGlobalContext } from "@funstakes/shared-state";
 import { GenericObject, UIMode, IGist } from "@funstakes/types";
 import { useGistService } from "../service";
 import { summarizeNum } from "@funstakes/helpers";
-//@ts-ignore
-import Login from "auth/Login";
 import { Empty, Strip } from "@funstakes/shared-ui";
 import { useSnackbar, useMisc } from "@funstakes/hooks";
 import { mediaData } from "libs/test-data/postData";
@@ -29,6 +27,8 @@ export const GistCard = ({ gist, style = {}, mode = "online" }: GistProps) => {
     const globalContext = useGlobalContext();
     const controller = useMisc();
     const { setSBMessage } = useSnackbar();
+
+    const Login = sharedRegistry.components["Login"]
 
     // Author hooks & properties
     const { author, error } = useGistAuthor(gist.authorId, postService.fetchAuthor, mode);

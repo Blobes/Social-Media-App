@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { IGist } from "@/types";
-import { useGistService } from "../src/service";
-import { delay } from "@/helpers/global";
+import { IGist } from "@funstakes/types";
+import { useGistService } from "../service";
+import { delay } from "@funstakes/helpers";
 
 export const useGists = () => {
   const router = useRouter();

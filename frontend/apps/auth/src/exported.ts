@@ -1,5 +1,6 @@
 import { registerItem } from "@funstakes/shared-state";
 import { Logout } from "./app/logout/Logout";
+import { Login } from "./app/login/Login";
 import { useAuth } from "./app/useAuth";
 import { useLogout } from "./app/logout/useLogout";
 
@@ -10,6 +11,7 @@ export { AuthModule } from "./app/AuthModule";
 declare module "@funstakes/types" {
   interface ISharedComponents {
     Logout: typeof Logout;
+    Login: typeof Login;
   }
   interface ISharedHooks {
     useAuth: typeof useAuth;
@@ -19,5 +21,6 @@ declare module "@funstakes/types" {
 
 // Register the components and hooks
 registerItem.component("Logout", Logout);
+registerItem.component("Login", Login);
 registerItem.hook("useLogout", useLogout);
 registerItem.hook("useAuth", useAuth);

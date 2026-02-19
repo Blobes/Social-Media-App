@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
-import { IGist } from "@/types";
-import { vibrate } from "@/helpers/global";
-import { processQueue } from "@/helpers/post";
+import { IGist } from "@funstakes/types";
+import { vibrate, processQueue } from "@funstakes/helpers";
 
 export const useGistLike = (gist: IGist, context: any) => {
   // 1. Destructure everything internally for clarity
