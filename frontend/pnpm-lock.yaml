@@ -18,6 +18,9 @@ catalogs:
     '@mui/system':
       specifier: ^6.4.0
       version: 6.5.0
+    '@types/colorthief':
+      specifier: ^2.6.1
+      version: 2.6.1
     '@types/node':
       specifier: ^22.15.3
       version: 22.19.11
@@ -27,9 +30,6 @@ catalogs:
     '@types/react-dom':
       specifier: ^19.2.2
       version: 19.2.3
-    colorthief:
-      specifier: ^2.6.0
-      version: 2.6.0
     idb-keyval:
       specifier: ^6.2.2
       version: 6.2.2
@@ -713,6 +713,9 @@ importers:
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      '@types/colorthief':
+        specifier: 'catalog:'
+        version: 2.6.1
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.14
@@ -1502,6 +1505,9 @@ packages:
 
   '@tokenizer/token@0.3.0':
     resolution: {integrity: sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==}
+
+  '@types/colorthief@2.6.1':
+    resolution: {integrity: sha512-3hlRky7ybPuQDNx3RV29P/CTvuC7zkk//Xt/NyOwNg5RhL/y54a0q4aW7MNMkvBkGJqX2g2igNCoCh3ZtK4gZQ==}
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
@@ -3345,6 +3351,10 @@ snapshots:
       react: 19.2.4
 
   '@tokenizer/token@0.3.0': {}
+
+  '@types/colorthief@2.6.1':
+    dependencies:
+      '@types/node': 22.19.11
 
   '@types/estree@1.0.8': {}
 
