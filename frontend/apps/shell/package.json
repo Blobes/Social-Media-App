@@ -1,11 +1,37 @@
 {
-    "name": "shell",
-    "version": "1.0.0",
-    "private": true,
-   "type": "module",
-    "scripts": {
-      "dev": "next dev -p 3001", 
-      "build": "next build",
-      "start": "next start"
-    }
+  "name": "shell",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@emotion/react": "catalog:",
+    "@emotion/styled": "catalog:",
+    "lucide-react": "catalog:",
+    "@mui/material": "catalog:",
+    "@repo/shared-ui": "workspace:*",
+    "@repo/shared-state": "workspace:*",
+    "@repo/helpers": "workspace:*",
+    "@repo/theme": "workspace:*",
+    "@repo/types": "workspace:*",
+    "@repo/assets": "workspace:*",
+    "@repo/auth/shared": "workspace:*",
+    "@repo/gist/shared": "workspace:*",
+    "@repo/stake/shared": "workspace:*",
+    "@repo/profile/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*"
   }
+}

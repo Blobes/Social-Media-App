@@ -1,22 +1,51 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 1. Keep all transpiled packages so CSS/Shared code works across boundaries
   transpilePackages: [
-    "@funstakes/helpers",
-    "@funstakes/hooks",
-    "@funstakes/theme",
-    "@funstakes/shared-ui",
-    "@funstakes/shared-state",
-    "@funstakes/types",
+    "@repo/shared-ui",
+    "@repo/shared-state",
+    "@repo/helpers",
+    "@repo/theme",
+    "@repo/types",
+    "@repo/auth/shared",
+    "@repo/gist/shared",
+    "@repo/stake/shared",
+    "@repo/profile/shared",
   ],
-
-  // 2. Enable Turbopack-specific configurations
-  serverExternalPackages: [],
-
-  // 3. (Optional) If you have images or assets in remote apps,
-  // you'll want to whitelist their local dev domains
-  images: {
-    remotePatterns: [{ protocol: "http", hostname: "localhost" }],
+  async rewrites() {
+    return [
+      {
+        source: "/login",
+        destination: `${process.env.NEXT_PUBLIC_AUTH_URL}/login`,
+      },
+      {
+        source: "/signup",
+        destination: `${process.env.NEXT_PUBLIC_AUTH_URL}/signup`,
+      },
+      {
+        source: "/gist",
+        destination: `${process.env.NEXT_PUBLIC_GIST_URL}/gist`,
+      },
+      {
+        source: "/profile",
+        destination: `${process.env.NEXT_PUBLIC_PROFILE_URL}/profile`,
+      },
+      {
+        source: "/stake",
+        destination: `${process.env.NEXT_PUBLIC_STAKE_URL}/stake`,
+      },
+      {
+        source: "/about",
+        destination: `${process.env.NEXT_PUBLIC_WEB_URL}/about`,
+      },
+      {
+        source: "/pricing",
+        destination: `${process.env.NEXT_PUBLIC_WEB_URL}/pricing`,
+      },
+      {
+        source: "/support",
+        destination: `${process.env.NEXT_PUBLIC_WEB_URL}/support`,
+      },
+    ];
   },
 };
 
