@@ -1,5 +1,3 @@
-"use client"
-
 import { BlurEffect, RootUIContainer, Footer } from "@repo/shared-ui";
 import { Header } from "./app/navbars/Header";
 import { useNavLists, usePage } from "@repo/shared-state";

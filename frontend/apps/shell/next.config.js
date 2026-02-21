@@ -13,7 +13,7 @@ const nextConfig = {
   ],
   async rewrites() {
     // Helper to ensure we don't pass 'undefined' to the destination
-    const getUrl = (envVar) => envVar || "http://localhost:3000";
+    const getUrl = (envVar) => envVar || "http://localhost:3001";
 
     return [
       {
