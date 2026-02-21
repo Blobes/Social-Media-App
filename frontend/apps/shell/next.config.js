@@ -12,41 +12,60 @@ const nextConfig = {
     "@repo/profile/shared",
   ],
   async rewrites() {
-    // Helper to ensure we don't pass 'undefined' to the destination
-    const getUrl = (envVar) => envVar || "http://localhost:3001";
+    const isProd = process.env.NODE_ENV === "production";
+
+    // Helper to determine the target base URL
+    // Locally: Uses the ports you defined
+    // Production: Uses the environment variables you set in Vercel Dashboard
+    const getTarget = (envVar, localPort) => {
+      if (isProd) {
+        return envVar;
+      }
+      return `http://localhost:${localPort}`;
+    };
 
     return [
+      // 1. Backend API Rewrite (Formerly in vercel.json)
+      {
+        source: "/api/:path*",
+        destination: "https://funstakes.onrender.com/:path*",
+      },
+      // 2. Auth Microservice
       {
         source: "/login",
-        destination: `${getUrl(process.env.NEXT_PUBLIC_AUTH_URL)}/login`,
+        destination: `${getTarget(process.env.NEXT_PUBLIC_AUTH_URL, 3002)}/login`,
       },
       {
         source: "/signup",
-        destination: `${getUrl(process.env.NEXT_PUBLIC_AUTH_URL)}/signup`,
+        destination: `${getTarget(process.env.NEXT_PUBLIC_AUTH_URL, 3002)}/signup`,
       },
+      // 3. Gist Microservice
       {
-        source: "/gist",
-        destination: `${getUrl(process.env.NEXT_PUBLIC_GIST_URL)}/gist`,
+        source: "/gist/:path*",
+        destination: `${getTarget(process.env.NEXT_PUBLIC_GIST_URL, 3003)}/gist/:path*`,
       },
+      // 4. Profile Microservice
       {
-        source: "/profile",
-        destination: `${getUrl(process.env.NEXT_PUBLIC_PROFILE_URL)}/profile`,
+        source: "/profile/:path*",
+        destination: `${getTarget(process.env.NEXT_PUBLIC_PROFILE_URL, 3004)}/profile/:path*`,
       },
+      // 5. Stake Microservice
       {
-        source: "/stake",
-        destination: `${getUrl(process.env.NEXT_PUBLIC_STAKE_URL)}/stake`,
+        source: "/stake/:path*",
+        destination: `${getTarget(process.env.NEXT_PUBLIC_STAKE_URL, 3005)}/stake/:path*`,
       },
+      // 6. Marketing / Web Microservice
       {
         source: "/about",
-        destination: `${getUrl(process.env.NEXT_PUBLIC_WEB_URL)}/about`,
+        destination: `${getTarget(process.env.NEXT_PUBLIC_WEB_URL, 3006)}/about`,
       },
       {
         source: "/pricing",
-        destination: `${getUrl(process.env.NEXT_PUBLIC_WEB_URL)}/pricing`,
+        destination: `${getTarget(process.env.NEXT_PUBLIC_WEB_URL, 3006)}/pricing`,
       },
       {
         source: "/support",
-        destination: `${getUrl(process.env.NEXT_PUBLIC_WEB_URL)}/support`,
+        destination: `${getTarget(process.env.NEXT_PUBLIC_WEB_URL, 3006)}/support`,
       },
     ];
   },
