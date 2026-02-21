@@ -10,8 +10,7 @@
   "dependencies": {
     "@repo/helpers": "workspace:*",
     "@repo/types": "workspace:*",
-    "@repo/assets": "workspace:*",
-    "react-transition-group": "catalog:"
+    "@repo/assets": "workspace:*"
   },
   "peerDependencies": {
     "next": "catalog:",
@@ -20,7 +19,8 @@
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "@mui/material": "catalog:",
-    "lucide-react": "catalog:"
+    "lucide-react": "catalog:",
+    "react-transition-group": "catalog:"
   },
   "devDependencies": {
     "next": "catalog:",
@@ -29,6 +29,7 @@
     "typescript": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@repo/typescript-config": "workspace:*"
+    "@repo/typescript-config": "workspace:*",
+    "@types/react-transition-group": "workspace:*"
   }
 }
