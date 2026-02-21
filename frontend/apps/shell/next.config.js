@@ -12,38 +12,41 @@ const nextConfig = {
     "@repo/profile/shared",
   ],
   async rewrites() {
+    // Helper to ensure we don't pass 'undefined' to the destination
+    const getUrl = (envVar) => envVar || "http://localhost:3000";
+
     return [
       {
         source: "/login",
-        destination: `${process.env.NEXT_PUBLIC_AUTH_URL}/login`,
+        destination: `${getUrl(process.env.NEXT_PUBLIC_AUTH_URL)}/login`,
       },
       {
         source: "/signup",
-        destination: `${process.env.NEXT_PUBLIC_AUTH_URL}/signup`,
+        destination: `${getUrl(process.env.NEXT_PUBLIC_AUTH_URL)}/signup`,
       },
       {
         source: "/gist",
-        destination: `${process.env.NEXT_PUBLIC_GIST_URL}/gist`,
+        destination: `${getUrl(process.env.NEXT_PUBLIC_GIST_URL)}/gist`,
       },
       {
         source: "/profile",
-        destination: `${process.env.NEXT_PUBLIC_PROFILE_URL}/profile`,
+        destination: `${getUrl(process.env.NEXT_PUBLIC_PROFILE_URL)}/profile`,
       },
       {
         source: "/stake",
-        destination: `${process.env.NEXT_PUBLIC_STAKE_URL}/stake`,
+        destination: `${getUrl(process.env.NEXT_PUBLIC_STAKE_URL)}/stake`,
       },
       {
         source: "/about",
-        destination: `${process.env.NEXT_PUBLIC_WEB_URL}/about`,
+        destination: `${getUrl(process.env.NEXT_PUBLIC_WEB_URL)}/about`,
       },
       {
         source: "/pricing",
-        destination: `${process.env.NEXT_PUBLIC_WEB_URL}/pricing`,
+        destination: `${getUrl(process.env.NEXT_PUBLIC_WEB_URL)}/pricing`,
       },
       {
         source: "/support",
-        destination: `${process.env.NEXT_PUBLIC_WEB_URL}/support`,
+        destination: `${getUrl(process.env.NEXT_PUBLIC_WEB_URL)}/support`,
       },
     ];
   },
