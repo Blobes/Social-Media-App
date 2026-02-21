@@ -30,6 +30,12 @@ catalogs:
     '@types/react-dom':
       specifier: ^19.2.2
       version: 19.2.3
+    '@types/react-transition-group':
+      specifier: ^4.4.10
+      version: 4.4.12
+    colorthief:
+      specifier: ^2.6.0
+      version: 2.6.0
     idb-keyval:
       specifier: ^6.2.2
       version: 6.2.2
@@ -771,6 +777,9 @@ importers:
       '@types/react-dom':
         specifier: 'catalog:'
         version: 19.2.3(@types/react@19.2.14)
+      '@types/react-transition-group':
+        specifier: 'catalog:'
+        version: 4.4.12(@types/react@19.2.14)
       next:
         specifier: 'catalog:'
         version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
