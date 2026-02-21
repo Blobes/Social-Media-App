@@ -1,9 +1,0 @@
-{
-    "name": "funstakes-v3",
-    "private": true,
-    "workspaces": [
-      "frontend/apps/*",
-      "frontend/libs/*",
-      "backend"
-    ]
-  }

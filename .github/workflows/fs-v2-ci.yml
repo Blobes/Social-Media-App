@@ -1,8 +1,8 @@
-name: fs-v2 CI
+name: fs v2 CI
 
 on:
   pull_request:
-    # Only listen to the v2 branch
+    # Only listen to the v2 branch and nothing else
     branches:
       - fs-v2
     # Only trigger if files in your monorepo folders change

@@ -1,0 +1,13 @@
+{
+  "name": "@repo/types",
+  "version": "0.0.1",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "private": true,
+  "exports": {
+    ".": "./index.ts"
+  },
+  "peerDependencies": {
+    "@mui/material": "catalog:"
+  }
+}

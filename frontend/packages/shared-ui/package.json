@@ -1,0 +1,35 @@
+{
+  "name": "@repo/shared-ui",
+  "version": "0.0.1",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "private": true,
+  "exports": {
+    ".": "./index.ts"
+  },
+  "dependencies": {
+    "@repo/helpers": "workspace:*",
+    "@repo/types": "workspace:*",
+    "@repo/assets": "workspace:*"
+  },
+  "peerDependencies": {
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@emotion/react": "catalog:",
+    "@emotion/styled": "catalog:",
+    "@mui/material": "catalog:",
+    "lucide-react": "catalog:",
+    "react-transition-group": "catalog:"
+  },
+  "devDependencies": {
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@repo/typescript-config": "workspace:*",
+    "@types/react-transition-group": "catalog:"
+  }
+}
