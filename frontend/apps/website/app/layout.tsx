@@ -1,5 +1,3 @@
-"use client"
-
 import { BaseLayout, RootUIContainer } from "@repo/shared-ui";
 import { Metadata } from "next";
 import { ClientOnly, SharedProviders } from "@repo/shared-state";
