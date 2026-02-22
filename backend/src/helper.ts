@@ -9,7 +9,6 @@ import { AuthRequest } from "./middlewares/verifyAuthToken";
 export const genAccessTokens = (user: any, req: AuthRequest, res: Response) => {
   const origin = req.get("origin") || "";
   const isLocalDev = origin.includes("localhost");
-  // const isLocalDev = process.env.NODE_ENV === "development";
   const cookieDomain = isLocalDev ? "localhost" : ".vercel.app";
 
   if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
@@ -26,10 +25,10 @@ export const genAccessTokens = (user: any, req: AuthRequest, res: Response) => {
 
   res.cookie("access_token", accessToken, {
     httpOnly: true,
-    secure: !isLocalDev,
-    sameSite: "lax",
+    secure: true,
+    sameSite: !isLocalDev ? "lax" : "none",
     path: "/",
-    domain: cookieDomain, // CRITICAL: Allows all sub-apps to see this cookie
+    //  domain: cookieDomain, // CRITICAL: Allows all sub-apps to see this cookie
     maxAge: 15 * 60 * 1000,
   });
 
@@ -43,7 +42,6 @@ export const genRefreshTokens = (
 ) => {
   const origin = req.get("origin") || "";
   const isLocalDev = origin.includes("localhost");
-  //const isLocalDev = process.env.NODE_ENV === "development";
   const cookieDomain = isLocalDev ? "localhost" : ".vercel.app";
 
   if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
@@ -60,10 +58,10 @@ export const genRefreshTokens = (
   // Set token in cookie
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true,
-    secure: !isLocalDev,
-    sameSite: "lax",
+    secure: true,
+    sameSite: !isLocalDev ? "lax" : "none",
     path: "/",
-    domain: cookieDomain,
+    // domain: cookieDomain,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
   return refreshToken;
