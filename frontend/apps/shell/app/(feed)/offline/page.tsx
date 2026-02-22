@@ -1,7 +1,8 @@
 "use client";
 
 import { CachedFeed } from "./Feed";
+import { Wrapper } from "./Wrapper";
 
 export default function OfflinePage() {
-  return <CachedFeed />
+  return <Wrapper> <CachedFeed /></Wrapper>
 }

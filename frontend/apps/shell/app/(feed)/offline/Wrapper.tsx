@@ -16,15 +16,13 @@ import { scrollBarStyle } from "@repo/helpers";
 export const Wrapper = ({ children }: { children: React.ReactNode }) => {
   const { isDesktop, isOnline } = useMisc();
   const theme = useTheme();
-  const { networkStatus, setDefaultWrapper } = useGlobalContext();
+  const { networkStatus } = useGlobalContext();
   const scrollRef = useRef<HTMLDivElement>(null);
   const { switchToOnlineMode } = useOffline()
 
   useEffect(() => {
     if (isOnline) switchToOnlineMode();
-    setDefaultWrapper(false);
-    return () => setDefaultWrapper(true);
-  }, [networkStatus, setDefaultWrapper]);
+  }, [networkStatus]);
 
   return (
     <RootUIContainer>
