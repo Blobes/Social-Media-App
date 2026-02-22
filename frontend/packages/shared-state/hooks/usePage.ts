@@ -37,32 +37,30 @@ export const usePage = () => {
     savePage?: boolean;
     loadPage?: boolean;
     event?: React.MouseEvent;
+    external?: boolean;
   }
   const navigateTo = async (page: IPage, options: NavigateOptions = {}) => {
-    const type = options.type ?? "link";
-    const savePage = options.savePage ?? true;
-    const loadPage = options.loadPage ?? false;
+    const {
+      type = "link",
+      savePage = true,
+      loadPage = false,
+      external = false,
+      event,
+    } = options;
 
     if (drawerContent) closeDrawer();
     if (modalContent) closeModal();
-
-    if (loadPage) {
-      setGlobalLoading(true);
-      if (type === "element") {
-        options.event?.preventDefault();
-        router.push(page.path);
-      }
-      await delay(2000);
-      setGlobalLoading(false);
-      return; // Exit early since we already pushed
-    }
+    if (event && type === "element") event.preventDefault();
 
     if (savePage) setLastPage(page);
 
-    if (type === "element") {
-      options.event?.preventDefault();
-      router.push(page.path);
+    if (loadPage) {
+      setGlobalLoading(true);
+      await delay(2000);
+      !external && setGlobalLoading(false);
     }
+    external ? (window.location.href = page.path) : router.push(page.path);
+    return;
   };
 
   const handleCurrentPage = () => {

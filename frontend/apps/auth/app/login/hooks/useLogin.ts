@@ -127,7 +127,7 @@ export const useLogin = ({ email, setStep }: any) => {
         const savedPath = savedPage ? savedPage.path : "";
         const isLastWeb = isOnWeb(savedPath);
         const page = !isLastWeb && savedPage ? savedPage : clientRoutes.home;
-        navigateTo(page, { type: "element", loadPage: true });
+        navigateTo(page, { type: "element", loadPage: true, external: true });
       }
     } catch (error: any) {
       const isPasswordErr = error.message?.toLowerCase().includes("password");

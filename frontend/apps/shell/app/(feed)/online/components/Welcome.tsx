@@ -34,7 +34,8 @@ export const Welcome = () => {
                                 type: "element",
                                 savePage: false,
                                 loadPage: true,
-                                event: e
+                                event: e,
+                                external: true,
                             })
                     }>
                     Get started

@@ -213,3 +213,21 @@ components: {
 },
 });
 export default theme;
+
+// transpilePackages: [
+// "@repo/shared-ui",
+// "@repo/shared-state",
+// "@repo/helpers",
+// "@repo/theme",
+// "@repo/types",
+// "@repo/auth/shared",
+// "@repo/gist/shared",
+// "@repo/stake/shared",
+// "@repo/profile/shared",
+// ],
+
+// const isProd = process.env.NODE_NODE === "production";
+
+    // const getTarget = (prodPath, localPort) => {
+    //   return isProd ? prodPath : `http://localhost:${localPort}`;
+    // };

@@ -58,7 +58,8 @@ export default function LoginPage() {
                     icon={<ShieldCheck />}
                     primaryCta={{
                         label: "Go to Funstakes.com",
-                        action: () => navigateTo(clientRoutes.home),
+                        action: () => navigateTo(clientRoutes.home,
+                            { external: true }),
                         href: clientRoutes.home.path
                     }}
                     secondaryCta={{

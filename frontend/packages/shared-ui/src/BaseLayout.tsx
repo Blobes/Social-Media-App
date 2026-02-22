@@ -30,7 +30,7 @@ export async function BaseLayout({ children, Providers }: BaseLayoutProps) {
                 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap"
                     rel="stylesheet" />
             </head>
-            <body style={{ backgroundColor: themeMode === 'dark' ? '#010516' : '#ffffff' }}>
+            <body style={{ backgroundColor: '#010516!important' }}>
 
                 <Providers themeMode={themeMode}>{children}</Providers>
                 <noscript>You need to enable JavaScript to run this app!</noscript>

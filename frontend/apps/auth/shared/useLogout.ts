@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 export const useLogout = () => {
   const { setAuthUser, setAuthStatus, setSnackBarMsg } = useGlobalContext();
-  const { setLastPage } = usePage();
+  const { setLastPage, navigateTo } = usePage();
   const { setSBMessage } = useSnackbar();
   const router = useRouter();
   const pathname = usePathname();
@@ -19,8 +19,12 @@ export const useLogout = () => {
       setAuthUser(null);
       setAuthStatus("UNAUTHENTICATED");
       if (pathname !== clientRoutes.home.path) {
+        navigateTo(clientRoutes.home, {
+          type: "element",
+          loadPage: true,
+          external: true,
+        });
         setLastPage(clientRoutes.home);
-        router.replace(clientRoutes.home.path);
       } else {
         router.refresh();
       }

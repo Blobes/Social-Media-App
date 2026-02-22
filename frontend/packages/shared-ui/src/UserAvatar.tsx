@@ -7,7 +7,7 @@ import { GenericObject, IUser } from "@repo/types";
 import { useTheme } from "@mui/material/styles";
 
 interface UserAvatarProps {
-  userInfo: { firstName?: string; lastName?: string; profileImage?: string };
+  userInfo: { firstName?: string; lastName?: string; profileImage?: string } | null;
   action?: (e: React.MouseEvent<HTMLElement>) => void;
   url?: string;
   style?: GenericObject<string>;

@@ -1,12 +1,16 @@
 import { Metadata } from "next";
 import { ClientOnly, SharedProviders } from "@repo/shared-state";
 import { BaseLayout, Prefetcher } from "@repo/shared-ui";
-import { baseMetadata } from "@repo/helpers";
+import { baseMetadata, sharedViewport } from "@repo/helpers";
+import { Viewport } from "next";
 
+export const viewport: Viewport = {
+  ...sharedViewport
+}
 
 export const metadata: Metadata = {
   ...baseMetadata,
-  title: "Feed", // This will become "Feed | Funstakes"
+  title: `Feed | ${baseMetadata.title}`, // This will become "Feed | Funstakes"
 };
 
 export default async function RootLayout({

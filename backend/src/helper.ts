@@ -55,8 +55,8 @@ export const genRefreshTokens = (
   // Set token in cookie
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: !isLocalDev ? "lax" : "none",
+    secure: !isLocalDev,
+    sameSite: !isLocalDev ? "lax" : "lax",
     path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
@@ -125,8 +125,9 @@ export const corsConfig = (): any => {
     "http://localhost:3003", // Feed
     "http://localhost:3004", // Stake
     "http://localhost:3005", // Profile
-    "http://localhost:3006", // Admin/Extra
+    "http://localhost:3006", // Gist
     "https://funstakes.vercel.app",
+    "https://authentication-nine-tawny.vercel.app/",
     "https://funstakes.onrender.com",
   ];
 
