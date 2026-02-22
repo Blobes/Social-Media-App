@@ -11,7 +11,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   ...baseMetadata,
-  title: `Authentication | ${baseMetadata.title}`,
+  title: "Authentication | Funstakes",
 };
 
 export default async function RootLayout({

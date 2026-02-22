@@ -10,7 +10,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   ...baseMetadata,
-  title: `Feed | ${baseMetadata.title}`, // This will become "Feed | Funstakes"
+  title: "Feed | Funstakes",
 };
 
 export default async function RootLayout({

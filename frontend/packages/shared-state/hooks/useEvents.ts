@@ -10,7 +10,7 @@ import { useAuth } from "@repo/auth/shared";
 export const useEvent = () => {
   const router = useRouter();
   const { setSBMessage, removeSBMessage } = useSnackbar();
-  const { setNetworkStatus } = useGlobalContext();
+  const { setNetworkStatus, setGlobalLoading } = useGlobalContext();
   const { switchToOnlineMode } = useOffline();
   const { verifyAuth } = useAuth();
 
@@ -53,6 +53,14 @@ export const useEvent = () => {
       }
     };
 
+    const handlePageTransition = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        setGlobalLoading(false); // Reset if user came back via 'Back' button
+      }
+      // window.location.reload();
+    };
+
+    window.addEventListener("pageshow", handlePageTransition);
     window.addEventListener("online", online);
     window.addEventListener("offline", offline);
     document.addEventListener("visibilitychange", handleVisibility);
@@ -60,6 +68,7 @@ export const useEvent = () => {
       window.removeEventListener("online", online);
       window.removeEventListener("offline", offline);
       document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("pageshow", handlePageTransition);
     };
   };
 

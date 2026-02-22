@@ -64,7 +64,6 @@ export const UIManager = ({ children, hideHeader = false, hideWrapper = false }:
         handleBrowserEvents();
     }, [pathname]);
 
-
     // Page loader UI
     const isInitializing =
         isGlobalLoading ||
