@@ -36,15 +36,6 @@ interface Context {
   setDefaultHeader: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-// // 1. Create a Global Singleton for the Context Object
-// const G = (typeof window !== "undefined" ? window : global) as any;
-
-// if (!G.__FUNSTAKES_CONTEXT__) {
-//   // We initialize the context only once on the window
-//   G.__FUNSTAKES_CONTEXT__ = createContext<Context | null>(null);
-// }
-
-// const context = G.__FUNSTAKES_CONTEXT__ as React.Context<Context | null>;
 const context = createContext<Context | null>(null);
 
 export const ContextProvider = ({
@@ -118,17 +109,3 @@ export const useGlobalContext = () => {
   }
   return globalContext;
 };
-
-
-// export const useGlobalContext = () => {
-//   const localContext = useContext(context);
-
-//   const globalValue = typeof window !== "undefined" ? G.__FUNSTAKES_STATE_VALUE__ : null
-
-//   const ctx = localContext || globalValue;
-
-//   if (!ctx) {
-//     throw new Error("useGlobalContext must be used within a ContextProvider");
-//   }
-//   return ctx;
-// };
