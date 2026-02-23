@@ -9,7 +9,7 @@ import {
 import { Box, IconButton, Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { X } from "lucide-react";
-import { Direction, GenericObject } from "@repo/types"
+import { Direction, GenericObject, IDragResult } from "@repo/types"
 import { Transition } from "./Transition";
 import { scrollBarStyle, zIndexes } from "@repo/helpers";
 
@@ -19,23 +19,18 @@ export interface DrawerRef {
   closeDrawer: () => void;
 }
 
-export interface DrawerHooks {
-  closeDrawer?: () => any
-  useDragClose?: any
-}
-
 export interface DrawerProps {
   content: React.ReactNode;
   showHeader?: boolean;
   header?: React.ReactNode;
   clickToClose?: boolean;
-  dragToClose?: boolean;
   onClose?: () => void;
   transDirection?: {
     base?: Direction,
     mobile?: Direction
   };
-  useDragClose?: any;
+  dragToClose?: boolean;
+  handleDrag?: () => IDragResult;
   source?: string;
   style?: {
     base?: { overlay?: GenericObject<string>, content?: GenericObject<string> };
@@ -43,13 +38,12 @@ export interface DrawerProps {
     mediumScreen?: { overlay?: GenericObject<string>, content?: GenericObject<string> };
     header?: GenericObject<string>;
   };
-
 }
 
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
   (
     { header, content, transDirection, clickToClose = true, dragToClose = false,
-      showHeader = true, onClose, style, useDragClose
+      showHeader = true, onClose, style, handleDrag
     },
     ref
   ) => {
@@ -68,13 +62,14 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     const mobileDir = transDirection?.mobile ?? baseDir;
     const transDir = isDesktop ? baseDir : mobileDir
 
-    const { dragOffset, handlers, axis } = useDragClose({
-      axis: baseDir === "up" || baseDir === "down" ? "y" : "x",
-      direction: baseDir === "left" ? "ltr" :
-        baseDir === "right" ? "rtl" : undefined,
-      closeAtMiddle: true,
-      onClose: () => setOpen(false),
-    });
+    // Drag config
+    const getDragConfig = () => {
+      if (!dragToClose || !handleDrag) return null;
+      return handleDrag()
+    }
+    const dragOffset = getDragConfig()?.dragOffset || 0
+    const axis = getDragConfig()?.axis
+    const handlers = getDragConfig()?.handlers
 
 
     useImperativeHandle(ref, () => ({
@@ -111,7 +106,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           visibility: !shouldRemove ? "visible" : "hidden",
           transition: "opacity 0.3s ease-in-out, visibility 0.3s",
           opacity: isOpen ? 1 : 0,
-          backgroundColor: theme.palette.gray.trans.overlay(isOpen ? 0.6 - dragOffset / 400 : 0),
+          backgroundColor: theme.palette.gray.trans.overlay(isOpen || dragOffset ? 0.6 - dragOffset / 400 : 0),
           backdropFilter: `blur(${isOpen ? Math.max(0, 6 - dragOffset / 50) : 0}px)`,
           marginLeft: "0!important",
           padding: theme.boxSpacing(12),
@@ -136,7 +131,12 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           onExited={() => setShouldRemove(true)}>
           <Stack
             // Drag event on X axis
-            {...(dragToClose && isMobile && { ...handlers })}
+            {...(dragToClose && isMobile && handlers &&
+            {
+              onTouchStart: (e: React.TouchEvent) => handlers.onTouchStart(e),
+              onTouchMove: (e: React.TouchEvent) => handlers.onTouchMove(e),
+              onTouchEnd: () => handlers.onTouchEnd(() => setOpen(false)),
+            })}
             sx={{
               maxHeight: "100%",
               gap: theme.gap(0),
@@ -146,7 +146,6 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               width: style?.base?.content?.width ?? "40%",
               maxWidth: style?.base?.content?.maxWidth ?? "400px",
               touchAction: "none",
-              // willChange: "transform",
 
               // Drag styling
               ...(dragOffset > 0 && {

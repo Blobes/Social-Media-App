@@ -82,12 +82,12 @@ export const MediaGallery = ({ mediaList, style, bgEffects }: GalleryProps) => {
                             position: 'relative',
                             overflow: 'hidden',
                             cursor: 'pointer',
-                            ...bgEffects.zoom("& video, & img")
+                            ...bgEffects(theme).zoom("& video, & img")
                         }} >
                         <DoubleTap
                             onSingleTap={() => onSingleTap && onSingleTap()}
                             onDoubleTap={() => onDoubleTap && onDoubleTap()}
-                            style={{ ...(!isLastItem && bgEffects.overlay) }}>
+                            style={{ ...(!isLastItem && bgEffects(theme).overlay) }}>
 
                             {mediaType === "video" ? (
                                 <MediaVideo src={src} style={style?.content} />

@@ -3,10 +3,11 @@ import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import { useGlobalContext } from "../../GlobalContext";
 import { useMisc } from "../../hooks/useMisc";
-import { clientRoutes } from "@repo/helpers";
+import { clientRoutes, dragToCloseConfig } from "@repo/helpers";
 import { MenuRef } from "@repo/shared-ui";
 import { usePage } from "../../hooks/usePage";
 import { usePageScroll } from "../../hooks/usePageScroll";
+import { useDragClose } from "../../hooks/useDrag";
 
 export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
   const { authStatus, authUser } = useGlobalContext();
@@ -53,6 +54,7 @@ export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
       source: "navbar",
       onClose: closeDrawer,
       dragToClose: true,
+      handleDrag: () => useDragClose(dragToCloseConfig()),
       style: {
         base: { overlay: { padding: theme.boxSpacing(6) } },
         smallScreen: {

@@ -143,20 +143,37 @@ export interface IMedia {
 
 export type IFeed = (IGist & { type: "gist" }) | (IStake & { type: "stake" });
 
-export interface IModule {
-  [key: string]: React.ComponentType<any> | (() => any); // Allow dynamic string access
-  useCallBack: () => void;
+export interface IDragConfig {
+  axis: "x" | "y";
+  dragOrigin?: "ltr" | "rtl";
+  threshold?: number;
+  closeAtMiddle?: boolean;
 }
 
-export interface IWebsiteModule {
-  view: "about" | "pricing" | "support";
-  children?: React.ReactNode;
+export interface IDragResult {
+  axis: "x" | "y";
+  dragOffset: number;
+  handlers: {
+    onTouchStart: (e: React.TouchEvent) => void;
+    onTouchMove: (e: React.TouchEvent) => void;
+    onTouchEnd: (onDragEnd?: () => void) => void;
+  };
 }
 
-export interface IAuthModule {
-  view: "login" | "signup";
-  children?: React.ReactNode;
-}
+// export interface IModule {
+//   [key: string]: React.ComponentType<any> | (() => any); // Allow dynamic string access
+//   useCallBack: () => void;
+// }
 
-export interface ISharedComponents {}
-export interface ISharedHooks {}
+// export interface IWebsiteModule {
+//   view: "about" | "pricing" | "support";
+//   children?: React.ReactNode;
+// }
+
+// export interface IAuthModule {
+//   view: "login" | "signup";
+//   children?: React.ReactNode;
+// }
+
+// export interface ISharedComponents {}
+// export interface ISharedHooks {}

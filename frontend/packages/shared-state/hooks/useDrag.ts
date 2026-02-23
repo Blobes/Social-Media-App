@@ -1,29 +1,13 @@
 "use client";
 
+import { IDragConfig, IDragResult } from "@repo/types";
 import { useState, useCallback } from "react";
 
-type Axis = "x" | "y";
-type Direction = "ltr" | "rtl"; // Left-to-Right or Right-to-Left
-
-interface DragConfig {
-  axis: Axis;
-  direction?: Direction;
-  threshold?: number;
-  closeAtMiddle?: boolean;
-  onClose?: () => void;
-}
-
-export const useDragClose = (config: DragConfig) => {
+export const useDragClose = (config: IDragConfig): IDragResult => {
   const [startPos, setStartPos] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
 
-  const {
-    axis,
-    direction,
-    closeAtMiddle = false,
-    threshold = 150,
-    onClose,
-  } = config;
+  const { axis, dragOrigin, closeAtMiddle = false, threshold = 150 } = config;
 
   const handleTouchStart = useCallback(
     (e: React.TouchEvent) => {
@@ -45,28 +29,31 @@ export const useDragClose = (config: DragConfig) => {
         if (diff > 0) setDragOffset(diff);
       } else {
         // X-axis: Check direction
-        if (direction === "ltr" && diff > 0) {
+        if (dragOrigin === "ltr" && diff > 0) {
           setDragOffset(diff);
-        } else if (direction === "rtl" && diff < 0) {
+        } else if (dragOrigin === "rtl" && diff < 0) {
           setDragOffset(Math.abs(diff));
         }
       }
     },
-    [axis, direction, startPos],
+    [axis, dragOrigin, startPos],
   );
 
-  const handleTouchEnd = useCallback(() => {
-    // Determine the dynamic threshold
-    let finalThreshold = threshold;
-    if (axis === "x" && closeAtMiddle && typeof window !== "undefined") {
-      // Trigger close if dragged past 45% of the screen width
-      finalThreshold = window.innerWidth * 0.35;
-    }
-    if (dragOffset > finalThreshold) {
-      if (onClose) onClose();
-    }
-    setDragOffset(0);
-  }, [dragOffset, threshold, onClose, axis, closeAtMiddle]);
+  const handleTouchEnd = useCallback(
+    (onDragEnd?: () => void) => {
+      // Determine the dynamic threshold
+      let finalThreshold = threshold;
+      if (axis === "x" && closeAtMiddle && typeof window !== "undefined") {
+        // Trigger close if dragged past 45% of the screen width
+        finalThreshold = window.innerWidth * 0.35;
+      }
+      if (dragOffset > finalThreshold) {
+        if (onDragEnd) onDragEnd();
+      }
+      setDragOffset(0);
+    },
+    [dragOffset, threshold, axis, closeAtMiddle],
+  );
 
   return {
     axis,

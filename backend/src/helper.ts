@@ -9,7 +9,6 @@ import { AuthRequest } from "./middlewares/verifyAuthToken";
 export const genAccessTokens = (user: any, req: AuthRequest, res: Response) => {
   const origin = req.get("origin") || "";
   const isLocalDev = origin.includes("localhost");
-  const cookieDomain = isLocalDev ? "localhost" : ".vercel.app";
 
   if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
     throw new Error("JWT_SECRET is not defined in environment variables");
@@ -28,7 +27,6 @@ export const genAccessTokens = (user: any, req: AuthRequest, res: Response) => {
     secure: true,
     sameSite: !isLocalDev ? "lax" : "none",
     path: "/",
-    //  domain: cookieDomain, // CRITICAL: Allows all sub-apps to see this cookie
     maxAge: 15 * 60 * 1000,
   });
 
@@ -42,7 +40,6 @@ export const genRefreshTokens = (
 ) => {
   const origin = req.get("origin") || "";
   const isLocalDev = origin.includes("localhost");
-  const cookieDomain = isLocalDev ? "localhost" : ".vercel.app";
 
   if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
     throw new Error(
@@ -61,7 +58,6 @@ export const genRefreshTokens = (
     secure: true,
     sameSite: !isLocalDev ? "lax" : "none",
     path: "/",
-    // domain: cookieDomain,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
   return refreshToken;
