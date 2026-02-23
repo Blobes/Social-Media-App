@@ -79,6 +79,8 @@ export const applyBGPattern = () => ({
 //   },
 // });
 
+type Effect = "opaque" | "overlay" | "zoom" | "blur";
+
 export const applyBGEffects = (theme: any) => ({
   // Fade in the overlay
   overlay: {
@@ -104,5 +106,21 @@ export const applyBGEffects = (theme: any) => ({
     "&:hover": {
       [`${element}`]: { transform: "scale(1.05)" },
     },
+  }),
+
+  blur: (isActive?: boolean, offset?: number) => ({
+    backdropFilter:
+      isActive && offset
+        ? `blur(${isActive ? Math.max(0, 6 - offset / 50) : 0}px)`
+        : "blur(6px)",
+  }),
+
+  opaque: (isActive?: boolean, offset?: number) => ({
+    backgroundColor:
+      isActive && offset
+        ? theme.palette.gray.trans.overlay(
+            isActive || offset ? 0.6 - offset / 400 : 0,
+          )
+        : theme.palette.gray.trans.overlay(0.6),
   }),
 });
