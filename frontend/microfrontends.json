@@ -1,0 +1,23 @@
+{
+  "$schema": "https://openapi.vercel.sh/microfrontends.json",
+  "applications": {
+    "funstakes-auth": {
+      "packageName": "auth",
+      "development": {
+        "fallback": "http://localhost:3002"
+      },
+      "routing": [
+        {
+          "paths": ["/login", "/signup"]
+        }
+      ]
+    },
+    "funstakes-shell": {
+      "packageName": "shell",
+      "development": {
+        "fallback": "http://localhost:3001"
+      },
+      "routing": [{ "paths": ["/:path*"] }]
+    }
+  }
+}

@@ -8,30 +8,31 @@
     "start": "next start"
   },
   "dependencies": {
+    "@emotion/react": "catalog:",
+    "@emotion/styled": "catalog:",
+    "@mui/material": "catalog:",
+    "@vercel/microfrontends": "catalog:",
+    "lucide-react": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "@emotion/react": "catalog:",
-    "@emotion/styled": "catalog:",
-    "lucide-react": "catalog:",
-    "@mui/material": "catalog:",
-    "@repo/shared-ui": "workspace:*",
-    "@repo/shared-state": "workspace:*",
-    "@repo/helpers": "workspace:*",
-    "@repo/theme": "workspace:*",
-    "@repo/types": "workspace:*",
     "@repo/assets": "workspace:*",
     "@repo/auth/shared": "workspace:*",
     "@repo/gist/shared": "workspace:*",
+    "@repo/helpers": "workspace:*",
+    "@repo/profile/shared": "workspace:*",
+    "@repo/shared-state": "workspace:*",
+    "@repo/shared-ui": "workspace:*",
     "@repo/stake/shared": "workspace:*",
-    "@repo/profile/shared": "workspace:*"
+    "@repo/theme": "workspace:*",
+    "@repo/types": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "catalog:",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*"
+    "typescript": "catalog:"
   }
 }

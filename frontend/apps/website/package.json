@@ -16,6 +16,7 @@
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "lucide-react": "catalog:",
+    "@vercel/microfrontends": "catalog:",
     "@repo/shared-ui": "workspace:*",
     "@repo/shared-state": "workspace:*",
     "@repo/helpers": "workspace:*",

@@ -1,10 +1,6 @@
 packages:
-  - apps/*
-  - "apps/auth/shared"
-  - "apps/gist/shared"
-  - "apps/stake/shared"
-  - "apps/profile/shared"
-  - packages/*
+  - "apps/**"
+  - "packages/*"
 
 catalog:
   react: ^19.2.0
@@ -28,6 +24,7 @@ catalog:
   "@emotion/cache": ^11.14.0
   react-transition-group: ^4.4.5
   "@types/react-transition-group": ^4.4.10
+  "@vercel/microfrontends": ^2.3.1
 
 onlyBuiltDependencies:
   - sharp

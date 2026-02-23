@@ -4,15 +4,17 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "proxy": "microfrontends proxy",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "@vercel/microfrontends": "catalog:",
+    "next": "catalog:",
     "prettier": "^3.7.4",
     "turbo": "^2.8.10",
-    "typescript": "catalog:",
-    "next": "catalog:"
+    "typescript": "catalog:"
   },
   "packageManager": "pnpm@10.30.1",
   "engines": {

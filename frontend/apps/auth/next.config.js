@@ -1,19 +1,10 @@
+import { withMicrofrontends } from "@vercel/microfrontends/next/config";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // basePath: "/auth",
-  assetPrefix: "/auth-assets",
-
-  generateBuildId: async () => {
-    return "funstakes-build";
-  },
   async rewrites() {
-    return [
-      {
-        source: "/auth-assets/_next/:path*",
-        destination: "/_next/:path*",
-      },
-    ];
+    return [];
   },
 };
 
-export default nextConfig;
+export default withMicrofrontends(nextConfig);
