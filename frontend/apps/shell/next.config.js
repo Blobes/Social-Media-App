@@ -22,8 +22,8 @@ const nextConfig = {
       },
       {
         // This forwards the auth app's code to the browser
-        source: "/_next/static/:path*",
-        destination: `${process.env.AUTH_APP_URL}/_next/static/:path*`,
+        source: "/auth-assets/_next/:path*",
+        destination: `${process.env.AUTH_APP_URL}/_next/:path*`,
       },
       // 3. Gist Microservice
       {
