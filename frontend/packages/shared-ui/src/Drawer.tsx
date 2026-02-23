@@ -19,6 +19,11 @@ export interface DrawerRef {
   closeDrawer: () => void;
 }
 
+export interface DrawerHooks {
+  closeDrawer?: () => any
+  useDragClose?: any
+}
+
 export interface DrawerProps {
   content: React.ReactNode;
   showHeader?: boolean;
@@ -38,6 +43,7 @@ export interface DrawerProps {
     mediumScreen?: { overlay?: GenericObject<string>, content?: GenericObject<string> };
     header?: GenericObject<string>;
   };
+
 }
 
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
@@ -70,6 +76,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     const dragOffset = getDragConfig()?.dragOffset || 0
     const axis = getDragConfig()?.axis
     const handlers = getDragConfig()?.handlers
+
 
 
     useImperativeHandle(ref, () => ({

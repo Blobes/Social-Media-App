@@ -119,6 +119,7 @@ export const useGlobalContext = () => {
   return globalContext;
 };
 
+
 // export const useGlobalContext = () => {
 //   const localContext = useContext(context);
 
