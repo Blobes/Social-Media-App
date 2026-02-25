@@ -74,3 +74,44 @@ destination: "/_next/:path*",
 };
 
 export default withMicrofrontends(nextConfig);
+
+name: v2 Pre-merge Workflow
+
+on:
+pull_request: # Only listen to the v2 branch and nothing else
+branches: - v2-main # Only trigger if files in your monorepo folders change
+paths: - "backend/**" - "frontend/**"
+
+jobs:
+v2-build:
+runs-on: ubuntu-latest
+steps: - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+          cache-dependency-path: |
+            frontend/package.json
+            frontend/pnpm-lock.yaml
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.1 # or your preferred version
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: |
+            backend/package.json
+            backend/package-lock.json
+
+      - name: Install Frontend
+        run: cd frontend && pnpm install --frozen-lockfile
+
+      - name: Install Backend
+        run: cd backend && npm ci
+
+      - name: Build All
+        run: npm run build
