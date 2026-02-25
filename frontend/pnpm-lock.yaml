@@ -126,12 +126,12 @@ importers:
         specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
     devDependencies:
+      '@repo/env-config':
+        specifier: workspace:*
+        version: link:../../packages/env-config
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.11
@@ -157,9 +157,6 @@ importers:
         specifier: 'catalog:'
         version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../../packages/typescript-config
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.14
@@ -224,12 +221,12 @@ importers:
         specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
     devDependencies:
+      '@repo/env-config':
+        specifier: workspace:*
+        version: link:../../packages/env-config
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.11
@@ -255,9 +252,6 @@ importers:
         specifier: 'catalog:'
         version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../../packages/typescript-config
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.14
@@ -319,12 +313,12 @@ importers:
         specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
     devDependencies:
+      '@repo/env-config':
+        specifier: workspace:*
+        version: link:../../packages/env-config
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.11
@@ -426,12 +420,12 @@ importers:
         specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
     devDependencies:
+      '@repo/env-config':
+        specifier: workspace:*
+        version: link:../../packages/env-config
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.11
@@ -490,12 +484,12 @@ importers:
         specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
     devDependencies:
+      '@repo/env-config':
+        specifier: workspace:*
+        version: link:../../packages/env-config
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.11
@@ -521,9 +515,6 @@ importers:
         specifier: 'catalog:'
         version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../../packages/typescript-config
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.14
@@ -588,12 +579,12 @@ importers:
         specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
     devDependencies:
+      '@repo/env-config':
+        specifier: workspace:*
+        version: link:../../packages/env-config
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.11
@@ -612,6 +603,8 @@ importers:
       next:
         specifier: 'catalog:'
         version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+
+  packages/env-config: {}
 
   packages/eslint-config:
     devDependencies:
@@ -676,9 +669,6 @@ importers:
         specifier: 'catalog:'
         version: 6.2.2
     devDependencies:
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.14
@@ -740,9 +730,6 @@ importers:
         specifier: 'catalog:'
         version: 0.562.0(react@19.2.4)
     devDependencies:
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@types/colorthief':
         specifier: 'catalog:'
         version: 2.6.1
@@ -792,9 +779,6 @@ importers:
         specifier: 'catalog:'
         version: 4.4.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.14
@@ -841,9 +825,6 @@ importers:
         specifier: 'catalog:'
         version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.14
@@ -863,13 +844,7 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  packages/types:
-    dependencies:
-      '@mui/material':
-        specifier: 'catalog:'
-        version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-
-  packages/typescript-config: {}
+  packages/types: {}
 
 packages:
 
