@@ -27,7 +27,7 @@ Packages:
   - changed-files:
       - any-glob-to-any-file: "frontend/packages/**/*"
 
-# Infrastructure & Shared
+# backedn Infrastructure
 Backend:
   - changed-files:
       - any-glob-to-any-file: "backend/**/*"
