@@ -48,6 +48,8 @@ jobs:
           npm ci
 
       - name: Build Frontend
+        env:
+          NEXT_PUBLIC_API_URL: https://funstakes.onrender.com
         run: |
           cd frontend
           pnpm run build
