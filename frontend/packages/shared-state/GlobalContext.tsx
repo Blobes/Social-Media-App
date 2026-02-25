@@ -90,10 +90,6 @@ export const ContextProvider = ({
     setDefaultHeader,
   }
 
-  // if (typeof window !== "undefined") {
-  //   G.__FUNSTAKES_STATE_VALUE__ = value;
-  // }
-
   return (
     <context.Provider
       value={value}>
