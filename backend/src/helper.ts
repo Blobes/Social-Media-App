@@ -125,7 +125,7 @@ export const corsConfig = (): any => {
     "http://localhost:3003", // Local Feed
     "http://localhost:3004", // Local Stake
     "http://localhost:3005", // Local Profile
-    "http://localhost:3006", // Local Gist
+    "http://localhost:3006",
     "https://funstakes.vercel.app",
     "https://funstakes-auth.vercel.app",
     "https://funstakes.onrender.com",
