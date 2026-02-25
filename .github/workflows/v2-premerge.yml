@@ -21,6 +21,7 @@ jobs:
           node-version: 20
           cache: "pnpm"
           cache-dependency-path: |
+            frontend/package.json
             frontend/pnpm-lock.yaml
 
       - uses: pnpm/action-setup@v4
