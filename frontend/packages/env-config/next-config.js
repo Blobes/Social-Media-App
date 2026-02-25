@@ -1,7 +1,7 @@
 // packages/env-config/next-config.js
 import { withMicrofrontends } from "@vercel/microfrontends/next/config";
 
-export function withCommonConfig(appConfig = {}, backendUrl) {
+export function withCommonConfig(appConfig = {}, backendApi) {
   return withMicrofrontends({
     ...appConfig,
     async rewrites() {
@@ -18,7 +18,7 @@ export function withCommonConfig(appConfig = {}, backendUrl) {
           ...beforeFiles,
           {
             source: "/api/:path*",
-            destination: `${backendUrl}/:path*`, // Uses the passed-in variable
+            destination: `${backendApi}/:path*`,
           },
         ],
       };
