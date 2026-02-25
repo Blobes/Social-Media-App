@@ -13,7 +13,7 @@ on:
       - ".github/workflows/sync-v2-base.yml"
 
 jobs:
-  sync-v2-logic:
+  sync-v2
     # Logic to ensure that when a feature branch is merged into fs-v2,
     # the branch remains the stable source of truth.
     if: github.event.pull_request.merged == true
