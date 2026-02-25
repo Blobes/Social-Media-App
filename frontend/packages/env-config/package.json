@@ -2,13 +2,12 @@
   "name": "@repo/env-config",
   "version": "0.0.0",
   "type": "module",
-  "main": "./next-config.js",
-  "types": "./next-config.js",
-  "private": true,
   "exports": {
-    ".": "./next-config.js"
+    ".": "./next-config.js",
+    "./tsconfig.base.json": "./tsconfig.base.json"
   },
   "files": [
+    "next-config.js",
     "tsconfig.base.json"
   ]
 }
