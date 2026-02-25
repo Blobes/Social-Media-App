@@ -1,17 +1,17 @@
-name: fs v2 CI
+name: v2 Pre-merge Workflow
 
 on:
   pull_request:
     # Only listen to the v2 branch and nothing else
     branches:
-      - fs-v2
+      - v2-main
     # Only trigger if files in your monorepo folders change
     paths:
       - "backend/**"
       - "frontend/**"
 
 jobs:
-  fs-v2-build:
+  v2-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

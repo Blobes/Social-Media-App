@@ -1,10 +1,10 @@
-name: fs V2 Sync
+name: V2 Sync Workflow
 
 on:
   pull_request:
     #  Only listen to your fs-v2 branch
     branches:
-      - fs-v2
+      - v2-main
     types: [closed]
     # Only trigger if fs-v2 folders are modified
     paths:
