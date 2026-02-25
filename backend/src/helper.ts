@@ -24,8 +24,8 @@ export const genAccessTokens = (user: any, req: AuthRequest, res: Response) => {
 
   res.cookie("access_token", accessToken, {
     httpOnly: true,
-    secure: !isLocalDev,
-    sameSite: !isLocalDev ? "lax" : "lax",
+    secure: true,
+    sameSite: !isLocalDev ? "lax" : "none",
     path: "/",
     maxAge: 15 * 60 * 1000,
   });
