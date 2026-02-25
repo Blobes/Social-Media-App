@@ -47,5 +47,12 @@ jobs:
           cd backend
           npm ci
 
-      - name: Build All
-        run: npm run build
+      - name: Build Frontend
+        run: |
+          cd frontend
+          pnpm run build
+
+      - name: Build Backend
+        run: |
+          cd backend
+          npm run build
