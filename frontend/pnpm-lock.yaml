@@ -844,7 +844,11 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  packages/types: {}
+  packages/types:
+    dependencies:
+      '@mui/material':
+        specifier: 'catalog:'
+        version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
 
 packages:
 
