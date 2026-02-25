@@ -11,7 +11,7 @@ import { useTheme } from "@mui/material/styles";
 import { X } from "lucide-react";
 import { Direction, GenericObject, IDragResult } from "@repo/types"
 import { Transition } from "./Transition";
-import { applyBGEffects, scrollBarStyle, zIndexes } from "@repo/helpers";
+import { applyBGEffects, scrollBarStyle } from "@repo/helpers";
 
 
 export interface DrawerRef {
@@ -107,7 +107,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           left: 0,
           width: "100%",
           height: "100%",
-          zIndex: zIndexes.maximum,
+          zIndex: 1000,
           visibility: !shouldRemove ? "visible" : "hidden",
           transition: "opacity 0.3s ease-in-out, visibility 0.3s",
           opacity: isOpen ? 1 : 0,

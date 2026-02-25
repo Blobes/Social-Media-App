@@ -69,7 +69,7 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
           variant="outlined"
           style={{ fontSize: "14px" }}
           onClick={() =>
-            navigateTo(clientRoutes.home, { type: "element", loadPage: true, })
+            navigateTo(clientRoutes.home, { type: "push", loadPage: true, })
           }>
           Go to funstakes.com
         </AppButton>
@@ -82,7 +82,7 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
             style={{ fontSize: "14px" }}
             onClick={() =>
               navigateTo(clientRoutes.signup,
-                { type: "element", savePage: false, loadPage: true, })
+                { type: "push", savePage: false, loadPage: true, })
             }>
             Sign up
           </AppButton>
@@ -92,7 +92,7 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
             style={{ fontSize: "14px" }}
             onClick={() =>
               navigateTo(clientRoutes.login,
-                { type: "element", savePage: false, loadPage: true, })
+                { type: "push", savePage: false, loadPage: true, })
             }>
             Login
           </AppButton>

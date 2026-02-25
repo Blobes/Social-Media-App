@@ -4,13 +4,12 @@ import { GlobalThemeProvider } from "@repo/theme";
 import { ContextProvider } from "./GlobalContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
+import { PrefetchCrossZoneLinks, PrefetchCrossZoneLinksProvider } from '@vercel/microfrontends/next/client';
 
-interface ProvidersProps {
+
+export function SharedProviders({ children }: {
     children: React.ReactNode;
-    themeMode?: 'light' | 'dark'; // Passed from the Server Layout
-}
-
-export function SharedProviders({ children, themeMode }: ProvidersProps) {
+}) {
     // We initialize the QueryClient inside a useState to ensure it's 
     // only created once per application lifecycle (singleton).
     const [queryClient] = useState(() => new QueryClient({
@@ -23,11 +22,16 @@ export function SharedProviders({ children, themeMode }: ProvidersProps) {
     }));
     return (
         <QueryClientProvider client={queryClient}>
-            <GlobalThemeProvider initialMode={themeMode}>
+
+            <GlobalThemeProvider>
                 <ContextProvider>
-                    {children}
+                    <PrefetchCrossZoneLinksProvider>
+                        {children}
+                    </PrefetchCrossZoneLinksProvider>
+                    <PrefetchCrossZoneLinks />
                 </ContextProvider>
             </GlobalThemeProvider>
+
         </QueryClientProvider>
     );
 }

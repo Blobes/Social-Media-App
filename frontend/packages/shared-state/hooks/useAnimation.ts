@@ -1,6 +1,6 @@
 "use client";
 
-import { zIndexes, rotate } from "@repo/helpers";
+import { rotate } from "@repo/helpers";
 
 interface AnimateBorder {
   borderWidth?: number;
@@ -26,7 +26,7 @@ export const useAnimation = () => {
         height: "150%",
         background: `conic-gradient(transparent, ${borderColor}, transparent 60%)`,
         animation: `${rotate} ${duration} linear infinite`,
-        zIndex: zIndexes.negative,
+        zIndex: -1,
         filter: "blur(8px)",
       },
       "&::after": {
@@ -35,7 +35,7 @@ export const useAnimation = () => {
         inset: borderWidth,
         backgroundColor: "inherit",
         borderRadius: `inherit`,
-        zIndex: zIndexes.negative,
+        zIndex: -1,
       },
     };
   };

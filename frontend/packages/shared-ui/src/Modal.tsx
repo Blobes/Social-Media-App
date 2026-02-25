@@ -5,7 +5,7 @@ import { IconButton, Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Direction, GenericObject } from "@repo/types";
 import { Transition, TransitionType } from "./Transition";
-import { scrollBarStyle, zIndexes } from "@repo/helpers";
+import { scrollBarStyle } from "@repo/helpers";
 import { X } from "lucide-react";
 
 export interface ModalRef {
@@ -81,7 +81,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
           left: 0,
           width: "100%",
           height: "100%",
-          zIndex: zIndexes.maximum,
+          zIndex: 1000,
           visibility: !shouldRemove ? "visible" : "hidden",
           transition: "opacity 0.3s ease-in-out, visibility 0.3s",
           opacity: isOpen ? 1 : 0,

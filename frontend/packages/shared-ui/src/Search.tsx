@@ -3,7 +3,6 @@
 import { styled, useTheme } from "@mui/material/styles";
 import { InputBase, Stack, Typography } from "@mui/material";
 import { Search as SearchIcon } from "lucide-react";
-import { zIndexes } from "@repo/helpers";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -78,7 +77,7 @@ export const SearchContainer = ({ animateBorder }: SearchProps) => {
       backgroundColor: theme.palette.gray[50],
       width: "30%",
       alignItems: "center",
-      zIndex: zIndexes[5],
+      zIndex: 5,
       transition: "all 0.2s ease-in",
       cursor: "text",
       // Apply border animation

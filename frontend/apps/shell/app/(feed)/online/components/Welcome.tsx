@@ -28,16 +28,7 @@ export const Welcome = () => {
                 </Typography>
                 <AppButton
                     href={clientRoutes.signup.path}
-                    onClick={(e: React.MouseEvent) =>
-                        navigateTo(clientRoutes.signup,
-                            {
-                                type: "element",
-                                savePage: false,
-                                loadPage: true,
-                                event: e,
-                                external: true,
-                            })
-                    }>
+                >
                     Get started
                 </AppButton>
             </Stack>

@@ -2,7 +2,7 @@
 
 import { Button, Link } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import NextLink from "next/link";
+import { Link as NextLink } from '@vercel/microfrontends/next/client';
 
 interface ButtonProps {
   variant?: "text" | "contained" | "outlined";
@@ -113,7 +113,7 @@ export const AnchorLink = ({
       sx={{
         ...mergedStyle,
       }}
-      prefetch={false}
+      // prefetch={false}
       {...rest}
     >
       {children}

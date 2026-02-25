@@ -64,7 +64,7 @@ export const useLogin = ({ email, setStep }: any) => {
     }
   }, [remainingSec, isLocked, setInlineMsg]);
 
-  // 3. Logic to process failures (Moved from Service)
+  // 3. Logic to process failures
   const handleFailedAttempt = useCallback(() => {
     const current = parseInt(getCookie("loginAttempts") || "0", 10);
     const nextAttempts = current + 1;
@@ -103,7 +103,7 @@ export const useLogin = ({ email, setStep }: any) => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (isLocked) return;
 
@@ -116,18 +116,19 @@ export const useLogin = ({ email, setStep }: any) => {
         deleteCookie("loginAttempts");
         deleteCookie("loginLockTime");
 
-        setAuthUser(res.payload);
-        setAuthStatus("AUTHENTICATED");
-        setGlobalLoading(true);
-
-        // Navigation: Reset the stepper for the next time they open it
+        // Reset the stepper for the next time they open it
         if (setStep) setStep("email");
 
+        // Navigate
+        setGlobalLoading(true);
         const savedPage = getFromLocalStorage<IPage>();
         const savedPath = savedPage ? savedPage.path : "";
         const isLastWeb = isOnWeb(savedPath);
         const page = !isLastWeb && savedPage ? savedPage : clientRoutes.home;
-        navigateTo(page, { type: "element", loadPage: true, external: true });
+        navigateTo(page, { type: "replace", isExternal: true });
+
+        setAuthUser(res.payload);
+        setAuthStatus("AUTHENTICATED");
       }
     } catch (error: any) {
       const isPasswordErr = error.message?.toLowerCase().includes("password");

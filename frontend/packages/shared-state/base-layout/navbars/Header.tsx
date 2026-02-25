@@ -7,7 +7,7 @@ import { useTheme } from "@mui/material/styles";
 import { DesktopNav, MobileNav } from "./Nav";
 import { SearchContainer, UserAvatar, AnchorLink, AppButton } from "@repo/shared-ui";
 import { useHeader } from "./useHeader";
-import { clientRoutes, zIndexes } from "@repo/helpers";
+import { clientRoutes } from "@repo/helpers";
 import { img } from "@repo/assets"
 import { useAnimation } from "../../hooks/useAnimation";
 
@@ -25,7 +25,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
             position="sticky"
             component="nav"
             sx={{
-                zIndex: zIndexes[500],
+                zIndex: 500,
                 display: "flex",
                 flexDirection: "row",
                 justifyContent: "space-between",
@@ -103,10 +103,9 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
                         style={{ fontSize: "14px" }}
                         onClick={() => navigateTo(clientRoutes.login,
                             {
-                                type: "element",
+                                type: "push",
                                 savePage: false,
                                 loadPage: true,
-                                external: true
                             })}>
                         Login
                     </AppButton>

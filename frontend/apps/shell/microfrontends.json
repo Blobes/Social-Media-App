@@ -1,23 +1,25 @@
 {
   "$schema": "https://openapi.vercel.sh/microfrontends.json",
   "applications": {
+    "funstakes-shell": {
+      "packageName": "shell",
+      "development": {
+        "fallback": "funstakes.vercel.app"
+      }
+    },
     "funstakes-auth": {
       "packageName": "auth",
       "development": {
-        "fallback": "http://localhost:3002"
+        "local": 3002
       },
       "routing": [
         {
           "paths": ["/login", "/signup"]
         }
       ]
-    },
-    "funstakes-shell": {
-      "packageName": "shell",
-      "development": {
-        "fallback": "http://localhost:3001"
-      },
-      "routing": [{ "paths": ["/:path*"] }]
     }
+  },
+  "options": {
+    "localProxyPort": 3001
   }
 }

@@ -13,7 +13,7 @@ export const useOffline = () => {
     setOfflineMode(true);
     setTimeout(() => {
       navigateTo(clientRoutes.offline, {
-        type: "element",
+        type: "replace",
         savePage: false,
         loadPage: true,
       });
@@ -23,7 +23,7 @@ export const useOffline = () => {
   const switchToOnlineMode = () => {
     setOfflineMode(false);
     const savedPage = getFromLocalStorage<IPage>() || clientRoutes.home;
-    navigateTo(savedPage, { type: "element", loadPage: true });
+    navigateTo(savedPage, { type: "replace", loadPage: true });
   };
 
   return {

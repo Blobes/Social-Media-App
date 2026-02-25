@@ -1,6 +1,5 @@
-import { AppBar, Stack, Typography } from "@mui/material";
+import { AppBar, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { zIndexes } from "@repo/helpers"
 import { usePageScroll } from "../../hooks/usePageScroll";
 
 interface NavProps {
@@ -19,7 +18,7 @@ export const BottomNav: React.FC<NavProps> = ({ scrollRef }) => {
       role="navigation"
       sx={{
         // borderTop: `1px solid ${theme.palette.gray.trans[1]}`,
-        zIndex: zIndexes[500],
+        zIndex: 500,
         padding: theme.boxSpacing(6),
         // backgroundColor: theme.palette.gray[0],
         top: "unset",
