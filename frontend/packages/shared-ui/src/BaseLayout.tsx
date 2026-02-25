@@ -13,7 +13,8 @@ interface BaseLayoutProps {
 }
 
 export async function BaseLayout({ children, Providers }: BaseLayoutProps) {
-
+    // const cookieStore = await cookies();
+    // const themeMode = (cookieStore.get("app-theme-mode")?.value as "light" | "dark");
 
     return (
         <html lang="en"

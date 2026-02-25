@@ -44,6 +44,7 @@ export interface DrawerProps {
     mediumScreen?: { overlay?: GenericObject<string>, content?: GenericObject<string> };
     header?: GenericObject<string>;
   };
+
 }
 
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(

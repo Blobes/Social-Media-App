@@ -9,5 +9,5 @@
 /frontend/apps/gist/ @Blobes
 
 # ONLY YOU can approve changes to shared state and the shell
-/frontend/libs/shared-state/ @Blobes
+/frontend/packages/ @Blobes
 /frontend/apps/shell/ @Blobes
