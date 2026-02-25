@@ -115,3 +115,22 @@ steps: - uses: actions/checkout@v4
 
       - name: Build All
         run: npm run build
+
+import { withMicrofrontends } from "@vercel/microfrontends/next/config";
+
+/\*_ @type {import('next').NextConfig} _/
+const nextConfig = {
+async rewrites() {
+// Return an OBJECT, not an array
+return {
+beforeFiles: [
+{
+source: "/api/:path*",
+destination: `${process.env.BACKEND_API_URL}/:path*`,
+},
+],
+};
+},
+};
+
+export default withMicrofrontends(nextConfig);

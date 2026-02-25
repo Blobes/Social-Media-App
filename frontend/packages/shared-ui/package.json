@@ -29,7 +29,6 @@
     "typescript": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@repo/typescript-config": "workspace:*",
     "@types/react-transition-group": "catalog:"
   }
 }

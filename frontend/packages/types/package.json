@@ -6,8 +6,5 @@
   "private": true,
   "exports": {
     ".": "./index.ts"
-  },
-  "peerDependencies": {
-    "@mui/material": "catalog:"
   }
 }

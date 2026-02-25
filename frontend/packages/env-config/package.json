@@ -1,0 +1,10 @@
+{
+  "name": "@repo/env-config",
+  "version": "0.0.0",
+  "main": "./next-config.js",
+  "types": "./next-config.js",
+  "private": true,
+  "exports": {
+    ".": "./next-config.js"
+  }
+}

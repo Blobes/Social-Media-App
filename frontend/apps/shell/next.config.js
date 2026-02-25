@@ -1,18 +1,6 @@
-import { withMicrofrontends } from "@vercel/microfrontends/next/config";
+import { withCommonConfig } from "@repo/env-config";
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  async rewrites() {
-    // Return an OBJECT, not an array
-    return {
-      beforeFiles: [
-        {
-          source: "/api/:path*",
-          destination: `${process.env.BACKEND_API_URL}/:path*`,
-        },
-      ],
-    };
-  },
-};
+const nextConfig = {};
 
-export default withMicrofrontends(nextConfig);
+export default withCommonConfig(nextConfig);

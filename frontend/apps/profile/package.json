@@ -29,6 +29,6 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*"
+    "@repo/env-config": "workspace:*"
   }
 }

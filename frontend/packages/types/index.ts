@@ -159,21 +159,3 @@ export interface IDragResult {
     onTouchEnd: (onDragEnd?: () => void) => void;
   };
 }
-
-// export interface IModule {
-//   [key: string]: React.ComponentType<any> | (() => any); // Allow dynamic string access
-//   useCallBack: () => void;
-// }
-
-// export interface IWebsiteModule {
-//   view: "about" | "pricing" | "support";
-//   children?: React.ReactNode;
-// }
-
-// export interface IAuthModule {
-//   view: "login" | "signup";
-//   children?: React.ReactNode;
-// }
-
-// export interface ISharedComponents {}
-// export interface ISharedHooks {}
