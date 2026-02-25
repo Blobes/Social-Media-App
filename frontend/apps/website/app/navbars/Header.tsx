@@ -6,7 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import { useGlobalContext, useMisc, usePage } from "@repo/shared-state";
 import { DesktopNav, MobileNav } from "./Nav";
 import { AnchorLink, AppButton } from "@repo/shared-ui";
-import { clientRoutes, zIndexes } from "@repo/helpers";
+import { clientRoutes, } from "@repo/helpers";
 import Image from "next/image";
 import { Menu } from "lucide-react";
 import { img } from "@repo/assets";
@@ -55,7 +55,7 @@ export const Header: React.FC = () => {
       aria-label="Main navigation"
       role="navigation"
       sx={{
-        zIndex: zIndexes[500],
+        zIndex: 500,
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
@@ -98,7 +98,7 @@ export const Header: React.FC = () => {
                 style={{ fontSize: "14px" }}
                 onClick={() =>
                   navigateTo(clientRoutes.home,
-                    { type: "element", loadPage: true, })
+                    { type: "push", loadPage: true, })
                 }>
                 Go to funstakes.com
               </AppButton>
@@ -111,7 +111,7 @@ export const Header: React.FC = () => {
                   style={{ fontSize: "14px" }}
                   onClick={() =>
                     navigateTo(clientRoutes.signup,
-                      { type: "element", savePage: false, loadPage: true, })
+                      { type: "push", savePage: false, loadPage: true, })
                   }>
                   Sign up
                 </AppButton>
@@ -121,7 +121,7 @@ export const Header: React.FC = () => {
                   style={{ fontSize: "14px" }}
                   onClick={() =>
                     navigateTo(clientRoutes.login,
-                      { type: "element", savePage: false, loadPage: true })
+                      { type: "push", savePage: false, loadPage: true })
                   }>
                   Login
                 </AppButton>

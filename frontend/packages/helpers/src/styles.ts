@@ -1,7 +1,6 @@
 "use client";
 
 import { img } from "@repo/assets";
-import { zIndexes } from "./misc";
 
 export const scrollBarStyle = (isDesktop: boolean, theme: any) => {
   return {
@@ -40,7 +39,7 @@ export const autoScroll = () => ({
 });
 
 export const applyBGPattern = () => ({
-  "& > *": { zIndex: zIndexes[5] }, // Keep the parent container at the top
+  "& > *": { zIndex: 5 }, // Keep the parent container at the top
   "&::before": {
     content: '""',
     position: "absolute",
@@ -52,7 +51,7 @@ export const applyBGPattern = () => ({
     backgroundRepeat: "repeat",
     backgroundSize: "800px",
     opacity: 0.3,
-    zIndex: zIndexes.minimum,
+    zIndex: 0,
   },
 });
 
@@ -79,6 +78,8 @@ export const applyBGPattern = () => ({
 //   },
 // });
 
+type Effect = "opaque" | "overlay" | "zoom" | "blur";
+
 export const applyBGEffects = (theme: any) => ({
   // Fade in the overlay
   overlay: {
@@ -104,5 +105,21 @@ export const applyBGEffects = (theme: any) => ({
     "&:hover": {
       [`${element}`]: { transform: "scale(1.05)" },
     },
+  }),
+
+  blur: (isActive?: boolean, offset?: number) => ({
+    backdropFilter:
+      isActive && offset
+        ? `blur(${isActive ? Math.max(0, 6 - offset / 50) : 0}px)`
+        : "blur(6px)",
+  }),
+
+  opaque: (isActive?: boolean, offset?: number) => ({
+    backgroundColor:
+      isActive && offset
+        ? theme.palette.gray.trans.overlay(
+            isActive || offset ? 0.6 - offset / 400 : 0,
+          )
+        : theme.palette.gray.trans.overlay(0.6),
   }),
 });

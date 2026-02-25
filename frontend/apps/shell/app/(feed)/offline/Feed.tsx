@@ -71,7 +71,7 @@ export const CachedFeed = () => {
         variant: "outlined",
         label: "Explore Funstakes",
         action: () => navigateTo(clientRoutes.about,
-          { type: "element", savePage: false, loadPage: true }),
+          { type: "push", savePage: false, loadPage: true }),
       }}
       style={{
         container: {

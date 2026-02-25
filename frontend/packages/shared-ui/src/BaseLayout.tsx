@@ -8,18 +8,19 @@ interface BaseLayoutProps {
     children: React.ReactNode;
     Providers: React.ComponentType<{
         children: React.ReactNode;
-        themeMode: "light" | "dark"
+        // themeMode: "light" | "dark"
     }>;
 }
 
 export async function BaseLayout({ children, Providers }: BaseLayoutProps) {
-    const cookieStore = await cookies();
-    const themeMode = (cookieStore.get("app-theme-mode")?.value as "light" | "dark");
+    // const cookieStore = await cookies();
+    // const themeMode = (cookieStore.get("app-theme-mode")?.value as "light" | "dark");
 
     return (
         <html lang="en"
-            data-mui-color-scheme={themeMode}
-            style={{ colorScheme: themeMode }}>
+        // data-mui-color-scheme={themeMode}
+        // style={{ colorScheme: themeMode }}
+        >
             <head>
 
                 <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@200,300,400,500,700&display=swap"
@@ -32,7 +33,7 @@ export async function BaseLayout({ children, Providers }: BaseLayoutProps) {
             </head>
             <body style={{ backgroundColor: '#010516!important' }}>
 
-                <Providers themeMode={themeMode}>{children}</Providers>
+                <Providers>{children}</Providers>
                 <noscript>You need to enable JavaScript to run this app!</noscript>
             </body>
         </html>

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 3002",
+    "dev": "next --port $(microfrontends port)",
     "build": "next build",
     "start": "next start"
   },
@@ -16,6 +16,7 @@
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "lucide-react": "catalog:",
+    "@vercel/microfrontends": "catalog:",
     "@repo/shared-ui": "workspace:*",
     "@repo/shared-state": "workspace:*",
     "@repo/helpers": "workspace:*",

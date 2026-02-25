@@ -23,14 +23,14 @@ Website:
   - changed-files:
       - any-glob-to-any-file: "frontend/apps/website/**/*"
 
-# Infrastructure & Shared
+Packages:
+  - changed-files:
+      - any-glob-to-any-file: "frontend/packages/**/*"
+
+# backedn Infrastructure
 Backend:
   - changed-files:
       - any-glob-to-any-file: "backend/**/*"
-
-Libs:
-  - changed-files:
-      - any-glob-to-any-file: "frontend/libs/**/*"
 
 # CI/CD Infrastructure
 Devops:

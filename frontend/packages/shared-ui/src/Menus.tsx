@@ -3,7 +3,6 @@
 import { forwardRef, useImperativeHandle, useState, ReactNode } from "react";
 import { Menu, paperClasses } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { zIndexes } from "@repo/helpers";
 
 export interface MenuRef {
   openMenu: (anchor: HTMLElement) => void;
@@ -43,7 +42,7 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
         slotProps={{ list: { disablePadding: true } }}
         sx={{
           alignItems: "center",
-          zIndex: zIndexes.maximum,
+          zIndex: 1000,
           padding: theme.boxSpacing(2, 0),
 
           [`& .${paperClasses.root}`]: {

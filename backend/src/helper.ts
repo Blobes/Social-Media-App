@@ -120,14 +120,14 @@ export const generateTestEmail = (email: string): string => {
 export const corsConfig = (): any => {
   const allowedOrigins = [
     "http://localhost:3000",
-    "http://localhost:3001", // Shell
-    "http://localhost:3002", // Auth
-    "http://localhost:3003", // Feed
-    "http://localhost:3004", // Stake
-    "http://localhost:3005", // Profile
-    "http://localhost:3006", // Gist
+    "http://localhost:3001", // Local Shell
+    "http://localhost:3002", // Local Auth
+    "http://localhost:3003", // Local Feed
+    "http://localhost:3004", // Local Stake
+    "http://localhost:3005", // Local Profile
+    "http://localhost:3006", // Local Gist
     "https://funstakes.vercel.app",
-    "https://authentication-nine-tawny.vercel.app/",
+    "https://funstakes-auth.vercel.app/",
     "https://funstakes.onrender.com",
   ];
 

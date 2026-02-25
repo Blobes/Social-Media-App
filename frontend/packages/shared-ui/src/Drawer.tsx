@@ -11,7 +11,7 @@ import { useTheme } from "@mui/material/styles";
 import { X } from "lucide-react";
 import { Direction, GenericObject, IDragResult } from "@repo/types"
 import { Transition } from "./Transition";
-import { scrollBarStyle, zIndexes } from "@repo/helpers";
+import { applyBGEffects, scrollBarStyle } from "@repo/helpers";
 
 
 export interface DrawerRef {
@@ -36,6 +36,7 @@ export interface DrawerProps {
   };
   dragToClose?: boolean;
   handleDrag?: () => IDragResult;
+  blurOverlayBG?: boolean;
   source?: string;
   style?: {
     base?: { overlay?: GenericObject<string>, content?: GenericObject<string> };
@@ -48,8 +49,8 @@ export interface DrawerProps {
 
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
   (
-    { header, content, transDirection, clickToClose = true, dragToClose = false,
-      showHeader = true, onClose, style, handleDrag
+    { showHeader = true, header, content, transDirection, clickToClose = true, dragToClose = false,
+      onClose, style, handleDrag, blurOverlayBG
     },
     ref
   ) => {
@@ -76,8 +77,6 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     const dragOffset = getDragConfig()?.dragOffset || 0
     const axis = getDragConfig()?.axis
     const handlers = getDragConfig()?.handlers
-
-
 
     useImperativeHandle(ref, () => ({
       openDrawer: () => {
@@ -109,14 +108,17 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           left: 0,
           width: "100%",
           height: "100%",
-          zIndex: zIndexes.maximum,
+          zIndex: 1000,
           visibility: !shouldRemove ? "visible" : "hidden",
           transition: "opacity 0.3s ease-in-out, visibility 0.3s",
           opacity: isOpen ? 1 : 0,
-          backgroundColor: theme.palette.gray.trans.overlay(isOpen || dragOffset ? 0.6 - dragOffset / 400 : 0),
-          backdropFilter: `blur(${isOpen ? Math.max(0, 6 - dragOffset / 50) : 0}px)`,
+          // backgroundColor: theme.palette.gray.trans.overlay(isOpen || dragOffset ? 0.6 - dragOffset / 400 : 0),
+          // backdropFilter: `blur(${isOpen ? Math.max(0, 6 - dragOffset / 50) : 0}px)`,
           marginLeft: "0!important",
           padding: theme.boxSpacing(12),
+          ...applyBGEffects(theme).opaque(isOpen, dragOffset),
+          ...(blurOverlayBG && applyBGEffects(theme).blur(isOpen, dragOffset)),
+
           // Alignment
           alignItems: transDir === "right" ? "flex-start"
             : baseDir === "left" ? "flex-end" : "center",

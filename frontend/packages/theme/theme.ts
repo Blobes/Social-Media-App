@@ -2,10 +2,9 @@
 
 import { grey, red } from "@mui/material/colors";
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
-import baseStyles from "./baseStyles";
+import baseUIStyles from "./baseUIStyles";
 
 let designSystem = createTheme({
-  // Enable CSS variables mode for Material UI
   colorSchemes: {
     light: {
       palette: {
@@ -115,9 +114,8 @@ designSystem = responsiveFontSizes(designSystem);
 
 const theme = createTheme({
   ...designSystem,
-  // defaultColorScheme: mode, // This tells MUI which one to show first
   components: {
-    ...baseStyles.components,
+    ...baseUIStyles.components,
   },
 });
 

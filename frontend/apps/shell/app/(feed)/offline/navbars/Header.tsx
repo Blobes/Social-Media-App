@@ -2,19 +2,15 @@
 
 import { AppBar, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext, useMisc, usePage, usePageScroll } from "@repo/shared-state";
+import { useMisc, usePageScroll } from "@repo/shared-state";
 import { img } from "@repo/assets"
-import { AnchorLink, AppButton } from "@repo/shared-ui";
-import { clientRoutes, zIndexes } from "@repo/helpers";
 import Image from "next/image";
 
 interface AppHeaderProps {
   scrollRef?: React.RefObject<HTMLElement | null>;
 }
 export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
-  const { authStatus } = useGlobalContext();
   const { isDesktop } = useMisc();
-  const { navigateTo } = usePage();
   const { handlePageScroll } = usePageScroll();
   const theme = useTheme();
   const scrollDir = handlePageScroll(scrollRef);
@@ -28,7 +24,7 @@ export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
       aria-label="Main navigation"
       role="navigation"
       sx={{
-        zIndex: zIndexes[500],
+        zIndex: 100,
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
@@ -42,21 +38,15 @@ export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
       }}>
 
       {/* Logo */}
-      <AnchorLink
-        url={clientRoutes.home.path}
-        onClick={() => {
-          navigateTo(clientRoutes.home);
+      <Image
+        src={img.logo}
+        alt="logo"
+        style={{
+          width: 34,
+          height: 34,
+          borderRadius: `${theme.radius.full}`,
         }}
-        style={{ display: "inline-flex" }}
-      ><Image
-          src={img.logo}
-          alt="logo"
-          style={{
-            width: 34,
-            height: 34,
-            borderRadius: `${theme.radius.full}`,
-          }}
-        /></AnchorLink>
+      />
 
       {/* Right side elements */}
       <Stack direction="row" alignItems="center" spacing={theme.gap(8)}>
@@ -68,20 +58,6 @@ export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
               width: "28px", height: "28px"
             },
           }} />
-
-        {/* Login Button */}
-        {authStatus === "UNAUTHENTICATED" && (
-          <AppButton
-            href={clientRoutes.login.path}
-            variant="outlined"
-            style={{ fontSize: "14px" }}
-            onClick={() =>
-              navigateTo(clientRoutes.login,
-                { type: "element", savePage: false, loadPage: true })
-            }>
-            Sign in
-          </AppButton>
-        )}
       </Stack>
     </AppBar >
   );

@@ -7,7 +7,6 @@ import { AppButton } from "./Buttons";
 import { Info, CircleCheck, CircleAlert, X } from "lucide-react";
 import { useEffect } from "react";
 import { GroupTransition, Transition } from "./Transition";
-import { zIndexes } from "@repo/helpers";
 
 
 interface SnackbarProps {
@@ -33,7 +32,7 @@ export const SnackBars = ({ snackBarMsg, removeMessage, setSBTimer }: SnackbarPr
         position: "fixed",
         ...(snackBarMsg.dir === "up" ? { bottom: "10px" } : { top: "10px" }),
         right: "10px",
-        zIndex: zIndexes.maximum,
+        zIndex: 1000,
         width: "94%",
         maxWidth: "400px",
         gap: theme.gap(2),

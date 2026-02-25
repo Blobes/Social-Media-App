@@ -1,20 +1,19 @@
-name: fs V2 Sync
+name: V2 Sync Workflow
 
 on:
   pull_request:
     #  Only listen to your fs-v2 branch
     branches:
-      - fs-v2
+      - v2-main
     types: [closed]
     # Only trigger if fs-v2 folders are modified
     paths:
       - "backend/**"
       - "frontend/**"
-      - "libs/**"
       - ".github/workflows/sync-v2-base.yml"
 
 jobs:
-  sync-v2-logic:
+  sync-v2:
     # Logic to ensure that when a feature branch is merged into fs-v2,
     # the branch remains the stable source of truth.
     if: github.event.pull_request.merged == true

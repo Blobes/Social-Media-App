@@ -27,39 +27,45 @@ export const usePage = () => {
   const pathname = usePathname();
 
   const setLastPage = ({ title, path }: IPage) => {
-    const pageInfo = { title: title, path: path };
-    setPage(pageInfo);
-    localStorage.setItem("saved_page", JSON.stringify(pageInfo));
+    const page = { title, path };
+    setPage(page);
+    localStorage.setItem("saved_page", JSON.stringify(page));
   };
 
   interface NavigateOptions {
-    type?: "element" | "link";
+    type?: "push" | "href" | "replace";
     savePage?: boolean;
     loadPage?: boolean;
     event?: React.MouseEvent;
-    external?: boolean;
+    isExternal?: boolean;
   }
   const navigateTo = async (page: IPage, options: NavigateOptions = {}) => {
     const {
-      type = "link",
+      type = "href",
       savePage = true,
       loadPage = false,
-      external = false,
       event,
+      isExternal = false,
     } = options;
 
     if (drawerContent) closeDrawer();
     if (modalContent) closeModal();
-    if (event && type === "element") event.preventDefault();
 
     if (savePage) setLastPage(page);
 
     if (loadPage) {
       setGlobalLoading(true);
       await delay(2000);
-      !external && setGlobalLoading(false);
+      setGlobalLoading(false);
     }
-    external ? (window.location.href = page.path) : router.push(page.path);
+
+    if (event) event.preventDefault();
+
+    if (type !== "href") {
+      if (!isExternal)
+        type === "push" ? router.push(page.path) : router.replace(page.path);
+      else window.location.assign(page.path);
+    }
     return;
   };
 
