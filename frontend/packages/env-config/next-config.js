@@ -1,16 +1,13 @@
-// lib/shared-config.js (or in a shared internal package)
+// packages/env-config/next-config.js
 import { withMicrofrontends } from "@vercel/microfrontends/next/config";
 
-export function withCommonConfig(appConfig = {}) {
-  const commonConfig = {
+export function withCommonConfig(appConfig = {}, backendUrl) {
+  return withMicrofrontends({
     ...appConfig,
     async rewrites() {
-      // Get existing rewrites if any
       const baseRewrites = appConfig.rewrites
         ? await appConfig.rewrites()
         : { beforeFiles: [] };
-
-      // Ensure we handle both array and object return types from the base
       const beforeFiles = Array.isArray(baseRewrites)
         ? []
         : baseRewrites.beforeFiles || [];
@@ -21,12 +18,10 @@ export function withCommonConfig(appConfig = {}) {
           ...beforeFiles,
           {
             source: "/api/:path*",
-            destination: `${process.env.BACKEND_API_URL}/:path*`,
+            destination: `${backendUrl}/:path*`, // Uses the passed-in variable
           },
         ],
       };
     },
-  };
-
-  return withMicrofrontends(commonConfig);
+  });
 }
