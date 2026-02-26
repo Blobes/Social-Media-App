@@ -16,9 +16,7 @@ export default async function RootLayout({
 }>) {
   return (
     <BaseLayout Providers={SharedProviders} >
-      <ClientOnly hideWrapper={true}>
-        <RootUIContainer>{children}</RootUIContainer>
-      </ClientOnly>
+      <ClientOnly><RootUIContainer>{children}</RootUIContainer></ClientOnly>
     </BaseLayout>
   );
 }

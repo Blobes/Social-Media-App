@@ -20,7 +20,7 @@ export const useLogout = () => {
       setAuthStatus("UNAUTHENTICATED");
       if (pathname !== clientRoutes.home.path) {
         navigateTo(clientRoutes.home, {
-          type: "replace",
+          type: "external",
           loadPage: true,
         });
       } else {

@@ -2,9 +2,9 @@
 
 import { useTheme } from "@mui/material/styles";
 import { Stack } from "@mui/material";
-import { RightSidebar } from "./sidebar/RightSidebar";
+import { RightSidebar } from "../sidebar/RightSidebar";
 import { useGlobalContext, useMisc } from "@repo/shared-state";
-import { Welcome } from "./components/Welcome";
+import { Welcome } from "./Welcome";
 import { Feed } from "./Feed";
 
 export const FeedWrapper = () => {

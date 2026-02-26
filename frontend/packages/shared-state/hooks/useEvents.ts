@@ -2,10 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useSnackbar } from "./useSnackbar";
-import { getCookie, setCookie } from "@repo/helpers";
+import { clientRoutes, getCookie, setCookie } from "@repo/helpers";
 import { useGlobalContext } from "../GlobalContext";
 import { useOffline } from "./useOffline";
 import { useAuth } from "@repo/auth/shared";
+import { usePage } from "./usePage";
 
 export const useEvent = () => {
   const router = useRouter();
@@ -13,6 +14,7 @@ export const useEvent = () => {
   const { setNetworkStatus, setGlobalLoading } = useGlobalContext();
   const { switchToOnlineMode } = useOffline();
   const { verifyAuth } = useAuth();
+  const { navigateTo } = usePage();
 
   const handleBrowserEvents = () => {
     const online = () => {
@@ -28,13 +30,18 @@ export const useEvent = () => {
         msg: {
           id: 1,
           title: "No internet connection",
-          content: "Refresh the page.",
+          content: "Switch to offline content.",
           msgStatus: "ERROR",
           behavior: "FIXED",
           hasClose: true,
           cta: {
-            label: "Refresh",
-            action: () => router.refresh(),
+            label: "Go Offline",
+            action: () =>
+              navigateTo(clientRoutes.offline, {
+                type: "push",
+                savePage: false,
+                loadPage: true,
+              }),
           },
         },
       });

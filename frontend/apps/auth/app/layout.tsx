@@ -18,8 +18,10 @@ export default async function RootLayout({
 }>) {
   return (
     <BaseLayout Providers={SharedProviders} >
-      <ClientOnly hideWrapper={true}>
-        <RootUIContainer shouldScroll={true} >{children}</RootUIContainer>
+      <ClientOnly>
+        <RootUIContainer shouldScroll={true}>
+          {children}
+        </RootUIContainer>
       </ClientOnly>
     </BaseLayout>
   );

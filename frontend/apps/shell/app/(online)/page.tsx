@@ -1,6 +1,6 @@
 "use client"
 
-import { FeedWrapper } from "./(feed)/online/FeedWrapper"
+import { FeedWrapper } from "./components/FeedWrapper"
 
 export default function HomePage() {
     return <FeedWrapper />

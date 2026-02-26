@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { useGlobalContext } from "../GlobalContext";
-import { registeredRoutes } from "@repo/helpers";
 import { Drawer, DrawerRef, Modal, ModalRef, SnackBars, PageLoaderUI } from "@repo/shared-ui"
 import { useMisc } from "../hooks/useMisc";
 import { usePage } from "../hooks/usePage";
@@ -11,16 +10,9 @@ import { useSnackbar } from "../hooks/useSnackbar";
 import { useAuth } from "@repo/auth/shared";
 import { usePathname } from "next/navigation";
 import { registerSW, delay } from "@repo/helpers";
-import { DefaultWrapper } from "./Wrapper";
-
-interface ManagerProps {
-    children: React.ReactNode;
-    hideHeader?: boolean;
-    hideWrapper?: boolean;
-}
 
 
-export const UIManager = ({ children, hideHeader = false, hideWrapper = false }: ManagerProps) => {
+export const UIManager = ({ children }: { children: React.ReactNode }) => {
     const { handleBrowserEvents } = useEvent();
     const drawerRef = useRef<DrawerRef>(null);
     const modalRef = useRef<ModalRef>(null);
@@ -77,8 +69,7 @@ export const UIManager = ({ children, hideHeader = false, hideWrapper = false }:
     // Render the app UIs
     return (
         <>
-            {!hideWrapper ? <DefaultWrapper hideHeader={hideHeader}> {children} </DefaultWrapper>
-                : <>{children}</>}
+            {children}
             {snackBarMsg.messages && <SnackBars snackBarMsg={snackBarMsg}
                 removeMessage={removeSBMessage} setSBTimer={setSBTimer} />}
             {drawerContent && <Drawer ref={drawerRef} {...drawerContent} />}

@@ -31,3 +31,4 @@ export * from "./src/UserAvatar";
 export * from "./src/OfflinePromptUI";
 export * from "./src/Footer";
 export * from "./src/BaseLayout";
+export * from "./src/SvgIcon";

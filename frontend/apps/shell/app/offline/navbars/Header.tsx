@@ -5,6 +5,7 @@ import { useTheme } from "@mui/material/styles";
 import { useMisc, usePageScroll } from "@repo/shared-state";
 import { img } from "@repo/assets"
 import Image from "next/image";
+import { SVGIcon } from "@repo/shared-ui";
 
 interface AppHeaderProps {
   scrollRef?: React.RefObject<HTMLElement | null>;
@@ -49,16 +50,18 @@ export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
       />
 
       {/* Right side elements */}
-      <Stack direction="row" alignItems="center" spacing={theme.gap(8)}>
-        <OfflineAvatar
-          style={{
-            width: "34px", height: "34px",
-            stroke: "none",
-            [theme.breakpoints.down("md")]: {
-              width: "28px", height: "28px"
-            },
-          }} />
-      </Stack>
+      <SVGIcon
+        src={OfflineAvatar}
+        size={34}
+        preserveColor={true}
+        sx={{
+          [theme.breakpoints.down("md")]: {
+            width: 28,
+            height: 28,
+          },
+        }}
+      />
+
     </AppBar >
   );
 };

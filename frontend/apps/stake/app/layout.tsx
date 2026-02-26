@@ -1,6 +1,6 @@
 import { BaseLayout } from "@repo/shared-ui";
 import { Metadata } from "next";
-import { ClientOnly, SharedProviders } from "@repo/shared-state";
+import { ClientOnly, DefaultWrapper, SharedProviders } from "@repo/shared-state";
 import { baseMetadata } from "@repo/helpers";
 
 
@@ -16,9 +16,7 @@ export default async function RootLayout({
 }>) {
   return (
     <BaseLayout Providers={SharedProviders} >
-      <ClientOnly>
-        {children}
-      </ClientOnly>
+      <ClientOnly><DefaultWrapper>{children}</DefaultWrapper></ClientOnly>
     </BaseLayout>
   );
 }

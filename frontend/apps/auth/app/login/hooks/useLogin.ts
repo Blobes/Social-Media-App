@@ -125,7 +125,7 @@ export const useLogin = ({ email, setStep }: any) => {
         const savedPath = savedPage ? savedPage.path : "";
         const isLastWeb = isOnWeb(savedPath);
         const page = !isLastWeb && savedPage ? savedPage : clientRoutes.home;
-        navigateTo(page, { type: "replace", isExternal: true });
+        navigateTo(page, { type: "external" });
 
         setAuthUser(res.payload);
         setAuthStatus("AUTHENTICATED");

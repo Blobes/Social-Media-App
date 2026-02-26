@@ -26,48 +26,49 @@ export const Wrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <RootUIContainer>
-      isDesktop ? (
-      <Stack
-        sx={{
-          height: "100%",
-          gap: theme.gap(0),
-          overflowY: "hidden",
-          flexDirection: "column",
-        }}>
-        <Header />
+      {isDesktop ? (
         <Stack
           sx={{
             height: "100%",
             gap: theme.gap(0),
             overflowY: "hidden",
-            overflowX: "auto",
-            flexDirection: "row",
-            width: "100%",
+            flexDirection: "column",
+          }}>
+          <Header />
+          <Stack
+            sx={{
+              height: "100%",
+              gap: theme.gap(0),
+              overflowY: "hidden",
+              overflowX: "auto",
+              flexDirection: "row",
+              width: "100%",
+              ...scrollBarStyle(theme),
+            }}>
+            <LeftNav />
+            {children}
+            <RightSidebar />
+          </Stack>
+        </Stack>
+      ) :
+        // Mobile view
+        (<Stack
+          ref={scrollRef}
+          sx={{
+            height: "100%",
+            gap: theme.gap(0),
+            overflowY: "auto",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            flexDirection: "column",
+            paddingBottom: theme.boxSpacing(23),
             ...scrollBarStyle(theme),
           }}>
-          <LeftNav />
+          <Header scrollRef={scrollRef} />
           {children}
-          <RightSidebar />
-        </Stack>
-      </Stack>
-      ) :
-      // Mobile view
-      (<Stack
-        ref={scrollRef}
-        sx={{
-          height: "100%",
-          gap: theme.gap(0),
-          overflowY: "auto",
-          justifyContent: "flex-start",
-          alignItems: "center",
-          flexDirection: "column",
-          paddingBottom: theme.boxSpacing(23),
-          ...scrollBarStyle(theme),
-        }}>
-        <Header scrollRef={scrollRef} />
-        {children}
-        <BottomNav scrollRef={scrollRef} />
-      </Stack>)
+          <BottomNav scrollRef={scrollRef} />
+        </Stack>)
+      }
     </RootUIContainer>
   )
 }

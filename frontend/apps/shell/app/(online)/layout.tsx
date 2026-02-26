@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { ClientOnly, SharedProviders } from "@repo/shared-state";
+import { ClientOnly, DefaultWrapper, SharedProviders } from "@repo/shared-state";
 import { BaseLayout, Prefetcher } from "@repo/shared-ui";
 import { baseMetadata, sharedViewport } from "@repo/helpers";
 import { Viewport } from "next";
@@ -21,7 +21,7 @@ export default async function RootLayout({
   return (
     <BaseLayout Providers={SharedProviders} >
       <Prefetcher route="/offline" />
-      <ClientOnly>{children}</ClientOnly>
+      <ClientOnly><DefaultWrapper>{children}</DefaultWrapper></ClientOnly>
     </BaseLayout>
   );
 }

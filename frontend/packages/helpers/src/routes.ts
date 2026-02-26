@@ -31,7 +31,7 @@ export const clientRoutes: Record<string, IPage> = {
   voices: { title: "Voices", path: "/voices" },
 
   // Offline
-  offline: { title: "Home", path: "/offline" },
+  offline: { title: "Offline", path: "/offline" },
 } as const;
 
 export const registeredRoutes = {

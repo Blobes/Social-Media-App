@@ -29,7 +29,8 @@ export const DefaultWrapper = ({ children, hideHeader = false }: WrapperProps) =
 
   // Conditionally render the offline UI
   if ((isUnstableNetwork || authStatus === "ERROR") && !isOffline) {
-    return <NetworkGlitchUI checkingSignal={checkingSignal} isUnstableNetwork={isUnstableNetwork} />;
+    return <NetworkGlitchUI checkingSignal={checkingSignal}
+      isUnstableNetwork={isUnstableNetwork} />;
   }
 
   return (

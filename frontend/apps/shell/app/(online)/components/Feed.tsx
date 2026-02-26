@@ -1,10 +1,10 @@
 "use client";
 
 import { Stack, Typography } from "@mui/material";
-import { VibeSlider } from "./vibezSlider/Slider";
+import { VibeSlider } from "../vibezSlider/Slider";
 import { ProgressIcon, Empty } from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
-import { useFeed } from "./useFeed";
+import { useFeed } from "../useFeed";
 import { useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
 import { GistCard } from "@repo/gist/shared";
