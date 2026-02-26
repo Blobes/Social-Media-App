@@ -1,6 +1,6 @@
-import { withCommonConfig } from "@repo/env-config";
+import { withBaseConfig } from "@repo/env-config";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {};
 
-export default withCommonConfig(nextConfig, "https://funstakes.onrender.com");
+export default withBaseConfig(nextConfig, "https://funstakes.onrender.com");

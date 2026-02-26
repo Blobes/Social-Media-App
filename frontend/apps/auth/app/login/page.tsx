@@ -13,8 +13,8 @@ import { ComfirmLogout } from "../../shared";
 export default function LoginPage() {
     const theme = useTheme();
     const { authStatus } = useGlobalContext();
-    const { openModal, closeModal } = useMisc();
-    const { navigateTo } = usePage()
+    const { openModal, closeModal, } = useMisc();
+    const { navigateTo } = usePage();
 
     return (
         <Stack
@@ -24,7 +24,7 @@ export default function LoginPage() {
                 alignItems: "center",
                 justifyContent: "center",
                 padding: theme.boxSpacing(6),
-                //Pattern background with fade effect
+                minHeight: "fit-content",
                 ...applyBGPattern()
             }}>
             {authStatus === "UNAUTHENTICATED" ? (

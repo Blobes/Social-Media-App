@@ -231,3 +231,90 @@ export default theme;
     // const getTarget = (prodPath, localPort) => {
     //   return isProd ? prodPath : `http://localhost:${localPort}`;
     // };
+
+Team members default workspace setups
+
+- Initialize & Set Frontend Team View
+  git sparse-checkout init --cone
+  git sparse-checkout set .github frontend
+
+- Frontend Shell Team View
+  git sparse-checkout init --cone
+  git sparse-checkout set .github frontend/apps/shell frontend/public frontend/libs frontend/package.json frontend/package-lock.json frontend/next.config.js
+
+- Auth Team View
+  git sparse-checkout init --cone
+  git sparse-checkout set .github frontend/apps/auth frontend/libs frontend/package.json frontend/package-lock.json
+
+- Feed & Profile Team View
+  git sparse-checkout init --cone
+  git sparse-checkout set .github frontend/apps/feed frontend/apps/profile frontend/libs frontend/package.json frontend/package-lock.json
+
+- Initialize & Set Backend View:
+  git sparse-checkout init --cone
+  git sparse-checkout set .github backend
+
+- AUTOMATED COMMAND: Running the automated command. Ensure you are in the root directory of the project when running the command.
+
+- To allow your system to run the command use:
+  chmod +x ws-setup.sh
+
+- Frontend view command:
+  ./ws-setup.sh frontend
+
+- Backend view command:
+  ./ws-setup.sh backend
+
+- To disable run:
+  git sparse-checkout disable
+
+workspace setup
+#!/bin/bash
+TEAM=$1
+
+# Initialize or re-verify cone mode
+
+git sparse-checkout init --cone
+
+if [ "$TEAM" == "frontend" ]; then
+echo "Setting up Frontend Feature Workspace..."
+git sparse-checkout set .github frontend
+
+elif [ "$TEAM" == "frontend-shell" ]; then
+echo "Setting up Frontend Shell Workspace"
+git sparse-checkout set .github frontend/apps/shell frontend/apps/feed frontend/public frontend/libs frontend/.next
+
+elif [ "$TEAM" == "backend" ]; then
+echo "Setting up Backend Feature Workspace..."
+git sparse-checkout set .github backend
+else
+echo "Please specify 'frontend' or 'backend'"
+fi
+
+{
+// "extends": "@repo/typescript-config/nextjs.json",
+"compilerOptions": {
+"plugins": [{ "name": "next" }],
+"jsx": "preserve", // Or "react-jsx" for React 17+
+"lib": ["dom", "dom.iterable", "esnext"],
+"allowJs": true,
+"skipLibCheck": true,
+"strict": true,
+"forceConsistentCasingInFileNames": true,
+"noEmit": true,
+"incremental": true,
+"module": "esnext",
+"moduleResolution": "node",
+"resolveJsonModule": true,
+"isolatedModules": true
+},
+"include": [
+"**/*.js",
+"**/*.ts",
+"**/*.tsx",
+"next-env.d.ts",
+"next.config.js",
+".next/types/**/*.ts"
+],
+"exclude": ["node_modules"]
+}

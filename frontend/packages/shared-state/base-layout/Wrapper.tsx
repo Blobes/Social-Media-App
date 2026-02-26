@@ -52,7 +52,7 @@ export const DefaultWrapper = ({ children, hideHeader = false }: WrapperProps) =
               overflowX: "auto",
               flexDirection: "row",
               width: "100%",
-              ...scrollBarStyle(isDesktop, theme),
+              ...scrollBarStyle(theme),
             }}>
             <LeftNav />
             {children}
@@ -72,7 +72,7 @@ export const DefaultWrapper = ({ children, hideHeader = false }: WrapperProps) =
             alignItems: "center",
             flexDirection: "column",
             paddingBottom: theme.boxSpacing(23),
-            ...scrollBarStyle(isDesktop, theme),
+            ...scrollBarStyle(theme),
           }}>
           {!hideHeader && <AppHeader scrollRef={scrollRef} />}
           {children}
@@ -92,7 +92,7 @@ export const DefaultWrapper = ({ children, hideHeader = false }: WrapperProps) =
               justifyContent: "flex-start",
               alignItems: "center",
             },
-            ...scrollBarStyle(isDesktop, theme),
+            ...scrollBarStyle(theme),
           }}>
           {!hideHeader && <AppHeader />}
           {children}

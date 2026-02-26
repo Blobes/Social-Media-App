@@ -102,11 +102,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
                         variant="outlined"
                         style={{ fontSize: "14px" }}
                         onClick={() => navigateTo(clientRoutes.login,
-                            {
-                                type: "push",
-                                savePage: false,
-                                loadPage: true,
-                            })}>
+                            { savePage: false })}>
                         Login
                     </AppButton>
                 )}

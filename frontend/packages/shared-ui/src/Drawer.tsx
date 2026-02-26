@@ -241,7 +241,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
                   padding: theme.boxSpacing(14),
                 },
                 gap: theme.gap(8),
-                ...(scrollBarStyle(isDesktop, theme) as any),
+                ...(scrollBarStyle(theme) as any),
               }}>
               {content}
             </Stack>

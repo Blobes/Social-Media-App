@@ -43,7 +43,7 @@ export const Wrapper = ({ children }: { children: React.ReactNode }) => {
             overflowX: "auto",
             flexDirection: "row",
             width: "100%",
-            ...scrollBarStyle(isDesktop, theme),
+            ...scrollBarStyle(theme),
           }}>
           <LeftNav />
           {children}
@@ -62,7 +62,7 @@ export const Wrapper = ({ children }: { children: React.ReactNode }) => {
           alignItems: "center",
           flexDirection: "column",
           paddingBottom: theme.boxSpacing(23),
-          ...scrollBarStyle(isDesktop, theme),
+          ...scrollBarStyle(theme),
         }}>
         <Header scrollRef={scrollRef} />
         {children}

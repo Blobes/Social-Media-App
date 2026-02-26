@@ -2,13 +2,15 @@
 
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import { autoScroll, scrollBarStyle } from "@repo/helpers";
 
 
 interface UIProps {
   children: React.ReactNode;
-  style?: any
+  style?: any;
+  shouldScroll?: boolean
 }
-export const RootUIContainer = ({ children, style }: UIProps) => {
+export const RootUIContainer = ({ children, style, shouldScroll = false }: UIProps) => {
   const theme = useTheme();
   return (
     <Stack
@@ -18,6 +20,10 @@ export const RootUIContainer = ({ children, style }: UIProps) => {
         width: "100%",
         gap: 0,
         backgroundColor: theme.palette.gray[0],
+        ...(shouldScroll && {
+          ...autoScroll().base,
+          ...scrollBarStyle(theme),
+        }),
         ...style
       }}>
       {children}

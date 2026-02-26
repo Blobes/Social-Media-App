@@ -184,7 +184,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
                   padding: theme.boxSpacing(14),
                 },
                 gap: theme.gap(8),
-                ...(scrollBarStyle(isDesktop, theme) as any),
+                ...(scrollBarStyle(theme) as any),
               }}>
               {content}
             </Stack>

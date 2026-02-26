@@ -26,9 +26,9 @@ export const Welcome = () => {
                 <Typography variant="h5" component="h5">
                     Join millions of stakers on FunStakes
                 </Typography>
-                <AppButton
-                    href={clientRoutes.signup.path}
-                >
+                <AppButton href={clientRoutes.signup.path}
+                    onClick={() => navigateTo(clientRoutes.signup,
+                        { savePage: false })}>
                     Get started
                 </AppButton>
             </Stack>

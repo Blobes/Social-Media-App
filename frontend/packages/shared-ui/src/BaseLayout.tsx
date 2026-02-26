@@ -7,22 +7,14 @@ import { cookies } from "next/headers";
 interface BaseLayoutProps {
     children: React.ReactNode;
     Providers: React.ComponentType<{
-        children: React.ReactNode;
-        // themeMode: "light" | "dark"
+        children: React.ReactNode
     }>;
 }
 
 export async function BaseLayout({ children, Providers }: BaseLayoutProps) {
-    // const cookieStore = await cookies();
-    // const themeMode = (cookieStore.get("app-theme-mode")?.value as "light" | "dark");
-
     return (
-        <html lang="en"
-        // data-mui-color-scheme={themeMode}
-        // style={{ colorScheme: themeMode }}
-        >
+        <html lang="en" >
             <head>
-
                 <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@200,300,400,500,700&display=swap"
                     rel="stylesheet" />
                 <link rel="preconnect"

@@ -72,8 +72,8 @@ export const UIManager = ({ children, hideHeader = false, hideWrapper = false }:
     if (isInitializing) return <PageLoaderUI />;
 
 
-    const noWrapperPaths = [...registeredRoutes.auth, ...registeredRoutes.web];
-    const showWrapper = !noWrapperPaths.includes(pathname);
+    // const noWrapperPaths = [...registeredRoutes.auth, ...registeredRoutes.web];
+    // const showWrapper = !noWrapperPaths.includes(pathname);
     // Render the app UIs
     return (
         <>

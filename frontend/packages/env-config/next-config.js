@@ -1,7 +1,7 @@
 // packages/env-config/next-config.js
 import { withMicrofrontends } from "@vercel/microfrontends/next/config";
 
-export function withCommonConfig(appConfig = {}, backendApi) {
+export function withBaseConfig(appConfig = {}, backendApi) {
   return withMicrofrontends({
     ...appConfig,
     async rewrites() {

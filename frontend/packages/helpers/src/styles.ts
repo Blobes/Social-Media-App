@@ -2,11 +2,15 @@
 
 import { img } from "@repo/assets";
 
-export const scrollBarStyle = (isDesktop: boolean, theme: any) => {
+export const scrollBarStyle = (theme: any) => {
   return {
     "&::-webkit-scrollbar": {
-      height: isDesktop ? "6px" : "2px",
-      width: isDesktop ? "6px" : "2px",
+      height: "6px",
+      width: "6px",
+      [theme.breakpoints.down("md")]: {
+        height: "2px",
+        width: "2px",
+      },
     },
     "&::-webkit-scrollbar-track": {
       borderRadius: theme.radius[2],
@@ -42,7 +46,7 @@ export const applyBGPattern = () => ({
   "& > *": { zIndex: 5 }, // Keep the parent container at the top
   "&::before": {
     content: '""',
-    position: "absolute",
+    position: "fixed",
     top: 0,
     left: 0,
     right: 0,
