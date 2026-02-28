@@ -174,11 +174,10 @@ export const MobileNav = ({ }) => {
               width: "22px",
               height: "22px",
             },
-          }}
-        />
-        <Logout />
-        <Divider sx={{ marginTop: theme.boxSpacing(20) }} /> <Divider />
+          }} />
+        <Divider />
         <ThemeSwitcher />
+        <Logout />
       </Stack>
     </Stack>
   );

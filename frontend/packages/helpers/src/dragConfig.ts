@@ -4,16 +4,17 @@ export const dragToCloseConfig = (
   config?: IDragConfig,
   dir: Direction = "left",
 ): IDragConfig => {
-  const finalConfig: IDragConfig = config ?? {
-    axis: dir === "up" || dir === "down" ? "y" : "x",
-    dragOrigin: dir === "left" ? "ltr" : dir === "right" ? "rtl" : undefined,
-  };
+  const axis = config?.axis || (dir === "up" || dir === "down" ? "y" : "x");
+  const dragOrigin =
+    config?.dragOrigin ||
+    (dir === "left" ? "ltr" : dir === "right" ? "rtl" : undefined);
+  const closeAtMiddle = config?.closeAtMiddle ?? false;
+  const threshold = config?.threshold || 150;
 
-  const { axis, dragOrigin, threshold, closeAtMiddle } = finalConfig;
   return {
-    axis: axis,
-    dragOrigin: dragOrigin,
-    closeAtMiddle: closeAtMiddle,
-    threshold: threshold,
+    axis,
+    dragOrigin,
+    closeAtMiddle,
+    threshold,
   };
 };

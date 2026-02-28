@@ -58,7 +58,7 @@ export const Logout = () => {
             <Typography variant="body2"
                 sx={{
                     fontWeight: "600",
-                    fontSize: "18px",
+                    color: theme.palette.gray[300],
                     textAlign: "left",
                     "&:hover": {
                         color: theme.palette.primary.dark,

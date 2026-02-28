@@ -34,8 +34,7 @@ export interface DrawerProps {
     base?: Direction,
     mobile?: Direction
   };
-  dragToClose?: boolean;
-  handleDrag?: () => IDragResult;
+  useDragConfig?: () => IDragResult;
   blurOverlayBG?: boolean;
   source?: string;
   style?: {
@@ -49,8 +48,8 @@ export interface DrawerProps {
 
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
   (
-    { showHeader = true, header, content, transDirection, clickToClose = true, dragToClose = false,
-      onClose, style, handleDrag, blurOverlayBG
+    { showHeader = true, header, content, transDirection, clickToClose = true,
+      onClose, style, useDragConfig, blurOverlayBG
     },
     ref
   ) => {
@@ -70,13 +69,14 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     const transDir = isDesktop ? baseDir : mobileDir
 
     // Drag config
-    const getDragConfig = () => {
-      if (!dragToClose || !handleDrag) return null;
-      return handleDrag()
-    }
-    const dragOffset = getDragConfig()?.dragOffset || 0
-    const axis = getDragConfig()?.axis
-    const handlers = getDragConfig()?.handlers
+    // const dragConfig = () => {
+    //   if (!useDragConfig) return null;
+    //   return useDragConfig()
+    // }
+    const dragConfig = useDragConfig ? useDragConfig() : null;
+    const dragOffset = dragConfig?.dragOffset ?? 0
+    const axis = dragConfig?.axis
+    const handlers = dragConfig?.handlers
 
     useImperativeHandle(ref, () => ({
       openDrawer: () => {
@@ -135,15 +135,14 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
         }}>
 
         {/* Drawer Content Container */}
-        < Transition show={isOpen}
+        <Transition show={isOpen}
           timeout={200} type="slide" direction={transDir}
           onExited={() => setShouldRemove(true)}>
           <Stack
             // Drag event on X axis
-            {...(dragToClose && isMobile && handlers &&
-            {
-              onTouchStart: (e: React.TouchEvent) => handlers.onTouchStart(e),
-              onTouchMove: (e: React.TouchEvent) => handlers.onTouchMove(e),
+            {...(isMobile && handlers && {
+              onTouchStart: handlers.onTouchStart,
+              onTouchMove: handlers.onTouchMove,
               onTouchEnd: () => handlers.onTouchEnd(() => setOpen(false)),
             })}
             sx={{
@@ -157,13 +156,17 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               touchAction: "none",
 
               // Drag styling
-              ...(dragOffset > 0 && {
-                // This allows the Slide to happen, but adds our drag X & Y on top of it
-                transform: `translate${axis === "x" ? "X" : "Y"}(var(--drag-offset, 0px))!important`,
-                // We only want a transition when the user lets go (snapping back)
-                transition: dragOffset === 0
-                  ? "transform 0.3s cubic-bezier(0, 0, 0.2, 1)!important"
-                  : "none !important",
+              ...(dragOffset !== 0 && {
+                transform: axis === "x"
+                  ? `translateX(${dragOffset}px) !important`
+                  : `translateY(${dragOffset}px) !important`,
+                transition: "none !important",
+              }),
+              ...(dragOffset === 0 && {
+                transition: theme.transitions.create("transform", {
+                  easing: "cubic-bezier(0, 0, 0.2, 1)",
+                  duration: 0.3,
+                }),
               }),
 
               ...style?.base?.content,
@@ -180,9 +183,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
                 maxWidth: style?.smallScreen?.content?.maxWidth ?? "100%",
                 ...style?.smallScreen?.content
               },
-              "--drag-offset": `${dragOffset}px`,
-            }}
-          >
+            }}>
             {
               /* Drawer with Header*/
               showHeader && (
@@ -194,7 +195,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
                   }}>
 
                   {/* Drag Handle UI */}
-                  {isMobile && dragToClose && axis === "y" && (
+                  {dragConfig && isMobile && axis === "y" && (
                     <Box sx={{
                       width: "50px",
                       height: "6px",

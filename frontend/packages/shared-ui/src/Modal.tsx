@@ -107,7 +107,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
           }
         }}>
 
-        {/* Drawer Content Container */}
+        {/* Modal Content Container */}
         <Transition show={isOpen}
           timeout={200} {...trans} onExited={() => setShouldRemove(true)}>
           <Stack
@@ -160,7 +160,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
                       {header && header}
                       {canBeClosed && (
                         <IconButton
-                          aria-label="Drawer closer"
+                          aria-label="Modal closer"
                           aria-controls="close-drawer"
                           aria-haspopup="true"
                           ref={closeRef}
@@ -195,4 +195,4 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
     );
   }
 );
-Modal.displayName = "Drawer";
+Modal.displayName = "Modal";

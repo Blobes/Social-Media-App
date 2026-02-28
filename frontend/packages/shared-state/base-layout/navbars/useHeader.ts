@@ -53,8 +53,7 @@ export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
       ...element.mobile,
       source: "navbar",
       onClose: closeDrawer,
-      dragToClose: true,
-      handleDrag: () => useDragClose(dragToCloseConfig()),
+      useDragConfig: () => useDragClose(dragToCloseConfig()),
       style: {
         base: { overlay: { padding: theme.boxSpacing(6) } },
         smallScreen: {
