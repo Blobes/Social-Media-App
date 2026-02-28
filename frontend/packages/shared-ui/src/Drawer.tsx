@@ -68,11 +68,6 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     const mobileDir = transDirection?.mobile ?? baseDir;
     const transDir = isDesktop ? baseDir : mobileDir
 
-    // Drag config
-    // const dragConfig = () => {
-    //   if (!useDragConfig) return null;
-    //   return useDragConfig()
-    // }
     const dragConfig = useDragConfig ? useDragConfig() : null;
     const dragOffset = dragConfig?.dragOffset ?? 0
     const axis = dragConfig?.axis
@@ -112,8 +107,6 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           visibility: !shouldRemove ? "visible" : "hidden",
           transition: "opacity 0.3s ease-in-out, visibility 0.3s",
           opacity: isOpen ? 1 : 0,
-          // backgroundColor: theme.palette.gray.trans.overlay(isOpen || dragOffset ? 0.6 - dragOffset / 400 : 0),
-          // backdropFilter: `blur(${isOpen ? Math.max(0, 6 - dragOffset / 50) : 0}px)`,
           marginLeft: "0!important",
           padding: theme.boxSpacing(12),
           ...applyBGEffects(theme).opaque(isOpen, dragOffset),
