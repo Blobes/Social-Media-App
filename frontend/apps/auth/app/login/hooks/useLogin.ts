@@ -106,7 +106,6 @@ export const useLogin = ({ email, setStep }: any) => {
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (isLocked) return;
-
     setAuthLoading(true);
     try {
       const res = await login({ email, password });

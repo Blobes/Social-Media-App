@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { IUser, UIMode } from "@repo/types";
-import { cacheAuthor, getCachedAuthor } from "@repo/helpers";
+import { getCachedAuthor } from "@repo/helpers";
 
 export const useGistAuthor = (
   authorId: string,
@@ -20,7 +20,6 @@ export const useGistAuthor = (
           : await getCachedAuthor(authorId);
       if (authorRes) {
         setAuthor(authorRes);
-        cacheAuthor(authorRes);
       } else {
         setError("Failed to load author");
       }

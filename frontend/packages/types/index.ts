@@ -12,6 +12,8 @@ export type Direction = "left" | "right" | "up" | "down";
 export type UIMode = "online" | "offline";
 export type DateType = "shortened" | "complete" | "date-only";
 export type SnackbarStatus = "SUCCESS" | "ERROR" | "INFO" | "WARNING" | null;
+type PostStatus = "ACTIVE" | "DELETED";
+export type IPost = (IGist & { type: "gist" }) | (IStake & { type: "stake" });
 
 // Interfaces
 export type GenericObject<T> = {
@@ -48,6 +50,13 @@ export interface IUser {
   updatedAt?: string;
 }
 
+export interface IPostVersion {
+  originalPostId?: string;
+  version: number;
+  editCount: number;
+  isLatest: boolean;
+}
+
 export interface IGist {
   _id: string;
   authorId: string;
@@ -55,8 +64,10 @@ export interface IGist {
   media: string[] | null;
   likeCount: number;
   likedByMe: boolean;
+  commentCount: number;
   createdAt: number;
-  status: "ACTIVE" | "DELETED";
+  status: PostStatus;
+  versioning?: IPostVersion;
 }
 
 export interface IStake {
@@ -140,8 +151,6 @@ export interface IMedia {
   type?: "image" | "video";
   viewMode?: "list" | "isolated";
 }
-
-export type IFeed = (IGist & { type: "gist" }) | (IStake & { type: "stake" });
 
 export interface IDragConfig {
   axis: "x" | "y";

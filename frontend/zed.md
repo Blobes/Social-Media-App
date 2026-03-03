@@ -318,3 +318,64 @@ fi
 ],
 "exclude": ["node_modules"]
 }
+
+export const cacheFeed = async (newFeed: IPost[]) => {
+const now = new Date();
+const DAY*IN_MS = 1000 * 60 \_ 60 \* 24;
+
+// 1. Retrieve current cache
+const savedPost = ((await get("feed")) as Cached[]) || [];
+const authorDictionary = (await get("cached-authors")) || {};
+
+// 2. Filter existing posts (7-day rule)
+const filteredSavedFeed = savedPost.filter((item) => {
+const lastViewed = new Date(item.lastViewed);
+const diffInDays = Math.floor(
+(now.getTime() - lastViewed.getTime()) / DAY_IN_MS,
+);
+return diffInDays <= 7;
+});
+
+// 3. Merge old posts with new posts
+const postMap = new Map<string, Cached>();
+filteredSavedFeed.forEach((item) => postMap.set(item.post.\_id, item));
+
+newFeed.forEach((item) => {
+postMap.set(item.\_id, { post: item, lastViewed: new Date() });
+});
+
+const finalFeed = Array.from(postMap.values());
+
+// 4. AUTHOR CLEANUP
+// Create a Set of all author IDs that have at least one post in the final list
+const activeAuthorIds = new Set(finalFeed.map((item) => item.post.authorId));
+
+// Get all IDs currently in the author cache
+const cachedAuthorIds = Object.keys(authorDictionary);
+
+cachedAuthorIds.forEach((id) => {
+// If an author in the cache is NOT linked to any current post, delete them
+if (!activeAuthorIds.has(id)) {
+delete authorDictionary[id];
+}
+});
+
+// 5. Save back to IndexedDB
+await Promise.all([
+set("feed", finalFeed),
+set("cached-authors", authorDictionary),
+]);
+};
+
+// const handleVisibility = async () => {
+// const recentlyAway = getCookie("recently_away");
+
+    //   if (document.visibilityState === "visible") {
+    //     if (!recentlyAway) {
+    //       //   await verifyAuth();
+    //     }
+    //   }
+    //   if (document.visibilityState === "hidden") {
+    //     setCookie("recently_away", "true", 12);
+    //   }
+    // };

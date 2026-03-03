@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-import { PostModel } from "@/models";
+import { PostModel } from "@/models/user";
 import { Request, Response } from "express";
 
 export const getUserPosts = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<any> => {
   const userId = req.params.id;
 

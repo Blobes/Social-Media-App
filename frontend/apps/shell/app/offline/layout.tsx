@@ -2,7 +2,7 @@ import { ClientOnly, SharedProviders } from "@repo/shared-state";
 import { Wrapper } from "./Wrapper";
 import { BaseLayout } from "@repo/shared-ui";
 
-export default function AppLayout({
+export default function ShellLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

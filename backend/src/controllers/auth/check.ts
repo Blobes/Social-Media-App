@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import { UserModel } from "@/models";
+import { UserModel } from "@/models/user";
 
 export const checkUsername = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<any> => {
   const { username } = req.body as { username?: string };
   if (!username) {
@@ -27,11 +27,11 @@ export const checkUsername = async (
   // e.g. if username="alex", this regex matches "alex", "alex1", "alex2", ...
   const regex = new RegExp(`^${username}\\d*$`, "i");
   const taken = await UserModel.find({ username: regex }).select(
-    "username -_id"
+    "username -_id",
   );
 
   const takenSet = new Set(
-    taken.map((u) => (u.username ? u.username.toLowerCase() : ""))
+    taken.map((u) => (u.username ? u.username.toLowerCase() : "")),
   );
 
   // 3. Build suggestions by appending incremental digits

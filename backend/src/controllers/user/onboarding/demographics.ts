@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { UserModel } from "@/models";
+import { UserModel } from "@/models/user";
 import bcrypt from "bcrypt";
 import { Response } from "express";
 import { AuthRequest } from "@/middlewares/verifyAuthToken";
@@ -16,7 +16,7 @@ interface DemographicsRequest extends AuthRequest {
 }
 export const demographicsSetup = async (
   req: DemographicsRequest,
-  res: Response
+  res: Response,
 ): Promise<any> => {
   const targetUserId = req.params.id;
   const { id: currUserId, isAdmin } = req.user || {};

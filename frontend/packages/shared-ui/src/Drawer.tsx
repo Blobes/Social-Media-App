@@ -105,7 +105,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           height: "100%",
           zIndex: 1000,
           visibility: !shouldRemove ? "visible" : "hidden",
-          transition: "opacity 0.3s ease-in-out, visibility 0.3s",
+          transition: "opacity 0.3s ease-in-out, visibility 0.3s, background-color 0.3s",
           opacity: isOpen ? 1 : 0,
           marginLeft: "0!important",
           padding: theme.boxSpacing(12),

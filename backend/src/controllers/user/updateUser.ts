@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { UserModel } from "@/models";
+import { UserModel } from "@/models/user";
 import bcrypt from "bcrypt";
 import { Response } from "express";
 import { AuthRequest } from "@/middlewares/verifyAuthToken";
@@ -22,7 +22,7 @@ interface UserInfoRequest extends AuthRequest {
 }
 export const updateUserInfo = async (
   req: UserInfoRequest,
-  res: Response
+  res: Response,
 ): Promise<any> => {
   const targetUserId = req.params.id;
   const { id: currUserId, isAdmin } = req.user || {};
@@ -78,7 +78,7 @@ export const updateUserInfo = async (
     const updatedUser = await UserModel.findByIdAndUpdate(
       targetUserId,
       allowedUpdates,
-      { new: true }
+      { new: true },
     );
 
     const { password, ...userDetails } = updatedUser?.toObject() || {};
@@ -106,7 +106,7 @@ interface PassWordRequest extends AuthRequest {
 }
 export const updateUserPassword = async (
   req: PassWordRequest,
-  res: Response
+  res: Response,
 ): Promise<any> => {
   const targetUserId = req.params.id;
   const { id: currUserId, isAdmin } = req.user || {};
@@ -176,7 +176,7 @@ interface UserEmailRequest extends AuthRequest {
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const updateUserEmail = async (
   req: UserEmailRequest,
-  res: Response
+  res: Response,
 ): Promise<any> => {
   const targetUserId = req.params.id;
   const { id: currUserId, isAdmin } = req.user || {};
@@ -240,7 +240,7 @@ export const updateUserEmail = async (
     const updatedUser = await UserModel.findByIdAndUpdate(
       targetUserId,
       { email: newEmail },
-      { new: true }
+      { new: true },
     );
 
     // Return minimal user info (id and email) to avoid info leak

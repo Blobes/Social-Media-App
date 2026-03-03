@@ -1,10 +1,10 @@
 import { hashCode } from "@/helper";
-import { UserModel } from "@/models";
+import { UserModel } from "@/models/user";
 import { Request, Response } from "express";
 
 export const verifyEmail = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<any> => {
   const { email, code } = req.body;
 

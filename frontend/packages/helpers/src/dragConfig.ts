@@ -9,7 +9,7 @@ export const dragToCloseConfig = (
     config?.dragOrigin ||
     (dir === "left" ? "ltr" : dir === "right" ? "rtl" : undefined);
   const closeAtMiddle = config?.closeAtMiddle ?? false;
-  const threshold = config?.threshold || 150;
+  const threshold = config?.threshold || 60;
 
   return {
     axis,

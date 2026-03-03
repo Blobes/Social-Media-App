@@ -1,21 +1,21 @@
 import mongoose from "mongoose";
-import { PostModel, UserModel } from "@/models";
+import { UserModel } from "@/models/user";
 import { Response } from "express";
 import { AuthRequest } from "@/middlewares/verifyAuthToken";
+import { GistModel } from "@/models/post/gist";
 
 interface CreateRequest extends AuthRequest {
   body: {
     content: string;
-    postImage?: string; // optional if not always provided
   };
 }
 
-export const createPost = async (
+export const createGist = async (
   req: CreateRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const userId = req.user?.id;
-  const { content, postImage } = req.body;
+  const { content } = req.body;
 
   // Validate content
   if (!content?.trim()) {
@@ -48,10 +48,9 @@ export const createPost = async (
       return;
     }
 
-    const newPost = await PostModel.create({
+    const newPost = await GistModel.create({
       authorId: userId,
       content: content.trim(),
-      postImage,
     });
 
     res.status(201).json({
@@ -69,4 +68,4 @@ export const createPost = async (
   }
 };
 
-export default createPost;
+export default createGist;

@@ -2,7 +2,6 @@ export * from "./GlobalContext";
 export * from "./Providers";
 export * from "./base-layout/ClientOnly";
 export * from "./base-layout/Wrapper";
-export * from "./hooks/useAnimation";
 export * from "./hooks/useColor";
 export * from "./hooks/useDateTime";
 export * from "./hooks/useDrag";

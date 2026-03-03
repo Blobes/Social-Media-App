@@ -55,10 +55,12 @@ export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
       onClose: closeDrawer,
       useDragConfig: () => useDragClose(dragToCloseConfig()),
       style: {
-        base: { overlay: { padding: theme.boxSpacing(6) } },
-        smallScreen: {
-          overlay: { padding: theme.boxSpacing(0) },
+        base: {
+          overlay: { padding: theme.boxSpacing(6), display: "none" },
           content: { height: "100%", borderRadius: "0px" },
+        },
+        smallScreen: {
+          overlay: { padding: theme.boxSpacing(0), display: "flex" },
         },
         header: {
           justifyContent: "space-between",

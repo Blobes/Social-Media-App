@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
-import { UserModel } from "@/models";
+import { UserModel } from "@/models/user";
 import { Response } from "express";
 import { AuthRequest } from "@/middlewares/verifyAuthToken";
 
 export const followUser = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<any> => {
   const targetUserId = req.params.id;
   const currUserId = req.user?.id;

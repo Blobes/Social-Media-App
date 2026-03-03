@@ -1,4 +1,4 @@
-import { UserModel } from "@/models";
+import { UserModel } from "@/models/user";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import { genAccessTokens, genRefreshTokens } from "@/helper";

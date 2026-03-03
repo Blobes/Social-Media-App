@@ -9,12 +9,12 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGlobalContext } from "../../GlobalContext";
-import { Strip, RenderItemList, MenuRef, MenuPopup, ThemeSwitcher } from "@repo/shared-ui";
+import { Strip, RenderItemList, MenuRef, MenuPopup, ThemeSwitcher, StatusSwitcher } from "@repo/shared-ui";
 import { Logout } from "@repo/auth/shared";
 import { summarizeNum } from "@repo/helpers";
 import { useNavLists } from "../../hooks/useNavLists";
 import { useMisc } from "../../hooks/useMisc";
-import { CircleCheckBig, WalletMinimal } from "lucide-react";
+import { CircleCheckBig, SlidersHorizontal, WalletMinimal } from "lucide-react";
 import { usePage } from "../../hooks/usePage";
 
 
@@ -143,13 +143,6 @@ export const MobileNav = ({ }) => {
     <Stack>
       <UserInfo />
       <Divider />
-      <Stack direction="row" gap={theme.gap(10)} alignItems="center">
-        <CircleCheckBig style={{ width: "18px", height: "18px" }} />
-        <Typography variant="body2" sx={{ fontWeight: "600" }}>
-          Active now
-        </Typography>
-      </Stack>
-      <Divider />
       <Stack gap={theme.gap(10)}>
         <RenderItemList
           list={userNavList}
@@ -176,7 +169,14 @@ export const MobileNav = ({ }) => {
             },
           }} />
         <Divider />
+        <StatusSwitcher />
         <ThemeSwitcher />
+        <Stack direction="row" gap={theme.gap(10)} alignItems="center">
+          <SlidersHorizontal style={{ width: "18px", height: "18px" }} />
+          <Typography variant="body2" sx={{ fontWeight: "600" }}>
+            Filter feed
+          </Typography>
+        </Stack>
         <Logout />
       </Stack>
     </Stack>

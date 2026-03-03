@@ -5,11 +5,10 @@ import Image from "next/image";
 import { Bell } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { DesktopNav, MobileNav } from "./Nav";
-import { SearchContainer, UserAvatar, AnchorLink, AppButton } from "@repo/shared-ui";
+import { UserAvatar, AnchorLink, AppButton, SearchBar } from "@repo/shared-ui";
 import { useHeader } from "./useHeader";
 import { clientRoutes } from "@repo/helpers";
 import { img } from "@repo/assets"
-import { useAnimation } from "../../hooks/useAnimation";
 
 interface HeaderProps {
     scrollRef?: React.RefObject<HTMLElement | null>;
@@ -54,7 +53,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
             </AnchorLink>
 
             {/* Search */}
-            {isDesktop && isLoggedIn && <SearchContainer animateBorder={useAnimation().animateBorder} />}
+            {isDesktop && isLoggedIn && <SearchBar />}
 
             {/* Right controls */}
             <Stack direction="row" alignItems="center" spacing={theme.gap(6)}>
@@ -70,7 +69,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
                                 padding: theme.boxSpacing(4),
                                 border: `1px solid ${theme.palette.gray.trans[1]}`,
                             }} >
-                            <Bell style={{ width: "100%", stroke: theme.palette.primary.dark }} />
+                            <Bell style={{ width: "100%", stroke: theme.palette.gray[200] }} />
                         </IconButton>
 
                         {/* User Avatar  */}

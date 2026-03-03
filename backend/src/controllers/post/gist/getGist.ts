@@ -1,8 +1,8 @@
-import { PostModel } from "@/models";
+import { PostModel } from "@/models/user";
 import mongoose from "mongoose";
 import { Request, Response } from "express";
 
-const getPost = async (req: Request, res: Response): Promise<any> => {
+const getGist = async (req: Request, res: Response): Promise<any> => {
   const postId = req.params.id;
 
   if (!mongoose.Types.ObjectId.isValid(postId)) {
@@ -38,4 +38,4 @@ const getPost = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
-export default getPost;
+export default getGist;

@@ -1,6 +1,7 @@
 "use client";
 
 import { img } from "@repo/assets";
+import { rotate } from "./animations";
 
 export const scrollBarStyle = (theme: any) => {
   return {
@@ -59,31 +60,6 @@ export const applyBGPattern = () => ({
   },
 });
 
-// const applyBGEffect = (effect: string) => ({
-//   "&::before": {
-//     content: '""',
-//     position: "absolute",
-//     inset: "-20%",
-//     background: effect, // Created from processVibrantColor
-//     filter: "blur(80px) saturate(3.5)", // CRITICAL: High saturation and blur
-//     opacity: 0.8,
-//     zIndex: 0,
-//   },
-//   "&::after": {
-//     content: '""',
-//     position: "absolute",
-//     inset: 0,
-//     // Adds that high-end white glossy tint
-//     background: `linear-gradient(135deg,
-//       rgba(255,255,255,0.5) 0%,
-//       rgba(255,255,255,0) 100%)`,
-//     border: "1px solid rgba(255, 255, 255, 0.3)", // The "edge" of the glass
-//     zIndex: 1,
-//   },
-// });
-
-type Effect = "opaque" | "overlay" | "zoom" | "blur";
-
 export const applyBGEffects = (theme: any) => ({
   // Fade in the overlay
   overlay: {
@@ -121,9 +97,49 @@ export const applyBGEffects = (theme: any) => ({
   opaque: (isActive?: boolean, offset?: number) => ({
     backgroundColor:
       isActive && offset
-        ? theme.palette.gray.trans.overlay(
-            isActive || offset ? 0.6 - offset / 400 : 0,
-          )
+        ? theme.palette.gray.trans.overlay(isActive ? 0.6 - offset / 400 : 0)
         : theme.palette.gray.trans.overlay(0.6),
   }),
 });
+
+interface BorderParams {
+  borderWidth?: number;
+  duration?: string;
+  borderColor?: string;
+  borderRadius?: string;
+}
+export const animatedBorder = ({
+  borderWidth = 1,
+  duration = "20s",
+  borderColor,
+  borderRadius,
+}: BorderParams) => {
+  const magicColorMix = `linear-gradient( #7928ca, #0070f3, #00dfd8)`;
+  return {
+    position: "relative",
+    zIndex: 0,
+    overflow: "hidden",
+    borderRadius: borderRadius,
+
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      zIndex: -2,
+      left: "-50%",
+      top: "-50%",
+      width: "300%",
+      height: "300%",
+      background: borderColor || magicColorMix,
+      animation: `${rotate} ${duration} linear infinite`,
+    },
+
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      zIndex: -1,
+      inset: borderWidth,
+      borderRadius: borderRadius,
+      backgroundColor: "inherit",
+    },
+  };
+};

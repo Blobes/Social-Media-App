@@ -8,7 +8,7 @@ import {
   getLocationFromIP,
   hashCode,
 } from "@/helper";
-import { UserModel } from "@/models";
+import { UserModel } from "@/models/user";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import { sendVerificationEmail } from "./sendEmailCode";

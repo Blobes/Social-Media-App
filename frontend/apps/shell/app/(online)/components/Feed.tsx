@@ -2,7 +2,7 @@
 
 import { Stack, Typography } from "@mui/material";
 import { VibeSlider } from "../vibezSlider/Slider";
-import { ProgressIcon, Empty } from "@repo/shared-ui";
+import { Empty, GistSkeleton, StakeSkeleton } from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
 import { useFeed } from "../useFeed";
 import { useMemo } from "react";
@@ -39,13 +39,10 @@ export const Feed = () => {
             <VibeSlider />
 
             {isLoading ? (
-                <Stack sx={{
-                    height: "100%",
-                    alignItems: "center",
-                    justifyContent: "center"
-                }}>
-                    <ProgressIcon otherProps={{ size: 24 }} />
-                </Stack>
+                <>
+                    <GistSkeleton />
+                    <StakeSkeleton />
+                </>
             ) : (feed.length < 1 ? (
                 <Empty
                     tagline={message || "Something went wrong, check your network"}

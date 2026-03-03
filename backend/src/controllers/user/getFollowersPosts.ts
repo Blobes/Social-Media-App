@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-import { PostModel, UserModel } from "@/models";
+import { PostModel, UserModel } from "@/models/user";
 import { Request, Response } from "express";
 
 export const getFollowersPosts = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<any> => {
   const targetUserId = req.params.id;
 
@@ -18,9 +18,8 @@ export const getFollowersPosts = async (
 
   try {
     // Fetch the current user to get their following list
-    const currentUser = await UserModel.findById(targetUserId).select(
-      "following"
-    );
+    const currentUser =
+      await UserModel.findById(targetUserId).select("following");
     if (!currentUser) {
       return res.status(404).json({
         message: "User not found",

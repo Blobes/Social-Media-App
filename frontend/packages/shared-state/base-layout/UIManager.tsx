@@ -5,15 +5,14 @@ import { useGlobalContext } from "../GlobalContext";
 import { Drawer, DrawerRef, Modal, ModalRef, SnackBars, PageLoaderUI } from "@repo/shared-ui"
 import { useMisc } from "../hooks/useMisc";
 import { usePage } from "../hooks/usePage";
-import { useEvent } from "../hooks/useEvents";
+import { useEventListener } from "../hooks/useEvents";
 import { useSnackbar } from "../hooks/useSnackbar";
 import { useAuth } from "@repo/auth/shared";
 import { usePathname } from "next/navigation";
-import { registerSW, delay } from "@repo/helpers";
+import { registerSW, delay, cleanupCache } from "@repo/helpers";
 
 
 export const UIManager = ({ children }: { children: React.ReactNode }) => {
-    const { handleBrowserEvents } = useEvent();
     const drawerRef = useRef<DrawerRef>(null);
     const modalRef = useRef<ModalRef>(null);
     const { openDrawer, openModal, verifySignal } = useMisc();
@@ -23,6 +22,9 @@ export const UIManager = ({ children }: { children: React.ReactNode }) => {
     const pathname = usePathname();
     const { verifyAuth } = useAuth()
     const { setSBTimer, removeSBMessage } = useSnackbar();
+
+    // Register events
+    useEventListener();
 
     useEffect(() => {
         const init = async () => {
@@ -34,6 +36,7 @@ export const UIManager = ({ children }: { children: React.ReactNode }) => {
                 await verifyAuth();
             } finally {
                 setGlobalLoading(false);
+                cleanupCache();
             }
         };
         init();
@@ -53,7 +56,6 @@ export const UIManager = ({ children }: { children: React.ReactNode }) => {
     // // Page Load Handler
     useEffect(() => {
         handleCurrentPage();
-        handleBrowserEvents();
     }, [pathname]);
 
     // Page loader UI
@@ -63,9 +65,6 @@ export const UIManager = ({ children }: { children: React.ReactNode }) => {
         networkStatus === "UNKNOWN"
     if (isInitializing) return <PageLoaderUI />;
 
-
-    // const noWrapperPaths = [...registeredRoutes.auth, ...registeredRoutes.web];
-    // const showWrapper = !noWrapperPaths.includes(pathname);
     // Render the app UIs
     return (
         <>

@@ -1,6 +1,6 @@
 import { AuthRequest } from "@/middlewares/verifyAuthToken";
 import { RequestHandler, Response } from "express";
-import { UserModel } from "@/models";
+import { UserModel } from "@/models/user";
 
 export const verifyUser: RequestHandler = async (
   req: AuthRequest,

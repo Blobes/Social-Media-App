@@ -3,7 +3,7 @@
 import { Stack } from "@mui/material";
 import { GistCard } from "../shared/GistCard";
 import { CreateGist } from "./CreateGist";
-import { ProgressIcon, Empty } from "@repo/shared-ui";
+import { Empty, GistSkeleton } from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
 import { useGists } from "../shared/useGists";
 import { useMemo } from "react";
@@ -39,13 +39,7 @@ export const Gists = () => {
       <CreateGist />
 
       {isLoading ? (
-        <Stack sx={{
-          height: "100%",
-          alignItems: "center",
-          justifyContent: "center"
-        }}>
-          <ProgressIcon otherProps={{ size: 24 }} />
-        </Stack>
+        <GistSkeleton />
       ) : gists.length < 1 ? (
         <Empty
           tagline={message || "Something went wrong, check your network"}

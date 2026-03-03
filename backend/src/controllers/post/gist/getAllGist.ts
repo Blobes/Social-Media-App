@@ -1,13 +1,13 @@
-import { PostModel, PostLikeModel } from "@/models";
 import { Response } from "express";
 import { AuthRequest } from "@/middlewares/verifyAuthToken";
 import mongoose from "mongoose";
+import { GistLikeModel, GistModel } from "@/models/post/gist";
 
-export const getAllPost = async (req: AuthRequest, res: Response) => {
+export const getAllGist = async (req: AuthRequest, res: Response) => {
   const userId = req.user?.id; // Logged-in user
 
   try {
-    const posts = await PostModel.find()
+    const posts = await GistModel.find()
       .sort({ createdAt: -1 })
       .select("_id authorId content likeCount createdAt postImage status")
       .lean();
@@ -17,13 +17,13 @@ export const getAllPost = async (req: AuthRequest, res: Response) => {
       posts.map(async (post) => {
         let likedByMe = false;
         if (userId) {
-          likedByMe = !!(await PostLikeModel.exists({
+          likedByMe = !!(await GistLikeModel.exists({
             postId: new mongoose.Types.ObjectId(post._id),
             userId,
           }));
         }
         return { ...post, likedByMe };
-      })
+      }),
     );
 
     res.status(200).json({
