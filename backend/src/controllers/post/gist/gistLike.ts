@@ -13,17 +13,17 @@ export const gistLike = async (
   // 1. Initial Validation
   if (!userId) {
     return res.status(401).json({
+      payload: null,
       status: "ERROR",
       message: "Unauthorized",
-      payload: null,
     });
   }
 
   if (!mongoose.Types.ObjectId.isValid(gistId)) {
     return res.status(400).json({
+      payload: null,
       status: "ERROR",
       message: "Invalid gist ID",
-      payload: null,
     });
   }
 
@@ -37,9 +37,9 @@ export const gistLike = async (
     if (!gist) {
       await session.abortTransaction();
       return res.status(404).json({
+        payload: null,
         status: "ERROR",
         message: "Gist not found",
-        payload: null,
       });
     }
 
@@ -108,9 +108,9 @@ export const gistLike = async (
 
     console.error("Like Gist Error:", error);
     return res.status(500).json({
+      payload: null,
       status: "ERROR",
       message: error.message || "Server error while toggling like",
-      payload: null,
     });
   } finally {
     session.endSession();

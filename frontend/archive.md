@@ -427,3 +427,20 @@ handleAuthor();
 
 return { author, error };
 };
+
+// export const cacheAuthor = async (author: IAuthor) => {
+// if (!author || !author.\_id) return;
+
+// try {
+// // 1. Get the existing dictionary or initialize an empty object
+// const cachedAuthors = (await get("cached-authors")) || {};
+
+// // 2. Add/Update the author using their ID as the key
+// cachedAuthors[author._id] = author;
+
+// // 3. Save back to IndexedDB
+// await set("cached-authors", cachedAuthors);
+// } catch (error) {
+// console.error("Failed to cache author:", error);
+// }
+// };

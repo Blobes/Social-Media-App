@@ -11,7 +11,7 @@ export type NetworkStatus = "STABLE" | "UNSTABLE" | "OFFLINE" | "UNKNOWN";
 export type Direction = "LEFT" | "RIGHT" | "UP" | "DOWN";
 export type UIMode = "ONLINE" | "OFFLINE";
 export type DateType = "SHORTENED" | "COMPLETE" | "DATE-ONLY";
-export type SnackbarStatus = "SUCCESS" | "ERROR" | "INFO" | "WARNING" | null;
+export type FetchStatus = "SUCCESS" | "ERROR" | "INFO" | "WARNING" | null;
 
 // Interfaces
 export type GenericObject<T> = {
@@ -69,7 +69,7 @@ export interface IMessage {
   id?: number;
   title?: string | null;
   content?: string | null;
-  msgStatus?: SnackbarStatus;
+  msgStatus?: FetchStatus;
   behavior?: "FIXED" | "TIMED";
   duration?: number;
   hasClose?: boolean;
@@ -88,13 +88,13 @@ export interface ISnackBarMsg {
 export interface ISingleResponse<T> {
   message: string;
   payload: T | null;
-  status: SnackbarStatus;
+  status: FetchStatus;
 }
 
 export interface IListResponse<T> {
   message: string;
-  payload?: T[] | null;
-  status: SnackbarStatus;
+  payload: T[] | null;
+  status: FetchStatus;
 }
 
 export interface InputValidation {

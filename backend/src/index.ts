@@ -5,7 +5,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import authRoutes from "@/routes/auth";
 import userRoutes from "@/routes/user";
-import postRoutes from "@/routes/post";
+import gistRoutes from "@/routes/post/gist";
+import feedRoutes from "@/routes/post/feed";
 import mediaRoutes from "@/routes/media";
 import cookieParser from "cookie-parser";
 import path from "path";
@@ -38,7 +39,8 @@ app.get("/healthz", (_req: Request, res: Response): void => {
 // ====== Routes ======
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/gists", postRoutes);
+app.use("/api/feed", feedRoutes);
+app.use("/api/gists", gistRoutes);
 app.use("/api/media", mediaRoutes);
 
 // ====== DB Connection ======

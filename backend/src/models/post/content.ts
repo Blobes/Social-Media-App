@@ -10,7 +10,7 @@ const PostContentSchema = new Schema(
     postType: {
       type: String,
       required: true,
-      enum: ["Gist", "Stake"],
+      enum: ["GIST", "STAKE"],
     },
     content: { type: String, required: true },
     version: { type: Number, required: true, default: 1 },

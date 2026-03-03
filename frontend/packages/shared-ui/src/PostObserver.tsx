@@ -13,7 +13,7 @@ interface ObserverProps {
 
 export const PostObserver = ({ post, type, children }: ObserverProps) => {
     const elementRef = useRef<HTMLDivElement>(null);
-    const postData = { ...post, type } as IPost
+    const postData = { ...post, postType: type } as IPost
 
     useEffect(() => {
         const observer = new IntersectionObserver(

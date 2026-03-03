@@ -1,27 +1,21 @@
 import express from "express";
-import getUser from "@/controllers/user/getUser";
-import {
-  updateUserInfo,
-  updateUserEmail,
-  updateUserPassword,
-} from "@/controllers/user/updateUser";
-import { deleteUser } from "@/controllers/user/deleteUser";
-import followUser from "@/controllers/user/followUser";
+import getUser from "@/controllers/user/profile/getUser";
+import { updateUserInfo } from "@/controllers/user/profile/updateInfo";
+import { deleteUser } from "@/controllers/user/account/deleteAccount";
+import followUser from "@/controllers/user/account/followUser";
 import verifyAuthToken from "@/middlewares/verifyAuthToken";
-import { getUserPosts } from "@/controllers/user/getUserPosts";
-import { getFollowersPosts } from "@/controllers/user/getFollowersPosts";
-import { getFollowers } from "@/controllers/user/getFollowers";
+import { getFollowers } from "@/controllers/user/account/getFollowers";
+import { updateUserEmail } from "@/controllers/user/account/updateEmail";
+import { updateUserPassword } from "@/controllers/user/account/updatePassword";
 
 const router = express.Router();
 
 router.get("/:id", getUser);
-router.put("/:id/update-user-info", verifyAuthToken, updateUserInfo);
-router.put("/:id/update-user-email", verifyAuthToken, updateUserEmail);
-router.put("/:id/update-user-password", verifyAuthToken, updateUserPassword);
+router.put("/:id/update-info", verifyAuthToken, updateUserInfo);
+router.put("/:id/update-email", verifyAuthToken, updateUserEmail);
+router.put("/:id/update-password", verifyAuthToken, updateUserPassword);
 router.delete("/:id", verifyAuthToken, deleteUser);
 router.put("/:id/follow", verifyAuthToken, followUser);
 router.get("/:id/followers", verifyAuthToken, getFollowers);
-router.get("/:id/posts", verifyAuthToken, getUserPosts);
-router.get("/:id/followers-posts", verifyAuthToken, getFollowersPosts);
 
 export default router;

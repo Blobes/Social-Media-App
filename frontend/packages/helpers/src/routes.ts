@@ -62,6 +62,11 @@ export const serverApi = {
   refreshToken: "/api/auth/refresh",
   mediaUpload: "/api/media/get-upload-url",
 
+  // Feed
+  feed: "/api/feed",
+  userFeed: (id: string) => `/api/feed/${id}`,
+  followersFeed: "/api/feed/followers",
+
   // Gists
   gists: "/api/gists",
   likeGist: (id: string) => `/api/gists/${id}/like`,

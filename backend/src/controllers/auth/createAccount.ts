@@ -1,4 +1,4 @@
-import { UserModel } from "@/models/user";
+import { UserModel } from "@/models/user/user";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import { sendVerificationEmail } from "./sendEmailCode";

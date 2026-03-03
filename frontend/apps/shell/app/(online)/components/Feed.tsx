@@ -14,7 +14,7 @@ import { autoScroll } from "@repo/helpers";
 
 export const Feed = () => {
     const theme = useTheme();
-    const { feed, message, isLoading, handleRefresh, mode } = useFeed();
+    const { feed, message, isLoading, handleRefresh } = useFeed();
 
     const containerStyle = useMemo(
         () => ({
@@ -73,9 +73,9 @@ export const Feed = () => {
                         },
                     }} />
             ) : (feed.map((post) => {
-                switch (post.type) {
+                switch (post.postType) {
                     case "GIST":
-                        return <GistCard key={post._id} gist={post} mode={mode} />
+                        return <GistCard key={post._id} gist={post} mode="ONLINE" />
 
                     case "STAKE":
                         return <StakeCard key={post._id} stake={post} />

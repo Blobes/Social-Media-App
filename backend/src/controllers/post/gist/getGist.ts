@@ -1,44 +1,64 @@
 import { Response } from "express";
 import { AuthRequest } from "@/middlewares/verifyAuthToken";
 import { GistModel } from "@/models/post/gist";
-import mongoose from "mongoose";
-import { getGistAggregation } from "@/utils/gist";
+import mongoose, { PipelineStage } from "mongoose";
+import { getPostAggregation } from "@/utils/aggregator/singlePost";
 
 const getGist = async (req: AuthRequest, res: Response): Promise<void> => {
   const postId = req.params.id;
   const userId = req.user?.id;
 
   if (!mongoose.Types.ObjectId.isValid(postId)) {
-    res
-      .status(400)
-      .json({ message: "Invalid Post ID", status: "ERROR", payload: null });
+    res.status(400).json({
+      status: "ERROR",
+      payload: null,
+      message: "Invalid Post ID",
+    });
     return;
   }
 
   try {
-    const gist = await GistModel.aggregate([
+    // 1. Build the pipeline
+    // We pass an object to getPostAggregation as per your updated utility definition
+    const pipeline: PipelineStage[] = [
       {
-        $match: { _id: new mongoose.Types.ObjectId(postId), status: "ACTIVE" },
+        $match: {
+          _id: new mongoose.Types.ObjectId(String(postId)),
+          status: "ACTIVE",
+        },
       },
-      ...getGistAggregation(userId),
-    ]);
+      ...getPostAggregation({
+        userId: userId ? String(userId) : undefined,
+        sourceType: "GIST",
+      }),
+    ];
 
-    if (!gist.length) {
-      res
-        .status(404)
-        .json({ message: "Post not found", status: "ERROR", payload: null });
+    // 2. Execute Aggregation
+    const gist = await GistModel.aggregate(pipeline);
+
+    // 3. Handle Result
+    if (!gist || gist.length === 0) {
+      res.status(404).json({
+        status: "ERROR",
+        payload: null,
+        message: "Gist not found",
+      });
       return;
     }
 
+    // Return the first (and only) result from the aggregation array
     res.status(200).json({
-      message: "Post fetched successfully",
       status: "SUCCESS",
       payload: gist[0],
+      message: "Gist fetched successfully",
     });
   } catch (error: any) {
-    res
-      .status(500)
-      .json({ message: error.message, status: "ERROR", payload: null });
+    console.error("Get Gist Error:", error);
+    res.status(500).json({
+      status: "ERROR",
+      payload: null,
+      message: error.message || "Internal Server Error",
+    });
   }
 };
 

@@ -1,4 +1,4 @@
-import { UserModel } from "@/models/user";
+import { UserModel } from "@/models/user/user";
 import { hashCode } from "@/utils/tokens";
 import { Request, Response } from "express";
 

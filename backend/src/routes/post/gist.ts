@@ -9,13 +9,10 @@ import { optVerifyToken } from "@/middlewares/optVerifyToken";
 
 const router = express.Router();
 
-// Gist
 router.get("/", optVerifyToken, getGistList);
 router.post("/create", verifyAuthToken, createGist);
 router.get("/:id", optVerifyToken, getGist);
 router.put("/:id/like", verifyAuthToken, gistLike);
 router.put("/:id/edit", verifyAuthToken, editGist);
-
-// Stake
 
 export default router;

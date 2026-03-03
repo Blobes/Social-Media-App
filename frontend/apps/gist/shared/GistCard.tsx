@@ -2,10 +2,10 @@
 
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext, usePostAuthor } from "@repo/shared-state";
+import { useGlobalContext, usePost } from "@repo/shared-state";
 import { GenericObject, UIMode, IGist } from "@repo/types";
 import { useGistService } from "../app/service";
-import { summarizeNum } from "@repo/helpers";
+import { getCachedAuthor, summarizeNum } from "@repo/helpers";
 import { Empty, MediaProps, PostObserver, Strip } from "@repo/shared-ui";
 import { useSnackbar, useMisc } from "@repo/shared-state";
 import { mediaData } from "@repo/test-data";
@@ -27,17 +27,18 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
     const controller = useMisc();
     const { setSBMessage } = useSnackbar();
 
-    // Author hook
-    const { author, error } = usePostAuthor(gist.author, mode);
-
     // Like hooks & properties
     const { gistData, isLiking, handleLike } = useGistLike(gist, {
         ...gistService, ...globalContext, ...controller, setSBMessage,
         mode, LoginPrompt: <Typography>Login to engage</Typography>
     });
-    const { likeCount, likedByMe, content, media } = gistData;
+    const { likeCount, likedByMe, content, media, authorId, author } = gistData;
     const gistMedia: MediaProps[] = (media && media.length > 0)
         ? (media as MediaProps[]) : mediaData;
+
+    // Gist Author
+    const { cachedAuthor } = usePost(authorId);
+    const gistAuthor = mode === "ONLINE" || !cachedAuthor ? author : cachedAuthor
 
     if (gistData.status === "DELETED") return <Empty tagline="Deleted by author." />;
 
@@ -51,7 +52,7 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
                     borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
                     ...style,
                 }}>
-                <GistHeader author={author} createdAt={gistData.createdAt} />
+                <GistHeader author={gistAuthor} createdAt={gistData.createdAt} />
 
                 {/* Gist content */}
                 <Typography variant="body2" sx={{

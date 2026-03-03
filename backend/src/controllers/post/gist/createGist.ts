@@ -21,9 +21,9 @@ const createGist = async (req: CreateRequest, res: Response): Promise<void> => {
 
   if (!hasContent && !hasMedia) {
     res.status(400).json({
-      message: "Post must contain either text content or media.",
       status: "ERROR",
       payload: null,
+      message: "Post must contain either text content or media.",
     });
     return;
   }
@@ -74,17 +74,17 @@ const createGist = async (req: CreateRequest, res: Response): Promise<void> => {
     await session.commitTransaction();
 
     res.status(201).json({
-      message: "Gist created successfully",
       status: "SUCCESS",
       payload: newGist,
+      message: "Gist created successfully",
     });
   } catch (error: any) {
     if (session.inTransaction()) await session.abortTransaction();
     console.error("Error in createGist:", error);
     res.status(500).json({
-      message: error.message || "Server error during gist creation",
       status: "ERROR",
       payload: null,
+      message: error.message || "Server error during gist creation",
     });
   } finally {
     session.endSession();

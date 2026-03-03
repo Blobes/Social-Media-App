@@ -20,7 +20,7 @@ export const cachePost = async (post: IPost) => {
 
   // PERFORMANCE CHECK: Does this post and its author already exist?
   const alreadyCached = postList.find((item) => item.post._id === post._id);
-  const authorExists = authors[post.author._id];
+  const authorExists = authors[post.authorId];
 
   if (alreadyCached && authorExists) return;
 
@@ -30,7 +30,7 @@ export const cachePost = async (post: IPost) => {
   postMap.set(post._id, { post, lastViewed: now });
 
   // Cache Author
-  authors[post.author._id] = post.author;
+  authors[post.authorId] = post.author;
 
   // Save immediate changes
   await Promise.all([
@@ -79,7 +79,7 @@ export const cleanupCache = async () => {
 
   // 3. Author Cleanup: Only keep authors who have at least one post remaining
   const activeAuthorIds = new Set(
-    activePosts.map((item) => item.post.author._id),
+    activePosts.map((item) => item.post.authorId),
   );
 
   const updatedAuthors: Record<string, IAuthor> = {};
@@ -95,23 +95,6 @@ export const cleanupCache = async () => {
     set("cached-authors", updatedAuthors),
   ]);
   console.log(`Cache Cleanup Sync: Kept ${activePosts.length} posts.`);
-};
-
-export const cacheAuthor = async (author: IAuthor) => {
-  if (!author || !author._id) return;
-
-  try {
-    // 1. Get the existing dictionary or initialize an empty object
-    const cachedAuthors = (await get("cached-authors")) || {};
-
-    // 2. Add/Update the author using their ID as the key
-    cachedAuthors[author._id] = author;
-
-    // 3. Save back to IndexedDB
-    await set("cached-authors", cachedAuthors);
-  } catch (error) {
-    console.error("Failed to cache author:", error);
-  }
 };
 
 export const getCachedAuthor = async (

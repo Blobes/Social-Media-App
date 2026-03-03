@@ -27,9 +27,9 @@ const editGist = async (req: EditRequest, res: Response): Promise<void> => {
 
   if (!mongoose.Types.ObjectId.isValid(gistId) || !userId) {
     res.status(400).json({
-      message: "Invalid Gist ID or Session",
       status: "ERROR",
       payload: null,
+      message: "Invalid Gist ID or Session",
     });
     return;
   }
@@ -59,9 +59,9 @@ const editGist = async (req: EditRequest, res: Response): Promise<void> => {
     // 3. ENFORCE 3-EDIT LIMIT
     if (gist.editCount >= 3) {
       res.status(400).json({
-        message: "Maximum edit limit (3) reached for this post.",
         status: "ERROR",
         payload: null,
+        message: "Maximum edit limit (3) reached for this post.",
       });
       return;
     }
@@ -103,17 +103,17 @@ const editGist = async (req: EditRequest, res: Response): Promise<void> => {
     await session.commitTransaction();
 
     res.status(200).json({
-      message: "Gist edited successfully",
       status: "SUCCESS",
       payload: gist,
+      message: "Gist edited successfully",
     });
   } catch (error: any) {
     await session.abortTransaction();
     console.error("Critical Edit Error:", error);
     res.status(500).json({
-      message: error.message || "Failed to update gist",
       status: "ERROR",
       payload: null,
+      message: error.message || "Failed to update gist",
     });
   } finally {
     session.endSession();

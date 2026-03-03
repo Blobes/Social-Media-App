@@ -37,7 +37,7 @@ const UserSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    verificationCode: String, // hashed code
+    verificationCode: String,
     verificationExpiry: Date,
     gender: String,
     dateOfBirth: String,
@@ -54,21 +54,20 @@ const UserSchema = new Schema(
     occupation: String,
     relationship: String,
     interests: [],
-    followers: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-    following: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
+    // EXPERT UPDATE: Replaced arrays with counters for scalability
+    followersCount: {
+      type: Number,
+      default: 0,
+    },
+    followingCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true },
 );
+
 UserSchema.index({ email: 1 }, { unique: true });
 UserSchema.index({ username: 1 }, { unique: true, sparse: true });
+
 export const UserModel = model("User", UserSchema, "users");

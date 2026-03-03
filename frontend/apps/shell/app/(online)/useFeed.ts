@@ -2,49 +2,50 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { IPost, IGist, IStake, UIMode } from "@repo/types";
-import { getCachedPosts } from "@repo/helpers";
+import { IPost, IStake } from "@repo/types";
 import { delay } from "@repo/helpers";
-import { useGists } from "@repo/gist/shared";
 import { useStake } from "@repo/stake/shared";
+import { useFeedService } from "./service";
 
-export const useFeed = (mode: UIMode = "ONLINE") => {
+export const useFeed = () => {
   const router = useRouter();
   const [feed, setFeed] = useState<IPost[]>([]);
   const [isLoading, setLoading] = useState(false);
-  const { gists, message } = useGists();
+  const [message, setMessage] = useState<string | null>(null);
   const { stakes } = useStake();
+  const { fetchFeed } = useFeedService();
 
   const handleFeed = useCallback(async () => {
     try {
       setLoading(true);
-      // Map Posts from the server
-      const gistList: IPost[] = gists.map((gist: IGist) => ({
-        ...gist,
-        type: "GIST",
-      }));
-      const stakeList: IPost[] = stakes.map((stake: IStake) => ({
-        ...stake,
-        type: "STAKE",
-      }));
+      const res = await fetchFeed();
 
-      // Sort
-      const combinedList = [...gistList, ...stakeList].sort((a, b) => {
-        return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-      });
+      if (res?.payload) {
+        // const feedList: IPost[] = res.payload.map((post: any) => ({
+        //   ...post,
+        //   type: String(post.postType).toUpperCase() || "GIST",
+        // }));
 
-      const finalFeed =
-        mode === "ONLINE" ? combinedList : await getCachedPosts();
+        // Map the local stakes
+        const stakeList: IPost[] = stakes.map((stake: IStake) => ({
+          ...stake,
+          postType: "STAKE" as const,
+        }));
 
-      // Update State
-      setFeed(finalFeed);
+        // 4. Combine and Sort
+        const combinedList = [...feed, ...stakeList];
+
+        // 5. Update State with the fully casted IPost[]
+        setFeed(combinedList);
+        setMessage(res.message);
+      }
+    } catch (error) {
+      setMessage(error.message);
     } finally {
       await delay();
       setLoading(false);
     }
-  }, [gists, stakes]);
+  }, [fetchFeed, stakes]);
 
   useEffect(() => {
     handleFeed();
@@ -59,6 +60,5 @@ export const useFeed = (mode: UIMode = "ONLINE") => {
     message,
     isLoading,
     handleRefresh,
-    mode,
   };
 };

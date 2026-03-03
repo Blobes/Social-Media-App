@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { UserModel } from "@/models/user";
+import { UserModel } from "@/models/user/user";
 
 export const checkUsername = async (
   req: Request,

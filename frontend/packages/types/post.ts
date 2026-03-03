@@ -30,15 +30,16 @@ export interface IMedia {
 
 export interface IStake {
   _id: string;
+  authorId: string;
   author: IAuthor;
   content: string;
   media: IMedia[];
-  // media: string | null;
   createdAt: string | number;
 }
 
 export interface IGist {
   _id: string;
+  authorId: string;
   author: IAuthor;
   content: string;
   contentId: string;
@@ -47,9 +48,12 @@ export interface IGist {
   commentCount: number;
   likedByMe: boolean;
   editCount: number;
+  isEdited: boolean;
   status: IPostStatus;
   createdAt: string | number;
   updatedAt: string | number;
 }
 
-export type IPost = (IGist & { type: "GIST" }) | (IStake & { type: "STAKE" });
+export type IPost =
+  | (IGist & { postType: "GIST" })
+  | (IStake & { postType: "STAKE" });
