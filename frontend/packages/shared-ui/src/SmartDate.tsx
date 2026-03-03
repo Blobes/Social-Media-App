@@ -13,7 +13,7 @@ interface SmartDateProps extends Omit<TypographyProps, "children"> {
 }
 
 export const SmartDate = ({ timestamp, dateType = "shortened", adaptiveTime, ...props }: SmartDateProps) => {
-    const shortened = dateType === "shortened"
+    const shortened = dateType === "SHORTENED"
     // Use our adaptive hook
     const display = adaptiveTime(timestamp);
 

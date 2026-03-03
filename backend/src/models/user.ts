@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
 
-const UserSchema = new mongoose.Schema(
+const UserSchema = new Schema(
   {
     email: {
       type: String,
@@ -56,14 +56,14 @@ const UserSchema = new mongoose.Schema(
     interests: [],
     followers: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Users",
+        type: Schema.Types.ObjectId,
+        ref: "User",
       },
     ],
     following: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Users",
+        type: Schema.Types.ObjectId,
+        ref: "User",
       },
     ],
   },
@@ -71,4 +71,4 @@ const UserSchema = new mongoose.Schema(
 );
 UserSchema.index({ email: 1 }, { unique: true });
 UserSchema.index({ username: 1 }, { unique: true, sparse: true });
-export const UserModel = mongoose.model("Users", UserSchema);
+export const UserModel = model("User", UserSchema, "users");

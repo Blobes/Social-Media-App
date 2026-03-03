@@ -4,7 +4,7 @@ import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { delay, clientRoutes, autoScroll } from "@repo/helpers";
-import { ProgressIcon, Empty, GistSkeleton, StakeSkeleton } from "@repo/shared-ui";
+import { Empty, GistSkeleton, StakeSkeleton } from "@repo/shared-ui";
 import { CircleSlash2 } from "lucide-react";
 import { usePage } from "@repo/shared-state";
 import { getCachedPosts } from "@repo/helpers";
@@ -96,9 +96,9 @@ export const CachedFeed = () => {
       />
     ) : feed.map((post) => {
       switch (post.type) {
-        case "gist":
-          return <GistCard key={post._id} gist={post} mode="offline" />
-        case "stake":
+        case "GIST":
+          return <GistCard key={post._id} gist={post} mode="OFFLINE" />
+        case "STAKE":
           return <StakeCard key={post._id} stake={post} />
         default: <Typography>Post type not found</Typography>
       }

@@ -37,7 +37,7 @@ export const GistMedia = ({ mediaList, style, likedByMe, handleLike }: GistMedia
 
     const mappedList = useMemo(() => {
         return mediaList.map((media, index) => {
-            const mediaId = media.id || `${index}-${media.src}`;
+            const mediaId = media._id || `${index}-${media.url}`;
             return {
                 ...media,
                 id: mediaId,

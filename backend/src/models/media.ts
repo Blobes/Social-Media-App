@@ -2,19 +2,17 @@ import { Schema, model } from "mongoose";
 
 const MediaSchema = new Schema(
   {
-    // Link to the creator
     ownerId: { type: Schema.Types.ObjectId, ref: "Users", required: true },
 
-    // Link to the POST
-    postId: {
+    sourceId: {
       type: Schema.Types.ObjectId,
-      required: true,
-      refPath: "postType",
+      required: false,
+      refPath: "sourceType",
     },
-    postType: {
+    sourceType: {
       type: String,
-      required: true,
-      enum: ["Gists", "Stakes"],
+      required: false,
+      enum: ["Gist", "Stake", "User", "Verification"],
     },
 
     // Storage Details
@@ -25,12 +23,12 @@ const MediaSchema = new Schema(
       enum: ["S3", "CLOUDINARY", "GCP"],
       default: "S3",
     },
-    fileKey: { type: String, required: true }, // The path/key in the storage bucket
+    fileKey: { type: String, required: true },
 
     // Metadata for UI/UX
     type: { type: String, enum: ["IMAGE", "VIDEO", "GIF"], required: true },
     mimeType: { type: String },
-    size: { type: Number }, // in bytes
+    size: { type: Number },
     dimensions: {
       width: { type: Number },
       height: { type: Number },
@@ -38,10 +36,8 @@ const MediaSchema = new Schema(
     },
 
     // Performance Optimization
-    blurHash: { type: String }, // For showing a blurred preview while loading
-
-    order: { type: Number, default: 0 }, // For carousels: which image comes first?
-
+    blurHash: { type: String },
+    order: { type: Number, default: 0 },
     status: {
       type: String,
       enum: ["UPLOADING", "READY", "ERROR"],
@@ -51,7 +47,8 @@ const MediaSchema = new Schema(
   { timestamps: true },
 );
 
-// Indexing for fast retrieval of all media for a specific post
-MediaSchema.index({ postId: 1, order: 1 });
+// Updated Indexing for the new field names
+MediaSchema.index({ sourceId: 1, sourceType: 1, order: 1 });
+MediaSchema.index({ ownerId: 1, createdAt: -1 });
 
-export const MediaModel = model("Media", MediaSchema);
+export const MediaModel = model("Media", MediaSchema, "media");

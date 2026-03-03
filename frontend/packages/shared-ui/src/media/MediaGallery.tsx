@@ -33,7 +33,7 @@ export const MediaGallery = ({ mediaList, style, bgEffects }: GalleryProps) => {
 
     const displayMedia = useMemo(() => {
         const mediaItems = [...mediaList].sort((a, b) =>
-            (a.id || a.src).localeCompare(b.id || b.src)
+            (a._id || a.url).localeCompare(b._id || b.url)
         );
         const count = Math.min(mediaItems.length, 5);
         const sliced = mediaItems.slice(0, count);
@@ -70,12 +70,12 @@ export const MediaGallery = ({ mediaList, style, bgEffects }: GalleryProps) => {
 
             {displayMedia.map((media, index) => {
                 const isLastItem = index === 4 && remainingCount > 0;
-                const { id, src, type, title, onSingleTap, onDoubleTap, cols, rows } = media;
-                const mediaType = type ?? "image";
+                const { _id, url, type, alt, onSingleTap, onDoubleTap, cols, rows } = media;
+                const mediaType = type ?? "IMAGE";
 
                 return (
                     <ImageListItem
-                        key={id}
+                        key={_id}
                         cols={cols}
                         rows={rows}
                         sx={{
@@ -89,16 +89,16 @@ export const MediaGallery = ({ mediaList, style, bgEffects }: GalleryProps) => {
                             onDoubleTap={() => onDoubleTap && onDoubleTap()}
                             style={{ ...(!isLastItem && bgEffects(theme).overlay) }}>
 
-                            {mediaType === "video" ? (
-                                <MediaVideo src={src} style={style?.content} />
+                            {mediaType === "VIDEO" ? (
+                                <MediaVideo url={url} style={style?.content} />
                             ) : (
                                 <Image
-                                    src={src}
+                                    src={url}
                                     width={0}
                                     height={0}
                                     sizes="100vw"
                                     loading="lazy"
-                                    alt={title || "Post image"}
+                                    alt={alt || "Post image"}
                                     style={{ ...style?.content }} />
                             )}
                             {isLastItem && (

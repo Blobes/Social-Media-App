@@ -2,15 +2,14 @@
 
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext } from "@repo/shared-state";
+import { useGlobalContext, usePostAuthor } from "@repo/shared-state";
 import { GenericObject, UIMode, IGist } from "@repo/types";
 import { useGistService } from "../app/service";
 import { summarizeNum } from "@repo/helpers";
-import { Empty, GistSkeleton, PostObserver, Strip } from "@repo/shared-ui";
+import { Empty, MediaProps, PostObserver, Strip } from "@repo/shared-ui";
 import { useSnackbar, useMisc } from "@repo/shared-state";
 import { mediaData } from "@repo/test-data";
 import { GistMedia } from "../app/components/GistMedia";
-import { useGistAuthor } from "../app/hooks/useGistAuthor";
 import { useGistLike } from "../app/hooks/useGistLike";
 import { GistHeader } from "../app/components/GistHeader";
 import { GistEngagement } from "../app/components/GistEngagement";
@@ -21,29 +20,29 @@ interface GistProps {
     mode?: UIMode
 }
 
-export const GistCard = ({ gist, style = {}, mode = "online" }: GistProps) => {
+export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
     const theme = useTheme();
-    const postService = useGistService();
+    const gistService = useGistService()
     const globalContext = useGlobalContext();
     const controller = useMisc();
     const { setSBMessage } = useSnackbar();
 
-    // Author hooks & properties
-    const { author, error } = useGistAuthor(gist.authorId, postService.fetchAuthor, mode);
+    // Author hook
+    const { author, error } = usePostAuthor(gist.author, mode);
 
     // Like hooks & properties
     const { gistData, isLiking, handleLike } = useGistLike(gist, {
-        ...postService, ...globalContext, ...controller, setSBMessage,
+        ...gistService, ...globalContext, ...controller, setSBMessage,
         mode, LoginPrompt: <Typography>Login to engage</Typography>
     });
-    const { likeCount, likedByMe, content } = gistData;
-    const postMedia = mediaData
+    const { likeCount, likedByMe, content, media } = gistData;
+    const gistMedia: MediaProps[] = (media && media.length > 0)
+        ? (media as MediaProps[]) : mediaData;
 
-    if (!author) return <GistSkeleton quantity={1} />
     if (gistData.status === "DELETED") return <Empty tagline="Deleted by author." />;
 
     return (
-        <PostObserver post={gistData} type="gist" author={author}>
+        <PostObserver post={gistData} type="GIST">
             <Stack
                 sx={{
                     gap: theme.gap(0),
@@ -63,8 +62,8 @@ export const GistCard = ({ gist, style = {}, mode = "online" }: GistProps) => {
                 }}>{content}</Typography>
 
                 {/* Gist media */}
-                {postMedia && <GistMedia mediaList={postMedia}
-                    likedByMe={likedByMe} handleLike={handleLike} />}
+                <GistMedia mediaList={gistMedia} likedByMe={likedByMe}
+                    handleLike={handleLike} />
 
                 {/* Gist info strip */}
                 <Strip

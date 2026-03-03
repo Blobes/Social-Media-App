@@ -1,5 +1,5 @@
-import { hashCode } from "@/helper";
 import { UserModel } from "@/models/user";
+import { hashCode } from "@/utils/tokens";
 import { Request, Response } from "express";
 
 export const verifyEmail = async (

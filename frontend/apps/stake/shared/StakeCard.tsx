@@ -12,7 +12,6 @@ interface StakeProps {
 
 export const StakeCard = ({ stake, style = {} }: StakeProps) => {
     const theme = useTheme();
-
     const { content, media, } = stake
 
     return (
@@ -22,7 +21,7 @@ export const StakeCard = ({ stake, style = {} }: StakeProps) => {
                 flexGrow: "0",
                 flexShrink: "0",
                 minHeight: "200px",
-                background: `center / cover no-repeat url(${media}),
+                background: `center / cover no-repeat url(${media[0].url}),
                 ${theme.palette.gray.trans.overlay()}`,
                 borderRadius: theme.radius[3],
                 ...style,

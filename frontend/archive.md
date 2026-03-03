@@ -379,3 +379,51 @@ set("cached-authors", authorDictionary),
     //     setCookie("recently_away", "true", 12);
     //   }
     // };
+
+     // Fetch Author
+
+const fetchAuthor = useCallback(async (authorId: string) => {
+try {
+const res = await fetcher<ISingleResponse<IUser>>(
+serverApi.user(authorId),
+);
+return res.payload;
+} catch {
+return null;
+}
+}, []);
+
+import { useState, useCallback, useEffect } from "react";
+import { IAuthor, IUser, UIMode } from "@repo/types";
+import { getCachedAuthor } from "@repo/helpers";
+
+export const useGistAuthor = (
+gistAuthor: IAuthor,
+fetchAuthor: (id: string) => Promise<any>,
+mode?: UIMode,
+) => {
+const [author, setAuthor] = useState<IUser | null>(null);
+const [error, setError] = useState<string | null>(null);
+
+const handleAuthor = useCallback(async () => {
+if (!authorId || author) return;
+try {
+// Fecth author based on online or offline mode
+const authorRes =
+mode === "ONLINE" ? author : await getCachedAuthor(authorId);
+if (authorRes) {
+setAuthor(authorRes);
+} else {
+setError("Failed to load author");
+}
+} catch {
+setError("Failed to load author");
+}
+}, [authorId, fetchAuthor, author, getCachedAuthor]);
+
+useEffect(() => {
+handleAuthor();
+}, [handleAuthor]);
+
+return { author, error };
+};

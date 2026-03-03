@@ -12,7 +12,7 @@ export const useDragClose = (config: IDragConfig): IDragResult => {
   const handleTouchStart = useCallback(
     (e: React.TouchEvent) => {
       // Save starting point based on axis
-      const pos = axis === "y" ? e.touches[0].clientY : e.touches[0].clientX;
+      const pos = axis === "Y" ? e.touches[0].clientY : e.touches[0].clientX;
       setStartPos(pos);
     },
     [axis],
@@ -21,10 +21,10 @@ export const useDragClose = (config: IDragConfig): IDragResult => {
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
       const currentPos =
-        axis === "y" ? e.touches[0].clientY : e.touches[0].clientX;
+        axis === "Y" ? e.touches[0].clientY : e.touches[0].clientX;
       const diff = currentPos - startPos;
 
-      if (axis === "y") {
+      if (axis === "Y") {
         // Y-axis: Only allow dragging downwards (positive diff)
         if (diff > 0) setDragOffset(diff);
       } else {
@@ -43,7 +43,7 @@ export const useDragClose = (config: IDragConfig): IDragResult => {
     (onDragEnd?: () => void) => {
       // Determine the dynamic threshold
       let finalThreshold = threshold;
-      if (axis === "x" && closeAtMiddle && typeof window !== "undefined") {
+      if (axis === "X" && closeAtMiddle && typeof window !== "undefined") {
         // Trigger close if dragged past 45% of the screen width
         finalThreshold = window.innerWidth * 0.35;
       }

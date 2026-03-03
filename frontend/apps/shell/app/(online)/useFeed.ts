@@ -2,13 +2,13 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { IPost, IGist, IStake } from "@repo/types";
+import { IPost, IGist, IStake, UIMode } from "@repo/types";
 import { getCachedPosts } from "@repo/helpers";
 import { delay } from "@repo/helpers";
 import { useGists } from "@repo/gist/shared";
 import { useStake } from "@repo/stake/shared";
 
-export const useFeed = (mode: "online" | "offline" = "online") => {
+export const useFeed = (mode: UIMode = "ONLINE") => {
   const router = useRouter();
   const [feed, setFeed] = useState<IPost[]>([]);
   const [isLoading, setLoading] = useState(false);
@@ -21,11 +21,11 @@ export const useFeed = (mode: "online" | "offline" = "online") => {
       // Map Posts from the server
       const gistList: IPost[] = gists.map((gist: IGist) => ({
         ...gist,
-        type: "gist",
+        type: "GIST",
       }));
       const stakeList: IPost[] = stakes.map((stake: IStake) => ({
         ...stake,
-        type: "stake",
+        type: "STAKE",
       }));
 
       // Sort
@@ -36,7 +36,7 @@ export const useFeed = (mode: "online" | "offline" = "online") => {
       });
 
       const finalFeed =
-        mode === "online" ? combinedList : await getCachedPosts();
+        mode === "ONLINE" ? combinedList : await getCachedPosts();
 
       // Update State
       setFeed(finalFeed);

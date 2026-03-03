@@ -1,0 +1,352 @@
+CREATE GIST
+import mongoose from "mongoose";
+import { UserModel } from "@/models/user";
+import { Response } from "express";
+import { AuthRequest } from "@/middlewares/verifyAuthToken";
+import { GistModel } from "@/models/post/gist";
+
+interface CreateRequest extends AuthRequest {
+body: {
+content: string;
+};
+}
+
+export const createGist = async (
+req: CreateRequest,
+res: Response,
+): Promise<void> => {
+const userId = req.user?.id;
+const { content } = req.body;
+
+// Validate content
+if (!content?.trim()) {
+res.status(400).json({
+message: "Content is required",
+status: "ERROR",
+payload: null,
+});
+return;
+}
+
+// Validate MongoDB ID format
+if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+res.status(400).json({
+message: "User ID format not valid",
+status: "ERROR",
+payload: null,
+});
+return;
+}
+
+try {
+const user = await UserModel.findById(userId);
+if (!user) {
+res.status(404).json({
+message: "User not found",
+status: "ERROR",
+payload: null,
+});
+return;
+}
+
+    const newPost = await GistModel.create({
+      authorId: userId,
+      content: content.trim(),
+    });
+
+    res.status(201).json({
+      message: "Post created successfully",
+      payload: newPost,
+      status: "SUCCESS",
+    });
+
+} catch (error: any) {
+console.error("Error creating post:", error);
+res.status(500).json({
+message: error.message || "Failed to create post due to server error",
+payload: null,
+status: "ERROR",
+});
+}
+};
+
+export default createGist;
+
+EDIT GIST
+import mongoose from "mongoose";
+import { Response } from "express";
+import { AuthRequest } from "@/middlewares/verifyAuthToken"; // type with user?: JwtUserPayload
+import { GistModel } from "@/models/post/gist";
+
+interface EditRequest extends AuthRequest {
+body: {
+content: string;
+};
+}
+
+export const editGist = async (
+req: EditRequest,
+res: Response,
+): Promise<void> => {
+const gistId = req.params.id;
+const userId = req.user?.id; // from JWT payload
+const { content } = req.body;
+
+if (!content?.trim()) {
+res.status(400).json({
+message: "Content is required",
+status: "ERROR",
+payload: null,
+});
+return;
+}
+
+if (
+!mongoose.Types.ObjectId.isValid(gistId) ||
+!userId ||
+!mongoose.Types.ObjectId.isValid(userId)
+) {
+res.status(400).json({
+message: "Post ID or User ID format not valid",
+status: "ERROR",
+payload: null,
+});
+return;
+}
+
+try {
+const gist = await GistModel.findById(gistId);
+if (!gist) {
+res.status(404).json({
+message: "Post not found",
+status: "ERROR",
+payload: null,
+});
+return;
+}
+
+    if (userId !== gist.authorId.toString()) {
+      res.status(403).json({
+        message: "You are not the author of this post, so you cannot edit it.",
+        status: "ERROR",
+        payload: null,
+      });
+      return;
+    }
+
+    gist.content = content.trim();
+    await gist.save();
+
+    res.status(200).json({
+      message: "Post edited successfully",
+      payload: gist,
+      status: "SUCCESS",
+    });
+
+} catch (error: any) {
+res.status(500).json({
+message: error.message || "Failed to edit post due to server error",
+payload: null,
+status: "ERROR",
+});
+}
+};
+
+export default editGist;
+
+GET ALL GIST
+import { Response } from "express";
+import { AuthRequest } from "@/middlewares/verifyAuthToken";
+import mongoose from "mongoose";
+import { GistLikeModel, GistModel } from "@/models/post/gist";
+
+export const getActiveGists = async (req: AuthRequest, res: Response) => {
+const userId = req.user?.id; // Logged-in user
+
+try {
+const posts = await GistModel.find()
+.sort({ createdAt: -1 })
+.select("\_id authorId content likeCount createdAt postImage status")
+.lean();
+
+    // Map likedByMe for current user
+    const postsWithLikes = await Promise.all(
+      posts.map(async (post) => {
+        let likedByMe = false;
+        if (userId) {
+          likedByMe = !!(await GistLikeModel.exists({
+            postId: new mongoose.Types.ObjectId(post._id),
+            userId,
+          }));
+        }
+        return { ...post, likedByMe };
+      }),
+    );
+
+    res.status(200).json({
+      message:
+        posts.length > 0 ? "Posts fetched successfully" : "No posts found",
+      payload: postsWithLikes,
+      status: "SUCCESS",
+    });
+
+} catch (error: any) {
+res.status(500).json({
+message: error.message || "Failed to fetch posts",
+payload: null,
+status: "ERROR",
+});
+}
+};
+
+GET GIST
+import mongoose from "mongoose";
+import { Request, Response } from "express";
+import { GistModel } from "@/models/post/gist";
+
+const getGist = async (req: Request, res: Response): Promise<any> => {
+const postId = req.params.id;
+
+if (!mongoose.Types.ObjectId.isValid(postId)) {
+return res.status(400).json({
+message: "Post ID format not valid",
+status: "ERROR",
+payload: null,
+});
+}
+
+try {
+const post = await GistModel.findById(postId).lean();
+
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found",
+        status: "ERROR",
+        payload: null,
+      });
+    }
+
+    res.status(200).json({
+      message: "Post fetched successfully",
+      status: "SUCCESS",
+      payload: post,
+    });
+
+} catch (error: any) {
+res.status(500).json({
+message: error.message || "Failed to get post due to server error",
+status: "ERROR",
+payload: null,
+});
+}
+};
+
+export default getGist;
+
+GIST LIKE
+import mongoose from "mongoose";
+import { Response } from "express";
+import { AuthRequest } from "@/middlewares/verifyAuthToken";
+import { GistLikeModel, GistModel } from "@/models/post/gist";
+
+export const gistLike = async (
+req: AuthRequest,
+res: Response,
+): Promise<any> => {
+const postId = req.params.id;
+const userId = req.user?.id;
+
+if (!userId) {
+return res.status(401).json({
+status: "ERROR",
+message: "Unauthorized",
+payload: null,
+});
+}
+
+if (!mongoose.Types.ObjectId.isValid(postId)) {
+return res.status(400).json({
+status: "ERROR",
+message: "Invalid post ID",
+payload: null,
+});
+}
+
+const session = await mongoose.startSession();
+
+try {
+session.startTransaction();
+
+    const post = await GistModel.findById(postId).session(session);
+    if (!post) {
+      await session.abortTransaction();
+      return res.status(404).json({
+        status: "ERROR",
+        message: "Post not found",
+        payload: null,
+      });
+    }
+
+    const existingLike = await GistLikeModel.findOne({
+      postId,
+      userId,
+    }).session(session);
+
+    let liked: boolean;
+
+    if (existingLike) {
+      // UNLIKE
+      await GistLikeModel.deleteOne({ _id: existingLike._id }).session(session);
+
+      await GistModel.updateOne(
+        { _id: postId },
+        { $inc: { likeCount: -1 } },
+        { session },
+      );
+      liked = false;
+    } else {
+      // LIKE
+      await GistLikeModel.create(
+        [
+          {
+            postId,
+            userId,
+          },
+        ],
+        { session },
+      );
+
+      await GistModel.updateOne(
+        { _id: postId },
+        { $inc: { likeCount: 1 } },
+        { session },
+      );
+      liked = true;
+    }
+
+    await session.commitTransaction();
+
+    const updatedPost = await GistModel.findById(postId).select("likeCount");
+
+    return res.status(200).json({
+      status: "SUCCESS",
+      message: liked ? "Post liked" : "Post unliked",
+      payload: {
+        likedByMe: liked,
+        likeCount: updatedPost?.likeCount ?? 0,
+      },
+    });
+
+} catch (error: any) {
+await session.abortTransaction();
+
+    return res.status(500).json({
+      status: "ERROR",
+      message: error.message || "Server error",
+      payload: null,
+    });
+
+} finally {
+session.endSession();
+}
+};

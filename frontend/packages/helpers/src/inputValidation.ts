@@ -4,7 +4,7 @@ import { InputValidation } from "@repo/types";
 
 export function validateEmail(email: string): InputValidation {
   if (!email || email.trim().length === 0) {
-    return { status: "invalid", message: "Email is required." };
+    return { status: "INVALID", message: "Email is required." };
   }
   const trimmed = email.trim();
   // Quick basic pattern
@@ -12,7 +12,7 @@ export function validateEmail(email: string): InputValidation {
 
   if (!pattern.test(trimmed)) {
     return {
-      status: "invalid",
+      status: "INVALID",
       message: "Enter a valid email address (user@example.com).",
     };
   }
@@ -20,27 +20,27 @@ export function validateEmail(email: string): InputValidation {
   const [local, domain] = trimmed.split("@");
   if (local.length > 64) {
     return {
-      status: "invalid",
+      status: "INVALID",
       message: "The part before '@' is too long. (user@example.com)",
     };
   }
 
   if (domain.length > 253) {
     return {
-      status: "invalid",
+      status: "INVALID",
       message: "The domain part is too long.",
     };
   }
 
   if (domain.includes("..")) {
     return {
-      status: "invalid",
+      status: "INVALID",
       message:
         "The domain cannot contain more than 1 dot (.) (user@example.com)",
     };
   }
 
-  return { status: "valid", message: "Valid email address." };
+  return { status: "VALID", message: "Valid email address." };
 }
 
 export function validatePassword(password: string): InputValidation {
@@ -48,48 +48,48 @@ export function validatePassword(password: string): InputValidation {
 
   if (input.length === 0) {
     return {
-      status: "invalid",
+      status: "INVALID",
       message: "Password is required. (example: Abcd1234#)",
     };
   }
 
   if (input.length < 8) {
     return {
-      status: "invalid",
+      status: "INVALID",
       message: `Password must be at least 8 characters long. (example: Abcd1234#)`,
     };
   }
 
   if (!/[a-z]/.test(input)) {
     return {
-      status: "invalid",
+      status: "INVALID",
       message: `Password must include at least one lowercase letter. (example: Abcd1234#)`,
     };
   }
 
   if (!/[A-Z]/.test(input)) {
     return {
-      status: "invalid",
+      status: "INVALID",
       message: `Password must include at least one uppercase letter. (example: Abcd1234#)`,
     };
   }
 
   if (!/[0-9]/.test(input)) {
     return {
-      status: "invalid",
+      status: "INVALID",
       message: `Password must include at least one number. (example: Abcd1234#)`,
     };
   }
 
   if (!/[^A-Za-z0-9]/.test(input)) {
     return {
-      status: "invalid",
+      status: "INVALID",
       message: `Password must include at least one special character (!@#$%^&*). (example: Abcd1234#)`,
     };
   }
 
   return {
-    status: "valid",
+    status: "VALID",
     message: "Strong password.",
   };
 }

@@ -12,33 +12,25 @@ import { IGist, ISingleResponse, IListResponse, IUser } from "@repo/types";
 import { useCallback } from "react";
 
 export const useGistService = () => {
-  const getAllGist = useCallback(async (): Promise<{
+  const fetchGistList = useCallback(async (): Promise<{
     payload: IGist[] | null;
     message: string;
   }> => {
     try {
-      const res = await fetcher<IListResponse<IGist & { likedByMe: boolean }>>(
-        serverApi.posts,
-        { method: "GET" },
-      );
-      return { payload: res.payload ?? null, message: res.message };
+      const res = await fetcher<IListResponse<IGist>>(serverApi.gists, {
+        method: "GET",
+      });
+
+      return {
+        payload: res.payload ?? [],
+        message: res.message,
+      };
     } catch (error: any) {
+      console.error("Gist Service Error:", error);
       return {
         payload: null,
-        message: error.message ?? "Something went wrong",
+        message: error.message ?? "Something went wrong while fetching gists",
       };
-    }
-  }, []);
-
-  // Fetch Author
-  const fetchAuthor = useCallback(async (authorId: string) => {
-    try {
-      const res = await fetcher<ISingleResponse<IUser>>(
-        serverApi.user(authorId),
-      );
-      return res.payload;
-    } catch {
-      return null;
     }
   }, []);
 
@@ -54,7 +46,7 @@ export const useGistService = () => {
     ): Promise<LikeResponse | null> => {
       try {
         const res = await fetcher<ISingleResponse<LikeResponse>>(
-          serverApi.likePost(gistId),
+          serverApi.likeGist(gistId),
           { method: "PUT" },
         );
         return res.payload;
@@ -71,7 +63,6 @@ export const useGistService = () => {
     getPendingLike,
     setPendingLike,
     clearPendingLike,
-    getAllGist,
-    fetchAuthor,
+    fetchGistList,
   };
 };

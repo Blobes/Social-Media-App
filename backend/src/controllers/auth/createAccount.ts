@@ -1,17 +1,19 @@
-import {
-  genAccessTokens,
-  generateRandomIP,
-  generateTestEmail,
-  genRefreshTokens,
-  genVerificationCode,
-  getClientIp,
-  getLocationFromIP,
-  hashCode,
-} from "@/helper";
 import { UserModel } from "@/models/user";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import { sendVerificationEmail } from "./sendEmailCode";
+import {
+  generateRandomIP,
+  generateTestEmail,
+  getClientIp,
+  getLocationFromIP,
+} from "@/utils/ip";
+import {
+  genAccessTokens,
+  genRefreshTokens,
+  genVerificationCode,
+  hashCode,
+} from "@/utils/tokens";
 
 // Create a new user account
 interface CreateRequest extends Request {

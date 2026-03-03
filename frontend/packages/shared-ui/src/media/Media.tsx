@@ -23,14 +23,14 @@ export interface MediaProps extends IMedia {
     hooks?: MediaHooks;
 }
 
-export const Media = ({ id, src, type, title, onSingleTap,
-    onDoubleTap, style, viewMode = "isolated", hooks }: MediaProps) => {
+export const Media = ({ _id, url, type, alt, onSingleTap,
+    onDoubleTap, style, viewMode = "ISOLATED", dimensions, hooks }: MediaProps) => {
 
     const theme = useTheme();
-    const mediaType = type ?? "image"
+    const mediaType = type ?? "IMAGE"
 
     const isPortrait = hooks?.useImageColors
-        ? hooks.useImageColors(src).isPortrait
+        ? hooks.useImageColors(url).isPortrait
         : false; // Fallback to false (landscape/square) if no hook provided
 
     const isDesktop = hooks?.useMisc
@@ -73,7 +73,7 @@ export const Media = ({ id, src, type, title, onSingleTap,
                 }}>
                 {/* Blurred backround */}
                 <Image
-                    src={src}
+                    src={url}
                     alt=""
                     fill
                     style={{
@@ -83,18 +83,18 @@ export const Media = ({ id, src, type, title, onSingleTap,
                     }}
                     priority={false}
                 />
-                {mediaType === "image" ? (
+                {mediaType === "IMAGE" ? (
                     < Image
-                        src={src}
-                        width={0}
-                        height={0}
+                        src={url}
+                        width={dimensions?.width || 0}
+                        height={dimensions?.height || 0}
                         sizes="100vw"
                         loading="lazy"
-                        alt={title || "Post image"}
+                        alt={alt || "Post image"}
                         style={{ ...contentStyle }} />
                 ) : (
                     <Box
-                        component="video" src={src}
+                        component="video" src={url}
                         autoPlay loop muted playsInline
                         controls
                         sx={{ ...contentStyle }} />

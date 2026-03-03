@@ -6,10 +6,8 @@ import { stakeData } from "@repo/test-data";
 
 export const useStake = () => {
   const router = useRouter();
-  // const { getAllGist } = useGistService();
 
   const [stakes, setStakes] = useState<IStake[]>(stakeData);
-  // const [message, setMessage] = useState<string | null>(null);
   const [isLoading, setLoading] = useState(false);
 
   const handleStakes = useCallback(async () => {

@@ -1,7 +1,7 @@
 import { UserModel } from "@/models/user";
+import { genAccessTokens, genRefreshTokens } from "@/utils/tokens";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
-import { genAccessTokens, genRefreshTokens } from "@/helper";
 
 interface LoginRequest extends Request {
   body: {

@@ -74,10 +74,10 @@ export const Feed = () => {
                     }} />
             ) : (feed.map((post) => {
                 switch (post.type) {
-                    case "gist":
+                    case "GIST":
                         return <GistCard key={post._id} gist={post} mode={mode} />
 
-                    case "stake":
+                    case "STAKE":
                         return <StakeCard key={post._id} stake={post} />
 
                     default: <Typography>Post type not found</Typography>

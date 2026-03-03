@@ -2,7 +2,7 @@ import { DateType } from "@repo/types";
 
 export const formatDate = (
   dateValue: string | number | Date,
-  type: DateType = "shortened",
+  type: DateType = "SHORTENED",
 ): string => {
   // 1. Create date object safely
   // If dateValue is a string like "22/08/2025", we need to flip it to "2025-08-22" for Safari
@@ -22,7 +22,7 @@ export const formatDate = (
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
   // RETURN COMPLETE VERSION / DATE-ONLY
-  if (type === "complete" || type === "date-only") {
+  if (type === "COMPLETE" || type === "date-only") {
     const dayNum = date.getDate();
     const monthStr = date.toLocaleString("en-US", { month: "short" });
     const yearShort = date.getFullYear().toString().slice(-2);

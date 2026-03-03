@@ -9,7 +9,7 @@ interface VideoProps extends IMedia {
     style?: any,
 }
 
-export const MediaVideo = ({ src, style, viewMode = "list" }: VideoProps) => {
+export const MediaVideo = ({ url, style, viewMode = "LIST" }: VideoProps) => {
     const [isPlaying, setIsPlaying] = useState(false);
 
     const handlePlay = () => {
@@ -27,12 +27,12 @@ export const MediaVideo = ({ src, style, viewMode = "list" }: VideoProps) => {
             {/* 1. The Video Element */}
             <Box
                 component="video"
-                src={src}
+                src={url}
                 muted
                 playsInline
                 sx={{ ...style }} />
             {/* 2. The Play Icon Overlay */}
-            {(!isPlaying || viewMode === "list") &&
+            {(!isPlaying || viewMode === "LIST") &&
                 (<Box
                     sx={{
                         position: "absolute",
@@ -50,7 +50,6 @@ export const MediaVideo = ({ src, style, viewMode = "list" }: VideoProps) => {
                         height: 44,
                         backdropFilter: "blur(4px)",
                         border: "1px solid rgba(255, 255, 255, 0.2)",
-                        // pointerEvents: "none" is CRITICAL so it doesn't block taps
                         pointerEvents: "none"
                     }} >
                     < Play size={24} style={{ stroke: "white", fill: "white", marginLeft: 4 }} />

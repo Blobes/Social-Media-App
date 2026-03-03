@@ -1,70 +1,93 @@
 import mongoose from "mongoose";
-import { UserModel } from "@/models/user";
 import { Response } from "express";
 import { AuthRequest } from "@/middlewares/verifyAuthToken";
 import { GistModel } from "@/models/post/gist";
+import { PostContentModel } from "@/models/post/content";
+import { createMediaBatch, IMediaInput } from "@/controllers/media/createBatch";
 
 interface CreateRequest extends AuthRequest {
   body: {
-    content: string;
+    content?: string;
+    media?: IMediaInput[];
   };
 }
 
-export const createGist = async (
-  req: CreateRequest,
-  res: Response,
-): Promise<void> => {
+const createGist = async (req: CreateRequest, res: Response): Promise<void> => {
   const userId = req.user?.id;
-  const { content } = req.body;
+  const { content, media } = req.body;
 
-  // Validate content
-  if (!content?.trim()) {
+  const hasContent = content && content.trim().length > 0;
+  const hasMedia = media && Array.isArray(media) && media.length > 0;
+
+  if (!hasContent && !hasMedia) {
     res.status(400).json({
-      message: "Content is required",
+      message: "Post must contain either text content or media.",
       status: "ERROR",
       payload: null,
     });
     return;
   }
 
-  // Validate MongoDB ID format
-  if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-    res.status(400).json({
-      message: "User ID format not valid",
-      status: "ERROR",
-      payload: null,
-    });
-    return;
-  }
+  const session = await mongoose.startSession();
 
   try {
-    const user = await UserModel.findById(userId);
-    if (!user) {
-      res.status(404).json({
-        message: "User not found",
-        status: "ERROR",
-        payload: null,
+    session.startTransaction();
+
+    // Create Gist Container
+    const [newGist] = await GistModel.create(
+      [{ authorId: userId, mediaIds: [] }],
+      { session },
+    );
+
+    // Create media
+    let uploadedMediaIds: mongoose.Types.ObjectId[] = [];
+    if (hasMedia) {
+      uploadedMediaIds = await createMediaBatch(media, userId, session, {
+        sourceId: newGist._id as mongoose.Types.ObjectId,
+        sourceType: "Gist",
       });
-      return;
     }
 
-    const newPost = await GistModel.create({
-      authorId: userId,
-      content: content.trim(),
-    });
+    // Create Content Version
+    const [initialContent] = await PostContentModel.create(
+      [
+        {
+          postId: newGist._id,
+          postType: "Gists",
+          content: hasContent ? content!.trim() : "",
+          version: 1,
+          isLatest: true,
+        },
+      ],
+      { session },
+    );
+
+    //  Finalize the Container with references
+    newGist.latestContent = {
+      contentId: initialContent._id,
+      content: initialContent.content,
+    };
+    newGist.mediaIds = uploadedMediaIds;
+
+    await newGist.save({ session });
+
+    await session.commitTransaction();
 
     res.status(201).json({
-      message: "Post created successfully",
-      payload: newPost,
+      message: "Gist created successfully",
       status: "SUCCESS",
+      payload: newGist,
     });
   } catch (error: any) {
-    console.error("Error creating post:", error);
+    if (session.inTransaction()) await session.abortTransaction();
+    console.error("Error in createGist:", error);
     res.status(500).json({
-      message: error.message || "Failed to create post due to server error",
-      payload: null,
+      message: error.message || "Server error during gist creation",
       status: "ERROR",
+      payload: null,
     });
+  } finally {
+    session.endSession();
   }
 };
 

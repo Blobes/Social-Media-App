@@ -114,7 +114,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 
           // Alignment
           alignItems: transDir === "right" ? "flex-start"
-            : baseDir === "left" ? "flex-end" : "center",
+            : baseDir === "LEFT" ? "flex-end" : "center",
 
           justifyContent: baseDir === "down" ? "flex-start"
             : baseDir === "up" ? "flex-end" : "center",

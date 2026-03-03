@@ -71,7 +71,7 @@ export const Gists = () => {
           }}
         />
       ) : (
-        gists.map((post) => <GistCard key={post._id} gist={post} />)
+        gists.map((gist) => <GistCard key={gist._id} gist={gist} />)
       )}
     </Stack>
   );

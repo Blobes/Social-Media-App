@@ -1,21 +1,21 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
 
-const BookmarkSchema = new mongoose.Schema(
+const BookmarkSchema = new Schema(
   {
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Users",
+      type: Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     postId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true,
       refPath: "postType",
     },
     postType: {
       type: String,
       required: true,
-      enum: ["Gists", "Stakes"],
+      enum: ["Gist", "Stake"],
     },
   },
   { timestamps: true },
@@ -23,4 +23,4 @@ const BookmarkSchema = new mongoose.Schema(
 
 // Keep your unique index to prevent duplicate bookmarks
 BookmarkSchema.index({ userId: 1, postId: 1 }, { unique: true });
-export const BookmarkModel = mongoose.model("Bookmarks", BookmarkSchema);
+export const BookmarkModel = model("Bookmark", BookmarkSchema, "bookmarks");

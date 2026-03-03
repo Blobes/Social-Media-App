@@ -60,10 +60,11 @@ export const serverApi = {
   checkEmail: "/api/auth/check-email",
   verifyAuthToken: "/api/auth/verify",
   refreshToken: "/api/auth/refresh",
+  mediaUpload: "/api/media/get-upload-url",
 
-  // Posts
-  posts: "/api/posts",
-  likePost: (id: string) => `/api/posts/${id}/like`,
+  // Gists
+  gists: "/api/gists",
+  likeGist: (id: string) => `/api/gists/${id}/like`,
 
   // Users
   users: "/api/users",

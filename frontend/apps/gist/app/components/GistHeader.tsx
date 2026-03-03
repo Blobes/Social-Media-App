@@ -1,18 +1,18 @@
 import { Stack, Typography, IconButton } from "@mui/material";
 import { UserAvatar, SmartDate } from "@repo/shared-ui";
 import { UserPlus, EllipsisVertical } from "lucide-react";
-import { IUser } from "@repo/types";
+import { IAuthor } from "@repo/types";
 import { useTheme } from "@mui/material/styles";
 import { useAdaptiveTime } from "@repo/shared-state";
 
 interface HeaderProps {
-    author: IUser;
+    author: IAuthor;
     createdAt: string | number;
 }
 
 export const GistHeader = ({ author, createdAt }: HeaderProps) => {
     const theme = useTheme();
-    const authorFullName = `${author.firstName} ${author.lastName}`;
+    //  const authorFullName = `${author.firstName} ${author.lastName}`;
 
     return (
         <Stack direction="row"
@@ -31,11 +31,11 @@ export const GistHeader = ({ author, createdAt }: HeaderProps) => {
                     profileImage: author.profileImage,
                 }}
                 style={{ width: "32px", height: "32px", fontSize: "16px" }}
-                aria-label={authorFullName}
+                aria-label={author.fullName}
             />
             <Stack sx={{ width: "100%", gap: theme.gap(0), minWidth: "40px" }}>
                 <Typography variant="body2" noWrap sx={{ fontWeight: "bold" }}>
-                    {authorFullName}
+                    {author.fullName}
                 </Typography>
                 <Typography variant="body3" noWrap sx={{ color: theme.palette.gray[200], lineHeight: "1.1em" }}>
                     @{author.username}
@@ -53,7 +53,7 @@ export const GistHeader = ({ author, createdAt }: HeaderProps) => {
                 }}>
 
                 {/* Date & time */}
-                <SmartDate variant="body3"
+                <SmartDate variant="body2"
                     timestamp={createdAt}
                     adaptiveTime={useAdaptiveTime}
                     sx={{

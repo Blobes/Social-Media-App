@@ -3,13 +3,14 @@ import { Response } from "express";
 import { AuthRequest } from "@/middlewares/verifyAuthToken";
 import { GistLikeModel, GistModel } from "@/models/post/gist";
 
-export const likeGist = async (
+export const gistLike = async (
   req: AuthRequest,
   res: Response,
 ): Promise<any> => {
-  const postId = req.params.id;
+  const gistId = req.params.id;
   const userId = req.user?.id;
 
+  // 1. Initial Validation
   if (!userId) {
     return res.status(401).json({
       status: "ERROR",
@@ -18,10 +19,10 @@ export const likeGist = async (
     });
   }
 
-  if (!mongoose.Types.ObjectId.isValid(postId)) {
+  if (!mongoose.Types.ObjectId.isValid(gistId)) {
     return res.status(400).json({
       status: "ERROR",
-      message: "Invalid post ID",
+      message: "Invalid gist ID",
       payload: null,
     });
   }
@@ -31,71 +32,84 @@ export const likeGist = async (
   try {
     session.startTransaction();
 
-    const post = await GistModel.findById(postId).session(session);
-    if (!post) {
+    // 2. Fetch the container (Gist)
+    const gist = await GistModel.findById(gistId).session(session);
+    if (!gist) {
       await session.abortTransaction();
       return res.status(404).json({
         status: "ERROR",
-        message: "Post not found",
+        message: "Gist not found",
         payload: null,
       });
     }
 
+    // 3. Check for existing like using correct field 'gistId'
     const existingLike = await GistLikeModel.findOne({
-      postId,
+      gistId,
       userId,
     }).session(session);
 
-    let liked: boolean;
+    let isLiked: boolean;
 
     if (existingLike) {
-      // UNLIKE
+      // UNLIKE LOGIC
       await GistLikeModel.deleteOne({ _id: existingLike._id }).session(session);
 
+      // Atomic decrement
       await GistModel.updateOne(
-        { _id: postId },
+        { _id: gistId },
         { $inc: { likeCount: -1 } },
         { session },
       );
-      liked = false;
+      isLiked = false;
     } else {
-      // LIKE
+      // LIKE LOGIC
       await GistLikeModel.create(
         [
           {
-            postId,
+            gistId,
             userId,
           },
         ],
         { session },
       );
 
+      // Atomic increment
       await GistModel.updateOne(
-        { _id: postId },
+        { _id: gistId },
         { $inc: { likeCount: 1 } },
         { session },
       );
-      liked = true;
+      isLiked = true;
     }
 
     await session.commitTransaction();
 
-    const updatedPost = await GistModel.findById(postId).select("likeCount");
+    // 4. Fetch the final count post-transaction for accuracy
+    const updatedGist = await GistModel.findById(gistId)
+      .select("likeCount")
+      .lean();
 
     return res.status(200).json({
       status: "SUCCESS",
-      message: liked ? "Post liked" : "Post unliked",
+      message: isLiked
+        ? "Gist liked successfully"
+        : "Gist unliked successfully",
       payload: {
-        likedByMe: liked,
-        likeCount: updatedPost?.likeCount ?? 0,
+        likedByMe: isLiked,
+        likeCount: updatedGist?.likeCount ?? 0,
       },
     });
   } catch (error: any) {
-    await session.abortTransaction();
+    if (session.inTransaction()) {
+      // Check if transaction is active
+      await session.abortTransaction();
+    }
 
+    console.error("Like Gist Error:", error);
     return res.status(500).json({
       status: "ERROR",
-      message: error.message || "Server error",
+      message: error.message || "Server error while toggling like",
       payload: null,
     });
   } finally {

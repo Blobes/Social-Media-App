@@ -1,7 +1,7 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { RequestHandler, Response } from "express";
-import { genAccessTokens } from "@/helper";
 import { AuthRequest } from "./verifyAuthToken";
+import { genAccessTokens } from "@/utils/tokens";
 
 export const refreshAuthToken: RequestHandler = async (
   req: AuthRequest,

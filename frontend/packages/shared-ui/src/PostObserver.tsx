@@ -1,18 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { IGist, IPost, IStake, IUser } from "@repo/types";
+import { IAuthor, IGist, IPost, IPostType, IStake, IUser } from "@repo/types";
 import { cachePost } from "@repo/helpers";
 import { Box } from "@mui/material";
 
 interface ObserverProps {
     post: IGist | IStake;
-    type: "gist" | "stake";
-    author: IUser;
+    type: IPostType;
     children: React.ReactNode;
 }
 
-export const PostObserver = ({ post, type, author, children }: ObserverProps) => {
+export const PostObserver = ({ post, type, children }: ObserverProps) => {
     const elementRef = useRef<HTMLDivElement>(null);
     const postData = { ...post, type } as IPost
 
@@ -21,7 +20,7 @@ export const PostObserver = ({ post, type, author, children }: ObserverProps) =>
             (entries) => {
                 if (entries[0].isIntersecting) {
                     // The user has scrolled to this post!
-                    cachePost(postData, author);
+                    cachePost(postData);
                     // Once cached, stop observing this specific instance
                     observer.unobserve(entries[0].target);
                 }

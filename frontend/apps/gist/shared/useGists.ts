@@ -6,7 +6,7 @@ import { delay } from "@repo/helpers";
 
 export const useGists = () => {
   const router = useRouter();
-  const { getAllGist } = useGistService();
+  const { fetchGistList } = useGistService();
   const [gists, setGists] = useState<IGist[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [isLoading, setLoading] = useState(false);
@@ -14,7 +14,7 @@ export const useGists = () => {
   const handleGists = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await getAllGist();
+      const res = await fetchGistList();
       if (res?.payload) {
         setGists(res.payload);
         setMessage(res.message);
@@ -25,7 +25,7 @@ export const useGists = () => {
       await delay();
       setLoading(false);
     }
-  }, [getAllGist]);
+  }, [fetchGistList]);
 
   useEffect(() => {
     handleGists();

@@ -1,4 +1,4 @@
-import { IPost, IUser } from "@repo/types";
+import { IAuthor, IPost } from "@repo/types";
 import { get, set } from "idb-keyval";
 
 export interface Cached {
@@ -6,13 +6,13 @@ export interface Cached {
   lastViewed: Date;
 }
 
-export const cachePost = async (post: IPost, author: IUser) => {
+export const cachePost = async (post: IPost) => {
   const now = new Date();
 
   // Parallel fetch for speed
   const [savedPost, authorDict] = await Promise.all([
     get("cached-posts") as Promise<Cached[] | undefined>,
-    get("cached-authors") as Promise<Record<string, IUser> | undefined>,
+    get("cached-authors") as Promise<Record<string, IAuthor>>,
   ]);
 
   const postList = savedPost || [];
@@ -20,7 +20,7 @@ export const cachePost = async (post: IPost, author: IUser) => {
 
   // PERFORMANCE CHECK: Does this post and its author already exist?
   const alreadyCached = postList.find((item) => item.post._id === post._id);
-  const authorExists = authors[author._id];
+  const authorExists = authors[post.author._id];
 
   if (alreadyCached && authorExists) return;
 
@@ -29,13 +29,10 @@ export const cachePost = async (post: IPost, author: IUser) => {
   postList.forEach((item) => postMap.set(item.post._id, item));
   postMap.set(post._id, { post, lastViewed: now });
 
-  // Cache Author if provided (Lazy load author data)
-  if (post.authorId === author._id) {
-    authors[author._id] = author;
-  }
+  // Cache Author
+  authors[post.author._id] = post.author;
 
   // Save immediate changes
-
   await Promise.all([
     set("cached-posts", Array.from(postMap.values())),
     set("cached-authors", authors),
@@ -82,10 +79,10 @@ export const cleanupCache = async () => {
 
   // 3. Author Cleanup: Only keep authors who have at least one post remaining
   const activeAuthorIds = new Set(
-    activePosts.map((item) => item.post.authorId),
+    activePosts.map((item) => item.post.author._id),
   );
 
-  const updatedAuthors: Record<string, IUser> = {};
+  const updatedAuthors: Record<string, IAuthor> = {};
   Object.keys(authorDictionary).forEach((id) => {
     if (activeAuthorIds.has(id)) {
       updatedAuthors[id] = authorDictionary[id];
@@ -97,11 +94,10 @@ export const cleanupCache = async () => {
     set("cached-posts", activePosts),
     set("cached-authors", updatedAuthors),
   ]);
-
   console.log(`Cache Cleanup Sync: Kept ${activePosts.length} posts.`);
 };
 
-export const cacheAuthor = async (author: IUser) => {
+export const cacheAuthor = async (author: IAuthor) => {
   if (!author || !author._id) return;
 
   try {
@@ -120,16 +116,14 @@ export const cacheAuthor = async (author: IUser) => {
 
 export const getCachedAuthor = async (
   authorId: string,
-): Promise<IUser | null> => {
-  if (!authorId) return null;
-
+): Promise<IAuthor | undefined> => {
   try {
     // 1. Fetch the entire dictionary from IndexedDB
-    const cachedAuthors = await get<Record<string, IUser>>("cached-authors");
+    const cachedAuthors = await get<Record<string, IAuthor>>("cached-authors");
     // 2. Return the specific author or null if they don't exist
-    return (cachedAuthors && cachedAuthors[authorId]) || null;
+    return cachedAuthors && cachedAuthors[authorId];
   } catch (error) {
     console.error(`Error fetching author ${authorId} from cache:`, error);
-    return null;
+    return;
   }
 };

@@ -6,9 +6,10 @@ import dotenv from "dotenv";
 import authRoutes from "@/routes/auth";
 import userRoutes from "@/routes/user";
 import postRoutes from "@/routes/post";
+import mediaRoutes from "@/routes/media";
 import cookieParser from "cookie-parser";
 import path from "path";
-import { connectDB, corsConfig } from "@/helper";
+import { connectDB, corsConfig } from "@/utils/misc";
 
 dotenv.config({
   path: path.resolve(
@@ -37,7 +38,8 @@ app.get("/healthz", (_req: Request, res: Response): void => {
 // ====== Routes ======
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/posts", postRoutes);
+app.use("/api/gists", postRoutes);
+app.use("/api/media", mediaRoutes);
 
 // ====== DB Connection ======
 connectDB(mongoUri);
