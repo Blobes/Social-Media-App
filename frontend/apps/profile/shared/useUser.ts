@@ -1,94 +1,86 @@
 "use client";
 
-import { fetcher, checkNetworkError, serverApi } from "@repo/helpers";
-import { useSnackbar } from "@repo/shared-state";
-import { IUser, IListResponse, ISingleResponse } from "@repo/types";
+import { useCallback, useState } from "react";
+import { useGlobalContext, useSnackbar } from "@repo/shared-state";
+import { FollowResponse, UserService } from "../app/service";
+import { IUser } from "@repo/types";
+import { delay } from "@repo/helpers";
 
 export const useUser = () => {
+  const { fetchUser, fetchFollowers, followUser } = UserService();
   const { setSBMessage } = useSnackbar();
+  const { setAuthUser } = useGlobalContext();
 
-  const getUser = async (
-    userId: string,
-  ): Promise<{
-    payload: IUser | null;
-    message: string;
-  }> => {
-    try {
-      const res = await fetcher<ISingleResponse<IUser>>(
-        serverApi.user(userId),
-        {
-          method: "GET",
-        },
-      );
-      return { payload: res.payload ?? null, message: res.message };
-    } catch (error: any) {
-      const networkError = checkNetworkError(error);
-      if (networkError) return networkError;
-      return {
-        payload: null,
-        message: error.message ?? "Something went wrong",
-      };
-    }
-  };
+  const [updatedUser, setUpdatedUser] = useState<FollowResponse>();
+  const [isLoading, setLoading] = useState(false);
+  const [followers, setFollowers] = useState<IUser[]>([]);
+  const [message, setMessage] = useState<string | null>(null);
 
-  interface Followers {
-    payload: any[] | null;
-    message: string;
-  }
-  const getFollowers = async (userId: string): Promise<Followers> => {
-    try {
-      const res = await fetcher<IListResponse<any>>(
-        serverApi.followers(userId),
-        {
-          method: "GET",
-        },
-      );
+  const getUser = useCallback(
+    async (userId: string) => {
+      return await fetchUser(userId);
+    },
+    [fetchUser],
+  );
 
-      return { payload: res.payload ?? null, message: res.message };
-    } catch (error: any) {
-      return {
-        payload: null,
-        message: error.message ?? "Something went wrong",
-      };
-    }
-  };
+  const getFollowers = useCallback(
+    async (userId: string) => {
+      if (!userId) return;
+      try {
+        setLoading(true);
+        setMessage(null);
 
-  interface FollowResponse {
-    payload: { currentUser: IUser; targetUser: IUser } | null;
-    message: string;
-  }
-  const handleFollow = async (userId: string): Promise<FollowResponse> => {
-    try {
-      const res = await fetcher<FollowResponse>(serverApi.follow(userId), {
-        method: "PUT",
-      });
-      setSBMessage({
-        msg: {
-          content: res.message,
-          duration: 2,
-          msgStatus: "SUCCESS",
-        },
-      });
-      return { payload: res.payload ?? null, message: res.message };
-    } catch (error: any) {
-      const networkError = checkNetworkError(error);
-      if (networkError) {
+        const res = await fetchFollowers(userId);
+
+        if (res.status === "SUCCESS" && res.payload) {
+          setFollowers(res.payload);
+          setMessage(res.message);
+        } else {
+          setMessage(res.message || "Failed to load followers");
+        }
+        return res;
+      } catch (error: any) {
+        setMessage(error.message || "Something went wrong.");
+      } finally {
+        await delay();
+        setLoading(false);
+      }
+    },
+    [fetchFollowers],
+  );
+
+  const handleFollow = useCallback(
+    async (initialUser: IUser) => {
+      if (isLoading) return;
+      setLoading(true);
+      try {
+        const res = await followUser(initialUser._id);
         setSBMessage({
           msg: {
-            content: networkError.message,
-            duration: 2,
-            msgStatus: "ERROR",
+            content: res.message,
+            msgStatus: res.status,
           },
         });
-        return networkError;
+
+        if (res.status === "SUCCESS" && res.payload) {
+          setAuthUser(res.payload.currentUser);
+          setUpdatedUser(res.payload.targetUser);
+        }
+        return res;
+      } finally {
+        setLoading(false);
       }
+    },
+    [followUser, isLoading, setSBMessage, setAuthUser],
+  );
 
-      return {
-        payload: null,
-        message: error.message ?? "Something went wrong",
-      };
-    }
+  return {
+    handleFollow,
+    getFollowers,
+    getUser,
+    updatedUser,
+    isLoading,
+    followers,
+    message,
   };
-
-  return { handleFollow, getFollowers, getUser };
 };

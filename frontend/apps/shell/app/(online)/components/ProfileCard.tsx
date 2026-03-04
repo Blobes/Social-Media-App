@@ -13,7 +13,7 @@ export const ProfileCard = () => {
   const { authUser } = useGlobalContext();
 
   if (!authUser) return null;
-  const { firstName, lastName, coverImage, email, followers, following } =
+  const { firstName, lastName, coverImage, email, followersCount, followingCount } =
     authUser;
   return (
     <Stack
@@ -69,13 +69,13 @@ export const ProfileCard = () => {
               borderRight: `1px solid ${theme.palette.gray.trans[1]}`,
             }}>
             <Typography variant="subtitle1">
-              {summarizeNum(followers?.length!)}
+              {summarizeNum(followersCount)}
             </Typography>
             <Typography variant="body3">Followers</Typography>
           </Stack>
           <Stack sx={{ width: "inherit" }} spacing={`${theme.gap(-5)}`}>
             <Typography variant="subtitle1">
-              {summarizeNum(following?.length!)}
+              {summarizeNum(followingCount)}
             </Typography>
             <Typography variant="body3">Following</Typography>
           </Stack>

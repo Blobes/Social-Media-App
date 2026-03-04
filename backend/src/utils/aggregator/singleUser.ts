@@ -12,7 +12,7 @@ export const getUserAggregation = ({
     : null;
 
   return [
-    // 1. Lookup follow status relative to the viewer
+    // 1. Lookup: Does the viewer follow this user? (isFollowing logic)
     {
       $lookup: {
         from: "follows",
@@ -33,7 +33,28 @@ export const getUserAggregation = ({
       },
     },
 
-    // 2. Project and Format: Preserve existing schema while hiding secrets
+    // 2. Lookup: Does this user follow the viewer? (followsMe logic)
+    {
+      $lookup: {
+        from: "follows",
+        let: { tId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$followerId", "$$tId"] },
+                  { $eq: ["$followingId", viewerId] },
+                ],
+              },
+            },
+          },
+        ],
+        as: "followerDoc",
+      },
+    },
+
+    // 3. Project and Format
     {
       $project: {
         password: 0,
@@ -44,7 +65,7 @@ export const getUserAggregation = ({
     },
     {
       $addFields: {
-        // Returns true if viewer follows this user, false otherwise
+        // Viewer follows Target
         isFollowing: {
           $cond: {
             if: {
@@ -57,10 +78,23 @@ export const getUserAggregation = ({
             else: false,
           },
         },
+        // Target follows Viewer
+        followsMe: {
+          $cond: {
+            if: {
+              $and: [
+                { $ne: [viewerId, null] },
+                { $gt: [{ $size: "$followerDoc" }, 0] },
+              ],
+            },
+            then: true,
+            else: false,
+          },
+        },
         fullName: { $concat: ["$firstName", " ", "$lastName"] },
       },
     },
-    // 3. Cleanup temporary lookup array
-    { $project: { followDoc: 0 } },
+    // 4. Cleanup temporary lookup arrays
+    { $project: { followDoc: 0, followerDoc: 0 } },
   ];
 };

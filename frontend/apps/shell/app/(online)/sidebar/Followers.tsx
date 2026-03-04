@@ -9,37 +9,16 @@ import { delay } from "@repo/helpers";
 import { ProgressIcon, Empty } from "@repo/shared-ui";
 import { UserMinus } from "lucide-react";
 import { useUser } from "@repo/profile/shared";
+import { IUser } from "@repo/types";
 
 export const Followers = () => {
   const theme = useTheme();
   const { authUser } = useGlobalContext();
-  const [followersId, setFollowersId] = useState<any[]>();
-  const [message, setMessage] = useState<string | null>(null);
-  const { getFollowers } = useUser();
-  const [isLoading, setLoading] = useState(false);
-
-  const renderFollowers = async () => {
-    if (!authUser) return null;
-    try {
-      setLoading(true);
-      await delay();
-
-      const idRes = await getFollowers(authUser._id);
-
-      if (idRes.payload) {
-        setFollowersId(idRes.payload);
-        setMessage(idRes.message);
-      }
-    } catch (error: any) {
-      setMessage(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { getFollowers, followers, isLoading, message } = useUser();
 
   useEffect(() => {
-    if (authUser?._id) renderFollowers();
-  }, [authUser?._id]);
+    if (authUser?._id) getFollowers(authUser._id);
+  }, [authUser?._id, getFollowers]);
 
   return (
     <>
@@ -51,9 +30,9 @@ export const Followers = () => {
           }}>
           <ProgressIcon otherProps={{ size: 30 }} />
         </Stack>
-      ) : authUser && followersId && followersId.length < 1 ? (
+      ) : authUser && followers && followers.length < 1 ? (
         <Empty tagline="You don't have followers!" icon={<UserMinus />} />
-      ) : followersId && followersId.length > 0 ? (
+      ) : followers && followers.length > 0 ? (
         <Stack
           direction="row"
           alignItems="center"
@@ -63,9 +42,9 @@ export const Followers = () => {
             height: "fit-content",
             padding: theme.boxSpacing(0),
           }}>
-          {followersId.map((idObject) => {
+          {followers.map((follower) => {
             return (
-              <FollowerCard key={idObject._id} followerId={idObject._id} />
+              <FollowerCard key={follower._id} follower={follower} />
             );
           })}
         </Stack>

@@ -13,7 +13,7 @@ interface CheckEmailResponse {
   message: string;
 }
 
-export const useLoginService = () => {
+export const LoginService = () => {
   const checkEmail = async (email: string): Promise<CheckEmailResponse> => {
     return await fetcher<CheckEmailResponse>(serverApi.checkEmail, {
       method: "POST",

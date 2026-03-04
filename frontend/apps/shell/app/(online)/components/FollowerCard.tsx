@@ -2,53 +2,22 @@
 
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext } from "@repo/shared-state";
 import { useUser } from "@repo/profile/shared";
 import { UserAvatar } from "@repo/shared-ui";
 import { IUser } from "@repo/types";
-import { useEffect, useState } from "react";
 import { AnchorLink, AppButton, Strip } from "@repo/shared-ui";
 
-
 interface FollowerProps {
-  followerId: string;
+  follower: IUser;
 }
-export const FollowerCard = ({ followerId }: FollowerProps) => {
+export const FollowerCard = ({ follower }: FollowerProps) => {
   const theme = useTheme();
-  const { authUser, setAuthUser } = useGlobalContext();
-  const [follower, setFollower] = useState<IUser | null>(null);
-  const { handleFollow, getUser } = useUser();
+  const { handleFollow, updatedUser, isLoading } = useUser();
 
+  if (!updatedUser) return null;
 
-  useEffect(() => {
-    if (!followerId) return;
-    const fetchUser = async () => {
-      try {
-        const res = await getUser(followerId);
-        if (res.payload) setFollower(res.payload);
-      } catch (err) {
-        setFollower(null);
-      }
-    };
-    fetchUser();
-  }, [followerId]);
-
-  if (!authUser || !follower) return null;
-
-  const { _id, username, firstName, lastName, profileImage, followers } =
-    follower!;
-  const isFollowing = followers?.includes(authUser._id);
-  const followingEachOther =
-    followers?.includes(authUser._id) && authUser.followers?.includes(_id);
-
-  const handleFollower = async () => {
-    const updated = await handleFollow(_id);
-    if (updated && updated.payload) {
-      const { currentUser, targetUser } = updated.payload;
-      setFollower(targetUser);
-      setAuthUser(currentUser);
-    }
-  };
+  const { username, firstName, lastName, fullName,
+    profileImage, isFollowing, followsMe } = updatedUser;
 
   return (
     <Stack
@@ -79,7 +48,7 @@ export const FollowerCard = ({ followerId }: FollowerProps) => {
             fontWeight={600}
             noWrap={true}
             sx={{ textAlign: "left" }}>
-            {`${firstName} ${lastName}`}
+            {fullName}
           </Typography>
           <Typography
             variant="body3"
@@ -88,7 +57,7 @@ export const FollowerCard = ({ followerId }: FollowerProps) => {
             <Strip
               items={[
                 { text: username },
-                ...(followingEachOther ? [{ text: "Following" }] : []),
+                ...(isFollowing && followsMe ? [{ text: "Following" }] : []),
               ]}
             />
           </Typography>
@@ -97,12 +66,13 @@ export const FollowerCard = ({ followerId }: FollowerProps) => {
 
       <AppButton
         variant="outlined"
+        options={{ disabled: isLoading }}
         style={{
           fontSize: "13px",
           padding: theme.boxSpacing(1, 5),
           borderColor: theme.palette.gray.trans[2],
         }}
-        onClick={() => handleFollower()}>
+        onClick={() => handleFollow(follower)}>
         {isFollowing ? "Unfollow" : "Follow back"}
       </AppButton>
     </Stack>

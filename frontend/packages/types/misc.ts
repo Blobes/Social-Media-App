@@ -35,15 +35,14 @@ export interface IUser {
   coverImage?: string;
   about?: string;
   location?: string;
-  worksAt?: string;
   relationship?: string;
   occupation?: string;
-  interests?: any[]; // could also be string[]
-  followers?: string[];
-  following?: string[];
+  interests?: string[];
   onboardingStep?: string | null;
   country?: string | null;
   state?: string | null;
+  followersCount: number;
+  followingCount: number;
   createdAt?: string;
   updatedAt?: string;
 }

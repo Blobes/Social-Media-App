@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { IPost, IStake } from "@repo/types";
 import { delay } from "@repo/helpers";
 import { useStake } from "@repo/stake/shared";
-import { useFeedService } from "./service";
+import { FeedService } from "./service";
 
 export const useFeed = () => {
   const router = useRouter();
@@ -13,7 +13,7 @@ export const useFeed = () => {
   const [isLoading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const { stakes } = useStake();
-  const { fetchFeed } = useFeedService();
+  const { fetchFeed } = FeedService();
 
   const handleFeed = useCallback(async () => {
     try {

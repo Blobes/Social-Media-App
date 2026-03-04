@@ -1,17 +1,11 @@
 "use client";
 
 import { fetcher, serverApi } from "@repo/helpers";
-import { IListResponse, IPost, FetchStatus } from "@repo/types";
+import { IListResponse, IPost } from "@repo/types";
 import { useCallback } from "react";
 
-export interface IFeedResponse {
-  status: FetchStatus;
-  payload: IPost[] | null;
-  message: string;
-}
-
-export const useFeedService = () => {
-  const fetchFeed = useCallback(async (): Promise<IFeedResponse> => {
+export const FeedService = () => {
+  const fetchFeed = useCallback(async (): Promise<IListResponse<IPost>> => {
     try {
       const res = await fetcher<IListResponse<IPost>>(serverApi.feed, {
         method: "GET",
