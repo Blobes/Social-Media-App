@@ -4,6 +4,7 @@ services:
     name: funstakes-auth
     env: node
     plan: free
+    rootDir: backend-v2
     buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/auth-service
     startCommand: pnpm --filter @repo/auth-service start
     envVars:
@@ -11,16 +12,15 @@ services:
         value: "22"
       - key: PORT
         value: "8080"
-      - key: COMMON_SECRETS
-        fromGroup: funstakes-common-secrets
-      - key: COMMUNICATION_SECRETS
-        fromGroup: funstakes-communication-secrets
+      - fromGroup: funstakes-common-secrets
+      - fromGroup: funstakes-communication-secrets
 
   # --- Post Service ---
   - type: web
     name: funstakes-post
     env: node
     plan: free
+    rootDir: backend-v2
     buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/post-service
     startCommand: pnpm --filter @repo/post-service start
     envVars:
@@ -28,14 +28,14 @@ services:
         value: "22"
       - key: PORT
         value: "8081"
-      - key: COMMON_SECRETS
-        fromGroup: funstakes-common-secrets
+      - fromGroup: funstakes-common-secrets
 
   # --- User Service ---
   - type: web
     name: funstakes-user
     env: node
     plan: free
+    rootDir: backend-v2
     buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/user-service
     startCommand: pnpm --filter @repo/user-service start
     envVars:
@@ -43,14 +43,14 @@ services:
         value: "22"
       - key: PORT
         value: "8082"
-      - key: COMMON_SECRETS
-        fromGroup: funstakes-common-secrets
+      - fromGroup: funstakes-common-secrets
 
   # --- Worker Service ---
   - type: web
     name: funstakes-worker
     env: node
     plan: free
+    rootDir: backend-v2
     buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/worker-service
     startCommand: pnpm --filter @repo/worker-service start
     healthCheckPath: /health
@@ -59,16 +59,15 @@ services:
         value: "22"
       - key: PORT
         value: "8083"
-      - key: COMMON_SECRETS
-        fromGroup: funstakes-common-secrets
-      - key: COMMS_SECRETS
-        fromGroup: funstakes-communication-secrets
+      - fromGroup: funstakes-common-secrets
+      - fromGroup: funstakes-communication-secrets
 
   # --- Admin Service ---
   - type: web
     name: funstakes-admin
     env: node
     plan: free
+    rootDir: backend-v2
     buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/admin-service
     startCommand: pnpm --filter @repo/admin-service start
     envVars:
@@ -76,5 +75,4 @@ services:
         value: "22"
       - key: PORT
         value: "8084"
-      - key: COMMON_SECRETS
-        fromGroup: funstakes-common-secrets
+      - fromGroup: funstakes-common-secrets
