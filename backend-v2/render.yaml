@@ -13,7 +13,7 @@ services:
         value: "8080"
       - key: COMMON_SECRETS
         fromGroup: funstakes-common-secrets
-      - key: COMMS_SECRETS
+      - key: COMMUNICATION_SECRETS
         fromGroup: funstakes-communication-secrets
 
   # --- Post Service ---
