@@ -1,8 +1,9 @@
 "use client";
 
+import { IMedia } from "./misc";
+
 export type IPostStatus = "ACTIVE" | "DELETED";
 export type IPostType = "GIST" | "STAKE";
-export type IMediaType = "IMAGE" | "VIDEO" | "GIF";
 
 export interface IAuthor {
   _id: string;
@@ -11,21 +12,6 @@ export interface IAuthor {
   lastName: string;
   fullName: string;
   profileImage?: string;
-}
-
-export interface IMedia {
-  _id: string;
-  url: string;
-  type?: IMediaType;
-  thumbnailUrl?: string;
-  alt?: string;
-  viewMode?: "LIST" | "ISOLATED";
-  mimeType?: string;
-  dimensions?: {
-    width: number;
-    height: number;
-    aspectRatio: number;
-  };
 }
 
 export interface IStake {
@@ -49,6 +35,8 @@ export interface IGist {
   likedByMe: boolean;
   editCount: number;
   isEdited: boolean;
+  isFollowingAuthor: boolean;
+  authorfollowsMe: boolean;
   status: IPostStatus;
   createdAt: string | number;
   updatedAt: string | number;

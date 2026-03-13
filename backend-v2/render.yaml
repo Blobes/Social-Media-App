@@ -1,0 +1,82 @@
+services:
+  # --- Auth Service ---
+  - type: web
+    name: funstakes-auth
+    env: node
+    plan: free
+    buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/auth-service
+    startCommand: pnpm --filter @repo/auth-service start
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: PORT
+        value: "8080"
+      - key: MONGODB_URI
+        fromGroup: funstakes-common-secrets
+      - key: JWT_SECRET
+        fromGroup: funstakes-common-secrets
+      - key: REFRESH_TOKEN_SECRET
+        fromGroup: funstakes-common-secrets
+      - key: FRONTEND_URL
+        fromGroup: funstakes-common-secrets
+      # Communication keys for Auth (Verification emails/WhatsApp)
+      - key: RESEND_API_KEY
+        fromGroup: funstakes-communication-secrets
+      - key: WHATSAPP_ACCESS_KEY
+        fromGroup: funstakes-communication-secrets
+
+  # --- Post Service ---
+  - type: web
+    name: funstakes-post
+    env: node
+    plan: free
+    buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/post-service
+    startCommand: pnpm --filter @repo/post-service start
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: PORT
+        value: "8081"
+      - key: MONGODB_URI
+        fromGroup: funstakes-common-secrets
+      - key: JWT_SECRET
+        fromGroup: funstakes-common-secrets
+      - key: AWS_ACCESS_KEY
+        fromGroup: funstakes-common-secrets
+      - key: AWS_SECRET_KEY
+        fromGroup: funstakes-common-secrets
+
+  # --- User Service ---
+  - type: web
+    name: funstakes-user
+    env: node
+    plan: free
+    buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/user-service
+    startCommand: pnpm --filter @repo/user-service start
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: PORT
+        value: "8082"
+      - key: MONGODB_URI
+        fromGroup: funstakes-common-secrets
+      - key: JWT_SECRET
+        fromGroup: funstakes-common-secrets
+
+  # --- Worker Service ---
+  - type: web
+    name: funstakes-worker
+    env: node
+    plan: free
+    buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/worker-service
+    startCommand: pnpm --filter @repo/worker-service start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: PORT
+        value: "8083"
+      - key: MONGODB_URI
+        fromGroup: funstakes-common-secrets
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=4096"

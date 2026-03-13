@@ -6,13 +6,17 @@ import { useImageColors, useMisc } from "@repo/shared-state"
 import { GalleryProps, MediaGallery, Media } from "@repo/shared-ui";
 import { useCallback, useMemo } from "react";
 import { applyBGEffects } from "@repo/helpers";
+import { IGist, UIMode } from "@repo/types";
+import { GistMediaView } from "./GMediaView";
 
-interface GistMediaProps extends GalleryProps {
-    likedByMe: boolean;
+export interface GistMediaProps extends GalleryProps {
     handleLike: () => void;
+    gist: IGist
+    mode: UIMode;
+    isLiking: boolean
 }
 
-export const GistMedia = ({ mediaList, style, likedByMe, handleLike }: GistMediaProps) => {
+export const GistMedia = ({ mediaList, style, handleLike, gist, mode, isLiking }: GistMediaProps) => {
     const theme = useTheme();
     const { openModal, closeModal } = useMisc()
 
@@ -30,9 +34,14 @@ export const GistMedia = ({ mediaList, style, likedByMe, handleLike }: GistMedia
         },
     }), [style]);
 
-    const handleMedia = useCallback((id?: string) => {
-        if (!id) return;
-        openModal({ content: <Typography>Media id: {id}</Typography>, onClose: closeModal });
+    const handleMedia = useCallback((index?: number) => {
+        if (!index) return;
+        openModal({
+            content: <GistMediaView gist={gist}
+                like={{ handleLike: handleLike, isLiking }}
+                initialIndex={index} mode={mode} />,
+            onClose: closeModal
+        });
     }, [openModal]);
 
     const mappedList = useMemo(() => {
@@ -41,8 +50,8 @@ export const GistMedia = ({ mediaList, style, likedByMe, handleLike }: GistMedia
             return {
                 ...media,
                 id: mediaId,
-                onSingleTap: () => handleMedia(mediaId),
-                ...(!likedByMe && { onDoubleTap: handleLike })
+                onSingleTap: () => handleMedia(index),
+                ...(!gist.likedByMe && { onDoubleTap: handleLike })
             }
         })
     }, [mediaList, handleMedia]);
@@ -50,6 +59,6 @@ export const GistMedia = ({ mediaList, style, likedByMe, handleLike }: GistMedia
     const singleMedia = mappedList[0];
 
     return mediaList.length < 2 ? <Media {...singleMedia}
-        style={{ container: mediaStyle.container }} hooks={{ useImageColors, useMisc }} /> : (
+        style={{ container: mediaStyle.container }} useMedia={{ useImageColors, useMisc }} /> : (
         <MediaGallery mediaList={mappedList} style={{ ...mediaStyle }} bgEffects={applyBGEffects} />)
 }

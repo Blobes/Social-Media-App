@@ -51,29 +51,37 @@ export const registeredRoutes = {
 
 export const disallowedRoutes: string[] = [];
 
+// Server Apis
+export const apiBase = {
+  auth: "/api/auth",
+  feed: "/api/feed",
+  user: "/api/user",
+  gists: "/api/gists",
+  media: "/api/media",
+};
+
 export const serverApi = {
   // Auth
-  auth: "/api/auth",
-  login: "/api/auth/login",
-  logout: "/api/auth/logout",
-  signup: "/api/auth/signup",
-  checkEmail: "/api/auth/check-email",
-  verifyAuthToken: "/api/auth/verify",
-  refreshToken: "/api/auth/refresh",
-  mediaUpload: "/api/media/get-upload-url",
+  login: `${apiBase.auth}/login`,
+  logout: `${apiBase.auth}/logout`,
+  signup: `${apiBase.auth}/signup`,
+  checkEmail: `${apiBase.auth}/check-email`,
+  checkUsername: `${apiBase.auth}/check-username`,
+  verifyAuthToken: `${apiBase.auth}/verify-auth`,
+  refreshToken: `${apiBase.auth}/refresh`,
+
+  // Media
+  mediaUpload: `${apiBase.media}/get-upload-url`,
 
   // Feed
-  feed: "/api/feed",
-  userFeed: (id: string) => `/api/feed/${id}`,
-  followersFeed: "/api/feed/followers",
+  userFeed: (id: string) => `${apiBase.feed}/${id}`,
+  followersFeed: `${apiBase.feed}/followers`,
 
   // Gists
-  gists: "/api/gists",
-  likeGist: (id: string) => `/api/gists/${id}/like`,
+  likeGist: (id: string) => `${apiBase.gists}/${id}/like`,
 
   // Users
-  users: "/api/users",
-  user: (id: string) => `/api/users/${id}`,
-  followers: (id: string) => `/api/users/${id}/followers`,
-  follow: (id: string) => `/api/users/${id}/follow`,
+  getUser: (id: string) => `${apiBase.user}/${id}`,
+  followers: (id: string) => `${apiBase.user}/${id}/followers`,
+  follow: (id: string) => `${apiBase.user}/${id}/follow`,
 };

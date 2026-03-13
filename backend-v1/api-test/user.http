@@ -1,0 +1,95 @@
+### Variables
+@baseUrl = http://localhost:8080/api
+@user1ID = 69aa38047ef187d34dba2899
+@user1Email = officialblobes6457@gmail.com
+
+
+### Change Email
+PATCH {{baseUrl}}/user/change-email
+Content-Type: application/json
+
+{
+  "newEmail": "nick@gmail.co"
+}
+
+### Verify New Email Code & Update User Email
+POST {{baseUrl}}/user/handle-email-change
+Content-Type: application/json
+
+{
+  "email": "nick@gmail.co",
+  "code": "123567"
+}
+
+### Cancel & Terminate Email Change
+POST {{baseUrl}}/user/cancel-email-change
+Content-Type: application/json
+
+### Change Username
+PATCH {{baseUrl}}/user/change-username
+Content-Type: application/json
+
+{
+  "newUsername": "fun_staker"
+}
+
+### Change Password
+PATCH {{baseUrl}}/user/change-password
+Content-Type: application/json
+
+{
+  "newPassword": "Nick123"
+}
+
+### Delete Account
+DELETE {{baseUrl}}/user
+Content-Type: application/json
+
+### Get User Profile
+GET {{baseUrl}}/user/{{user1ID}}
+
+### Update User Basic Info
+PATCH {{baseUrl}}/user/update-basic
+Content-Type: application/json
+
+{
+  "firstName": "Nick",
+  "lastName": "Doe"
+}
+
+### Update User Demographic Info
+PATCH {{baseUrl}}/user/update-demo
+Content-Type: application/json
+
+{
+  "gender": "male",
+  "dateOfBirth": "12/12/1990",
+  "location": "Iyana Ipaja, Lagos, Nigeria"
+}
+
+### Update User Image
+PATCH {{baseUrl}}/user/change-image
+Content-Type: application/json
+
+{
+  "imageType": "PROFILE",
+  "url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+  "fileKey": "test-key";
+  "mimeType": "video";
+}
+
+### Delete User Image
+PATCH {{baseUrl}}/user/delete-image
+Content-Type: application/json
+
+{
+  "imageType": "PROFILE"
+}
+
+### User Following
+POST {{baseUrl}}/user/{{user1ID}}/follow
+Content-Type: application/json
+
+### Viewing User Followers
+GET {{baseUrl}}/user/{{user1ID}}/followers
+Content-Type: application/json

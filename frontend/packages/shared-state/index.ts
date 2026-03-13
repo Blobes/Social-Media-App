@@ -12,4 +12,5 @@ export * from "./hooks/usePageScroll";
 export * from "./hooks/useSnackbar";
 export * from "./hooks/useOffline";
 export * from "./hooks/useNavLists";
-export * from "./hooks/usePost";
+export * from "./hooks/post/useCached";
+export * from "./hooks/post/usePostLike";

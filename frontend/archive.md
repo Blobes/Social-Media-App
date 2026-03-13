@@ -541,3 +541,234 @@ return networkError;
 
 return { handleFollow, getFollowers, getUser };
 };
+
+"use client"
+
+import { useTheme } from "@mui/material/styles";
+import { Box } from "@mui/material";
+import Image from "next/image";
+import { IMedia } from "@repo/types";
+import { DoubleTap } from "../DoubleTap";
+
+export interface MediaStyle {
+container?: { base?: any; smallScreen?: any };
+content?: any;
+}
+
+export interface MediaHooks {
+useImageColors: (src: string) => { isPortrait: boolean };
+useMisc: () => { isDesktop: boolean };
+}
+
+export interface MediaProps extends IMedia {
+style?: MediaStyle;
+onSingleTap?: (media?: IMedia) => void;
+onDoubleTap?: (media?: IMedia) => void;
+hooks?: MediaHooks;
+}
+
+export const Media = ({ \_id, url, type, alt, onSingleTap,
+onDoubleTap, style, viewMode = "ISOLATED", dimensions, hooks }: MediaProps) => {
+
+    const theme = useTheme();
+    const mediaType = type ?? "IMAGE"
+
+    const isPortrait = hooks?.useImageColors
+        ? hooks.useImageColors(url).isPortrait
+        : false; // Fallback to false (landscape/square) if no hook provided
+
+    const isDesktop = hooks?.useMisc
+        ? hooks.useMisc().isDesktop
+        : true; // Fallback to true if no hook provided
+
+    const contentStyle = {
+        height: isPortrait ? "80svh" : "auto",
+        width: isPortrait ? "auto" : "100%",
+        maxHeight: "80svh",
+        maxWidth: "100%",
+        objectFit: "contain",
+        zIndex: 4,
+        // Responsive Breakpoints
+        ...(!isDesktop && {
+            width: "100%",
+            height: isPortrait ? "auto" : "unset",
+            maxHeight: isPortrait ? "none" : "60svh",
+        }),
+        ...style?.content,
+    }
+
+    return (
+        <DoubleTap
+            onSingleTap={() => onSingleTap && onSingleTap()}
+            onDoubleTap={() => onDoubleTap && onDoubleTap()}>
+            <Box
+                sx={{
+                    position: "relative",
+                    overflow: "hidden",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    bgcolor: theme.palette.gray.trans[1],
+                    cursor: "pointer",
+                    ...style?.container?.base,
+                    [theme.breakpoints.down("md")]: {
+                        ...style?.container?.smallScreen
+                    },
+                }}>
+                {/* Blurred backround */}
+                <Image
+                    src={url}
+                    alt=""
+                    fill
+                    style={{
+                        objectFit: 'cover',
+                        filter: 'blur(8px)',
+                        opacity: 1
+                    }}
+                    priority={false}
+                />
+                {mediaType === "IMAGE" ? (
+                    < Image
+                        src={url}
+                        width={dimensions?.width || 0}
+                        height={dimensions?.height || 0}
+                        sizes="100vw"
+                        loading="lazy"
+                        alt={alt || "Post image"}
+                        style={{ ...contentStyle }} />
+                ) : (
+                    <Box
+                        component="video" src={url}
+                        autoPlay loop muted playsInline
+                        controls
+                        sx={{ ...contentStyle }} />
+                )}
+            </Box >
+        </DoubleTap >
+    );
+
+};
+
+"use client";
+
+import { Stack, Typography } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { useGlobalContext, usePost, usePostLike } from "@repo/shared-state";
+import { GenericObject, UIMode, IGist } from "@repo/types";
+import { useGistService } from "../app/service";
+import { getCachedAuthor, summarizeNum } from "@repo/helpers";
+import { Empty, MediaProps, PostObserver, Strip } from "@repo/shared-ui";
+import { useSnackbar, useMisc } from "@repo/shared-state";
+import { mediaData } from "@repo/test-data";
+import { GistMedia } from "../app/components/GistMedia";
+import { useGistLike } from "../app/hooks/useGistLike";
+import { GistHeader } from "../app/components/GistHeader";
+import { GistEngagement } from "../app/components/GistEngagement";
+
+interface GistProps {
+gist: IGist;
+style?: GenericObject<string>;
+mode?: UIMode
+}
+
+export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
+const theme = useTheme();
+const { setSBMessage } = useSnackbar();
+const { handleGistLike, getPendingLike,
+setPendingLike, clearPendingLike } = useGistService()
+const { authStatus, setModalContent } = useGlobalContext();
+const { isOffline, isUnstableNetwork } = useMisc();
+
+    const { postData: gistData, isLiking, handleLike } = usePostLike(
+        gist, handleGistLike,
+        {
+            getPendingLike, setPendingLike, clearPendingLike,
+            authStatus, setModalContent, isOffline,
+            isUnstableNetwork, setSBMessage, mode,
+            LoginPrompt: <Typography>Login to engage</Typography>
+        }
+    );
+    const { likeCount, likedByMe, content, media, authorId, author } = gistData;
+    const gistMedia: MediaProps[] = (media && media.length > 0)
+        ? (media as MediaProps[]) : mediaData;
+
+    // Gist Author
+    const { cachedAuthor } = usePost(authorId);
+    const gistAuthor = mode === "ONLINE" || !cachedAuthor ? author : cachedAuthor
+
+    if (gistData.status === "DELETED") return <Empty tagline="Deleted by author." />;
+
+    return (
+        <PostObserver post={gistData} type="GIST">
+            <Stack
+                sx={{
+                    gap: theme.gap(0),
+                    flexGrow: "0",
+                    flexShrink: "0",
+                    borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
+                    ...style,
+                }}>
+                <GistHeader author={gistAuthor} createdAt={gistData.createdAt} />
+
+                {/* Gist content */}
+                <Typography variant="body2" sx={{
+                    padding: theme.boxSpacing(6, 0),
+                    [theme.breakpoints.down("md")]: {
+                        padding: theme.boxSpacing(6),
+                    }
+                }}>{content}</Typography>
+
+                {/* Gist media */}
+                <GistMedia mediaList={gistMedia} likedByMe={likedByMe}
+                    handleLike={handleLike} />
+
+                {/* Gist info strip */}
+                <Strip
+                    items={[
+                        {
+                            text: likeCount > 1 ? "Likes" : "Like",
+                            element: (
+                                <strong style={{ color: theme.palette.gray[300] as string }}>
+                                    {summarizeNum(likeCount)}
+                                </strong>
+                            ),
+                        },
+                        {
+                            text: 1500 > 1 ? "Replies" : "Reply",
+                            element: (
+                                <strong style={{ color: theme.palette.gray[300] as string }}>
+                                    {summarizeNum(1500)}
+                                </strong>
+                            ),
+                        },
+                        {
+                            text: 20000 > 1 ? " Views" : " View",
+                            element: (
+                                <strong style={{ color: theme.palette.gray[300] as string }}>
+                                    {summarizeNum(20000)}
+                                </strong>
+                            ),
+                        },
+                    ]}
+                    style={{
+                        padding: theme.boxSpacing(4, 0),
+                        [theme.breakpoints.down("md")]: {
+                            padding: theme.boxSpacing(4, 6),
+                        },
+                        borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
+                        fontSize: "14px"
+                    }}
+                />
+
+                {/* Gist engagement  */}
+                <GistEngagement
+                    likedByMe={likedByMe}
+                    isLiking={isLiking}
+                    handleLike={handleLike}
+                    mode={mode}
+                />
+            </Stack>
+        </PostObserver>
+    );
+
+};

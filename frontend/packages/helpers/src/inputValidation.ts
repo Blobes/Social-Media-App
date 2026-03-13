@@ -1,6 +1,6 @@
 "use client";
 
-import { InputValidation } from "@repo/types";
+import { InputType, InputValidation } from "@repo/types";
 
 export function validateEmail(email: string): InputValidation {
   if (!email || email.trim().length === 0) {
@@ -96,24 +96,96 @@ export function validatePassword(password: string): InputValidation {
 
 interface Input {
   value: string;
-  type: string;
+  type: InputType;
 }
 export function validateInputs(inputs: Input[]): boolean {
-  const statuses: string[] = [];
+  const valResults: InputValidation[] = [];
 
-  let validity;
+  let result;
   inputs.forEach((input) => {
     switch (input.type) {
-      case "email":
-        validity = validateEmail(input.value);
-        statuses.push(validity.status);
+      case "EMAIL":
+        result = validateEmail(input.value);
+        valResults.push({
+          type: "EMAIL",
+          ...result,
+        });
 
         break;
-      case "password":
-        validity = validatePassword(input.value);
-        statuses.push(validity.status);
+      case "PASSWORD":
+        result = validatePassword(input.value);
+        valResults.push({
+          type: "PASSWORD",
+          ...result,
+        });
     }
   });
 
-  return statuses.includes("invalid");
+  return valResults.some((res) => res.status.includes("INVALID"));
 }
+
+export const getInputValidity = (input: string): InputValidation => {
+  const value = input.trim();
+
+  // Handle Empty State
+  if (!value) {
+    return {
+      type: "USERNAME",
+      status: "INVALID",
+      message: "Please enter your credentials.",
+    };
+  }
+
+  // 1. Check for NUMBER
+  // Purely numeric input (no special characters or letters)
+  const isPureNumber = /^\d+$/.test(value);
+  if (isPureNumber && value.length < 7) {
+    return {
+      type: "NUMBER",
+      status: "VALID",
+      message: "Detected numeric input.",
+    };
+  }
+
+  // 2. Check for EMAIL
+  // If it contains '@', prioritize email logic
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (value.includes("@")) {
+    const isValid = emailRegex.test(value);
+    return {
+      type: "EMAIL",
+      status: isValid ? "VALID" : "INVALID",
+      message: isValid
+        ? "Email format is valid."
+        : "Please enter a valid email address.",
+    };
+  }
+
+  // 3. Check for PHONE
+  // Detects if it starts with '+' or contains phone-like characters
+  const hasPhoneChars = /^[\d\s\-+()]+$/.test(value);
+  const startsWithPhoneMarker = value.startsWith("+") || /^\d/.test(value);
+
+  if (hasPhoneChars && startsWithPhoneMarker && value.length >= 7) {
+    const phoneRegex = /^\+?[\d\s\-()]{10,}$/;
+    const isValid = phoneRegex.test(value);
+    return {
+      type: "PHONE",
+      status: isValid ? "VALID" : "INVALID",
+      message: isValid
+        ? "Phone number format is valid."
+        : "Invalid phone number format.",
+    };
+  }
+
+  // 4. Fallback to USERNAME
+  // If it doesn't match the specific patterns above, it is treated as a username
+  return {
+    type: "USERNAME",
+    status: value.length >= 3 ? "VALID" : "INVALID",
+    message:
+      value.length >= 3
+        ? "Username format is valid."
+        : "Username must be at least 3 characters.",
+  };
+};

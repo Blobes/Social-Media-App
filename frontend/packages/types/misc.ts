@@ -12,37 +12,124 @@ export type Direction = "LEFT" | "RIGHT" | "UP" | "DOWN";
 export type UIMode = "ONLINE" | "OFFLINE";
 export type DateType = "SHORTENED" | "COMPLETE" | "DATE-ONLY";
 export type FetchStatus = "SUCCESS" | "ERROR" | "INFO" | "WARNING" | null;
+export type UserRole = "USER" | "ADMIN" | "MODERATOR";
+export type AccountStatus = "ACTIVE" | "DEACTIVATED";
+export type InputType = "EMAIL" | "PHONE" | "PASSWORD" | "USERNAME" | "NUMBER";
+export type InputStatus = "VALID" | "INVALID";
+export type IMediaType = "IMAGE" | "VIDEO" | "GIF";
+
+export type MediaUploadStatus = "UPLOADING" | "READY" | "ERROR";
+export type StorageProvider = "S3" | "CLOUDINARY" | "GCP";
+export type MediaSourceType = "GIST" | "STAKE" | "USER" | "VERIFICATION";
 
 // Interfaces
 export type GenericObject<T> = {
   [key: string]: T | GenericObject<T>;
 };
 
+// export interface IMedia {
+//   _id: string;
+//   url: string;
+//   type?: IMediaType;
+//   thumbnailUrl?: string;
+//   alt?: string;
+//   viewMode?: "LIST" | "ISOLATED";
+//   mimeType?: string;
+//   dimensions?: {
+//     width: number;
+//     height: number;
+//     aspectRatio: number;
+//   };
+// }
+
+export interface IMedia {
+  _id?: string;
+  // --- OWNERSHIP & LINKING ---
+  ownerId?: string;
+  sourceId?: string | null;
+  sourceType?: MediaSourceType | null;
+
+  // --- STORAGE DETAILS ---
+  url: string;
+  fileKey?: string;
+  thumbnailUrl?: string | null;
+  storageProvider?: StorageProvider;
+
+  // --- METADATA & UI/UX ---
+  type?: IMediaType;
+  mimeType?: string | null;
+  size?: number | null;
+  dimensions?: {
+    width: number;
+    height: number;
+    aspectRatio: number;
+  };
+
+  // --- PERFORMANCE & ORDERING ---
+  blurHash?: string | null;
+  order?: number;
+  status?: MediaUploadStatus;
+
+  // --- FRONTEND SPECIFIC (NON-PERSISTED) ---
+  alt?: string;
+  viewMode?: "LIST" | "ISOLATED";
+
+  // --- TIMESTAMPS ---
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+}
+
 export interface IUser {
   _id: string;
-  email?: string;
-  isEmailVerified?: boolean;
-  password?: string; // Often excluded on frontend for security
+  // --- CORE IDENTITY ---
+  email: string;
+  username?: string;
+  firstName: string;
+  lastName: string;
   phoneNumber?: string;
-  isPhoneVerified?: boolean;
+
+  // --- UPDATE CORE IDENTITY ---
+  pendingEmail?: string | null;
+  lastEmailChangeAt?: string | Date | null;
+
+  // --- AUTHENTICATION & SECURITY ---
+  password?: string; // Excluded in most API responses for security
+  role: UserRole;
+  accountStatus: AccountStatus;
+  isEmailVerified: boolean;
   verificationCode?: string;
   verificationExpiry?: string | Date;
-  username?: string;
-  firstName?: string;
-  lastName?: string;
-  isAdmin?: boolean;
-  profileImage?: string;
-  coverImage?: string;
-  about?: string;
-  location?: string;
-  relationship?: string;
-  occupation?: string;
-  interests?: string[];
+  lastEmailCodeSentAt?: string | Date | null;
+  isPhoneVerified: boolean;
+
+  // --- PROFILE DETAILS ---
+  gender?: string | null;
+  dateOfBirth?: string | null;
+  about?: string | null;
+  occupation?: string | null;
+  relationship?: string | null;
+  interests: string[];
+  website?: string | null;
+
+  // --- PROFILE ASSETS ---
+  profileImage?: string | IMedia | null;
+  coverImage?: string | IMedia | null;
+
+  // --- ONBOARDING & LOCATION ---
   onboardingStep?: string | null;
+  location?: string | null;
   country?: string | null;
   state?: string | null;
+
+  // --- SOCIAL METRICS ---
   followersCount: number;
   followingCount: number;
+
+  // --- DELETING USER ACCOUNT ---
+  isDeleted: boolean;
+  deletedAt?: string | Date | null;
+
+  // --- TIMESTAMPS ---
   createdAt?: string;
   updatedAt?: string;
 }
@@ -97,12 +184,13 @@ export interface IListResponse<T> {
 }
 
 export interface InputValidation {
-  status: "VALID" | "INVALID";
-  message: string;
+  status: InputStatus;
+  message?: string;
+  type?: InputType;
 }
 
-export interface IStep {
-  name: string;
+export interface IStep<T> {
+  name: T;
   element: React.ReactNode;
   action?: () => void;
   allowPrevious?: boolean;

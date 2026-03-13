@@ -18,7 +18,7 @@ export const UserService = () => {
     async (userId: string): Promise<ISingleResponse<IUser>> => {
       try {
         const res = await fetcher<ISingleResponse<IUser>>(
-          serverApi.user(userId),
+          serverApi.getUser(userId),
           { method: "GET" },
         );
         return {

@@ -1,5 +1,5 @@
 import { fetcher, serverApi } from "@repo/helpers";
-import { IUser, ISingleResponse } from "@repo/types";
+import { IUser, ISingleResponse, FetchStatus } from "@repo/types";
 
 interface LoginCredentials {
   email: string;
@@ -8,16 +8,27 @@ interface LoginCredentials {
 interface LoginResponse extends ISingleResponse<IUser> {
   fixedMsg?: string;
 }
-interface CheckEmailResponse {
-  emailNotTaken: boolean;
-  message: string;
+interface checkResponse extends ISingleResponse<IUser> {
+  isCredentialAvailable: boolean;
 }
 
 export const LoginService = () => {
-  const checkEmail = async (email: string): Promise<CheckEmailResponse> => {
-    return await fetcher<CheckEmailResponse>(serverApi.checkEmail, {
+  const checkEmail = async (email: string): Promise<checkResponse> => {
+    return await fetcher<checkResponse>(serverApi.checkEmail, {
       method: "POST",
       body: JSON.stringify({ email }),
+    });
+  };
+
+  type PurposeType = "REGISTRATION" | "LOGIN";
+
+  const checkUsername = async (
+    username: string,
+    purpose: PurposeType = "LOGIN",
+  ): Promise<checkResponse> => {
+    return await fetcher<checkResponse>(serverApi.checkUsername, {
+      method: "POST",
+      body: JSON.stringify({ username, usedFor: purpose }),
     });
   };
 
@@ -30,5 +41,5 @@ export const LoginService = () => {
     });
   };
 
-  return { checkEmail, login };
+  return { checkEmail, checkUsername, login };
 };

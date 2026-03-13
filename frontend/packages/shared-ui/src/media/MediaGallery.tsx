@@ -6,7 +6,7 @@ import { MediaStyle, MediaProps } from './Media';
 import { useTheme } from "@mui/material/styles";
 import { DoubleTap } from '../DoubleTap';
 import Image from 'next/image';
-import { MediaVideo } from './MediaVideo';
+import { VideoMedia } from './VideoMedia';
 
 
 export interface GalleryProps {
@@ -90,7 +90,7 @@ export const MediaGallery = ({ mediaList, style, bgEffects }: GalleryProps) => {
                             style={{ ...(!isLastItem && bgEffects(theme).overlay) }}>
 
                             {mediaType === "VIDEO" ? (
-                                <MediaVideo url={url} style={style?.content} />
+                                <VideoMedia url={url} style={style?.content} />
                             ) : (
                                 <Image
                                     src={url}

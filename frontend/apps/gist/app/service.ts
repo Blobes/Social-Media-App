@@ -7,6 +7,7 @@ import {
   clearPendingLike,
   enqueueLike,
   serverApi,
+  apiBase,
 } from "@repo/helpers";
 import {
   IGist,
@@ -23,7 +24,7 @@ export const useGistService = () => {
     status?: FetchStatus;
   }> => {
     try {
-      const res = await fetcher<IListResponse<IGist>>(serverApi.gists, {
+      const res = await fetcher<IListResponse<IGist>>(apiBase.gists, {
         method: "GET",
       });
 
@@ -47,7 +48,7 @@ export const useGistService = () => {
     likeCount: number;
   }
   // Handle like
-  const handleGistLike = useCallback(
+  const fetchGistLike = useCallback(
     async (
       gistId: string,
       intendedState: boolean,
@@ -67,7 +68,7 @@ export const useGistService = () => {
   );
 
   return {
-    handleGistLike,
+    fetchGistLike,
     getPendingLike,
     setPendingLike,
     clearPendingLike,

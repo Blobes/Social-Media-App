@@ -48,7 +48,7 @@ export const ContextProvider = ({
   const [snackBarMsg, setSnackBarMsg] = useState<ISnackBarMsg>({
     messages: [],
     defaultDur: 5,
-    dir: "up"
+    dir: "UP"
   });
   const [inlineMsg, setInlineMsg] = useState<string | null>(null);
   const [isGlobalLoading, setGlobalLoading] = useState(false);

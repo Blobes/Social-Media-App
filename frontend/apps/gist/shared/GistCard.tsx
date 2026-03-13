@@ -2,115 +2,119 @@
 
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext, usePost } from "@repo/shared-state";
+import {
+    useGlobalContext, useCached, useAdaptiveTime,
+    useSnackbar, useMisc, usePostLike as useGistLike
+} from "@repo/shared-state";
 import { GenericObject, UIMode, IGist } from "@repo/types";
 import { useGistService } from "../app/service";
-import { getCachedAuthor, summarizeNum } from "@repo/helpers";
-import { Empty, MediaProps, PostObserver, Strip } from "@repo/shared-ui";
-import { useSnackbar, useMisc } from "@repo/shared-state";
 import { mediaData } from "@repo/test-data";
+import {
+    Empty, MediaProps, PostObserver, PostHeader,
+    PostCaption, Metrics, PostEngagement
+} from "@repo/shared-ui";
 import { GistMedia } from "../app/components/GistMedia";
-import { useGistLike } from "../app/hooks/useGistLike";
-import { GistHeader } from "../app/components/GistHeader";
-import { GistEngagement } from "../app/components/GistEngagement";
+
 
 interface GistProps {
     gist: IGist;
     style?: GenericObject<string>;
-    mode?: UIMode
+    mode?: UIMode;
 }
 
 export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
     const theme = useTheme();
-    const gistService = useGistService()
-    const globalContext = useGlobalContext();
-    const controller = useMisc();
     const { setSBMessage } = useSnackbar();
+    const { fetchGistLike, getPendingLike,
+        setPendingLike, clearPendingLike } = useGistService()
+    const { authStatus, setModalContent } = useGlobalContext();
+    const { isOffline, isUnstableNetwork } = useMisc();
 
-    // Like hooks & properties
-    const { gistData, isLiking, handleLike } = useGistLike(gist, {
-        ...gistService, ...globalContext, ...controller, setSBMessage,
-        mode, LoginPrompt: <Typography>Login to engage</Typography>
-    });
-    const { likeCount, likedByMe, content, media, authorId, author } = gistData;
+    const { postData: gistData, isLiking, handleLike } = useGistLike(
+        gist, fetchGistLike,
+        {
+            getPendingLike, setPendingLike, clearPendingLike,
+            authStatus, setModalContent, isOffline,
+            isUnstableNetwork, setSBMessage, mode,
+            LoginPrompt: <Typography>Login to engage</Typography>
+        })
+
+    const { likeCount, likedByMe, content, media, authorId, author, createdAt } = gistData;
+
     const gistMedia: MediaProps[] = (media && media.length > 0)
         ? (media as MediaProps[]) : mediaData;
 
-    // Gist Author
-    const { cachedAuthor } = usePost(authorId);
-    const gistAuthor = mode === "ONLINE" || !cachedAuthor ? author : cachedAuthor
+    // Gist Author logic
+    const { cachedAuthor } = useCached(authorId);
+    const gistAuthor = mode === "ONLINE" || !cachedAuthor ? author : cachedAuthor;
 
     if (gistData.status === "DELETED") return <Empty tagline="Deleted by author." />;
+
+    // Prepare Metrics Data
+    const postMetrics = [
+        { label: "Like", count: likeCount, plural: "Likes" },
+        { label: "Reply", count: 1500, plural: "Replies" },
+        { label: "View", count: 20000, plural: "Views" }
+    ];
 
     return (
         <PostObserver post={gistData} type="GIST">
             <Stack
                 sx={{
-                    gap: theme.gap(0),
+                    gap: 0,
                     flexGrow: "0",
                     flexShrink: "0",
                     borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
                     ...style,
-                }}>
-                <GistHeader author={gistAuthor} createdAt={gistData.createdAt} />
+                }} >
+                {/* 1. Header Molecule */}
+                <PostHeader
+                    authorProps={{
+                        author: gistAuthor,
+                        avatarSize: "36px"
+                    }}
+                    actionProps={{
+                        createdAt,
+                        useActions: { useAdaptiveTime: () => useAdaptiveTime },
+                        onMore: () => console.log("Open Menu"),
+                        onFollow: () => console.log("Follow User")
+                    }} />
 
-                {/* Gist content */}
-                <Typography variant="body2" sx={{
-                    padding: theme.boxSpacing(6, 0),
-                    [theme.breakpoints.down("md")]: {
-                        padding: theme.boxSpacing(6),
-                    }
-                }}>{content}</Typography>
-
-                {/* Gist media */}
-                <GistMedia mediaList={gistMedia} likedByMe={likedByMe}
-                    handleLike={handleLike} />
-
-                {/* Gist info strip */}
-                <Strip
-                    items={[
-                        {
-                            text: likeCount > 1 ? "Likes" : "Like",
-                            element: (
-                                <strong style={{ color: theme.palette.gray[300] as string }}>
-                                    {summarizeNum(likeCount)}
-                                </strong>
-                            ),
-                        },
-                        {
-                            text: 1500 > 1 ? "Replies" : "Reply",
-                            element: (
-                                <strong style={{ color: theme.palette.gray[300] as string }}>
-                                    {summarizeNum(1500)}
-                                </strong>
-                            ),
-                        },
-                        {
-                            text: 20000 > 1 ? " Views" : " View",
-                            element: (
-                                <strong style={{ color: theme.palette.gray[300] as string }}>
-                                    {summarizeNum(20000)}
-                                </strong>
-                            ),
-                        },
-                    ]}
-                    style={{
+                {/* 2. Caption/Content Molecule */}
+                <PostCaption
+                    caption={content}
+                    limit={200}
+                    sx={{
                         padding: theme.boxSpacing(4, 0),
                         [theme.breakpoints.down("md")]: {
                             padding: theme.boxSpacing(4, 6),
-                        },
-                        borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
-                        fontSize: "14px"
-                    }}
-                />
+                        }
+                    }} />
 
-                {/* Gist engagement  */}
-                <GistEngagement
-                    likedByMe={likedByMe}
+                {/* 3. Media Molecule */}
+                <GistMedia
+                    gist={gistData}
+                    mediaList={gistMedia}
                     isLiking={isLiking}
-                    handleLike={handleLike}
                     mode={mode}
-                />
+                    handleLike={handleLike} />
+
+                {/* 4. Metrics Molecule (replaces the raw Strip) */}
+                <Metrics
+                    metrics={postMetrics}
+                    sx={{
+                        borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
+                    }} />
+
+                {/* 5. Engagement Molecule */}
+                <PostEngagement
+                    like={{ likedByMe, isLiking, handleLike, mode }}
+                    reply={{ onClick: () => console.log("Reply clicked") }}
+                    share={{ onClick: () => console.log("Share clicked") }}
+                    bookmark={{
+                        bookmarked: false,
+                        onClick: () => console.log("Bookmark toggled")
+                    }} />
             </Stack>
         </PostObserver>
     );

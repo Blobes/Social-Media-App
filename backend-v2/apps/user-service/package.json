@@ -1,0 +1,28 @@
+{
+  "name": "@repo/user-service",
+  "version": "0.0.0",
+  "main": "./src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc && tsc-alias",
+    "start": "NODE_ENV=production node dist/index.js"
+  },
+  "dependencies": {
+    "express": "catalog:",
+    "mongoose": "catalog:",
+    "cookie-parser": "catalog:",
+    "dotenv": "catalog:",
+    "bcrypt": "catalog:",
+    "@repo/database": "workspace:*",
+    "@repo/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "tsx": "catalog:",
+    "@types/express": "catalog:",
+    "@types/cookie-parser": "catalog:",
+    "@types/bcrypt": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

@@ -71,7 +71,8 @@ export const GistEngagement = ({ likedByMe, isLiking, handleLike, mode }: Engage
             {/* Bookmark */}
             <IconButton sx={{
                 padding: theme.boxSpacing(0),
-                borderRadius: theme.radius[0], "&:hover": {
+                borderRadius: theme.radius[0],
+                "&:hover": {
                     transform: "scale(1.08)",
                     transition: "transform 0.3s ease-in-out",
                     background: "none"

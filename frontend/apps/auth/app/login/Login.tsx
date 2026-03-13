@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { GenericObject, IStep } from "@repo/types"
-import { Stepper } from "@repo/shared-ui";
+import { RestoreAccount, Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
 import Image from "next/image";
 import { img } from "@repo/assets";
 import { PasswordStep } from "./PasswordStep";
-import { EmailStep } from "./EmailStep";
+import { CredentialStep } from "./CredentialStep";
 
 interface StepperProps {
   style?: {
@@ -18,31 +18,42 @@ interface StepperProps {
   };
 }
 
+export type StepName = "CREDENTIAL" | "RESTORE" | "PASSWORD"
+
 export const Login: React.FC<StepperProps> = ({ style = {} }) => {
   const theme = useTheme();
-  const [email, setEmail] = useState("");
-  const [currStep, setCurrStep] = useState("email");
+  const [input, setInput] = useState("");
+  const [currStep, setCurrStep] = useState<StepName>("CREDENTIAL");
 
-  const steps: IStep[] = [
+  const steps: IStep<StepName>[] = [
     {
-      name: "email",
+      name: "CREDENTIAL",
       element: (
-        <EmailStep
+        <CredentialStep
           step={currStep}
           setStep={setCurrStep}
-          existingEmail={email}
-          setEmailProp={setEmail}
+          existingInput={input}
+          setCredential={setInput}
           style={{ ...style.headline, ...style.tagline }}
         />
       ),
     },
     {
-      name: "login",
+      name: "RESTORE",
+      element: (
+        <RestoreAccount
+          headline={`${input} is deactivated`}
+          tagline="This account has been deactivated. Restore it to log in"
+        />
+      ),
+    },
+    {
+      name: "PASSWORD",
       element: (
         <PasswordStep
           step={currStep}
           setStep={setCurrStep}
-          email={email}
+          credential={input}
           style={{ ...style.headline, ...style.tagline }}
         />
       ),
