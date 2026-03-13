@@ -11,18 +11,9 @@ services:
         value: "22"
       - key: PORT
         value: "8080"
-      - key: MONGODB_URI
+      - key: COMMON_SECRETS
         fromGroup: funstakes-common-secrets
-      - key: JWT_SECRET
-        fromGroup: funstakes-common-secrets
-      - key: REFRESH_TOKEN_SECRET
-        fromGroup: funstakes-common-secrets
-      - key: FRONTEND_URL
-        fromGroup: funstakes-common-secrets
-      # Communication keys for Auth (Verification emails/WhatsApp)
-      - key: RESEND_API_KEY
-        fromGroup: funstakes-communication-secrets
-      - key: WHATSAPP_ACCESS_KEY
+      - key: COMMS_SECRETS
         fromGroup: funstakes-communication-secrets
 
   # --- Post Service ---
@@ -37,13 +28,7 @@ services:
         value: "22"
       - key: PORT
         value: "8081"
-      - key: MONGODB_URI
-        fromGroup: funstakes-common-secrets
-      - key: JWT_SECRET
-        fromGroup: funstakes-common-secrets
-      - key: AWS_ACCESS_KEY
-        fromGroup: funstakes-common-secrets
-      - key: AWS_SECRET_KEY
+      - key: COMMON_SECRETS
         fromGroup: funstakes-common-secrets
 
   # --- User Service ---
@@ -58,9 +43,7 @@ services:
         value: "22"
       - key: PORT
         value: "8082"
-      - key: MONGODB_URI
-        fromGroup: funstakes-common-secrets
-      - key: JWT_SECRET
+      - key: COMMON_SECRETS
         fromGroup: funstakes-common-secrets
 
   # --- Worker Service ---
@@ -76,7 +59,22 @@ services:
         value: "22"
       - key: PORT
         value: "8083"
-      - key: MONGODB_URI
+      - key: COMMON_SECRETS
         fromGroup: funstakes-common-secrets
-      - key: NODE_OPTIONS
-        value: "--max-old-space-size=4096"
+      - key: COMMS_SECRETS
+        fromGroup: funstakes-communication-secrets
+
+  # --- Admin Service ---
+  - type: web
+    name: funstakes-admin
+    env: node
+    plan: free
+    buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/admin-service
+    startCommand: pnpm --filter @repo/admin-service start
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: PORT
+        value: "8084"
+      - key: COMMON_SECRETS
+        fromGroup: funstakes-common-secrets
