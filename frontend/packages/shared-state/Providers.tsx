@@ -30,6 +30,7 @@ export function SharedProviders({ children }: {
                     <PrefetchCrossZoneLinks />
                 </ContextProvider>
             </GlobalThemeProvider>
+
         </QueryClientProvider>
     );
 }
