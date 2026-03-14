@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { EmailStep } from "./EmailStep";
 import { useTheme } from "@mui/material/styles";
 import { DrawerRef, Stepper } from "@repo/shared-ui";
 import { PasswordStep } from "../login/PasswordStep";
@@ -9,6 +8,7 @@ import { GenericObject, IStep } from "@repo/types"
 import { Stack } from "@mui/material";
 import Image from "next/image";
 import { img } from "@repo/assets";
+import { StepName } from "../login/Login";
 
 interface StepperProps {
   modalRef?: React.RefObject<DrawerRef>;
@@ -26,29 +26,17 @@ export const SignUpStepper: React.FC<StepperProps> = ({
   style = {},
 }) => {
   const theme = useTheme();
-  const [email, setEmail] = useState("");
-  const [currStep, setCurrStep] = useState("email");
+  const [credential, setCredential] = useState("");
+  const [currStep, setCurrStep] = useState<StepName>("CREDENTIAL");
 
-  const steps: IStep[] = [
+  const steps: IStep<StepName>[] = [
     {
-      name: "email",
-      element: (
-        <EmailStep
-          step={currStep}
-          setStep={setCurrStep}
-          existingEmail={email}
-          setEmailProp={setEmail}
-          style={{ ...style.headline, ...style.tagline }}
-        />
-      ),
-    },
-    {
-      name: "login",
+      name: "PASSWORD",
       element: (
         <PasswordStep
           step={currStep}
           setStep={setCurrStep}
-          email={email}
+          credential={credential}
           redirectTo={redirectTo}
           style={{ ...style.headline, ...style.tagline }}
         />

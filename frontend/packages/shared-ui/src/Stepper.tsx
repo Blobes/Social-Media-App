@@ -7,14 +7,14 @@ import { AppButton } from "./Buttons";
 import { BasicTooltip } from "./Tooltips";
 import { ChevronLeft } from "lucide-react";
 
-interface StepperProps {
-  steps: IStep[];
+interface StepperProps<T> {
+  steps: IStep<T>[];
   currStep: string;
-  setCurrStep: (val: string) => void;
+  setCurrStep: (val: any) => void;
   style?: GenericObject<any>;
 }
 
-export const Stepper: React.FC<StepperProps> = ({
+export const Stepper: React.FC<StepperProps<any>> = ({
   steps,
   currStep,
   setCurrStep,

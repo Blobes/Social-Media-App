@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
 import { useGlobalContext, useSnackbar, usePage } from "@repo/shared-state";
-import { useLoginService } from "../service";
 import { useLockCountdown } from "./useLockCount";
 import {
   setCookie,
@@ -12,12 +11,13 @@ import {
   formatRemainingTime,
 } from "@repo/helpers";
 import { IPage } from "@repo/types";
+import { LoginService } from "../service";
 
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MIN = 2;
 
 export const useLogin = ({ email, setStep }: any) => {
-  const { login } = useLoginService();
+  const { login } = LoginService();
   const {
     inlineMsg,
     setInlineMsg,
