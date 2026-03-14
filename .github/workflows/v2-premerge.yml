@@ -1,3 +1,6 @@
+# This workflow is our main line of defense. It validates the entire V2 Monorepo and Frontend
+# build paths before we allow a merge into the main branch, keeping the FunStakes deployment stable.
+
 name: v2 Pre-merge Workflow
 
 on:
@@ -5,7 +8,7 @@ on:
     branches:
       - v2-main
     paths:
-      - "backend/**"
+      - "backend-v2/**"
       - "frontend/**"
 
 jobs:
@@ -16,36 +19,24 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install pnpm
-        # corepack is built into Node and avoids the blocked third-party action
         run: corepack enable && corepack prepare pnpm@10.3.0 --activate
 
-      - name: Setup Node & Cache pnpm (Frontend)
+      - name: Setup Node & Cache pnpm
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22 # Updated to match your Render config
           cache: "pnpm"
+          # Cache based on both locks to ensure consistency
           cache-dependency-path: |
-            frontend/package.json
             frontend/pnpm-lock.yaml
+            backend-v2/pnpm-lock.yaml
 
-      - name: Install Frontend
+      - name: Install Dependencies
         run: |
-          cd frontend
-          pnpm install --frozen-lockfile
-
-      - name: Setup npm Cache (Backend)
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-          cache-dependency-path: |
-            backend/package.json
-            backend/package-lock.json
-
-      - name: Install Backend
-        run: |
-          cd backend
-          npm ci
+          # Install Frontend
+          cd frontend && pnpm install --frozen-lockfile && cd ..
+          # Install Backend Monorepo
+          cd backend-v2 && pnpm install --frozen-lockfile
 
       - name: Build Frontend
         env:
@@ -54,7 +45,8 @@ jobs:
           cd frontend
           pnpm run build
 
-      - name: Build Backend
+      - name: Build Backend Monorepo
         run: |
-          cd backend
-          npm run build
+          cd backend-v2
+          # We use the filter to ensure shared packages are built first
+          pnpm build --filter "@repo/*"
