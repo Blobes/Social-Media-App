@@ -1,19 +1,19 @@
 // User
-export * from "./models/moderation/flaggedPost";
-export * from "./models/moderation/postReport";
+export * from "./src/moderation/flaggedPost";
+export * from "./src/moderation/postReport";
 
 // Post
-export * from "./models/post/bookmark";
-export * from "./models/post/caption";
-export * from "./models/post/gist";
+export * from "./src/post/bookmark";
+export * from "./src/post/caption";
+export * from "./src/post/gist";
 
 // User
-export * from "./models/user/follow";
-export * from "./models/user/idVerification";
-export * from "./models/user/user";
+export * from "./src/user/follow";
+export * from "./src/user/idVerification";
+export * from "./src/user/user";
 
 // Media
-export * from "./models/media";
+export * from "./src/media";
 
 // Topic
-export * from "./models/topic";
+export * from "./src/topic";
