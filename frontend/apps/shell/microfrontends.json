@@ -17,6 +17,17 @@
           "paths": ["/login", "/signup"]
         }
       ]
+    },
+    "funstakes-gist": {
+      "packageName": "@repo/gist",
+      "development": {
+        "local": 3003
+      },
+      "routing": [
+        {
+          "paths": ["/gist"]
+        }
+      ]
     }
   },
   "options": {
