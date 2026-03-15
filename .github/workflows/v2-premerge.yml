@@ -41,6 +41,7 @@ jobs:
       - name: Build Frontend
         env:
           NEXT_PUBLIC_API_URL: https://funstakes.onrender.com
+          NEXT_PUBLIC_VERCEL_MICROFRONTENDS_CONFIG: '{"apps":{}}'
         run: |
           cd frontend
           pnpm run build
