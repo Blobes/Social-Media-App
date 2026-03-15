@@ -2,13 +2,13 @@
   "$schema": "https://openapi.vercel.sh/microfrontends.json",
   "applications": {
     "funstakes-shell": {
-      "packageName": "shell",
+      "packageName": "@repo/shell",
       "development": {
         "fallback": "funstakes.vercel.app"
       }
     },
     "funstakes-auth": {
-      "packageName": "auth",
+      "packageName": "@repo/auth",
       "development": {
         "local": 3002
       },
