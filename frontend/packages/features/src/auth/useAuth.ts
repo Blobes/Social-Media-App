@@ -1,7 +1,7 @@
 "use client";
 
+import { verifyAndFetchUser } from "@repo/helpers";
 import { useGlobalContext, useSnackbar } from "@repo/shared-state";
-import { verifyAndFetchUser } from "../../../_helpers";
 
 export const useAuth = () => {
   const { setAuthUser, setAuthStatus } = useGlobalContext();

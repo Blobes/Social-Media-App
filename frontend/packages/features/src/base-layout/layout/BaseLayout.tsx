@@ -1,6 +1,6 @@
 "use server";
 
-import { SharedProviders } from "./Providers";
+import { SharedProviders } from "../Providers";
 
 export async function BaseLayout({ children }: { children: React.ReactNode }) {
     return (

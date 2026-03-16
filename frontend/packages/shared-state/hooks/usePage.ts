@@ -9,7 +9,7 @@ import {
   delay,
   extractPageTitle,
   getFromLocalStorage,
-} from "../../_helpers";
+} from "@repo/helpers";
 import { usePathname, useRouter } from "next/navigation";
 import { useMisc } from "./useMisc";
 

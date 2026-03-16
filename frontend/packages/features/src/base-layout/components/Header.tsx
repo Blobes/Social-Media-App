@@ -8,7 +8,7 @@ import { DesktopNav, MobileNav } from "./Nav";
 import { UserAvatar, AnchorLink, AppButton, SearchBar } from "@repo/shared-ui";
 import { clientRoutes } from "@repo/helpers";
 import { img } from "@repo/assets"
-import { useHeader } from "@repo/shared-state";
+import { useHeader } from "../useHeader";
 
 interface HeaderProps {
     scrollRef?: React.RefObject<HTMLElement | null>;

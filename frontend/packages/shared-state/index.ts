@@ -11,4 +11,3 @@ export * from "./hooks/useOffline";
 export * from "./hooks/useNavLists";
 export * from "./hooks/post/useCached";
 export * from "./hooks/post/usePostLike";
-export * from "./hooks/useHeader";

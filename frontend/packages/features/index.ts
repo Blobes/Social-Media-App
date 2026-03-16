@@ -15,6 +15,6 @@ export * from "./src/stake/useStake";
 export * from "./src/stake/StakeCard";
 
 // Base layout
-export * from "./src/base-layout/ClientOnly";
-export * from "./src/base-layout/Wrapper";
-export * from "./src/base-layout/BaseLayout";
+export * from "./src/base-layout/layout/ClientOnly";
+export * from "./src/base-layout/layout/Wrapper";
+export * from "./src/base-layout/layout/BaseLayout";

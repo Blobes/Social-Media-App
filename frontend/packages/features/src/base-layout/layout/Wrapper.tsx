@@ -1,12 +1,12 @@
 "use client";
 
 import { Stack } from "@mui/material";
-import { LeftNav } from "./navbars/LeftNav";
+import { LeftNav } from "../components/LeftNav";
 import { useTheme } from "@mui/material/styles";
-import { BottomNav } from "./navbars/BottomNav";
+import { BottomNav } from "../components/BottomNav";
 import { useRef } from "react";
 import { NetworkGlitchUI, RootUIContainer, OfflinePromptUI } from "@repo/shared-ui";
-import { AppHeader } from "./navbars/Header";
+import { AppHeader } from "../components/Header";
 import { scrollBarStyle } from "@repo/helpers";
 import { useGlobalContext, useMisc, useOffline } from "@repo/shared-state";
 

@@ -22,7 +22,8 @@
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-transition-group": "catalog:"
+    "react-transition-group": "catalog:",
+    "@vercel/microfrontends": "catalog:"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

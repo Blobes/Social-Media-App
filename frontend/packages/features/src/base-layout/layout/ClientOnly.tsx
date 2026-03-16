@@ -3,7 +3,7 @@
 import { SplashUI } from '@repo/shared-ui';
 import dynamic from 'next/dynamic';
 
-const UIManager = dynamic(() => import('./UIManager').then((mod) => mod.UIManager),
+const UIManager = dynamic(() => import('../UIManager').then((mod) => mod.UIManager),
     {
         ssr: false,
         loading: () => <SplashUI />

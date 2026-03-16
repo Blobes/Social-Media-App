@@ -8,8 +8,8 @@ import {
   enqueueLike,
   serverApi,
   apiBase,
-} from "../../../_helpers";
-import { IGist, ISingleResponse, IListResponse } from "../../../_types";
+} from "@repo/helpers";
+import { IGist, ISingleResponse, IListResponse } from "@repo/types";
 import { useCallback } from "react";
 
 export const GistService = () => {

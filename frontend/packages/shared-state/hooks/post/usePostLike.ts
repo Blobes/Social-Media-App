@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { vibrate, processQueue } from "../../../_helpers";
+import { vibrate, processQueue } from "@repo/helpers";
 import { AuthStatus, UIMode } from "@repo/types";
 
 // Generic interface for any content that can be liked

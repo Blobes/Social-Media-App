@@ -2,7 +2,7 @@
 
 import { usePage } from "./usePage";
 import { useGlobalContext } from "../GlobalContext";
-import { clientRoutes, getFromLocalStorage } from "../../_helpers";
+import { clientRoutes, getFromLocalStorage } from "@repo/helpers";
 import { IPage } from "@repo/types";
 
 export const useOffline = () => {

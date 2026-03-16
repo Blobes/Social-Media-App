@@ -6,10 +6,10 @@ import {
     useGlobalContext, useCached, useAdaptiveTime,
     useSnackbar, useMisc, usePostLike as useGistLike
 } from "@repo/shared-state";
-import { GenericObject, UIMode, IGist } from "@repo/types";
+import { GenericObject, UIMode, IGist, MediaProps } from "@repo/types";
 import { mediaData } from "@repo/test-data";
 import {
-    Empty, MediaProps, PostObserver, PostHeader,
+    Empty, PostObserver, PostHeader,
     PostCaption, Metrics, PostEngagement
 } from "@repo/shared-ui";
 import { GistService } from "./gistService";
