@@ -1,6 +1,5 @@
-import { BaseLayout } from "@repo/shared-ui";
 import { Metadata } from "next";
-import { ClientOnly, DefaultWrapper, SharedProviders } from "@repo/shared-state";
+import { BaseLayout, ClientOnly, DefaultWrapper } from "@repo/base-layout";
 import { baseMetadata } from "@repo/helpers";
 
 
@@ -15,7 +14,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <BaseLayout Providers={SharedProviders} >
+    <BaseLayout >
       <ClientOnly><DefaultWrapper>{children}</DefaultWrapper></ClientOnly>
     </BaseLayout>
   );

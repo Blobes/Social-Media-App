@@ -9,42 +9,9 @@ import {
 import { Box, IconButton, Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { X } from "lucide-react";
-import { Direction, GenericObject, IDragResult } from "@repo/types"
+import { DrawerProps, DrawerRef } from "@repo/types"
 import { Transition } from "./Transition";
 import { applyBGEffects, scrollBarStyle } from "@repo/helpers";
-
-
-export interface DrawerRef {
-  openDrawer: () => void;
-  closeDrawer: () => void;
-}
-
-export interface DrawerHooks {
-  closeDrawer?: () => any
-  useDragClose?: any
-}
-
-export interface DrawerProps {
-  content: React.ReactNode;
-  showHeader?: boolean;
-  header?: React.ReactNode;
-  clickToClose?: boolean;
-  onClose?: () => void;
-  transDirection?: {
-    base?: Direction,
-    mobile?: Direction
-  };
-  useDragConfig?: () => IDragResult;
-  blurOverlayBG?: boolean;
-  source?: string;
-  style?: {
-    base?: { overlay?: GenericObject<string>, content?: GenericObject<string> };
-    smallScreen?: { overlay?: GenericObject<string>, content?: GenericObject<string> };
-    mediumScreen?: { overlay?: GenericObject<string>, content?: GenericObject<string> };
-    header?: GenericObject<string>;
-  };
-
-}
 
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
   (
@@ -114,7 +81,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 
           // Alignment
           alignItems: transDir === "right" ? "flex-start"
-            : baseDir === "LEFT" ? "flex-end" : "center",
+            : baseDir === "left" ? "flex-end" : "center",
 
           justifyContent: baseDir === "down" ? "flex-start"
             : baseDir === "up" ? "flex-end" : "center",
@@ -150,7 +117,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 
               // Drag styling
               ...(dragOffset !== 0 && {
-                transform: axis === "x"
+                transform: axis === "X"
                   ? `translateX(${dragOffset}px) !important`
                   : `translateY(${dragOffset}px) !important`,
                 transition: "none !important",
@@ -188,7 +155,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
                   }}>
 
                   {/* Drag Handle UI */}
-                  {dragConfig && isMobile && axis === "y" && (
+                  {dragConfig && isMobile && axis === "Y" && (
                     <Box sx={{
                       width: "50px",
                       height: "6px",

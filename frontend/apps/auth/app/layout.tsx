@@ -1,6 +1,6 @@
-import { BaseLayout, RootUIContainer } from "@repo/shared-ui";
+import { RootUIContainer } from "@repo/shared-ui";
 import { Metadata, Viewport } from "next";
-import { ClientOnly, SharedProviders } from "@repo/shared-state";
+import { BaseLayout, ClientOnly } from "@repo/base-layout";
 import { baseMetadata, sharedViewport } from "@repo/helpers";
 
 export const viewport: Viewport = {
@@ -17,7 +17,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <BaseLayout Providers={SharedProviders} >
+    <BaseLayout >
       <ClientOnly>
         <RootUIContainer shouldScroll={true}>
           {children}

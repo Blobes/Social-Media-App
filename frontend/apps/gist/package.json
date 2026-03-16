@@ -18,6 +18,8 @@
     "@vercel/microfrontends": "catalog:",
     "@repo/shared-ui": "workspace:*",
     "@repo/shared-state": "workspace:*",
+    "@repo/base-layout": "workspace:*",
+    "@repo/gist-shared": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/theme": "workspace:*",
     "@repo/types": "workspace:*",

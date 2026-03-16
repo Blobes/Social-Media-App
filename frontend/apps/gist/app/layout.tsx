@@ -1,7 +1,6 @@
-import { BaseLayout } from "@repo/shared-ui";
 import { Metadata } from "next";
-import { ClientOnly, DefaultWrapper, SharedProviders } from "@repo/shared-state";
 import { baseMetadata } from "@repo/helpers";
+import { BaseLayout, ClientOnly, DefaultWrapper } from "@repo/base-layout";
 
 
 export const metadata: Metadata = {
@@ -15,7 +14,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <BaseLayout Providers={SharedProviders} >
+    <BaseLayout >
       <ClientOnly><DefaultWrapper>{children}</DefaultWrapper></ClientOnly>
     </BaseLayout>
   );

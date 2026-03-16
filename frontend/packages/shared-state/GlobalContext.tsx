@@ -3,9 +3,10 @@
 import { createContext, useContext, useState } from "react";
 import {
   IUser, ISnackBarMsg, AuthStatus, IPage, NetworkStatus,
+  DrawerProps,
+  ModalProps,
 } from "@repo/types";
 import { clientRoutes } from "@repo/helpers";
-import { ModalProps, DrawerProps } from "@repo/shared-ui";
 
 interface Context {
   authStatus: AuthStatus;
@@ -48,7 +49,7 @@ export const ContextProvider = ({
   const [snackBarMsg, setSnackBarMsg] = useState<ISnackBarMsg>({
     messages: [],
     defaultDur: 5,
-    dir: "UP"
+    dir: "up"
   });
   const [inlineMsg, setInlineMsg] = useState<string | null>(null);
   const [isGlobalLoading, setGlobalLoading] = useState(false);

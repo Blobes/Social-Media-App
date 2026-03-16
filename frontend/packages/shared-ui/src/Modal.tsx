@@ -3,29 +3,11 @@
 import { useImperativeHandle, forwardRef, useRef, useState, } from "react";
 import { IconButton, Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { Direction, GenericObject } from "@repo/types";
-import { Transition, TransitionType } from "./Transition";
+import { ModalProps, ModalRef } from "@repo/types";
+import { Transition } from "./Transition";
 import { scrollBarStyle } from "@repo/helpers";
 import { X } from "lucide-react";
 
-export interface ModalRef {
-  openModal: () => void;
-  closeModal: () => void;
-}
-
-export interface ModalProps {
-  content: React.ReactNode;
-  showHeader?: boolean;
-  header?: React.ReactNode;
-  canBeClosed?: boolean;
-  onClose?: () => void;
-  transition?: { type: TransitionType, direction?: Direction },
-  style?: {
-    base?: { overlay?: GenericObject<string>, content?: GenericObject<string> };
-    smallScreen?: { overlay?: GenericObject<string>, content?: GenericObject<string> };
-    header?: GenericObject<string>;
-  };
-}
 
 export const Modal = forwardRef<ModalRef, ModalProps>(
   (

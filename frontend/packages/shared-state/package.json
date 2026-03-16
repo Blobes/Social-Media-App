@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@repo/assets": "workspace:*",
-    "@repo/auth/shared": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/shared-ui": "workspace:*",
     "@repo/theme": "workspace:*",

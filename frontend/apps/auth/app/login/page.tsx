@@ -8,7 +8,7 @@ import { applyBGPattern, clientRoutes } from "@repo/helpers";
 import { Empty } from "@repo/shared-ui";
 import { ShieldCheck } from "lucide-react";
 import { usePage, useMisc } from "@repo/shared-state";
-import { ComfirmLogout } from "../../shared";
+import { ComfirmLogout } from "@repo/auth-shared";
 
 export default function LoginPage() {
     const theme = useTheme();

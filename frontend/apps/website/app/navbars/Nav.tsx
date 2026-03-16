@@ -2,9 +2,10 @@
 import { useRef } from "react";
 import { Divider, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { RenderItemList, MenuRef, AppButton } from "@repo/shared-ui";
+import { RenderItemList, AppButton } from "@repo/shared-ui";
 import { useGlobalContext, useMisc, useNavLists, usePage } from "@repo/shared-state";
 import { clientRoutes } from "@repo/helpers";
+import { MenuRef } from "@repo/types";
 
 
 interface NavProps {

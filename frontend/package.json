@@ -12,8 +12,8 @@
   "devDependencies": {
     "@vercel/microfrontends": "catalog:",
     "next": "catalog:",
-    "prettier": "^3.7.4",
-    "turbo": "^2.8.10",
+    "prettier": "catalog:",
+    "turbo": "catalog:",
     "typescript": "catalog:"
   },
   "packageManager": "pnpm@10.30.1",

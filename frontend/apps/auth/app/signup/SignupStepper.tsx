@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { DrawerRef, Stepper } from "@repo/shared-ui";
+import { Stepper } from "@repo/shared-ui";
 import { PasswordStep } from "../login/PasswordStep";
-import { GenericObject, IStep } from "@repo/types"
+import { DrawerRef, GenericObject, IStep } from "@repo/types"
 import { Stack } from "@mui/material";
 import Image from "next/image";
 import { img } from "@repo/assets";

@@ -1,14 +1,13 @@
-import { ClientOnly, SharedProviders } from "@repo/shared-state";
+import { ClientOnly, BaseLayout } from "@repo/base-layout";
 import { Wrapper } from "./Wrapper";
-import { BaseLayout } from "@repo/shared-ui";
 
-export default function ShellLayout({
+export default function OfflineLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <BaseLayout Providers={SharedProviders}>
+    <BaseLayout>
       <ClientOnly>
         <Wrapper>
           {children}

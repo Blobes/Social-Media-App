@@ -48,6 +48,9 @@ catalogs:
     next:
       specifier: ^16.1.6
       version: 16.1.6
+    prettier:
+      specifier: ^3.7.4
+      version: 3.8.1
     react:
       specifier: ^19.2.0
       version: 19.2.4
@@ -57,6 +60,9 @@ catalogs:
     react-transition-group:
       specifier: ^4.4.5
       version: 4.4.5
+    turbo:
+      specifier: ^2.8.10
+      version: 2.8.10
     typescript:
       specifier: ^5.9.2
       version: 5.9.3
@@ -75,10 +81,10 @@ importers:
         specifier: 'catalog:'
         version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       prettier:
-        specifier: ^3.7.4
+        specifier: 'catalog:'
         version: 3.8.1
       turbo:
-        specifier: ^2.8.10
+        specifier: 'catalog:'
         version: 2.8.10
       typescript:
         specifier: 'catalog:'
@@ -98,6 +104,12 @@ importers:
       '@repo/assets':
         specifier: workspace:*
         version: link:../../packages/assets
+      '@repo/auth-shared':
+        specifier: workspace:*
+        version: link:../../packages/auth-shared
+      '@repo/base-layout':
+        specifier: workspace:*
+        version: link:../../packages/base-layout
       '@repo/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
@@ -148,37 +160,6 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  apps/auth/shared:
-    dependencies:
-      '@emotion/react':
-        specifier: 'catalog:'
-        version: 11.14.0(@types/react@19.2.14)(react@19.2.4)
-      '@emotion/styled':
-        specifier: 'catalog:'
-        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)
-      '@mui/material':
-        specifier: 'catalog:'
-        version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-    devDependencies:
-      '@types/react':
-        specifier: 'catalog:'
-        version: 19.2.14
-      '@types/react-dom':
-        specifier: 'catalog:'
-        version: 19.2.3(@types/react@19.2.14)
-      next:
-        specifier: 'catalog:'
-        version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      react:
-        specifier: 'catalog:'
-        version: 19.2.4
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.2.4(react@19.2.4)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-
   apps/gist:
     dependencies:
       '@emotion/react':
@@ -190,6 +171,12 @@ importers:
       '@mui/material':
         specifier: 'catalog:'
         version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@repo/base-layout':
+        specifier: workspace:*
+        version: link:../../packages/base-layout
+      '@repo/gist-shared':
+        specifier: workspace:*
+        version: link:../../packages/gist-shared
       '@repo/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
@@ -243,37 +230,6 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  apps/gist/shared:
-    dependencies:
-      '@emotion/react':
-        specifier: 'catalog:'
-        version: 11.14.0(@types/react@19.2.14)(react@19.2.4)
-      '@emotion/styled':
-        specifier: 'catalog:'
-        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)
-      '@mui/material':
-        specifier: 'catalog:'
-        version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-    devDependencies:
-      '@types/react':
-        specifier: 'catalog:'
-        version: 19.2.14
-      '@types/react-dom':
-        specifier: 'catalog:'
-        version: 19.2.3(@types/react@19.2.14)
-      next:
-        specifier: 'catalog:'
-        version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      react:
-        specifier: 'catalog:'
-        version: 19.2.4
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.2.4(react@19.2.4)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-
   apps/profile:
     dependencies:
       '@emotion/react':
@@ -285,9 +241,15 @@ importers:
       '@mui/material':
         specifier: 'catalog:'
         version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@repo/base-layout':
+        specifier: workspace:*
+        version: link:../../packages/base-layout
       '@repo/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
+      '@repo/profile-shared':
+        specifier: workspace:*
+        version: link:../../packages/profile-shared
       '@repo/shared-state':
         specifier: workspace:*
         version: link:../../packages/shared-state
@@ -335,37 +297,6 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  apps/profile/shared:
-    dependencies:
-      '@emotion/react':
-        specifier: 'catalog:'
-        version: 11.14.0(@types/react@19.2.14)(react@19.2.4)
-      '@emotion/styled':
-        specifier: 'catalog:'
-        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)
-      '@mui/material':
-        specifier: 'catalog:'
-        version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-    devDependencies:
-      '@types/react':
-        specifier: 'catalog:'
-        version: 19.2.14
-      '@types/react-dom':
-        specifier: 'catalog:'
-        version: 19.2.3(@types/react@19.2.14)
-      next:
-        specifier: 'catalog:'
-        version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      react:
-        specifier: 'catalog:'
-        version: 19.2.4
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.2.4(react@19.2.4)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-
   apps/shell:
     dependencies:
       '@emotion/react':
@@ -380,27 +311,27 @@ importers:
       '@repo/assets':
         specifier: workspace:*
         version: link:../../packages/assets
-      '@repo/auth/shared':
+      '@repo/base-layout':
         specifier: workspace:*
-        version: link:../auth/shared
-      '@repo/gist/shared':
+        version: link:../../packages/base-layout
+      '@repo/gist-shared':
         specifier: workspace:*
-        version: link:../gist/shared
+        version: link:../../packages/gist-shared
       '@repo/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
-      '@repo/profile/shared':
+      '@repo/profile-shared':
         specifier: workspace:*
-        version: link:../profile/shared
+        version: link:../../packages/profile-shared
       '@repo/shared-state':
         specifier: workspace:*
         version: link:../../packages/shared-state
       '@repo/shared-ui':
         specifier: workspace:*
         version: link:../../packages/shared-ui
-      '@repo/stake/shared':
+      '@repo/stake-shared':
         specifier: workspace:*
-        version: link:../stake/shared
+        version: link:../../packages/stake-shared
       '@repo/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -453,6 +384,9 @@ importers:
       '@mui/material':
         specifier: 'catalog:'
         version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@repo/base-layout':
+        specifier: workspace:*
+        version: link:../../packages/base-layout
       '@repo/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
@@ -506,37 +440,6 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  apps/stake/shared:
-    dependencies:
-      '@emotion/react':
-        specifier: 'catalog:'
-        version: 11.14.0(@types/react@19.2.14)(react@19.2.4)
-      '@emotion/styled':
-        specifier: 'catalog:'
-        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)
-      '@mui/material':
-        specifier: 'catalog:'
-        version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-    devDependencies:
-      '@types/react':
-        specifier: 'catalog:'
-        version: 19.2.14
-      '@types/react-dom':
-        specifier: 'catalog:'
-        version: 19.2.3(@types/react@19.2.14)
-      next:
-        specifier: 'catalog:'
-        version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      react:
-        specifier: 'catalog:'
-        version: 19.2.4
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.2.4(react@19.2.4)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-
   apps/website:
     dependencies:
       '@emotion/react':
@@ -551,6 +454,9 @@ importers:
       '@repo/assets':
         specifier: workspace:*
         version: link:../../packages/assets
+      '@repo/base-layout':
+        specifier: workspace:*
+        version: link:../../packages/base-layout
       '@repo/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
@@ -607,6 +513,113 @@ importers:
         specifier: 'catalog:'
         version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
 
+  packages/auth-shared:
+    dependencies:
+      '@emotion/react':
+        specifier: 'catalog:'
+        version: 11.14.0(@types/react@19.2.14)(react@19.2.4)
+      '@emotion/styled':
+        specifier: 'catalog:'
+        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)
+      '@mui/material':
+        specifier: 'catalog:'
+        version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@repo/helpers':
+        specifier: workspace:*
+        version: link:../helpers
+      '@repo/shared-state':
+        specifier: workspace:*
+        version: link:../shared-state
+      '@repo/shared-ui':
+        specifier: workspace:*
+        version: link:../shared-ui
+      '@repo/theme':
+        specifier: workspace:*
+        version: link:../theme
+      '@repo/types':
+        specifier: workspace:*
+        version: link:../types
+      lucide-react:
+        specifier: 'catalog:'
+        version: 0.562.0(react@19.2.4)
+    devDependencies:
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.14)
+      next:
+        specifier: 'catalog:'
+        version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.4
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.4(react@19.2.4)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  packages/base-layout:
+    dependencies:
+      '@emotion/react':
+        specifier: 'catalog:'
+        version: 11.14.0(@types/react@19.2.14)(react@19.2.4)
+      '@emotion/styled':
+        specifier: 'catalog:'
+        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)
+      '@mui/material':
+        specifier: 'catalog:'
+        version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@repo/assets':
+        specifier: workspace:*
+        version: link:../assets
+      '@repo/auth-shared':
+        specifier: workspace:*
+        version: link:../auth-shared
+      '@repo/helpers':
+        specifier: workspace:*
+        version: link:../helpers
+      '@repo/shared-state':
+        specifier: workspace:*
+        version: link:../shared-state
+      '@repo/shared-ui':
+        specifier: workspace:*
+        version: link:../shared-ui
+      '@repo/theme':
+        specifier: workspace:*
+        version: link:../theme
+      '@repo/types':
+        specifier: workspace:*
+        version: link:../types
+      '@tanstack/react-query':
+        specifier: ^5.90.21
+        version: 5.90.21(react@19.2.4)
+      lucide-react:
+        specifier: 'catalog:'
+        version: 0.562.0(react@19.2.4)
+    devDependencies:
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.14)
+      next:
+        specifier: 'catalog:'
+        version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.4
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.4(react@19.2.4)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   packages/env-config: {}
 
   packages/eslint-config:
@@ -644,6 +657,55 @@ importers:
       typescript-eslint:
         specifier: ^8.50.0
         version: 8.56.0(eslint@9.39.3)(typescript@5.9.3)
+
+  packages/gist-shared:
+    dependencies:
+      '@emotion/react':
+        specifier: 'catalog:'
+        version: 11.14.0(@types/react@19.2.14)(react@19.2.4)
+      '@emotion/styled':
+        specifier: 'catalog:'
+        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)
+      '@mui/material':
+        specifier: 'catalog:'
+        version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@repo/helpers':
+        specifier: workspace:*
+        version: link:../helpers
+      '@repo/shared-state':
+        specifier: workspace:*
+        version: link:../shared-state
+      '@repo/shared-ui':
+        specifier: workspace:*
+        version: link:../shared-ui
+      '@repo/test-data':
+        specifier: workspace:*
+        version: link:../test-data
+      '@repo/theme':
+        specifier: workspace:*
+        version: link:../theme
+      '@repo/types':
+        specifier: workspace:*
+        version: link:../types
+    devDependencies:
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.14)
+      next:
+        specifier: 'catalog:'
+        version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.4
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.4(react@19.2.4)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
 
   packages/helpers:
     dependencies:
@@ -691,6 +753,52 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
+  packages/profile-shared:
+    dependencies:
+      '@emotion/react':
+        specifier: 'catalog:'
+        version: 11.14.0(@types/react@19.2.14)(react@19.2.4)
+      '@emotion/styled':
+        specifier: 'catalog:'
+        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)
+      '@mui/material':
+        specifier: 'catalog:'
+        version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@repo/helpers':
+        specifier: workspace:*
+        version: link:../helpers
+      '@repo/shared-state':
+        specifier: workspace:*
+        version: link:../shared-state
+      '@repo/shared-ui':
+        specifier: workspace:*
+        version: link:../shared-ui
+      '@repo/theme':
+        specifier: workspace:*
+        version: link:../theme
+      '@repo/types':
+        specifier: workspace:*
+        version: link:../types
+    devDependencies:
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.14)
+      next:
+        specifier: 'catalog:'
+        version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.4
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.4(react@19.2.4)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   packages/shared-state:
     dependencies:
       '@emotion/react':
@@ -705,9 +813,6 @@ importers:
       '@repo/assets':
         specifier: workspace:*
         version: link:../assets
-      '@repo/auth/shared':
-        specifier: workspace:*
-        version: link:../../apps/auth/shared
       '@repo/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -797,6 +902,49 @@ importers:
       '@types/react-transition-group':
         specifier: 'catalog:'
         version: 4.4.12(@types/react@19.2.14)
+      next:
+        specifier: 'catalog:'
+        version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.4
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.4(react@19.2.4)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  packages/stake-shared:
+    dependencies:
+      '@emotion/react':
+        specifier: 'catalog:'
+        version: 11.14.0(@types/react@19.2.14)(react@19.2.4)
+      '@emotion/styled':
+        specifier: 'catalog:'
+        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)
+      '@mui/material':
+        specifier: 'catalog:'
+        version: 7.3.8(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@repo/helpers':
+        specifier: workspace:*
+        version: link:../helpers
+      '@repo/test-data':
+        specifier: workspace:*
+        version: link:../test-data
+      '@repo/theme':
+        specifier: workspace:*
+        version: link:../theme
+      '@repo/types':
+        specifier: workspace:*
+        version: link:../types
+    devDependencies:
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.14)
       next:
         specifier: 'catalog:'
         version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)

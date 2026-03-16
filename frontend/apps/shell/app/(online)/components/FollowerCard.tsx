@@ -2,7 +2,7 @@
 
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useUser } from "@repo/profile/shared";
+import { useUser } from "@repo/profile-shared";
 import { UserAvatar } from "@repo/shared-ui";
 import { IUser } from "@repo/types";
 import { AnchorLink, AppButton, Strip } from "@repo/shared-ui";
@@ -36,7 +36,7 @@ export const FollowerCard = ({ follower }: FollowerProps) => {
           alignItems: "center",
         }}>
         <UserAvatar
-          userInfo={{ firstName, lastName, profileImage }}
+          userInfo={updatedUser}
           style={{
             width: "35px",
             height: "35px",

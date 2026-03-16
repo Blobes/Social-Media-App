@@ -6,6 +6,8 @@ catalog:
   react: ^19.2.0
   react-dom: ^19.2.0
   typescript: ^5.9.2
+  turbo: ^2.8.10
+  prettier: ^3.7.4
   next: ^16.1.6
   eslint: ^9.39.1
   colorthief: ^2.6.0

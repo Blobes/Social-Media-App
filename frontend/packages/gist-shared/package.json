@@ -1,0 +1,34 @@
+{
+  "name": "@repo/gist-shared",
+  "version": "1.0.0",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "private": true,
+  "exports": {
+    ".": "./index.ts"
+  },
+  "dependencies": {
+    "@repo/shared-ui": "workspace:*",
+    "@repo/shared-state": "workspace:*",
+    "@repo/helpers": "workspace:*",
+    "@repo/theme": "workspace:*",
+    "@repo/types": "workspace:*",
+    "@repo/test-data": "workspace:*"
+  },
+  "peerDependencies": {
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@emotion/react": "catalog:",
+    "@emotion/styled": "catalog:",
+    "@mui/material": "catalog:"
+  },
+  "devDependencies": {
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:"
+  }
+}

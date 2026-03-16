@@ -18,6 +18,7 @@
     "lucide-react": "catalog:",
     "@vercel/microfrontends": "catalog:",
     "@repo/shared-ui": "workspace:*",
+    "@repo/base-layout": "workspace:*",
     "@repo/shared-state": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/theme": "workspace:*",

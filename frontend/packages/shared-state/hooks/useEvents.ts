@@ -5,14 +5,12 @@ import { useSnackbar } from "./useSnackbar";
 import { clientRoutes } from "@repo/helpers";
 import { useGlobalContext } from "../GlobalContext";
 import { useOffline } from "./useOffline";
-import { useAuth } from "@repo/auth/shared";
 import { usePage } from "./usePage";
 
-export const useEventListener = () => {
+export const useEventListener = (verifyAuth: () => Promise<void>) => {
   const { setSBMessage, removeSBMessage } = useSnackbar();
   const { setNetworkStatus, setGlobalLoading } = useGlobalContext();
   const { switchToOnlineMode } = useOffline();
-  const { verifyAuth } = useAuth();
   const { navigateTo } = usePage();
 
   const online = useCallback(() => {

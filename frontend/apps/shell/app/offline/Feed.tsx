@@ -9,8 +9,8 @@ import { CircleSlash2 } from "lucide-react";
 import { usePage } from "@repo/shared-state";
 import { getCachedPosts } from "@repo/helpers";
 import { IPost } from "@repo/types";
-import { GistCard } from "@repo/gist/shared";
-import { StakeCard } from "@repo/stake/shared";
+import { GistCard } from "@repo/gist-shared";
+import { StakeCard } from "@repo/stake-shared";
 
 
 export const CachedFeed = () => {
@@ -95,7 +95,7 @@ export const CachedFeed = () => {
         }}
       />
     ) : feed.map((post) => {
-      switch (post.type) {
+      switch (post.postType) {
         case "GIST":
           return <GistCard key={post._id} gist={post} mode="OFFLINE" />
         case "STAKE":
