@@ -6,13 +6,13 @@ import { useTheme } from "@mui/material/styles";
 import { GenericObject } from "@repo/types";
 import { Pencil } from "lucide-react";
 import { useLogin } from "./hooks/useLogin";
-import { clientRoutes } from "@repo/helpers";
+import { StepName } from "./Login";
 
 
 interface StepProps {
-    email: string;
-    step?: string;
-    setStep?: (step: string) => void;
+    credential: string;
+    step?: StepName;
+    setStep?: (step: StepName) => void;
     redirectTo?: string;
     style?: {
         headline?: GenericObject<string>;
@@ -20,7 +20,7 @@ interface StepProps {
     };
 }
 
-export const PasswordStep: React.FC<StepProps> = ({ email, setStep, style = {} }) => {
+export const PasswordStep: React.FC<StepProps> = ({ credential, setStep, style = {} }) => {
     const theme = useTheme();
 
     // Consuming the controller
@@ -33,7 +33,7 @@ export const PasswordStep: React.FC<StepProps> = ({ email, setStep, style = {} }
         isAuthLoading,
         inlineMsg,
         isLocked,
-    } = useLogin({ email, setStep });
+    } = useLogin({ credential, setStep });
 
     return (
         <>
@@ -72,9 +72,9 @@ export const PasswordStep: React.FC<StepProps> = ({ email, setStep, style = {} }
                             fontWeight: "500",
                             fontSize: "16px"
                         }}>
-                            {email}
+                            {credential}
                         </Typography>
-                        <BasicTooltip title={"Change email"}>
+                        <BasicTooltip title={"Change credential"}>
                             <IconButton
                                 sx={{
                                     padding: theme.boxSpacing(3, 4),
@@ -84,7 +84,7 @@ export const PasswordStep: React.FC<StepProps> = ({ email, setStep, style = {} }
                                     width: "48px",
                                     backgroundColor: theme.fixedColors.mainTrans,
                                 }}
-                                onClick={() => setStep?.("email")}>
+                                onClick={() => setStep?.("CREDENTIAL")}>
                                 <Pencil style={{ width: "20px", stroke: theme.palette.gray[200] }} />
                             </IconButton>
                         </BasicTooltip>

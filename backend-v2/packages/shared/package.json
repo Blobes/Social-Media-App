@@ -1,0 +1,30 @@
+{
+  "name": "@repo/shared",
+  "version": "0.0.0",
+  "main": "./src/index.ts",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./env-config/tsconfig.base.json": "./env-config/tsconfig.base.json"
+  },
+  "dependencies": {
+    "express": "catalog:",
+    "mongoose": "catalog:",
+    "@aws-sdk/client-s3": "catalog:",
+    "@aws-sdk/s3-request-presigner": "catalog:",
+    "jsonwebtoken": "catalog:",
+    "nodemailer": "catalog:",
+    "resend": "catalog:",
+    "uuid": "catalog:",
+    "cookie-parser": "catalog:",
+    "cors": "catalog:",
+    "@repo/database": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "@types/express": "catalog:",
+    "@types/jsonwebtoken": "catalog:",
+    "@types/cors": "catalog:"
+  }
+}

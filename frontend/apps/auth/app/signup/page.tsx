@@ -15,6 +15,7 @@ export default function SignupPage() {
                 alignItems: "center",
                 justifyContent: "center",
                 padding: theme.boxSpacing(10),
+                minHeight: "fit-content"
             }}>
             <SignUpStepper
                 style={{

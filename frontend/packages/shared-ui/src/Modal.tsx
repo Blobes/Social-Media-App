@@ -3,29 +3,11 @@
 import { useImperativeHandle, forwardRef, useRef, useState, } from "react";
 import { IconButton, Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { Direction, GenericObject } from "@repo/types";
-import { Transition, TransitionType } from "./Transition";
+import { ModalProps, ModalRef } from "@repo/types";
+import { Transition } from "./Transition";
 import { scrollBarStyle } from "@repo/helpers";
 import { X } from "lucide-react";
 
-export interface ModalRef {
-  openModal: () => void;
-  closeModal: () => void;
-}
-
-export interface ModalProps {
-  content: React.ReactNode;
-  showHeader?: boolean;
-  header?: React.ReactNode;
-  canBeClosed?: boolean;
-  onClose?: () => void;
-  transition?: { type: TransitionType, direction?: Direction },
-  style?: {
-    base?: { overlay?: GenericObject<string>, content?: GenericObject<string> };
-    smallScreen?: { overlay?: GenericObject<string>, content?: GenericObject<string> };
-    header?: GenericObject<string>;
-  };
-}
 
 export const Modal = forwardRef<ModalRef, ModalProps>(
   (
@@ -107,7 +89,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
           }
         }}>
 
-        {/* Drawer Content Container */}
+        {/* Modal Content Container */}
         <Transition show={isOpen}
           timeout={200} {...trans} onExited={() => setShouldRemove(true)}>
           <Stack
@@ -160,7 +142,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
                       {header && header}
                       {canBeClosed && (
                         <IconButton
-                          aria-label="Drawer closer"
+                          aria-label="Modal closer"
                           aria-controls="close-drawer"
                           aria-haspopup="true"
                           ref={closeRef}
@@ -184,7 +166,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
                   padding: theme.boxSpacing(14),
                 },
                 gap: theme.gap(8),
-                ...(scrollBarStyle(isDesktop, theme) as any),
+                ...(scrollBarStyle(theme) as any),
               }}>
               {content}
             </Stack>
@@ -195,4 +177,4 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
     );
   }
 );
-Modal.displayName = "Drawer";
+Modal.displayName = "Modal";

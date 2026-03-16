@@ -31,7 +31,7 @@ export const clientRoutes: Record<string, IPage> = {
   voices: { title: "Voices", path: "/voices" },
 
   // Offline
-  offline: { title: "Home", path: "/offline" },
+  offline: { title: "Offline", path: "/offline" },
 } as const;
 
 export const registeredRoutes = {
@@ -51,23 +51,37 @@ export const registeredRoutes = {
 
 export const disallowedRoutes: string[] = [];
 
+// Server Apis
+export const apiBase = {
+  auth: "/api/auth",
+  feed: "/api/feed",
+  user: "/api/user",
+  gists: "/api/gists",
+  media: "/api/media",
+};
+
 export const serverApi = {
   // Auth
-  auth: "/api/auth",
-  login: "/api/auth/login",
-  logout: "/api/auth/logout",
-  signup: "/api/auth/signup",
-  checkEmail: "/api/auth/check-email",
-  verifyAuthToken: "/api/auth/verify",
-  refreshToken: "/api/auth/refresh",
+  login: `${apiBase.auth}/login`,
+  logout: `${apiBase.auth}/logout`,
+  signup: `${apiBase.auth}/signup`,
+  checkEmail: `${apiBase.auth}/check-email`,
+  checkUsername: `${apiBase.auth}/check-username`,
+  verifyAuthToken: `${apiBase.auth}/verify-auth`,
+  refreshToken: `${apiBase.auth}/refresh`,
 
-  // Posts
-  posts: "/api/posts",
-  likePost: (id: string) => `/api/posts/${id}/like`,
+  // Media
+  mediaUpload: `${apiBase.media}/get-upload-url`,
+
+  // Feed
+  userFeed: (id: string) => `${apiBase.feed}/${id}`,
+  followersFeed: `${apiBase.feed}/followers`,
+
+  // Gists
+  likeGist: (id: string) => `${apiBase.gists}/${id}/like`,
 
   // Users
-  users: "/api/users",
-  user: (id: string) => `/api/users/${id}`,
-  followers: (id: string) => `/api/users/${id}/followers`,
-  follow: (id: string) => `/api/users/${id}/follow`,
+  getUser: (id: string) => `${apiBase.user}/${id}`,
+  followers: (id: string) => `${apiBase.user}/${id}/followers`,
+  follow: (id: string) => `${apiBase.user}/${id}/follow`,
 };

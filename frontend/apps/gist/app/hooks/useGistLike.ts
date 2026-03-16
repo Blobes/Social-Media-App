@@ -3,7 +3,7 @@ import { IGist } from "@repo/types";
 import { vibrate, processQueue } from "@repo/helpers";
 
 export const useGistLike = (gist: IGist, context: any) => {
-  // 1. Destructure everything internally for clarity
+  // Destructure everything internally for clarity
   const {
     handleGistLike,
     getPendingLike,
@@ -41,11 +41,11 @@ export const useGistLike = (gist: IGist, context: any) => {
       setModalContent({ content: LoginStepper });
       return;
     }
-    if (isOffline || isUnstableNetwork || mode === "offline") {
+    if (isOffline || isUnstableNetwork || mode === "OFFLINE") {
       setSBMessage({
         msg: {
           content:
-            mode === "offline"
+            mode === "OFFLINE"
               ? "You can't engage an offline post."
               : "Something went wrong.",
           msgStatus: "ERROR",

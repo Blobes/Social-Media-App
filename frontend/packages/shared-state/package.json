@@ -9,12 +9,9 @@
   },
   "dependencies": {
     "@repo/assets": "workspace:*",
-    "@repo/auth/shared": "workspace:*",
     "@repo/helpers": "workspace:*",
-    "@repo/shared-ui": "workspace:*",
     "@repo/theme": "workspace:*",
-    "@repo/types": "workspace:*",
-    "@tanstack/react-query": "^5.90.21"
+    "@repo/types": "workspace:*"
   },
   "peerDependencies": {
     "@emotion/react": "catalog:",
@@ -28,7 +25,6 @@
     "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
     "@types/colorthief": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

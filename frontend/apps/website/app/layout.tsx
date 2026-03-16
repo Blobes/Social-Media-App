@@ -1,24 +1,24 @@
-import { BaseLayout, RootUIContainer } from "@repo/shared-ui";
-import { Metadata } from "next";
-import { ClientOnly, SharedProviders } from "@repo/shared-state";
-import { baseMetadata } from "@repo/helpers";
+import { BlurEffect, RootUIContainer, Footer } from "@repo/shared-ui";
+import { Header } from "./navbars/Header";
+import { useNavLists, usePage } from "@repo/shared-state";
+import { BaseLayout, ClientOnly } from "@repo/features";
 
-
-export const metadata: Metadata = {
-  ...baseMetadata,
-  title: "Company",
-};
-
-export default async function RootLayout({
-  children,
-}: Readonly<{
+export default function RootLayout({ children, }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { navigateTo } = usePage();
+  const { footerNavList } = useNavLists();
+
   return (
-    <BaseLayout Providers={SharedProviders} >
-      <ClientOnly hideWrapper={true}>
-        <RootUIContainer>{children}</RootUIContainer>
+    <BaseLayout >
+      <ClientOnly>
+        <RootUIContainer>
+          <BlurEffect />
+          <Header />
+          {children}
+          <Footer navList={footerNavList} navigateTo={navigateTo} />
+        </RootUIContainer>
       </ClientOnly>
     </BaseLayout>
-  );
+  )
 }

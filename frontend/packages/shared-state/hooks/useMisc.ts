@@ -4,7 +4,7 @@ import { useGlobalContext } from "../GlobalContext";
 import { useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { delay, checkSignal } from "@repo/helpers";
-import { ModalProps, DrawerProps } from "@repo/shared-ui";
+import { DrawerProps, ModalProps } from "@repo/types";
 
 export const useMisc = () => {
   const theme = useTheme();

@@ -3,11 +3,7 @@
 import { forwardRef, useImperativeHandle, useState, ReactNode } from "react";
 import { Menu, paperClasses } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-
-export interface MenuRef {
-  openMenu: (anchor: HTMLElement) => void;
-  closeMenu: () => void;
-}
+import { MenuRef } from "@repo/types";
 
 interface MenuProps {
   contentElement: ReactNode;

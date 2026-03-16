@@ -1,6 +1,6 @@
 import { serverApi } from "../routes";
 import { fetcher } from "../fetcher";
-import { IUser } from "@repo/types";
+import { FetchStatus, IUser } from "@repo/types";
 
 interface TokenCheckResponse {
   payload: IUser | null;
@@ -75,7 +75,7 @@ export const checkNetworkError = (err: any) => {
   if (isNetworkError) {
     return {
       payload: null,
-      status: "ERROR",
+      status: "ERROR" as FetchStatus,
       message: "Network connection failed",
     };
   }

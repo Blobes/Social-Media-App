@@ -3,9 +3,10 @@
 import { createContext, useContext, useState } from "react";
 import {
   IUser, ISnackBarMsg, AuthStatus, IPage, NetworkStatus,
+  DrawerProps,
+  ModalProps,
 } from "@repo/types";
-import { clientRoutes } from "@repo/helpers";
-import { ModalProps, DrawerProps } from "@repo/shared-ui";
+import { clientRoutes } from "../helpers";
 
 interface Context {
   authStatus: AuthStatus;

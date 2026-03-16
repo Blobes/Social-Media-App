@@ -8,7 +8,7 @@ on:
     types: [closed]
     # Only trigger if fs-v2 folders are modified
     paths:
-      - "backend/**"
+      - "backend-v2/**"
       - "frontend/**"
       - ".github/workflows/sync-v2-base.yml"
 

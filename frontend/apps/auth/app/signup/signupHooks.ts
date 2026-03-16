@@ -2,9 +2,8 @@
 
 import { useGlobalContext } from "@repo/shared-state";
 import { fetcher, deleteCookie } from "@repo/helpers";
-import { IUser, ISingleResponse } from "@repo/types";
+import { IUser, ISingleResponse, DrawerRef } from "@repo/types";
 import { useRouter } from "next/navigation";
-import { DrawerRef } from "@repo/shared-ui";
 
 interface LoginCredentials {
   email: string;

@@ -1,0 +1,11 @@
+# Ignore build outputs
+dist
+.next
+out
+
+# Ignore dependency folders
+node_modules
+
+# Ignore lock files and logs
+pnpm-lock.yaml
+*.log

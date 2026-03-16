@@ -1,5 +1,5 @@
 {
-  "name": "gist",
+  "name": "@repo/gist",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -22,6 +22,7 @@
     "@repo/theme": "workspace:*",
     "@repo/types": "workspace:*",
     "@repo/test-data": "workspace:*",
+    "@repo/features": "workspace:*",
     "@mui/material": "catalog:"
   },
   "devDependencies": {
@@ -30,6 +31,6 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*"
+    "@repo/env-config": "workspace:*"
   }
 }

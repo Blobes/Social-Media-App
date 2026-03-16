@@ -1,15 +1,6 @@
-import { withMicrofrontends } from "@vercel/microfrontends/next/config";
+import { withBaseConfig } from "@repo/env-config/next-config";
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
-      },
-    ];
-  },
-};
+const nextConfig = {};
 
-export default withMicrofrontends(nextConfig);
+export default withBaseConfig(nextConfig, "https://funstakes.onrender.com");

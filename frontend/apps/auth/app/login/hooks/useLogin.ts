@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
 import { useGlobalContext, useSnackbar, usePage } from "@repo/shared-state";
-import { useLoginService } from "../service";
 import { useLockCountdown } from "./useLockCount";
 import {
   setCookie,
@@ -12,12 +11,13 @@ import {
   formatRemainingTime,
 } from "@repo/helpers";
 import { IPage } from "@repo/types";
+import { LoginService } from "../service";
 
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MIN = 2;
 
 export const useLogin = ({ email, setStep }: any) => {
-  const { login } = useLoginService();
+  const { login } = LoginService();
   const {
     inlineMsg,
     setInlineMsg,
@@ -106,7 +106,6 @@ export const useLogin = ({ email, setStep }: any) => {
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (isLocked) return;
-
     setAuthLoading(true);
     try {
       const res = await login({ email, password });
@@ -125,7 +124,7 @@ export const useLogin = ({ email, setStep }: any) => {
         const savedPath = savedPage ? savedPage.path : "";
         const isLastWeb = isOnWeb(savedPath);
         const page = !isLastWeb && savedPage ? savedPage : clientRoutes.home;
-        navigateTo(page, { type: "replace", isExternal: true });
+        navigateTo(page, { type: "external" });
 
         setAuthUser(res.payload);
         setAuthStatus("AUTHENTICATED");

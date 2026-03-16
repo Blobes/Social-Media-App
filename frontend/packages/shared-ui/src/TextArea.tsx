@@ -62,7 +62,7 @@ const StyledTextarea = styled(TextareaAutosize, {
       backgroundColor: "unset",
       resize: "none",
       border: "none",
-      ...scrollBarStyle(isDesktop, theme),
+      ...scrollBarStyle(theme),
       ...customStyle?.default,
       "&:focus": {
         border: "none",

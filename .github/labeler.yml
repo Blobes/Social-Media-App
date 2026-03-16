@@ -7,9 +7,9 @@ Shell:
   - changed-files:
       - any-glob-to-any-file: "frontend/apps/shell/**/*"
 
-Feed:
+Gist:
   - changed-files:
-      - any-glob-to-any-file: "frontend/apps/feed/**/*"
+      - any-glob-to-any-file: "frontend/apps/gist/**/*"
 
 Stake:
   - changed-files:
@@ -30,7 +30,7 @@ Packages:
 # backedn Infrastructure
 Backend:
   - changed-files:
-      - any-glob-to-any-file: "backend/**/*"
+      - any-glob-to-any-file: "backend-v2/**/*"
 
 # CI/CD Infrastructure
 Devops:

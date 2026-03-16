@@ -16,3 +16,5 @@ export * from "./src/cache";
 export * from "./src/styles";
 export * from "./src/metadata";
 export * from "./src/dragConfig";
+export * from "./src/upload";
+export * from "./src/textFormatter";

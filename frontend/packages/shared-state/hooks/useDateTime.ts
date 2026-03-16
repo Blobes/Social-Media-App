@@ -6,7 +6,7 @@ import { formatDate } from "@repo/helpers";
 export const useAdaptiveTime = (timestamp: string | number) => {
   // 1. Initial Calculation to see where we stand
   const [display, setDisplay] = useState(() =>
-    formatDate(timestamp, "shortened"),
+    formatDate(timestamp, "SHORTENED"),
   );
 
   // 2. Determine if we need an interval
@@ -23,7 +23,7 @@ export const useAdaptiveTime = (timestamp: string | number) => {
     if (!isFresh) return;
 
     const timer = setInterval(() => {
-      const nextValue = formatDate(timestamp, "shortened");
+      const nextValue = formatDate(timestamp, "SHORTENED");
       setDisplay(nextValue);
 
       // Optimization: If the new value no longer ends in 'm' (it's now '1h'),

@@ -6,8 +6,10 @@ import { BasicTooltip } from "./Tooltips";
 import { GenericObject, IUser } from "@repo/types";
 import { useTheme } from "@mui/material/styles";
 
+//  { firstName?: string; lastName?: string; profileImage?: string }
+
 interface UserAvatarProps {
-  userInfo: { firstName?: string; lastName?: string; profileImage?: string } | null;
+  userInfo: IUser | null;
   action?: (e: React.MouseEvent<HTMLElement>) => void;
   url?: string;
   style?: GenericObject<string>;
