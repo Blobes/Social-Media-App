@@ -772,3 +772,17 @@ const { isOffline, isUnstableNetwork } = useMisc();
     );
 
 };
+
+# BACKEND_API_URL=https://funstakes.onrender.com
+
+# Client
+
+# AUTH_APP_URL=http://localhost:3002
+
+# GIST_APP_URL=http://localhost:3003
+
+# PROFILE_APP_URL=http://localhost:3004
+
+# STAKE_APP_URL=http://localhost:3005
+
+# WEB_APP_URL=http://localhost:3006

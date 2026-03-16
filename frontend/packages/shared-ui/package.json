@@ -25,6 +25,7 @@
     "react-transition-group": "catalog:"
   },
   "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@types/react-transition-group": "catalog:",
