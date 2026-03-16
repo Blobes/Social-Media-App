@@ -7,7 +7,7 @@ import { Milestone } from "lucide-react";
 import { useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
 import { autoScroll } from "@repo/helpers";
-import { GistCard, useGists } from "@repo/gist-shared";
+import { GistCard, useGists } from "@repo/features";
 
 
 export const Gists = () => {

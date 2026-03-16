@@ -10,10 +10,8 @@
   "dependencies": {
     "@repo/assets": "workspace:*",
     "@repo/helpers": "workspace:*",
-    "@repo/shared-ui": "workspace:*",
     "@repo/theme": "workspace:*",
-    "@repo/types": "workspace:*",
-    "@tanstack/react-query": "^5.90.21"
+    "@repo/types": "workspace:*"
   },
   "peerDependencies": {
     "@emotion/react": "catalog:",

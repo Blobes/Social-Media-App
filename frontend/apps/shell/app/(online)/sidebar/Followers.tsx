@@ -3,13 +3,11 @@
 import { useTheme } from "@mui/material/styles";
 import { Stack } from "@mui/material";
 import { useGlobalContext } from "@repo/shared-state";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { FollowerCard } from "../components/FollowerCard";
-import { delay } from "@repo/helpers";
 import { ProgressIcon, Empty } from "@repo/shared-ui";
 import { UserMinus } from "lucide-react";
-import { useUser } from "@repo/profile/shared";
-import { IUser } from "@repo/types";
+import { useUser } from "@repo/features";
 
 export const Followers = () => {
   const theme = useTheme();

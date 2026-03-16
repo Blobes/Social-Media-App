@@ -18,12 +18,11 @@
     "@vercel/microfrontends": "catalog:",
     "@repo/shared-ui": "workspace:*",
     "@repo/shared-state": "workspace:*",
-    "@repo/base-layout": "workspace:*",
-    "@repo/gist-shared": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/theme": "workspace:*",
     "@repo/types": "workspace:*",
     "@repo/test-data": "workspace:*",
+    "@repo/features": "workspace:*",
     "@mui/material": "catalog:"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { BaseLayout, ClientOnly, DefaultWrapper } from "@repo/base-layout";
+import { BaseLayout, ClientOnly, DefaultWrapper } from "@repo/features";
 import { baseMetadata } from "@repo/helpers";
 
 

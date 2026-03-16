@@ -7,8 +7,7 @@ import { Milestone } from "lucide-react";
 import { useFeed } from "../useFeed";
 import { useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
-import { GistCard } from "@repo/gist-shared";
-import { StakeCard } from "@repo/stake-shared";
+import { GistCard, StakeCard } from "@repo/features";
 import { autoScroll } from "@repo/helpers";
 
 

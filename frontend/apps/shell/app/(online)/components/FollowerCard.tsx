@@ -2,7 +2,7 @@
 
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useUser } from "@repo/profile-shared";
+import { useUser } from "@repo/features";
 import { UserAvatar } from "@repo/shared-ui";
 import { IUser } from "@repo/types";
 import { AnchorLink, AppButton, Strip } from "@repo/shared-ui";

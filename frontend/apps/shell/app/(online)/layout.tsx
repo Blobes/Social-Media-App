@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { BaseLayout, ClientOnly, DefaultWrapper } from "@repo/base-layout";
+import { BaseLayout, ClientOnly, DefaultWrapper } from "@repo/features";
 import { Prefetcher } from "@repo/shared-ui";
 import { baseMetadata, sharedViewport } from "@repo/helpers";
 import { Viewport } from "next";

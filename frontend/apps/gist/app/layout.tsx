@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { baseMetadata } from "@repo/helpers";
-import { BaseLayout, ClientOnly, DefaultWrapper } from "@repo/base-layout";
+import { BaseLayout, ClientOnly, DefaultWrapper } from "@repo/features";
 
 
 export const metadata: Metadata = {

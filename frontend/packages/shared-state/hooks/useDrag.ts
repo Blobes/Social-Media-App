@@ -29,9 +29,9 @@ export const useDragClose = (config: IDragConfig): IDragResult => {
         if (diff > 0) setDragOffset(diff);
       } else {
         // X-axis: Check direction
-        if (dragOrigin === "ltr" && diff > 0) {
+        if (dragOrigin === "LTR" && diff > 0) {
           setDragOffset(diff);
-        } else if (dragOrigin === "rtl" && diff < 0) {
+        } else if (dragOrigin === "RTL" && diff < 0) {
           setDragOffset(Math.abs(diff));
         }
       }

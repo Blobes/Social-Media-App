@@ -1,4 +1,4 @@
-import { ClientOnly, BaseLayout } from "@repo/base-layout";
+import { ClientOnly, BaseLayout } from "@repo/features";
 import { Wrapper } from "./Wrapper";
 
 export default function OfflineLayout({

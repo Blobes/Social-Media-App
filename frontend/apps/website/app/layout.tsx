@@ -1,7 +1,7 @@
 import { BlurEffect, RootUIContainer, Footer } from "@repo/shared-ui";
 import { Header } from "./navbars/Header";
 import { useNavLists, usePage } from "@repo/shared-state";
-import { BaseLayout, ClientOnly } from "@repo/base-layout";
+import { BaseLayout, ClientOnly } from "@repo/features";
 
 export default function RootLayout({ children, }: Readonly<{
   children: React.ReactNode;

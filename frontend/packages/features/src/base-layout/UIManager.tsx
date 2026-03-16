@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation";
 import { registerSW, delay, cleanupCache } from "@repo/helpers";
 import { useEventListener, useGlobalContext, useMisc, usePage, useSnackbar } from "@repo/shared-state";
 import { DrawerRef, ModalRef } from "@repo/types";
-import { useAuth } from "@repo/auth-shared";
+import { useAuth } from "../auth/useAuth";
+;
 
 
 export const UIManager = ({ children }: { children: React.ReactNode }) => {

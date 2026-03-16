@@ -9,8 +9,7 @@ import { CircleSlash2 } from "lucide-react";
 import { usePage } from "@repo/shared-state";
 import { getCachedPosts } from "@repo/helpers";
 import { IPost } from "@repo/types";
-import { GistCard } from "@repo/gist-shared";
-import { StakeCard } from "@repo/stake-shared";
+import { GistCard, StakeCard } from "@repo/features";
 
 
 export const CachedFeed = () => {

@@ -1,5 +1,5 @@
 {
-  "name": "@repo/stake-shared",
+  "name": "@repo/features",
   "version": "1.0.0",
   "main": "./index.ts",
   "types": "./index.ts",
@@ -8,10 +8,12 @@
     ".": "./index.ts"
   },
   "dependencies": {
-    "@repo/test-data": "workspace:*",
+    "@repo/shared-ui": "workspace:*",
+    "@repo/shared-state": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/theme": "workspace:*",
-    "@repo/types": "workspace:*"
+    "@repo/types": "workspace:*",
+    "@tanstack/react-query": "catalog:"
   },
   "peerDependencies": {
     "next": "catalog:",
@@ -19,7 +21,8 @@
     "react-dom": "catalog:",
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
-    "@mui/material": "catalog:"
+    "@mui/material": "catalog:",
+    "lucide-react": "catalog:"
   },
   "devDependencies": {
     "next": "catalog:",
