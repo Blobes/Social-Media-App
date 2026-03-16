@@ -5,8 +5,7 @@ import { useTheme } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import Image from "next/image";
 import { Blurhash } from "react-blurhash";
-import { IMedia } from "@repo/types";
-import { UseMedia, MediaStyle } from "./Media";
+import { IMedia, MediaStyle, UseMedia } from "../../../_types";
 import { VideoMedia } from "./VideoMedia";
 
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { formatDate } from "@repo/helpers";
+import { formatDate } from "../../_helpers";
 
 export const useAdaptiveTime = (timestamp: string | number) => {
   // 1. Initial Calculation to see where we stand

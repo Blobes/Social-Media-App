@@ -1,14 +1,15 @@
-import { GenericObject } from "./data";
+import { GenericObject, IMedia } from "./data";
 
 export type Direction = "left" | "right" | "up" | "down";
+export type TransitionType = "fade" | "grow" | "slide" | "zoom" | "collapse";
 
+// Transition
 export interface IDragConfig {
   axis: "X" | "Y";
   dragOrigin?: "LTR" | "RTL";
   threshold?: number;
   closeAtMiddle?: boolean;
 }
-
 export interface IDragResult {
   axis: "X" | "Y";
   dragOffset: number;
@@ -18,19 +19,16 @@ export interface IDragResult {
     onTouchEnd: (onDragEnd?: () => void) => void;
   };
 }
-
 export interface MenuRef {
   openMenu: (anchor: HTMLElement) => void;
   closeMenu: () => void;
 }
 
-export type TransitionType = "fade" | "grow" | "slide" | "zoom" | "collapse";
-
+// Modal
 export interface ModalRef {
   openModal: () => void;
   closeModal: () => void;
 }
-
 export interface ModalProps {
   content: React.ReactNode;
   showHeader?: boolean;
@@ -48,16 +46,15 @@ export interface ModalProps {
   };
 }
 
+// Drawer
 export interface DrawerRef {
   openDrawer: () => void;
   closeDrawer: () => void;
 }
-
 export interface DrawerHooks {
   closeDrawer?: () => any;
   useDragClose?: any;
 }
-
 export interface DrawerProps {
   content: React.ReactNode;
   showHeader?: boolean;
@@ -83,4 +80,20 @@ export interface DrawerProps {
     };
     header?: GenericObject<string>;
   };
+}
+
+// Media
+export interface UseMedia {
+  useImageColors: (src: string) => { isPortrait: boolean };
+  useMisc: () => { isDesktop: boolean };
+}
+export interface MediaStyle {
+  container?: { base?: any; smallScreen?: any };
+  content?: any;
+}
+export interface MediaProps extends IMedia {
+  style?: MediaStyle;
+  onSingleTap?: (media?: IMedia) => void;
+  onDoubleTap?: (media?: IMedia) => void;
+  useMedia?: UseMedia;
 }

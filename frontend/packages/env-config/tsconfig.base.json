@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "plugins": [{ "name": "next" }],
-    "jsx": "preserve", // Or "react-jsx" for React 17+
+    "jsx": "preserve",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,

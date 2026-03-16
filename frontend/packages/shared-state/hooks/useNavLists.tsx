@@ -1,6 +1,6 @@
 "use client";
 
-import { clientRoutes } from "@repo/helpers";
+import { clientRoutes } from "../../_helpers";
 import { INavItem } from "@repo/types";
 import {
   BadgeQuestionMark, AudioLines, Bell, Bookmark, CircleDashed, Gem, House, Mail, Pentagon,

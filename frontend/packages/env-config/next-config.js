@@ -1,4 +1,3 @@
-// packages/env-config/next-config.js
 import { withMicrofrontends } from "@vercel/microfrontends/next/config";
 
 export function withBaseConfig(appConfig = {}, backendApi) {

@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import { Box } from "@mui/material";
 import { Heart } from "lucide-react";
-import { heartPop, vibrate } from "@repo/helpers"
+import { heartPop, vibrate } from "../../helpers"
 
 interface DoubleTapProps {
     children: React.ReactNode;

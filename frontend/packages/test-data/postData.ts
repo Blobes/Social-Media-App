@@ -1,12 +1,12 @@
 "use client";
 
-import { MediaProps } from "@repo/shared-ui";
 import { img } from "@repo/assets";
-import { IStake } from "@repo/types";
+import { IStake, MediaProps } from "@repo/types";
 
 export const stakeData: IStake[] = [
   {
     _id: "stake1",
+    authorId: "1",
     author: {
       _id: "1",
       username: "User1",
@@ -20,6 +20,7 @@ export const stakeData: IStake[] = [
   },
   {
     _id: "stake2",
+    authorId: "2",
     author: {
       _id: "2",
       username: "User2",
@@ -33,6 +34,7 @@ export const stakeData: IStake[] = [
   },
   {
     _id: "stake3",
+    authorId: "3",
     author: {
       _id: "3",
       username: "User3",

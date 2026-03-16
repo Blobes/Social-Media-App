@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback } from "react";
 import { useSnackbar } from "./useSnackbar";
-import { clientRoutes } from "@repo/helpers";
+import { clientRoutes } from "../../_helpers";
 import { useGlobalContext } from "../GlobalContext";
 import { useOffline } from "./useOffline";
 import { usePage } from "./usePage";

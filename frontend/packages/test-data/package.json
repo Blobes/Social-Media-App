@@ -8,7 +8,6 @@
     ".": "./index.ts"
   },
   "dependencies": {
-    "@repo/shared-ui": "workspace:*",
     "@repo/assets": "workspace:*",
     "@repo/types": "workspace:*"
   }

@@ -3,11 +3,13 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./next-config.js",
+    "./next-config": "./next-config.js",
     "./tsconfig.base.json": "./tsconfig.base.json"
   },
-  "files": [
-    "next-config.js",
-    "tsconfig.base.json"
-  ]
+  "peerDependencies": {
+    "@vercel/microfrontends": "catalog:"
+  },
+  "devDependencies": {
+    "@vercel/microfrontends": "catalog:"
+  }
 }

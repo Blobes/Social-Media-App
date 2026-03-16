@@ -1,4 +1,4 @@
-import { withBaseConfig } from "@repo/env-config";
+import { withBaseConfig } from "@repo/env-config/next-config";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {};

@@ -3,7 +3,7 @@ import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import { useGlobalContext } from "../GlobalContext";
 import { useMisc } from "./useMisc";
-import { clientRoutes, dragToCloseConfig } from "@repo/helpers";
+import { clientRoutes, dragToCloseConfig } from "../../_helpers";
 import { usePage } from "./usePage";
 import { usePageScroll } from "./usePageScroll";
 import { useDragClose } from "./useDrag";

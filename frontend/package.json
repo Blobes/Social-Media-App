@@ -10,7 +10,6 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
-    "@vercel/microfrontends": "catalog:",
     "next": "catalog:",
     "prettier": "catalog:",
     "turbo": "catalog:",

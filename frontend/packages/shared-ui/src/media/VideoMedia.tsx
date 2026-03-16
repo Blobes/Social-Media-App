@@ -1,6 +1,6 @@
 "use client"
 
-import { IMedia } from "@repo/types";
+import { IMedia } from "../../../_types";
 import { Box } from "@mui/material";
 import { Play } from "lucide-react";
 import { useRef, useState } from "react";

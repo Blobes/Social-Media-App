@@ -1,6 +1,7 @@
 {
   "name": "@repo/features",
   "version": "1.0.0",
+  "type": "module",
   "main": "./index.ts",
   "types": "./index.ts",
   "private": true,
@@ -13,6 +14,7 @@
     "@repo/helpers": "workspace:*",
     "@repo/theme": "workspace:*",
     "@repo/types": "workspace:*",
+    "@repo/test-data": "workspace:*",
     "@tanstack/react-query": "catalog:"
   },
   "peerDependencies": {

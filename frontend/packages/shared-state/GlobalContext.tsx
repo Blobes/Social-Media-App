@@ -6,7 +6,7 @@ import {
   DrawerProps,
   ModalProps,
 } from "@repo/types";
-import { clientRoutes } from "@repo/helpers";
+import { clientRoutes } from "../helpers";
 
 interface Context {
   authStatus: AuthStatus;

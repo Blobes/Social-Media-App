@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { IAuthor } from "@repo/types";
-import { getCachedAuthor } from "@repo/helpers";
+import { getCachedAuthor } from "../../../_helpers";
 
 export const useCached = (authorId: string) => {
   const [cachedAuthor, setAuthor] = useState<IAuthor>();

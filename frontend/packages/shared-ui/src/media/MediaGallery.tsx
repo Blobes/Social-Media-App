@@ -2,11 +2,11 @@
 
 import { useMemo } from 'react';
 import { Box, ImageList, ImageListItem, Typography } from '@mui/material';
-import { MediaStyle, MediaProps } from './Media';
 import { useTheme } from "@mui/material/styles";
 import { DoubleTap } from '../DoubleTap';
 import Image from 'next/image';
 import { VideoMedia } from './VideoMedia';
+import { MediaProps, MediaStyle } from '../../../_types';
 
 
 export interface GalleryProps {
