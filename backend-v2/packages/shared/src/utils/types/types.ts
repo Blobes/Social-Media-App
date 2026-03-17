@@ -1,4 +1,4 @@
-import { Severity } from "@/services/moderation/policy";
+import { Severity } from "@/services/moderation/";
 
 export interface IMediaInput {
   url: string;

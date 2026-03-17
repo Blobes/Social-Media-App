@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/shared/env-config/tsconfig.base.json",
+  "extends": "./env-config/tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",

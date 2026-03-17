@@ -5,12 +5,14 @@
 /.pnp
 .pnp.js
 .next
+.turbo
 
 # testing
 /coverage
 
 # production
 /build
+dist
 
 # misc
 .DS_Store
@@ -29,3 +31,4 @@ yarn-error.log*
 
 # Others
 /note.md 
+/api-test
