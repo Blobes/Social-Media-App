@@ -1,19 +1,19 @@
-import express from "express";
-import getUserProfile from "@/user-role/controllers/user/profile/getProfile";
-import { updateBasicInfo } from "@/user-role/controllers/user/profile/updateBasic";
-import { deactivateAccount } from "@/user-role/controllers/user/account/deactivateAccount";
-import followUser from "@/user-role/controllers/user/socials/followUser";
-import verifyAuthToken from "@/middlewares/verifyAuthToken";
-import { getFollowers } from "@/user-role/controllers/user/socials/getFollowers";
-import { changeEmail } from "@/user-role/controllers/user/email/changeEmail";
-import { changePassword } from "@/user-role/controllers/user/changePassword";
-import { updateDemoInfo } from "@/user-role/controllers/user/profile/updateDemo";
-import { changeUserImage } from "@/user-role/controllers/user/profile/changeImage";
-import { changeUsername } from "@/user-role/controllers/user/changeUsername";
-import { cancelEmailChange } from "@/user-role/controllers/user/email/cancelChange";
-import { removeUserImage } from "@/user-role/controllers/user/profile/removeImage";
+import express, { Router } from "express";
+import getUserProfile from "./controllers/profile/getProfile";
+import { updateBasicInfo } from "./controllers/profile/updateBasic";
+import { verifyAuthToken } from "@repo/shared";
+import { updateDemoInfo } from "./controllers/profile/updateDemo";
+import { changeUserImage } from "./controllers/profile/changeImage";
+import { removeUserImage } from "./controllers/profile/removeImage";
+import { changeEmail } from "./controllers/email/changeEmail";
+import { changeUsername } from "./controllers/changeUsername";
+import { changePassword } from "./controllers/changePassword";
+import { cancelEmailChange } from "./controllers/email/cancelChange";
+import { deactivateAccount } from "./controllers/account/deactivateAccount";
+import followUser from "./controllers/socials/followUser";
+import { getFollowers } from "./controllers/socials/getFollowers";
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // User Info
 router.get("/:id", getUserProfile);
