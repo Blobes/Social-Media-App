@@ -18,13 +18,17 @@
     "uuid": "catalog:",
     "cookie-parser": "catalog:",
     "cors": "catalog:",
-    "@repo/database": "workspace:*"
+    "@repo/database": "workspace:*",
+    "openai": "catalog:",
+    "@google-cloud/vision": "catalog:"
   },
   "devDependencies": {
     "typescript": "catalog:",
     "@types/node": "catalog:",
     "@types/express": "catalog:",
     "@types/jsonwebtoken": "catalog:",
-    "@types/cors": "catalog:"
+    "@types/cors": "catalog:",
+    "@types/uuid": "catalog:",
+    "@types/nodemailer": "^7.0.4"
   }
 }
