@@ -1,8 +1,8 @@
 import { Response, NextFunction } from "express";
-import { AuthRequest } from "./verifyAuthToken";
+import { IAuthRequest } from "../types/types";
 
 export const isAdmin = (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
   next: NextFunction,
 ) => {

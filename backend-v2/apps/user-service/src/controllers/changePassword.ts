@@ -1,10 +1,10 @@
 import { UserModel } from "@repo/database";
-import { AuthRequest } from "@repo/shared";
+import { IAuthRequest } from "@repo/shared";
 import bcrypt from "bcrypt";
 import { Response } from "express";
 
 // Update Password
-interface PassWordRequest extends AuthRequest {
+interface PassWordRequest extends IAuthRequest {
   body: {
     currentPassword: string;
     newPassword: string;

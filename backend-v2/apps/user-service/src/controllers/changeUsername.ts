@@ -1,9 +1,9 @@
 import { UserModel } from "@repo/database";
-import { AuthRequest, userSensitiveFields } from "@repo/shared";
+import { IAuthRequest, userSensitiveFields } from "@repo/shared";
 import { Response } from "express";
 
 export const changeUsername = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
   const { newUsername } = req.body as { newUsername?: string };

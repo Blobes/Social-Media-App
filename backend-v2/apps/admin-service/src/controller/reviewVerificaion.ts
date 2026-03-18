@@ -1,9 +1,9 @@
 import { IdVerificationRequestModel, UserModel } from "@repo/database";
-import { AuthRequest } from "@repo/shared";
+import { IAuthRequest } from "@repo/shared";
 
 import { Response } from "express";
 
-interface ReviewRequest extends AuthRequest {
+interface ReviewRequest extends IAuthRequest {
   body: {
     requestId: string;
     decision: "APPROVED" | "REJECTED";

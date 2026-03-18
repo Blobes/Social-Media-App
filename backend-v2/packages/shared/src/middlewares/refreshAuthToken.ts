@@ -1,10 +1,10 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { RequestHandler, Response } from "express";
-import { AuthRequest } from "./verifyAuthToken";
-import { genAccessTokens } from "../utils/tokens";
+import { genAccessTokens } from "../utils/misc/tokens";
+import { IAuthRequest } from "../types/types";
 
 export const refreshAuthToken: RequestHandler = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
   const refreshToken = req.cookies.refresh_token;

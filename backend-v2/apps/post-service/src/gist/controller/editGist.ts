@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import { Response } from "express";
-import { AuthRequest } from "@repo/shared";
+import { IAuthRequest } from "@repo/shared";
 import { GistModel, PostCaptionModel } from "@repo/database";
 
-interface EditRequest extends AuthRequest {
+interface EditRequest extends IAuthRequest {
   body: {
     content: string;
     gistId: string;

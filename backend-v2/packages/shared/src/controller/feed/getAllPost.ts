@@ -1,9 +1,9 @@
 import { GistModel } from "@repo/database";
 import { Response } from "express";
-import { AuthRequest } from "../../middlewares/verifyAuthToken";
 import { getPostListAggregation } from "../../utils/aggregator/postList";
+import { IAuthRequest } from "../../types/types";
 
-export const getAllPost = async (req: AuthRequest, res: Response) => {
+export const getAllPost = async (req: IAuthRequest, res: Response) => {
   try {
     const authUserId = req.user?.id; // Important for the 'likedByMe' logic
 

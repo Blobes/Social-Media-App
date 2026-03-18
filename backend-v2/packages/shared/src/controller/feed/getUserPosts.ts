@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 import { Response } from "express";
 import { GistModel } from "@repo/database";
 import { getPostListAggregation } from "../../utils/aggregator/postList";
-import { AuthRequest } from "../../middlewares/verifyAuthToken";
+import { IAuthRequest } from "../../types/types";
 
 /**
  * Fetches all posts (Gists & Stakes) for a specific user profile.
  */
 export const getUserPosts = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
   const targetUserId = req.params.id as string; // The profile owner

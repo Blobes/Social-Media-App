@@ -1,23 +1,9 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { Request, Response, NextFunction, RequestHandler } from "express";
-
-export interface JwtUserPayload {
-  id: any;
-  email?: string;
-  username?: string;
-  isAdmin: boolean;
-  password?: string;
-  firstName?: string;
-  lastName?: string;
-  role?: "USER" | "ADMIN" | "MODERATOR";
-}
-
-export interface AuthRequest extends Request {
-  user?: JwtUserPayload;
-}
+import { Response, NextFunction, RequestHandler } from "express";
+import { IAuthRequest, IJwtUser } from "../types/types";
 
 export const verifyAuthToken: RequestHandler = (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
@@ -44,7 +30,7 @@ export const verifyAuthToken: RequestHandler = (
         return;
       }
 
-      req.user = payload as JwtUserPayload; //attach user data to the request
+      req.user = payload as IJwtUser; //attach user data to the request
       next();
     },
   );

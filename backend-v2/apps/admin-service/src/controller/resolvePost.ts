@@ -4,10 +4,10 @@ import {
   PostReportModel,
   UserModel,
 } from "@repo/database";
-import { AuthRequest } from "@repo/shared";
+import { IAuthRequest } from "@repo/shared";
 import { Response } from "express";
 
-interface ResolveRequest extends AuthRequest {
+interface ResolveRequest extends IAuthRequest {
   body: {
     flagId: string;
     resolution: "APPROVED" | "REJECTED";

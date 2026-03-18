@@ -1,9 +1,9 @@
 import { GistModel } from "@repo/database";
-import { AuthRequest, getPostAggregation } from "@repo/shared";
+import { IAuthRequest, getPostAggregation } from "@repo/shared";
 import { Response } from "express";
 import mongoose, { PipelineStage } from "mongoose";
 
-const getGist = async (req: AuthRequest, res: Response): Promise<void> => {
+const getGist = async (req: IAuthRequest, res: Response): Promise<void> => {
   const postId = req.params.id as string;
   const userId = req.user?.id;
 

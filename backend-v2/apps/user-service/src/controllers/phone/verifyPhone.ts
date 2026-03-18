@@ -1,9 +1,9 @@
 import { UserModel } from "@repo/database";
-import { AuthRequest, hashCode } from "@repo/shared";
+import { IAuthRequest, hashCode } from "@repo/shared";
 import { Response } from "express";
 
 export const verifyPhoneUpdate = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
   const { code } = req.body;

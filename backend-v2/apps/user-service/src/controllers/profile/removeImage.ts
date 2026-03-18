@@ -1,12 +1,12 @@
 import { UserModel } from "@repo/database";
 import {
-  AuthRequest,
+  IAuthRequest,
   softDeleteMedia,
   userSensitiveFields,
 } from "@repo/shared";
 import { Response } from "express";
 
-interface RemoveRequest extends AuthRequest {
+interface RemoveRequest extends IAuthRequest {
   body: {
     imageType: "PROFILE" | "COVER";
   };

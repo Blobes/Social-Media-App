@@ -5,17 +5,16 @@ import {
   UserModel,
 } from "@repo/database";
 import { Response } from "express";
-import { AuthRequest } from "../../middlewares/verifyAuthToken";
-import { Severity } from "../../services/moderation/policy";
-import { calculateThreshold } from "../../utils/calculations";
+import { calculateThreshold } from "../../utils/misc/calculations";
+import { IAuthRequest, ISeverity } from "../../types/types";
 
-interface flagRequest extends AuthRequest {
+interface flagRequest extends IAuthRequest {
   body: {
     postId: string;
     postType: "GIST" | "STAKE";
     authorId: string;
     source: "AI" | "USER";
-    severity: Severity;
+    severity: ISeverity;
     ruleViolated: string;
     reason: string;
     confidence?: number;
@@ -104,7 +103,7 @@ export const flagPost = async (
     });
     const criticalCount = await PostReportModel.countDocuments({
       flaggedPostId: flaggedRecord._id,
-      severity: Severity.CRITICAL,
+      severity: ISeverity.CRITICAL,
     });
     const currentThreshold = calculateThreshold(postData.viewCount || 0);
 

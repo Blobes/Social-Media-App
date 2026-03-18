@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 import { Response } from "express";
-import { AuthRequest } from "@repo/shared";
+import { IAuthRequest } from "@repo/shared";
 import { GistLikeModel, GistModel } from "@repo/database";
 
 export const gistLike = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
   const gistId = req.params.id as string;

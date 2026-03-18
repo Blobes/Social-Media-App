@@ -1,8 +1,8 @@
 import { IdVerificationRequestModel, UserModel } from "@repo/database";
-import { AuthRequest } from "@repo/shared";
+import { IAuthRequest } from "@repo/shared";
 import { Response } from "express";
 
-interface SubmitRequest extends AuthRequest {
+interface SubmitRequest extends IAuthRequest {
   body: {
     fullName: string;
     evidenceLinks?: string[];

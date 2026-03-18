@@ -1,6 +1,6 @@
 import OpenAI from "openai";
-import { CONTENT_POLICY, Severity } from "./policy";
-import { ModerationResponse } from "@/utils/types/types";
+import { CONTENT_POLICY } from "./policy";
+import { IModerationRes, ISeverity } from "../../types/types";
 
 const openai = new OpenAI();
 
@@ -10,7 +10,7 @@ export const validateText = async (
   text: string,
   providedTopics: string[],
   mode: ValidationMode = "BOTH",
-): Promise<ModerationResponse> => {
+): Promise<IModerationRes> => {
   // Use the new Severity-based structure
   const policyRules = CONTENT_POLICY.text;
   const needsExtraction =
@@ -25,9 +25,9 @@ export const validateText = async (
       needsModeration
         ? `
     POLICY HIERARCHY:
-    - CRITICAL: Blocked + Account Flagged. Rules: ${JSON.stringify(policyRules[Severity.CRITICAL])}
-    - MODERATE: Blocked + Requires Edit. Rules: ${JSON.stringify(policyRules[Severity.MODERATE])}
-    - LOW: Allowed + Labeled/Hidden. Rules: ${JSON.stringify(policyRules[Severity.LOW])}
+    - CRITICAL: Blocked + Account Flagged. Rules: ${JSON.stringify(policyRules[ISeverity.CRITICAL])}
+    - MODERATE: Blocked + Requires Edit. Rules: ${JSON.stringify(policyRules[ISeverity.MODERATE])}
+    - LOW: Allowed + Labeled/Hidden. Rules: ${JSON.stringify(policyRules[ISeverity.LOW])}
     `
         : ""
     }
@@ -83,7 +83,7 @@ export const validateText = async (
     return {
       isUnsure: isUnsure,
       ruleViolated: result.ruleViolated || null,
-      severity: (result.severity as Severity) || null,
+      severity: (result.severity as ISeverity) || null,
       reason: result.reason || null,
       extractedTopics: result.extractedKeywords || [],
     };
@@ -92,7 +92,7 @@ export const validateText = async (
     return {
       isUnsure: false,
       ruleViolated: "SYSTEM_ERROR",
-      severity: Severity.CRITICAL, // Treat system errors as Critical for safety
+      severity: ISeverity.CRITICAL, // Treat system errors as Critical for safety
       reason: "The text validation service is temporarily offline.",
       extractedTopics: [],
     };

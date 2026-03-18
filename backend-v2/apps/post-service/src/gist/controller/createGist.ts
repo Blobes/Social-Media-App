@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
 import { Response } from "express";
 import {
-  AuthRequest,
+  IAuthRequest,
   createMediaBatch,
   IMediaInput,
-  Severity,
+  ISeverity,
 } from "@repo/shared";
 import { GistModel, PostCaptionModel } from "@repo/database";
 
-interface CreateRequest extends AuthRequest {
+interface CreateRequest extends IAuthRequest {
   body: {
     caption?: string;
     media?: IMediaInput[];
@@ -73,7 +73,7 @@ const createGist = async (req: CreateRequest, res: Response): Promise<void> => {
     };
     newGist.mediaIds = uploadedMediaIds;
 
-    if (req.moderation?.severity && req.moderation.severity === Severity.LOW)
+    if (req.moderation?.severity && req.moderation.severity === ISeverity.LOW)
       newGist.status = "SHADOWBANNED";
 
     // Define which specific rules from the AI should trigger the blur
@@ -88,7 +88,7 @@ const createGist = async (req: CreateRequest, res: Response): Promise<void> => {
         ? true
         : req.moderation
           ? SENSITIVE_RULES.includes(req.moderation.ruleViolated || "") &&
-            req.moderation.severity === Severity.CRITICAL
+            req.moderation.severity === ISeverity.CRITICAL
           : false;
 
     await newGist.save({ session });

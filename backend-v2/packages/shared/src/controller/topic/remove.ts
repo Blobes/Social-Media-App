@@ -3,10 +3,10 @@
 // Automated-removal: A background process that looks into the user's preferred topics list and removes every topic that the lastViewed date exceeds a given number when compared with the current date. And also decrements the userCount field from the topic collection.
 
 import { Response } from "express";
-import { AuthRequest } from "../../middlewares/verifyAuthToken";
 import { removeTopicsFromUser } from "../../services/topic";
+import { IAuthRequest } from "../../types/types";
 
-interface RemovalRequest extends AuthRequest {
+interface RemovalRequest extends IAuthRequest {
   body: {
     topicIds: string[];
   };

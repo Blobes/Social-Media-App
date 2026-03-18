@@ -1,9 +1,9 @@
 import { Response, NextFunction, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
-import { AuthRequest, JwtUserPayload } from "./verifyAuthToken";
+import { IAuthRequest, IJwtUser } from "../types/types";
 
 export const optVerifyToken: RequestHandler = (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
@@ -19,7 +19,7 @@ export const optVerifyToken: RequestHandler = (
     process.env.JWT_SECRET as string,
     (err: jwt.VerifyErrors | null, payload: unknown) => {
       if (!err) {
-        req.user = payload as JwtUserPayload; // attach user if valid
+        req.user = payload as IJwtUser; // attach user if valid
       }
       // If invalid, just continue as guest (do not block)
       next();

@@ -1,14 +1,17 @@
 import { Response } from "express";
-import { AuthRequest } from "../../middlewares/verifyAuthToken";
-import { ALLOWED_MIME_TYPES, AllowedMimeType } from "../../utils/constants";
+import {
+  ALLOWED_MIME_TYPES,
+  AllowedMimeType,
+} from "../../utils/misc/constants";
 import { generateS3Url } from "../../services/storage/generateS3Url";
+import { IAuthRequest } from "../../types/types";
 
 interface UploadUrlBody {
   fileType: string; //  "image/jpeg", "video/mp4", etc.
 }
 
 export const getUploadUrl = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ): Promise<void> => {
   // Explicitly cast body for TS safety

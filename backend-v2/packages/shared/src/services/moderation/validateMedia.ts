@@ -1,11 +1,11 @@
 import vision from "@google-cloud/vision";
-import { CONTENT_POLICY, Likelihood, Severity } from "./policy";
+import { CONTENT_POLICY } from "./policy";
 import { validateText } from "./validateText";
-import { ModerationResponse } from "@/utils/types/types";
+import { ILikelihood, IModerationRes, ISeverity } from "../../types/types";
 
 const client = new vision.ImageAnnotatorClient();
 
-const LIKELIHOOD_WEIGHTS: Record<Likelihood, number> = {
+const LIKELIHOOD_WEIGHTS: Record<ILikelihood, number> = {
   UNKNOWN: 0,
   VERY_UNLIKELY: 1,
   UNLIKELY: 2,
@@ -17,7 +17,7 @@ const LIKELIHOOD_WEIGHTS: Record<Likelihood, number> = {
 export const validateMedia = async (
   imageUrl: string,
   shouldExtractTopic: boolean = false,
-): Promise<ModerationResponse> => {
+): Promise<IModerationRes> => {
   const features: any[] = [{ type: "SAFE_SEARCH_DETECTION" }];
 
   if (shouldExtractTopic) {
@@ -36,7 +36,7 @@ export const validateMedia = async (
     // 1. Safety Check against New Severity-Based Policy
     if (detections) {
       // Iterate through each severity level: CRITICAL, MODERATE, LOW
-      for (const severityKey of Object.values(Severity)) {
+      for (const severityKey of Object.values(ISeverity)) {
         const thresholdGroup = CONTENT_POLICY.media.thresholds[severityKey];
 
         for (const thresholdObj of thresholdGroup) {
@@ -46,11 +46,11 @@ export const validateMedia = async (
 
           const detectedLikelihood = detections[
             category as keyof typeof detections
-          ] as Likelihood;
+          ] as ILikelihood;
 
           const weight = LIKELIHOOD_WEIGHTS[detectedLikelihood];
           const thresholdWeight =
-            LIKELIHOOD_WEIGHTS[thresholdLikelihood as Likelihood];
+            LIKELIHOOD_WEIGHTS[thresholdLikelihood as ILikelihood];
 
           // Check for Violation
           if (weight >= thresholdWeight) {

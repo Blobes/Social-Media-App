@@ -1,10 +1,10 @@
 import { GistModel } from "@repo/database";
-import { AuthRequest, getPostAggregation } from "@repo/shared";
+import { IAuthRequest, getPostAggregation } from "@repo/shared";
 import { Response } from "express";
 import { PipelineStage } from "mongoose";
 
 export const getGistList = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ): Promise<void> => {
   // Using the ID from the token for 'likedByMe' logic

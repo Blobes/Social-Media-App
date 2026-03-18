@@ -1,9 +1,9 @@
 import { UserModel } from "@repo/database";
-import { AuthRequest } from "@repo/shared";
+import { IAuthRequest } from "@repo/shared";
 import { Response, RequestHandler } from "express";
 
 export const cancelEmailChange: RequestHandler = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ) => {
   const userId = req.user?.id;

@@ -1,6 +1,6 @@
 import { UserModel } from "@repo/database";
 import {
-  AuthRequest,
+  IAuthRequest,
   getUserAggregation,
   userPrivateFields,
   userSensitiveFields,
@@ -9,7 +9,7 @@ import { Response } from "express";
 import mongoose, { PipelineStage } from "mongoose";
 
 const getUserProfile = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
   const targetUserId = req.params.id as string;

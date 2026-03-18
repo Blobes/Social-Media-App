@@ -1,12 +1,12 @@
 import { UserModel } from "@repo/database";
 import {
-  AuthRequest,
+  IAuthRequest,
   evaluateNotability,
   userSensitiveFields,
 } from "@repo/shared";
 import { Response } from "express";
 
-interface InfoRequest extends AuthRequest {
+interface InfoRequest extends IAuthRequest {
   firstName?: string;
   lastName?: string;
   about?: string;

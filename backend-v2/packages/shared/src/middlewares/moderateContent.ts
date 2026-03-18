@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import { IMediaInput, ModerationResponse } from "../utils/types/types";
-import { Severity } from "../services/moderation/policy";
+import {
+  IMediaInput,
+  IModerationReq,
+  IModerationRes,
+  ISeverity,
+} from "../types/types";
 import { validateText } from "../services/moderation/validateText";
 import { validateMedia } from "../services/moderation/validateMedia";
 
@@ -11,17 +15,11 @@ interface ContentRequest extends Request {
     topics?: string[];
     needsReview?: boolean;
     skipModeration?: boolean;
-    severity?: Severity | null;
+    severity?: ISeverity | null;
     ruleViolated?: string | null;
     reason?: string | null;
   };
-  moderation?: {
-    topics: string[];
-    needsReview: boolean;
-    ruleViolated?: string | null;
-    severity?: Severity | null;
-    reason?: string | null;
-  };
+  moderation?: IModerationReq;
 }
 
 export const moderateContent = async (
@@ -60,22 +58,21 @@ export const moderateContent = async (
   }
 
   try {
-    const [textResult, ...mediaResults]: ModerationResponse[] =
-      await Promise.all([
-        hasText
-          ? validateText(caption, topics || [])
-          : Promise.resolve({
-              isUnsure: false,
-              ruleViolated: null,
-              severity: null,
-              reason: null,
-              extractedTopics: [],
-            }),
+    const [textResult, ...mediaResults]: IModerationRes[] = await Promise.all([
+      hasText
+        ? validateText(caption, topics || [])
+        : Promise.resolve({
+            isUnsure: false,
+            ruleViolated: null,
+            severity: null,
+            reason: null,
+            extractedTopics: [],
+          }),
 
-        ...mediaToValidate.map((item, index) =>
-          validateMedia(item.url, !hasText && !hasUserTopics && index === 0),
-        ),
-      ]);
+      ...mediaToValidate.map((item, index) =>
+        validateMedia(item.url, !hasText && !hasUserTopics && index === 0),
+      ),
+    ]);
 
     const allResults = [textResult, ...mediaResults];
     const violation = allResults.find((r) => r.isFlagged);
@@ -91,27 +88,27 @@ export const moderateContent = async (
             violation.extractedTopics.length > 0
               ? violation.extractedTopics
               : topics || [],
-          needsReview: violation.severity !== Severity.LOW ? true : false, // Indicates if the post should be flagged or not
+          needsReview: violation.severity !== ISeverity.LOW ? true : false, // Indicates if the post should be flagged or not
         });
         return;
       }
 
       // 2. ENFORCEMENT LOGIC BASED ON CERTAIN SEVERITY
       switch (violation.severity) {
-        case Severity.CRITICAL:
+        case ISeverity.CRITICAL:
           res.status(403).json({
             status: "REJECTED",
-            severity: Severity.CRITICAL,
+            severity: ISeverity.CRITICAL,
             type: violation.ruleViolated,
             reason:
               "This content violates our core safety policies and cannot be posted.",
           });
           return;
 
-        case Severity.MODERATE:
+        case ISeverity.MODERATE:
           res.status(422).json({
             status: "BLOCKED",
-            severity: Severity.MODERATE,
+            severity: ISeverity.MODERATE,
             type: violation.ruleViolated,
             reason:
               violation.reason ||
@@ -119,10 +116,10 @@ export const moderateContent = async (
           });
           return;
 
-        case Severity.LOW:
+        case ISeverity.LOW:
           res.status(202).json({
             status: "WARNING",
-            severity: Severity.LOW,
+            severity: ISeverity.LOW,
             type: violation.ruleViolated,
             reason: violation.reason,
             topics:

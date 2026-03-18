@@ -1,10 +1,10 @@
 // Only delete topic if user and post count is zero. This will mostly likely be used as part of a background process.
 
 import { Response } from "express";
-import { AuthRequest } from "../../middlewares/verifyAuthToken";
 import { pruneDeadTopics } from "../../services/topic";
+import { IAuthRequest } from "../../types/types";
 
-interface DeleteRequest extends AuthRequest {
+interface DeleteRequest extends IAuthRequest {
   body: {
     topicIds: string[];
   };

@@ -1,6 +1,6 @@
 import { UserModel } from "@repo/database";
 import {
-  AuthRequest,
+  IAuthRequest,
   dispatchWhatsAppCode,
   evaluateNotability,
   genVerificationCode,
@@ -8,7 +8,7 @@ import {
 } from "@repo/shared";
 import { Response } from "express";
 
-interface UserPhoneRequest extends AuthRequest {
+interface UserPhoneRequest extends IAuthRequest {
   body: {
     newPhoneNumber: string;
   };

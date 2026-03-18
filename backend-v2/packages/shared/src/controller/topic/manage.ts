@@ -1,9 +1,9 @@
 import { TopicModel, UserModel } from "@repo/database";
 import { Response } from "express";
 import mongoose from "mongoose";
-import { AuthRequest } from "../../middlewares/verifyAuthToken";
+import { IAuthRequest } from "../../types/types";
 
-interface ManageRequest extends AuthRequest {
+interface ManageRequest extends IAuthRequest {
   body: {
     topics: string[];
     targetId?: string;

@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 import { Response } from "express";
-import { AuthRequest, getUserListAggregation } from "@repo/shared";
+import { IAuthRequest, getUserListAggregation } from "@repo/shared";
 import { FollowModel } from "@repo/database";
 
 export const getFollowers = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
   const targetUserId = req.params.id as string;

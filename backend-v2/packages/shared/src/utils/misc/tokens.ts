@@ -1,9 +1,13 @@
 import jwt from "jsonwebtoken";
 import { Response } from "express";
-import { AuthRequest } from "../middlewares/verifyAuthToken";
 import crypto from "crypto";
+import { IAuthRequest } from "../../types/types";
 
-export const genAccessTokens = (user: any, req: AuthRequest, res: Response) => {
+export const genAccessTokens = (
+  user: any,
+  req: IAuthRequest,
+  res: Response,
+) => {
   const origin = req.get("origin") || "";
   const isLocalDev = origin.includes("localhost");
 
@@ -32,7 +36,7 @@ export const genAccessTokens = (user: any, req: AuthRequest, res: Response) => {
 
 export const genRefreshTokens = (
   user: any,
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ) => {
   const origin = req.get("origin") || "";

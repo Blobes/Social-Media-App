@@ -1,9 +1,9 @@
 import { UserModel } from "@repo/database";
-import { AuthRequest } from "@repo/shared";
+import { IAuthRequest } from "@repo/shared";
 import { Response } from "express";
 
 export const restoreAccount = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
   const authUserId = req.user?.id;

@@ -1,10 +1,10 @@
 import mongoose, { PipelineStage } from "mongoose";
 import { Response } from "express";
-import { AuthRequest, getUserAggregation } from "@repo/shared";
+import { IAuthRequest, getUserAggregation } from "@repo/shared";
 import { FollowModel, UserModel } from "@repo/database";
 
 export const followUser = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
   const targetUserId = req.params.id as string;

@@ -2,7 +2,7 @@ import {
   checkEmailReputation,
   checkPhoneIntelligence,
   checkWikipedia,
-} from "../services/user/publicStatus";
+} from "../../services/user/publicStatus";
 
 export interface NotabilityVerdict {
   isVIPCandidate: boolean;

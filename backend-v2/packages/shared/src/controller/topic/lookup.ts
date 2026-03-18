@@ -2,9 +2,9 @@
 
 import { TopicModel } from "@repo/database";
 import { Response } from "express";
-import { AuthRequest } from "../../middlewares/verifyAuthToken";
+import { IAuthRequest } from "../../types/types";
 
-interface LookupRequest extends AuthRequest {
+interface LookupRequest extends IAuthRequest {
   body: {
     keyword?: string;
     alreadySelected?: string[]; // Array of IDs already picked by the user

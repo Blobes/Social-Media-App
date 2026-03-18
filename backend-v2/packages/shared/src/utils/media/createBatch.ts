@@ -1,5 +1,5 @@
 import mongoose, { ClientSession } from "mongoose";
-import { IMediaInput } from "../types/types";
+import { IMediaInput } from "../../types/types";
 import { MediaModel } from "@repo/database";
 
 /**

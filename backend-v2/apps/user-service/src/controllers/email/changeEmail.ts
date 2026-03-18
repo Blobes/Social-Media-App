@@ -1,6 +1,6 @@
 import { UserModel } from "@repo/database";
 import {
-  AuthRequest,
+  IAuthRequest,
   dispatchEmailCode,
   evaluateNotability,
   genVerificationCode,
@@ -8,7 +8,7 @@ import {
 } from "@repo/shared";
 import { Response } from "express";
 
-interface UserEmailRequest extends AuthRequest {
+interface UserEmailRequest extends IAuthRequest {
   body: {
     newEmail: string;
   };

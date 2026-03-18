@@ -1,22 +1,10 @@
-export type Likelihood =
-  | "UNKNOWN"
-  | "VERY_UNLIKELY"
-  | "UNLIKELY"
-  | "POSSIBLE"
-  | "LIKELY"
-  | "VERY_LIKELY";
-
-export enum Severity {
-  CRITICAL = "CRITICAL", // Blocked + Account Flagged (Hard Block)
-  MODERATE = "MODERATE", // Blocked + Requires Edit (Soft Block)
-  LOW = "LOW", // Allowed + Labeled/Hidden (Soft Label)
-}
+import { ILikelihood, ISeverity } from "../../types/types";
 
 export const CONTENT_POLICY = {
   version: "2026.1",
 
   text: {
-    [Severity.CRITICAL]: [
+    [ISeverity.CRITICAL]: [
       "Child safety risks",
       "Self-harm encouragement",
       "Graphic violence description",
@@ -27,7 +15,7 @@ export const CONTENT_POLICY = {
       "Severe Violence",
       "Doxing",
     ],
-    [Severity.MODERATE]: [
+    [ISeverity.MODERATE]: [
       "Hate speech (race, religion, gender, etc.)",
       "Targeted harassment",
       "Bullying",
@@ -37,7 +25,7 @@ export const CONTENT_POLICY = {
       "Harassment",
       "Harmful Misinformation",
     ],
-    [Severity.LOW]: [
+    [ISeverity.LOW]: [
       "Spam/Scams",
       "Deepfake claims without disclosure",
       "Profanity",
@@ -51,14 +39,14 @@ export const CONTENT_POLICY = {
 
   media: {
     thresholds: {
-      [Severity.CRITICAL]: [
-        { adult: "POSSIBLE" as Likelihood },
-        { violence: "LIKELY" as Likelihood },
+      [ISeverity.CRITICAL]: [
+        { adult: "POSSIBLE" as ILikelihood },
+        { violence: "LIKELY" as ILikelihood },
       ],
-      [Severity.MODERATE]: [{ medical: "POSSIBLE" as Likelihood }],
-      [Severity.LOW]: [
-        { racy: "VERY_LIKELY" as Likelihood },
-        { spoof: "VERY_LIKELY" as Likelihood },
+      [ISeverity.MODERATE]: [{ medical: "POSSIBLE" as ILikelihood }],
+      [ISeverity.LOW]: [
+        { racy: "VERY_LIKELY" as ILikelihood },
+        { spoof: "VERY_LIKELY" as ILikelihood },
       ],
     },
   },

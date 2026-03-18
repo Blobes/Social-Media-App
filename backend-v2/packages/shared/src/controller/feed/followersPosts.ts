@@ -2,10 +2,10 @@ import mongoose from "mongoose";
 import { Response } from "express";
 import { FollowModel, GistModel } from "@repo/database";
 import { getPostListAggregation } from "../../utils/aggregator/postList";
-import { AuthRequest } from "../../middlewares/verifyAuthToken";
+import { IAuthRequest } from "../../types/types";
 
 export const getfollowersPosts = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
   const authUserId = req.user?.id;

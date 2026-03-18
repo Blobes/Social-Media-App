@@ -1,9 +1,9 @@
 import { UserModel } from "@repo/database";
-import { AuthRequest, userSensitiveFields } from "@repo/shared";
+import { IAuthRequest, userSensitiveFields } from "@repo/shared";
 import { Response } from "express";
 
 // Update user demographics
-interface DemoRequest extends AuthRequest {
+interface DemoRequest extends IAuthRequest {
   body: {
     gender?: string;
     dateOfBirth?: string;

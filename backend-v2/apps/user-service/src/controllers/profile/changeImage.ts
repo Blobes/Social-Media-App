@@ -1,6 +1,6 @@
 import { UserModel } from "@repo/database";
 import {
-  AuthRequest,
+  IAuthRequest,
   createMediaBatch,
   IMediaInput,
   userSensitiveFields,
@@ -16,7 +16,7 @@ interface ImageRequest {
 }
 
 export const changeUserImage = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ): Promise<void> => {
   const { imageType, url, fileKey, mimeType } = req.body as ImageRequest;
