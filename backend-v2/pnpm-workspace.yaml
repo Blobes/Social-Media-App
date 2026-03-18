@@ -25,6 +25,7 @@ catalog:
   "@aws-sdk/s3-request-presigner": "^3.1000.0"
   openai: ^4.86.0
   "@google-cloud/vision": ^4.3.2
+  http-proxy-middleware: "^3.0.3"
 
   # Dev Tools & Build
   typescript: "^5.8.3"
