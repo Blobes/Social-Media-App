@@ -1,12 +1,9 @@
 import express from "express";
-import dotenv from "dotenv";
-import path from "path";
 import appLoader from "./loader";
-import { connectDB, monitorProcess } from "@repo/shared";
+import { connectDB, initEnv, monitorProcess } from "@repo/shared";
 
 // Load Environment Variables immediately
-const envFile = `.env.${process.env.NODE_ENV || "development"}`;
-dotenv.config({ path: path.resolve(process.cwd(), envFile) });
+initEnv();
 
 const startServer = async () => {
   const app = express();

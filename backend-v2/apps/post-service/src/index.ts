@@ -1,16 +1,13 @@
 import express from "express";
-import dotenv from "dotenv";
-import path from "path";
-import { connectDB, monitorProcess } from "@repo/shared";
+import { connectDB, initEnv, monitorProcess } from "@repo/shared";
 import appLoader from "./loader";
 
 // Load Environment Variables immediately
-const envFile = `.env.${process.env.NODE_ENV || "development"}`;
-dotenv.config({ path: path.resolve(process.cwd(), envFile) });
+initEnv();
 
 const startServer = async () => {
   const app = express();
-  const port = process.env.GIST_PORT || 8080;
+  const port = process.env.GIST_PORT || 8081;
   const mongoUri = process.env.MONGO_URI || "";
 
   try {

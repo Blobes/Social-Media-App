@@ -9,20 +9,20 @@
     "start": "pnpm exec tsx src/index.ts"
   },
   "dependencies": {
-    "express": "catalog:",
-    "mongoose": "catalog:",
+    "@repo/database": "workspace:*",
+    "@repo/shared": "workspace:*",
     "bcrypt": "catalog:",
     "cookie-parser": "catalog:",
     "dotenv": "catalog:",
-    "@repo/database": "workspace:*",
-    "@repo/shared": "workspace:*"
+    "express": "catalog:",
+    "mongoose": "catalog:"
   },
   "devDependencies": {
-    "typescript": "catalog:",
-    "tsx": "catalog:",
-    "@types/express": "catalog:",
-    "@types/cookie-parser": "catalog:",
     "@types/bcrypt": "catalog:",
-    "@types/node": "catalog:"
+    "@types/cookie-parser": "catalog:",
+    "@types/express": "catalog:",
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
   }
 }

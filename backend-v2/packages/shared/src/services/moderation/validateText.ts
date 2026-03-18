@@ -2,7 +2,18 @@ import OpenAI from "openai";
 import { CONTENT_POLICY } from "./policy";
 import { IModerationRes, ISeverity } from "../../types/types";
 
-const openai = new OpenAI();
+let openai: OpenAI;
+
+// Wait for OPENAI_API_KEY env variable
+export const getOpenAIClient = () => {
+  if (!openai) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY is missing. Did you call initEnv()?");
+    }
+    openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return openai;
+};
 
 export type ValidationMode = "EXTRACTION_ONLY" | "MODERATION_ONLY" | "BOTH";
 
@@ -11,6 +22,7 @@ export const validateText = async (
   providedTopics: string[],
   mode: ValidationMode = "BOTH",
 ): Promise<IModerationRes> => {
+  const client = getOpenAIClient();
   // Use the new Severity-based structure
   const policyRules = CONTENT_POLICY.text;
   const needsExtraction =
@@ -59,7 +71,7 @@ export const validateText = async (
   `;
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {

@@ -28,8 +28,6 @@ export * from "./utils/aggregator/postList";
 export * from "./utils/aggregator/singlePost";
 export * from "./utils/aggregator/singleUser";
 export * from "./utils/aggregator/userList";
-export * from "./utils/express/config";
-export * from "./utils/express/monitor";
 export * from "./utils/media/createBatch";
 export * from "./utils/media/hardDelete";
 export * from "./utils/media/softDelete";
@@ -40,3 +38,8 @@ export * from "./utils/misc/constants";
 export * from "./services/ip";
 export * from "./utils/misc/sanitizeData";
 export * from "./utils/misc/tokens";
+
+// Environment config
+export * from "../env-config/express/config";
+export * from "../env-config/express/monitor";
+export * from "../env-config/express/initEnv";
