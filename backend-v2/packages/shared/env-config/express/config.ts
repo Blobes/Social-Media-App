@@ -53,6 +53,7 @@ export const connectDB = async (mongoUri: string) => {
 // Configure cors
 export const corsConfig = (): any => {
   const allowedOrigins = [
+    // Local Development
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:3002",
@@ -60,6 +61,13 @@ export const corsConfig = (): any => {
     "http://localhost:3004",
     "http://localhost:3005",
     "http://localhost:3006",
+
+    // Production Domains
+    "https://funstakes.net", // Your main frontend
+    "https://www.funstakes.net", // www version
+    "https://api.funstakes.net", // The gateway itself
+
+    // Legacy/Preview Deployments
     "https://funstakes.vercel.app",
     "https://funstakes-auth.vercel.app",
     "https://funstakes.onrender.com",
@@ -67,18 +75,31 @@ export const corsConfig = (): any => {
 
   return cors({
     origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
 
+      // Check exact matches
       if (allowedOrigins.includes(origin)) return callback(null, true);
 
       // Regex for localhost ports 3000-3006
       const localhostMatch = origin.match(/^http:\/\/localhost:300[0-6]$/);
       if (localhostMatch) return callback(null, true);
 
+      // Allow all Vercel preview deployments
       if (origin.endsWith(".vercel.app")) return callback(null, true);
 
-      return callback(new Error("CORS: Origin not allowed"));
+      // Allow any subdomain of your main domain (optional but safer)
+      if (origin.endsWith(".funstakes.net")) return callback(null, true);
+
+      return callback(new Error(`CORS Error: Origin ${origin} not allowed`));
     },
-    credentials: true,
+    credentials: true, // Crucial for sending cookies across subdomains
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+    ],
   });
 };
