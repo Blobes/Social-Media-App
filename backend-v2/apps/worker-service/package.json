@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc && tsc-alias",
-    "start": "NODE_ENV=production node dist/index.js"
+    "start": "pnpm exec tsx src/index.ts"
   },
   "dependencies": {
     "express": "catalog:",

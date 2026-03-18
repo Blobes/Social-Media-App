@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 import gistRoutes from "./gist/gist.routes";
 import {

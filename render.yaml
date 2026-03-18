@@ -5,7 +5,7 @@ services:
     env: node
     plan: free
     rootDir: backend-v2
-    buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/auth-service
+    buildCommand: corepack enable && pnpm install
     startCommand: pnpm --filter @repo/auth-service start
     envVars:
       - key: NODE_VERSION
@@ -21,7 +21,7 @@ services:
     env: node
     plan: free
     rootDir: backend-v2
-    buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/post-service
+    buildCommand: corepack enable && pnpm install
     startCommand: pnpm --filter @repo/post-service start
     envVars:
       - key: NODE_VERSION
@@ -36,7 +36,7 @@ services:
     env: node
     plan: free
     rootDir: backend-v2
-    buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/user-service
+    buildCommand: corepack enable && pnpm install
     startCommand: pnpm --filter @repo/user-service start
     envVars:
       - key: NODE_VERSION
@@ -51,7 +51,7 @@ services:
     env: node
     plan: free
     rootDir: backend-v2
-    buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/worker-service
+    buildCommand: corepack enable && pnpm install
     startCommand: pnpm --filter @repo/worker-service start
     healthCheckPath: /health
     envVars:
@@ -68,7 +68,7 @@ services:
     env: node
     plan: free
     rootDir: backend-v2
-    buildCommand: corepack enable && pnpm install && pnpm build --filter @repo/admin-service
+    buildCommand: corepack enable && pnpm install
     startCommand: pnpm --filter @repo/admin-service start
     envVars:
       - key: NODE_VERSION
