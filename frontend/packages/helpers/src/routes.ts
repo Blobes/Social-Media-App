@@ -53,11 +53,16 @@ export const disallowedRoutes: string[] = [];
 
 // Server Apis
 export const apiBase = {
-  auth: "/api/auth",
-  feed: "/api/feed",
-  user: "/api/user",
-  gists: "/api/gists",
-  media: "/api/media",
+  auth: "/auth/v1",
+  user: "/user/v1",
+  // Posts
+  feed: "/post/feed",
+  gists: "post/gists/v1",
+  media: "/media",
+  // Report
+  report: "/report",
+  // Admin
+  admin: "/admin",
 };
 
 export const serverApi = {

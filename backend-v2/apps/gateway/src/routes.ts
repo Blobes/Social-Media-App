@@ -55,4 +55,28 @@ router.use(
   }),
 );
 
+// Media Routing
+router.use(
+  "/media",
+  createProxyMiddleware({
+    target: "https://funstakes-user.onrender.com:8082",
+    changeOrigin: true,
+    pathRewrite: {
+      "^/media": "/media",
+    },
+  }),
+);
+
+// Report Routing
+router.use(
+  "/report",
+  createProxyMiddleware({
+    target: "https://funstakes-admin.onrender.com:8084",
+    changeOrigin: true,
+    pathRewrite: {
+      "^/report": "/report",
+    },
+  }),
+);
+
 export default router;

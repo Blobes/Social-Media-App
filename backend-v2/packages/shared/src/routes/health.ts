@@ -5,7 +5,7 @@ import { AppName } from "../types/types";
 export const healthRouter = (serviceName: AppName) => {
   const router = Router();
 
-  router.get("/health", (req: Request, res: Response) => {
+  router.get("/", (req: Request, res: Response) => {
     res.status(200).json({
       status: "Ok",
       timestamp: new Date().toISOString(),

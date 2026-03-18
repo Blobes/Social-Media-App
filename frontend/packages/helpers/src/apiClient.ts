@@ -3,7 +3,7 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const DEFAULT_TIMEOUT = 60000; // Default timeout in milliseconds (1 minute)
 
-export const fetcher = async <T>(
+export const apiClient = async <T>(
   endpoint: string,
   options: RequestInit = {},
   timeout = DEFAULT_TIMEOUT,
