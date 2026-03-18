@@ -20,10 +20,9 @@ export default (app: Express) => {
   app.use("/health", healthRouter("POST_SERVICE"));
 
   // ====== Routes ======
-  app.use("/v1/gists", gistRoutes);
-  app.use("/v1/feed", feedRouter());
-  app.use("/v1/topic", topicRouter());
-  app.use("/v1/media", mediaRouter());
+  app.use("/gists/v1", gistRoutes);
+  app.use("/feed", feedRouter());
+  app.use("/topic", topicRouter());
 
   return app;
 };

@@ -3,7 +3,12 @@ import cookieParser from "cookie-parser";
 
 // Routes
 import adminRoutes from "./routes";
-import { corsConfig, healthRouter, mediaRouter } from "@repo/shared";
+import {
+  corsConfig,
+  healthRouter,
+  mediaRouter,
+  reportRouter,
+} from "@repo/shared";
 
 export default (app: Express) => {
   // ====== Middlewares ======
@@ -17,7 +22,7 @@ export default (app: Express) => {
 
   // ====== Routes ======
   app.use("/v1", adminRoutes);
-  app.use("/v1/media", mediaRouter());
+  app.use("/report", reportRouter());
 
   return app;
 };
