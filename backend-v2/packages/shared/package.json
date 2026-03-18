@@ -8,8 +8,6 @@
     "./env-config/tsconfig.base.json": "./env-config/tsconfig.base.json"
   },
   "dependencies": {
-    "express": "catalog:",
-    "mongoose": "catalog:",
     "@aws-sdk/client-s3": "catalog:",
     "@aws-sdk/s3-request-presigner": "catalog:",
     "jsonwebtoken": "catalog:",
@@ -20,9 +18,12 @@
     "cors": "catalog:",
     "@repo/database": "workspace:*",
     "openai": "catalog:",
-    "@google-cloud/vision": "catalog:"
+    "@google-cloud/vision": "catalog:",
+    "dotenv": "catalog:"
   },
   "devDependencies": {
+    "express": "catalog:",
+    "mongoose": "catalog:",
     "typescript": "catalog:",
     "@types/node": "catalog:",
     "@types/express": "catalog:",
