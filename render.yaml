@@ -1,4 +1,21 @@
 services:
+  # --- API Gateway (The "Front Door") ---
+  - type: web
+    name: funstakes-gateway
+    env: node
+    plan: free
+    rootDir: backend-v2
+    buildCommand: corepack enable && pnpm install
+    startCommand: pnpm --filter @repo/gateway start
+    domains:
+      - api.funstakes.net
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: PORT
+        value: "8000"
+      - fromGroup: funstakes-common-secrets
+
   # --- Auth Service ---
   - type: web
     name: funstakes-auth

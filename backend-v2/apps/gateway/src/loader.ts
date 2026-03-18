@@ -2,8 +2,8 @@ import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 
 // Routes
-import authRoutes from "./routes";
-import { corsConfig, healthRouter } from "@repo/shared";
+import reportRoutes from "./routes";
+import { corsConfig, healthRouter, mediaRouter } from "@repo/shared";
 
 export default (app: Express) => {
   // ====== Middlewares ======
@@ -13,10 +13,11 @@ export default (app: Express) => {
   app.use(cookieParser());
 
   // Site health check
-  app.use("/health", healthRouter("AUTH_SERVICE"));
+  app.use("/health", healthRouter("ADMIN_SERVICE"));
 
   // ====== Routes ======
-  app.use("/v1", authRoutes);
+  app.use("/api/v1/admin", reportRoutes);
+  app.use("/api/v1/media", mediaRouter());
 
   return app;
 };

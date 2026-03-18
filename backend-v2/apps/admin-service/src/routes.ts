@@ -4,7 +4,7 @@ import express, { Router } from "express";
 
 const router: Router = express.Router();
 
-router.patch("/post/resolve", verifyAuthToken, isAdmin, resolveFlaggedPost);
-router.post("/post/sync", verifyAuthToken, isAdmin, moderateContent);
+router.patch("/resolve-post", verifyAuthToken, isAdmin, resolveFlaggedPost);
+router.post("/sync-post", verifyAuthToken, isAdmin, moderateContent);
 
 export default router;

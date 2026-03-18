@@ -2,7 +2,7 @@ import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 
 // Routes
-import reportRoutes from "./routes";
+import adminRoutes from "./routes";
 import { corsConfig, healthRouter, mediaRouter } from "@repo/shared";
 
 export default (app: Express) => {
@@ -16,8 +16,8 @@ export default (app: Express) => {
   app.use("/health", healthRouter("ADMIN_SERVICE"));
 
   // ====== Routes ======
-  app.use("/api/v1/admin", reportRoutes);
-  app.use("/api/v1/media", mediaRouter());
+  app.use("/v1", adminRoutes);
+  app.use("/v1/media", mediaRouter());
 
   return app;
 };
