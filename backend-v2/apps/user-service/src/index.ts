@@ -1,26 +1,24 @@
-import express from "express";
-import appLoader from "./loader";
-import { connectDB, initEnv, monitorProcess } from "@repo/shared";
+import { initEnv } from "@repo/shared";
 
-// Load Environment Variables immediately
+// Force the environment to load first
 initEnv();
 
 const startServer = async () => {
+  // 2. Dynamically import the rest of your app logic
+  // This ensures these modules only parse AFTER initEnv() is done
+  const express = (await import("express")).default;
+  const { connectDB, monitorProcess } = await import("@repo/shared");
+  const appLoader = (await import("./loader")).default;
+
   const app = express();
   const port = process.env.USER_PORT || 8082;
   const mongoUri = process.env.MONGO_URI || "";
 
   try {
-    // Initialize Process Monitoring (Error Handlers)
     monitorProcess();
-
-    // Connect to Database
     await connectDB(mongoUri);
-
-    // Load Express Middlewares & Routes
     appLoader(app);
 
-    // Start Server
     app.listen(port, () => {
       console.log(
         `🚀 Funstakes Server [${process.env.NODE_ENV}] running on port ${port}`,
