@@ -7,11 +7,11 @@ export const healthRouter = (serviceName: AppName) => {
 
   router.get("/health", (req: Request, res: Response) => {
     res.status(200).json({
-      status: "ok",
+      status: "Ok",
       timestamp: new Date().toISOString(),
       service: serviceName,
     });
   });
-
+  console.log(`${serviceName} is Live"`);
   return router;
 };

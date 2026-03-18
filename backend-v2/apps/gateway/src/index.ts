@@ -1,4 +1,4 @@
-import { initEnv } from "@repo/shared";
+import { healthRouter, initEnv } from "@repo/shared";
 
 // Ensure environment loads first
 initEnv();
@@ -15,16 +15,13 @@ const startGateway = async () => {
   app.use(corsConfig());
 
   // Basic Gateway health check
-  app.get("/health", (req, res) => {
-    res.status(200).send("Gateway is Live");
-  });
+  app.use("/health", healthRouter("GATEWAY"));
 
-  // Mount versioned routes (api.funstakes.net/v1/...)
   app.use("/", gatewayRoutes);
 
   app.listen(PORT, () => {
     console.log(`🚀 Gateway [${process.env.NODE_ENV}] running on port ${PORT}`);
-    console.log(`📡 Public API Endpoint: https://api.funstakes.net/v1`);
+    console.log(`📡 Public API Endpoint: https://api.funstakes.net`);
   });
 };
 

@@ -19,7 +19,8 @@ export type AppName =
   | "AUTH_SERVICE"
   | "POST_SERVICE"
   | "USER_SERVICE"
-  | "WORKER_SERVICE";
+  | "WORKER_SERVICE"
+  | "GATEWAY";
 
 export type PostType = "GIST" | "STAKE";
 
