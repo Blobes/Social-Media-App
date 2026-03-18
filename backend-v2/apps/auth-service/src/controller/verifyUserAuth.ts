@@ -1,9 +1,9 @@
 import { UserModel } from "@repo/database";
-import { AuthRequest, userSensitiveFields } from "@repo/shared";
+import { IAuthRequest, userSensitiveFields } from "@repo/shared";
 import { RequestHandler, Response } from "express";
 
 export const verifyUserAuth: RequestHandler = async (
-  req: AuthRequest,
+  req: IAuthRequest,
   res: Response,
 ) => {
   const userId = req.user?.id;
