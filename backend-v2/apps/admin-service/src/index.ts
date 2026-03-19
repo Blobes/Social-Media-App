@@ -1,15 +1,11 @@
-import { initEnv } from "@repo/shared";
+import express from "express";
+import { connectDB, initEnv, monitorProcess } from "@repo/shared";
+import appLoader from "./loader";
 
 // Force the environment to load first
 initEnv();
 
 const startServer = async () => {
-  // 2. Dynamically import the rest of your app logic
-  // This ensures these modules only parse AFTER initEnv() is done
-  const express = (await import("express")).default;
-  const { connectDB, monitorProcess } = await import("@repo/shared");
-  const appLoader = (await import("./loader")).default;
-
   const app = express();
   const port = process.env.ADMIN_PORT || 8084;
   const mongoUri = process.env.MONGO_URI || "";

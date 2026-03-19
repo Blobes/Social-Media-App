@@ -1,21 +1,26 @@
-import { healthRouter, initEnv } from "@repo/shared";
+import express from "express";
+import { corsConfig, healthRouter, initEnv } from "@repo/shared";
+import gatewayRoutes from "./proxies";
+import appLoader from "./loader";
 
-// Ensure environment loads first
-initEnv();
+initEnv(); // Load the environment first
 
 const startGateway = async () => {
-  const express = (await import("express")).default;
-  const { corsConfig } = await import("@repo/shared");
-  const gatewayRoutes = (await import("./routes")).default;
-
   const app = express();
   const PORT = process.env.PORT || 8000;
 
   // Middlewares
   app.use(corsConfig());
 
+  appLoader(app);
+
   // Basic Gateway health check
   app.use("/health", healthRouter("GATEWAY"));
+
+  // This handles: api.funstakes.net/
+  app.get("/", (req, res) => {
+    res.json({ message: "Welcome to Funstakes API Gateway" });
+  });
 
   app.use("/", gatewayRoutes);
 
