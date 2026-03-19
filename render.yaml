@@ -5,7 +5,7 @@ services:
     env: node
     plan: free
     rootDir: backend-v2
-    buildCommand: corepack enable && pnpm install
+    buildCommand: corepack enable && pnpm install && pnpm --filter @repo/gateway build
     startCommand: pnpm --filter @repo/gateway start
     domains:
       - api.funstakes.net
