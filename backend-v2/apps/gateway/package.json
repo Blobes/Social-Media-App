@@ -10,13 +10,10 @@
   },
   "dependencies": {
     "@repo/shared": "workspace:*",
-    "cookie-parser": "catalog:",
-    "dotenv": "catalog:",
     "express": "catalog:",
     "http-proxy-middleware": "catalog:"
   },
   "devDependencies": {
-    "@types/cookie-parser": "catalog:",
     "@types/express": "catalog:",
     "@types/node": "catalog:",
     "tsx": "catalog:",

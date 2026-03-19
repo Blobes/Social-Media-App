@@ -1,13 +1,7 @@
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes";
-import {
-  corsConfig,
-  feedRouter,
-  healthRouter,
-  mediaRouter,
-  reportRouter,
-} from "@repo/shared";
+import { corsConfig, healthRouter } from "@repo/shared";
 
 export default (app: Express) => {
   // ====== Middlewares ======
@@ -20,7 +14,6 @@ export default (app: Express) => {
   app.use("/health", healthRouter("USER_SERVICE"));
   // ====== Routes ======
   app.use("/v1", userRoutes);
-  app.use("/media", mediaRouter());
 
   return app;
 };
