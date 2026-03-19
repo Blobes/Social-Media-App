@@ -2,7 +2,6 @@ import express, { Express } from "express";
 import {
   corsConfig,
   feedRouter,
-  healthRouter,
   mediaRouter,
   reportRouter,
   topicRouter,
