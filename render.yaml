@@ -21,6 +21,7 @@ services:
           type: web
           name: funstakes-auth
           envVarKey: RENDER_DISCOVERY_SERVICE
+          property: port
       - key: POST_SERVICE_URL
         fromService:
           name: funstakes-post
