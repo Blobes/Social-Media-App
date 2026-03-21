@@ -17,7 +17,10 @@ services:
       - fromGroup: funstakes-common-secrets
       # --- Automatic Internal Service Discovery ---
       - key: AUTH_SERVICE_URL
-        value: "srv-d6s7st24d50c73bj1310:8080"
+        fromService:
+          type: web
+          name: funstakes-auth
+          property: host
       - key: POST_SERVICE_URL
         fromService:
           name: funstakes-post

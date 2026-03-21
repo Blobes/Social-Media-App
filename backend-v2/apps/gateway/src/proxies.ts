@@ -10,6 +10,8 @@ const USER_URL = `http://${process.env.USER_SERVICE_URL}`;
 const WORKER_URL = `http://${process.env.WORKER_SERVICE_URL}`;
 const ADMIN_URL = `http://${process.env.ADMIN_SERVICE_URL}`;
 
+//console.log("auth:", AUTH_URL);
+
 const proxyOptions: Options = {
   changeOrigin: true,
   on: {

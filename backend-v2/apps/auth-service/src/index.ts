@@ -15,7 +15,7 @@ const startServer = async () => {
 
     app.listen(port, () => {
       console.log(
-        `🚀 Funstakes Server [${process.env.NODE_ENV}] running on port ${port}`,
+        `🚀 Funstakes Auth Server [${process.env.NODE_ENV}] running on port ${port}`,
       );
     });
   } catch (error) {
