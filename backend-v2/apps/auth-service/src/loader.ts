@@ -13,17 +13,7 @@ export default (app: Express) => {
   app.use(cookieParser());
 
   // Site health check
-  app.use("/auth/health", healthRouter("AUTH_SERVICE"));
-
-  // This handles: api.funstakes.net/auth
-  app.get("/", (req, res) => {
-    res.json({ message: "Welcome to Funstakes Auth API" });
-  });
-
-  // This handles: api.funstakes.net/auth
-  app.get("/", (req, res) => {
-    res.json({ message: "Welcome to Funstakes Auth API" });
-  });
+  app.use("/health", healthRouter("AUTH_SERVICE"));
 
   // This handles: api.funstakes.net/auth
   app.get("/", (req, res) => {
