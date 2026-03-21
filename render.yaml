@@ -15,29 +15,6 @@ services:
       - key: PORT
         value: "8000"
       - fromGroup: funstakes-common-secrets
-      # --- Automatic Internal Service Discovery ---
-      - key: AUTH_SERVICE_URL
-        value: "https://funstakes-auth.onrender.com"
-      - key: POST_SERVICE_URL
-        fromService:
-          name: funstakes-post
-          type: web
-          property: hostport
-      - key: USER_SERVICE_URL
-        fromService:
-          name: funstakes-user
-          type: web
-          property: hostport
-      - key: WORKER_SERVICE_URL
-        fromService:
-          name: funstakes-worker
-          type: web
-          property: hostport
-      - key: ADMIN_SERVICE_URL
-        fromService:
-          name: funstakes-admin
-          type: web
-          property: hostport
 
   # --- Auth Service ---
   - type: web

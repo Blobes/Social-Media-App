@@ -3,27 +3,26 @@ import { createProxyMiddleware, Options } from "http-proxy-middleware";
 
 const router: Router = Router();
 
-// Internal Render URLs (from render.yaml hostport)
-const AUTH_URL = process.env.AUTH_SERVICE_URL;
-const POST_URL = `http://${process.env.POST_SERVICE_URL}`;
-const USER_URL = `http://${process.env.USER_SERVICE_URL}`;
-const WORKER_URL = `http://${process.env.WORKER_SERVICE_URL}`;
-const ADMIN_URL = `http://${process.env.ADMIN_SERVICE_URL}`;
-
-//console.log("auth:", AUTH_URL);
+// Using Public onrender.com URLs to bypass Free Tier private networking restrictions
+const AUTH_URL = "https://funstakes-auth.onrender.com";
+const POST_URL = "https://funstakes-post.onrender.com";
+const USER_URL = "https://funstakes-user.onrender.com";
+const WORKER_URL = "https://funstakes-worker.onrender.com";
+const ADMIN_URL = "https://funstakes-admin.onrender.com";
 
 const proxyOptions: Options = {
-  changeOrigin: true,
+  changeOrigin: true, // Required when proxying to a different public domain
   on: {
     proxyReq: (proxyReq, req, res) => {
-      // Logic to run before request is sent (optional)
+      // Logic to run before request is sent
     },
     error: (err: any, req, res) => {
-      console.error(`DIAGNOSTIC: Code ${err.code} | Target ${AUTH_URL}`);
+      console.error(`[Proxy Error]: ${err.message}`);
       (res as any).status(502).json({
-        url: AUTH_URL,
         error: "Bad Gateway",
         debug_code: err.code,
+        message:
+          "The service is currently waking up or unavailable. Please retry in 30 seconds.",
       });
     },
   },
