@@ -16,12 +16,11 @@ services:
         value: "8000"
       - fromGroup: funstakes-common-secrets
       # --- Automatic Internal Service Discovery ---
-      - key: AUTH_SERVICE_URL
+      - key: AUTH_SERVICE_HOST
         fromService:
           type: web
           name: funstakes-auth
           envVarKey: RENDER_DISCOVERY_SERVICE
-          property: port
       - key: POST_SERVICE_URL
         fromService:
           name: funstakes-post
