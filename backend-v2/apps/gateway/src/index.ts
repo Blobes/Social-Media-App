@@ -1,6 +1,6 @@
 import express from "express";
 import { healthRouter, initEnv } from "@repo/shared";
-import gatewayRoutes from "./proxies";
+import gatewayRoutes from "./proxy";
 import appLoader from "./loader";
 import { pingServices } from "./pinger";
 
