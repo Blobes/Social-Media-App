@@ -1,17 +1,15 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { createProxyMiddleware, Options } from "http-proxy-middleware";
 
 const router: Router = Router();
 
-// Using Public onrender.com URLs to bypass Free Tier private networking restrictions
-const AUTH_URL = "https://funstakes-auth.onrender.com";
-const POST_URL = "https://funstakes-post.onrender.com";
-const USER_URL = "https://funstakes-user.onrender.com";
-const WORKER_URL = "https://funstakes-worker.onrender.com";
-const ADMIN_URL = "https://funstakes-admin.onrender.com";
-
+/**
+ * Global Proxy Configuration
+ * Note: We don't define the 'target' here because it
+ * needs to be read from process.env at runtime.
+ */
 const proxyOptions: Options = {
-  changeOrigin: true, // Required when proxying to a different public domain
+  changeOrigin: true,
   on: {
     proxyReq: (proxyReq, req, res) => {
       // Logic to run before request is sent
@@ -28,55 +26,45 @@ const proxyOptions: Options = {
   },
 };
 
-// --- Route Mapping with Path Rewrites ---
-// Handles: api.funstakes.net/auth -> funstakes-auth:8080/
-router.use(
-  "/auth",
-  createProxyMiddleware({
-    ...proxyOptions,
-    target: AUTH_URL,
-    pathRewrite: { "^/auth": "" },
-  }),
-);
+/**
+ * Dynamic Proxy Wrapper
+ * This function creates the proxy only when the request hits the route,
+ * ensuring process.env values are fully loaded.
+ */
+const proxyTo = (envVarName: string, pathPattern: string) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const target = process.env[envVarName];
 
-// Handles: api.funstakes.net/post -> funstakes-post:8081/
-router.use(
-  "/post",
-  createProxyMiddleware({
-    ...proxyOptions,
-    target: POST_URL,
-    pathRewrite: { "^/post": "" },
-  }),
-);
+    if (!target) {
+      console.error(
+        `[Config Error]: ${envVarName} is not defined in environment.`,
+      );
+      return res
+        .status(500)
+        .json({ error: "Internal Server Configuration Error" });
+    }
+    return createProxyMiddleware({
+      ...proxyOptions,
+      target: target,
+      pathRewrite: { [`^${pathPattern}`]: "" },
+    })(req, res, next);
+  };
+};
 
-// Handles: api.funstakes.net/user -> funstakes-user:8082/
-router.use(
-  "/user",
-  createProxyMiddleware({
-    ...proxyOptions,
-    target: USER_URL,
-    pathRewrite: { "^/user": "" },
-  }),
-);
+// --- Route Mapping ---
+// Handles: api.funstakes.net/auth
+router.use("/auth", proxyTo("AUTH_URL", "/auth"));
 
-// Handles: api.funstakes.net/worker -> funstakes-worker:8083/
-router.use(
-  "/worker",
-  createProxyMiddleware({
-    ...proxyOptions,
-    target: WORKER_URL,
-    pathRewrite: { "^/worker": "" },
-  }),
-);
+// Handles: api.funstakes.net/post
+router.use("/post", proxyTo("POST_URL", "/post"));
 
-// Handles: api.funstakes.net/admin -> funstakes-admin:8084/
-router.use(
-  "/admin",
-  createProxyMiddleware({
-    ...proxyOptions,
-    target: ADMIN_URL,
-    pathRewrite: { "^/admin": "" },
-  }),
-);
+// Handles: api.funstakes.net/user
+router.use("/user", proxyTo("USER_URL", "/user"));
+
+// Handles: api.funstakes.net/worker
+router.use("/worker", proxyTo("WORKER_URL", "/worker"));
+
+// Handles: api.funstakes.net/admin
+router.use("/admin", proxyTo("ADMIN_URL", "/admin"));
 
 export default router;

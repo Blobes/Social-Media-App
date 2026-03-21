@@ -5,7 +5,7 @@ import appLoader from "./loader";
 initEnv(); // Load the environment first
 const startServer = async () => {
   const app = express();
-  const port = process.env.AUTH_PORT || 8080;
+  const port = process.env.AUTH_PORT;
   const mongoUri = process.env.MONGO_URI || "";
 
   try {

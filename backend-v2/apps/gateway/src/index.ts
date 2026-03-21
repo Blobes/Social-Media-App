@@ -1,5 +1,5 @@
 import express from "express";
-import { corsConfig, healthRouter, initEnv } from "@repo/shared";
+import { healthRouter, initEnv } from "@repo/shared";
 import gatewayRoutes from "./proxies";
 import appLoader from "./loader";
 import { pingServices } from "./pinger";
@@ -10,12 +10,10 @@ const startGateway = async () => {
   const app = express();
   const PORT = process.env.PORT || 8000;
 
-  // Load config
-  app.use(corsConfig());
-
+  // Load app
   appLoader(app);
 
-  // 1. Secret route for cron-job (Does NOT wake up sub-services)
+  // Secret route for cron-job (Does NOT wake up sub-services)
   app.get("/keep-alive", (req, res) => {
     res.send("Gateway is awake");
   });
@@ -35,11 +33,12 @@ const startGateway = async () => {
     res.json({ message: "Welcome to Funstakes API Gateway" });
   });
 
+  // Other services routes
   app.use("/", gatewayRoutes);
 
   app.listen(PORT, () => {
     console.log(`🚀 Gateway [${process.env.NODE_ENV}] running on port ${PORT}`);
-    console.log(`📡 Public API Endpoint: https://api.funstakes.net`);
+    console.log(`📡 Public API Endpoint: ${process.env.GATEWAY_URL}`);
   });
 };
 
