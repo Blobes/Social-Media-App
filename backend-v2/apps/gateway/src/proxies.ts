@@ -19,6 +19,7 @@ const proxyOptions: Options = {
     error: (err: any, req, res) => {
       console.error(`DIAGNOSTIC: Code ${err.code} | Target ${AUTH_URL}`);
       (res as any).status(502).json({
+        url: AUTH_URL,
         error: "Bad Gateway",
         debug_code: err.code, // This will return 'ECONNREFUSED' or 'ETIMEDOUT'
       });
