@@ -20,7 +20,7 @@ services:
         fromService:
           type: web
           name: funstakes-auth
-          property: host
+          envVarKey: RENDER_DISCOVERY_SERVICE
       - key: POST_SERVICE_URL
         fromService:
           name: funstakes-post
