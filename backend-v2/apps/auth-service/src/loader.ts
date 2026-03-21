@@ -25,6 +25,11 @@ export default (app: Express) => {
     res.json({ message: "Welcome to Funstakes Auth API" });
   });
 
+  // This handles: api.funstakes.net/auth
+  app.get("/", (req, res) => {
+    res.json({ message: "Welcome to Funstakes Auth API" });
+  });
+
   // ====== Routes ======
   app.use("/v1", authRoutes);
 
