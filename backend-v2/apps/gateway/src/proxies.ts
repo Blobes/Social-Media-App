@@ -16,12 +16,11 @@ const proxyOptions: Options = {
     proxyReq: (proxyReq, req, res) => {
       // Logic to run before request is sent (optional)
     },
-    error: (err, req, res) => {
-      console.error(`[Proxy Error]: ${err.message}`);
-      // Use standard type assertion if TypeScript complains about the res type
+    error: (err: any, req, res) => {
+      console.error(`DIAGNOSTIC: Code ${err.code} | Target ${AUTH_URL}`);
       (res as any).status(502).json({
         error: "Bad Gateway",
-        message: "The requested service is currently unavailable or waking up.",
+        debug_code: err.code, // This will return 'ECONNREFUSED' or 'ETIMEDOUT'
       });
     },
   },
