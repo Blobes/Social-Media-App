@@ -17,11 +17,7 @@ services:
       - fromGroup: funstakes-common-secrets
       # --- Automatic Internal Service Discovery ---
       - key: AUTH_SERVICE_URL
-        fromService:
-          type: web
-          name: funstakes-auth
-          property: hostport
-          # envVarKey: RENDER_DISCOVERY_SERVICE
+        value: "https://funstakes-auth.onrender.com"
       - key: POST_SERVICE_URL
         fromService:
           name: funstakes-post
