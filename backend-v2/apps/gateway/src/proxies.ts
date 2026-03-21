@@ -10,6 +10,8 @@ const router: Router = Router();
  */
 const proxyOptions: Options = {
   changeOrigin: true,
+  proxyTimeout: 60000,
+  timeout: 60000,
   on: {
     proxyReq: (proxyReq, req, res) => {
       // Logic to run before request is sent
