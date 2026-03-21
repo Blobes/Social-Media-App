@@ -4,7 +4,7 @@ import { createProxyMiddleware, Options } from "http-proxy-middleware";
 const router: Router = Router();
 
 // Internal Render URLs (from render.yaml hostport)
-const AUTH_URL = `http://${process.env.AUTH_SERVICE_HOST}:8080`;
+const AUTH_URL = `http://${process.env.AUTH_SERVICE_URL}`;
 const POST_URL = `http://${process.env.POST_SERVICE_URL}`;
 const USER_URL = `http://${process.env.USER_SERVICE_URL}`;
 const WORKER_URL = `http://${process.env.WORKER_SERVICE_URL}`;
@@ -23,7 +23,7 @@ const proxyOptions: Options = {
       (res as any).status(502).json({
         url: AUTH_URL,
         error: "Bad Gateway",
-        debug_code: err.code, // This will return 'ECONNREFUSED' or 'ETIMEDOUT'
+        debug_code: err.code,
       });
     },
   },
