@@ -1,21 +1,24 @@
-// Define your sub-service public URLs
-const SUB_SERVICES = [
-  process.env.AUTH_URL,
-  process.env.POST_URL,
-  process.env.USER_URL,
-];
-
 let lastWakeTime = 0;
 
 export const pingServices = () => {
-  console.log(
-    "User detected! Triggering background wake-up for all sub-services...",
-  );
   const now = Date.now();
+
   // Only wake services if they haven't been 'poked' in the last 14 minutes
   if (now - lastWakeTime > 14 * 60 * 1000) {
-    SUB_SERVICES.forEach((url) => {
-      fetch(url as any).catch(() => {});
+    // RE-READ variables here to ensure they are populated
+    const services = [
+      process.env.AUTH_URL,
+      process.env.POST_URL,
+      process.env.USER_URL,
+    ].filter(Boolean); // Filter out any undefined values
+
+    if (services.length === 0) {
+      console.warn("Pinger: No service URLs found in environment variables.");
+      return;
+    }
+    console.log("User detected! Waking up sub-services...");
+    services.forEach((url) => {
+      fetch(url as string).catch(() => {});
     });
     lastWakeTime = now;
   }
