@@ -13,7 +13,7 @@ const startServer = async () => {
     await connectDB(mongoUri);
     appLoader(app);
 
-    app.listen(Number(port), "0.0.0.0", () => {
+    app.listen(port, () => {
       console.log(
         `🚀 Funstakes Auth Server [${process.env.NODE_ENV}] running on port ${port}`,
       );
