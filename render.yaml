@@ -16,18 +16,18 @@ services:
         value: "8000"
       - fromGroup: funstakes-common-secrets
 
-  # --- Auth Service ---
+  # --- Account Service ---
   - type: web
-    name: funstakes-auth
+    name: funstakes-account
     env: node
     plan: free
     rootDir: backend-v2
     buildCommand: corepack enable && pnpm install
-    startCommand: pnpm --filter @repo/auth-service start
+    startCommand: pnpm --filter @repo/account-service start
     envVars:
       - key: NODE_VERSION
         value: "22"
-      - key: AUTH_PORT
+      - key: ACCOUNT_PORT
         value: "8080"
       - fromGroup: funstakes-common-secrets
       - fromGroup: funstakes-communication-secrets

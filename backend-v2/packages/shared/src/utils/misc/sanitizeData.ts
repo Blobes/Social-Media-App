@@ -4,8 +4,8 @@ export const userSensitiveFields = (): string[] => {
     "verificationCode",
     "verificationExpiry",
     "lastEmailCodeSentAt",
-    "isDeleted",
-    "deletedAt",
+    "isDeactivated",
+    "deactivatedAt",
     "role",
     "__v",
   ];

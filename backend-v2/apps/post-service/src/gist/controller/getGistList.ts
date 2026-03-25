@@ -1,62 +1,111 @@
 import { GistModel } from "@repo/database";
-import { IAuthRequest, getPostAggregation } from "@repo/shared";
+import {
+  IAuthRequest,
+  getStaticPostList,
+  getOrSetCache,
+  getPostDynamicData,
+  personalizeFeed,
+  getFeedUserContext,
+} from "@repo/shared";
 import { Response } from "express";
-import { PipelineStage } from "mongoose";
+import mongoose from "mongoose";
 
 export const getGistList = async (
   req: IAuthRequest,
   res: Response,
-): Promise<void> => {
-  // Using the ID from the token for 'likedByMe' logic
-  const userId = req.user?.id;
+): Promise<any> => {
+  const userId = req.user?.id as string;
 
   try {
-    // 1. Pagination Logic
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const skip = (page - 1) * limit;
 
-    // 2. Build the Pipeline
-    const pipeline: PipelineStage[] = [
-      // Filter active gists
-      { $match: { status: "ACTIVE" } },
+    // --- 1. GLOBAL CACHE LAYER (Shared across all users) ---
+    const globalCacheKey = `feed:gists:static:p${page}:l${limit}`;
 
-      // Sort before pagination to ensure consistent results
-      { $sort: { createdAt: -1 } },
+    const { staticGists, totalCount } = await getOrSetCache(
+      globalCacheKey,
+      async () => {
+        const total = await GistModel.countDocuments({ status: "ACTIVE" });
+        const pipeline = getStaticPostList({
+          matchFilter: { status: "ACTIVE" },
+          postType: "GIST",
+          limit: limit + 10, // Buffer for personalization filtering
+          skip,
+        });
 
-      // Pagination stages
-      { $skip: skip },
-      { $limit: limit },
+        const data = await GistModel.aggregate(pipeline);
+        return { staticGists: data, totalCount: total };
+      },
+    );
 
-      // Apply the common formatting (Author, Media, Likes)
-      // Updated to match the ({ userId, sourceType }) signature
-      ...getPostAggregation({
-        userId: userId ? String(userId) : undefined,
-        postType: "GIST",
-      }),
-    ];
+    // Early exit if no data
+    if (!staticGists || staticGists.length === 0) {
+      return res.status(200).json({
+        status: "SUCCESS",
+        payload: [],
+        meta: { totalDocs: totalCount, currentPage: page },
+      });
+    }
 
-    // 3. Execute the Aggregation
-    const gists = await GistModel.aggregate(pipeline);
+    // --- 2. PERSONALIZATION LAYER (Unique to this user) ---
+    let finalPayload = staticGists;
+    if (userId) {
+      const userContext = await getFeedUserContext(userId, req.user);
+      // Rank and Filter
+      const personalizedGists = personalizeFeed(staticGists, userContext);
 
-    // 4. Response Handling
-    res.status(200).json({
+      // Trim to the actual requested page size
+      const candidateGists = personalizedGists.slice(0, limit);
+      const gistIds = candidateGists.map((g: any) => g._id);
+
+      // --- 3. DYNAMIC HYDRATION (Social Flags) ---
+      // This query hits only the indexes for the specific posts shown
+      const socialData = await GistModel.aggregate([
+        {
+          $match: {
+            _id: { $in: gistIds.map((id) => new mongoose.Types.ObjectId(id)) },
+          },
+        },
+        { $addFields: { postType: "GIST" } },
+        { $addFields: { __order: { $indexOfArray: [gistIds, "$_id"] } } },
+        { $sort: { __order: 1 } },
+        ...getPostDynamicData({ userId: String(userId) }),
+      ]);
+
+      // Merge Social Booleans (Likes/Follows) into the Personalized Gists
+      finalPayload = candidateGists.map((gist: any, index: number) => {
+        const social = socialData[index];
+        return {
+          ...gist,
+          likedByMe: social?.likedByMe || false,
+          author: {
+            ...gist.author,
+            isFollowing: social?.isFollowing || false,
+            followsMe: social?.followsMe || false,
+          },
+        };
+      });
+    }
+    // --- 4. RESPONSE ---
+    return res.status(200).json({
       status: "SUCCESS",
-      payload: gists,
-      message:
-        gists.length > 0 ? "Gists fetched successfully" : "No gists found",
+      payload: finalPayload,
+      message: "Gists fetched successfully",
       meta: {
-        count: gists.length,
-        page,
+        totalDocs: totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        currentPage: page,
         limit,
+        hasNextPage: skip + finalPayload.length < totalCount,
       },
     });
   } catch (error: any) {
-    console.error("Fetch Gists Aggregation Error:", error);
-    res.status(500).json({
+    console.error("Fetch Gists List Error:", error);
+    return res.status(500).json({
       status: "ERROR",
-      payload: null,
-      message: error.message || "An error occurred while fetching gists",
+      message: "Internal Server Error",
     });
   }
 };

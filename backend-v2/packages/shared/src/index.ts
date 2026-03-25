@@ -5,6 +5,9 @@ export * from "./middlewares/verifyAuthToken";
 export * from "./middlewares/optVerifyToken";
 export * from "./middlewares/refreshAuthToken";
 
+// Types
+export * from "./types/types";
+
 // Services
 export * from "./services/auth/dispatchEmailCode";
 export * from "./services/auth/dispatchWhatsappCode";
@@ -15,6 +18,8 @@ export * from "./services/moderation/validateMedia";
 export * from "./services/moderation/validateText";
 export * from "./services/storage/deleteFromS3";
 export * from "./services/storage/generateS3Url";
+export * from "./services/redis";
+export * from "./services/ip";
 
 // Routes
 export * from "./routes/feed";
@@ -24,20 +29,24 @@ export * from "./routes/report";
 export * from "./routes/health";
 
 // Utility
-export * from "./utils/aggregator/postList";
-export * from "./utils/aggregator/singlePost";
-export * from "./utils/aggregator/singleUser";
-export * from "./utils/aggregator/userList";
+export * from "./utils/pipelines/postList";
+export * from "./utils/pipelines/singlePost";
+export * from "./utils/pipelines/singleUser";
+export * from "./utils/pipelines/userList";
 export * from "./utils/media/createBatch";
 export * from "./utils/media/hardDelete";
 export * from "./utils/media/softDelete";
-export * from "./types/types";
 export * from "./utils/misc/calculations";
 export * from "./utils/misc/checkNotability";
 export * from "./utils/misc/constants";
-export * from "./services/ip";
 export * from "./utils/misc/sanitizeData";
+export * from "./utils/misc/feedProcessor";
 export * from "./utils/misc/tokens";
+export * from "./utils/misc/session";
+export * from "./utils/redis/cache";
+export * from "./utils/redis/ratelimit";
+export * from "./utils/decorators/userDecorator";
+export * from "./utils/decorators/postDecorator";
 
 // Environment config
 export * from "../env-config/express/config";

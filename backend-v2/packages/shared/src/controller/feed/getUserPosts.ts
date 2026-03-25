@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { Response } from "express";
 import { GistModel } from "@repo/database";
-import { getPostListAggregation } from "../../utils/aggregator/postList";
+import { getStaticPostList } from "../../utils/pipelines/postList";
 import { IAuthRequest } from "../../types/types";
 
 /**
@@ -38,7 +38,7 @@ export const getUserPosts = async (
     };
 
     // 4. Execute the Unified Aggregation
-    const pipeline = getPostListAggregation({
+    const pipeline = getStaticPostList({
       matchFilter,
       userId: authUserId, // Allows the viewer to see if they've liked this user's posts
       limit,

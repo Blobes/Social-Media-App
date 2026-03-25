@@ -11,6 +11,7 @@ export * from "./src/post/gist";
 export * from "./src/user/follow";
 export * from "./src/user/idVerification";
 export * from "./src/user/user";
+export * from "./src/user/blocked";
 
 // Media
 export * from "./src/media";

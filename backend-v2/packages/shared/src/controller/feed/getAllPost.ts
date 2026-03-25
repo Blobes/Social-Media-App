@@ -1,6 +1,6 @@
 import { GistModel } from "@repo/database";
 import { Response } from "express";
-import { getPostListAggregation } from "../../utils/aggregator/postList";
+import { getStaticPostList } from "../../utils/pipelines/postList";
 import { IAuthRequest } from "../../types/types";
 
 export const getAllPost = async (req: IAuthRequest, res: Response) => {
@@ -17,9 +17,8 @@ export const getAllPost = async (req: IAuthRequest, res: Response) => {
       // isPublic: true // Uncomment if you have a privacy flag
     };
 
-    const pipeline = getPostListAggregation({
+    const pipeline = getStaticPostList({
       matchFilter,
-      userId: authUserId, // Passing this enables the polymorphic like check
       limit,
       skip,
     });

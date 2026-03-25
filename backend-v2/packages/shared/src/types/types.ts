@@ -1,4 +1,6 @@
+import { GistModel } from "@repo/database";
 import { Request } from "express";
+import { InferSchemaType } from "mongoose";
 
 export type ILikelihood =
   | "UNKNOWN"
@@ -16,7 +18,7 @@ export enum ISeverity {
 
 export type AppName =
   | "ADMIN_SERVICE"
-  | "AUTH_SERVICE"
+  | "ACCOUNT_SERVICE"
   | "POST_SERVICE"
   | "USER_SERVICE"
   | "WORKER_SERVICE"
@@ -26,9 +28,10 @@ export type PostType = "GIST" | "STAKE";
 
 export interface IJwtUser {
   id: any;
+  sessionId: string;
   email?: string;
   username?: string;
-  isAdmin: boolean;
+  isAdmin?: boolean;
   password?: string;
   firstName?: string;
   lastName?: string;
@@ -68,4 +71,30 @@ export interface IModerationRes {
   severity: ISeverity | null;
   ruleViolated: string | null;
   reason: string | null;
+}
+
+export interface IUserPreferences {
+  userId: string;
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  location?: string | null;
+  preferredTopics: {
+    topicId: string;
+    title: string;
+    lastViewed?: Date;
+  }[];
+  showSensitiveGraphic: boolean;
+  blockedUserIds: string[]; // Hydrated from the separate collection
+}
+
+export type IGist = InferSchemaType<typeof GistModel.schema>;
+
+export interface IBasePost {
+  id: any;
+  authorId: any;
+  topics?: string[];
+  location?: string;
+  hasSensitiveGraphic?: boolean;
+  [key: string]: any; // Allows for post-specific fields (e.g., gist content, video URL)
 }

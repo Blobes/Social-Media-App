@@ -112,8 +112,8 @@ export interface IUser {
   followingCount: number;
 
   // --- DELETING USER ACCOUNT ---
-  isDeleted: boolean;
-  deletedAt?: string | Date | null;
+  isDeactivated: boolean;
+  deactivatedAt?: string | Date | null;
 
   // --- TIMESTAMPS ---
   createdAt?: string;

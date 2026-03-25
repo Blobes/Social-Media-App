@@ -2,25 +2,25 @@ import jwt from "jsonwebtoken";
 import { Response } from "express";
 import crypto from "crypto";
 import { IAuthRequest } from "../../types/types";
+import { redisClient } from "../../services/redis";
 
 export const genAccessTokens = (
   user: any,
   req: IAuthRequest,
   res: Response,
+  sessionId: string,
 ) => {
   const origin = req.get("origin") || "";
   const isLocalDev = origin.includes("localhost");
 
-  if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
-    throw new Error("JWT_SECRET is not defined in environment variables");
-  }
   const userId = user._id?.toString() || user.id?.toString();
+
+  // We embed the sessionId in the Access Token so the 'protect'
+  // middleware can verify the session state in Redis.
   const accessToken = jwt.sign(
-    { id: userId },
+    { id: userId, sessionId },
     process.env.JWT_SECRET as string,
-    {
-      expiresIn: "15m",
-    },
+    { expiresIn: "15m" },
   );
 
   res.cookie("access_token", accessToken, {
@@ -34,33 +34,44 @@ export const genAccessTokens = (
   return accessToken;
 };
 
-export const genRefreshTokens = (
+export const genRefreshTokens = async (
   user: any,
   req: IAuthRequest,
   res: Response,
+  sessionId: string,
 ) => {
   const origin = req.get("origin") || "";
   const isLocalDev = origin.includes("localhost");
 
-  if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
-    throw new Error(
-      "REFRESH_TOKEN_SECRET is not defined in environment variables",
-    );
-  }
   const userId = user._id?.toString() || user.id?.toString();
+
   const refreshToken = jwt.sign(
-    { id: userId },
+    { id: userId, sessionId },
     process.env.REFRESH_TOKEN_SECRET as string,
     { expiresIn: "7d" },
   );
-  // Set token in cookie
+
+  // REGISTER SESSION IN UPSTASH
+  // We use IAuthRequest to safely access headers and IP
+  const sessionKey = `session:${userId}:${sessionId}`;
+  await redisClient.set(
+    sessionKey,
+    {
+      userAgent: req.get("user-agent") || "unknown",
+      ip: req.ip || req.headers["x-forwarded-for"] || "unknown",
+      lastActive: new Date(),
+    },
+    { ex: 7 * 24 * 60 * 60 },
+  ); // 7-day TTL to match the Refresh Token
+
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true,
     secure: true,
     sameSite: !isLocalDev ? "lax" : "none",
     path: "/",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
+
   return refreshToken;
 };
 

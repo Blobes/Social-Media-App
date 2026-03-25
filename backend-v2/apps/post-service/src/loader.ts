@@ -1,13 +1,7 @@
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
-import gistRoutes from "./gist/gist.routes";
-import {
-  corsConfig,
-  feedRouter,
-  healthRouter,
-  mediaRouter,
-  topicRouter,
-} from "@repo/shared";
+import gistRoutes from "./gist/gistRoutes";
+import { corsConfig, healthRouter } from "@repo/shared";
 
 export default (app: Express) => {
   // ====== Middlewares ======

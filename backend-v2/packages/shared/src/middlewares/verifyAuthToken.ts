@@ -1,37 +1,49 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { Response, NextFunction, RequestHandler } from "express";
 import { IAuthRequest, IJwtUser } from "../types/types";
+import { redisClient } from "../services/redis";
 
-export const verifyAuthToken: RequestHandler = (
+export const verifyAuthToken: RequestHandler = async (
   req: IAuthRequest,
   res: Response,
   next: NextFunction,
-) => {
+): Promise<any> => {
   const token = req.cookies.access_token;
 
   if (!token) {
-    res
+    return res
       .status(401)
       .json({ message: "No token provided", status: "UNAUTHORIZED" });
-    return;
   }
 
-  jwt.verify(
-    token,
-    process.env.JWT_SECRET as string,
-    (
-      err: jwt.VerifyErrors | null,
-      payload: JwtPayload | string | undefined,
-    ) => {
-      if (err) {
-        res
-          .status(401)
-          .json({ message: "Invalid token", status: "UNAUTHORIZED" });
-        return;
-      }
+  try {
+    // 1. Verify JWT Signature and expiration
+    const payload = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string,
+    ) as IJwtUser;
 
-      req.user = payload as IJwtUser; //attach user data to the request
-      next();
-    },
-  );
+    // 2. STATEFUL CHECK: Verify the session exists in Upstash
+    const sessionKey = `session:${payload.id}:${payload.sessionId}`;
+    const sessionActive = await redisClient.exists(sessionKey);
+
+    if (!sessionActive) {
+      // Clear the cookies since the session is revoked in Redis
+      res.clearCookie("access_token");
+      res.clearCookie("refresh_token");
+
+      return res.status(401).json({
+        message: "Session expired or revoked",
+        status: "UNAUTHORIZED",
+      });
+    }
+
+    // Attach user data (including sessionId) to the request
+    req.user = payload;
+    next();
+  } catch (err) {
+    return res
+      .status(401)
+      .json({ message: "Invalid or expired token", status: "UNAUTHORIZED" });
+  }
 };

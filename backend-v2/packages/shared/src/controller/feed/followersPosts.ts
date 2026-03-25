@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { Response } from "express";
 import { FollowModel, GistModel } from "@repo/database";
-import { getPostListAggregation } from "../../utils/aggregator/postList";
+import { getStaticPostList } from "../../utils/pipelines/postList";
 import { IAuthRequest } from "../../types/types";
 
 export const getfollowersPosts = async (
@@ -47,7 +47,7 @@ export const getfollowersPosts = async (
 
     // 4. Execute the Unified Aggregation
     // The aggregator handles the $unionWith for Gists and Stakes automatically.
-    const pipeline = getPostListAggregation({
+    const pipeline = getStaticPostList({
       matchFilter: {
         authorId: { $in: ids },
         status: "ACTIVE", // Recommended to avoid showing deleted/hidden content

@@ -19,7 +19,8 @@
     "@repo/database": "workspace:*",
     "openai": "catalog:",
     "@google-cloud/vision": "catalog:",
-    "dotenv": "catalog:"
+    "dotenv": "catalog:",
+    "@upstash/redis": "catalog:"
   },
   "devDependencies": {
     "express": "catalog:",

@@ -36,7 +36,6 @@ const UserSchema = new Schema(
     isPublicFigure: { type: Boolean, default: false },
     meritsVerification: { type: Boolean, default: false },
     isNotable: { type: Boolean, default: false },
-
     idVerificationRequest: {
       type: Schema.Types.ObjectId,
       ref: "IdVerificationRequest",
@@ -48,12 +47,12 @@ const UserSchema = new Schema(
       enum: ["NONE", "PENDING", "APPROVED", "REJECTED"],
       default: "NONE",
     },
-
     verificationSignals: {
       hasWikipedia: { type: Boolean, default: false },
       isVipEmail: { type: Boolean, default: false },
       isVipPhone: { type: Boolean, default: false },
     },
+    isAgeVerified: { type: Boolean, default: false },
 
     // --- 3. AUTHENTICATION & SECURITY ---
     password: { type: String, required: true },
@@ -72,6 +71,7 @@ const UserSchema = new Schema(
     verificationCode: String,
     verificationExpiry: Date,
     lastEmailCodeSentAt: { type: Date, default: null },
+    primarySessionId: { type: String, default: null },
 
     // --- 4. IDENTITY UPDATES (PENDING CHANGES) ---
     pendingEmail: { type: String, default: null, lowercase: true },
@@ -108,13 +108,19 @@ const UserSchema = new Schema(
     // --- 9. SOCIAL METRICS ---
     followersCount: { type: Number, default: 0 },
     followingCount: { type: Number, default: 0 },
-    preferredTopics: [
-      {
-        topicId: { type: Schema.Types.ObjectId, ref: "Topic" },
-        title: String,
-        lastViewed: Date,
-      },
-    ],
+
+    // USER PREFERENCES
+    preferences: {
+      preferredTopics: [
+        {
+          topicId: { type: Schema.Types.ObjectId, ref: "Topic" },
+          title: String,
+          lastViewed: Date,
+        },
+      ],
+      showSensitiveGraphic: { type: Boolean, default: false },
+      preferredLanguage: { type: String, default: "en" },
+    },
 
     // --- 10. LIFECYCLE MANAGEMENT ---
     isDeactivated: { type: Boolean, default: false, index: true },

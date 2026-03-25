@@ -12,7 +12,7 @@ export const initUserCleanup = () => {
 
       // Permanently delete users who were soft-deleted more than 30 days ago
       const result = await UserModel.deleteMany({
-        isDeleted: true,
+        isDeactivated: true,
         deletedAt: { $lte: thirtyDaysAgo },
       });
 
