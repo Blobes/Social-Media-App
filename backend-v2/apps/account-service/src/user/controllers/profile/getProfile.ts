@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { Response } from "express";
 import {
   IAuthRequest,
-  getUserAggregation,
+  getUserStaticData,
   userPrivateFields,
   userSensitiveFields,
   getOrSetCache,
@@ -39,7 +39,7 @@ const getUserProfile = async (
           {
             $match: { _id: new mongoose.Types.ObjectId(String(targetUserId)) },
           },
-          ...getUserAggregation(), // Standardized neutral aggregation
+          ...getUserStaticData(), // Standardized neutral aggregation
         ]);
         return users && users.length > 0 ? users[0] : null;
       },

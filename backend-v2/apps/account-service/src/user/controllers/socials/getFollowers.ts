@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 import { Response } from "express";
 import {
   IAuthRequest,
-  getUserListAggregation,
   getOrSetCache,
   decorateUserSocial,
+  getStaticUserList,
 } from "@repo/shared";
 import { FollowModel } from "@repo/database";
 
@@ -57,7 +57,7 @@ export const getFollowers = async (
           { $replaceRoot: { newRoot: "$followerDetails" } },
 
           // Apply standardized formatting and generic aggregation
-          ...getUserListAggregation({
+          ...getStaticUserList({
             matchFilter: {},
             skip,
             limit,

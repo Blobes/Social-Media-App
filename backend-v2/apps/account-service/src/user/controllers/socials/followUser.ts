@@ -1,8 +1,8 @@
-import mongoose, { PipelineStage } from "mongoose";
+import mongoose from "mongoose";
 import { Response } from "express";
 import {
   IAuthRequest,
-  getUserAggregation,
+  getStaticUserList,
   invalidateCache,
   userSensitiveFields,
   decorateUserSocial,
@@ -16,21 +16,18 @@ export const followUser = async (
   const targetUserId = req.params.id as string;
   const currUserId = req.user?.id;
 
-  // Validate request parameters and authentication state
   if (!mongoose.Types.ObjectId.isValid(targetUserId) || !currUserId) {
     return res
       .status(400)
       .json({ message: "Invalid ID format", status: "ERROR" });
   }
 
-  // Prevent self-following logic
   if (currUserId === targetUserId) {
     return res
       .status(400)
       .json({ message: "You cannot follow yourself", status: "ERROR" });
   }
 
-  // Initialize database session for multi-document transaction
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -38,7 +35,6 @@ export const followUser = async (
     const followerId = new mongoose.Types.ObjectId(String(currUserId));
     const followingId = new mongoose.Types.ObjectId(String(targetUserId));
 
-    // Check for existing relationship to determine follow vs unfollow action
     const existingFollow = await FollowModel.findOne({
       followerId,
       followingId,
@@ -47,7 +43,6 @@ export const followUser = async (
     let action: "followed" | "unfollowed";
 
     if (!existingFollow) {
-      // Create follow relationship and increment respective counts
       await FollowModel.create([{ followerId, followingId }], { session });
       await UserModel.findByIdAndUpdate(
         followerId,
@@ -61,7 +56,6 @@ export const followUser = async (
       );
       action = "followed";
     } else {
-      // Remove follow relationship and decrement respective counts
       await FollowModel.deleteOne({ _id: existingFollow._id }).session(session);
       await UserModel.findByIdAndUpdate(
         followerId,
@@ -76,59 +70,58 @@ export const followUser = async (
       action = "unfollowed";
     }
 
-    // Persist changes and close session
     await session.commitTransaction();
     session.endSession();
 
-    // Invalidate profile caches to reflect updated counts globally
+    // Invalidate caches immediately
     await Promise.all([
       invalidateCache(`user:profile:${currUserId}`),
       invalidateCache(`user:profile:${targetUserId}`),
     ]);
 
-    // Fetch updated profiles using neutral aggregation pipeline
+    // FIX: Pass the required object to getStaticUserList
     const [rawCurrentUser, rawTargetUser] = await Promise.all([
-      UserModel.aggregate([
-        { $match: { _id: followerId } },
-        ...getUserAggregation(),
-      ]),
-      UserModel.aggregate([
-        { $match: { _id: followingId } },
-        ...getUserAggregation(),
-      ]),
+      UserModel.aggregate(
+        getStaticUserList({ matchFilter: { _id: followerId }, limit: 1 }),
+      ),
+      UserModel.aggregate(
+        getStaticUserList({ matchFilter: { _id: followingId }, limit: 1 }),
+      ),
     ]);
 
-    // Decorate neutral profiles with viewer-specific social context
-    const [decoratedCurrentUser, decoratedTargetUser] =
-      await decorateUserSocial(
-        [rawCurrentUser[0], rawTargetUser[0]],
-        currUserId,
-      );
+    // Handle potential empty results from aggregate
+    const userA = rawCurrentUser[0];
+    const userB = rawTargetUser[0];
 
-    // Remove sensitive fields from payloads before sending response
+    // Decorate with social context (isFollowing, followsMe)
+    const decoratedUsers = await decorateUserSocial(
+      [userA, userB],
+      String(currUserId),
+    );
+
+    // Cleanup sensitive data
     const sensitiveFields = userSensitiveFields();
-    [decoratedCurrentUser, decoratedTargetUser].forEach((user) => {
-      if (user) {
-        sensitiveFields.forEach((field) => delete user[field]);
-      }
+    const finalPayload = decoratedUsers.map((user: any) => {
+      const plainUser = { ...user };
+      sensitiveFields.forEach((field) => delete plainUser[field]);
+      return plainUser;
     });
 
     return res.status(200).json({
       message: `User ${action} successfully`,
       status: "SUCCESS",
       payload: {
-        currentUser: decoratedCurrentUser,
-        targetUser: decoratedTargetUser,
+        currentUser: finalPayload[0],
+        targetUser: finalPayload[1],
       },
     });
   } catch (error: any) {
-    // Revert all database changes on failure
     await session.abortTransaction();
     session.endSession();
 
-    console.error("Follow Error:", error);
+    console.error("Follow Action Error:", error);
     return res.status(500).json({
-      message: error.message || "Failed to process follow action",
+      message: error.message || "An error occurred during the follow action",
       status: "ERROR",
     });
   }

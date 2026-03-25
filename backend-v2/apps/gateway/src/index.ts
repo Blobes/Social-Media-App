@@ -5,9 +5,9 @@ import appLoader from "./loader";
 import { pingServices } from "./middleware/pinger";
 import { rateLimiter } from "./middleware/rateLimiter";
 
-initEnv();
-
 const startGateway = async () => {
+  initEnv(); // Load the environment first
+
   const app = express();
   // Essential for getting real User IPs through Render's load balancer
   app.set("trust proxy", 1);

@@ -2,10 +2,11 @@ import express from "express";
 import { connectDB, initEnv, monitorProcess } from "@repo/shared";
 import appLoader from "./loader";
 
-initEnv(); // Load the environment first
 const startServer = async () => {
+  initEnv(); // Load the environment first
+
   const app = express();
-  const port = process.env.AUTH_PORT;
+  const port = process.env.ACCOUNT_PORT;
   const mongoUri = process.env.MONGO_URI || "";
 
   try {
@@ -15,7 +16,7 @@ const startServer = async () => {
 
     app.listen(port, () => {
       console.log(
-        `🚀 Funstakes Auth Server [${process.env.NODE_ENV}] running on port ${port}`,
+        `🚀 Funstakes Account Service [${process.env.NODE_ENV}] running on port ${port}`,
       );
     });
   } catch (error) {

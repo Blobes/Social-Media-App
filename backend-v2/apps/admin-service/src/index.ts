@@ -2,10 +2,9 @@ import express from "express";
 import { connectDB, initEnv, monitorProcess } from "@repo/shared";
 import appLoader from "./loader";
 
-// Force the environment to load first
-initEnv();
-
 const startServer = async () => {
+  initEnv(); // Load the environment first
+
   const app = express();
   const port = process.env.ADMIN_PORT || 8084;
   const mongoUri = process.env.MONGO_URI || "";
