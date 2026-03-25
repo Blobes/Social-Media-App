@@ -82,16 +82,16 @@ const proxyTo = (envVarName: string, pathPattern?: string) => {
 
 // --- Route Mapping ---
 // Handles: api.funstakes.net/auth
-router.use("/auth", proxyTo("ACCOUNT_URL"));
+router.use("/auth", proxyTo("ACCOUNT_URL", "/auth"));
 
 // Handles: api.funstakes.net/user
-router.use("/user", proxyTo("ACCOUNT_URL"));
+router.use("/user", proxyTo("ACCOUNT_URL", "/user"));
 
 // Handles: api.funstakes.net/feed
-router.use("/feed", proxyTo("POST_URL"));
+router.use("/feed", proxyTo("POST_URL", "/feed"));
 
 // Handles: api.funstakes.net/gist
-router.use("/gists", proxyTo("POST_URL"));
+router.use("/gists", proxyTo("POST_URL", "/gists"));
 
 // Handles: api.funstakes.net/worker
 router.use("/worker", proxyTo("WORKER_URL", "/worker"));
