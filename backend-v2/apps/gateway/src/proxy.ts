@@ -70,6 +70,7 @@ const proxyTo = (envVarName: string, pathPattern?: string) => {
     return createProxyMiddleware({
       target,
       changeOrigin: true,
+      secure: true,
       proxyTimeout: 90000,
       pathRewrite,
       on: {

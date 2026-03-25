@@ -24,8 +24,8 @@ export default (app: Express) => {
   });
 
   // ====== Routes ======
-  app.use("/feed", feedRoutes);
-  app.use("/gists", gistRoutes);
+  app.use("/", feedRoutes);
+  app.use("/", gistRoutes);
 
   return app;
 };
