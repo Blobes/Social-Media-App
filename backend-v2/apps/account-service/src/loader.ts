@@ -23,9 +23,9 @@ export default (app: Express) => {
     res.json({ message: "Welcome to Funstakes User API" });
   });
 
-  // ====== Routes ======
-  app.use("/auth", authRoutes);
-  app.use("/user", userRoutes);
+  // ====== Use Routes ======
+  app.use("/", authRoutes);
+  app.use("/", userRoutes);
 
   return app;
 };
