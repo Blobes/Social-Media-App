@@ -5,6 +5,7 @@ import {
   IMediaInput,
   userSensitiveFields,
   invalidateCache,
+  CACHE_KEYS,
 } from "@repo/shared";
 import { Response } from "express";
 import mongoose from "mongoose";
@@ -87,7 +88,7 @@ export const changeUserImage = async (
 
     // Clear the cache ONLY after a successful commit
     // This prevents stale data from being served during the next profile fetch
-    await invalidateCache(`user:profile:${userId}`);
+    await invalidateCache(CACHE_KEYS.USER_PROFILE(userId));
 
     // Sanitize the user object to remove passwords/tokens before responding
     const safePayload = updatedUser.toObject();

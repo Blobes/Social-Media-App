@@ -6,6 +6,7 @@ import {
   invalidateCache,
   userSensitiveFields,
   decorateUserSocial,
+  CACHE_KEYS,
 } from "@repo/shared";
 import { FollowModel, UserModel } from "@repo/database";
 
@@ -75,8 +76,8 @@ export const followUser = async (
 
     // Invalidate caches immediately
     await Promise.all([
-      invalidateCache(`user:profile:${currUserId}`),
-      invalidateCache(`user:profile:${targetUserId}`),
+      invalidateCache(CACHE_KEYS.USER_PROFILE(currUserId)),
+      invalidateCache(CACHE_KEYS.USER_PROFILE(targetUserId)),
     ]);
 
     // FIX: Pass the required object to getStaticUserList

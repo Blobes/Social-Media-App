@@ -3,6 +3,7 @@ import {
   IAuthRequest,
   userSensitiveFields,
   invalidatePattern,
+  CACHE_KEYS,
 } from "@repo/shared";
 import { Response } from "express";
 
@@ -101,7 +102,7 @@ export const changeUsername = async (
     }
 
     // This clears the profile, any list data, and metadata associated with that ID
-    await invalidatePattern(`user:*:${userId}*`);
+    await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
 
     // Convert document to plain object for sanitization
     const safePayload = updatedUser.toObject();

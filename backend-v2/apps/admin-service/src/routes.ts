@@ -1,4 +1,4 @@
-import { resolveFlaggedPost } from "@/controller/resolvePost.js";
+import { resolveFlaggedPost } from "@/controllers/resolvePost.js";
 import { isAdmin, moderateContent, verifyAuthToken } from "@repo/shared";
 import express, { Router } from "express";
 

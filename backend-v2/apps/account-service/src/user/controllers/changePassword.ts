@@ -1,5 +1,6 @@
 import { UserModel } from "@repo/database";
 import {
+  CACHE_KEYS,
   IAuthRequest,
   invalidateCache,
   manageUserSessions,
@@ -91,7 +92,7 @@ export const changePassword = async (
     });
 
     // Surgical cache invalidation for the user's profile
-    await invalidateCache(`user:profile:${userId}`);
+    await invalidateCache(CACHE_KEYS.USER_PROFILE(userId));
 
     // If session wasn't preserved (not primary), nuke cookies
     if (!wasSessionPreserved) {

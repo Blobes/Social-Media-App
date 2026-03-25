@@ -4,6 +4,7 @@ import {
   softDeleteMedia,
   userSensitiveFields,
   invalidateCache,
+  CACHE_KEYS,
 } from "@repo/shared";
 import { Response } from "express";
 
@@ -58,7 +59,7 @@ export const removeUserImage = async (
     }
 
     // Invalidate the profile cache to reflect the removal immediately
-    await invalidateCache(`user:profile:${authUserId}`);
+    await invalidateCache(CACHE_KEYS.USER_PROFILE(authUserId));
 
     // Sanitize the response payload
     const safePayload = updatedUser.toObject();

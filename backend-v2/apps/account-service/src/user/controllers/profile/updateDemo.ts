@@ -3,6 +3,7 @@ import {
   IAuthRequest,
   userSensitiveFields,
   invalidateCache,
+  CACHE_KEYS,
 } from "@repo/shared";
 import { Response } from "express";
 
@@ -58,7 +59,7 @@ export const updateDemoInfo = async (
     }
 
     // Invalidate the profile cache after successful database update
-    await invalidateCache(`user:profile:${authUserId}`);
+    await invalidateCache(CACHE_KEYS.USER_PROFILE(authUserId));
 
     const safePayload = updatedUser.toObject();
 

@@ -63,7 +63,7 @@ export const personalizeFeed = <T extends IBasePost>(
 };
 
 // Get feed user data
-export const getFeedUserContext = async (
+export const getUserPreferences = async (
   userId: string,
   jwtUser?: any,
 ): Promise<IUserPreferences> => {

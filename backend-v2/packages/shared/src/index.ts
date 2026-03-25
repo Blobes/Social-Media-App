@@ -22,7 +22,6 @@ export * from "./services/redis";
 export * from "./services/ip";
 
 // Routes
-export * from "./routes/feed";
 export * from "./routes/topic";
 export * from "./routes/media";
 export * from "./routes/report";

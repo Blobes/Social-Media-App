@@ -1,15 +1,15 @@
 import express, { Router } from "express";
-import { checkEmail } from "./controller/check/email";
-import { checkUsername } from "./controller/check/username";
-import { createAccount } from "./controller/new-account/createAccount";
-import { verifyEmailCode } from "./controller/new-account/verifyEmailCode";
-import { resendEmailCode } from "./controller/new-account/resendEmailCode";
-import loginUser from "./controller/session/login";
+import { checkEmail } from "./controllers/check/email";
+import { checkUsername } from "./controllers/check/username";
+import { createAccount } from "./controllers/new-account/createAccount";
+import { verifyEmailCode } from "./controllers/new-account/verifyEmailCode";
+import { resendEmailCode } from "./controllers/new-account/resendEmailCode";
+import loginUser from "./controllers/session/login";
 import { refreshAuthToken, verifyAuthToken } from "@repo/shared";
-import { verifyUserAuth } from "./controller/verifyUserAuth";
-import { logoutUser } from "./controller/session/logout";
-import { getActiveSessions } from "./controller/session/activeSessions";
-import { setPrimaryDevice } from "./controller/session/primaryDevice";
+import { verifyUserAuth } from "./controllers/verifyUserAuth";
+import { logoutUser } from "./controllers/session/logout";
+import { getActiveSessions } from "./controllers/session/activeSessions";
+import { setPrimaryDevice } from "./controllers/session/primaryDevice";
 
 const router: Router = express.Router();
 

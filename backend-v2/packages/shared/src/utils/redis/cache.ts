@@ -1,5 +1,6 @@
 // packages/shared/src/cache.ts
 import { redisClient } from "../../services/redis"; // Adjusted path to your new init file
+import { PostType } from "../../types/types";
 
 /**
  * getOrSetCache: High-performance wrapper for Upstash REST
@@ -106,4 +107,49 @@ export const getOrSetCacheSet = async (
 export const atomicCacheSetUpdate = {
   add: (key: string, value: string) => redisClient.sadd(key, value),
   remove: (key: string, value: string) => redisClient.srem(key, value),
+};
+
+/**
+ * Redis Cache Key Registry
+ * Centralizes all key patterns for the Funstakes ecosystem.
+ * High-performance note: leading with userId allows O(K) invalidation.
+ */
+export const CACHE_KEYS = {
+  // --- Session & Security ---
+  USER_SESSION: (userId: string, sessionId: string) =>
+    `session:${userId}:${sessionId}`,
+  WILDCARD_USER_SESSIONS: (userId: string) => `session:${userId}:*`,
+
+  // --- Feed Keys (Dynamic/Personalized) ---
+  USER_FOLLOWERS_FEED: (userId: string, page: number, limit: number) =>
+    `user:${userId}:feed:followers:p${page}:l${limit}`,
+  USER_PROFILE_FEED: (userId: string, page: number, limit: number) =>
+    `user:${userId}:feed:profile:p${page}:l${limit}`,
+
+  // --- Static/Global Feeds ---
+  GLOBAL_FEED: (page: number, limit: number) =>
+    `feed:all:static:p${page}:l${limit}`,
+  POST_TYPE_FEED: (postType: string, page: number, limit: number) =>
+    `feed:${postType.toLowerCase()}s:static:p${page}:l${limit}`,
+
+  // --- Entity Keys ---
+  POST: (postType: string, postId: string) =>
+    `post:${postType.toLowerCase()}:${postId}`,
+
+  // --- Social & Identity (O(1) lookups) ---
+  USER_BASE: (userId: string) => `user:${userId}`,
+  USER_PROFILE: (userId: string) => `user:${userId}:profile`,
+  USER_FOLLOWING: (userId: string) => `user:${userId}:following`,
+  USER_FOLLOWERS: (userId: string, page: number, limit: number) =>
+    `user:${userId}:followers:${userId}:p:${page}:l:${limit}`,
+  USER_BLOCKED: (userId: string) => `user:${userId}:blocked`,
+  USER_PREFERENCES: (userId: string) => `user:${userId}:prefs`,
+
+  // --- Invalidation Patterns (Wildcards) ---
+  // Wipes all global first pages (Gists, Stakes, All)
+  GLOBAL_FEED_PAGE_ONE: "feed:*:static:p1:*",
+  // Wipes every paginated feed chunk authored or viewed by the user
+  WILDCARD_USER_FEED_ALL: (userId: string) => `user:${userId}:feed:*`,
+  // The complete account wipe pattern
+  WILDCARD_USER_ALL: (userId: string) => `user:${userId}:*`,
 };

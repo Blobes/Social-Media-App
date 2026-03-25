@@ -47,21 +47,6 @@ services:
         value: "8081"
       - fromGroup: funstakes-common-secrets
 
-  # --- User Service ---
-  - type: web
-    name: funstakes-user
-    env: node
-    plan: free
-    rootDir: backend-v2
-    buildCommand: corepack enable && pnpm install
-    startCommand: pnpm --filter @repo/user-service start
-    envVars:
-      - key: NODE_VERSION
-        value: "22"
-      - key: USER_PORT
-        value: "8082"
-      - fromGroup: funstakes-common-secrets
-
   # --- Worker Service ---
   - type: web
     name: funstakes-worker

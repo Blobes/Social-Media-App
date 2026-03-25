@@ -6,7 +6,8 @@ import {
   userPrivateFields,
   userSensitiveFields,
   getOrSetCache,
-  decorateUserSocial, // Our new centralized decorator
+  decorateUserSocial,
+  CACHE_KEYS, // Our new centralized decorator
 } from "@repo/shared";
 import { UserModel } from "@repo/database";
 
@@ -28,7 +29,7 @@ const getUserProfile = async (
 
   try {
     const isOwner = authUserId === targetUserId;
-    const cacheKey = `user:profile:${targetUserId}`;
+    const cacheKey = CACHE_KEYS.USER_PROFILE(targetUserId);
 
     // 1. FETCH NEUTRAL PROFILE
     // This pulls from Redis (shared by all visitors) or runs the neutral aggregation

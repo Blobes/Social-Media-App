@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { Response, NextFunction, RequestHandler } from "express";
 import { IAuthRequest, IJwtUser } from "../types/types";
 import { redisClient } from "../services/redis";
+import { CACHE_KEYS } from "../utils/redis/cache";
 
 export const verifyAuthToken: RequestHandler = async (
   req: IAuthRequest,
@@ -24,7 +25,7 @@ export const verifyAuthToken: RequestHandler = async (
     ) as IJwtUser;
 
     // 2. STATEFUL CHECK: Verify the session exists in Upstash
-    const sessionKey = `session:${payload.id}:${payload.sessionId}`;
+    const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
     const sessionActive = await redisClient.exists(sessionKey);
 
     if (!sessionActive) {

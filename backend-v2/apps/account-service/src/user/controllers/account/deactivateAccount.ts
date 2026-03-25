@@ -1,5 +1,5 @@
 import { UserModel } from "@repo/database";
-import { IAuthRequest, invalidatePattern } from "@repo/shared";
+import { CACHE_KEYS, IAuthRequest, invalidatePattern } from "@repo/shared";
 import { Response } from "express";
 
 export const deactivateAccount = async (
@@ -53,8 +53,6 @@ export const deactivateAccount = async (
       });
     }
 
-    const timestamp = Date.now();
-
     // Perform soft-delete by updating status and obfuscating the email
     await UserModel.findByIdAndUpdate(
       finalIdToProcess,
@@ -63,7 +61,6 @@ export const deactivateAccount = async (
           isDeactivated: true,
           deactivatedAt: new Date(),
           accountStatus: "DEACTIVATED",
-          // email: `${userToExclude.email}_deactivated_${timestamp}`,
           verificationCode: null,
           pendingEmail: null,
         },
@@ -72,7 +69,10 @@ export const deactivateAccount = async (
     );
 
     // This clears the profile, any list data, and metadata associated with that ID
-    await invalidatePattern(`user:*:${finalIdToProcess}*`);
+    await Promise.all([
+      invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(finalIdToProcess)),
+      invalidatePattern(CACHE_KEYS.WILDCARD_USER_SESSIONS(finalIdToProcess)),
+    ]);
 
     // Remove authentication cookies if the user deactivated their own account
     if (isDeactivatingSelf) {

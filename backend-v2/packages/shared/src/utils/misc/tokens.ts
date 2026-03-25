@@ -3,6 +3,7 @@ import { Response } from "express";
 import crypto from "crypto";
 import { IAuthRequest } from "../../types/types";
 import { redisClient } from "../../services/redis";
+import { CACHE_KEYS } from "../redis/cache";
 
 export const genAccessTokens = (
   user: any,
@@ -53,7 +54,8 @@ export const genRefreshTokens = async (
 
   // REGISTER SESSION IN UPSTASH
   // We use IAuthRequest to safely access headers and IP
-  const sessionKey = `session:${userId}:${sessionId}`;
+  const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
+
   await redisClient.set(
     sessionKey,
     {

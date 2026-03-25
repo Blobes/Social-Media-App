@@ -87,8 +87,11 @@ router.use("/auth", proxyTo("ACCOUNT_URL"));
 // Handles: api.funstakes.net/user
 router.use("/user", proxyTo("ACCOUNT_URL"));
 
-// Handles: api.funstakes.net/post
-router.use("/post", proxyTo("POST_URL", "/post"));
+// Handles: api.funstakes.net/feed
+router.use("/feed", proxyTo("POST_URL"));
+
+// Handles: api.funstakes.net/gist
+router.use("/gists", proxyTo("POST_URL"));
 
 // Handles: api.funstakes.net/worker
 router.use("/worker", proxyTo("WORKER_URL", "/worker"));

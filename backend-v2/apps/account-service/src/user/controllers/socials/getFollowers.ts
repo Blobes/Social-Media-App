@@ -5,6 +5,7 @@ import {
   getOrSetCache,
   decorateUserSocial,
   getStaticUserList,
+  CACHE_KEYS,
 } from "@repo/shared";
 import { FollowModel } from "@repo/database";
 
@@ -30,7 +31,7 @@ export const getFollowers = async (
     const skip = (page - 1) * limit;
 
     // Use a generic cache key to maximize hit rate across all visitors
-    const cacheKey = `user:followers:${targetUserId}:p:${page}:l:${limit}`;
+    const cacheKey = CACHE_KEYS.USER_FOLLOWERS(targetUserId, page, limit);
 
     // 1. Fetch the "Neutral" list from Cache or MongoDB
     const neutralFollowers = await getOrSetCache(

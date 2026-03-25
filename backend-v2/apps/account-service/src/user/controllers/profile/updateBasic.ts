@@ -4,6 +4,7 @@ import {
   evaluateNotability,
   userSensitiveFields,
   invalidateCache,
+  CACHE_KEYS,
 } from "@repo/shared";
 import { Response } from "express";
 
@@ -75,7 +76,7 @@ export const updateBasicInfo = async (
     await user.save();
 
     // Invalidate the cache after successful save to ensure data consistency
-    await invalidateCache(`user:profile:${authUserId}`);
+    await invalidateCache(CACHE_KEYS.USER_PROFILE(authUserId));
 
     const safePayload = user.toObject();
 

@@ -1,5 +1,10 @@
 import { UserModel } from "@repo/database";
-import { IAuthRequest, hashCode, invalidateCache } from "@repo/shared";
+import {
+  CACHE_KEYS,
+  IAuthRequest,
+  hashCode,
+  invalidateCache,
+} from "@repo/shared";
 import { Response } from "express";
 
 export const verifyPhoneUpdate = async (
@@ -45,7 +50,7 @@ export const verifyPhoneUpdate = async (
     await user.save();
 
     // Invalidate the profile cache to ensure the new phone number is reflected immediately
-    await invalidateCache(`user:profile:${userId}`);
+    await invalidateCache(CACHE_KEYS.USER_PROFILE(userId));
 
     return res.status(200).json({
       status: "SUCCESS",

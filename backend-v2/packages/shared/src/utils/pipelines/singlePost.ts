@@ -68,7 +68,7 @@ export const getPostStaticData = (): PipelineStage[] => {
 };
 
 // Dynamic Post data
-export const getPostDynamicData = ({
+export const getPostSocialData = ({
   userId,
 }: {
   userId: string;

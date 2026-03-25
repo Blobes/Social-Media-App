@@ -2,16 +2,17 @@ import { UserModel } from "@repo/database";
 import { pruneDeadTopics, removeTopicsFromUser } from "@repo/shared";
 import cron from "node-cron";
 
+/**
+ * Monthly Cleanup: Removes topics with zero posts or users.
+ */
 export const initTopicCleanup = () => {
-  // '0 0 1 * *' = Minute 0, Hour 0, Day 1, Every Month, Every Weekday
+  // '0 0 1 * *' = Midnight on the 1st of every month
   cron.schedule("0 0 1 * *", async () => {
     try {
       console.log("[Background Task] Starting monthly topic cleanup...");
-
       const deletedCount = await pruneDeadTopics();
-
       console.log(
-        `[Background Task] Monthly cleanup finished. Removed ${deletedCount} stale topics.`,
+        `[Background Task] Cleanup finished. Removed ${deletedCount} topics.`,
       );
     } catch (error: any) {
       console.error("[Background Task] Monthly cleanup failed:", error.message);
@@ -20,11 +21,9 @@ export const initTopicCleanup = () => {
 };
 
 /**
- * Weekly Cleanup: Runs every Sunday at 00:00.
- * Prunes topics not viewed in the last 14 days.
+ * Weekly Cleanup: Prunes interests not viewed in the last 14 days.
  */
 export const initUserTopicCleanup = () => {
-  // '0 0 * * 0' = Every Sunday at midnight
   cron.schedule("0 0 * * 0", async () => {
     try {
       const fourteenDaysAgo = new Date();
@@ -34,26 +33,30 @@ export const initUserTopicCleanup = () => {
         `[Interest Pruning] Identifying topics stale since ${fourteenDaysAgo.toISOString()}`,
       );
 
-      // We only fetch users who actually have at least one stale topic to save memory
+      // 1. Path fix: Query against 'preferences.preferredTopics.lastViewed'
+      // 2. Select: Only bring back the preferences field to keep cursor memory low
       const cursor = UserModel.find({
-        "preferredTopics.lastViewed": { $lt: fourteenDaysAgo },
+        "preferences.preferredTopics.lastViewed": { $lt: fourteenDaysAgo },
       })
-        .select("_id preferredTopics")
+        .select("preferences.preferredTopics")
         .cursor();
 
       let processedUsers = 0;
 
-      // Using a cursor for large datasets to avoid loading all users into RAM at once
       for (
         let user = await cursor.next();
         user != null;
         user = await cursor.next()
       ) {
-        const staleTopicIds = user.preferredTopics
+        // Accessing the nested array correctly
+        const topics = user.preferences?.preferredTopics || [];
+
+        const staleTopicIds = topics
           .filter((t: any) => t.lastViewed < fourteenDaysAgo)
-          .map((t: any) => t._id.toString());
+          .map((t: any) => t.topicId.toString()); // Schema fix: uses 'topicId', not '_id'
 
         if (staleTopicIds.length > 0) {
+          // Shared utility handles the atomic $pull from preferences.preferredTopics
           await removeTopicsFromUser(user._id.toString(), staleTopicIds);
           processedUsers++;
         }

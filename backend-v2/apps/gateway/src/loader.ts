@@ -1,7 +1,6 @@
 import express, { Express } from "express";
 import {
   corsConfig,
-  feedRouter,
   mediaRouter,
   reportRouter,
   topicRouter,
@@ -16,7 +15,6 @@ export default (app: Express) => {
   // Shared routes
   app.use("/report", reportRouter());
   app.use("/media", mediaRouter());
-  app.use("/feed", feedRouter());
   app.use("/topic", topicRouter());
 
   return app;

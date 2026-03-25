@@ -3,6 +3,10 @@ import { Response } from "express";
 import mongoose from "mongoose";
 import { IAuthRequest } from "../../types/types";
 
+/**
+ * Interface for the Topic Management payload.
+ * Extends IAuthRequest to ensure req.user is typed correctly.
+ */
 interface ManageRequest extends IAuthRequest {
   body: {
     topics: string[];
@@ -12,17 +16,23 @@ interface ManageRequest extends IAuthRequest {
   };
 }
 
+/**
+ * Orchestrates topic creation, on user preference settings, post creation and post engagement.
+ */
 export const manageTopics = async (
-  req: ManageRequest,
+  req: ManageRequest, // Using your custom interface here
   res: Response,
 ): Promise<any> => {
   const userId = req.user?.id;
+
+  // Now typed: topics is string[], actionType is restricted to the enum
   const { topics, targetId, targetModel, actionType } = req.body;
 
   if (!topics || !Array.isArray(topics) || topics.length === 0) {
-    return res
-      .status(400)
-      .json({ status: "ERROR", message: "A list of topics is required." });
+    return res.status(400).json({
+      status: "ERROR",
+      message: "A list of topics is required.",
+    });
   }
 
   try {
@@ -30,7 +40,10 @@ export const manageTopics = async (
       ...new Set(topics.map((t) => t.trim().toLowerCase())),
     ];
 
-    // Ensure Global Topics exist using Atomic Upsert
+    /**
+     * Atomic Upsert: Ensures global topics exist in the database.
+     * Experts use bulkWrite for O(1) database round trips.
+     */
     const topicOps = uniqueTitles.map((title) => ({
       updateOne: {
         filter: { title },
@@ -41,22 +54,43 @@ export const manageTopics = async (
 
     await TopicModel.bulkWrite(topicOps);
 
-    // Fetch the actual documents to get ObjectIds and standardized titles
-    const topicDocs = await TopicModel.find({ title: { $in: uniqueTitles } });
+    // Fetch the hydrated documents (ObjectIds) for the helper functions
+    const topicDocs = await TopicModel.find({
+      title: { $in: uniqueTitles },
+    }).lean();
 
-    // ROUTE SELECTION
-    if (actionType === "USER_PREFERENCE") {
-      await handleUserPreference(userId, topicDocs);
-    } else if (actionType === "POST_CREATION") {
-      if (!targetId || !targetModel) {
-        return res.status(400).json({
-          status: "ERROR",
-          message: "targetId and targetModel are required for POST_CREATION",
-        });
-      }
-      await handlePostCreation(targetId, targetModel, topicDocs);
-    } else if (actionType === "POST_ENGAGEMENT") {
-      await handlePostEngagement(userId, topicDocs);
+    // Logic Routing based on actionType
+    switch (actionType) {
+      case "USER_PREFERENCE":
+        if (!userId) {
+          return res
+            .status(401)
+            .json({ status: "ERROR", message: "User not authenticated" });
+        }
+        await onUserPreferenceSet(userId, topicDocs);
+        break;
+
+      case "POST_CREATION":
+        if (!targetId || !targetModel) {
+          return res.status(400).json({
+            status: "ERROR",
+            message: "targetId and targetModel are required for POST_CREATION",
+          });
+        }
+        await onPostCreation(targetId, targetModel, topicDocs);
+        break;
+
+      case "POST_ENGAGEMENT":
+        if (userId) {
+          await onPostEngagement(userId, topicDocs);
+        }
+        break;
+
+      default:
+        // TypeScript will actually flag this if you try to pass an invalid string
+        return res
+          .status(400)
+          .json({ status: "ERROR", message: "Invalid actionType" });
     }
 
     return res.status(200).json({
@@ -64,12 +98,18 @@ export const manageTopics = async (
       message: "Topics processed successfully",
     });
   } catch (error: any) {
-    return res.status(500).json({ message: error.message });
+    console.error(`[Topic Manager] Error during ${actionType}:`, error);
+    return res.status(500).json({
+      status: "ERROR",
+      message: error.message || "Internal server error",
+    });
   }
 };
 
-// Helper: Handle Post Topic Creation (Generic for Gists, Articles, etc.)
-async function handlePostCreation(
+/**
+ * Attaches new topic IDs to a post and increments global postCount.
+ */
+async function onPostCreation(
   targetId: string,
   targetModel: string,
   topicDocs: any[],
@@ -79,62 +119,60 @@ async function handlePostCreation(
 
   if (!post) throw new Error(`${targetModel} not found`);
 
-  // Filter out topics already present in the post
-  const existingPostTopicIds = post.topics.map((t: any) => t._id.toString());
-  const newTopicsForPost = topicDocs.filter(
-    (t) => !existingPostTopicIds.includes(t._id.toString()),
+  // topics in GistSchema is an array of ObjectIds
+  const existingPostTopicIds = (post.topics || []).map((id: any) =>
+    id.toString(),
   );
+  const newTopicIds = topicDocs
+    .filter((t) => !existingPostTopicIds.includes(t._id.toString()))
+    .map((t) => t._id);
 
-  if (newTopicsForPost.length > 0) {
-    const newIds = newTopicsForPost.map((t) => t._id);
-
-    // Update the Post document
-    await DynamicModel.updateOne(
-      { _id: targetId },
-      {
-        $push: {
-          topics: {
-            $each: newTopicsForPost.map((t) => ({
-              _id: t._id,
-              title: t.title,
-            })),
-          },
-        },
-      },
-    );
-
-    // Increment global postCount for these topics
-    await TopicModel.updateMany(
-      { _id: { $in: newIds } },
-      { $inc: { postCount: 1 } },
-    );
+  if (newTopicIds.length > 0) {
+    await Promise.all([
+      DynamicModel.updateOne(
+        { _id: targetId },
+        { $push: { topics: { $each: newTopicIds } } },
+      ),
+      TopicModel.updateMany(
+        { _id: { $in: newTopicIds } },
+        { $inc: { postCount: 1 } },
+      ),
+    ]);
   }
 }
-
-// Helper: Handle User Preferences (Onboarding/Manual Profile Update)
-async function handleUserPreference(
+/**
+ * Updates user preferences with new topics and increments global topic counts.
+ */
+async function onUserPreferenceSet(
   userId: string | undefined,
   topicDocs: any[],
 ) {
-  const user = await UserModel.findById(userId).select("preferredTopics");
+  if (!userId) throw new Error("User ID is required");
+
+  // 1. Ensure we select 'preferences' to match the schema nesting
+  const user = await UserModel.findById(userId).select("preferences");
   if (!user) throw new Error("User not found");
 
-  const existingPrefIds = user.preferredTopics.map((t: any) =>
-    t._id.toString(),
+  // 2. Safe navigation using Optional Chaining
+  const existingPrefIds = (user.preferences?.preferredTopics || []).map(
+    (t: any) => t.topicId.toString(),
   );
+
   const newTopics = topicDocs.filter(
     (t) => !existingPrefIds.includes(t._id.toString()),
   );
 
   if (newTopics.length > 0) {
-    const newIds = newTopics.map((t) => t._id);
+    const newTopicIds = newTopics.map((t) => t._id);
+
+    // 3. FIX: Use the dot notation for nested updates in MongoDB
     await UserModel.updateOne(
       { _id: userId },
       {
         $push: {
-          preferredTopics: {
+          "preferences.preferredTopics": {
             $each: newTopics.map((t) => ({
-              _id: t._id,
+              topicId: t._id, // Matches your schema key 'topicId'
               title: t.title,
               lastViewed: new Date(),
             })),
@@ -142,24 +180,28 @@ async function handleUserPreference(
         },
       },
     );
+
+    // 4. Update the global topic counts
     await TopicModel.updateMany(
-      { _id: { $in: newIds } },
+      { _id: { $in: newTopicIds } },
       { $inc: { userCount: 1 } },
     );
   }
 }
 
-// Helper: Handle User Engagement (Updates lastViewed or Adds missing topics)
-async function handlePostEngagement(
-  userId: string | undefined,
-  topicDocs: any[],
-) {
-  const user = await UserModel.findById(userId).select("preferredTopics");
+/**
+ * Updates 'lastViewed' for existing topics or adds new ones upon post engagement.
+ */
+async function onPostEngagement(userId: string | undefined, topicDocs: any[]) {
+  if (!userId) return; // Silent return for unauthenticated engagement
+
+  const user = await UserModel.findById(userId).select("preferences");
   if (!user) throw new Error("User not found");
 
-  const existingPrefIds = user.preferredTopics.map((t: any) =>
-    t._id.toString(),
-  );
+  const preferredTopics = user.preferences?.preferredTopics || [];
+
+  const existingPrefIds = preferredTopics.map((t: any) => t.topicId.toString());
+
   const toAdd = topicDocs.filter(
     (t) => !existingPrefIds.includes(t._id.toString()),
   );
@@ -167,16 +209,16 @@ async function handlePostEngagement(
     existingPrefIds.includes(t._id.toString()),
   );
 
-  // 1. Add topics the user doesn't have yet
+  // 1. Add topics the user hasn't interacted with yet
   if (toAdd.length > 0) {
     const addIds = toAdd.map((t) => t._id);
     await UserModel.updateOne(
       { _id: userId },
       {
         $push: {
-          preferredTopics: {
+          "preferences.preferredTopics": {
             $each: toAdd.map((t) => ({
-              _id: t._id,
+              topicId: t._id,
               title: t.title,
               lastViewed: new Date(),
             })),
@@ -184,19 +226,26 @@ async function handlePostEngagement(
         },
       },
     );
+
+    // Increment global topic popularity
     await TopicModel.updateMany(
       { _id: { $in: addIds } },
       { $inc: { userCount: 1 } },
     );
   }
 
-  // 2. Refresh lastViewed for topics user already has
+  // 2. Refresh lastViewed for topics already in their preference list
   if (toUpdateDate.length > 0) {
     const updateIds = toUpdateDate.map((t) => t._id);
+
     await UserModel.updateOne(
       { _id: userId },
-      { $set: { "preferredTopics.$[elem].lastViewed": new Date() } },
-      { arrayFilters: [{ "elem._id": { $in: updateIds } }] },
+      {
+        $set: { "preferences.preferredTopics.$[elem].lastViewed": new Date() },
+      },
+      {
+        arrayFilters: [{ "elem.topicId": { $in: updateIds } }],
+      },
     );
   }
 }
