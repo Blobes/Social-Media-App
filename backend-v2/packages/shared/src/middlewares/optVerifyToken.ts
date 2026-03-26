@@ -1,28 +1,42 @@
-import { Response, NextFunction, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
+import { Response, NextFunction, RequestHandler } from "express";
 import { IAuthRequest, IJwtUser } from "../types/types";
+import { redisClient } from "../services/redis";
+import { CACHE_KEYS } from "../utils/redis/cache";
 
-export const optVerifyToken: RequestHandler = (
+/**
+ * Optional Authentication Middleware.
+ * If a token exists but the session is revoked in Redis, clear the cookies to keep the client state clean.
+ */
+export const optVerifyToken: RequestHandler = async (
   req: IAuthRequest,
   res: Response,
   next: NextFunction,
-) => {
+): Promise<void> => {
   const token = req.cookies.access_token;
 
-  if (!token) {
-    // No token just continue as guest
+  if (!token) return next();
+
+  try {
+    // Verify JWT Signature and expiration
+    const payload = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string,
+    ) as IJwtUser;
+
+    // STATEFUL CHECK: Verify the session exists in Upstash (Redis)
+    const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
+    const sessionActive = await redisClient.exists(sessionKey);
+
+    if (sessionActive) {
+      // Attach user data only if the session is still valid in our store
+      req.user = payload;
+    } else {
+      res.clearCookie("access_token");
+      res.clearCookie("refresh_token");
+    }
+    next();
+  } catch (err) {
     next();
   }
-
-  jwt.verify(
-    token,
-    process.env.JWT_SECRET as string,
-    (err: jwt.VerifyErrors | null, payload: unknown) => {
-      if (!err) {
-        req.user = payload as IJwtUser; // attach user if valid
-      }
-      // If invalid, just continue as guest (do not block)
-      next();
-    },
-  );
 };
