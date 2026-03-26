@@ -19,19 +19,26 @@ export const pingServices = () => {
     console.log("[Pinger] Background wake-up initiated for Account Service...");
 
     // We use a separate async execution to prevent socket contention
-    services.forEach((url) => {
-      fetch(url as string, {
-        method: "GET",
-        headers: {
-          "User-Agent": "Funstakes-Gateway-Pinger",
-        },
-      })
-        .then(() => console.log(`[Pinger] Successfully poked ${url}`))
-        .catch((err) =>
-          console.error(`[Pinger] Poke failed for ${url}:`, err.message),
-        );
-    });
+    setTimeout(() => {
+      services.forEach((url) => {
+        fetch(url as string, {
+          method: "GET",
+          headers: {
+            "User-Agent": "Funstakes-Gateway-Pinger",
+          },
+        })
+          .then(() => console.log(`[Pinger] Successfully poked ${url}`))
+          .catch((err) =>
+            console.error(`[Pinger] Poke failed for ${url}:`, err.message),
+          );
+      });
+    }, 5000);
 
     lastWakeTime = now;
   }
+};
+
+export const isNotPingableRoute = (path: string) => {
+  const prefixes = ["/account", "/auth", "/user"];
+  return prefixes.some((prefix) => path.startsWith(prefix));
 };

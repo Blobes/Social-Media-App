@@ -2,7 +2,7 @@ import express from "express";
 import { healthRouter, initEnv, initRedis, redisClient } from "@repo/shared";
 import gatewayRoutes from "./proxy";
 import appLoader from "./loader";
-import { pingServices } from "./middleware/pinger";
+import { isNotPingableRoute, pingServices } from "./middleware/pinger";
 import { rateLimiter } from "./middleware/rateLimiter";
 
 const startGateway = async () => {
@@ -40,11 +40,8 @@ const startGateway = async () => {
 
   // 6. Service Pinger (only runs for actual user traffic)
   app.use((req, res, next) => {
-    const shouldNotPing = ["/keep-alive", "/health"].includes(req.path);
-    if (!shouldNotPing) {
-      // Execute without 'awaiting' and without blocking next()
-      setImmediate(() => pingServices());
-    }
+    const isSystemRoute = ["/keep-alive", "/health"].includes(req.path);
+    if (!isSystemRoute && !isNotPingableRoute(req.path)) pingServices();
     next();
   });
 
