@@ -675,3 +675,34 @@ message:
 },
 },
 };
+
+const handleProxyError = (
+err: any,
+req: any,
+res: Response,
+envVarName: string,
+) => {
+const target = process.env[envVarName];
+const isRetryable = ["ECONNREFUSED", "ETIMEDOUT", "ECONNRESET"].includes(
+err.code,
+);
+req.retryCount = (req.retryCount || 0) + 1;
+
+if (isRetryable && req.retryCount <= 15) {
+console.log(
+`[Proxy] ${envVarName} is warming up. Attempt ${req.retryCount}/15...`,
+);
+return setTimeout(() => {
+const retryProxy = createProxyMiddleware({
+target,
+changeOrigin: true,
+on: {
+error: (err, req, res) =>
+handleProxyError(err, req, res as any, envVarName),
+},
+});
+retryProxy(req, res as any, () => {});
+}, 3000);
+}
+res.status(502).json({ error: "Service Unavailable", service: envVarName });
+};

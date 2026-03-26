@@ -10,11 +10,16 @@ export default (app: Express) => {
   app.use(express.urlencoded({ limit: "30mb", extended: true }));
   app.use(cookieParser());
 
-  // Site health check
+  // Service health check:  api.funstakes.net/admin/health
   app.use("/health", healthRouter("ADMIN_SERVICE"));
 
+  // api.funstakes.net/admin
+  app.get("/", (req, res) => {
+    res.json({ message: "Welcome to Funstakes Admin Service API" });
+  });
+
   // ====== Routes ======
-  app.use("/v1", adminRoutes);
+  app.use("/", adminRoutes);
 
   return app;
 };

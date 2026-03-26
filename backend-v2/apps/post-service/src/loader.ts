@@ -11,21 +11,27 @@ export default (app: Express) => {
   app.use(express.urlencoded({ limit: "30mb", extended: true }));
   app.use(cookieParser());
 
-  // Site health check
+  // Service health check: api.funstakes.net/post/health
   app.use("/health", healthRouter("POST_SERVICE"));
 
-  // This handles: api.funstakes.net/feed
-  app.get("/feed", (req, res) => {
+  // This handles: api.funstakes.net/feed/test
+  app.get("/feed/test", (req, res) => {
     res.json({ message: "Welcome to Funstakes Feed API" });
   });
-  // This handles: api.funstakes.net/user
-  app.get("/gists", (req, res) => {
+
+  // This handles: api.funstakes.net/gists/test
+  app.get("/gists/test", (req, res) => {
     res.json({ message: "Welcome to Funstakes Gist API" });
   });
 
+  // This handles: api.funstakes.net/post
+  app.get("/", (req, res) => {
+    res.json({ message: "Welcome to Funstakes Post Service API" });
+  });
+
   // ====== Routes ======
-  app.use("/", feedRoutes);
-  app.use("/", gistRoutes);
+  app.use("/feed", feedRoutes);
+  app.use("/gists", gistRoutes);
 
   return app;
 };

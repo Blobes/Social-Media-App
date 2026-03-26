@@ -12,7 +12,7 @@ const startGateway = async () => {
   // Essential for getting real User IPs through Render's load balancer
   app.set("trust proxy", 1);
 
-  const PORT = process.env.PORT || 8000;
+  const PORT = process.env.GATEWAY_PORT || 8000;
 
   // 1. Initialize Redis configuration
   initRedis();

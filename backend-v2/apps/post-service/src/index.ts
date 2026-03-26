@@ -6,7 +6,7 @@ const startServer = async () => {
   initEnv(); // Load the environment first
 
   const app = express();
-  const port = process.env.GIST_PORT || 8081;
+  const port = process.env.POST_PORT || 8081;
   const mongoUri = process.env.MONGO_URI || "";
 
   try {

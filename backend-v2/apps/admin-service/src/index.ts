@@ -12,6 +12,7 @@ const startServer = async () => {
   try {
     monitorProcess();
     await connectDB(mongoUri);
+
     appLoader(app);
 
     app.listen(port, () => {

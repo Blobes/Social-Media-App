@@ -1,103 +1,76 @@
+import type { IncomingMessage } from "http";
 import { Router, Request, Response, NextFunction } from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
 const router: Router = Router();
 
 /**
- * REUSABLE ERROR HANDLER:
- * Detects if a service is "cold" and retries the request until it wakes up.
+ * Handles proxy connection errors and prevents the Gateway from crashing.
  */
 const handleProxyError = (
   err: any,
-  req: any,
+  req: Request,
   res: Response,
   envVarName: string,
-  pathPattern: string,
 ) => {
-  const target = process.env[envVarName];
-  const isRetryable = ["ECONNREFUSED", "ETIMEDOUT", "ECONNRESET"].includes(
-    err.code,
-  );
-
-  // Track retries on the request object to avoid infinite loops
-  req.retryCount = (req.retryCount || 0) + 1;
-
-  // Retry every 3 seconds, up to 15 times (~45 seconds total window for Render boot)
-  if (isRetryable && req.retryCount <= 15) {
-    console.log(
-      `[Proxy] ${envVarName} is cold. Retrying ${req.retryCount}/15...`,
-    );
-    return setTimeout(() => {
-      const retryProxy = createProxyMiddleware({
-        changeOrigin: true,
-        proxyTimeout: 90000,
-        timeout: 90000,
-        target,
-        pathRewrite: { [`^${pathPattern}`]: "" },
-        // Recursively call the same error handler if it fails again
-        on: {
-          error: (err, req, res) =>
-            handleProxyError(err, req, res as any, envVarName, pathPattern),
-        },
-      });
-      retryProxy(req, res as any, () => {});
-    }, 3000);
-  }
-  // Final failure if the service doesn't wake up after 15 attempts
-  console.error(`[Proxy Fatal Error] ${envVarName}: ${err.message}`);
-  res.status(502).json({
-    error: "Bad Gateway",
-    service: envVarName.replace("_URL", "").toLowerCase(),
-    message:
-      "The service failed to wake up in time. Please refresh in a moment.",
-  });
+  console.error(`[Proxy Error] Failed to reach ${envVarName}:`, err.message);
+  res.status(502).json({ error: "Service Unavailable", target: envVarName });
 };
 
 /**
- * Dynamic Proxy Wrapper
- * This function creates the proxy only when the request hits the route,
- * ensuring process.env values are fully loaded.
+ * Proxy Handler
+ * @param prefixes - Array of paths to match (e.g., ["/auth", "/user"] or ["/admin"])
+ * @param envVarName - The target service URL from process.env
+ * @param shouldStrip - Whether to remove the prefix before forwarding to the service
  */
-const proxyTo = (envVarName: string, pathPattern?: string) => {
+export const proxyService = (
+  prefixes: string[],
+  envVarName: string,
+  shouldStrip: boolean = false,
+) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const target = process.env[envVarName];
     if (!target)
       return res.status(500).json({ error: `Config missing: ${envVarName}` });
 
-    // Only rewrite if a pattern is actually provided
-    const pathRewrite = pathPattern ? { [`^${pathPattern}`]: "" } : undefined;
+    // Check if the current request path matches any of our prefixes
+    const matchedPrefix = prefixes.find((p) => req.path.startsWith(p));
+    if (!matchedPrefix) return next();
 
     return createProxyMiddleware({
       target,
       changeOrigin: true,
       secure: true,
-      proxyTimeout: 90000,
-      pathRewrite,
+      xfwd: true,
+
+      pathRewrite: shouldStrip ? { [`^${matchedPrefix}`]: "" } : undefined,
       on: {
+        proxyReq: (proxyReq, req: any) => {
+          console.log(
+            `[Gateway] Proxying ${req.originalUrl} -> ${target}${proxyReq.path}`,
+          );
+        },
         error: (err, req, res) =>
-          handleProxyError(err, req, res as any, envVarName, pathPattern || ""),
+          handleProxyError(err, req as any, res as Response, envVarName),
       },
     })(req, res, next);
   };
 };
 
-// --- Route Mapping ---
-// Handles: api.funstakes.net/auth
-router.use("/auth", proxyTo("ACCOUNT_URL", "/auth"));
+// --- Standardized Route Mapping ---
 
-// Handles: api.funstakes.net/user
-router.use("/user", proxyTo("ACCOUNT_URL", "/user"));
+// ACCOUNT SERVICE
+router.use(proxyService(["/auth", "/user"], "ACCOUNT_URL", false));
+router.use(proxyService(["/account"], "ACCOUNT_URL", true));
 
-// Handles: api.funstakes.net/feed
-router.use("/feed", proxyTo("POST_URL", "/feed"));
+// POST SERVICE
+router.use(proxyService(["/feed", "/gists"], "POST_URL", false));
+router.use(proxyService(["/post"], "POST_URL", true));
 
-// Handles: api.funstakes.net/gist
-router.use("/gists", proxyTo("POST_URL", "/gists"));
+// ADMIN SERVICE
+router.use(proxyService(["/admin"], "ADMIN_URL", true));
 
-// Handles: api.funstakes.net/worker
-router.use("/worker", proxyTo("WORKER_URL", "/worker"));
-
-// Handles: api.funstakes.net/admin
-router.use("/admin", proxyTo("ADMIN_URL", "/admin"));
+// WORKER SERVICE
+router.use(proxyService(["/worker"], "WORKER_URL", true));
 
 export default router;
