@@ -42,7 +42,6 @@ export const proxyService = (
       changeOrigin: true,
       secure: true,
       xfwd: true,
-
       pathRewrite: shouldStrip ? { [`^${matchedPrefix}`]: "" } : undefined,
       on: {
         proxyReq: (proxyReq, req: any) => {
@@ -60,12 +59,12 @@ export const proxyService = (
 // --- Standardized Route Mapping ---
 
 // ACCOUNT SERVICE
-router.use(proxyService(["/auth", "/user"], "ACCOUNT_URL", false));
 router.use(proxyService(["/account"], "ACCOUNT_URL", true));
+router.use(proxyService(["/auth", "/user"], "ACCOUNT_URL", false));
 
 // POST SERVICE
-router.use(proxyService(["/feed", "/gists"], "POST_URL", false));
 router.use(proxyService(["/post"], "POST_URL", true));
+router.use(proxyService(["/feed", "/gists"], "POST_URL", false));
 
 // ADMIN SERVICE
 router.use(proxyService(["/admin"], "ADMIN_URL", true));

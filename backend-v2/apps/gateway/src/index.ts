@@ -40,8 +40,8 @@ const startGateway = async () => {
 
   // 6. Service Pinger (only runs for actual user traffic)
   app.use((req, res, next) => {
-    const isSystemRoute = ["/keep-alive", "/health", "/"].includes(req.path);
-    if (!isSystemRoute) {
+    const shouldNotPing = ["/keep-alive", "/health"].includes(req.path);
+    if (!shouldNotPing) {
       // Execute without 'awaiting' and without blocking next()
       setImmediate(() => pingServices());
     }

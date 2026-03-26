@@ -10,7 +10,9 @@ export const pingServices = () => {
 
   if (now - lastWakeTime > WAKE_INTERVAL) {
     // Only target the specific service that needs waking
-    const services = [process.env.ACCOUNT_URL].filter(Boolean);
+    const services = [process.env.ACCOUNT_URL]
+      .filter(Boolean)
+      .map((url) => (url?.endsWith("/") ? `${url}health` : `${url}/health`));
 
     if (services.length === 0) return;
 
@@ -18,7 +20,12 @@ export const pingServices = () => {
 
     // We use a separate async execution to prevent socket contention
     services.forEach((url) => {
-      fetch(url as string)
+      fetch(url as string, {
+        method: "GET",
+        headers: {
+          "User-Agent": "Funstakes-Gateway-Pinger",
+        },
+      })
         .then(() => console.log(`[Pinger] Successfully poked ${url}`))
         .catch((err) =>
           console.error(`[Pinger] Poke failed for ${url}:`, err.message),

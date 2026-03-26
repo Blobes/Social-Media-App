@@ -14,16 +14,16 @@ export default (app: Express) => {
   // Service health check: api.funstakes.net/account/health
   app.use("/health", healthRouter("ACCOUNT_SERVICE"));
 
-  // This handles: api.funstakes.net/auth
+  // api.funstakes.net/auth
   app.get("/auth", (req, res) => {
     res.json({ message: "Welcome to Funstakes Auth API" });
   });
-  // This handles: api.funstakes.net/user
+  // api.funstakes.net/user
   app.get("/user", (req, res) => {
     res.json({ message: "Welcome to Funstakes User API" });
   });
 
-  // This handles: api.funstakes.net/account
+  // api.funstakes.net/account
   app.get("/", (req, res) => {
     res.json({ message: "Welcome to Funstakes Account Service API" });
   });
