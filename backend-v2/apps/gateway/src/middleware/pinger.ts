@@ -32,7 +32,7 @@ export const pingServices = () => {
             console.error(`[Pinger] Poke failed for ${url}:`, err.message),
           );
       });
-    }, 5000);
+    }, 3000); // Wait 3 seconds
 
     lastWakeTime = now;
   }
