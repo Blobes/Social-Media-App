@@ -41,6 +41,8 @@ export const proxyService = (
       target,
       changeOrigin: true,
       secure: true,
+      timeout: 120000,
+      proxyTimeout: 120000,
       xfwd: true,
       pathRewrite: shouldStrip ? { [`^${matchedPrefix}`]: "" } : undefined,
       on: {

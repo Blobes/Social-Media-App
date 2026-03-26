@@ -15,33 +15,30 @@ export const getGistList = async (
   req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
-  const userId = req.user?.id as string;
+  const userId = req.user?.id;
 
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const skip = (page - 1) * limit;
 
-    // --- 1. GLOBAL CACHE LAYER (Shared across all users) ---
     const globalCacheKey = CACHE_KEYS.POST_TYPE_FEED("GIST", page, limit);
 
-    const { staticGists, totalCount } = await getOrSetCache(
-      globalCacheKey,
-      async () => {
-        const total = await GistModel.countDocuments({ status: "ACTIVE" });
-        const pipeline = getStaticPostList({
-          matchFilter: { status: "ACTIVE" },
-          postType: "GIST",
-          limit: limit + 10, // Buffer for personalization filtering
-          skip,
-        });
+    const cachedData = await getOrSetCache(globalCacheKey, async () => {
+      const total = await GistModel.countDocuments({ status: "ACTIVE" });
+      const pipeline = getStaticPostList({
+        matchFilter: { status: "ACTIVE" },
+        postType: "GIST",
+        limit: limit + 10,
+        skip,
+      });
 
-        const data = await GistModel.aggregate(pipeline);
-        return { staticGists: data, totalCount: total };
-      },
-    );
+      const data = await GistModel.aggregate(pipeline);
+      return { staticGists: data, totalCount: total };
+    });
 
-    // Early exit if no data
+    const { staticGists, totalCount } = cachedData;
+
     if (!staticGists || staticGists.length === 0) {
       return res.status(200).json({
         status: "SUCCESS",
@@ -50,34 +47,48 @@ export const getGistList = async (
       });
     }
 
-    // --- 2. PERSONALIZATION LAYER (Unique to this user) ---
-    let finalPayload = staticGists;
+    let finalPayload = staticGists.slice(0, limit);
+
     if (userId) {
       const userPreferences = await getUserPreferences(userId, req.user);
-      // Rank and Filter
       const personalizedGists = personalizeFeed(staticGists, userPreferences);
-
-      // Trim to the actual requested page size
       const candidateGists = personalizedGists.slice(0, limit);
-      const gistIds = candidateGists.map((g: any) => g._id);
 
-      // --- 3. DYNAMIC HYDRATION (Social Flags) ---
-      // This query hits only the indexes for the specific posts shown
+      // CRITICAL FIX: Ensure IDs are handled as ObjectIds for the $match
+      // but kept as Strings for the $indexOfArray comparison.
+
+      const gistIdsAsObjects = candidateGists.map(
+        (g: any) => new mongoose.Types.ObjectId(String(g._id)),
+      );
+      const gistIdsAsStrings = candidateGists.map((g: any) => String(g._id));
+
       const socialData = await GistModel.aggregate([
         {
           $match: {
-            _id: { $in: gistIds.map((id) => new mongoose.Types.ObjectId(id)) },
+            _id: { $in: gistIdsAsObjects },
           },
         },
-        { $addFields: { postType: "GIST" } },
-        { $addFields: { __order: { $indexOfArray: [gistIds, "$_id"] } } },
+        // Converting the document _id to string so it matches the gistIdsAsStrings array type
+        {
+          $addFields: {
+            postType: "GIST",
+            stringId: { $toString: "$_id" },
+          },
+        },
+        {
+          $addFields: {
+            __order: { $indexOfArray: [gistIdsAsStrings, "$stringId"] },
+          },
+        },
         { $sort: { __order: 1 } },
         ...getPostSocialData({ userId: String(userId) }),
       ]);
 
-      // Merge Social Booleans (Likes/Follows) into the Personalized Gists
-      finalPayload = candidateGists.map((gist: any, index: number) => {
-        const social = socialData[index];
+      // Map the social data back using a Map for O(1) lookup to prevent index errors
+      const socialMap = new Map(socialData.map((s) => [String(s._id), s]));
+
+      finalPayload = candidateGists.map((gist: any) => {
+        const social = socialMap.get(String(gist._id));
         return {
           ...gist,
           likedByMe: social?.likedByMe || false,
@@ -89,7 +100,7 @@ export const getGistList = async (
         };
       });
     }
-    // --- 4. RESPONSE ---
+
     return res.status(200).json({
       status: "SUCCESS",
       payload: finalPayload,
@@ -103,10 +114,10 @@ export const getGistList = async (
       },
     });
   } catch (error: any) {
-    console.error("Fetch Gists List Error:", error);
+    console.error("Fetch Gists List Error Details:", error);
     return res.status(500).json({
       status: "ERROR",
-      message: "Internal Server Error",
+      message: error.message || "Internal Server Error",
     });
   }
 };
