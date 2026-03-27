@@ -2,11 +2,7 @@ import express from "express";
 import { healthRouter, initEnv, initRedis, redisClient } from "@repo/shared";
 import gatewayRoutes from "./proxy";
 import appLoader from "./loader";
-import {
-  isNotPingableRoute,
-  isSystemRoute,
-  pingServices,
-} from "./middleware/pinger";
+import { isSystemRoute, pingServices } from "./middleware/pinger";
 import { rateLimiter } from "./middleware/rateLimiter";
 
 const startGateway = async () => {
@@ -43,16 +39,8 @@ const startGateway = async () => {
   // Load Global Middleware (CORS, Parsers, etc.)
   appLoader(app);
 
-  // Protect the entire stack with Rate Limiting
-  // 100 requests per 60s window
+  // Protect the entire stack with Rate Limiting – 100 requests per 60s window
   app.use(rateLimiter(100, 60));
-
-  // Service Pinger (only runs for actual user traffic)
-  // app.use((req, res, next) => {
-  //   const isSystemRoute = ["/keep-alive", "/health"].includes(req.path);
-  //   if (!isSystemRoute && !isNotPingableRoute(req.path)) pingServices();
-  //   next();
-  // });
 
   // api.funstake.net
   app.get("/", (req, res) => {

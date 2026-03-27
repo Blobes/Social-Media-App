@@ -42,39 +42,30 @@ const loginUser = async (req: LoginRequest, res: Response): Promise<any> => {
   const idType = getIdentifierType(normalizedIdentifier);
 
   try {
-    // 1. Find active user
+    // Find user
     let user = await UserModel.findOne({
       $or: [
         { email: normalizedIdentifier },
         { username: { $regex: new RegExp(`^${normalizedIdentifier}$`, "i") } },
         { phoneNumber: normalizedIdentifier },
       ],
-    });
+    }).setOptions({ skipFilter: true });
 
-    // 2. Handle Deactivated or Not Found
+    // Handle User Not Found
     if (!user) {
-      const deactivatedUser = await UserModel.findOne({
-        $or: [
-          {
-            email: {
-              $regex: new RegExp(`^${normalizedIdentifier}_deactivated_`, "i"),
-            },
-          },
-        ],
-      }).setOptions({ skipFilter: true });
-
-      if (deactivatedUser) {
-        return res.status(200).json({
-          status: "DEACTIVATED",
-          message: `The account associated with this ${idType.toLowerCase()} is deactivated. Please restore it to log in.`,
-          payload: { userId: deactivatedUser._id },
-        });
-      }
-
       return res.status(400).json({
         status: "ERROR",
         message: `${idType} not found. Please check your spelling and try again.`,
         payload: null,
+      });
+    }
+
+    // Handle Deactivated User
+    if (user.isDeactivated) {
+      return res.status(200).json({
+        status: "DEACTIVATED",
+        message: `The account associated with this ${idType.toLowerCase()} is deactivated. Please restore it to log in.`,
+        payload: { userId: user._id },
       });
     }
 
@@ -88,7 +79,7 @@ const loginUser = async (req: LoginRequest, res: Response): Promise<any> => {
       });
     }
 
-    // 4. Token Generation
+    // Token Generation
     const sessionId = uuidv4();
     const accessToken = genAccessTokens(
       user,
@@ -103,7 +94,7 @@ const loginUser = async (req: LoginRequest, res: Response): Promise<any> => {
       sessionId,
     );
 
-    // 5. Sanitize response
+    // Sanitize response
     const safeData = user.toObject();
     userSensitiveFields().forEach((field) => {
       delete (safeData as any)[field];

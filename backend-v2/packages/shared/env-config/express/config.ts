@@ -53,7 +53,23 @@ export const connectDB = async (mongoUri: string) => {
 // Configure cors
 export const corsConfig = (): any => {
   const allowedOrigins = [
-    // Local Development
+    // Backend Production Deployments
+    "https://api.funstakes.net", // Gateway
+
+    // Backend Local Deployments
+    "http://localhost:8000", // Gateway
+    "http://localhost:8080", // Account
+    "http://localhost:8081", // Post
+    "http://localhost:8083", // Worker
+    "http://localhost:8084", // Admin
+
+    // Frontend Production Deployments
+    "https://funstakes.net", // Main frontend
+    "https://www.funstakes.net", // www version
+    "https://funstakes.vercel.app",
+    "https://funstakes-auth.vercel.app",
+
+    // Frontend Local Deployments
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:3002",
@@ -62,14 +78,7 @@ export const corsConfig = (): any => {
     "http://localhost:3005",
     "http://localhost:3006",
 
-    // Production Domains
-    "https://funstakes.net", // Your main frontend
-    "https://www.funstakes.net", // www version
-    "https://api.funstakes.net", // The gateway itself
-
     // Legacy/Preview Deployments
-    "https://funstakes.vercel.app",
-    "https://funstakes-auth.vercel.app",
     "https://funstakes.onrender.com",
   ];
 

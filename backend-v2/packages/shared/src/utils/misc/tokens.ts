@@ -26,8 +26,8 @@ export const genAccessTokens = (
 
   res.cookie("access_token", accessToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: !isLocalDev ? "lax" : "none",
+    secure: !isLocalDev,
+    sameSite: isLocalDev ? "lax" : "none",
     path: "/",
     maxAge: 15 * 60 * 1000,
   });
@@ -68,8 +68,8 @@ export const genRefreshTokens = async (
 
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: !isLocalDev ? "lax" : "none",
+    secure: !isLocalDev,
+    sameSite: isLocalDev ? "lax" : "none",
     path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });

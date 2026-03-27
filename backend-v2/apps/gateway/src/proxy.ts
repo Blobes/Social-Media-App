@@ -1,10 +1,9 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import { pingServices } from "./middleware/pinger";
-import { isServiceAwake } from "./middleware/checkService";
+import { isServiceAwake } from "./middleware/checkServices";
 
 const router: Router = Router();
-
 /**
  * Handles proxy connection errors and prevents the Gateway from crashing.
  */
@@ -15,7 +14,6 @@ const handleProxyError = (
   envVarName: string,
 ) => {
   console.error(`[Proxy Error] ${envVarName} is likely sleeping:`, err.message);
-
   res.status(202).json({
     error: "Service warming up",
     message: "The service is starting. Please retry in 20 seconds.",
@@ -77,41 +75,6 @@ export const proxyService = (
     })(req, res, next);
   };
 };
-
-// export const proxyService = (
-//   prefixes: string[],
-//   envVarName: string,
-//   shouldStrip: boolean = false,
-// ) => {
-//   return (req: Request, res: Response, next: NextFunction) => {
-//     const target = process.env[envVarName];
-//     if (!target)
-//       return res.status(500).json({ error: `Config missing: ${envVarName}` });
-
-//     // Check if the current request path matches any of our prefixes
-//     const matchedPrefix = prefixes.find((p) => req.path.startsWith(p));
-//     if (!matchedPrefix) return next();
-
-//     return createProxyMiddleware({
-//       target,
-//       changeOrigin: true,
-//       secure: true,
-//       timeout: 120000,
-//       proxyTimeout: 120000,
-//       xfwd: true,
-//       pathRewrite: shouldStrip ? { [`^${matchedPrefix}`]: "" } : undefined,
-//       on: {
-//         proxyReq: (proxyReq, req: any) => {
-//           console.log(
-//             `[Gateway] Proxying ${req.originalUrl} -> ${target}${proxyReq.path}`,
-//           );
-//         },
-//         error: (err, req, res) =>
-//           handleProxyError(err, req as any, res as Response, envVarName),
-//       },
-//     })(req, res, next);
-//   };
-// };
 
 // --- Standardized Route Mapping ---
 // ACCOUNT SERVICE
