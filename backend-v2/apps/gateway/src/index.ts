@@ -36,6 +36,9 @@ const startGateway = async () => {
     next();
   });
 
+  // Proxy to microservices
+  app.use("/", gatewayRoutes);
+
   // Load Global Middleware (CORS, Parsers, etc.)
   appLoader(app);
 
@@ -46,9 +49,6 @@ const startGateway = async () => {
   app.get("/", (req, res) => {
     res.json({ message: "Welcome to Funstakes API Gateway" });
   });
-
-  // Proxy to microservices
-  app.use("/", gatewayRoutes);
 
   app.listen(PORT, () => {
     console.log(`🚀 Gateway [${process.env.NODE_ENV}] running on port ${PORT}`);

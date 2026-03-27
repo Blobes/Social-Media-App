@@ -58,12 +58,8 @@ Content-Type: application/json
 }
 
 ### Verify User Auth
-POST {{baseUrl}}/auth/verify-auth
+GET {{baseUrl}}/auth/verify-auth
 Content-Type: application/json
-
-{
-  "email": "{{user1Email}}"
-}
 
 ### Logout
 POST {{baseUrl}}/auth/logout
