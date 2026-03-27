@@ -46,13 +46,11 @@ export const getGistList = async (
       });
     }
 
-    let finalPayload = staticGists.slice(0, limit);
+    let candidateGists = staticGists.slice(0, limit);
+    let socialMap = new Map(); // Setup Social Map (Only if logged in)
 
+    // Logic for logged in user
     if (userId) {
-      const userPreferences = await getUserPreferences(userId, req.user);
-      const personalizedGists = personalizeFeed(staticGists, userPreferences);
-      const candidateGists = personalizedGists.slice(0, limit);
-
       //  Ensure IDs are handled as ObjectIds for the $match
       // but kept as Strings for the $indexOfArray comparison.
       const gistIdsAsObjects = candidateGists.map(
@@ -71,28 +69,31 @@ export const getGistList = async (
         { $sort: { __order: 1 } },
         ...getPostSocialData({ userId: String(userId) }),
       ]);
-
       // Map the social data back using a Map for O(1) lookup to prevent index errors
-      const socialMap = new Map(
-        (socialData || []).map((s) => [String(s._id), s]),
-      );
+      socialMap = new Map((socialData || []).map((s) => [String(s._id), s]));
 
-      finalPayload = candidateGists.map((gist: any) => {
-        const gistIdStr = String(gist._id);
-        const social = socialMap.get(gistIdStr);
-        const gistObj = gist.toObject ? gist.toObject() : gist;
-        return {
-          ...gistObj,
-          likedByMe: social?.likedByMe || false,
-          author: {
-            _id: gistObj.authorId,
-            isFollowing: social?.isFollowing || false,
-            followsMe: social?.followsMe || false,
-            ...(social?.author || {}),
-          },
-        };
-      });
+      // Apply personalization if logged in
+      const userPreferences = await getUserPreferences(userId, req.user);
+      candidateGists = personalizeFeed(staticGists, userPreferences).slice(
+        0,
+        limit,
+      );
     }
+
+    const finalPayload = candidateGists.map((gist: any) => {
+      const gistIdStr = String(gist._id);
+      const social = socialMap.get(gistIdStr);
+      const gistObj = gist.toObject ? gist.toObject() : gist;
+      return {
+        ...gistObj,
+        likedByMe: social?.likedByMe ?? false,
+        author: {
+          ...(gistObj.author || {}),
+          isFollowing: social?.isFollowing ?? false,
+          followsMe: social?.followsMe ?? false,
+        },
+      };
+    });
 
     return res.status(200).json({
       status: "SUCCESS",
