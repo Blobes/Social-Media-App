@@ -93,20 +93,15 @@ export const validateText = async (
       result.confidence < CONTENT_POLICY.text.thresholds.aiConfidence;
 
     return {
-      isUnsure: isUnsure,
+      isFlagged: result.isFlagged || false,
+      isUnsure,
       ruleViolated: result.ruleViolated || null,
       severity: (result.severity as ISeverity) || null,
       reason: result.reason || null,
       extractedTopics: result.extractedKeywords || [],
     };
-  } catch (error) {
-    console.error("OpenAI Error:", error);
-    return {
-      isUnsure: false,
-      ruleViolated: "SYSTEM_ERROR",
-      severity: ISeverity.CRITICAL, // Treat system errors as Critical for safety
-      reason: "The text validation service is temporarily offline.",
-      extractedTopics: [],
-    };
+  } catch (error: any) {
+    console.error("OpenAI Service Error:", error.message);
+    throw error;
   }
 };

@@ -55,6 +55,7 @@ export const validateMedia = async (
           // Check for Violation
           if (weight >= thresholdWeight) {
             return {
+              isFlagged: true,
               isUnsure: false, // AI/Vision is certain of the threshold breach
               ruleViolated: category.toUpperCase(),
               severity: severityKey, // Now passing back the Severity for middleware logic
@@ -66,6 +67,7 @@ export const validateMedia = async (
           // Unsure/Near-miss logic: 1 level below threshold
           if (weight > 0 && weight === thresholdWeight - 1) {
             return {
+              isFlagged: true,
               isUnsure: true,
               ruleViolated: category.toUpperCase(),
               severity: severityKey,
@@ -99,14 +101,8 @@ export const validateMedia = async (
       reason: null,
       extractedTopics: finalTopics,
     };
-  } catch (error) {
-    console.error("Media Validation Error:", error);
-    return {
-      isUnsure: false,
-      ruleViolated: null,
-      severity: null,
-      reason: null,
-      extractedTopics: [],
-    };
+  } catch (error: any) {
+    console.error("Google Vision Service Error:", error.message);
+    throw error;
   }
 };

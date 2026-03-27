@@ -1,9 +1,9 @@
-import { IModeration } from "./types";
+import { IModerationReq } from "./types";
 
 declare global {
   namespace Express {
     interface Request {
-      moderation?: IModeration;
+      moderation?: IModerationReq;
     }
   }
 }

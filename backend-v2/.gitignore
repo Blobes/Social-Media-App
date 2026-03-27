@@ -32,4 +32,3 @@ yarn-error.log*
 # Others
 /note.md 
 /api-test
-/http-client.env.json

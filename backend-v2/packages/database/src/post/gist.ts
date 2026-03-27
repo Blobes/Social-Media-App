@@ -26,10 +26,13 @@ const GistSchema = new Schema(
     viewCount: { type: Number, default: 0 },
 
     // Discovery & Categorization
-    // topics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
     topics: [{ type: String }],
     location: {
-      name: { type: String, default: null },
+      name: { type: String },
+      type: {
+        type: String,
+        enum: ["Point"],
+      },
       coordinates: {
         type: [Number],
         index: "2dsphere",

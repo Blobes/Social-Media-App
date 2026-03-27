@@ -7,7 +7,6 @@ import {
   personalizeFeed,
   getUserPreferences,
   CACHE_KEYS,
-  invalidatePattern,
 } from "@repo/shared";
 import { Response } from "express";
 import mongoose from "mongoose";
@@ -26,9 +25,9 @@ export const getGistList = async (
     const globalCacheKey = CACHE_KEYS.POST_FEED_TYPE("GIST", page, limit);
 
     const cachedData = (await getOrSetCache(globalCacheKey, async () => {
-      const total = await GistModel.countDocuments({ status: "ACTIVE" });
+      const total = await GistModel.countDocuments({ status: "PUBLISHED" });
       const pipeline = getStaticPostList({
-        matchFilter: { status: "ACTIVE" },
+        matchFilter: { status: "PUBLISHED" },
         postType: "GIST",
         limit: limit + 10,
         skip,
@@ -81,19 +80,19 @@ export const getGistList = async (
       finalPayload = candidateGists.map((gist: any) => {
         const gistIdStr = String(gist._id);
         const social = socialMap.get(gistIdStr);
+        const gistObj = gist.toObject ? gist.toObject() : gist;
         return {
-          ...gist,
+          ...gistObj,
           likedByMe: social?.likedByMe || false,
           author: {
-            ...(gist.author || {}),
+            _id: gistObj.authorId,
             isFollowing: social?.isFollowing || false,
             followsMe: social?.followsMe || false,
+            ...(social?.author || {}),
           },
         };
       });
     }
-
-    invalidatePattern(CACHE_KEYS.WILDCARD_POST_FEED_TYPE("GIST"));
 
     return res.status(200).json({
       status: "SUCCESS",
@@ -115,3 +114,5 @@ export const getGistList = async (
     });
   }
 };
+
+//  invalidatePattern(CACHE_KEYS.WILDCARD_POST_FEED_TYPE("GIST"));

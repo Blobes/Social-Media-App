@@ -3,12 +3,12 @@ import {
   dispatchEmailCode,
   evaluateNotability,
   genAccessTokens,
-  generateRandomIP,
+  generateRandomIp,
   generateTestEmail,
   genRefreshTokens,
   genVerificationCode,
   getClientIp,
-  getLocationFromIP,
+  getLocationFromIp,
   hashCode,
   userSensitiveFields,
   IAuthRequest,
@@ -79,8 +79,8 @@ export const createAccount = async (
     const userIp = getClientIp(req);
 
     // 2. CAPTURE TEST/RANDOM DATA: For location and anonymization logic
-    const randomIp = generateRandomIP();
-    const userLocation = await getLocationFromIP(randomIp);
+    const randomIp = generateRandomIp();
+    const userLocation = await getLocationFromIp(randomIp);
 
     const sessionId = uuidv4();
 

@@ -25,11 +25,14 @@ export const getPostStaticData = (): PipelineStage[] => {
         commentCount: { $ifNull: ["$commentCount", 0] },
         shareCount: { $ifNull: ["$shareCount", 0] },
         viewCount: { $ifNull: ["$viewCount", 0] },
+        topics: { $ifNull: ["$topics", []] },
+        visibility: "$visibility",
+        location: "$location",
 
         // Constructing a robust Author object
         author: {
           _id: { $ifNull: ["$authorDetails._id", "$authorId"] },
-          username: { $ifNull: ["$authorDetails.username", "anonymous"] },
+          username: { $ifNull: ["$authorDetails.username", undefined] },
           firstName: { $ifNull: ["$authorDetails.firstName", ""] },
           lastName: { $ifNull: ["$authorDetails.lastName", ""] },
           profileImage: { $ifNull: ["$authorDetails.profileImage", null] },
@@ -61,14 +64,12 @@ export const getPostStaticData = (): PipelineStage[] => {
             { $eq: ["$postType", "GIST"] },
             {
               // Mapping to your Gist Schema (latestCaption)
-              content: { $ifNull: ["$latestCaption.caption", ""] },
-              contentId: { $ifNull: ["$latestCaption.captionId", "$_id"] },
+              caption: { $ifNull: ["$latestCaption.caption", ""] },
+              captionId: { $ifNull: ["$latestCaption.captionId", "$_id"] },
               updatedAt: {
                 $ifNull: ["$latestCaption.createdAt", "$createdAt"],
               },
               isEdited: { $gt: [{ $ifNull: ["$editCount", 0] }, 0] },
-              tags: { $ifNull: ["$tags", []] },
-              location: "$location",
             },
             {
               // Standard Stake structure
@@ -77,7 +78,6 @@ export const getPostStaticData = (): PipelineStage[] => {
               selection: { $ifNull: ["$selection", ""] },
               market: { $ifNull: ["$market", ""] },
               outcome: { $ifNull: ["$outcome", "PENDING"] },
-              isPublic: { $ifNull: ["$isPublic", true] },
             },
           ],
         },

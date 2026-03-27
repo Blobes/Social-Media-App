@@ -1,21 +1,44 @@
 import { Request } from "express";
 
-export async function getLocationFromIP(ip: string | undefined) {
+/**
+ * Fetches location data using ip-api.com.
+ */
+export async function getLocationFromIp(ip: string | undefined) {
+  // 1. Guard against local/internal IPs
+  if (!ip || ip === "::1" || ip === "127.0.0.1" || ip === "localhost") {
+    return null;
+  }
+
   try {
-    const response = await fetch(`https://ipwho.is/${ip}`);
+    // We use the JSON endpoint with specific fields to match your needs
+    const fields = "status,message,country,regionName,city,isp,lat,lon";
+    const response = await fetch(
+      `http://ip-api.com/json/${ip}?fields=${fields}`,
+    );
+
+    if (!response.ok) {
+      console.error(`Geo API HTTP Error: ${response.status}`);
+      return null;
+    }
+
     const data = (await response.json()) as any;
 
-    if (!data.success) return null;
+    if (data.status !== "success") {
+      console.warn("IP lookup logic failure:", data.message);
+      return null;
+    }
 
     return {
       country: data.country,
-      state: data.region,
+      state: data.regionName,
       city: data.city,
-      isp: data.connection?.isp,
-      flag: data.flag?.emoji,
+      isp: data.isp,
+      latitude: data.lat,
+      longitude: data.lon,
+      flag: null, // ip-api free tier does not provide emojis
     };
-  } catch (err) {
-    console.log("Geo error:", err);
+  } catch (err: any) {
+    console.error("Geo Network Error:", err.message);
     return null;
   }
 }
@@ -30,11 +53,10 @@ export const getClientIp = (req: Request) => {
 
   const ip =
     first(xff)?.split(",")[0] || first(xRealIp) || req.socket.remoteAddress;
-
   return ip;
 };
 
-export const generateRandomIP = () => {
+export const generateRandomIp = () => {
   const rand = () => Math.floor(Math.random() * 256); // 0–255
   return `${rand()}.${rand()}.${rand()}.${rand()}`;
 };

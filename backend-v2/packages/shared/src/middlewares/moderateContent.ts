@@ -150,9 +150,28 @@ export const moderateContent = async (
       reason: null,
     };
 
+    console.log("FINAL MODERATION OBJECT:", req.moderation);
     next();
-  } catch (error) {
+  } catch (error: any) {
     console.error("Moderation Guard Error:", error);
-    res.status(500).json({ error: "Internal Moderation Error" });
+
+    // If OpenAI fails (quota/network), allow the request to continue
+    // but flag it for manual review or set default topics.
+    if (error.status === 429 || error.code === "insufficient_quota") {
+      req.moderation = {
+        topics: topics || ["uncategorized"],
+        needsReview: true,
+        severity: null,
+        ruleViolated: "AI_QUOTA_EXCEEDED",
+        reason: "Moderation skipped due to API limits.",
+      };
+      return next();
+    }
+
+    // Fallback for other unexpected errors
+    return res.status(500).json({
+      status: "ERROR",
+      message: "Internal Moderation Error",
+    });
   }
 };

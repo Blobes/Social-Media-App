@@ -7,6 +7,9 @@ import {
   ISeverity,
   invalidatePattern,
   CACHE_KEYS,
+  getClientIp,
+  generateRandomIp,
+  getLocationFromIp,
 } from "@repo/shared";
 import { GistModel, PostCaptionModel } from "@repo/database";
 
@@ -40,7 +43,15 @@ const createGist = async (req: CreateRequest, res: Response): Promise<void> => {
 
     // 1. Create Gist Container
     const [newGist] = await GistModel.create(
-      [{ authorId: userId, mediaIds: [] }],
+      [
+        {
+          authorId: userId,
+          mediaIds: [],
+          latestCaption: {
+            caption: hasCaption ? caption!.trim() : "Pending...",
+          },
+        },
+      ],
       { session },
     );
 
@@ -54,7 +65,7 @@ const createGist = async (req: CreateRequest, res: Response): Promise<void> => {
     }
 
     // 3. Create Caption Version
-    const [initialContent] = await PostCaptionModel.create(
+    const [initialCaption] = await PostCaptionModel.create(
       [
         {
           postId: newGist._id,
@@ -66,18 +77,34 @@ const createGist = async (req: CreateRequest, res: Response): Promise<void> => {
       ],
       { session },
     );
-
-    // 4. Finalize the Container
-    newGist.latestCaption = {
-      captionId: initialContent._id,
-      caption: initialContent.caption,
-    };
+    // Media
     newGist.mediaIds = uploadedMediaIds;
+
+    // Finalize the Container
+    newGist.latestCaption = {
+      captionId: initialCaption._id,
+      caption: initialCaption.caption,
+    };
 
     // Add topics
     newGist.topics = req.moderation?.topics || [];
 
-    // 5. Apply AI Moderation Logic
+    // User location when the post was created
+    const userIp = getClientIp(req);
+    const randomIp = generateRandomIp();
+    const geoData = await getLocationFromIp(randomIp);
+
+    const location = geoData
+      ? {
+          name: `${geoData.city}, ${geoData.state}`,
+          type: "Point" as const,
+          coordinates: [Number(geoData.longitude), Number(geoData.latitude)],
+        }
+      : undefined;
+
+    if (location) newGist.location = location;
+
+    // Apply AI Moderation Logic
     if (req.moderation?.severity === ISeverity.LOW) {
       newGist.status = "SHADOWBANNED";
     }
