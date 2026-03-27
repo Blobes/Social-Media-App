@@ -43,12 +43,10 @@ export const createAccount = async (
 
   try {
     const normalizedEmail = email.toLowerCase().trim();
+    const testEmail = generateTestEmail(normalizedEmail);
 
     const existingUser = await UserModel.findOne({
-      $or: [
-        { email: normalizedEmail },
-        { email: { $regex: new RegExp(`^${normalizedEmail}_deleted_`) } },
-      ],
+      email: testEmail,
     }).setOptions({ skipFilter: true });
 
     if (existingUser) {
@@ -81,7 +79,6 @@ export const createAccount = async (
     const userIp = getClientIp(req);
 
     // 2. CAPTURE TEST/RANDOM DATA: For location and anonymization logic
-    const testEmail = generateTestEmail(normalizedEmail);
     const randomIp = generateRandomIP();
     const userLocation = await getLocationFromIP(randomIp);
 
@@ -92,7 +89,7 @@ export const createAccount = async (
       password: hashedPassword,
       firstName,
       lastName,
-      phoneNumber: phone || null,
+      phoneNumber: phone,
       country: userLocation?.country,
       state: userLocation?.state,
       verificationCode: hashCode(code),
@@ -111,8 +108,13 @@ export const createAccount = async (
       },
     });
 
-    await dispatchEmailCode({ to: normalizedEmail, code });
+    //Send the code once we know the account is successfully created.
     await newUser.save();
+    try {
+      await dispatchEmailCode({ to: normalizedEmail, code });
+    } catch (emailError) {
+      console.error("User saved but email failed:", emailError);
+    }
 
     // The genRefreshTokens utility uses req.ip (via IAuthRequest)
     // to save the 'userIp' we captured above into Redis.
@@ -146,9 +148,11 @@ export const createAccount = async (
     });
   } catch (error: any) {
     if (error.code === 11000) {
+      console.log("Duplicate Key Error Details:", error.keyValue);
+
       return res.status(409).json({
         status: "ERROR",
-        message: "Email already in use.",
+        message: `Conflict: ${Object.keys(error.keyValue)[0]} already exists.`,
         payload: null,
       });
     }

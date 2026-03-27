@@ -44,11 +44,10 @@ const MediaSchema = new Schema(
       default: "READY",
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    autoIndex: false, // Stop mongodb auto index
+  },
 );
-
-// Updated Indexing for the new field names
-MediaSchema.index({ sourceId: 1, sourceType: 1, order: 1 });
-MediaSchema.index({ ownerId: 1, createdAt: -1 });
 
 export const MediaModel = model("Media", MediaSchema, "media");

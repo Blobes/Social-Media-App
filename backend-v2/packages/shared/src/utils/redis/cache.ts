@@ -1,4 +1,3 @@
-// packages/shared/src/cache.ts
 import { redisClient } from "../../services/redis"; // Adjusted path to your new init file
 import { PostType } from "../../types/types";
 
@@ -8,29 +7,43 @@ import { PostType } from "../../types/types";
  * @param cb The database fetch function (fallback)
  * @param expiry Time to live in seconds (default 1 hour)
  */
+
 export const getOrSetCache = async <T>(
   key: string,
   cb: () => Promise<T>,
   expiry = 3600,
 ): Promise<T> => {
-  // 1. Upstash REST SDK can return the object directly if stored as JSON
-  const cachedData = await redisClient.get<T>(key);
-
-  if (cachedData) {
-    // No JSON.parse needed with @upstash/redis get<T>
-    return cachedData;
+  // Safety Check: If redisClient wasn't initialized, skip cache and hit DB
+  if (!redisClient) {
+    console.warn(
+      `[Cache-Warning] redisClient is undefined for key: ${key}. Falling back to DB.`,
+    );
+    return await cb();
   }
 
-  // 2. Fetch fresh data from MongoDB if cache miss
-  const freshData = await cb();
+  try {
+    const cachedData = await redisClient.get<T>(key);
 
-  if (freshData) {
-    // 3. Store in Redis.
-    // Use { ex: seconds } for Upstash instead of setEx
-    await redisClient.set(key, freshData, { ex: expiry });
+    if (cachedData) {
+      return cachedData;
+    }
+
+    const freshData = await cb();
+    if (freshData) {
+      // not 'awaiting' the set operation here to speed up the response,
+      // but catching errors so they don't crash the request.
+      redisClient
+        .set(key, freshData, { ex: expiry })
+        .catch((err) =>
+          console.error(`[Cache-Error] Failed to set key ${key}:`, err.message),
+        );
+    }
+    return freshData;
+  } catch (error: any) {
+    // If Upstash/Network fails, fall back to the DB instead of throwing a 500
+    console.error(`[Cache-Error] Redis get failed for ${key}:`, error.message);
+    return await cb();
   }
-
-  return freshData;
 };
 
 /**
@@ -129,11 +142,11 @@ export const CACHE_KEYS = {
   // --- Static/Global Feeds ---
   GLOBAL_FEED: (page: number, limit: number) =>
     `feed:all:static:p${page}:l${limit}`,
-  POST_TYPE_FEED: (postType: string, page: number, limit: number) =>
+  POST_FEED_TYPE: (postType: PostType, page: number, limit: number) =>
     `feed:${postType.toLowerCase()}s:static:p${page}:l${limit}`,
 
   // --- Entity Keys ---
-  POST: (postType: string, postId: string) =>
+  POST: (postType: PostType, postId: string) =>
     `post:${postType.toLowerCase()}:${postId}`,
 
   // --- Social & Identity (O(1) lookups) ---
@@ -152,4 +165,6 @@ export const CACHE_KEYS = {
   WILDCARD_USER_FEED_ALL: (userId: string) => `user:${userId}:feed:*`,
   // The complete account wipe pattern
   WILDCARD_USER_ALL: (userId: string) => `user:${userId}:*`,
+  WILDCARD_POST_FEED_TYPE: (postType: PostType) =>
+    `feed:${postType.toLowerCase()}:*`,
 };

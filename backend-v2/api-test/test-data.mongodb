@@ -31,7 +31,7 @@ db.users.insertMany([
 const gistId = new ObjectId();
 const contentId = new ObjectId();
 
-db.post_contents.insertOne({
+db.post_captions.insertOne({
   _id: contentId,
   postId: gistId,
   postType: "GIST",

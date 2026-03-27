@@ -16,10 +16,11 @@ const PostCaptionSchema = new Schema(
     version: { type: Number, required: true, default: 1 },
     isLatest: { type: Boolean, default: true },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    autoIndex: false, // Stop mongodb auto index
+  },
 );
-PostCaptionSchema.index({ postId: 1, isLatest: 1 });
-PostCaptionSchema.index({ postId: 1, version: -1 });
 
 export const PostCaptionModel = model(
   "PostCaption",

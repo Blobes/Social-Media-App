@@ -26,8 +26,8 @@ const GistSchema = new Schema(
     viewCount: { type: Number, default: 0 },
 
     // Discovery & Categorization
-    topics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
-    tags: [{ type: String }],
+    // topics: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
+    topics: [{ type: String }],
     location: {
       name: { type: String, default: null },
       coordinates: {
@@ -66,11 +66,11 @@ const GistSchema = new Schema(
     },
     moderationCount: { type: Number, default: 0 },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    autoIndex: false, // Stop mongodb auto index
+  },
 );
-
-GistSchema.index({ status: 1, authorId: 1, createdAt: -1 });
-GistSchema.index({ tags: 1 });
 
 export const GistModel = model("Gist", GistSchema, "gists");
 
@@ -88,7 +88,10 @@ const GistLikeSchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    autoIndex: false, // Stop mongodb auto index
+  },
 );
-GistLikeSchema.index({ userId: 1, gistId: 1 }, { unique: true });
+
 export const GistLikeModel = model("GistLike", GistLikeSchema, "gist_likes");

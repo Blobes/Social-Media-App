@@ -1,7 +1,7 @@
 ### Variables
-@baseUrl = http://localhost:8080/api
-@user1ID = 69aa38047ef187d34dba2899
-@user1Email = officialblobes6457@gmail.com
+@baseUrl = http://localhost:8080
+@user1ID = 69c574998b204a8d93f5783d
+@user1Email = officialblobes1571@gmail.com
 
 ### Check Username
 POST {{baseUrl}}/auth/check-username
@@ -17,7 +17,7 @@ POST {{baseUrl}}/auth/check-email
 Content-Type: application/json
 
 {
-  "email": {{user1Email}}
+  "email": "{{user1Email}}"
 }
 
 ### Create an Account
@@ -27,8 +27,8 @@ Content-Type: application/json
 {
   "email": "officialblobes@gmail.com",
   "password": "password123",
-  "firstName": "John",
-  "lastName": "Doe"
+  "firstName": "Janet",
+  "lastName": "Jackson"
 }
 
 ### Verify Email Code
@@ -36,7 +36,7 @@ POST {{baseUrl}}/auth/verify-email-code
 Content-Type: application/json
 
 {
-  "email": {{user1Email}},
+  "email": "{{user1Email}}",
   "code": "520420"
 }
 
@@ -45,7 +45,7 @@ POST {{baseUrl}}/auth/resend-email-code
 Content-Type: application/json
 
 {
-  "email": {{user1Email}}
+  "email": "{{user1Email}}"
 }
 
 ### Login
@@ -53,7 +53,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": {{user1Email}},
+  "identifier": "{{user1Email}}",
   "password": "password123"
 }
 
@@ -62,7 +62,7 @@ POST {{baseUrl}}/auth/verify-auth
 Content-Type: application/json
 
 {
-  "email": {{user1Email}}
+  "email": "{{user1Email}}"
 }
 
 ### Logout

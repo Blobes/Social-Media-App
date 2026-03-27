@@ -1,9 +1,11 @@
 import express from "express";
-import { connectDB, initEnv, monitorProcess } from "@repo/shared";
+import { connectDB, initEnv, initRedis, monitorProcess } from "@repo/shared";
 import appLoader from "./loader";
 
 const startServer = async () => {
   initEnv(); // Load the environment first
+
+  initRedis(); // Load redis
 
   const app = express();
   const port = process.env.POST_PORT || 8081;

@@ -74,11 +74,13 @@ const createGist = async (req: CreateRequest, res: Response): Promise<void> => {
     };
     newGist.mediaIds = uploadedMediaIds;
 
+    // Add topics
+    newGist.topics = req.moderation?.topics || [];
+
     // 5. Apply AI Moderation Logic
     if (req.moderation?.severity === ISeverity.LOW) {
       newGist.status = "SHADOWBANNED";
     }
-
     const SENSITIVE_RULES = [
       "adult",
       "violence",

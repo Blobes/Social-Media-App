@@ -1,28 +1,34 @@
 // src/models/VerificationRequest.ts
 import { Schema, model } from "mongoose";
 
-const IdVerificationSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  fullName: String,
-  evidenceLinks: [String], // News articles, official site
-  idDocumentUrl: String, // Link to a photo of their ID
-  identityDocument: {
-    type: Schema.Types.ObjectId,
-    ref: "Media",
-    default: null,
+const IdVerificationSchema = new Schema(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    fullName: String,
+    evidenceLinks: [String], // News articles, official site
+    idDocumentUrl: String, // Link to a photo of their ID
+    identityDocument: {
+      type: Schema.Types.ObjectId,
+      ref: "Media",
+      default: null,
+    },
+    verificationSelfie: {
+      type: Schema.Types.ObjectId,
+      ref: "Media",
+      default: null,
+    },
+    status: {
+      type: String,
+      enum: ["PENDING", "APPROVED", "REJECTED"],
+      default: "PENDING",
+    },
+    submittedAt: { type: Date, default: Date.now },
   },
-  verificationSelfie: {
-    type: Schema.Types.ObjectId,
-    ref: "Media",
-    default: null,
+  {
+    timestamps: true,
+    autoIndex: false, // Stop mongodb auto index
   },
-  status: {
-    type: String,
-    enum: ["PENDING", "APPROVED", "REJECTED"],
-    default: "PENDING",
-  },
-  submittedAt: { type: Date, default: Date.now },
-});
+);
 
 export const IdVerificationRequestModel = model(
   "IdVerificationRequest",

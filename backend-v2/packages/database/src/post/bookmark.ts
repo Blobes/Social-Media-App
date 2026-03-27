@@ -18,9 +18,10 @@ const BookmarkSchema = new Schema(
       enum: ["GIST", "STAKE"],
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    autoIndex: false, // Stop mongodb auto index
+  },
 );
 
-// Keep your unique index to prevent duplicate bookmarks
-BookmarkSchema.index({ userId: 1, postId: 1 }, { unique: true });
 export const BookmarkModel = model("Bookmark", BookmarkSchema, "bookmarks");

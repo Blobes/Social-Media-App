@@ -28,7 +28,8 @@ const UserSchema = new Schema(
     },
     phoneNumber: {
       type: String,
-      default: null,
+      sparse: true,
+      unique: true,
     },
 
     // --- 2. VERIFICATION & NOTABILITY ---
@@ -123,27 +124,25 @@ const UserSchema = new Schema(
     },
 
     // --- 10. LIFECYCLE MANAGEMENT ---
-    isDeactivated: { type: Boolean, default: false, index: true },
+    isDeactivated: { type: Boolean, default: false },
     deactivatedAt: { type: Date, default: null },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    autoIndex: false, // Stop mongodb auto index
+  },
 );
 
-UserSchema.index({
-  meritsVerification: 1,
-  isPublicFigure: 1,
-  isEmailVerified: 1,
-});
-UserSchema.index({ followersCount: 1 });
-UserSchema.index({ createdAt: 1 });
-
 // Middleware for soft-deactivation filtering
-const autoFilterDeactivated = function (this: any, next: any) {
-  if (this.getOptions?.()?.skipFilter) return next();
+const autoFilterDeactivated = function (this: any) {
+  // Accessing options to see if we should skip this filter
+  const options = this.getOptions?.();
+  if (options?.skipFilter) {
+    return;
+  }
+  // Applying the filter to exclude deactivated users
   this.where({ isDeactivated: { $ne: true } });
-  next();
 };
-
-UserSchema.pre(/^find/, autoFilterDeactivated as any);
+UserSchema.pre(/^find/, autoFilterDeactivated);
 
 export const UserModel = model("User", UserSchema, "users");

@@ -4,66 +4,101 @@ import {
   dynamicPostDecorator,
 } from "../decorators/postDecorator";
 
-// Static post data
+/**
+ * Generates the full static data pipeline for Posts (Gists & Stakes).
+ * Optimized for React frontend consumption with flattened details.
+ */
 export const getPostStaticData = (): PipelineStage[] => {
   return [
-    // 1. Add Static Lookups (Author, Media)
+    // Join with Users and Media collections
     ...staticPostDecorator(),
 
-    // 2. Format the Structural Data
+    // Structural Formatting & Author Normalization
     {
       $project: {
         _id: 1,
         authorId: 1,
         postType: 1,
-        media: 1,
+        createdAt: 1,
+        media: { $ifNull: ["$media", []] },
         likeCount: { $ifNull: ["$likeCount", 0] },
         commentCount: { $ifNull: ["$commentCount", 0] },
-        createdAt: 1,
+        shareCount: { $ifNull: ["$shareCount", 0] },
+        viewCount: { $ifNull: ["$viewCount", 0] },
 
+        // Constructing a robust Author object
         author: {
-          _id: "$authorDetails._id",
-          username: "$authorDetails.username",
-          firstName: "$authorDetails.firstName",
-          lastName: "$authorDetails.lastName",
-          profileImage: "$authorDetails.profileImage",
+          _id: { $ifNull: ["$authorDetails._id", "$authorId"] },
+          username: { $ifNull: ["$authorDetails.username", "anonymous"] },
+          firstName: { $ifNull: ["$authorDetails.firstName", ""] },
+          lastName: { $ifNull: ["$authorDetails.lastName", ""] },
+          profileImage: { $ifNull: ["$authorDetails.profileImage", null] },
           fullName: {
-            $trim: {
-              input: {
-                $concat: [
-                  { $ifNull: ["$authorDetails.firstName", ""] },
-                  " ",
-                  { $ifNull: ["$authorDetails.lastName", ""] },
-                ],
+            $let: {
+              vars: {
+                f: { $ifNull: ["$authorDetails.firstName", ""] },
+                l: { $ifNull: ["$authorDetails.lastName", ""] },
+                u: { $ifNull: ["$authorDetails.username", "User"] },
+              },
+              in: {
+                $let: {
+                  vars: {
+                    combined: {
+                      $trim: { input: { $concat: ["$$f", " ", "$$l"] } },
+                    },
+                  },
+                  in: {
+                    $cond: [{ $eq: ["$$combined", ""] }, "$$u", "$$combined"],
+                  },
+                },
               },
             },
           },
         },
-
-        // Merge Gist vs Stake fields
+        // Conditional logic to flatten unique fields based on postType
         details: {
           $cond: [
             { $eq: ["$postType", "GIST"] },
             {
-              content: "$latestContent.content",
-              contentId: "$latestContent.contentId",
-              updatedAt: "$latestContent.createdAt",
+              // Mapping to your Gist Schema (latestCaption)
+              content: { $ifNull: ["$latestCaption.caption", ""] },
+              contentId: { $ifNull: ["$latestCaption.captionId", "$_id"] },
+              updatedAt: {
+                $ifNull: ["$latestCaption.createdAt", "$createdAt"],
+              },
               isEdited: { $gt: [{ $ifNull: ["$editCount", 0] }, 0] },
+              tags: { $ifNull: ["$tags", []] },
+              location: "$location",
             },
             {
-              amount: "$amount",
-              odds: "$odds",
-              selection: "$selection",
-              market: "$market",
-              outcome: "$outcome",
-              isPublic: "$isPublic",
+              // Standard Stake structure
+              amount: { $ifNull: ["$amount", 0] },
+              odds: { $ifNull: ["$odds", 1.0] },
+              selection: { $ifNull: ["$selection", ""] },
+              market: { $ifNull: ["$market", ""] },
+              outcome: { $ifNull: ["$outcome", "PENDING"] },
+              isPublic: { $ifNull: ["$isPublic", true] },
             },
           ],
         },
       },
     },
-    { $replaceRoot: { newRoot: { $mergeObjects: ["$details", "$$ROOT"] } } },
-    { $project: { details: 0 } },
+
+    //  Flattening: We move everything inside 'details' to the top level for cleaner frontend access
+    {
+      $replaceRoot: {
+        newRoot: {
+          $mergeObjects: ["$$ROOT", "$details"],
+        },
+      },
+    },
+
+    // Final Cleanup: Remove the temporary details object
+    {
+      $project: {
+        details: 0,
+      },
+    },
   ] as PipelineStage[];
 };
 

@@ -35,6 +35,7 @@ export const staticPostDecorator = (): PipelineStage[] => {
   ];
 };
 
+// Dynamic decorator
 export const dynamicPostDecorator = ({
   userId,
 }: {
