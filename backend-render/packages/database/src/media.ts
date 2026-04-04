@@ -1,4 +1,4 @@
-import { Schema, model, models, Document, Model, Types } from "mongoose";
+import { Schema, model, Document, Model, Types } from "mongoose";
 import { IMediaModel } from "@repo/model-types";
 
 export interface IMediaDocument
@@ -69,5 +69,8 @@ const MediaSchema = new Schema<IMediaDocument>(
   },
 );
 
-export const MediaModel: Model<IMediaDocument> =
-  models.Media || model<IMediaDocument>("Media", MediaSchema, "media");
+export const MediaModel: Model<IMediaDocument> = model<IMediaDocument>(
+  "Media",
+  MediaSchema,
+  "media",
+);
