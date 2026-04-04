@@ -10,8 +10,8 @@ export class QueueService {
    */
   public static getConnection(): NonNullable<QueueOptions["connection"]> {
     if (!this.redisConnection) {
-      const url = process.env.RAILWAY_INTERNAL_REDIS_URL;
-      if (!url) throw new Error("RAILWAY_INTERNAL_REDIS_URL is missing");
+      const url = process.env.FUNSTAKES_REDIS_URL;
+      if (!url) throw new Error("FUNSTAKES_REDIS_URL is missing");
 
       this.redisConnection = new Redis(url, {
         // BullMQ requirement: Max retries must be null
