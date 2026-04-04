@@ -1,4 +1,4 @@
-import { Schema, model, models, Document, Model, Types } from "mongoose";
+import { Schema, model, Document, Model, Types } from "mongoose";
 import { IGistModel } from "@repo/model-types";
 
 export interface IGistDocument
@@ -106,8 +106,11 @@ const GistSchema = new Schema<IGistDocument>(
   },
 );
 
-export const GistModel: Model<IGistDocument> =
-  models.Gist || model<IGistDocument>("Gist", GistSchema, "gists");
+export const GistModel: Model<IGistDocument> = model<IGistDocument>(
+  "Gist",
+  GistSchema,
+  "gists",
+);
 
 // Like Schema
 const GistLikeSchema = new Schema(

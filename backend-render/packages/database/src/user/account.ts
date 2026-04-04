@@ -1,4 +1,4 @@
-import { Document, Schema, Types, model, Model, models } from "mongoose";
+import { Document, Schema, Types, model, Model } from "mongoose";
 import { IUserModel } from "@repo/model-types";
 
 /**
@@ -170,5 +170,8 @@ const autoFilterDeactivated = function (this: any) {
 };
 UserSchema.pre(/^find/, autoFilterDeactivated);
 
-export const UserModel: Model<IUserDocument> =
-  models.User || model<IUserDocument>("User", UserSchema, "users");
+export const UserModel: Model<IUserDocument> = model<IUserDocument>(
+  "User",
+  UserSchema,
+  "users",
+);
