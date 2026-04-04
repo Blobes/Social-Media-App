@@ -1,0 +1,14 @@
+[phases.setup]
+nixPkgs = ["nodejs-22_x", "pnpm"]
+
+[phases.install]
+# This uses the 'Install Command' from the Coolify UI
+cmds = ["$NIXPACKS_INSTALL_CMD"]
+
+[phases.build]
+# This uses the 'Build Command' from the Coolify UI
+cmds = ["$NIXPACKS_BUILD_CMD"]
+
+[start]
+# This uses the 'Start Command' from the Coolify UI
+cmd = "$NIXPACKS_START_CMD"
