@@ -1,0 +1,35 @@
+{
+  "name": "@repo/shell",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next --port $(microfrontends port)",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@emotion/react": "catalog:",
+    "@emotion/styled": "catalog:",
+    "@mui/material": "catalog:",
+    "@vercel/microfrontends": "catalog:",
+    "lucide-react": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@repo/assets": "workspace:*",
+    "@repo/features": "workspace:*",
+    "@repo/helpers": "workspace:*",
+    "@repo/shared-state": "workspace:*",
+    "@repo/shared-ui": "workspace:*",
+    "@repo/theme": "workspace:*",
+    "@repo/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/env-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
+  }
+}

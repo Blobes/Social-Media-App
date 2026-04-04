@@ -1,0 +1,36 @@
+{
+  "name": "@repo/auth",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next --port $(microfrontends port)",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@mui/material": "catalog:",
+    "@emotion/react": "catalog:",
+    "@emotion/styled": "catalog:",
+    "lucide-react": "catalog:",
+    "@vercel/microfrontends": "catalog:",
+    "@repo/shared-ui": "workspace:*",
+    "@repo/shared-state": "workspace:*",
+    "@repo/helpers": "workspace:*",
+    "@repo/theme": "workspace:*",
+    "@repo/types": "workspace:*",
+    "@repo/assets": "workspace:*",
+    "@repo/features": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/env-config": "workspace:*"
+  }
+}

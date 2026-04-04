@@ -1,0 +1,51 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# This is the "Main" catalog for your logic
+catalog:
+  # Framework & Database
+  express: "^4.19.2"
+  mongoose: "^9.2.4"
+  mongodb: "^7.1.0"
+  dotenv: "^16.4.5"
+  cors: "^2.8.5"
+  cookie-parser: "^1.4.7"
+
+  # Security
+  bcrypt: "^6.0.0"
+  jsonwebtoken: "^9.0.2"
+
+  # Services & Utilities
+  node-cron: "^4.2.1"
+  nodemailer: "^7.0.11"
+  resend: "^6.5.2"
+  uuid: "^9.0.1"
+  openai: ^4.86.0
+  http-proxy-middleware: "^3.0.3"
+  bullmq: "5.71.0"
+  ioredis: "5.10.1"
+  socket.io: "^4.8.1"
+  "@google-cloud/vision": ^4.3.2
+  "@aws-sdk/client-s3": "^3.1000.0"
+  "@aws-sdk/s3-request-presigner": "^3.1000.0"
+  "@socket.io/redis-adapter": "^8.3.0"
+  "@socket.io/redis-emitter": "^5.1.0"
+  "@upstash/redis": "^1.34.3"
+
+  # Dev Tools & Build
+  typescript: "^5.8.3"
+  turbo: "^2.8.16"
+  tsc-alias: "^1.8.16"
+  tsconfig-paths: "^4.2.0"
+  tsx: "^4.19.3"
+
+  # --- ALL TYPES INCLUDED HERE ---
+  "@types/node": "^22.15.18"
+  "@types/express": "^5.0.1"
+  "@types/bcrypt": "^5.0.2"
+  "@types/jsonwebtoken": "^9.0.9"
+  "@types/cookie-parser": "^1.4.8"
+  "@types/cors": "^2.8.18"
+  "@types/nodemailer": "^7.0.4"
+  "@types/uuid": "^9.0.8"

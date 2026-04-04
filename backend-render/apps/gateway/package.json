@@ -1,0 +1,25 @@
+{
+  "name": "@repo/gateway",
+  "version": "1.0.0",
+  "main": "./src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_ENV=development tsx watch src/index.ts",
+    "build": "tsc && tsc-alias",
+    "start": "NODE_ENV=production pnpm exec tsx src/index.ts"
+  },
+  "dependencies": {
+    "@repo/shared": "workspace:*",
+    "express": "catalog:",
+    "http-proxy-middleware": "catalog:",
+    "socket.io": "catalog:",
+    "ioredis": "catalog:",
+    "@socket.io/redis-adapter": "catalog:"
+  },
+  "devDependencies": {
+    "@types/express": "catalog:",
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}
