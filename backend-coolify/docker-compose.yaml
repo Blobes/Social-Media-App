@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile_inline: |
-        FROM ghcr.io/rowyio/nixpacks:latest
+        FROM ghcr.io/railwayapp/nixpacks:ubuntu-22.04
         COPY . /app
         WORKDIR /app/backend-coolify/apps/gateway
         RUN pnpm install && pnpm --filter @repo/gateway build
@@ -27,7 +27,7 @@ services:
     build:
       context: .
       dockerfile_inline: |
-        FROM ghcr.io/rowyio/nixpacks:latest
+        FROM ghcr.io/railwayapp/nixpacks:ubuntu-22.04
         COPY . /app
         WORKDIR /app/backend-coolify/apps/account-service
         RUN pnpm install && pnpm --filter @repo/account-service build
@@ -48,7 +48,7 @@ services:
     build:
       context: .
       dockerfile_inline: |
-        FROM ghcr.io/rowyio/nixpacks:latest
+        FROM ghcr.io/railwayapp/nixpacks:ubuntu-22.04
         COPY . /app
         WORKDIR /app/backend-coolify/apps/post-service
         RUN pnpm install && pnpm --filter @repo/post-service build
@@ -69,7 +69,7 @@ services:
     build:
       context: .
       dockerfile_inline: |
-        FROM ghcr.io/rowyio/nixpacks:latest
+        FROM ghcr.io/railwayapp/nixpacks:ubuntu-22.04
         COPY . /app
         WORKDIR /app/backend-coolify/apps/worker-service
         RUN pnpm install && pnpm --filter @repo/worker-service build
@@ -90,7 +90,7 @@ services:
     build:
       context: .
       dockerfile_inline: |
-        FROM ghcr.io/rowyio/nixpacks:latest
+        FROM ghcr.io/railwayapp/nixpacks:ubuntu-22.04
         COPY . /app
         WORKDIR /app/backend-coolify/apps/admin-service
         RUN pnpm install && pnpm --filter @repo/admin-service build
