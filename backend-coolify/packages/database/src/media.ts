@@ -1,5 +1,5 @@
 import { Schema, model, Document, Model, Types } from "mongoose";
-import { IMediaModel } from "@repo/model-types";
+import { IMediaModel } from "./model-types/media";
 
 export interface IMediaDocument
   extends

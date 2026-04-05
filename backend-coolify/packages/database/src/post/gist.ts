@@ -1,5 +1,5 @@
 import { Schema, model, Document, Model, Types } from "mongoose";
-import { IGistModel } from "@repo/model-types";
+import { IGistModel } from "../model-types/posts";
 
 export interface IGistDocument
   extends

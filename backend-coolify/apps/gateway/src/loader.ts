@@ -8,7 +8,6 @@ import {
 } from "@repo/shared";
 import { rateLimiter } from "./middleware/rateLimiter";
 import gatewayRoutes from "./proxy";
-import { isSystemRoute, pingServices } from "./middleware/pinger";
 
 export default async (app: Express) => {
   // ====== Middlewares ======
@@ -25,12 +24,6 @@ export default async (app: Express) => {
     // logic so your app doesn't crash if Upstash has a rare blip.
     console.error("⚠️ Redis Connectivity Check Failed:", err);
   }
-
-  // Service Pinger (Runs on every request to ensure sub-services stay/get awake)
-  app.use((req, res, next) => {
-    if (!isSystemRoute(req.path)) pingServices();
-    next();
-  });
 
   // Protect the entire stack with Rate Limiting – 100 requests per 60s window
   app.use(rateLimiter(100, 60));

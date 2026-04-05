@@ -7,6 +7,7 @@ export * from "./middlewares/refreshAuthToken";
 
 // Types
 export * from "./types/types";
+export * from "./types/types";
 
 // Services
 export * from "./services/auth/dispatchEmailCode";

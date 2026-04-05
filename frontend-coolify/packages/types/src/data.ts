@@ -1,6 +1,8 @@
 "use client";
 
-import { IGistModel, IMediaModel, IUserModel } from "@repo/model-types";
+import { IMediaModel } from "./model-types/media";
+import { IGistModel } from "./model-types/posts";
+import { IUserModel } from "./model-types/user";
 
 export interface IMedia extends IMediaModel {
   alt?: string;

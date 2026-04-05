@@ -7,9 +7,6 @@
   "exports": {
     ".": "./index.ts"
   },
-  "dependencies": {
-    "@repo/model-types": "link:../../../model-types"
-  },
   "peerDependencies": {
     "@mui/material": "catalog:"
   }

@@ -7,7 +7,6 @@
     ".": "./index.ts"
   },
   "dependencies": {
-    "@repo/model-types": "link:../../../model-types",
     "mongoose": "catalog:"
   }
 }

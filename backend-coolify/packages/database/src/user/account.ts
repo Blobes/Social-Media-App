@@ -1,5 +1,5 @@
 import { Document, Schema, Types, model, Model } from "mongoose";
-import { IUserModel } from "@repo/model-types";
+import { IUserModel } from "../model-types/user";
 
 /**
  * Backend-only Document Interface.

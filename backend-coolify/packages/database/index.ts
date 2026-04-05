@@ -1,3 +1,8 @@
+// Data types
+export * from "./src/model-types/user";
+export * from "./src/model-types/posts";
+export * from "./src/model-types/media";
+
 // User
 export * from "./src/moderation/flaggedPost";
 export * from "./src/moderation/postReport";

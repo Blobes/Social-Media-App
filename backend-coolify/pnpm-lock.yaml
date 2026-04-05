@@ -340,9 +340,6 @@ importers:
 
   packages/database:
     dependencies:
-      '@repo/model-types':
-        specifier: link:../../../model-types
-        version: link:../../../model-types
       mongoose:
         specifier: 'catalog:'
         version: 9.3.0

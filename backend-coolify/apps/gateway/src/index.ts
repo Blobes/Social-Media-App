@@ -9,13 +9,11 @@ const startGateway = async () => {
   initUpstash(); // Initialize Upstash Redis configuration
 
   const app = express();
-  // Essential for getting real User IPs through Render's load balancer
+  // Essential for getting real User IPs
   app.set("trust proxy", 1);
 
   const PORT = process.env.GATEWAY_PORT || 8000;
 
-  // Ultra-lightweight routes first
-  app.get("/keep-alive", (req, res) => res.send("Gateway is awake"));
   app.use("/health", healthRouter("GATEWAY"));
 
   // Load Global Middleware (CORS, Parsers, etc.)
