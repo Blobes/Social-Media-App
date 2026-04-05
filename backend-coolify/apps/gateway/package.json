@@ -20,6 +20,7 @@
     "@types/express": "catalog:",
     "@types/node": "catalog:",
     "tsx": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "tsconfig-paths": "catalog:"
   }
 }

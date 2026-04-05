@@ -242,6 +242,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.15
+      tsconfig-paths:
+        specifier: 'catalog:'
+        version: 4.2.0
       tsx:
         specifier: 'catalog:'
         version: 4.21.0
