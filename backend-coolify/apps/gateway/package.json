@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "NODE_ENV=development tsx watch src/index.ts",
     "build": "tsc && tsc-alias",
-    "start": "NODE_ENV=production pnpm exec tsx src/index.ts"
+    "start": "NODE_ENV=production node --import tsx dist/index.js"
   },
   "dependencies": {
     "@repo/shared": "workspace:*",
@@ -20,7 +20,6 @@
     "@types/express": "catalog:",
     "@types/node": "catalog:",
     "tsx": "catalog:",
-    "typescript": "catalog:",
-    "tsconfig-paths": "catalog:"
+    "typescript": "catalog:"
   }
 }
