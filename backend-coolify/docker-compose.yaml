@@ -7,8 +7,9 @@ services:
         FROM node:20-alpine
         RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
-        COPY . /app
+
         RUN corepack enable && corepack prepare pnpm@latest --activate
+        COPY . /app
         RUN pnpm install && pnpm --filter @repo/gateway build
         # Using pnpm exec because tsx is a devDependency
         CMD ["pnpm", "--filter", "@repo/gateway", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/gateway/dist/index.js"]
@@ -30,8 +31,9 @@ services:
         FROM node:20-alpine
         RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
-        COPY . /app
+
         RUN corepack enable && corepack prepare pnpm@latest --activate
+        COPY . /app
         RUN pnpm install && pnpm --filter @repo/account-service build
         CMD ["pnpm", "--filter", "@repo/account-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/account-service/dist/index.js"]
     environment:
@@ -50,8 +52,9 @@ services:
         FROM node:20-alpine
         RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
-        COPY . /app
+
         RUN corepack enable && corepack prepare pnpm@latest --activate
+        COPY . /app
         RUN pnpm install && pnpm --filter @repo/post-service build
         CMD ["pnpm", "--filter", "@repo/post-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/post-service/dist/index.js"]
     environment:
@@ -70,8 +73,9 @@ services:
         FROM node:20-alpine
         RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
-        COPY . /app
+
         RUN corepack enable && corepack prepare pnpm@latest --activate
+        COPY . /app
         RUN pnpm install && pnpm --filter @repo/worker-service build
         CMD ["pnpm", "--filter", "@repo/worker-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/worker-service/dist/index.js"]
     environment:
@@ -90,8 +94,9 @@ services:
         FROM node:20-alpine
         RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
-        COPY . /app
+
         RUN corepack enable && corepack prepare pnpm@latest --activate
+        COPY . /app
         RUN pnpm install && pnpm --filter @repo/admin-service build
         CMD ["pnpm", "--filter", "@repo/admin-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/admin-service/dist/index.js"]
     environment:
