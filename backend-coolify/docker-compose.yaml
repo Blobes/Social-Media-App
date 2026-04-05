@@ -7,12 +7,14 @@ services:
         FROM node:20-alpine
         RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
-
         RUN corepack enable && corepack prepare pnpm@latest --activate
         COPY . /app
         RUN pnpm install && pnpm --filter @repo/gateway build
         # Using pnpm exec because tsx is a devDependency
         CMD ["pnpm", "--filter", "@repo/gateway", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/gateway/dist/index.js"]
+    volumes:
+      # Format: [Host Path]:[Container Path]:[Mode]
+      - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
       - GATEWAY_PORT=8000
       - GATEWAY_URL={{project.BACKEND_URL}}
@@ -31,11 +33,12 @@ services:
         FROM node:20-alpine
         RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
-
         RUN corepack enable && corepack prepare pnpm@latest --activate
         COPY . /app
         RUN pnpm install && pnpm --filter @repo/account-service build
         CMD ["pnpm", "--filter", "@repo/account-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/account-service/dist/index.js"]
+    volumes:
+      - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
       - ACCOUNT_PORT=8080
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
@@ -52,11 +55,12 @@ services:
         FROM node:20-alpine
         RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
-
         RUN corepack enable && corepack prepare pnpm@latest --activate
         COPY . /app
         RUN pnpm install && pnpm --filter @repo/post-service build
         CMD ["pnpm", "--filter", "@repo/post-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/post-service/dist/index.js"]
+    volumes:
+      - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
       - POST_PORT=8081
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
@@ -73,11 +77,12 @@ services:
         FROM node:20-alpine
         RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
-
         RUN corepack enable && corepack prepare pnpm@latest --activate
         COPY . /app
         RUN pnpm install && pnpm --filter @repo/worker-service build
         CMD ["pnpm", "--filter", "@repo/worker-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/worker-service/dist/index.js"]
+    volumes:
+      - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
       - WORKER_PORT=8083
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
@@ -94,11 +99,12 @@ services:
         FROM node:20-alpine
         RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
-
         RUN corepack enable && corepack prepare pnpm@latest --activate
         COPY . /app
         RUN pnpm install && pnpm --filter @repo/admin-service build
         CMD ["pnpm", "--filter", "@repo/admin-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/admin-service/dist/index.js"]
+    volumes:
+      - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
       - ADMIN_PORT=8084
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
