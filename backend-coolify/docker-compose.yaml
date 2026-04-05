@@ -4,21 +4,17 @@ services:
     build:
       context: .
       dockerfile_inline: |
-        FROM ghcr.io/railwayapp/nixpacks:latest
-        COPY . /app
+        FROM node:20-alpine
+        RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
-        # Fix: Need Corepack for pnpm to exist in the shell
+        COPY . /app
         RUN corepack enable && corepack prepare pnpm@latest --activate
         RUN pnpm install && pnpm --filter @repo/gateway build
-        # Fix: CMD must point to the relative path of the dist folder from WORKDIR
-        CMD ["pnpm", "--filter", "@repo/gateway", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/gateway/dist/index.js"]
+        CMD ["node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/gateway/dist/index.js"]
     environment:
       - GATEWAY_PORT=8000
       - GATEWAY_URL={{project.BACKEND_URL}}
-      - NIXPACKS_APP_DIRECTORY=backend-coolify/apps/gateway
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
-      - NIXPACKS_IGNORE={{project.NIXPACKS_IGNORE}}
-      - NIXPACKS_NODE_VERSION={{project.NIXPACKS_NODE_VERSION}}
     labels:
       - "coolify.name=funstakes-backend-gateway"
       - "coolify.exposed_port=8000"
@@ -30,18 +26,16 @@ services:
     build:
       context: .
       dockerfile_inline: |
-        FROM ghcr.io/railwayapp/nixpacks:latest
-        COPY . /app
+        FROM node:20-alpine
+        RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
+        COPY . /app
         RUN corepack enable && corepack prepare pnpm@latest --activate
         RUN pnpm install && pnpm --filter @repo/account-service build
-        CMD ["pnpm", "--filter", "@repo/account-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/account-service/dist/index.js"]
+        CMD ["node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/account-service/dist/index.js"]
     environment:
       - ACCOUNT_PORT=8080
-      - NIXPACKS_APP_DIRECTORY=backend-coolify/apps/account-service
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
-      - NIXPACKS_IGNORE={{project.NIXPACKS_IGNORE}}
-      - NIXPACKS_NODE_VERSION={{project.NIXPACKS_NODE_VERSION}}
     labels:
       - "coolify.name=funstakes-backend-account"
     networks:
@@ -52,18 +46,16 @@ services:
     build:
       context: .
       dockerfile_inline: |
-        FROM ghcr.io/railwayapp/nixpacks:latest
-        COPY . /app
+        FROM node:20-alpine
+        RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
+        COPY . /app
         RUN corepack enable && corepack prepare pnpm@latest --activate
         RUN pnpm install && pnpm --filter @repo/post-service build
-        CMD ["pnpm", "--filter", "@repo/post-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/post-service/dist/index.js"]
+        CMD ["node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/post-service/dist/index.js"]
     environment:
       - POST_PORT=8081
-      - NIXPACKS_APP_DIRECTORY=backend-coolify/apps/post-service
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
-      - NIXPACKS_IGNORE={{project.NIXPACKS_IGNORE}}
-      - NIXPACKS_NODE_VERSION={{project.NIXPACKS_NODE_VERSION}}
     labels:
       - "coolify.name=funstakes-backend-post"
     networks:
@@ -74,18 +66,16 @@ services:
     build:
       context: .
       dockerfile_inline: |
-        FROM ghcr.io/railwayapp/nixpacks:latest
-        COPY . /app
+        FROM node:20-alpine
+        RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
+        COPY . /app
         RUN corepack enable && corepack prepare pnpm@latest --activate
         RUN pnpm install && pnpm --filter @repo/worker-service build
-        CMD ["pnpm", "--filter", "@repo/worker-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/worker-service/dist/index.js"]
+        CMD ["node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/worker-service/dist/index.js"]
     environment:
       - WORKER_PORT=8083
-      - NIXPACKS_APP_DIRECTORY=backend-coolify/apps/worker-service
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
-      - NIXPACKS_IGNORE={{project.NIXPACKS_IGNORE}}
-      - NIXPACKS_NODE_VERSION={{project.NIXPACKS_NODE_VERSION}}
     labels:
       - "coolify.name=funstakes-backend-worker"
     networks:
@@ -96,18 +86,16 @@ services:
     build:
       context: .
       dockerfile_inline: |
-        FROM ghcr.io/railwayapp/nixpacks:latest
-        COPY . /app
+        FROM node:20-alpine
+        RUN apk add --no-cache libc6-compat
         WORKDIR /app/backend-coolify
+        COPY . /app
         RUN corepack enable && corepack prepare pnpm@latest --activate
         RUN pnpm install && pnpm --filter @repo/admin-service build
-        CMD ["pnpm", "--filter", "@repo/admin-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/admin-service/dist/index.js"]
+        CMD ["node", "--import", "tsx", "--env-file=/app/.env.shared", "apps/admin-service/dist/index.js"]
     environment:
       - ADMIN_PORT=8084
-      - NIXPACKS_APP_DIRECTORY=backend-coolify/apps/admin-service
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
-      - NIXPACKS_IGNORE={{project.NIXPACKS_IGNORE}}
-      - NIXPACKS_NODE_VERSION={{project.NIXPACKS_NODE_VERSION}}
     labels:
       - "coolify.name=funstakes-backend-admin"
     networks:
