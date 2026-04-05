@@ -1,4 +1,4 @@
-import { redisClient } from "../../services/upstash";
+import { upstashClient } from "../../services/upstash";
 
 interface SessionCleanupOptions {
   userId: string;
@@ -24,7 +24,7 @@ export const manageUserSessions = async ({
 
   try {
     do {
-      const [nextCursor, keys] = await redisClient.scan(cursor, {
+      const [nextCursor, keys] = await upstashClient.scan(cursor, {
         match: sessionPattern,
         count: 100,
       });
@@ -44,7 +44,7 @@ export const manageUserSessions = async ({
           }
 
           // Otherwise, terminate the session
-          await redisClient.del(key);
+          await upstashClient.del(key);
         }
       }
       cursor = nextCursor;

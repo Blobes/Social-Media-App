@@ -2,7 +2,7 @@ import express, { Express } from "express";
 import {
   corsConfig,
   mediaRouter,
-  redisClient,
+  upstashClient,
   reportRouter,
   topicRouter,
 } from "@repo/shared";
@@ -18,7 +18,7 @@ export default async (app: Express) => {
 
   // Verify Upstash connectivity before starting the server
   try {
-    const status = await redisClient.ping();
+    const status = await upstashClient.ping();
     console.log(`✅ Redis connected: ${status}`);
   } catch (err) {
     // If Redis is down, we log it. The rateLimiter should handle "fail-open"

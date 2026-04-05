@@ -1,12 +1,13 @@
 import express from "express";
 import { createServer } from "http";
-import { healthRouter, initEnv, initRedis } from "@repo/shared";
+import { healthRouter, initEnv, initUpstash } from "@repo/shared";
 import appLoader from "./loader";
 import { initSocket } from "./initSocket";
 
 const startGateway = async () => {
   initEnv(); // Load the environment first
-  initRedis(); // Initialize Redis configuration
+  initUpstash(); // Initialize Upstash Redis configuration
+
   const app = express();
   // Essential for getting real User IPs through Render's load balancer
   app.set("trust proxy", 1);

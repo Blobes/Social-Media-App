@@ -1,4 +1,4 @@
-import { redisClient } from "../../services/upstash"; // Adjusted path to your new init file
+import { upstashClient } from "../../services/upstash"; // Adjusted path to your new init file
 import { PostType } from "../../types/types";
 
 /**
@@ -14,7 +14,7 @@ export const getOrSetCache = async <T>(
   expiry = 3600,
 ): Promise<T> => {
   // Safety Check: If redisClient wasn't initialized, skip cache and hit DB
-  if (!redisClient) {
+  if (!upstashClient) {
     console.warn(
       `[Cache-Warning] redisClient is undefined for key: ${key}. Falling back to DB.`,
     );
@@ -22,7 +22,7 @@ export const getOrSetCache = async <T>(
   }
 
   try {
-    const cachedData = await redisClient.get<T>(key);
+    const cachedData = await upstashClient.get<T>(key);
 
     if (cachedData) {
       return cachedData;
@@ -32,7 +32,7 @@ export const getOrSetCache = async <T>(
     if (freshData) {
       // not 'awaiting' the set operation here to speed up the response,
       // but catching errors so they don't crash the request.
-      redisClient
+      upstashClient
         .set(key, freshData, { ex: expiry })
         .catch((err) =>
           console.error(`[Cache-Error] Failed to set key ${key}:`, err.message),
@@ -55,7 +55,7 @@ export const invalidateCache = async (key: string): Promise<void> => {
     // We use 'unlink' instead of 'del' for better performance at scale.
     // 'unlink' deletes the key in a different thread, so it doesn't
     // block the main Redis event loop (crucial for large objects).
-    await redisClient.unlink(key);
+    await upstashClient.unlink(key);
   } catch (error) {
     // Log the error but don't throw it. The app should keep running
     // even if the cache fails to clear (the TTL will eventually expire it).
@@ -69,14 +69,14 @@ export const invalidatePattern = async (pattern: string): Promise<void> => {
 
     do {
       // Upstash 'scan' returns [newCursor, matchingKeys]
-      const [nextCursor, keys] = await redisClient.scan(cursor, {
+      const [nextCursor, keys] = await upstashClient.scan(cursor, {
         match: pattern,
         count: 100,
       });
 
       if (keys.length > 0) {
         // Use 'unlink' for non-blocking deletion in the Redis engine
-        await redisClient.unlink(...keys);
+        await upstashClient.unlink(...keys);
       }
 
       cursor = nextCursor;
@@ -96,7 +96,7 @@ export const getOrSetCacheSet = async (
   expiry = 86400, // Default 24h for relationship data
 ): Promise<string[]> => {
   // 1. Fetch all members from the Redis Set
-  const cachedSet = await redisClient.smembers(key);
+  const cachedSet = await upstashClient.smembers(key);
 
   if (cachedSet && cachedSet.length > 0) {
     return cachedSet;
@@ -107,8 +107,8 @@ export const getOrSetCacheSet = async (
 
   if (freshIds && freshIds.length > 0) {
     // 3. Use SADD to store multiple IDs at once
-    await redisClient.sadd(key, ...(freshIds as [string, ...string[]]));
-    await redisClient.expire(key, expiry);
+    await upstashClient.sadd(key, ...(freshIds as [string, ...string[]]));
+    await upstashClient.expire(key, expiry);
   }
 
   return freshIds;
@@ -118,8 +118,8 @@ export const getOrSetCacheSet = async (
  * atomicCacheSetUpdate: For adding/removing items without invalidating the whole set
  */
 export const atomicCacheSetUpdate = {
-  add: (key: string, value: string) => redisClient.sadd(key, value),
-  remove: (key: string, value: string) => redisClient.srem(key, value),
+  add: (key: string, value: string) => upstashClient.sadd(key, value),
+  remove: (key: string, value: string) => upstashClient.srem(key, value),
 };
 
 /**

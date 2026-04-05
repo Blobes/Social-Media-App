@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { RequestHandler, Response } from "express";
 import { genAccessTokens } from "../utils/misc/tokens";
 import { IAuthRequest, IJwtUser } from "../types/types";
-import { redisClient } from "../services/upstash";
+import { upstashClient } from "../services/upstash";
 import { CACHE_KEYS } from "../utils/redis/cache";
 
 /**
@@ -32,7 +32,7 @@ export const refreshAuthToken: RequestHandler = async (
     // 2. STATEFUL CHECK: Verify the session still exists in Redis
     // Experts use this to allow instant global revokes
     const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
-    const sessionActive = await redisClient.exists(sessionKey);
+    const sessionActive = await upstashClient.exists(sessionKey);
 
     if (!sessionActive) {
       // Clear cookies if the session was killed in the backend

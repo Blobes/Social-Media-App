@@ -56,7 +56,8 @@ export const changeEmail = async (
     // Enforce 30-day cooldown between email changes
     const ALLOWED_NO_OF_DAYS = 30 * 24 * 60 * 60 * 1000;
     if (user.lastEmailChangeAt) {
-      const timeSinceLastChange = Date.now() - user.lastEmailChangeAt.getTime();
+      const timeSinceLastChange =
+        Date.now() - new Date(user.lastEmailChangeAt).getTime();
       if (timeSinceLastChange < ALLOWED_NO_OF_DAYS) {
         const daysRemaining = Math.ceil(
           (ALLOWED_NO_OF_DAYS - timeSinceLastChange) / (1000 * 60 * 60 * 24),
@@ -72,7 +73,8 @@ export const changeEmail = async (
     // Apply rate limiting for verification code requests
     const EMAIL_COOLDOWN = 60 * 1000;
     if (user.lastEmailCodeSentAt) {
-      const timeSinceLastSent = Date.now() - user.lastEmailCodeSentAt.getTime();
+      const timeSinceLastSent =
+        Date.now() - new Date(user.lastEmailCodeSentAt).getTime();
       if (timeSinceLastSent < EMAIL_COOLDOWN) {
         const secondsToWait = Math.ceil(
           (EMAIL_COOLDOWN - timeSinceLastSent) / 1000,
@@ -140,7 +142,7 @@ export const changeEmail = async (
     await user.save();
 
     // Dispatch verification code to the new email address
-    await otpQueue.add(
+    await otpQueue().add(
       "send-email-otp",
       { email: formattedEmail, code, type: "EMAIL" as OtpType },
       {

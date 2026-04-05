@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { Response } from "express";
 import crypto from "crypto";
 import { IAuthRequest } from "../../types/types";
-import { redisClient } from "../../services/upstash";
+import { upstashClient } from "../../services/upstash";
 import { CACHE_KEYS } from "../redis/cache";
 
 export const genAccessTokens = (
@@ -56,7 +56,7 @@ export const genRefreshTokens = async (
   // We use IAuthRequest to safely access headers and IP
   const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
 
-  await redisClient.set(
+  await upstashClient.set(
     sessionKey,
     {
       userAgent: req.get("user-agent") || "unknown",

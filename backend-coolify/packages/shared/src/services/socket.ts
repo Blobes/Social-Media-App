@@ -11,9 +11,9 @@ export class InternalSocketEmitter {
   public static getEmitter(): Emitter {
     if (!this.instance) {
       // Ensure we have the environment variable
-      const redisUrl = process.env.RAILWAY_INTERNAL_REDIS_URL;
+      const redisUrl = process.env.FUNSTAKES_REDIS_URL;
       if (!redisUrl) {
-        throw new Error("RAILWAY_INTERNAL_REDIS_URL is not defined");
+        throw new Error("FUNSTAKES_REDIS_URL is not defined");
       }
 
       // Initialize Redis only once

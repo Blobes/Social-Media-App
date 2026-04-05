@@ -65,7 +65,7 @@ export const createGist = async (req: CreateRequest, res: Response) => {
     });
 
     // 3. Queue the "Heavy" work for the Worker
-    await moderationQueue.add("process-content", {
+    await moderationQueue().add("process-content", {
       postId: newGist._id,
       type: "GIST",
       userId,

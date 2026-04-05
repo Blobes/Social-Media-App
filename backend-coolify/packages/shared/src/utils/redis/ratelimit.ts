@@ -1,4 +1,4 @@
-import { redisClient } from "../../services/upstash";
+import { upstashClient } from "../../services/upstash";
 
 export const checkSlidingWindow = async (
   identifier: string,
@@ -13,7 +13,7 @@ export const checkSlidingWindow = async (
   const previousKey = `ratelimit:${identifier}:${previousWindow}`;
 
   // Pipeline both counts and the increment in one jump to Upstash
-  const p = redisClient.pipeline();
+  const p = upstashClient.pipeline();
   p.get<number>(previousKey);
   p.incr(currentKey);
   p.expire(currentKey, windowSeconds * 2); // Keep key long enough for next window calculation

@@ -13,11 +13,18 @@ export class QueueService {
       const url = process.env.FUNSTAKES_REDIS_URL;
       if (!url) throw new Error("FUNSTAKES_REDIS_URL is missing");
 
-      this.redisConnection = new Redis(url, {
-        // BullMQ requirement: Max retries must be null
-        maxRetriesPerRequest: null,
-      }) as unknown as QueueOptions["connection"];
-      console.log("🛠️ BullMQ Redis Connection Established");
+      const client = new Redis(url, {
+        maxRetriesPerRequest: null, // Crucial for BullMQ
+        connectTimeout: 10000, // Give it 10s to connect
+      });
+
+      // Add this to stop the "missing error handler" spam
+      client.on("error", (err) => {
+        console.error("❌ BullMQ Redis Error:", err.message);
+      });
+
+      this.redisConnection = client as unknown as QueueOptions["connection"];
+      console.log("🛠️ BullMQ Redis Connection Attempted");
     }
     return this.redisConnection;
   }
@@ -43,5 +50,5 @@ export class QueueService {
 }
 
 // Named export for the specific queue you're using now
-export const moderationQueue = QueueService.getQueue("moderation-queue");
-export const otpQueue = QueueService.getQueue("otp-queue");
+export const moderationQueue = () => QueueService.getQueue("moderation-queue");
+export const otpQueue = () => QueueService.getQueue("otp-queue");

@@ -5,8 +5,8 @@ import type { Server as HttpServer } from "http";
 
 export function initSocket(httpServer: HttpServer) {
   // 1. Initialize Redis Clients for the Adapter
-  const redisUrl = process.env.RAILWAY_INTERNAL_REDIS_URL;
-  if (!redisUrl) throw new Error("RAILWAY_INTERNAL_REDIS_URL is missing");
+  const redisUrl = process.env.FUNSTAKES_REDIS_URL;
+  if (!redisUrl) throw new Error("FUNSTAKES_REDIS_URL is missing");
 
   const pubClient = new Redis(redisUrl);
   const subClient = pubClient.duplicate();
@@ -21,7 +21,8 @@ export function initSocket(httpServer: HttpServer) {
 
   io.on("connection", (socket) => {
     // Use auth instead of query for better security
-    const userId = socket.handshake.auth.userId || socket.handshake.query.userId;
+    const userId =
+      socket.handshake.auth.userId || socket.handshake.query.userId;
 
     if (userId) {
       // 3. Join a "Room" named after the User ID

@@ -112,7 +112,7 @@ export const createAccount = async (
     //Send the code once we know the account is successfully created.
     await newUser.save();
 
-    await otpQueue.add(
+    await otpQueue().add(
       "send-email-otp",
       { email: normalizedEmail, code, type: "EMAIL" as OtpType },
       {

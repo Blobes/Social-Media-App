@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Response, NextFunction, RequestHandler } from "express";
 import { IAuthRequest, IJwtUser } from "../types/types";
-import { redisClient } from "../services/upstash";
+import { upstashClient } from "../services/upstash";
 import { CACHE_KEYS } from "../utils/redis/cache";
 
 /**
@@ -26,7 +26,7 @@ export const optVerifyToken: RequestHandler = async (
 
     // STATEFUL CHECK: Verify the session exists in Upstash (Redis)
     const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
-    const sessionActive = await redisClient.exists(sessionKey);
+    const sessionActive = await upstashClient.exists(sessionKey);
 
     if (sessionActive) {
       // Attach user data only if the session is still valid in our store

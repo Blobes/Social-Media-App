@@ -19,6 +19,5 @@ export const initEnv = () => {
     console.log(`📡 Environment initialized: ${envFile}`);
   } else {
     console.error(`❌ Critical: Could not find ${envFile}`);
-    // process.exit(1);
   }
 };
