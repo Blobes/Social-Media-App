@@ -1,6 +1,6 @@
 services:
   # --- Gateway Service ---
-  gateway:
+  gateway-service:
     build:
       context: .
       dockerfile_inline: |
@@ -26,7 +26,7 @@ services:
       - coolify
 
   # --- Account Service ---
-  account:
+  account-service:
     build:
       context: .
       dockerfile_inline: |
@@ -48,7 +48,7 @@ services:
       - coolify
 
   # --- Post Service ---
-  post:
+  post-service:
     build:
       context: .
       dockerfile_inline: |
@@ -70,7 +70,7 @@ services:
       - coolify
 
   # --- Worker Service ---
-  worker:
+  worker-service:
     build:
       context: .
       dockerfile_inline: |
@@ -92,7 +92,7 @@ services:
       - coolify
 
   # --- Admin Service ---
-  admin:
+  admin-service:
     build:
       context: .
       dockerfile_inline: |
