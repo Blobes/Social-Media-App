@@ -2,7 +2,7 @@ import {
   CACHE_KEYS,
   IAuthRequest,
   invalidatePattern,
-  redisClient,
+  upstashClient,
 } from "@repo/shared";
 import { Response } from "express";
 
@@ -34,7 +34,7 @@ export const logoutUser = async (
       // --- TARGETED LOGOUT: Kill a specific session ---
       // If no targetId is provided, we default to the current active session
       const idToKill = targetSessionId || currentSessionId;
-      await redisClient.del(`session:${userId}:${idToKill}`);
+      await upstashClient.del(`session:${userId}:${idToKill}`);
     }
 
     // Clear cookies on the client side if the user is logging out of their current device

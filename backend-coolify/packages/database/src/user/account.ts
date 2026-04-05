@@ -7,9 +7,9 @@ import { IUserModel } from "../model-types/user";
  */
 export interface IUserDocument
   extends Omit<IUserModel, "_id" | "createdAt" | "updatedAt">, Document {
-  password?: string;
-  verificationCode?: string;
-  verificationExpiry?: Date;
+  password: string;
+  verificationCode?: string | null;
+  verificationExpiry?: Date | null;
   idVerificationRequest?: Types.ObjectId | null;
   moderationStrikes: number;
   suspensionExpiresAt?: Date | null;
@@ -85,8 +85,8 @@ const UserSchema = new Schema<IUserDocument>(
     },
     isEmailVerified: { type: Boolean, default: false },
     isPhoneVerified: { type: Boolean, default: false },
-    verificationCode: String,
-    verificationExpiry: Date,
+    verificationCode: { type: String, default: null },
+    verificationExpiry: { type: Date, default: null },
     lastEmailCodeSentAt: { type: Date, default: null },
     primarySessionId: { type: String, default: null },
 

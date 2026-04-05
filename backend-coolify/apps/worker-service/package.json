@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "express": "catalog:",
+    "mongoose": "catalog:",
     "cookie-parser": "catalog:",
     "dotenv": "catalog:",
     "node-cron": "catalog:",

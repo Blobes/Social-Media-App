@@ -318,6 +318,9 @@ importers:
       ioredis:
         specifier: 'catalog:'
         version: 5.10.1
+      mongoose:
+        specifier: 'catalog:'
+        version: 9.3.0
       node-cron:
         specifier: 'catalog:'
         version: 4.2.1

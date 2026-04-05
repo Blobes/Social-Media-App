@@ -138,7 +138,7 @@ export const changePhoneNumber = async (
     await user.save();
 
     // Send code via WhatsApp
-    await otpQueue.add(
+    await otpQueue().add(
       "send-email-otp",
       { phone: formattedPhone, code, type: "WHATSAPP" as OtpType },
       {

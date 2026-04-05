@@ -43,8 +43,8 @@ export const verifyPhoneUpdate = async (
 
     // Persist the verified phone number and clear temporary verification fields
     user.phoneNumber = user.pendingPhoneNumber;
-    user.pendingPhoneNumber = null as any;
-    user.verificationCode = null as any;
+    user.pendingPhoneNumber = null;
+    user.verificationCode = null;
     user.lastPhoneChangeAt = new Date();
 
     await user.save();

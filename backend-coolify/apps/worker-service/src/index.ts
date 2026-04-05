@@ -1,5 +1,5 @@
 import express from "express";
-import { connectDB, initEnv, initRedis, monitorProcess } from "@repo/shared";
+import { connectDB, initEnv, initUpstash, monitorProcess } from "@repo/shared";
 import "./processors/postModeration";
 import { otpDispatchWorker } from "./processors/codeDispatch";
 import { postModerationWorker } from "./processors/postModeration";
@@ -7,7 +7,7 @@ import appLoader from "./loader";
 
 const startServer = async () => {
   initEnv(); // Load the environment first
-  initRedis(); // Load redis
+  initUpstash(); // Load redis
 
   const app = express();
   const port = process.env.WORKER_PORT || 8083;

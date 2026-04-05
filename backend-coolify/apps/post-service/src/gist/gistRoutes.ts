@@ -1,10 +1,10 @@
 import { moderateContent, optVerifyToken, verifyAuthToken } from "@repo/shared";
 import express, { Router } from "express";
 import { getGistList } from "./controllers/getGistList";
-import createGist from "./controllers/createGist";
-import getGist from "./controllers/getGist";
 import { gistLike } from "./controllers/gistLike";
-import editGist from "./controllers/editGist";
+import { createGist } from "./controllers/createGist";
+import { editGist } from "./controllers/editGist";
+import { getGist } from "./controllers/getGist";
 
 const router: Router = express.Router();
 

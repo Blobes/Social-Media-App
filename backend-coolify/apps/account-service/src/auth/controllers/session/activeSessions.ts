@@ -1,4 +1,4 @@
-import { IAuthRequest, redisClient } from "@repo/shared";
+import { IAuthRequest, upstashClient } from "@repo/shared";
 import { Response } from "express";
 
 export const getActiveSessions = async (
@@ -22,14 +22,14 @@ export const getActiveSessions = async (
 
     // 1. Scan Upstash for all session keys belonging to this user
     do {
-      const [nextCursor, keys] = await redisClient.scan(cursor, {
+      const [nextCursor, keys] = await upstashClient.scan(cursor, {
         match: pattern,
         count: 100,
       });
 
       if (keys.length > 0) {
         // 2. Fetch the metadata for each session key found
-        const pipeline = redisClient.pipeline();
+        const pipeline = upstashClient.pipeline();
         keys.forEach((key) => pipeline.get(key));
         const results = await pipeline.exec();
 

@@ -10,7 +10,10 @@ interface EditRequest extends IAuthRequest {
   };
 }
 
-const editGist = async (req: EditRequest, res: Response): Promise<void> => {
+export const editGist = async (
+  req: EditRequest,
+  res: Response,
+): Promise<void> => {
   const userId = req.user?.id;
   const { content, gistId } = req.body;
 
@@ -118,5 +121,3 @@ const editGist = async (req: EditRequest, res: Response): Promise<void> => {
     session.endSession();
   }
 };
-
-export default editGist;

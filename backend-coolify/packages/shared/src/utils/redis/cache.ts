@@ -13,10 +13,10 @@ export const getOrSetCache = async <T>(
   cb: () => Promise<T>,
   expiry = 3600,
 ): Promise<T> => {
-  // Safety Check: If redisClient wasn't initialized, skip cache and hit DB
+  // Safety Check: If upstashClient wasn't initialized, skip cache and hit DB
   if (!upstashClient) {
     console.warn(
-      `[Cache-Warning] redisClient is undefined for key: ${key}. Falling back to DB.`,
+      `[Cache-Warning] upstashClient is undefined for key: ${key}. Falling back to DB.`,
     );
     return await cb();
   }

@@ -2,7 +2,7 @@ import { UserModel } from "@repo/database";
 import { dispatchEmailCode, genVerificationCode, hashCode } from "@repo/shared";
 import { Request, Response } from "express";
 
-export const resendEmailCode = async (
+export const sendEmailCode = async (
   req: Request,
   res: Response,
 ): Promise<any> => {

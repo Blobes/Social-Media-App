@@ -30,16 +30,16 @@ export interface IUserModel {
   accountStatus: AccountStatus;
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
-  lastEmailCodeSentAt?: Date | string | null;
+  lastEmailCodeSentAt?: Date | null;
   primarySessionId?: string | null;
 
   // --- 4. IDENTITY UPDATES (NEWLY ADDED) ---
   pendingEmail?: string | null;
-  lastEmailChangeAt?: Date | string | null;
+  lastEmailChangeAt?: Date | null;
   pendingPhoneNumber?: string | null;
-  lastPhoneCodeSentAt: Date | string | null;
-  lastPhoneChangeAt?: Date | string | null;
-  lastUsernameChangeAt?: Date | string | null;
+  lastPhoneCodeSentAt: Date | null;
+  lastPhoneChangeAt?: Date | null;
+  lastUsernameChangeAt?: Date | null;
 
   // --- 5. PROFILE DETAILS ---
   gender?: string | null;
@@ -69,13 +69,13 @@ export interface IUserModel {
     preferredTopics: Array<{
       topicId: string;
       title: string;
-      lastViewed?: string | null;
+      lastViewed?: Date | null;
     }>;
   };
 
   // --- 9. LIFECYCLE ---
   isDeactivated: boolean;
   deactivatedAt?: string | null; // NEWLY ADDED
-  createdAt: Date | string | null;
-  updatedAt: Date | string | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
 }

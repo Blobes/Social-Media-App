@@ -1,10 +1,10 @@
 import express from "express";
-import { connectDB, initEnv, initRedis, monitorProcess } from "@repo/shared";
+import { connectDB, initEnv, initUpstash, monitorProcess } from "@repo/shared";
 import appLoader from "./loader";
 
 const startServer = async () => {
   initEnv(); // Load the environment first
-  initRedis(); // Initialize Redis configuration
+  initUpstash(); // Initialize Redis configuration
 
   const app = express();
   const port = process.env.ACCOUNT_PORT;

@@ -2,8 +2,8 @@ import { UserModel } from "@repo/database";
 import {
   IAuthRequest,
   userSensitiveFields,
-  redisClient,
   CACHE_KEYS,
+  upstashClient,
 } from "@repo/shared";
 import { RequestHandler, Response } from "express";
 
@@ -28,7 +28,7 @@ export const verifyUserAuth: RequestHandler = async (
     if (!user) {
       // If user is missing or deactivated (caught by middleware/pre-find),
       // we should also kill the Redis session immediately.
-      await redisClient.del(`session:${userId}:${sessionId}`);
+      await upstashClient.del(`session:${userId}:${sessionId}`);
 
       return res.status(401).json({
         status: "ERROR",
@@ -40,7 +40,7 @@ export const verifyUserAuth: RequestHandler = async (
     // UPDATE HEARTBEAT: Extend session life or just update last active
     const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
 
-    await redisClient.set(
+    await upstashClient.set(
       sessionKey,
       {
         userAgent: req.get("user-agent") || "unknown",

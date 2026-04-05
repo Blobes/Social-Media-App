@@ -57,15 +57,15 @@ export const verifyEmailCode = async (
     if (isChangingEmail) {
       // Finalize the email swap and update cooldown timestamp
       user.email = user.pendingEmail as string;
-      user.pendingEmail = null as any;
+      user.pendingEmail = null;
       user.lastEmailChangeAt = new Date();
     }
 
     // Standardize verification flags and cleanup temporary codes
     user.isEmailVerified = true;
-    user.verificationCode = undefined;
-    user.verificationExpiry = undefined;
-    user.lastEmailCodeSentAt = null as any;
+    user.verificationCode = null;
+    user.verificationExpiry = null;
+    user.lastEmailCodeSentAt = null;
 
     // Persist changes to MongoDB
     await user.save();

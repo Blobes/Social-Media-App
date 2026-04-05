@@ -9,7 +9,10 @@ import {
 import { Response } from "express";
 import mongoose from "mongoose";
 
-const getGist = async (req: IAuthRequest, res: Response): Promise<void> => {
+export const getGist = async (
+  req: IAuthRequest,
+  res: Response,
+): Promise<void> => {
   const postId = req.params.id as string;
   const userId = req.user?.id;
 
@@ -81,5 +84,3 @@ const getGist = async (req: IAuthRequest, res: Response): Promise<void> => {
     res.status(500).json({ status: "ERROR", message: "Internal Server Error" });
   }
 };
-
-export default getGist;
