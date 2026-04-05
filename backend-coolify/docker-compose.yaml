@@ -11,6 +11,7 @@ services:
         CMD ["pnpm", "--filter", "@repo/gateway", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "dist/index.js"]
     environment:
       - GATEWAY_PORT=8000
+      - GATEWAY_URL={{project.BACKEND_URL}}
       - NIXPACKS_APP_DIRECTORY=backend-coolify/apps/gateway
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
       - NIXPACKS_IGNORE={{project.NIXPACKS_IGNORE}}
