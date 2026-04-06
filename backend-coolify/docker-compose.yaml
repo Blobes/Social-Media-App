@@ -21,6 +21,11 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
     labels:
       - "coolify.name=funstakes-backend-gateway"
+      - "traefik.enable=true"
+      - "traefik.http.routers.gateway-router.rule=Host(`api.funstakes.net`)"
+      - "traefik.http.routers.gateway-router.entrypoints=https"
+      - "traefik.http.routers.gateway-router.tls=true"
+      - "traefik.http.services.gateway-service.loadbalancer.server.port=8000"
       - "coolify.exposed_port=8000"
     networks:
       - coolify
