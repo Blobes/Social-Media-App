@@ -48,8 +48,6 @@ services:
         CMD ["pnpm", "--filter", "@repo/account-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "dist/index.js"]
     volumes:
       - /data/funstakes/.env.shared:/app/.env.shared:ro
-    environment:
-      - ACCOUNT_PORT=8085
     labels:
       - "coolify.name=funstakes-backend-account"
     networks:
@@ -76,7 +74,6 @@ services:
     volumes:
       - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
-      - POST_PORT=8081
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
     labels:
       - "coolify.name=funstakes-backend-post"
@@ -104,7 +101,6 @@ services:
     volumes:
       - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
-      - WORKER_PORT=8083
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
     labels:
       - "coolify.name=funstakes-backend-worker"
@@ -132,7 +128,6 @@ services:
     volumes:
       - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
-      - ADMIN_PORT=8084
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
     labels:
       - "coolify.name=funstakes-backend-admin"
