@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile_inline: |
         FROM node:20-alpine
-        RUN apk add --no-cache libc6-compat
+        RUN apk add --no-cache libc6-compat curl
         WORKDIR /app/backend-coolify
         RUN corepack enable && corepack prepare pnpm@latest --activate
         COPY . /app
@@ -16,14 +16,18 @@ services:
       # Format: [Host Path]:[Container Path]:[Mode]
       - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
-      - GATEWAY_PORT=8000
-      - GATEWAY_URL={{project.BACKEND_URL}}
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
     labels:
       - "coolify.name=funstakes-backend-gateway"
       - "coolify.exposed_port=8000"
     networks:
       - coolify
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # --- Account Service ---
   account-service:
@@ -31,7 +35,7 @@ services:
       context: .
       dockerfile_inline: |
         FROM node:20-alpine
-        RUN apk add --no-cache libc6-compat
+        RUN apk add --no-cache libc6-compat curl
         WORKDIR /app/backend-coolify
         RUN corepack enable && corepack prepare pnpm@latest --activate
         COPY . /app
@@ -39,13 +43,16 @@ services:
         CMD ["pnpm", "--filter", "@repo/account-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "dist/index.js"]
     volumes:
       - /data/funstakes/.env.shared:/app/.env.shared:ro
-    environment:
-      - ACCOUNT_PORT=8080
-      - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
     labels:
       - "coolify.name=funstakes-backend-account"
     networks:
       - coolify
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # --- Post Service ---
   post-service:
@@ -53,7 +60,7 @@ services:
       context: .
       dockerfile_inline: |
         FROM node:20-alpine
-        RUN apk add --no-cache libc6-compat
+        RUN apk add --no-cache libc6-compat curl
         WORKDIR /app/backend-coolify
         RUN corepack enable && corepack prepare pnpm@latest --activate
         COPY . /app
@@ -62,12 +69,17 @@ services:
     volumes:
       - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
-      - POST_PORT=8081
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
     labels:
       - "coolify.name=funstakes-backend-post"
     networks:
       - coolify
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # --- Worker Service ---
   worker-service:
@@ -75,7 +87,7 @@ services:
       context: .
       dockerfile_inline: |
         FROM node:20-alpine
-        RUN apk add --no-cache libc6-compat
+        RUN apk add --no-cache libc6-compat curl
         WORKDIR /app/backend-coolify
         RUN corepack enable && corepack prepare pnpm@latest --activate
         COPY . /app
@@ -84,12 +96,17 @@ services:
     volumes:
       - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
-      - WORKER_PORT=8083
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
     labels:
       - "coolify.name=funstakes-backend-worker"
     networks:
       - coolify
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # --- Admin Service ---
   admin-service:
@@ -97,7 +114,7 @@ services:
       context: .
       dockerfile_inline: |
         FROM node:20-alpine
-        RUN apk add --no-cache libc6-compat
+        RUN apk add --no-cache libc6-compat curl
         WORKDIR /app/backend-coolify
         RUN corepack enable && corepack prepare pnpm@latest --activate
         COPY . /app
@@ -106,12 +123,17 @@ services:
     volumes:
       - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
-      - ADMIN_PORT=8084
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
     labels:
       - "coolify.name=funstakes-backend-admin"
     networks:
       - coolify
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 networks:
   coolify:

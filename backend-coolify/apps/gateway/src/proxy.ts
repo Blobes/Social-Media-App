@@ -1,94 +1,50 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { Router, type Response } from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
-import { pingServices } from "./middleware/pinger";
-import { isServiceAwake } from "./middleware/checkServices";
+import { Socket } from "net";
 
 const router: Router = Router();
+
 /**
- * Handles proxy connection errors and prevents the Gateway from crashing.
+ * Clean Proxy Factory
+ * Just forwards the request and handles 502/504 errors gracefully.
  */
-const handleProxyError = (
-  err: any,
-  req: Request,
-  res: Response,
-  envVarName: string,
-) => {
-  console.error(`[Proxy Error] ${envVarName} is likely sleeping:`, err.message);
-  res.status(202).json({
-    error: "Service warming up",
-    message: "The service is starting. Please retry in 20 seconds.",
-    retryable: true,
+const createServiceProxy = (targetEnvVar: string, rewritePath?: string) => {
+  const target = process.env[targetEnvVar];
+
+  return createProxyMiddleware({
+    target,
+    changeOrigin: true,
+    pathRewrite: rewritePath ? { [`^${rewritePath}`]: "" } : undefined,
+    on: {
+      error: (err, req, res) => {
+        console.error(`[Proxy Error] ${targetEnvVar}:`, err.message);
+        if (res instanceof Socket) {
+          res.destroy();
+          return;
+        }
+        const out = res as Response;
+        if (!out.headersSent) {
+          out.status(502).json({ error: "Service temporarily unavailable" });
+        }
+      },
+    },
   });
 };
 
-/**
- * Proxy Handler
- * @param prefixes - Array of paths to match (e.g., ["/auth", "/user"] or ["/admin"])
- * @param envVarName - The target service URL from process.env
- * @param shouldStrip - Whether to remove the prefix before forwarding to the service
- */
+// --- Route Mapping ---
 
-export const proxyService = (
-  prefixes: string[],
-  envVarName: string,
-  shouldStrip: boolean = false,
-) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    const target = process.env[envVarName] as string;
-    if (!target)
-      return res.status(500).json({ error: `Config missing: ${envVarName}` });
+// ACCOUNT SERVICE: (Strip '/account', keep '/auth' and '/user')
+router.use("/account", createServiceProxy("ACCOUNT_URL", "/account"));
+router.use(["/auth", "/user"], createServiceProxy("ACCOUNT_URL"));
 
-    const matchedPrefix = prefixes.find((p) => req.path.startsWith(p));
-    if (!matchedPrefix) return next();
-
-    // --- NEW: THE PRE-FLIGHT CHECK ---
-    const awake = await isServiceAwake(target);
-
-    if (!awake) {
-      console.log(`[Gateway] ${envVarName} is sleeping. Preventing 502...`);
-      // Trigger the background wake-up for ALL services (your existing logic)
-      pingServices();
-      // Return 202 to the user to keep the connection "healthy"
-      return res.status(202).json({
-        status: "warming_up",
-        message: "Service is starting. Please refresh in 30 seconds.",
-        target: envVarName,
-      });
-    }
-
-    // IF AWAKE: Hand over to the existing Proxy Middleware
-    return createProxyMiddleware({
-      target,
-      changeOrigin: true,
-      secure: true,
-      xfwd: true,
-      pathRewrite: shouldStrip ? { [`^${matchedPrefix}`]: "" } : undefined,
-      on: {
-        proxyReq: (proxyReq, req: any) => {
-          console.log(
-            `[Gateway] Proxying ${req.originalUrl} -> ${target}${proxyReq.path}`,
-          );
-        },
-        error: (err, req, res) =>
-          handleProxyError(err, req as any, res as Response, envVarName),
-      },
-    })(req, res, next);
-  };
-};
-
-// --- Standardized Route Mapping ---
-// ACCOUNT SERVICE
-router.use(proxyService(["/account"], "ACCOUNT_URL", true));
-router.use(proxyService(["/auth", "/user"], "ACCOUNT_URL", false));
-
-// POST SERVICE
-router.use(proxyService(["/post"], "POST_URL", true));
-router.use(proxyService(["/feed", "/gists"], "POST_URL", false));
+// POST SERVICE: (Strip '/post', keep '/feed' and '/gists')
+router.use("/post", createServiceProxy("POST_URL", "/post"));
+router.use(["/feed", "/gists"], createServiceProxy("POST_URL"));
 
 // ADMIN SERVICE
-router.use(proxyService(["/admin"], "ADMIN_URL", true));
+router.use("/admin", createServiceProxy("ADMIN_URL", "/admin"));
 
 // WORKER SERVICE
-router.use(proxyService(["/worker"], "WORKER_URL", true));
+router.use("/worker", createServiceProxy("WORKER_URL", "/worker"));
 
 export default router;
