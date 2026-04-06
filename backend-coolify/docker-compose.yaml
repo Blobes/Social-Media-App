@@ -17,6 +17,7 @@ services:
       - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
       - GATEWAY_PORT=8000
+      - GATEWAY_URL={{project.BACKEND_URL}}
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
     labels:
       - "coolify.name=funstakes-backend-gateway"
