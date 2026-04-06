@@ -11,7 +11,7 @@ services:
         COPY . /app
         RUN pnpm install && pnpm --filter @repo/gateway build
         # Using pnpm exec because tsx is a devDependency
-        CMD ["NODE_ENV=production pnpm", "--filter", "@repo/gateway", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "dist/index.js"]
+        CMD ["pnpm", "--filter", "@repo/gateway", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "dist/index.js"]
     volumes:
       # Format: [Host Path]:[Container Path]:[Mode]
       - /data/funstakes/.env.shared:/app/.env.shared:ro
