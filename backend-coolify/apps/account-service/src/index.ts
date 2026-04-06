@@ -7,7 +7,7 @@ const startServer = async () => {
   initUpstash(); // Initialize Redis configuration
 
   const app = express();
-  const port = process.env.ACCOUNT_PORT;
+  const port = process.env.ACCOUNT_PORT || 8085;
   const mongoUri = process.env.MONGO_URI || "";
 
   try {

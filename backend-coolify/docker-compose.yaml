@@ -47,13 +47,13 @@ services:
     volumes:
       - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
-      - ACCOUNT_PORT=8080
+      - ACCOUNT_PORT=8085
     labels:
       - "coolify.name=funstakes-backend-account"
     networks:
       - coolify
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
       interval: 30s
       timeout: 10s
       retries: 3
