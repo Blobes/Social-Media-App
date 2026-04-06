@@ -1,18 +1,17 @@
 {
-  "name": "@repo/auth",
+  "name": "@repo/post",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next -p 3002",
+    "dev": "next dev -p 3003",
     "build": "next build",
-    "start": "next start  -p 3002"
+    "start": "next start -p 300"
   },
   "dependencies": {
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "@mui/material": "catalog:",
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "lucide-react": "catalog:",
@@ -21,8 +20,8 @@
     "@repo/helpers": "workspace:*",
     "@repo/theme": "workspace:*",
     "@repo/types": "workspace:*",
-    "@repo/assets": "workspace:*",
-    "@repo/features": "workspace:*"
+    "@repo/features": "workspace:*",
+    "@mui/material": "catalog:"
   },
   "devDependencies": {
     "typescript": "catalog:",

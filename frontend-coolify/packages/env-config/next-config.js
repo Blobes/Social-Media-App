@@ -1,12 +1,13 @@
-import { withMicrofrontends } from "@vercel/microfrontends/next/config";
-
 export function withBaseConfig(appConfig = {}, backendApi) {
-  return withMicrofrontends({
+  return {
     ...appConfig,
+    output: "standalone",
     async rewrites() {
       const baseRewrites = appConfig.rewrites
         ? await appConfig.rewrites()
-        : { beforeFiles: [] };
+        : { beforeFiles: [], afterFiles: [], fallback: [] };
+
+      // Ensure we handle both array and object rewrite formats
       const beforeFiles = Array.isArray(baseRewrites)
         ? []
         : baseRewrites.beforeFiles || [];
@@ -22,5 +23,5 @@ export function withBaseConfig(appConfig = {}, backendApi) {
         ],
       };
     },
-  });
+  };
 }

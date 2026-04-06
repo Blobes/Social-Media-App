@@ -1,5 +1,6 @@
 "use client";
 
+import { FetchStatus } from "./payloads/modified";
 import { Direction } from "./ui-props";
 
 // Types
@@ -9,10 +10,11 @@ export type AuthStatus =
   | "UNAUTHENTICATED"
   | "PENDING"
   | "ERROR";
+
 export type NetworkStatus = "STABLE" | "UNSTABLE" | "OFFLINE" | "UNKNOWN";
 export type UIMode = "ONLINE" | "OFFLINE";
 export type DateType = "SHORTENED" | "COMPLETE" | "DATE-ONLY";
-export type FetchStatus = "SUCCESS" | "ERROR" | "INFO" | "WARNING" | null;
+
 export type InputType = "EMAIL" | "PHONE" | "PASSWORD" | "USERNAME" | "NUMBER";
 export type InputStatus = "VALID" | "INVALID";
 
@@ -56,18 +58,6 @@ export interface ISnackBarMsg {
   messages?: IMessage[];
   defaultDur: number;
   dir?: Direction;
-}
-
-export interface ISingleResponse<T> {
-  message: string;
-  payload: T | null;
-  status: FetchStatus;
-}
-
-export interface IListResponse<T> {
-  message: string;
-  payload: T[] | null;
-  status: FetchStatus;
 }
 
 export interface InputValidation {

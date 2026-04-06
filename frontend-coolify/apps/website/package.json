@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev -p 3006",
     "build": "next build",
-    "start": "next start"
+    "start": "next start -p 3006"
   },
   "dependencies": {
     "next": "catalog:",
@@ -16,7 +16,6 @@
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "lucide-react": "catalog:",
-    "@vercel/microfrontends": "catalog:",
     "@repo/shared-ui": "workspace:*",
     "@repo/features": "workspace:*",
     "@repo/shared-state": "workspace:*",
@@ -30,7 +29,6 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@repo/eslint-config": "workspace:*",
     "@repo/env-config": "workspace:*"
   }
 }

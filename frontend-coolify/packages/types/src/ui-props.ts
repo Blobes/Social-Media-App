@@ -1,6 +1,6 @@
 "use client";
 
-import { IMedia } from "./data";
+import { IMedia } from "./payloads/modified";
 import { GenericObject } from "./ui-state";
 
 export type Direction = "left" | "right" | "up" | "down";

@@ -3,15 +3,14 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "next --port $(microfrontends port)",
+    "dev": "next dev -p 3000",
     "build": "next build",
-    "start": "next start"
+    "start": "next start -p 3000"
   },
   "dependencies": {
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "@mui/material": "catalog:",
-    "@vercel/microfrontends": "catalog:",
     "lucide-react": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
@@ -25,7 +24,6 @@
     "@repo/types": "workspace:*"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
     "@repo/env-config": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",

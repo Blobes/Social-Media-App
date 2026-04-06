@@ -1,0 +1,79 @@
+services:
+  # --- THE SHELL (Main Entry Point) ---
+  shell-app:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM node:20-alpine AS builder
+        WORKDIR /app
+        RUN corepack enable && corepack prepare pnpm@latest --activate
+        COPY . .
+        RUN pnpm install && pnpm --filter @repo/shell build
+
+        FROM node:20-alpine AS runner
+        WORKDIR /app
+        ENV NODE_ENV production
+        # Copy standalone build from Next.js (requires output: 'standalone' in next.config.js)
+        COPY --from=builder /app/apps/shell/.next/standalone ./
+        COPY --from=builder /app/apps/shell/.next/static ./apps/shell/.next/static
+        COPY --from=builder /app/apps/shell/public ./apps/shell/public
+        EXPOSE 3000
+        CMD ["node", "apps/shell/server.js"]
+    environment:
+      - PORT=3000
+      - AUTH_URL=http://auth-app:3002
+      - POST_URL=http://post-app:3003
+      - NEXT_PUBLIC_API_URL=https://api.funstakes.net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.shell.rule=Host(`funstakes.net`) || Host(`www.funstakes.net`)"
+      - "traefik.http.routers.shell.entrypoints=https"
+      - "traefik.http.routers.shell.tls=true"
+      - "coolify.exposed_port=3000"
+    networks:
+      - coolify
+
+  # --- AUTH MFE ---
+  auth-app:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM node:20-alpine AS builder
+        WORKDIR /app
+        RUN corepack enable && corepack prepare pnpm@latest --activate
+        COPY . .
+        RUN pnpm install && pnpm --filter @repo/auth build
+        FROM node:20-alpine AS runner
+        WORKDIR /app
+        COPY --from=builder /app/apps/auth/.next/standalone ./
+        COPY --from=builder /app/apps/auth/.next/static ./apps/auth/.next/static
+        CMD ["node", "apps/auth/server.js"]
+    environment:
+      - PORT=3002
+    networks:
+      - coolify
+    # No public domain needed; Shell talks to it internally
+
+  # --- POST MFE ---
+  post-app:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM node:20-alpine AS builder
+        WORKDIR /app
+        RUN corepack enable && corepack prepare pnpm@latest --activate
+        COPY . .
+        RUN pnpm install && pnpm --filter @repo/post build
+        FROM node:20-alpine AS runner
+        WORKDIR /app
+        COPY --from=builder /app/apps/post/.next/standalone ./
+        COPY --from=builder /app/apps/post/.next/static ./apps/post/.next/static
+        CMD ["node", "apps/post/server.js"]
+    environment:
+      - PORT=3003
+    networks:
+      - coolify
+
+networks:
+  coolify:
+    external: true

@@ -29,7 +29,7 @@ export const getPostStaticData = (): PipelineStage[] => {
         visibility: "$visibility",
         location: "$location",
 
-        // Constructing a robust Author object
+        // Constructing Author object
         author: {
           _id: { $ifNull: ["$authorDetails._id", "$authorId"] },
           username: { $ifNull: ["$authorDetails.username", undefined] },
@@ -63,11 +63,13 @@ export const getPostStaticData = (): PipelineStage[] => {
           $cond: [
             { $eq: ["$postType", "GIST"] },
             {
-              // Mapping to your Gist Schema (latestCaption)
-              caption: { $ifNull: ["$latestCaption.caption", ""] },
-              captionId: { $ifNull: ["$latestCaption.captionId", "$_id"] },
-              updatedAt: {
-                $ifNull: ["$latestCaption.createdAt", "$createdAt"],
+              // Mapping to Gist Schema (latestCaption)
+              latestCaption: {
+                caption: { $ifNull: ["$latestCaption.caption", ""] },
+                captionId: { $ifNull: ["$latestCaption.captionId", "$_id"] },
+                updatedAt: {
+                  $ifNull: ["$latestCaption.createdAt", "$createdAt"],
+                },
               },
               isEdited: { $gt: [{ $ifNull: ["$editCount", 0] }, 0] },
             },
