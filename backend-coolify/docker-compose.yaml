@@ -16,6 +16,7 @@ services:
       # Format: [Host Path]:[Container Path]:[Mode]
       - /data/funstakes/.env.shared:/app/.env.shared:ro
     environment:
+      - NODE_ENV=production
       - GATEWAY_PORT=8000
       - GATEWAY_URL={{project.BACKEND_URL}}
       - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
