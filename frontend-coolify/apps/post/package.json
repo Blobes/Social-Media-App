@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "NODE_ENV=development next dev -p 3003",
+    "dev": "next dev -p 3003",
     "build": "next build",
-    "start": "NODE_ENV=production next start -p 3003"
+    "start": "PORT=3003 node .next/standalone/apps/post/server.js"
   },
   "dependencies": {
     "next": "catalog:",

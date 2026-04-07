@@ -26,7 +26,6 @@ interface FeedbackProps {
     toolTip?: string;
     action: () => void | Promise<void>;
     href?: string;
-    isCrossZone?: boolean;
   };
   secondaryCta?: {
     type?: "BUTTON" | "ICON";
@@ -34,7 +33,6 @@ interface FeedbackProps {
     toolTip?: string;
     action: () => void;
     href?: string;
-    isCrossZone?: boolean;
   };
 }
 

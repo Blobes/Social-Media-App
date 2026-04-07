@@ -5,11 +5,5 @@
   "exports": {
     "./next-config": "./next-config.js",
     "./tsconfig.base.json": "./tsconfig.base.json"
-  },
-  "peerDependencies": {
-    "@vercel/microfrontends": "catalog:"
-  },
-  "devDependencies": {
-    "@vercel/microfrontends": "catalog:"
   }
 }

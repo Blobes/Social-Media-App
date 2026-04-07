@@ -4,10 +4,19 @@
   "globalDependencies": [".env.development", ".env.production"],
   "globalEnv": ["NODE_ENV"],
   "tasks": {
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "inputs": ["$TURBO_DEFAULT$", ".env*"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "start": {
+      "cache": false,
+      "persistent": true
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -15,14 +24,12 @@
     "check-types": {
       "dependsOn": ["^check-types"]
     },
-    "dev": {
-      "cache": false,
-      "persistent": true,
-      "inputs": ["$TURBO_DEFAULT$", ".env*"]
-    },
     "format": {
       "cache": true,
       "outputs": []
+    },
+    "clean": {
+      "cache": false
     }
   }
 }

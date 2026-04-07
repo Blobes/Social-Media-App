@@ -1,20 +1,15 @@
 "use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export function Prefetcher({ route }: { route: string }) {
-    const router = useRouter();
+  const router = useRouter();
 
-    useEffect(() => {
-        // This tells Next.js to fetch the JS and data for the /offline route
-        // without actually navigating to it.
-        router.prefetch(route);
+  useEffect(() => {
+    // Next.js handles the caching and service worker integration for you
+    router.prefetch(route);
+  }, [router, route]);
 
-        // Optional: Also fetch it via the native browser fetch to ensure 
-        // the Service Worker sees the request clearly
-        fetch(route).catch(() => { });
-    }, [router]);
-
-    return null;
+  return null;
 }

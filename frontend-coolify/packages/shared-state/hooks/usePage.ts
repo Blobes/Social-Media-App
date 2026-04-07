@@ -9,6 +9,7 @@ import {
   delay,
   extractPageTitle,
   getFromLocalStorage,
+  crossZoneCheck,
 } from "@repo/helpers";
 import { usePathname, useRouter } from "next/navigation";
 import { useMisc } from "./useMisc";
@@ -41,18 +42,28 @@ export const usePage = () => {
   const navigateTo = async (page: IPage, options: NavigateOptions = {}) => {
     const { type, savePage = true, loadPage = false, event } = options;
 
+    if (event) event.preventDefault();
+
+    const isCrossZone = crossZoneCheck(page.path);
+
     if (drawerContent) closeDrawer();
     if (modalContent) closeModal();
-
     if (savePage) setLastPage(page);
 
+    // Cross zone dynamic navigation
+    if (isCrossZone) {
+      if (loadPage) setGlobalLoading(true);
+      if (type === "replace") window.location.replace(page.path);
+      else window.location.assign(page.path);
+      return;
+    }
+
+    // INTERNAL: Standard Next.js SPA navigation
     if (loadPage) {
       setGlobalLoading(true);
       await delay(2000);
       setGlobalLoading(false);
     }
-
-    if (event) event.preventDefault();
 
     if (type === "push") router.push(page.path);
     if (type === "replace") router.replace(page.path);

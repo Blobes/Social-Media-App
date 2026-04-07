@@ -1,9 +1,8 @@
 import React from "react";
-import { Metadata } from "next";
+import { Viewport, Metadata } from "next";
 import { BaseLayout, ClientOnly, DefaultWrapper } from "@repo/features";
 import { Prefetcher } from "@repo/shared-ui";
 import { baseMetadata, sharedViewport } from "@repo/helpers";
-import { Viewport } from "next";
 
 export const viewport: Viewport = {
   ...sharedViewport,

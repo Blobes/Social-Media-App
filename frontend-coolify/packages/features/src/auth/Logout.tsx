@@ -33,8 +33,7 @@ export const ComfirmLogout = () => {
         </AppButton>
         <AppButton
           href={clientRoutes.signup.path}
-          onClick={async () => await handleLogout()}
-          isCrossZone>
+          onClick={async () => await handleLogout()}>
           Sure I do
         </AppButton>
       </Stack>

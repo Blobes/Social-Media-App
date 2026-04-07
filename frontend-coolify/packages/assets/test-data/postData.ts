@@ -1,6 +1,6 @@
 "use client";
 
-import { img } from "@repo/assets";
+import { img } from "../constants";
 import { IStake, MediaProps } from "@repo/types";
 
 export const stakeTestData: IStake[] = [

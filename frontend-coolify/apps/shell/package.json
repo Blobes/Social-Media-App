@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "NODE_ENV=development next dev -p 3000",
+    "dev": "next dev -p 3000",
     "build": "next build",
-    "start": "NODE_ENV=production next start -p 3000"
+    "start": "PORT=3000 node .next/standalone/apps/shell/server.js"
   },
   "dependencies": {
     "@emotion/react": "catalog:",

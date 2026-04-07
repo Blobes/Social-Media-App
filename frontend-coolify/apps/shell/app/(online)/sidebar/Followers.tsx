@@ -6,7 +6,7 @@ import { Stack } from "@mui/material";
 import { useGlobalContext } from "@repo/shared-state";
 import { useEffect } from "react";
 import { FollowerCard } from "../components/FollowerCard";
-import { ProgressIcon, Empty } from "@repo/shared-ui";
+import { ProgressIcon, Feedback } from "@repo/shared-ui";
 import { UserMinus } from "lucide-react";
 import { useUser } from "@repo/features";
 
@@ -30,7 +30,7 @@ export const Followers = () => {
           <ProgressIcon otherProps={{ size: 30 }} />
         </Stack>
       ) : authUser && followers && followers.length < 1 ? (
-        <Empty tagline="You don't have followers!" icon={<UserMinus />} />
+        <Feedback tagline="You don't have followers!" icon={<UserMinus />} />
       ) : followers && followers.length > 0 ? (
         <Stack
           direction="row"
@@ -46,7 +46,7 @@ export const Followers = () => {
           })}
         </Stack>
       ) : (
-        <Empty
+        <Feedback
           tagline={message || "Something went wrong."}
           icon={<UserMinus />}
         />

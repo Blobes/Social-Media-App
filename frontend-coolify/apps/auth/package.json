@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "NODE_ENV=development next dev -p 3002",
+    "dev": "next dev -p 3002",
     "build": "next build",
-    "start": "NODE_ENV=production next start -p 3002"
+    "start": "PORT=3002 node .next/standalone/apps/auth/server.js"
   },
   "dependencies": {
     "next": "catalog:",

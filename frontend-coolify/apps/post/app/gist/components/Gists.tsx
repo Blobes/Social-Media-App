@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import { Stack } from "@mui/material";
 import { CreateGist } from "./CreateGist";
-import { Empty, GistSkeleton } from "@repo/shared-ui";
+import { Feedback, GistSkeleton } from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { autoScroll } from "@repo/helpers";
@@ -39,7 +39,7 @@ export const Gists = () => {
       {isLoading ? (
         <GistSkeleton />
       ) : gists.length < 1 ? (
-        <Empty
+        <Feedback
           tagline={message || "Something went wrong, check your network"}
           icon={<Milestone />}
           primaryCta={{

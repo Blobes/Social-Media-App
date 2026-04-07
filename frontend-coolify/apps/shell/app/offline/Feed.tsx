@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { delay, clientRoutes, autoScroll } from "@repo/helpers";
-import { Empty, GistSkeleton, StakeSkeleton } from "@repo/shared-ui";
+import { Feedback, GistSkeleton, StakeSkeleton } from "@repo/shared-ui";
 import { CircleSlash2 } from "lucide-react";
 import { usePage } from "@repo/shared-state";
 import { getCachedPosts } from "@repo/helpers";
@@ -58,7 +58,7 @@ export const CachedFeed = () => {
           <StakeSkeleton />
         </>
       ) : feed.length < 1 ? (
-        <Empty
+        <Feedback
           headline="No offline posts"
           tagline="Can't find any post at this time."
           icon={<CircleSlash2 />}

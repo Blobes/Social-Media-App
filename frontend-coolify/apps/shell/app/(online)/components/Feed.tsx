@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import { Stack, Typography } from "@mui/material";
 import { VibeSlider } from "../vibezSlider/Slider";
-import { Empty, GistSkeleton, StakeSkeleton } from "@repo/shared-ui";
+import { Feedback, GistSkeleton, StakeSkeleton } from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
 import { useFeed } from "../useFeed";
 import { useTheme } from "@mui/material/styles";
@@ -42,7 +42,7 @@ export const Feed = () => {
           <StakeSkeleton />
         </>
       ) : feed.length < 1 ? (
-        <Empty
+        <Feedback
           tagline={message || "Something went wrong, check your network"}
           icon={<Milestone />}
           primaryCta={{

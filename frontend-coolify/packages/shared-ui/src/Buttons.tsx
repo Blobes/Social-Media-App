@@ -4,7 +4,7 @@ import React from "react";
 import { Button, Link } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import NextLink from "next/link";
-import { prefetchPage } from "@repo/helpers";
+import { crossZoneCheck, prefetchPage } from "@repo/helpers";
 
 interface ButtonProps {
   variant?: "text" | "contained" | "outlined";
@@ -15,7 +15,6 @@ interface ButtonProps {
   href?: string;
   options?: any;
   submit?: boolean;
-  isCrossZone?: boolean;
 }
 
 export const AppButton = ({
@@ -27,7 +26,6 @@ export const AppButton = ({
   href,
   options = {},
   submit = false,
-  isCrossZone = false,
 }: ButtonProps) => {
   const theme = useTheme();
 
@@ -69,6 +67,7 @@ export const AppButton = ({
   };
 
   if (href) {
+    const isCrossZone = crossZoneCheck(href);
     return (
       <Button
         component={isCrossZone ? "a" : NextLink}
@@ -89,7 +88,6 @@ export const AppButton = ({
 interface AnchorLinkProps {
   children: React.ReactNode | string;
   url: string;
-  isCrossZone?: boolean;
   style?: any;
   overrideStyle?: "full" | "partial";
   [key: string]: any;
@@ -97,7 +95,6 @@ interface AnchorLinkProps {
 export const AnchorLink = ({
   children,
   url,
-  isCrossZone = false,
   style = {},
   overrideStyle = "partial",
   ...rest
@@ -116,6 +113,9 @@ export const AnchorLink = ({
   };
   const mergedStyle =
     overrideStyle === "full" ? style : { ...defaultStyle, ...style };
+
+  const isCrossZone = crossZoneCheck(url);
+
   return (
     <Link
       component={isCrossZone ? "a" : NextLink}

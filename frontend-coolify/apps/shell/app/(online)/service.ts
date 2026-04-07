@@ -1,13 +1,13 @@
 "use client";
 
-import { apiBase, fetcher } from "@repo/helpers";
-import { IListResponse, IPost } from "@repo/types";
+import { apiBase, apiClient } from "@repo/helpers";
+import { IListPayload, IPost } from "@repo/types";
 import { useCallback } from "react";
 
 export const FeedService = () => {
-  const fetchFeed = useCallback(async (): Promise<IListResponse<IPost>> => {
+  const fetchFeed = useCallback(async (): Promise<IListPayload<IPost>> => {
     try {
-      const res = await fetcher<IListResponse<IPost>>(apiBase.feed, {
+      const res = await apiClient<IListPayload<IPost>>(apiBase.feed, {
         method: "GET",
       });
       return {
