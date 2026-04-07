@@ -2,8 +2,8 @@ import { withBaseConfig } from "@repo/env-config/next-config";
 
 const nextConfig = {
   async rewrites() {
-    const authUrl = authUrl || "http://auth-app:3002";
-    const postUrl = postUrl || "http://post-app:3003";
+    const authUrl = process.env.AUTH_URL || "http://auth-app:3002";
+    const postUrl = process.env.POST_URL || "http://post-app:3003";
     return {
       afterFiles: [
         // Map the Shell's /login to the Auth Service
