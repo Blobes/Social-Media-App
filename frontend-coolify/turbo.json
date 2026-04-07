@@ -2,7 +2,13 @@
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
   "globalDependencies": [".env.development", ".env.production"],
-  "globalEnv": ["NODE_ENV"],
+  "globalEnv": [
+    "NODE_ENV",
+    "NEXT_PUBLIC_API_URL",
+    "BASE_URL",
+    "AUTH_URL",
+    "POST_URL"
+  ],
   "tasks": {
     "dev": {
       "cache": false,

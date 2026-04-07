@@ -18,4 +18,4 @@ export * from "./src/metadata";
 export * from "./src/dragConfig";
 export * from "./src/upload";
 export * from "./src/textFormatter";
-export * from "./src/prefetcher";
+export * from "./src/page";

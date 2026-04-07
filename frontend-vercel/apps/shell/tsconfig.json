@@ -1,3 +1,0 @@
-{
-  "extends": "@repo/env-config/tsconfig.base.json"
-}
