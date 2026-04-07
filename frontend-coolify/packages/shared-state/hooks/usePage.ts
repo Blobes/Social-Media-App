@@ -33,13 +33,13 @@ export const usePage = () => {
   };
 
   interface NavigateOptions {
-    type?: "push" | "href" | "replace" | "external";
+    type?: "push" | "replace";
     savePage?: boolean;
     loadPage?: boolean;
     event?: React.MouseEvent;
   }
   const navigateTo = async (page: IPage, options: NavigateOptions = {}) => {
-    const { type = "href", savePage = true, loadPage = false, event } = options;
+    const { type, savePage = true, loadPage = false, event } = options;
 
     if (drawerContent) closeDrawer();
     if (modalContent) closeModal();
@@ -54,13 +54,9 @@ export const usePage = () => {
 
     if (event) event.preventDefault();
 
-    if (type !== "href") {
-      type === "push"
-        ? router.push(page.path)
-        : type === "replace"
-          ? router.replace(page.path)
-          : window.location.assign(page.path);
-    }
+    if (type === "push") router.push(page.path);
+    if (type === "replace") router.replace(page.path);
+
     return;
   };
 

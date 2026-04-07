@@ -1,20 +1,20 @@
-import { fetcher, serverApi } from "@repo/helpers";
-import { IUser, ISingleResponse, FetchStatus } from "@repo/types";
+import { apiClient, serverApi } from "@repo/helpers";
+import { IUser, ISinglePayload } from "@repo/types";
 
 interface LoginCredentials {
   email: string;
   password: string;
 }
-interface LoginResponse extends ISingleResponse<IUser> {
+interface LoginResponse extends ISinglePayload<IUser> {
   fixedMsg?: string;
 }
-interface checkResponse extends ISingleResponse<IUser> {
+interface checkResponse extends ISinglePayload<IUser> {
   isCredentialAvailable: boolean;
 }
 
 export const LoginService = () => {
   const checkEmail = async (email: string): Promise<checkResponse> => {
-    return await fetcher<checkResponse>(serverApi.checkEmail, {
+    return await apiClient<checkResponse>(serverApi.checkEmail, {
       method: "POST",
       body: JSON.stringify({ email }),
     });
@@ -26,7 +26,7 @@ export const LoginService = () => {
     username: string,
     purpose: PurposeType = "LOGIN",
   ): Promise<checkResponse> => {
-    return await fetcher<checkResponse>(serverApi.checkUsername, {
+    return await apiClient<checkResponse>(serverApi.checkUsername, {
       method: "POST",
       body: JSON.stringify({ username, usedFor: purpose }),
     });
@@ -35,7 +35,7 @@ export const LoginService = () => {
   const login = async (
     credentials: LoginCredentials,
   ): Promise<LoginResponse> => {
-    return await fetcher<LoginResponse>(serverApi.login, {
+    return await apiClient<LoginResponse>(serverApi.login, {
       method: "POST",
       body: JSON.stringify(credentials),
     });

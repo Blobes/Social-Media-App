@@ -3,7 +3,6 @@
 import { GlobalThemeProvider } from "@repo/theme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import { PrefetchCrossZoneLinks, PrefetchCrossZoneLinksProvider } from '@vercel/microfrontends/next/client';
 import { ContextProvider } from "@repo/shared-state";
 
 
@@ -24,10 +23,7 @@ export function SharedProviders({ children }: {
         <QueryClientProvider client={queryClient}>
             <GlobalThemeProvider>
                 <ContextProvider>
-                    <PrefetchCrossZoneLinksProvider>
-                        {children}
-                    </PrefetchCrossZoneLinksProvider>
-                    <PrefetchCrossZoneLinks />
+                    {children}
                 </ContextProvider>
             </GlobalThemeProvider>
 

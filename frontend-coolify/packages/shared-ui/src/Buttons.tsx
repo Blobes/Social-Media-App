@@ -2,7 +2,16 @@
 
 import { Button, Link } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { Link as NextLink } from '@vercel/microfrontends/next/client';
+import NextLink from "next/link";
+
+const handlePrefetch = (href?: string, isCrossZone?: boolean) => {
+  if (isCrossZone && href && typeof window !== "undefined") {
+    const link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = href;
+    document.head.appendChild(link);
+  }
+};
 
 interface ButtonProps {
   variant?: "text" | "contained" | "outlined";
@@ -13,6 +22,7 @@ interface ButtonProps {
   href?: string;
   options?: any;
   submit?: boolean;
+  isCrossZone?: boolean;
 }
 
 export const AppButton = ({
@@ -24,6 +34,7 @@ export const AppButton = ({
   href,
   options = {},
   submit = false,
+  isCrossZone = false,
 }: ButtonProps) => {
   const theme = useTheme();
 
@@ -65,8 +76,9 @@ export const AppButton = ({
   if (href) {
     return (
       <Button
-        component={NextLink}
+        component={isCrossZone ? "a" : NextLink}
         href={href}
+        onMouseEnter={() => handlePrefetch(href, isCrossZone)}
         {...buttonProps}>
         {children}
       </Button>
@@ -84,6 +96,7 @@ export const AppButton = ({
 interface AnchorLinkProps {
   children: React.ReactNode | string
   url: string;
+  isCrossZone?: boolean;
   style?: any;
   overrideStyle?: "full" | "partial";
   [key: string]: any;
@@ -91,6 +104,7 @@ interface AnchorLinkProps {
 export const AnchorLink = ({
   children,
   url,
+  isCrossZone = false,
   style = {},
   overrideStyle = "partial",
   ...rest
@@ -109,11 +123,12 @@ export const AnchorLink = ({
   const mergedStyle =
     overrideStyle === "full" ? style : { ...defaultStyle, ...style };
   return (
-    <Link component={NextLink} href={url}
+    <Link
+      component={isCrossZone ? "a" : NextLink}
       sx={{
         ...mergedStyle,
       }}
-      // prefetch={false}
+      onMouseEnter={() => handlePrefetch(url, isCrossZone)}
       {...rest}
     >
       {children}
