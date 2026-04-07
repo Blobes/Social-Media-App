@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
+import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { IconButton, InputAdornment, TextField } from "@mui/material";
-import { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
 
 interface InputProps {
@@ -19,13 +19,13 @@ interface InputProps {
   affix?: React.ReactNode | string;
   affixPosition?: "start" | "end";
   onChange?: (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) => void;
   onFocus?: (
-    event: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>
+    event: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) => void;
   onBlur?: (
-    event: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>
+    event: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) => void;
 }
 export const TextInput = ({
@@ -131,10 +131,7 @@ export const PasswordInput = ({
                 onClick={toggleShowPassword}
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}>
-                {showPassword ? (
-                  <Eye size={22} />
-                ) : (<EyeClosed size={22} />
-                )}
+                {showPassword ? <Eye size={22} /> : <EyeClosed size={22} />}
               </IconButton>
             </InputAdornment>
           ),

@@ -1,11 +1,11 @@
 export type StorageProvider = "S3" | "CLOUDINARY" | "GCP";
-export type IMediaType = "IMAGE" | "VIDEO" | "GIF";
-export type IMediaStatus = "UPLOADING" | "READY" | "ERROR";
+export type MediaType = "IMAGE" | "VIDEO" | "GIF";
+export type MediaStatus = "UPLOADING" | "READY" | "ERROR";
 export type MediaSourceType = "GIST" | "STAKE" | "USER" | "VERIFICATION";
 
 export interface IMediaPayload {
   _id: string;
-  ownerId: string;
+  ownerId?: string;
   alt?: string;
 
   // Polymorphic relation details
@@ -15,11 +15,11 @@ export interface IMediaPayload {
   // Storage
   url: string;
   thumbnailUrl?: string | null;
-  storageProvider: StorageProvider;
-  fileKey: string;
+  storageProvider?: StorageProvider;
+  fileKey?: string | null;
 
   // Metadata
-  type: IMediaType;
+  type?: MediaType;
   mimeType?: string | null;
   size?: number | null;
   dimensions?: {
@@ -30,8 +30,8 @@ export interface IMediaPayload {
 
   // UI/Performance
   blurHash?: string | null;
-  order: number;
-  status: IMediaStatus;
+  order?: number;
+  status?: MediaStatus;
 
   createdAt?: string | Date;
   updatedAt?: string | Date;

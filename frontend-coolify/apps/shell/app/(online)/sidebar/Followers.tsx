@@ -1,5 +1,6 @@
-"use client"
+"use client";
 
+import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { Stack } from "@mui/material";
 import { useGlobalContext } from "@repo/shared-state";
@@ -41,9 +42,7 @@ export const Followers = () => {
             padding: theme.boxSpacing(0),
           }}>
           {followers.map((follower) => {
-            return (
-              <FollowerCard key={follower._id} follower={follower} />
-            );
+            return <FollowerCard key={follower._id} follower={follower} />;
           })}
         </Stack>
       ) : (

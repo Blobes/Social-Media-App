@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { GenericObject } from "@repo/types";
+import React, { Fragment } from "react";
 import { Box, Stack, Typography } from "@mui/material";
+import { SxProps, Theme } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { Fragment } from 'react';
 
 interface Item {
   text?: string;
@@ -12,7 +12,7 @@ interface Item {
 
 interface StripProps {
   items: Item[];
-  style?: GenericObject<string>;
+  style?: SxProps<Theme>;
 }
 
 export const Strip = ({ items = [], style = {} }: StripProps) => {
@@ -35,7 +35,7 @@ export const Strip = ({ items = [], style = {} }: StripProps) => {
               gap: theme.gap(2),
               color: theme.palette.gray[200],
               textAlign: "center",
-              fontSize: "inherit"
+              fontSize: "inherit",
             }}>
             {item.element && item.element}
             {item.text && item.text}

@@ -1,6 +1,8 @@
+/// <reference path="./theme.d.ts" />
+
 // payload types
 export * from "./src/payloads/user";
-export * from "./src/payloads/posts";
+export * from "./src/payloads/post";
 export * from "./src/payloads/media";
 export * from "./src/payloads/modified";
 

@@ -1,14 +1,13 @@
 "use client";
 
+import React, { useMemo } from "react";
 import { Stack } from "@mui/material";
 import { CreateGist } from "./CreateGist";
 import { Empty, GistSkeleton } from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
-import { useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
 import { autoScroll } from "@repo/helpers";
 import { GistCard, useGists } from "@repo/features";
-
 
 export const Gists = () => {
   const theme = useTheme();
@@ -53,18 +52,20 @@ export const Gists = () => {
             container: {
               height: "100%",
               backgroundColor: "none",
-              gap: theme.gap(6)
+              gap: theme.gap(6),
             },
             tagline: { fontSize: "16px" },
             icon: {
-              width: "50px", height: "50px",
+              width: "50px",
+              height: "50px",
               [theme.breakpoints.down("md")]: {
-                width: "40px", height: "40px"
+                width: "40px",
+                height: "40px",
               },
               svg: {
                 fill: "none",
                 stroke: theme.palette.gray[200],
-                strokeWidth: "1.5px"
+                strokeWidth: "1.5px",
               },
             },
           }}

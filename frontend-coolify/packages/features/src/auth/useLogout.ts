@@ -1,6 +1,6 @@
 "use client";
 
-import { fetcher, clientRoutes, serverApi } from "@repo/helpers";
+import { apiClient, clientRoutes, serverApi } from "@repo/helpers";
 import { useGlobalContext, usePage, useSnackbar } from "@repo/shared-state";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -15,12 +15,11 @@ export const useLogout = () => {
   const handleLogout = async () => {
     try {
       //  Send logout request to backend
-      await fetcher(serverApi.logout, { method: "POST" });
+      await apiClient(serverApi.logout, { method: "POST" });
       setAuthUser(null);
       setAuthStatus("UNAUTHENTICATED");
       if (pathname !== clientRoutes.home.path) {
         navigateTo(clientRoutes.home, {
-          type: "external",
           loadPage: true,
         });
       } else {

@@ -1,13 +1,13 @@
 "use client";
 
+import React from "react";
 import { Stack, Typography, Divider } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext } from "@repo/shared-state"
+import { useGlobalContext } from "@repo/shared-state";
 
 export const RecentMedia = () => {
   const theme = useTheme();
   const { authUser } = useGlobalContext();
-
 
   return (
     <Stack
@@ -25,4 +25,3 @@ export const RecentMedia = () => {
     </Stack>
   );
 };
-

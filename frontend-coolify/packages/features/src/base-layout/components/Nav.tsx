@@ -1,24 +1,26 @@
 "use client";
 
-import { useRef } from "react";
-import {
-  Typography,
-  Divider,
-  Stack,
-  IconButton,
-} from "@mui/material";
+import React, { useRef } from "react";
+import { Typography, Divider, Stack, IconButton } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
-  Strip, RenderItemList, MenuPopup, ThemeSwitcher,
-  StatusSwitcher
+  Strip,
+  RenderItemList,
+  MenuPopup,
+  ThemeSwitcher,
+  StatusSwitcher,
 } from "@repo/shared-ui";
 import { summarizeNum } from "@repo/helpers";
 import { SlidersHorizontal, WalletMinimal } from "lucide-react";
-import { useGlobalContext, useMisc, useNavLists, usePage } from "@repo/shared-state";
+import {
+  useGlobalContext,
+  useMisc,
+  useNavLists,
+  usePage,
+} from "@repo/shared-state";
 import { MenuRef } from "@repo/types";
 import { Logout } from "../../auth/Logout";
 import { useLogout } from "../../auth/useLogout";
-
 
 export const DesktopNav = ({
   menuRef,
@@ -57,7 +59,7 @@ export const DesktopNav = ({
               "& svg": {
                 width: "20px",
                 height: "20px",
-                flex: "none"
+                flex: "none",
               },
             }}
           />
@@ -75,8 +77,14 @@ const UserInfo = () => {
 
   if (!authUser) return null;
 
-  const { firstName, lastName, profileImage, username, followersCount, followingCount } =
-    authUser;
+  const {
+    firstName,
+    lastName,
+    profileImage,
+    username,
+    followersCount,
+    followingCount,
+  } = authUser;
   return (
     <Stack>
       <Stack
@@ -102,7 +110,7 @@ const UserInfo = () => {
       <Strip
         items={[
           {
-            text: followers?.length! > 1 ? " Followers" : " Follower",
+            text: followersCount > 1 ? " Followers" : " Follower",
             element: (
               <strong style={{ color: theme.palette.gray[300] as string }}>
                 {summarizeNum(followersCount)}
@@ -128,14 +136,14 @@ const UserInfo = () => {
         ]}
         style={{
           justifyContent: "space-between",
-          fontSize: "13px"
+          fontSize: "13px",
         }}
       />
     </Stack>
   );
 };
 
-export const MobileNav = ({ }) => {
+export const MobileNav = ({}) => {
   const theme = useTheme();
   const { userNavList } = useNavLists();
   const menuRef = useRef<MenuRef>(null);
@@ -170,7 +178,8 @@ export const MobileNav = ({ }) => {
               width: "22px",
               height: "22px",
             },
-          }} />
+          }}
+        />
         <Divider />
         <StatusSwitcher />
         <ThemeSwitcher />

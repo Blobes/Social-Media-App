@@ -1,11 +1,11 @@
 "use client";
 
+import React from "react";
 import { Stack, FormControl } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGlobalContext } from "@repo/shared-state";
 import { UserAvatar, ResponsiveTextarea, AppButton } from "@repo/shared-ui";
 import { Image, Play } from "lucide-react";
-
 
 export const CreateGist = () => {
   const theme = useTheme();
@@ -24,7 +24,7 @@ export const CreateGist = () => {
         gap: theme.gap(10),
         [theme.breakpoints.down("md")]: {
           margin: theme.boxSpacing(6),
-        }
+        },
       }}>
       {/* Create field */}
       <Stack

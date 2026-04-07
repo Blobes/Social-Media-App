@@ -1,11 +1,15 @@
 "use client";
 
+import React, { useRef } from "react";
 import { Stack } from "@mui/material";
 import { LeftNav } from "../components/LeftNav";
 import { useTheme } from "@mui/material/styles";
 import { BottomNav } from "../components/BottomNav";
-import { useRef } from "react";
-import { NetworkGlitchUI, RootUIContainer, OfflinePromptUI } from "@repo/shared-ui";
+import {
+  NetworkGlitchUI,
+  RootUIContainer,
+  OfflinePromptUI,
+} from "@repo/shared-ui";
 import { AppHeader } from "../components/Header";
 import { scrollBarStyle } from "@repo/helpers";
 import { useGlobalContext, useMisc, useOffline } from "@repo/shared-state";
@@ -15,20 +19,27 @@ interface WrapperProps {
   hideHeader?: boolean;
 }
 
-export const DefaultWrapper = ({ children, hideHeader = false }: WrapperProps) => {
+export const DefaultWrapper = ({
+  children,
+  hideHeader = false,
+}: WrapperProps) => {
   const { isDesktop, isUnstableNetwork, isOffline } = useMisc();
   const theme = useTheme();
   const { authStatus, offlineMode, checkingSignal } = useGlobalContext();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Offline Prompt UI on App
-  if (isOffline && !offlineMode) return <OfflinePromptUI
-    handleOffline={useOffline().switchToOfflineMode} />
+  if (isOffline && !offlineMode)
+    return <OfflinePromptUI handleOffline={useOffline().switchToOfflineMode} />;
 
   // Conditionally render the offline UI
   if ((isUnstableNetwork || authStatus === "ERROR") && !isOffline) {
-    return <NetworkGlitchUI checkingSignal={checkingSignal}
-      isUnstableNetwork={isUnstableNetwork} />;
+    return (
+      <NetworkGlitchUI
+        checkingSignal={checkingSignal}
+        isUnstableNetwork={isUnstableNetwork}
+      />
+    );
   }
 
   return (
@@ -97,5 +108,6 @@ export const DefaultWrapper = ({ children, hideHeader = false }: WrapperProps) =
           {children}
         </Stack>
       )}
-    </ RootUIContainer>)
-}
+    </RootUIContainer>
+  );
+};

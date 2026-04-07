@@ -1,17 +1,10 @@
-"use client"
+"use client";
 
+import React from "react";
 import { Button, Link } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import NextLink from "next/link";
-
-const handlePrefetch = (href?: string, isCrossZone?: boolean) => {
-  if (isCrossZone && href && typeof window !== "undefined") {
-    const link = document.createElement('link');
-    link.rel = 'prefetch';
-    link.href = href;
-    document.head.appendChild(link);
-  }
-};
+import { prefetchPage } from "@repo/helpers";
 
 interface ButtonProps {
   variant?: "text" | "contained" | "outlined";
@@ -58,13 +51,15 @@ export const AppButton = ({
     alignSelf: "unset",
     "&:hover": {
       backgroundColor: theme.fixedColors.mainTrans,
-    }
+    },
   };
-  const mergedStyle = overrideStyle === "full" ? style
-    : {
-      ...(variant === "text" ? textVarDefaultStyle : defaultStyle),
-      ...style,
-    };
+  const mergedStyle =
+    overrideStyle === "full"
+      ? style
+      : {
+          ...(variant === "text" ? textVarDefaultStyle : defaultStyle),
+          ...style,
+        };
 
   const buttonProps = {
     variant,
@@ -78,23 +73,21 @@ export const AppButton = ({
       <Button
         component={isCrossZone ? "a" : NextLink}
         href={href}
-        onMouseEnter={() => handlePrefetch(href, isCrossZone)}
+        onMouseEnter={() => prefetchPage(href, isCrossZone)}
         {...buttonProps}>
         {children}
       </Button>
     );
   }
   return (
-    <Button
-      type={submit ? "submit" : "button"}
-      {...buttonProps}>
+    <Button type={submit ? "submit" : "button"} {...buttonProps}>
       {children}
     </Button>
   );
 };
 
 interface AnchorLinkProps {
-  children: React.ReactNode | string
+  children: React.ReactNode | string;
   url: string;
   isCrossZone?: boolean;
   style?: any;
@@ -118,7 +111,8 @@ export const AnchorLink = ({
     fontSize: "16px",
     color: theme.palette.gray[300],
     width: "fit-content",
-    transition: "background-color 0.3s linear, color 0.2s linear, stroke 0.2s linear"
+    transition:
+      "background-color 0.3s linear, color 0.2s linear, stroke 0.2s linear",
   };
   const mergedStyle =
     overrideStyle === "full" ? style : { ...defaultStyle, ...style };
@@ -128,10 +122,9 @@ export const AnchorLink = ({
       sx={{
         ...mergedStyle,
       }}
-      onMouseEnter={() => handlePrefetch(url, isCrossZone)}
-      {...rest}
-    >
+      onMouseEnter={() => prefetchPage(url, isCrossZone)}
+      {...rest}>
       {children}
-    </Link >
+    </Link>
   );
 };

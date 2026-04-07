@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useColorScheme, useTheme } from "@mui/material/styles";
 import { Stack, Typography } from "@mui/material";
 import { BasicTooltip } from "./Tooltips";
@@ -8,7 +9,7 @@ import { MoonStar, Sun } from "lucide-react";
 export const ThemeSwitcher: React.FC = () => {
   const { mode, systemMode, setMode } = useColorScheme();
   const theme = useTheme();
-  const effectiveMode = mode === "system" ? systemMode ?? "dark" : mode;
+  const effectiveMode = mode === "system" ? (systemMode ?? "dark") : mode;
 
   const toggleMode = () => {
     setMode(effectiveMode === "dark" ? "light" : "dark");

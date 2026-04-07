@@ -1,6 +1,11 @@
 "use client";
 
-import { useImperativeHandle, forwardRef, useRef, useState, } from "react";
+import React, {
+  useImperativeHandle,
+  forwardRef,
+  useRef,
+  useState,
+} from "react";
 import { IconButton, Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ModalProps, ModalRef } from "@repo/types";
@@ -8,13 +13,18 @@ import { Transition } from "./Transition";
 import { scrollBarStyle } from "@repo/helpers";
 import { X } from "lucide-react";
 
-
 export const Modal = forwardRef<ModalRef, ModalProps>(
   (
-    { header, content, transition, canBeClosed = true,
-      showHeader = true, onClose, style,
+    {
+      header,
+      content,
+      transition,
+      canBeClosed = true,
+      showHeader = true,
+      onClose,
+      style,
     },
-    ref
+    ref,
   ) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const closeRef = useRef<HTMLButtonElement>(null);
@@ -27,11 +37,10 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
     // Transition properties
     const trans = {
       type: transition?.type || "zoom",
-      direction: transition?.direction || "left"
-    }
+      direction: transition?.direction || "left",
+    };
     const transType = trans.type;
     const transDir = trans.direction;
-
 
     useImperativeHandle(ref, () => ({
       openModal: () => {
@@ -72,26 +81,36 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
           marginLeft: "0!important",
           padding: theme.boxSpacing(12),
           // Alignment
-          alignItems: transType === "slide"
-            ? (transDir === "right" ? "flex-start"
-              : transDir === "left" ? "flex-end" : "center")
-            : "center",
-          justifyContent: transType === "slide"
-            ? (transDir === "down" ? "flex-start"
-              : transDir === "up" ? "flex-end" : "center")
-            : "center",
+          alignItems:
+            transType === "slide"
+              ? transDir === "right"
+                ? "flex-start"
+                : transDir === "left"
+                  ? "flex-end"
+                  : "center"
+              : "center",
+          justifyContent:
+            transType === "slide"
+              ? transDir === "down"
+                ? "flex-start"
+                : transDir === "up"
+                  ? "flex-end"
+                  : "center"
+              : "center",
           ...style?.base?.overlay,
 
           // Small screen styling
           [theme.breakpoints.down("md")]: {
             padding: theme.boxSpacing(4, 2),
-            ...style?.smallScreen?.overlay
-          }
+            ...style?.smallScreen?.overlay,
+          },
         }}>
-
         {/* Modal Content Container */}
-        <Transition show={isOpen}
-          timeout={200} {...trans} onExited={() => setShouldRemove(true)}>
+        <Transition
+          show={isOpen}
+          timeout={200}
+          {...trans}
+          onExited={() => setShouldRemove(true)}>
           <Stack
             sx={{
               maxHeight: "100%",
@@ -107,16 +126,15 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
               // Medium screen
               [theme.breakpoints.down("md")]: {
                 width: "60%",
-                maxWidth: "350px"
+                maxWidth: "350px",
               },
               // Small screen
               [theme.breakpoints.down("sm")]: {
                 width: style?.smallScreen?.content?.width ?? "89%",
                 maxWidth: style?.smallScreen?.content?.maxWidth ?? "100%",
-                ...style?.smallScreen?.content
+                ...style?.smallScreen?.content,
               },
-            }}
-          >
+            }}>
             {
               /* Modal with Header*/
               showHeader && (
@@ -125,7 +143,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
                     position: "sticky",
                     alignItems: "center",
                     gap: theme.gap(0),
-                    touchAction: 'none',
+                    touchAction: "none",
                   }}>
                   {(header || canBeClosed) && (
                     <Stack
@@ -137,7 +155,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
                         gap: theme.gap(2),
                         padding: theme.boxSpacing(2),
                         ...style?.header,
-                        borderBottom: `1px solid ${theme.palette.gray.trans[1]}`
+                        borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
                       }}>
                       {header && header}
                       {canBeClosed && (
@@ -171,10 +189,9 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
               {content}
             </Stack>
           </Stack>
-
-        </Transition >
-      </Stack >
+        </Transition>
+      </Stack>
     );
-  }
+  },
 );
 Modal.displayName = "Modal";

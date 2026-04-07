@@ -1,6 +1,11 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useState, ReactNode } from "react";
+import React, {
+  forwardRef,
+  useImperativeHandle,
+  useState,
+  ReactNode,
+} from "react";
 import { Menu, paperClasses } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { MenuRef } from "@repo/types";
@@ -51,11 +56,11 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
             "& ul": {
               display: "flex",
               flexDirection: "column",
-            }
+            },
           },
         }}>
         {contentElement}
       </Menu>
     );
-  }
+  },
 );

@@ -1,3 +1,5 @@
+"use client";
+
 export const registerSW = () => {
   if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
     navigator.serviceWorker

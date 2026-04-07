@@ -1,12 +1,11 @@
 "use client";
 
+import React from "react";
 import { Avatar, IconButton } from "@mui/material";
 import { getInitialsAndColors } from "@repo/helpers";
 import { BasicTooltip } from "./Tooltips";
 import { GenericObject, IUser } from "@repo/types";
 import { useTheme } from "@mui/material/styles";
-
-//  { firstName?: string; lastName?: string; profileImage?: string }
 
 interface UserAvatarProps {
   userInfo: IUser | null;

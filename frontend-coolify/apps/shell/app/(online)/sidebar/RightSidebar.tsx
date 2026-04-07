@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ProfileCard } from "../components/ProfileCard";

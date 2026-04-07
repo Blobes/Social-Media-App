@@ -1,3 +1,5 @@
+"use client";
+
 import { Direction, IDragConfig } from "@repo/types";
 
 export const dragToCloseConfig = (

@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
+import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { img } from "@repo/assets";
 import Image from "next/image";
 import { RootUIContainer } from "./Containers";
-
 
 export const SplashUI = () => {
   const theme = useTheme();
@@ -20,7 +20,8 @@ export const SplashUI = () => {
         alt="Splash icon"
         width={56}
         height={56}
-        style={{ borderRadius: `${theme.radius.full}` }} />
+        style={{ borderRadius: `${theme.radius.full}` }}
+      />
     </RootUIContainer>
   );
 };

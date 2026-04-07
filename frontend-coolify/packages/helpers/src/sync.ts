@@ -1,6 +1,6 @@
 "use client";
 
-import { fetcher } from "./fetcher";
+import { apiClient } from "./apiClient";
 import { serverApi } from "./routes";
 
 // POST LIKE HANDLING HELPERS
@@ -46,7 +46,7 @@ export const processQueue = async (authStatus: string) => {
   try {
     for (const postId of postIds) {
       try {
-        await fetcher(serverApi.likeGist(postId), { method: "PUT" });
+        await apiClient(serverApi.likeGist(postId), { method: "PUT" });
 
         // Use a functional update style for the queue to prevent overwriting
         const currentQueue = JSON.parse(

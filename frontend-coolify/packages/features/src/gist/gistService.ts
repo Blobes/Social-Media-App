@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  fetcher,
+  apiClient,
   setPendingLike,
   getPendingLike,
   clearPendingLike,
@@ -9,13 +9,13 @@ import {
   serverApi,
   apiBase,
 } from "@repo/helpers";
-import { IGist, ISingleResponse, IListResponse } from "@repo/types";
+import { IGist, ISinglePayload, IListPayload } from "@repo/types";
 import { useCallback } from "react";
 
 export const GistService = () => {
-  const fetchGistList = useCallback(async (): Promise<IListResponse<IGist>> => {
+  const fetchGistList = useCallback(async (): Promise<IListPayload<IGist>> => {
     try {
-      const res = await fetcher<IListResponse<IGist>>(apiBase.gists, {
+      const res = await apiClient<IListPayload<IGist>>(apiBase.gists, {
         method: "GET",
       });
 
@@ -45,7 +45,7 @@ export const GistService = () => {
       intendedState: boolean,
     ): Promise<LikeResponse | null> => {
       try {
-        const res = await fetcher<ISingleResponse<LikeResponse>>(
+        const res = await apiClient<ISinglePayload<LikeResponse>>(
           serverApi.likeGist(gistId),
           { method: "PUT" },
         );

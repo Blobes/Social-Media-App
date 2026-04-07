@@ -8,7 +8,7 @@ export * from "./src/Cards";
 export * from "./src/Containers";
 export * from "./src/DoubleTap";
 export * from "./src/Drawer";
-export * from "./src/Empty";
+export * from "./src/Feedback";
 export * from "./src/InlineMsg";
 export * from "./src/InputFields";
 export * from "./src/LoadingUIs";

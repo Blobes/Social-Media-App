@@ -1,3 +1,5 @@
+"use client";
+
 export const setCookie = (name: string, value: string, minutes: number) => {
   const expires = new Date(Date.now() + minutes * 60000).toUTCString();
   document.cookie = `${name}=${encodeURIComponent(

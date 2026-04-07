@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { GenericObject, IStep } from "@repo/types"
 import { RestoreAccount, Stepper } from "@repo/shared-ui";

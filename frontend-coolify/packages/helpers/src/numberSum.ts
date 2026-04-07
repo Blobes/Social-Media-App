@@ -1,3 +1,5 @@
+"use client";
+
 // Number Summarizer
 export const summarizeNum = (digit: string | number): string => {
   const num = typeof digit === "string" ? Number(digit) : digit;

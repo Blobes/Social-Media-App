@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { IGist } from "@repo/types";
 
 import { delay } from "@repo/helpers";
-import { IListResponse } from "@repo/types";
 import { GistService } from "./gistService";
 
 export const useGists = () => {

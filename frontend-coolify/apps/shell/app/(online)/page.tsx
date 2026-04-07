@@ -1,5 +1,6 @@
-"use client"
+"use client";
 
+import React from "react";
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Feed } from "./components/Feed";
@@ -8,32 +9,29 @@ import { Welcome } from "./components/Welcome";
 import { useGlobalContext, useMisc } from "@repo/shared-state";
 
 export default function HomePage() {
-    const { isDesktop } = useMisc();
-    const theme = useTheme();
-    const { authStatus } = useGlobalContext();
+  const { isDesktop } = useMisc();
+  const theme = useTheme();
+  const { authStatus } = useGlobalContext();
 
-    return (
-        <>
-            {authStatus === "AUTHENTICATED" && (
-                isDesktop ? (
-                    <Stack sx={{
-                        height: "100%",
-                        flexDirection: "row",
-                        gap: 0,
-                        overflow: "hidden",
-                        width: "100%",
-                    }}>
-                        <Feed />
-                        <RightSidebar />
-                    </Stack>
-                ) : (
-                    <Feed />
-                )
-            )}
-            {authStatus === "UNAUTHENTICATED" && (
-                <Welcome />
-            )}
-        </>
-    )
-
+  return (
+    <>
+      {authStatus === "AUTHENTICATED" &&
+        (isDesktop ? (
+          <Stack
+            sx={{
+              height: "100%",
+              flexDirection: "row",
+              gap: 0,
+              overflow: "hidden",
+              width: "100%",
+            }}>
+            <Feed />
+            <RightSidebar />
+          </Stack>
+        ) : (
+          <Feed />
+        ))}
+      {authStatus === "UNAUTHENTICATED" && <Welcome />}
+    </>
+  );
 }

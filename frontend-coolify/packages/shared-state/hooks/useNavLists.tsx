@@ -1,14 +1,25 @@
 "use client";
 
+import React from "react";
 import { clientRoutes } from "@repo/helpers";
 import { INavItem } from "@repo/types";
 import {
-  BadgeQuestionMark, AudioLines, Bell, Bookmark, CircleDashed, Gem, House, Mail, Pentagon,
-  Search, Settings, User, WalletMinimal
+  BadgeQuestionMark,
+  AudioLines,
+  Bell,
+  Bookmark,
+  CircleDashed,
+  Gem,
+  House,
+  Mail,
+  Pentagon,
+  Search,
+  Settings,
+  User,
+  WalletMinimal,
 } from "lucide-react";
 
 export const useNavLists = () => {
-
   // User profile navigation list visible to only logged-in users
   const userNavList: INavItem[] = [
     {
@@ -120,7 +131,6 @@ export const useNavLists = () => {
       url: clientRoutes.news.path,
     },
   ];
-
 
   return { userNavList, sidebarNavList, headerNavList, footerNavList };
 };

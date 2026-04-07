@@ -4,23 +4,23 @@ import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { IStake } from "@repo/types";
 import { delay } from "@repo/helpers";
-import { stakeData } from "@repo/test-data";
+import { stakeTestData } from "@repo/assets";
 
 export const useStake = () => {
   const router = useRouter();
 
-  const [stakes, setStakes] = useState<IStake[]>(stakeData);
+  const [stakes, setStakes] = useState<IStake[]>(stakeTestData);
   const [isLoading, setLoading] = useState(false);
 
   const handleStakes = useCallback(async () => {
     try {
       setLoading(true);
-      setStakes(stakeData);
+      setStakes(stakeTestData);
     } finally {
       await delay();
       setLoading(false);
     }
-  }, [stakeData]);
+  }, [stakeTestData]);
 
   useEffect(() => {
     handleStakes();

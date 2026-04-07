@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import { InputBase, Stack, Typography } from "@mui/material";
 import { Search as SearchIcon } from "lucide-react";
@@ -62,4 +63,3 @@ export const SearchContainer = () => {
     </InputWrapper>
   );
 };
-

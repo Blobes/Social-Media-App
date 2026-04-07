@@ -1,4 +1,4 @@
-import { fetcher } from "./fetcher";
+import { apiClient } from "./apiClient";
 import { serverApi } from "./routes";
 
 /**
@@ -30,7 +30,7 @@ export const uploadMediaToCloud = async (file: File) => {
 
   // 2. Request the secure signature from your API
   // We pass the fileType so the backend can generate a valid Content-Type signature
-  const response = await fetcher<APIResponse>(serverApi.mediaUpload, {
+  const response = await apiClient<APIResponse>(serverApi.mediaUpload, {
     method: "POST",
     body: JSON.stringify({ fileType: file.type }),
     headers: {

@@ -4,7 +4,6 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "proxy": "microfrontends proxy microfrontends.json --local-apps shell auth",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "check-types": "turbo run check-types"

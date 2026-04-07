@@ -1,5 +1,7 @@
+"use client";
+
 import { serverApi } from "../routes";
-import { fetcher } from "../fetcher";
+import { apiClient } from "../apiClient";
 import { FetchStatus, IUser } from "@repo/types";
 
 interface TokenCheckResponse {
@@ -9,7 +11,7 @@ interface TokenCheckResponse {
 }
 export const verifyAndFetchUser = async (): Promise<TokenCheckResponse> => {
   try {
-    const res = await fetcher<{ user: IUser }>(serverApi.verifyAuthToken);
+    const res = await apiClient<{ user: IUser }>(serverApi.verifyAuthToken);
     return { payload: res.user, status: "SUCCESS" };
   } catch (err: any) {
     const status = typeof err?.status === "number" ? err.status : undefined;
@@ -20,7 +22,7 @@ export const verifyAndFetchUser = async (): Promise<TokenCheckResponse> => {
       const refreshed = await refreshAccessToken();
       if (refreshed) {
         try {
-          const retryRes = await fetcher<{ user: IUser }>(
+          const retryRes = await apiClient<{ user: IUser }>(
             serverApi.verifyAuthToken,
           );
           return { payload: retryRes.user, status: "SUCCESS" };
@@ -51,7 +53,7 @@ export const verifyAndFetchUser = async (): Promise<TokenCheckResponse> => {
 
 const refreshAccessToken = async () => {
   try {
-    const res = await fetcher(serverApi.refreshToken, {
+    const res = await apiClient(serverApi.refreshToken, {
       method: "POST",
     });
     return true;

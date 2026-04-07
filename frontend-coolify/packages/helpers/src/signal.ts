@@ -1,3 +1,5 @@
+"use client";
+
 import { NetworkStatus } from "@repo/types";
 
 export const checkSignal = async (): Promise<NetworkStatus> => {

@@ -1,3 +1,4 @@
+import React from "react";
 import { Metadata } from "next";
 import { BaseLayout, ClientOnly, DefaultWrapper } from "@repo/features";
 import { Prefetcher } from "@repo/shared-ui";
@@ -5,12 +6,12 @@ import { baseMetadata, sharedViewport } from "@repo/helpers";
 import { Viewport } from "next";
 
 export const viewport: Viewport = {
-  ...sharedViewport
-}
+  ...sharedViewport,
+};
 
 export const metadata: Metadata = {
   ...baseMetadata,
-  title: "Feed | Funstakes",
+  title: "Funstakes | Feed",
 };
 
 export default async function RootLayout({
@@ -19,9 +20,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <BaseLayout  >
+    <BaseLayout>
       <Prefetcher route="/offline" />
-      <ClientOnly><DefaultWrapper>{children}</DefaultWrapper></ClientOnly>
+      <ClientOnly>
+        <DefaultWrapper>{children}</DefaultWrapper>
+      </ClientOnly>
     </BaseLayout>
   );
 }

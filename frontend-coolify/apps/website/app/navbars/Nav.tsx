@@ -1,12 +1,17 @@
 "use client";
-import { useRef } from "react";
+
+import React, { useRef } from "react";
 import { Divider, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { RenderItemList, AppButton } from "@repo/shared-ui";
-import { useGlobalContext, useMisc, useNavLists, usePage } from "@repo/shared-state";
+import {
+  useGlobalContext,
+  useMisc,
+  useNavLists,
+  usePage,
+} from "@repo/shared-state";
 import { clientRoutes } from "@repo/helpers";
 import { MenuRef } from "@repo/types";
-
 
 interface NavProps {
   style?: any;
@@ -15,7 +20,6 @@ export const DesktopNav: React.FC<NavProps> = ({ style }) => {
   const theme = useTheme();
   const { headerNavList } = useNavLists();
   const menuRef = useRef<MenuRef>(null);
-
 
   return (
     <Stack sx={{ ...style }}>
@@ -50,7 +54,7 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
         hook={usePage}
         itemAction={() => {
           menuRef.current?.closeMenu();
-          closeDrawer()
+          closeDrawer();
         }}
         style={{
           padding: theme.boxSpacing(4, 6),
@@ -70,7 +74,7 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
           variant="outlined"
           style={{ fontSize: "14px" }}
           onClick={() =>
-            navigateTo(clientRoutes.home, { type: "push", loadPage: true, })
+            navigateTo(clientRoutes.home, { type: "push", loadPage: true })
           }>
           Go to funstakes.com
         </AppButton>
@@ -82,8 +86,11 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
             href={clientRoutes.signup.path}
             style={{ fontSize: "14px" }}
             onClick={() =>
-              navigateTo(clientRoutes.signup,
-                { type: "push", savePage: false, loadPage: true, })
+              navigateTo(clientRoutes.signup, {
+                type: "push",
+                savePage: false,
+                loadPage: true,
+              })
             }>
             Sign up
           </AppButton>
@@ -92,8 +99,11 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
             variant="outlined"
             style={{ fontSize: "14px" }}
             onClick={() =>
-              navigateTo(clientRoutes.login,
-                { type: "push", savePage: false, loadPage: true, })
+              navigateTo(clientRoutes.login, {
+                type: "push",
+                savePage: false,
+                loadPage: true,
+              })
             }>
             Login
           </AppButton>

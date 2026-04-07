@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
-import { About } from "./About"
+import React from "react";
+import { About } from "./About";
 
 export default function AboutPage() {
-    return <About />
+  return <About />;
 }

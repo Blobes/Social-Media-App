@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { GenericObject, IStep } from "@repo/types";
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";

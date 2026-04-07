@@ -5,7 +5,7 @@ import { IPage } from "@repo/types";
 import {
   clientRoutes,
   disallowedRoutes,
-  registeredRoutes,
+  routesRegistry,
   delay,
   extractPageTitle,
   getFromLocalStorage,
@@ -19,9 +19,9 @@ export const usePage = () => {
   const { closeDrawer, closeModal } = useMisc();
   const router = useRouter();
 
-  const isOnWeb = (path: string) => registeredRoutes.web.includes(path);
-  const isOnAuth = (path: string) => registeredRoutes.auth.includes(path);
-  const isOnOffline = (path: string) => registeredRoutes.offline.includes(path);
+  const isOnWeb = (path: string) => routesRegistry.web.includes(path);
+  const isOnAuth = (path: string) => routesRegistry.auth.includes(path);
+  const isOnOffline = (path: string) => routesRegistry.offline.includes(path);
   const isOnDisallowedRoutes = (path: string) =>
     disallowedRoutes.includes(path);
   const pathname = usePathname();

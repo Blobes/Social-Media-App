@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { IAuthor } from "@repo/types";
+import { IPostAuthor } from "@repo/types";
 import { getCachedAuthor } from "@repo/helpers";
 
 export const useCached = (authorId: string) => {
-  const [cachedAuthor, setAuthor] = useState<IAuthor>();
+  const [cachedAuthor, setAuthor] = useState<IPostAuthor>();
 
   const handleAuthor = useCallback(async () => {
     const res = await getCachedAuthor(authorId);

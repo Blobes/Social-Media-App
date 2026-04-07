@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Stack, Typography, Divider } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGlobalContext } from "@repo/shared-state";
@@ -13,8 +14,14 @@ export const ProfileCard = () => {
   const { authUser } = useGlobalContext();
 
   if (!authUser) return null;
-  const { firstName, lastName, coverImage, email, followersCount, followingCount } =
-    authUser;
+  const {
+    firstName,
+    lastName,
+    coverImage,
+    email,
+    followersCount,
+    followingCount,
+  } = authUser;
   return (
     <Stack
       sx={{
@@ -96,4 +103,3 @@ export const ProfileCard = () => {
     </Stack>
   );
 };
-

@@ -1,79 +1,93 @@
-"use client"
+"use client";
 
+import React from "react";
 import { useTheme } from "@mui/material/styles";
-import { useAdaptiveTime, useMisc } from "@repo/shared-state"
-import { PostHeader, IsolatedMedia, PostEngagement, PostCaption } from "@repo/shared-ui";
+import { useAdaptiveTime, useMisc } from "@repo/shared-state";
+import {
+  PostHeader,
+  IsolatedMedia,
+  PostEngagement,
+  PostCaption,
+} from "@repo/shared-ui";
 import { IGist, UIMode } from "@repo/types";
 
 interface Like {
-    isLiking: boolean;
-    handleLike: () => void;
+  isLiking: boolean;
+  handleLike: () => void;
 }
 
 interface ViewProps {
-    gist: IGist;
-    like: Like;
-    initialIndex: number;
-    mode: UIMode;
+  gist: IGist;
+  like: Like;
+  initialIndex: number;
+  mode: UIMode;
 }
 
-export const GistMediaView = ({ gist, like, mode, initialIndex }: ViewProps) => {
-    const theme = useTheme();
-    const { isDesktop } = useMisc();
+export const GistMediaView = ({
+  gist,
+  like,
+  mode,
+  initialIndex,
+}: ViewProps) => {
+  const theme = useTheme();
+  const { isDesktop } = useMisc();
 
-    const { handleLike, isLiking } = like
+  const { handleLike, isLiking } = like;
 
-    // Destructure required data from the gist object
-    const { author, createdAt, content, likeCount, media, likedByMe } = gist;
+  // Destructure required data from the gist object
+  const { author, createdAt, latestCaption, likeCount, media, likedByMe } =
+    gist;
 
-    const postHeader = (
-        <PostHeader
-            authorProps={{
-                author: author,
-                avatarSize: "36px"
-            }}
-            actionProps={{
-                createdAt,
-                useActions: { useAdaptiveTime: () => useAdaptiveTime },
-                onMore: () => console.log("Open Menu"),
-                onFollow: () => console.log("Follow User")
-            }}
-        />
-    );
+  const postHeader = (
+    <PostHeader
+      authorProps={{
+        author: author,
+        avatarSize: "36px",
+      }}
+      actionProps={{
+        createdAt,
+        useActions: { useAdaptiveTime: () => useAdaptiveTime },
+        onMore: () => console.log("Open Menu"),
+        onFollow: () => console.log("Follow User"),
+      }}
+    />
+  );
 
-    const postEngagment = (
-        <PostEngagement
-            variant="VERTICAL"
-            like={{ likedByMe, isLiking, handleLike, mode, count: likeCount }}
-            reply={{ onClick: () => console.log("Reply clicked") }}
-            share={{ onClick: () => console.log("Share clicked") }}
-            bookmark={{
-                bookmarked: false,
-                onClick: () => console.log("Bookmark toggled")
-            }}
-        />
-    );
+  const postEngagment = (
+    <PostEngagement
+      variant="VERTICAL"
+      like={{ likedByMe, isLiking, handleLike, mode, count: likeCount }}
+      reply={{ onClick: () => console.log("Reply clicked") }}
+      share={{ onClick: () => console.log("Share clicked") }}
+      bookmark={{
+        bookmarked: false,
+        onClick: () => console.log("Bookmark toggled"),
+      }}
+    />
+  );
 
-    const postCaption = (
-        <PostCaption
-            caption={content}
-            limit={200}
-            sx={{
-                padding: theme.boxSpacing(4, 0),
-                [theme.breakpoints.down("md")]: {
-                    padding: theme.boxSpacing(4, 6),
-                }
-            }} />);
+  const postCaption = (
+    <PostCaption
+      caption={latestCaption.caption}
+      limit={200}
+      sx={{
+        padding: theme.boxSpacing(4, 0),
+        [theme.breakpoints.down("md")]: {
+          padding: theme.boxSpacing(4, 6),
+        },
+      }}
+    />
+  );
 
-    return (
-        <IsolatedMedia
-            mediaList={media}
-            postHeader={postHeader}
-            postEngagment={postEngagment}
-            postCaption={postCaption}
-            isDesktop={isDesktop}
-            onDoubleTap={handleLike}
-            initialIndex={initialIndex}
-        />
-    );
+  return (
+    <IsolatedMedia
+      mediaList={media}
+      postHeader={postHeader}
+      postEngagment={postEngagment}
+      postCaption={postCaption}
+      isDesktop={isDesktop}
+      onDoubleTap={handleLike}
+      initialIndex={initialIndex}
+    />
+  );
 };

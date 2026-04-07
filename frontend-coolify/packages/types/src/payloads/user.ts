@@ -3,33 +3,33 @@ export type AccountStatus = "ACTIVE" | "DEACTIVATED" | "SUSPENDED" | "BANNED";
 export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
 
 export interface IUserPayload {
-  _id: string;
+  _id?: string;
 
   // --- 1. CORE IDENTITY ---
-  email: string;
+  email?: string;
   username?: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   phoneNumber?: string;
 
   // --- 2. VERIFICATION & NOTABILITY ---
-  isVerified: boolean;
-  isPublicFigure: boolean;
-  meritsVerification: boolean;
-  isNotable: boolean;
-  idVerificationStatus: VerificationStatus;
-  verificationSignals: {
+  isVerified?: boolean;
+  isPublicFigure?: boolean;
+  meritsVerification?: boolean;
+  isNotable?: boolean;
+  idVerificationStatus?: VerificationStatus;
+  verificationSignals?: {
     hasWikipedia: boolean;
     isVipEmail: boolean;
     isVipPhone: boolean;
   };
-  isAgeVerified: boolean;
+  isAgeVerified?: boolean;
 
   // --- 3. AUTHENTICATION & SECURITY (Wire-safe) ---
-  role: UserRole;
-  accountStatus: AccountStatus;
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
+  role?: UserRole;
+  accountStatus?: AccountStatus;
+  isEmailVerified?: boolean;
+  isPhoneVerified?: boolean;
   lastEmailCodeSentAt?: Date | string | null;
   primarySessionId?: string | null;
 
@@ -37,7 +37,7 @@ export interface IUserPayload {
   pendingEmail?: string | null;
   lastEmailChangeAt?: Date | string | null;
   pendingPhoneNumber?: string | null;
-  lastPhoneCodeSentAt: Date | string | null;
+  lastPhoneCodeSentAt?: Date | string | null;
   lastPhoneChangeAt?: Date | string | null;
   lastUsernameChangeAt?: Date | string | null;
 
@@ -47,7 +47,7 @@ export interface IUserPayload {
   about?: string | null;
   occupation?: string | null;
   relationship?: string | null;
-  interests: string[];
+  interests?: string[];
   website?: string | null;
 
   // --- 6. ASSETS ---
@@ -61,9 +61,9 @@ export interface IUserPayload {
   state?: string | null;
 
   // --- 8. METRICS & PREFERENCES ---
-  followersCount: number;
-  followingCount: number;
-  preferences: {
+  followersCount?: number;
+  followingCount?: number;
+  preferences?: {
     showSensitiveGraphic: boolean;
     preferredLanguage: string;
     preferredTopics: Array<{
@@ -74,8 +74,8 @@ export interface IUserPayload {
   };
 
   // --- 9. LIFECYCLE ---
-  isDeactivated: boolean;
+  isDeactivated?: boolean;
   deactivatedAt?: string | null; // NEWLY ADDED
-  createdAt: Date | string | null;
-  updatedAt: Date | string | null;
+  createdAt?: Date | string | null;
+  updatedAt?: Date | string | null;
 }

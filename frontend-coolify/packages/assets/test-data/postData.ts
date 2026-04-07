@@ -3,7 +3,7 @@
 import { img } from "@repo/assets";
 import { IStake, MediaProps } from "@repo/types";
 
-export const stakeData: IStake[] = [
+export const stakeTestData: IStake[] = [
   {
     _id: "stake1",
     authorId: "1",
@@ -13,9 +13,17 @@ export const stakeData: IStake[] = [
       firstName: "User1 First",
       lastName: "User1 Last",
       fullName: "User1 FullName",
+      profileImage: null,
     },
     content: "Stake 1 content",
-    media: [{ _id: "1", url: img.pic3 }],
+    media: [
+      {
+        _id: "media1",
+        ownerId: "1",
+        url: img.pic3,
+        status: "READY",
+      },
+    ],
     createdAt: String(new Date("2026-01-12")),
   },
   {
@@ -27,9 +35,17 @@ export const stakeData: IStake[] = [
       firstName: "User2 First",
       lastName: "User2 Last",
       fullName: "User2 FullName",
+      profileImage: null,
     },
     content: "Stake 2 content",
-    media: [{ _id: "2", url: img.pic4 }],
+    media: [
+      {
+        _id: "media2",
+        ownerId: "2",
+        url: img.pic4,
+        status: "READY",
+      },
+    ],
     createdAt: String(new Date("2025-03-12")),
   },
   {
@@ -41,19 +57,65 @@ export const stakeData: IStake[] = [
       firstName: "User3 First",
       lastName: "User3 Last",
       fullName: "User3 FullName",
+      profileImage: null,
     },
     content: "Stake 3 content",
-    media: [{ _id: "3", url: img.pic1 }],
+    media: [
+      {
+        _id: "media3",
+        ownerId: "3",
+        url: img.pic1,
+        status: "READY",
+      },
+    ],
     createdAt: String(new Date("2025-09-12")),
   },
 ];
 
 export const mediaData: MediaProps[] = [
-  { _id: "media1", url: img.pic1 },
-  { _id: "media2", url: img.pic2 },
-  { _id: "media3", url: img.video, type: "VIDEO" },
-  { _id: "media4", url: img.pic3 },
-  { _id: "media5", url: img.pic4 },
-  { _id: "media6", url: img.pic5 },
-  { _id: "media7", url: img.pic6 },
+  {
+    _id: "media1",
+    ownerId: "3",
+    url: img.pic1,
+
+    status: "READY",
+  },
+  {
+    _id: "media2",
+    ownerId: "2",
+    url: img.pic2,
+
+    status: "READY",
+  },
+  {
+    _id: "media3",
+    ownerId: "2",
+    url: img.video,
+    type: "VIDEO",
+    status: "READY",
+  },
+  {
+    _id: "media4",
+    ownerId: "2",
+    url: img.pic3,
+    status: "READY",
+  },
+  {
+    _id: "media5",
+    ownerId: "1",
+    url: img.pic4,
+    status: "READY",
+  },
+  {
+    _id: "media6",
+    ownerId: "4",
+    url: img.pic5,
+    status: "READY",
+  },
+  {
+    _id: "media7",
+    ownerId: "2",
+    url: img.pic5,
+    status: "READY",
+  },
 ];

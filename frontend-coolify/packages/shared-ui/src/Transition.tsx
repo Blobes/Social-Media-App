@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import {
   Fade,
   Grow,
@@ -10,15 +11,19 @@ import {
   FadeProps,
   GrowProps,
   ZoomProps,
-  CollapseProps
-} from '@mui/material';
-import { TransitionGroup } from 'react-transition-group';
+  CollapseProps,
+} from "@mui/material";
+import { TransitionGroup } from "react-transition-group";
 
 // Define the available MUI transition types
-export type TransitionType = 'fade' | 'grow' | 'slide' | 'zoom' | 'collapse';
+export type TransitionType = "fade" | "grow" | "slide" | "zoom" | "collapse";
 
 // Combine all possible props from MUI transition components
-type MuiTransitionProps = SlideProps & FadeProps & GrowProps & ZoomProps & CollapseProps;
+type MuiTransitionProps = SlideProps &
+  FadeProps &
+  GrowProps &
+  ZoomProps &
+  CollapseProps;
 
 interface TransitionProps extends Partial<MuiTransitionProps> {
   type: TransitionType;
@@ -26,7 +31,12 @@ interface TransitionProps extends Partial<MuiTransitionProps> {
   children: React.ReactElement<any, any>;
 }
 
-export const Transition = ({ type, show, children, ...props }: TransitionProps) => {
+export const Transition = ({
+  type,
+  show,
+  children,
+  ...props
+}: TransitionProps) => {
   // Map strings to actual MUI components
   const components = {
     fade: Fade,
@@ -48,9 +58,5 @@ interface GroupTransitionProps {
   children: React.ReactNode;
 }
 export const GroupTransition = ({ children }: GroupTransitionProps) => {
-  return (
-    <TransitionGroup component={null}>
-      {children}
-    </TransitionGroup>
-  );
+  return <TransitionGroup component={null}>{children}</TransitionGroup>;
 };

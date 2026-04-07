@@ -1,3 +1,6 @@
+"use client";
+
+import React from "react";
 import { AppBar, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { usePageScroll } from "@repo/shared-state";
@@ -26,7 +29,6 @@ export const BottomNav: React.FC<NavProps> = ({ scrollRef }) => {
         backdropFilter: "blur(24px)",
         transition: "transform 0.3s ease-in-out",
         transform: scrollDir === "down" ? "translateY(100%)" : "translateY(0)",
-
       }}>
       <Typography>Bottom navigation</Typography>
     </AppBar>

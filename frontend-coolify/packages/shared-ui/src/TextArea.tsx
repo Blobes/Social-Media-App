@@ -1,28 +1,28 @@
-"use client"
+"use client";
 
+import React, { useState } from "react";
 import { styled } from "@mui/material/styles";
 import { TextareaAutosize, useMediaQuery } from "@mui/material";
 import { GenericObject } from "@repo/types";
-import { useState } from "react";
 import { scrollBarStyle } from "@repo/helpers";
 
 // Label
 const StyledLabel = styled("label")<{ shrink: boolean }>(
   ({ theme, shrink }) =>
-  ({
-    position: "absolute",
-    left: theme.boxSpacing(2),
-    top: shrink ? theme.boxSpacing(1) : theme.boxSpacing(3),
-    fontSize: shrink ? 12 : 17,
-    color: theme.palette.gray[200],
-    transition: "all 0.2s ease",
-    pointerEvents: "none",
-    width: "100%",
-    textWrap: "nowrap",
-    textOverflow: "ellipsis",
-    overflow: "hidden",
-    padding: theme.boxSpacing(0),
-  } as any)
+    ({
+      position: "absolute",
+      left: theme.boxSpacing(2),
+      top: shrink ? theme.boxSpacing(1) : theme.boxSpacing(3),
+      fontSize: shrink ? 12 : 17,
+      color: theme.palette.gray[200],
+      transition: "all 0.2s ease",
+      pointerEvents: "none",
+      width: "100%",
+      textWrap: "nowrap",
+      textOverflow: "ellipsis",
+      overflow: "hidden",
+      padding: theme.boxSpacing(0),
+    }) as any,
 );
 
 // Text area
@@ -45,37 +45,37 @@ interface TextAreaProps {
 
 const StyledTextarea = styled(TextareaAutosize, {
   shouldForwardProp: (prop) => prop !== "customStyle",
-})<{ customStyle: TextAreaProps["style"]; label: TextAreaProps["label"] }>(
-  ({ label, customStyle, theme }) => {
-    const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+})<{ customStyle: TextAreaProps["style"]; label: TextAreaProps["label"] }>(({
+  label,
+  customStyle,
+  theme,
+}) => {
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
-    const styles = {
-      width: "100%",
-      padding: label
-        ? theme.boxSpacing(10, 0, 2, 2)
-        : theme.boxSpacing(3, 2, 2),
-      boxSizing: "border-box",
-      fontFamily: "inherit",
-      fontSize: "17px",
-      lineHeight: 1.4,
-      color: theme.palette.gray[300],
-      backgroundColor: "unset",
-      resize: "none",
+  const styles = {
+    width: "100%",
+    padding: label ? theme.boxSpacing(10, 0, 2, 2) : theme.boxSpacing(3, 2, 2),
+    boxSizing: "border-box",
+    fontFamily: "inherit",
+    fontSize: "17px",
+    lineHeight: 1.4,
+    color: theme.palette.gray[300],
+    backgroundColor: "unset",
+    resize: "none",
+    border: "none",
+    ...scrollBarStyle(theme),
+    ...customStyle?.default,
+    "&:focus": {
       border: "none",
-      ...scrollBarStyle(theme),
-      ...customStyle?.default,
-      "&:focus": {
-        border: "none",
-        outline: "none",
-        ...customStyle?.focused,
-      },
-      "&:hover": {
-        ...customStyle?.hover,
-      },
-    };
-    return styles as any;
-  }
-);
+      outline: "none",
+      ...customStyle?.focused,
+    },
+    "&:hover": {
+      ...customStyle?.hover,
+    },
+  };
+  return styles as any;
+});
 
 export const ResponsiveTextarea = ({
   style = { default: {}, focused: {}, hover: {} },

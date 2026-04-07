@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useUser } from "@repo/features";
@@ -16,8 +17,15 @@ export const FollowerCard = ({ follower }: FollowerProps) => {
 
   if (!updatedUser) return null;
 
-  const { username, firstName, lastName, fullName,
-    profileImage, isFollowing, followsMe } = updatedUser;
+  const {
+    username,
+    firstName,
+    lastName,
+    fullName,
+    profileImage,
+    isFollowing,
+    followsMe,
+  } = updatedUser;
 
   return (
     <Stack

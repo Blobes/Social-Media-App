@@ -1,13 +1,12 @@
 "use client";
 
+import React, { useEffect } from "react";
 import { IconButton, Paper, Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ISnackBarMsg } from "@repo/types";
 import { AppButton } from "./Buttons";
 import { Info, CircleCheck, CircleAlert, X } from "lucide-react";
-import { useEffect } from "react";
 import { GroupTransition, Transition } from "./Transition";
-
 
 interface SnackbarProps {
   snackBarMsg: ISnackBarMsg;
@@ -15,12 +14,16 @@ interface SnackbarProps {
   setSBTimer: () => void;
 }
 
-export const SnackBars = ({ snackBarMsg, removeMessage, setSBTimer }: SnackbarProps) => {
+export const SnackBars = ({
+  snackBarMsg,
+  removeMessage,
+  setSBTimer,
+}: SnackbarProps) => {
   const theme = useTheme();
 
   if (!snackBarMsg.messages || snackBarMsg.messages.length === 0) {
-    return null
-  };
+    return null;
+  }
 
   useEffect(() => {
     setSBTimer();
@@ -36,8 +39,7 @@ export const SnackBars = ({ snackBarMsg, removeMessage, setSBTimer }: SnackbarPr
         width: "94%",
         maxWidth: "400px",
         gap: theme.gap(2),
-      }}
-    >
+      }}>
       <GroupTransition>
         {snackBarMsg.messages.map((msg) => {
           return (
@@ -45,8 +47,7 @@ export const SnackBars = ({ snackBarMsg, removeMessage, setSBTimer }: SnackbarPr
               key={msg.id}
               type="slide"
               direction={snackBarMsg.dir}
-              timeout={300}
-            >
+              timeout={300}>
               <Paper
                 variant="elevation"
                 sx={{
@@ -66,7 +67,10 @@ export const SnackBars = ({ snackBarMsg, removeMessage, setSBTimer }: SnackbarPr
                   "& > svg": {
                     stroke: `${theme.palette.gray[300]}`,
                     marginTop:
-                      msg.title && msg.content && msg.cta && theme.boxSpacing(4),
+                      msg.title &&
+                      msg.content &&
+                      msg.cta &&
+                      theme.boxSpacing(4),
                     width: "28px",
                     height: "28px",
                   },
@@ -94,12 +98,14 @@ export const SnackBars = ({ snackBarMsg, removeMessage, setSBTimer }: SnackbarPr
                   )}
 
                   {msg.content && (
-                    <Typography variant="body2" sx={{ width: "100%" }}>{msg.content}
+                    <Typography variant="body2" sx={{ width: "100%" }}>
+                      {msg.content}
                       {msg.cta && (
                         <AppButton variant="text" onClick={msg.cta.action}>
                           {msg.cta.label}
                         </AppButton>
-                      )}</Typography>
+                      )}
+                    </Typography>
                   )}
                 </Stack>
 
@@ -108,10 +114,13 @@ export const SnackBars = ({ snackBarMsg, removeMessage, setSBTimer }: SnackbarPr
                   <IconButton
                     onClick={() => removeMessage(msg.id!)}
                     sx={{ cursor: "pointer" }}>
-                    <X style={{
-                      width: "20px", height: "20px",
-                      stroke: `${theme.palette.gray[300]}`
-                    }} />
+                    <X
+                      style={{
+                        width: "20px",
+                        height: "20px",
+                        stroke: `${theme.palette.gray[300]}`,
+                      }}
+                    />
                   </IconButton>
                 )}
               </Paper>

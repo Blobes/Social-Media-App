@@ -1,3 +1,5 @@
+"use client";
+
 export const getInitialsAndColors = (
   value: string,
 ): { initials: string; textColor: string; bgColor: string } => {

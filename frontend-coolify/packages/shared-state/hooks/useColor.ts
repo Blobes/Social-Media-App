@@ -15,7 +15,10 @@ export const useImageColors = (imgSrc: string) => {
     img.src = imgSrc;
 
     img.onload = () => {
-      const colorThief = new ColorThief();
+      const ColorThiefCtor = ColorThief as unknown as {
+        new (): { getPalette: (image: HTMLImageElement, colorCount?: number) => number[][] };
+      };
+      const colorThief = new ColorThiefCtor();
       const palette = colorThief.getPalette(img, 5); // Grab 5 colors to have more options
 
       // Function to make a color "minimalist-friendly" (Light & Desaturated)

@@ -1,53 +1,54 @@
-"use client"
+"use client";
 
+import React from "react";
 import { SxProps, Theme } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Strip } from "../StripBar";
 import { summarizeNum } from "@repo/helpers";
 
 export interface Metric {
-    label: string;
-    count: number;
-    plural?: string;
+  label: string;
+  count: number;
+  plural?: string;
 }
 
 export interface MetricsProps {
-    metrics: Metric[];
-    sx?: SxProps<Theme>;
+  metrics: Metric[];
+  sx?: SxProps<Theme>;
 }
 
 export const Metrics = ({ metrics, sx }: MetricsProps) => {
-    const theme = useTheme();
+  const theme = useTheme();
 
-    // Transform the raw metrics into the format expected by the Strip component
-    const stripItems = metrics.map((item) => {
-        const isPlural = item.count !== 1;
-        const textLabel = isPlural ? (item.plural || `${item.label}s`) : item.label;
+  // Transform the raw metrics into the format expected by the Strip component
+  const stripItems = metrics.map((item) => {
+    const isPlural = item.count !== 1;
+    const textLabel = isPlural ? item.plural || `${item.label}s` : item.label;
 
-        return {
-            text: ` ${textLabel}`,
-            element: (
-                <strong style={{ color: theme.palette.gray[300] as string }}>
-                    {summarizeNum(item.count)}
-                </strong>
-            ),
-        };
-    });
+    return {
+      text: ` ${textLabel}`,
+      element: (
+        <strong style={{ color: theme.palette.gray[300] as string }}>
+          {summarizeNum(item.count)}
+        </strong>
+      ),
+    };
+  });
 
-    if (!metrics.length) return null;
+  if (!metrics.length) return null;
 
-    return (
-        <Strip
-            items={stripItems}
-            style={{
-                padding: theme.boxSpacing(4, 0),
-                [theme.breakpoints.down("md")]: {
-                    padding: theme.boxSpacing(4, 6),
-                },
-                borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
-                fontSize: "14px",
-                ...sx
-            }}
-        />
-    );
+  return (
+    <Strip
+      items={stripItems}
+      style={{
+        padding: theme.boxSpacing(4, 0),
+        [theme.breakpoints.down("md")]: {
+          padding: theme.boxSpacing(4, 6),
+        },
+        borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
+        fontSize: "14px",
+        ...sx,
+      }}
+    />
+  );
 };

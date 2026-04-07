@@ -1,4 +1,6 @@
-import { IAuthor, IPost } from "@repo/types";
+"use client";
+
+import { IPostAuthor, IPost } from "@repo/types";
 import { get, set } from "idb-keyval";
 
 export interface Cached {
@@ -12,7 +14,7 @@ export const cachePost = async (post: IPost) => {
   // Parallel fetch for speed
   const [savedPost, authorDict] = await Promise.all([
     get("cached-posts") as Promise<Cached[] | undefined>,
-    get("cached-authors") as Promise<Record<string, IAuthor>>,
+    get("cached-authors") as Promise<Record<string, IPostAuthor>>,
   ]);
 
   const postList = savedPost || [];
@@ -82,7 +84,7 @@ export const cleanupCache = async () => {
     activePosts.map((item) => item.post.authorId),
   );
 
-  const updatedAuthors: Record<string, IAuthor> = {};
+  const updatedAuthors: Record<string, IPostAuthor> = {};
   Object.keys(authorDictionary).forEach((id) => {
     if (activeAuthorIds.has(id)) {
       updatedAuthors[id] = authorDictionary[id];
@@ -99,10 +101,11 @@ export const cleanupCache = async () => {
 
 export const getCachedAuthor = async (
   authorId: string,
-): Promise<IAuthor | undefined> => {
+): Promise<IPostAuthor | undefined> => {
   try {
     // 1. Fetch the entire dictionary from IndexedDB
-    const cachedAuthors = await get<Record<string, IAuthor>>("cached-authors");
+    const cachedAuthors =
+      await get<Record<string, IPostAuthor>>("cached-authors");
     // 2. Return the specific author or null if they don't exist
     return cachedAuthors && cachedAuthors[authorId];
   } catch (error) {

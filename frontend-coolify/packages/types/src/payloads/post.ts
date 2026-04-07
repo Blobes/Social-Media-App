@@ -23,8 +23,8 @@ export interface IPostAuthor {
   lastName: string;
   fullName: string;
   profileImage: string | null;
-  isFollowing: boolean;
-  followsMe: boolean;
+  isFollowing?: boolean;
+  followsMe?: boolean;
 }
 
 export interface IGistPayload {

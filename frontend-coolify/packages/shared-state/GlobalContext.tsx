@@ -1,8 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import {
-  IUser, ISnackBarMsg, AuthStatus, IPage, NetworkStatus,
+  IUser,
+  ISnackBarMsg,
+  AuthStatus,
+  IPage,
+  NetworkStatus,
   DrawerProps,
   ModalProps,
 } from "@repo/types";
@@ -49,7 +53,7 @@ export const ContextProvider = ({
   const [snackBarMsg, setSnackBarMsg] = useState<ISnackBarMsg>({
     messages: [],
     defaultDur: 5,
-    dir: "up"
+    dir: "up",
   });
   const [inlineMsg, setInlineMsg] = useState<string | null>(null);
   const [isGlobalLoading, setGlobalLoading] = useState(false);
@@ -89,14 +93,9 @@ export const ContextProvider = ({
     setOfflineMode,
     defaultHeader,
     setDefaultHeader,
-  }
+  };
 
-  return (
-    <context.Provider
-      value={value}>
-      {children}
-    </context.Provider>
-  );
+  return <context.Provider value={value}>{children}</context.Provider>;
 };
 
 export const useGlobalContext = () => {

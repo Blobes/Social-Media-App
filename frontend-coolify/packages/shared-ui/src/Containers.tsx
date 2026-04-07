@@ -1,16 +1,20 @@
-"use client"
+"use client";
 
+import React from "react";
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { autoScroll, scrollBarStyle } from "@repo/helpers";
 
-
 interface UIProps {
   children: React.ReactNode;
   style?: any;
-  shouldScroll?: boolean
+  shouldScroll?: boolean;
 }
-export const RootUIContainer = ({ children, style, shouldScroll = false }: UIProps) => {
+export const RootUIContainer = ({
+  children,
+  style,
+  shouldScroll = false,
+}: UIProps) => {
   const theme = useTheme();
   return (
     <Stack
@@ -24,9 +28,9 @@ export const RootUIContainer = ({ children, style, shouldScroll = false }: UIPro
           ...autoScroll().base,
           ...scrollBarStyle(theme),
         }),
-        ...style
+        ...style,
       }}>
       {children}
     </Stack>
-  )
-}
+  );
+};

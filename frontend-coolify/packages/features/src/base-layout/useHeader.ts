@@ -1,9 +1,12 @@
-import { useRef, useEffect } from "react";
+"use client";
+
+import React, { useRef, useEffect } from "react";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import { clientRoutes, dragToCloseConfig } from "@repo/helpers";
 import { MenuRef } from "@repo/types";
 import {
+  useDragClose,
   useGlobalContext,
   useMisc,
   usePage,

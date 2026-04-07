@@ -1,5 +1,6 @@
-"use client"
+"use client";
 
+import React from "react";
 import { CircularProgress, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { img } from "@repo/assets";
@@ -18,20 +19,26 @@ export const ProgressIcon = ({ style, otherProps, info }: ProgressProps) => {
   const theme = useTheme();
   return (
     <>
-      <CircularProgress enableTrackSlot
+      <CircularProgress
+        enableTrackSlot
         sx={{ color: theme.palette.primary.dark, ...style }}
-        {...otherProps} thickness={2.5}
+        {...otherProps}
+        thickness={2.5}
       />
-      {info && <Typography variant="body2"
-        sx={{
-          textAlign: "center",
-          fontWeight: "500",
-          fontStyle: "italic"
-        }}>{info}</Typography>}
+      {info && (
+        <Typography
+          variant="body2"
+          sx={{
+            textAlign: "center",
+            fontWeight: "500",
+            fontStyle: "italic",
+          }}>
+          {info}
+        </Typography>
+      )}
     </>
   );
 };
-
 
 export const PageLoaderUI = () => {
   const theme = useTheme();
@@ -42,15 +49,12 @@ export const PageLoaderUI = () => {
         alignItems: "center",
         justifyContent: "center",
       }}>
-      <AnimatedWrapper sx={{
-        borderRadius: theme.radius.full,
-        animation: `${rotate} 1s linear infinite forwards`
-      }}>
-        <Image
-          src={img.logo}
-          alt="Loading icon"
-          width={54}
-          height={54} />
+      <AnimatedWrapper
+        sx={{
+          borderRadius: theme.radius.full,
+          animation: `${rotate} 1s linear infinite forwards`,
+        }}>
+        <Image src={img.logo} alt="Loading icon" width={54} height={54} />
       </AnimatedWrapper>
     </RootUIContainer>
   );

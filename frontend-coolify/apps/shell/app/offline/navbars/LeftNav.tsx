@@ -1,3 +1,6 @@
+"use client";
+
+import React from "react";
 import { Stack, Typography, useTheme } from "@mui/material";
 import { autoScroll } from "@repo/helpers";
 import { useRouter } from "next/navigation";

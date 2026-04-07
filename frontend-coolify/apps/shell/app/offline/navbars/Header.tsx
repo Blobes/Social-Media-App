@@ -1,9 +1,10 @@
 "use client";
 
+import React from "react";
 import { AppBar, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useMisc, usePageScroll } from "@repo/shared-state";
-import { img } from "@repo/assets"
+import { img } from "@repo/assets";
 import Image from "next/image";
 import { SVGIcon } from "@repo/shared-ui";
 
@@ -15,7 +16,7 @@ export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
   const { handlePageScroll } = usePageScroll();
   const theme = useTheme();
   const scrollDir = handlePageScroll(scrollRef);
-  const { OfflineAvatar } = img
+  const { OfflineAvatar } = img;
 
   /* ---------------------------------- render ---------------------------------- */
   return (
@@ -33,11 +34,11 @@ export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
         gap: theme.gap(6),
         backdropFilter: "blur(24px)",
         ...(!isDesktop && {
-          transform: scrollDir === "down" ? "translateY(-100%)" : "translateY(0)",
+          transform:
+            scrollDir === "down" ? "translateY(-100%)" : "translateY(0)",
           transition: "transform 0.3s ease-in-out",
         }),
       }}>
-
       {/* Logo */}
       <Image
         src={img.logo}
@@ -61,7 +62,6 @@ export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
           },
         }}
       />
-
-    </AppBar >
+    </AppBar>
   );
 };

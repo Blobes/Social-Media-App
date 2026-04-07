@@ -34,7 +34,7 @@ export const clientRoutes: Record<string, IPage> = {
   offline: { title: "Offline", path: "/offline" },
 } as const;
 
-export const registeredRoutes = {
+export const routesRegistry = {
   auth: [clientRoutes.login.path, clientRoutes.signup.path],
   web: [
     clientRoutes.about.path,
@@ -53,11 +53,11 @@ export const disallowedRoutes: string[] = [];
 
 // Server Apis
 export const apiBase = {
-  auth: "/auth/v1",
-  user: "/user/v1",
+  auth: "/auth",
+  user: "/user",
   // Posts
   feed: "/post/feed",
-  gists: "post/gists/v1",
+  gists: "post/gists",
   media: "/media",
   // Report
   report: "/report",

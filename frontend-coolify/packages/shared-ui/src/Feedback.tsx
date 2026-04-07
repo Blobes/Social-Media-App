@@ -1,12 +1,13 @@
-"use client"
+"use client";
 
+import React from "react";
 import { IconButton, Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AppButton } from "./Buttons";
 import { RefreshCcw } from "lucide-react";
 import { BasicTooltip } from "./Tooltips";
 
-interface EmptyProps {
+interface FeedbackProps {
   headline?: string;
   tagline?: string;
   icon?: React.ReactNode;
@@ -24,18 +25,20 @@ interface EmptyProps {
     label?: string | React.ReactNode;
     toolTip?: string;
     action: () => void | Promise<void>;
-    href?: string
+    href?: string;
+    isCrossZone?: boolean;
   };
   secondaryCta?: {
     type?: "BUTTON" | "ICON";
     label?: string | React.ReactNode;
     toolTip?: string;
     action: () => void;
-    href?: string
+    href?: string;
+    isCrossZone?: boolean;
   };
 }
 
-export const Empty: React.FC<EmptyProps> = ({
+export const Feedback: React.FC<FeedbackProps> = ({
   headline,
   tagline,
   icon,
@@ -47,9 +50,8 @@ export const Empty: React.FC<EmptyProps> = ({
   const primaryCtaType = primaryCta?.type || "BUTTON";
   const secondaryCtaType = secondaryCta?.type || "BUTTON";
 
-  const primHref = primaryCta?.href ? { href: primaryCta?.href } : {}
-  const secHref = secondaryCta?.href ? { href: secondaryCta?.href } : {}
-
+  const primHref = primaryCta?.href ? { href: primaryCta?.href } : {};
+  const secHref = secondaryCta?.href ? { href: secondaryCta?.href } : {};
 
   return (
     <Stack

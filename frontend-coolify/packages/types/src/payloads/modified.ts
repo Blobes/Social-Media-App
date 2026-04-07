@@ -1,7 +1,7 @@
 "use client";
 
 import { IMediaPayload } from "./media";
-import { IGistPayload, IStakePayload } from "./posts";
+import { IGistPayload, IStakePayload } from "./post";
 import { IUserPayload } from "./user";
 
 export type FetchStatus = "SUCCESS" | "ERROR" | "INFO" | "WARNING" | null;

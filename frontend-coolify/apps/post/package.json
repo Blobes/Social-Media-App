@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 3003",
+    "dev": "NODE_ENV=development next dev -p 3003",
     "build": "next build",
-    "start": "next start -p 300"
+    "start": "NODE_ENV=production next start -p 3003"
   },
   "dependencies": {
     "next": "catalog:",

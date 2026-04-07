@@ -1,3 +1,4 @@
+import React from "react";
 import { ClientOnly, BaseLayout } from "@repo/features";
 import { Wrapper } from "./Wrapper";
 
@@ -9,10 +10,8 @@ export default function OfflineLayout({
   return (
     <BaseLayout>
       <ClientOnly>
-        <Wrapper>
-          {children}
-        </Wrapper>
+        <Wrapper>{children}</Wrapper>
       </ClientOnly>
     </BaseLayout>
-  )
+  );
 }

@@ -1,46 +1,52 @@
-"use client"
+"use client";
 
+import React from "react";
 import { Stack, Typography, SxProps, Theme } from "@mui/material";
 import { UserAvatar } from "../../UserAvatar";
-import { IAuthor } from "@repo/types";
+import { IPostAuthor } from "@repo/types";
 import { useTheme } from "@mui/material/styles";
 
 export interface AuthorProps {
-    author: IAuthor;
-    avatarSize?: string;
-    showUsername?: boolean;
-    sx?: SxProps<Theme>;
+  author: IPostAuthor;
+  avatarSize?: string;
+  showUsername?: boolean;
+  sx?: SxProps<Theme>;
 }
 
-export const AuthorInfo = ({ author, avatarSize = "32px",
-    showUsername = true, sx }: AuthorProps) => {
-    const theme = useTheme();
+export const AuthorInfo = ({
+  author,
+  avatarSize = "32px",
+  showUsername = true,
+  sx,
+}: AuthorProps) => {
+  const theme = useTheme();
 
-    return (
-        <Stack direction="row" sx={{ alignItems: "center", gap: theme.gap(2), ...sx }}>
-            <UserAvatar
-                userInfo={{
-                    firstName: author.firstName,
-                    lastName: author.lastName,
-                    profileImage: author.profileImage,
-                }}
-                style={{ width: avatarSize, height: avatarSize, fontSize: "16px" }}
-                aria-label={author.fullName}
-            />
-            <Stack sx={{ width: "100%", gap: theme.gap(0), minWidth: "40px" }}>
-                <Typography variant="body2" noWrap sx={{ fontWeight: "bold" }}>
-                    {author.fullName}
-                </Typography>
-                {showUsername && (
-                    <Typography
-                        variant="body3"
-                        noWrap
-                        sx={{ color: theme.palette.gray[200], lineHeight: "1.1em" }}
-                    >
-                        @{author.username}
-                    </Typography>
-                )}
-            </Stack>
-        </Stack>
-    );
+  return (
+    <Stack
+      direction="row"
+      sx={{ alignItems: "center", gap: theme.gap(2), ...sx }}>
+      <UserAvatar
+        userInfo={{
+          firstName: author.firstName,
+          lastName: author.lastName,
+          profileImage: author.profileImage,
+        }}
+        style={{ width: avatarSize, height: avatarSize, fontSize: "16px" }}
+        aria-label={author.fullName}
+      />
+      <Stack sx={{ width: "100%", gap: theme.gap(0), minWidth: "40px" }}>
+        <Typography variant="body2" noWrap sx={{ fontWeight: "bold" }}>
+          {author.fullName}
+        </Typography>
+        {showUsername && (
+          <Typography
+            variant="body3"
+            noWrap
+            sx={{ color: theme.palette.gray[200], lineHeight: "1.1em" }}>
+            @{author.username}
+          </Typography>
+        )}
+      </Stack>
+    </Stack>
+  );
 };

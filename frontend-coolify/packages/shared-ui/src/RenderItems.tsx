@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from 'react';
+import React, { Fragment } from "react";
 import { Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { INavItem, IPage } from "@repo/types";
@@ -8,14 +8,13 @@ import { matchPaths } from "@repo/helpers";
 import { usePathname } from "next/navigation";
 import { AnchorLink } from "./Buttons";
 
-
 // Props for the reusable nav renderer
 export interface RenderListProps {
   list: INavItem[];
   itemAction?: () => void;
   style?: any;
   showCurrentPage?: boolean;
-  hook: () => { navigateTo: (savePage: IPage) => void }
+  hook: () => { navigateTo: (savePage: IPage) => void };
 }
 // Renders an advance nav list
 export const RenderItemList: React.FC<RenderListProps> = ({
@@ -23,11 +22,11 @@ export const RenderItemList: React.FC<RenderListProps> = ({
   itemAction,
   style = {},
   showCurrentPage = true,
-  hook
+  hook,
 }) => {
   const theme = useTheme();
   const pathname = usePathname();
-  const { fontSize, fontWeight, color, ...restStyle } = style
+  const { fontSize, fontWeight, color, ...restStyle } = style;
 
   const itemStyle: any = {
     alignItems: "center",
@@ -42,10 +41,10 @@ export const RenderItemList: React.FC<RenderListProps> = ({
       fontSize: `${fontSize ?? "15px"}!important`,
       fontWeight: `${fontWeight ?? "600"}!important`,
       color: `${color ?? theme.palette.gray[300]}!important`,
-      "&:hover": { ...restStyle["&:hover"] }
+      "&:hover": { ...restStyle["&:hover"] },
     },
     ...restStyle,
-  }
+  };
 
   return (
     <>
@@ -71,11 +70,11 @@ export const RenderItemList: React.FC<RenderListProps> = ({
             aria-current={isCurrentPage ? "page" : undefined}
             role="link"
             tabIndex={0}
-
             style={{
-              backgroundColor: showCurrentPage && isCurrentPage
-                ? theme.palette.gray.trans[1]
-                : "none",
+              backgroundColor:
+                showCurrentPage && isCurrentPage
+                  ? theme.palette.gray.trans[1]
+                  : "none",
               ...itemStyle,
             }}>
             {item.element && item.element}
@@ -88,4 +87,3 @@ export const RenderItemList: React.FC<RenderListProps> = ({
     </>
   );
 };
-

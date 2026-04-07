@@ -1,6 +1,8 @@
+"use client";
+
+import React from "react";
 import { Stack, Typography, useTheme } from "@mui/material";
 import { autoScroll } from "@repo/helpers";
-
 
 export const LeftNav = () => {
   const theme = useTheme();

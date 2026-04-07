@@ -1,16 +1,19 @@
+import React from "react";
 import { BlurEffect, RootUIContainer, Footer } from "@repo/shared-ui";
 import { Header } from "./navbars/Header";
 import { useNavLists, usePage } from "@repo/shared-state";
 import { BaseLayout, ClientOnly } from "@repo/features";
 
-export default function RootLayout({ children, }: Readonly<{
+export default function RootLayout({
+  children,
+}: Readonly<{
   children: React.ReactNode;
 }>) {
   const { navigateTo } = usePage();
   const { footerNavList } = useNavLists();
 
   return (
-    <BaseLayout >
+    <BaseLayout>
       <ClientOnly>
         <RootUIContainer>
           <BlurEffect />
@@ -20,5 +23,5 @@ export default function RootLayout({ children, }: Readonly<{
         </RootUIContainer>
       </ClientOnly>
     </BaseLayout>
-  )
+  );
 }

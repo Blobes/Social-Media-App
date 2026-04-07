@@ -1,14 +1,15 @@
 "use client";
 
-import { Divider, Stack, } from "@mui/material";
+import React from "react";
+import { Divider, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AnchorLink } from "./Buttons";
-import { Fragment } from 'react';
+import { Fragment } from "react";
 import { INavItem, IPage } from "@repo/types";
 
 interface footerProps {
   navList: INavItem[];
-  navigateTo: (savePage: IPage, options: any) => void
+  navigateTo: (savePage: IPage, options: any) => void;
 }
 
 export const Footer = ({ navList, navigateTo }: footerProps) => {
@@ -30,7 +31,10 @@ export const Footer = ({ navList, navigateTo }: footerProps) => {
             url={item.url ?? "#"}
             onClick={() => {
               if (item.title && item.url)
-                navigateTo({ title: item.title, path: item.url, }, { loadPage: true })
+                navigateTo(
+                  { title: item.title, path: item.url },
+                  { loadPage: true },
+                );
             }}
             style={{
               color: theme.palette.gray[200],

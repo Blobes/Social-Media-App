@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "NODE_ENV=development next dev -p 3000",
     "build": "next build",
-    "start": "next start -p 3000"
+    "start": "NODE_ENV=production next start -p 3000"
   },
   "dependencies": {
     "@emotion/react": "catalog:",

@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Stack, FormControl } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGlobalContext } from "@repo/shared-state";
@@ -23,7 +24,7 @@ export const VibeSlider = () => {
         gap: theme.gap(10),
         [theme.breakpoints.down("md")]: {
           margin: theme.boxSpacing(6),
-        }
+        },
       }}>
       {/* Create field */}
       <Stack

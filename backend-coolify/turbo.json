@@ -18,7 +18,7 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "inputs": ["$TURBO_DEFAULT$", ".env.development"]
+      "inputs": ["$TURBO_DEFAULT$", ".env*"]
     },
     "format": {
       "cache": true,

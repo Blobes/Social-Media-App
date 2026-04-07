@@ -1,15 +1,15 @@
 "use client";
 
 import { useGlobalContext } from "@repo/shared-state";
-import { fetcher, deleteCookie } from "@repo/helpers";
-import { IUser, ISingleResponse, DrawerRef } from "@repo/types";
+import { apiClient, deleteCookie } from "@repo/helpers";
+import { IUser, ISinglePayload, DrawerRef } from "@repo/types";
 import { useRouter } from "next/navigation";
 
 interface LoginCredentials {
   email: string;
   password: string;
 }
-interface LoginResponse extends ISingleResponse<IUser> {
+interface LoginResponse extends ISinglePayload<IUser> {
   fixedMsg?: string;
 }
 interface SignupInfo {
@@ -35,7 +35,7 @@ export const useSignup = (drawerRef?: React.RefObject<DrawerRef>) => {
   ): Promise<LoginResponse | null> => {
     try {
       // Step 2: Attempt login request
-      const res = await fetcher<LoginResponse>("/auth/login", {
+      const res = await apiClient<LoginResponse>("/auth/login", {
         method: "POST",
         body: JSON.stringify(credentials),
       });
@@ -70,7 +70,7 @@ export const useSignup = (drawerRef?: React.RefObject<DrawerRef>) => {
 
   const handleSignup = async (
     info: SignupInfo,
-  ): Promise<ISingleResponse<IUser> | null> => {
+  ): Promise<ISinglePayload<IUser> | null> => {
     return null;
   };
 

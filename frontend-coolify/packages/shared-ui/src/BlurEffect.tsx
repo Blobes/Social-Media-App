@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Box } from "@mui/material";
 import { useTheme, styled } from "@mui/material/styles";
 import { blue } from "@mui/material/colors";
@@ -13,7 +14,7 @@ const Blur = styled("div")(({ theme }) =>
     zIndex: -1,
     filter: "blur(72px)",
     opacity: 0.04,
-  })
+  }),
 );
 
 export const BlurEffect = () => {

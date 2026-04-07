@@ -1,6 +1,6 @@
 "use client";
 
-import {
+import React, {
   useImperativeHandle,
   forwardRef,
   useRef,
@@ -9,16 +9,24 @@ import {
 import { Box, IconButton, Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { X } from "lucide-react";
-import { DrawerProps, DrawerRef } from "@repo/types"
+import { DrawerProps, DrawerRef } from "@repo/types";
 import { Transition } from "./Transition";
 import { applyBGEffects, scrollBarStyle } from "@repo/helpers";
 
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
   (
-    { showHeader = true, header, content, transDirection, clickToClose = true,
-      onClose, style, useDragConfig, blurOverlayBG
+    {
+      showHeader = true,
+      header,
+      content,
+      transDirection,
+      clickToClose = true,
+      onClose,
+      style,
+      useDragConfig,
+      blurOverlayBG,
     },
-    ref
+    ref,
   ) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const closeRef = useRef<HTMLButtonElement>(null);
@@ -31,14 +39,14 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     const [shouldRemove, setShouldRemove] = useState(true);
 
     // Transition properties
-    const baseDir = transDirection?.base || "left"
+    const baseDir = transDirection?.base || "left";
     const mobileDir = transDirection?.mobile ?? baseDir;
-    const transDir = isDesktop ? baseDir : mobileDir
+    const transDir = isDesktop ? baseDir : mobileDir;
 
     const dragConfig = useDragConfig ? useDragConfig() : null;
-    const dragOffset = dragConfig?.dragOffset ?? 0
-    const axis = dragConfig?.axis
-    const handlers = dragConfig?.handlers
+    const dragOffset = dragConfig?.dragOffset ?? 0;
+    const axis = dragConfig?.axis;
+    const handlers = dragConfig?.handlers;
 
     useImperativeHandle(ref, () => ({
       openDrawer: () => {
@@ -72,7 +80,8 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           height: "100%",
           zIndex: 1000,
           visibility: !shouldRemove ? "visible" : "hidden",
-          transition: "opacity 0.3s ease-in-out, visibility 0.3s, background-color 0.3s",
+          transition:
+            "opacity 0.3s ease-in-out, visibility 0.3s, background-color 0.3s",
           opacity: isOpen ? 1 : 0,
           marginLeft: "0!important",
           padding: theme.boxSpacing(12),
@@ -80,31 +89,42 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           ...(blurOverlayBG && applyBGEffects(theme).blur(isOpen, dragOffset)),
 
           // Alignment
-          alignItems: transDir === "right" ? "flex-start"
-            : baseDir === "left" ? "flex-end" : "center",
+          alignItems:
+            transDir === "right"
+              ? "flex-start"
+              : baseDir === "left"
+                ? "flex-end"
+                : "center",
 
-          justifyContent: baseDir === "down" ? "flex-start"
-            : baseDir === "up" ? "flex-end" : "center",
+          justifyContent:
+            baseDir === "down"
+              ? "flex-start"
+              : baseDir === "up"
+                ? "flex-end"
+                : "center",
           ...style?.base?.overlay,
 
           // Mobile styling
           [theme.breakpoints.down("md")]: {
             padding: theme.boxSpacing(4, 2),
-            ...style?.smallScreen?.overlay
+            ...style?.smallScreen?.overlay,
           },
         }}>
-
         {/* Drawer Content Container */}
-        <Transition show={isOpen}
-          timeout={200} type="slide" direction={transDir}
+        <Transition
+          show={isOpen}
+          timeout={200}
+          type="slide"
+          direction={transDir}
           onExited={() => setShouldRemove(true)}>
           <Stack
             // Drag event on X axis
-            {...(isMobile && handlers && {
-              onTouchStart: handlers.onTouchStart,
-              onTouchMove: handlers.onTouchMove,
-              onTouchEnd: () => handlers.onTouchEnd(() => setOpen(false)),
-            })}
+            {...(isMobile &&
+              handlers && {
+                onTouchStart: handlers.onTouchStart,
+                onTouchMove: handlers.onTouchMove,
+                onTouchEnd: () => handlers.onTouchEnd(() => setOpen(false)),
+              })}
             sx={{
               maxHeight: "100%",
               gap: theme.gap(0),
@@ -117,9 +137,10 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 
               // Drag styling
               ...(dragOffset !== 0 && {
-                transform: axis === "X"
-                  ? `translateX(${dragOffset}px) !important`
-                  : `translateY(${dragOffset}px) !important`,
+                transform:
+                  axis === "X"
+                    ? `translateX(${dragOffset}px) !important`
+                    : `translateY(${dragOffset}px) !important`,
                 transition: "none !important",
               }),
               ...(dragOffset === 0 && {
@@ -135,13 +156,13 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               [theme.breakpoints.down("md")]: {
                 width: style?.mediumScreen?.content?.width ?? "80%",
                 maxWidth: style?.mediumScreen?.content?.maxWidth ?? "350px",
-                ...style?.mediumScreen?.content
+                ...style?.mediumScreen?.content,
               },
               // Small screen
               [theme.breakpoints.down("sm")]: {
                 width: style?.smallScreen?.content?.width ?? "89%",
                 maxWidth: style?.smallScreen?.content?.maxWidth ?? "100%",
-                ...style?.smallScreen?.content
+                ...style?.smallScreen?.content,
               },
             }}>
             {
@@ -153,16 +174,17 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
                     alignItems: "center",
                     gap: theme.gap(0),
                   }}>
-
                   {/* Drag Handle UI */}
                   {dragConfig && isMobile && axis === "Y" && (
-                    <Box sx={{
-                      width: "50px",
-                      height: "6px",
-                      borderRadius: theme.radius.full,
-                      marginTop: theme.boxSpacing(8),
-                      backgroundColor: theme.palette.gray.trans[2]
-                    }} />
+                    <Box
+                      sx={{
+                        width: "50px",
+                        height: "6px",
+                        borderRadius: theme.radius.full,
+                        marginTop: theme.boxSpacing(8),
+                        backgroundColor: theme.palette.gray.trans[2],
+                      }}
+                    />
                   )}
                   {(header || clickToClose) && (
                     <Stack
@@ -174,7 +196,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
                         gap: theme.gap(2),
                         padding: theme.boxSpacing(2),
                         ...style?.header,
-                        borderBottom: `1px solid ${theme.palette.gray.trans[1]}`
+                        borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
                       }}>
                       {header && header}
                       {clickToClose && (
@@ -207,10 +229,9 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               {content}
             </Stack>
           </Stack>
-
-        </Transition >
-      </Stack >
+        </Transition>
+      </Stack>
     );
-  }
+  },
 );
 Drawer.displayName = "Drawer";

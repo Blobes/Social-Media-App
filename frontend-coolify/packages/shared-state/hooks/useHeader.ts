@@ -1,13 +1,15 @@
+"use client";
+
 import { useRef, useEffect } from "react";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import { useGlobalContext } from "../GlobalContext";
 import { useMisc } from "./useMisc";
-import { clientRoutes, dragToCloseConfig } from "../../_helpers";
 import { usePage } from "./usePage";
 import { usePageScroll } from "./usePageScroll";
 import { useDragClose } from "./useDrag";
 import { MenuRef } from "@repo/types";
+import { clientRoutes, dragToCloseConfig } from "@repo/helpers";
 
 export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
   const { authStatus, authUser } = useGlobalContext();

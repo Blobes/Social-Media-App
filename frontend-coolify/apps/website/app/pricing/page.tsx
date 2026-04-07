@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Pricing } from "./Pricing"
-
+import React from "react";
+import { Pricing } from "./Pricing";
 
 export default function PricingPage() {
-    return <Pricing />
+  return <Pricing />;
 }

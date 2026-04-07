@@ -1,3 +1,5 @@
+"use client";
+
 import { DateType } from "@repo/types";
 
 export const formatDate = (
@@ -22,12 +24,12 @@ export const formatDate = (
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
   // RETURN COMPLETE VERSION / DATE-ONLY
-  if (type === "COMPLETE" || type === "date-only") {
+  if (type === "COMPLETE" || type === "DATE-ONLY") {
     const dayNum = date.getDate();
     const monthStr = date.toLocaleString("en-US", { month: "short" });
     const yearShort = date.getFullYear().toString().slice(-2);
 
-    if (type === "date-only") return `${dayNum} ${monthStr} ${yearShort}`;
+    if (type === "DATE-ONLY") return `${dayNum} ${monthStr} ${yearShort}`;
 
     // Formatting time: 12:10 PM
     const timeStr = date.toLocaleString("en-US", {
