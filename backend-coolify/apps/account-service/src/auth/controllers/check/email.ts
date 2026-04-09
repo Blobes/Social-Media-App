@@ -23,7 +23,7 @@ export const checkEmail = async (req: Request, res: Response): Promise<any> => {
     if (existingUser) {
       return res.status(200).json({
         status: "SUCCESS",
-        isCredentialAvailable: false,
+        isExisting: true,
         message: !existingUser.isDeactivated
           ? "Email is already registered."
           : "This account is deactivated. Please restore it to continue.",
@@ -38,7 +38,7 @@ export const checkEmail = async (req: Request, res: Response): Promise<any> => {
     // Email is truly available
     return res.status(200).json({
       status: "SUCCESS",
-      isCredentialAvailable: true,
+      isExisting: false,
       message: "Email is available",
       payload: null,
     });

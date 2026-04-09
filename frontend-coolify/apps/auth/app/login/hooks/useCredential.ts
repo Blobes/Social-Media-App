@@ -16,7 +16,7 @@ export const useCredential = ({
   setStep,
   setCredential,
 }: CredentialProps) => {
-  const { checkEmail, checkUsername } = LoginService();
+  const { checkEmail, checkPhone, checkUsername } = LoginService();
   const { isAuthLoading, setAuthLoading, setInlineMsg } = useGlobalContext();
 
   // Local UI State
@@ -66,7 +66,9 @@ export const useCredential = ({
       // Passing "LOGIN" for username checks to ensure we get deactivated status
       const res = await (inputType === "EMAIL"
         ? checkEmail(input)
-        : checkUsername(input, "LOGIN"));
+        : inputType === "PHONE"
+          ? checkPhone(input)
+          : checkUsername(input, "LOGIN"));
 
       if (
         res.status === "SUCCESS" &&
@@ -83,14 +85,17 @@ export const useCredential = ({
       }
 
       // 2. Handle Existing User (Account found)
-      if (res.status === "SUCCESS" && res.isCredentialAvailable === false) {
+      if (res.status === "SUCCESS" && res.isExisting === true) {
         setCredential?.(input);
         setStep?.("PASSWORD");
       }
       // 3. Handle Credential Not Found
       else {
         setInlineMsg(
-          `We couldn't find an account with that ${inputType?.toLowerCase()}.`,
+          `We couldn't find an account with the ${
+            inputType?.toLowerCase() + (inputType === "PHONE" ? " number" : "")
+          } provided.
+         `,
         );
       }
     } catch (error: any) {

@@ -43,7 +43,7 @@ export const checkUsername = async (
       if (existingUser.isDeactivated) {
         return res.status(200).json({
           status: "SUCCESS",
-          isCredentialAvailable: false,
+          isExisting: true,
           message: "This account is deactivated. Please restore it to log in.",
           payload: {
             accountStatus: "DEACTIVATED",
@@ -55,7 +55,7 @@ export const checkUsername = async (
 
       return res.status(200).json({
         status: "SUCCESS",
-        isCredentialAvailable: false,
+        isExisting: true,
         message: "Username exists and is active.",
         payload: {
           accountStatus: "ACTIVE",
@@ -69,7 +69,7 @@ export const checkUsername = async (
     if (!existingUser) {
       return res.status(200).json({
         status: "SUCCESS",
-        isCredentialAvailable: true,
+        isExisting: false,
         message: "Username is available",
         payload: null,
       });
@@ -104,7 +104,7 @@ export const checkUsername = async (
 
     return res.status(200).json({
       status: "SUCCESS",
-      isCredentialAvailable: false,
+      isExisting: true,
       suggestions,
       message: "Username is already taken.",
       payload: null,

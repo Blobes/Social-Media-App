@@ -10,6 +10,7 @@ import { verifyUserAuth } from "./controllers/verifyUserAuth";
 import { logoutUser } from "./controllers/session/logout";
 import { getActiveSessions } from "./controllers/session/activeSessions";
 import { setPrimaryDevice } from "./controllers/session/primaryDevice";
+import { checkPhone } from "./controllers/check/phone";
 
 const router: Router = express.Router();
 
@@ -21,6 +22,7 @@ router.get("/", (req, res) => {
 // --- DISCOVERY & AVAILABILITY ---
 // Public endpoints used during registration to check if data is unique
 router.post("/check-email", checkEmail);
+router.post("/check-phone", checkPhone);
 router.post("/check-username", checkUsername);
 
 // --- ACCOUNT ONBOARDING ---

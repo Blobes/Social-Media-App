@@ -9,7 +9,7 @@ interface LoginResponse extends ISinglePayload<IUser> {
   fixedMsg?: string;
 }
 interface checkResponse extends ISinglePayload<IUser> {
-  isCredentialAvailable: boolean;
+  isExisting: boolean;
 }
 
 export const LoginService = () => {
@@ -17,6 +17,13 @@ export const LoginService = () => {
     return await apiClient<checkResponse>(serverApi.checkEmail, {
       method: "POST",
       body: JSON.stringify({ email }),
+    });
+  };
+
+  const checkPhone = async (phone: string): Promise<checkResponse> => {
+    return await apiClient<checkResponse>(serverApi.checkPhone, {
+      method: "POST",
+      body: JSON.stringify({ phone: phone }),
     });
   };
 
@@ -40,5 +47,5 @@ export const LoginService = () => {
     });
   };
 
-  return { checkEmail, checkUsername, login };
+  return { checkEmail, checkPhone, checkUsername, login };
 };

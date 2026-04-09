@@ -71,6 +71,7 @@ export const serverApi = {
   logout: `${apiBase.auth}/logout`,
   signup: `${apiBase.auth}/signup`,
   checkEmail: `${apiBase.auth}/check-email`,
+  checkPhone: `${apiBase.auth}/check-phone`,
   checkUsername: `${apiBase.auth}/check-username`,
   verifyAuthToken: `${apiBase.auth}/verify-auth`,
   refreshToken: `${apiBase.auth}/refresh`,
