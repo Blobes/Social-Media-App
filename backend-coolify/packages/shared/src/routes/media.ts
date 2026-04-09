@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyAuthToken } from "../middlewares/verifyAuthToken";
+import { verifyAuthToken } from "../middlewares/verifyTokens";
 import { getUploadUrl } from "../controller/media/getUploadUrl";
 
 export const mediaRouter = () => {

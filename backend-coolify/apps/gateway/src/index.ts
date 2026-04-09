@@ -14,8 +14,6 @@ const startGateway = async () => {
 
   const PORT = process.env.GATEWAY_PORT || 8000;
 
-  app.use("/health", healthRouter("GATEWAY"));
-
   // Load Global Middleware (CORS, Parsers, etc.)
   appLoader(app);
 

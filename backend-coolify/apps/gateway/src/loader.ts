@@ -5,6 +5,7 @@ import {
   upstashClient,
   reportRouter,
   topicRouter,
+  healthRouter,
 } from "@repo/shared";
 import { rateLimiter } from "./middleware/rateLimiter";
 import gatewayRoutes from "./proxy";
@@ -32,6 +33,7 @@ export default async (app: Express) => {
   }
 
   // 4. Gateway's own shared routes (these need the body parser above)
+  app.use("/health", healthRouter("GATEWAY"));
   app.use("/report", reportRouter());
   app.use("/media", mediaRouter());
   app.use("/topic", topicRouter());

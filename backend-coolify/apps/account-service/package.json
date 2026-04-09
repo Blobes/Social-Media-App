@@ -12,6 +12,7 @@
     "@repo/database": "workspace:*",
     "@repo/shared": "workspace:*",
     "bcrypt": "catalog:",
+    "cookie-parser": "catalog:",
     "dotenv": "catalog:",
     "express": "catalog:",
     "mongoose": "catalog:",
