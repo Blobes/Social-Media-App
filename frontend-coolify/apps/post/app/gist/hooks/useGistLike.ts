@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { IGist } from "@repo/types";
+import { IGist } from "@repo/core";
 import { vibrate, processQueue } from "@repo/helpers";
 
 export const useGistLike = (gist: IGist, context: any) => {

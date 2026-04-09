@@ -11,7 +11,7 @@
     "@repo/assets": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/theme": "workspace:*",
-    "@repo/types": "workspace:*"
+    "@repo/core": "workspace:*"
   },
   "peerDependencies": {
     "@emotion/react": "catalog:",

@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { useGlobalContext, useSnackbar } from "@repo/shared-state";
 import { FollowResponse, UserService } from "./service";
-import { IUser } from "@repo/types";
+import { IUser } from "@repo/core";
 import { delay } from "@repo/helpers";
 
 export const useUser = () => {

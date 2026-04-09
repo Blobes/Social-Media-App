@@ -11,7 +11,7 @@ import {
   useMisc,
   usePostLike as useGistLike,
 } from "@repo/shared-state";
-import { GenericObject, UIMode, IGist, MediaProps } from "@repo/types";
+import { UIMode, IGist, MediaProps, GenericStyle } from "@repo/core";
 import { mediaData } from "@repo/assets";
 import {
   Feedback,
@@ -26,7 +26,7 @@ import { GistMedia } from "./GistMedia";
 
 interface GistProps {
   gist: IGist;
-  style?: GenericObject<string>;
+  style?: GenericStyle;
   mode?: UIMode;
 }
 

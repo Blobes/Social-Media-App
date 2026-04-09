@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { IMedia } from "@repo/types";
+import { IMedia } from "@repo/core";
 
 interface UseIsolatedProps {
   mediaList: IMedia[];

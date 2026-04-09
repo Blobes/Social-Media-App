@@ -1,7 +1,7 @@
 "use client";
 
 import { apiBase, apiClient } from "@repo/helpers";
-import { IListPayload, IPost } from "@repo/types";
+import { IListPayload, IPost } from "@repo/core";
 import { useCallback } from "react";
 
 export const FeedService = () => {

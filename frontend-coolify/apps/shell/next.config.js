@@ -1,4 +1,4 @@
-import { withBaseConfig } from "@repo/env-config/next-config";
+import { withBaseConfig, mapAppAssets } from "@repo/core/next-config";
 
 const nextConfig = {
   async rewrites() {
@@ -6,6 +6,13 @@ const nextConfig = {
     const postUrl = process.env.POST_URL;
 
     return {
+      beforeFiles: [
+        // Automatically map assets for all apps
+        ...mapAppAssets({
+          auth: authUrl,
+          post: postUrl,
+        }),
+      ],
       afterFiles: [
         // Map the Shell's /login to the Auth Service
         {

@@ -9,7 +9,7 @@ import {
   serverApi,
   apiBase,
 } from "@repo/helpers";
-import { IGist, ISinglePayload, IListPayload } from "@repo/types";
+import { IGist, ISinglePayload, IListPayload } from "@repo/core";
 import { useCallback } from "react";
 
 export const GistService = () => {

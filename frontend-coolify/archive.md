@@ -1,6 +1,6 @@
 "use client";
 
-import { IPage } from "@repo/types";
+import { IPage } from "@repo/core";
 
 const baseUrl = (port: number = 3001) => {
 const isDev = process.env.NODE_ENV === "development";
@@ -158,7 +158,7 @@ contrastThreshold: 4.5,
 fixedColors: {
 gray50: grey[50],
 gray800: "#06122B",
-mainTrans: "rgba(72, 107, 246, 0.12)",
+pTrans: "rgba(72, 107, 246, 0.12)",
 },
 
 // Overriding & Setting Typography
@@ -219,7 +219,7 @@ export default theme;
 // "@repo/shared-state",
 // "@repo/helpers",
 // "@repo/theme",
-// "@repo/types",
+// "@repo/core",
 // "@repo/auth/shared",
 // "@repo/gist/shared",
 // "@repo/stake/shared",
@@ -292,7 +292,7 @@ echo "Please specify 'frontend' or 'backend'"
 fi
 
 {
-// "extends": "@repo/typescript-config/nextjs.json",
+// "extends": "@repo/corecript-config/nextjs.json",
 "compilerOptions": {
 "plugins": [{ "name": "next" }],
 "jsx": "preserve", // Or "react-jsx" for React 17+
@@ -394,7 +394,7 @@ return null;
 }, []);
 
 import { useState, useCallback, useEffect } from "react";
-import { IAuthor, IUser, UIMode } from "@repo/types";
+import { IAuthor, IUser, UIMode } from "@repo/core";
 import { getCachedAuthor } from "@repo/helpers";
 
 export const useGistAuthor = (
@@ -449,7 +449,7 @@ return { author, error };
 
 import { fetcher, checkNetworkError, serverApi } from "@repo/helpers";
 import { useSnackbar } from "@repo/shared-state";
-import { IUser, IListResponse, ISingleResponse } from "@repo/types";
+import { IUser, IListResponse, ISingleResponse } from "@repo/core";
 
 export const useUser = () => {
 const { setSBMessage } = useSnackbar();
@@ -547,7 +547,7 @@ return { handleFollow, getFollowers, getUser };
 import { useTheme } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import Image from "next/image";
-import { IMedia } from "@repo/types";
+import { IMedia } from "@repo/core";
 import { DoubleTap } from "../DoubleTap";
 
 export interface MediaStyle {
@@ -654,7 +654,7 @@ onDoubleTap, style, viewMode = "ISOLATED", dimensions, hooks }: MediaProps) => {
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGlobalContext, usePost, usePostLike } from "@repo/shared-state";
-import { GenericObject, UIMode, IGist } from "@repo/types";
+import { GenericObject, UIMode, IGist } from "@repo/core";
 import { useGistService } from "../app/service";
 import { getCachedAuthor, summarizeNum } from "@repo/helpers";
 import { Empty, MediaProps, PostObserver, Strip } from "@repo/shared-ui";

@@ -18,7 +18,7 @@ import {
   useNavLists,
   usePage,
 } from "@repo/shared-state";
-import { MenuRef } from "@repo/types";
+import { MenuRef } from "@repo/core";
 import { Logout } from "../../auth/Logout";
 import { useLogout } from "../../auth/useLogout";
 

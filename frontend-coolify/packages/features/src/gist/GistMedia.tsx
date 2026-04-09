@@ -7,7 +7,7 @@ import { useImageColors, useMisc } from "@repo/shared-state";
 import { GalleryProps, MediaGallery, Media } from "@repo/shared-ui";
 import { useCallback, useMemo } from "react";
 import { applyBGEffects } from "@repo/helpers";
-import { IGist, UIMode } from "@repo/types";
+import { IGist, UIMode } from "@repo/core";
 import { GistMediaView } from "./GMediaView";
 
 export interface GistMediaProps extends GalleryProps {

@@ -1,5 +1,7 @@
-import { withBaseConfig } from "@repo/env-config/next-config";
+import { withBaseConfig } from "@repo/core/next-config";
 
-const nextConfig = {};
+const nextConfig = {
+  assetPrefix: "/_next/static/auth",
+};
 
 export default withBaseConfig(nextConfig, "https://api.funstakes.net");

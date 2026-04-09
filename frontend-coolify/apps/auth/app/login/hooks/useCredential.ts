@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { useGlobalContext } from "@repo/shared-state";
 import { LoginService } from "../service";
 import { delay, getInputValidity } from "@repo/helpers";
-import { AccountStatus, InputStatus } from "@repo/types";
+import { AccountStatus, InputStatus } from "@repo/core";
 import { StepName } from "../Login";
 
 interface CredentialProps {
@@ -17,7 +16,6 @@ export const useCredential = ({
   setStep,
   setCredential,
 }: CredentialProps) => {
-  const router = useRouter();
   const { checkEmail, checkUsername } = LoginService();
   const { isAuthLoading, setAuthLoading, setInlineMsg } = useGlobalContext();
 

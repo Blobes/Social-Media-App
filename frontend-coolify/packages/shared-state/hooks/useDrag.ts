@@ -1,6 +1,6 @@
 "use client";
 
-import { IDragConfig, IDragResult } from "@repo/types";
+import { IDragConfig, IDragResult } from "@repo/core";
 import { useState, useCallback } from "react";
 
 export const useDragClose = (config: IDragConfig): IDragResult => {

@@ -1,18 +1,18 @@
 import { Stack, Typography, IconButton } from "@mui/material";
 import { UserAvatar, SmartDate } from "@repo/shared-ui";
 import { UserPlus, EllipsisVertical } from "lucide-react";
-import { IAuthor } from "@repo/types";
+import { IAuthor } from "@repo/core";
 import { useTheme } from "@mui/material/styles";
 import { useAdaptiveTime } from "@repo/shared-state";
 
 interface HeaderProps {
-    author: IAuthor;
-    createdAt: string | number;
+author: IAuthor;
+createdAt: string | number;
 }
 
 export const GistHeader = ({ author, createdAt }: HeaderProps) => {
-    const theme = useTheme();
-    //  const authorFullName = `${author.firstName} ${author.lastName}`;
+const theme = useTheme();
+// const authorFullName = `${author.firstName} ${author.lastName}`;
 
     return (
         <Stack direction="row"
@@ -91,4 +91,5 @@ export const GistHeader = ({ author, createdAt }: HeaderProps) => {
             </Stack>
         </Stack>
     );
+
 };

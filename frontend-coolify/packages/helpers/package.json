@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@repo/assets": "workspace:*",
-    "@repo/types": "workspace:*"
+    "@repo/core": "workspace:*"
   },
   "peerDependencies": {
     "next": "catalog:",

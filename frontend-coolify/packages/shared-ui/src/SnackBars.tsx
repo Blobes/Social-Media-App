@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { IconButton, Paper, Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { ISnackBarMsg } from "@repo/types";
+import { ISnackBarMsg } from "@repo/core";
 import { AppButton } from "./Buttons";
 import { Info, CircleCheck, CircleAlert, X } from "lucide-react";
 import { GroupTransition, Transition } from "./Transition";

@@ -5,11 +5,12 @@ import { Button, Link } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import NextLink from "next/link";
 import { crossZoneCheck, prefetchPage } from "@repo/helpers";
+import { GenericStyle } from "@repo/core";
 
 interface ButtonProps {
   variant?: "text" | "contained" | "outlined";
   children?: React.ReactNode | string;
-  style?: any;
+  style?: GenericStyle;
   overrideStyle?: "full" | "partial";
   onClick?: (event: React.MouseEvent) => void;
   href?: string;
@@ -48,7 +49,7 @@ export const AppButton = ({
     minWidth: "unset",
     alignSelf: "unset",
     "&:hover": {
-      backgroundColor: theme.fixedColors.mainTrans,
+      backgroundColor: theme.fixedColors.pTrans,
     },
   };
   const mergedStyle =
@@ -88,7 +89,7 @@ export const AppButton = ({
 interface AnchorLinkProps {
   children: React.ReactNode | string;
   url: string;
-  style?: any;
+  style?: GenericStyle;
   overrideStyle?: "full" | "partial";
   [key: string]: any;
 }
@@ -119,6 +120,7 @@ export const AnchorLink = ({
   return (
     <Link
       component={isCrossZone ? "a" : NextLink}
+      href={url}
       sx={{
         ...mergedStyle,
       }}

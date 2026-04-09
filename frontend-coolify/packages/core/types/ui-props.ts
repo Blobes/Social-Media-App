@@ -1,7 +1,7 @@
 "use client";
 
 import { IMedia } from "./payloads/modified";
-import { GenericObject } from "./ui-state";
+import { GenericStyle } from "./ui-state";
 
 export type Direction = "left" | "right" | "up" | "down";
 export type TransitionType = "fade" | "grow" | "slide" | "zoom" | "collapse";
@@ -40,12 +40,12 @@ export interface ModalProps {
   onClose?: () => void;
   transition?: { type: TransitionType; direction?: Direction };
   style?: {
-    base?: { overlay?: GenericObject<string>; content?: GenericObject<string> };
+    base?: { overlay?: GenericStyle; content?: GenericStyle };
     smallScreen?: {
-      overlay?: GenericObject<string>;
-      content?: GenericObject<string>;
+      overlay?: GenericStyle;
+      content?: GenericStyle;
     };
-    header?: GenericObject<string>;
+    header?: GenericStyle;
   };
 }
 
@@ -72,16 +72,16 @@ export interface DrawerProps {
   blurOverlayBG?: boolean;
   source?: string;
   style?: {
-    base?: { overlay?: GenericObject<string>; content?: GenericObject<string> };
+    base?: { overlay?: GenericStyle; content?: GenericStyle };
     smallScreen?: {
-      overlay?: GenericObject<string>;
-      content?: GenericObject<string>;
+      overlay?: GenericStyle;
+      content?: GenericStyle;
     };
     mediumScreen?: {
-      overlay?: GenericObject<string>;
-      content?: GenericObject<string>;
+      overlay?: GenericStyle;
+      content?: GenericStyle;
     };
-    header?: GenericObject<string>;
+    header?: GenericStyle;
   };
 }
 

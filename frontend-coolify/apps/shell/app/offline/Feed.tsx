@@ -8,7 +8,7 @@ import { Feedback, GistSkeleton, StakeSkeleton } from "@repo/shared-ui";
 import { CircleSlash2 } from "lucide-react";
 import { usePage } from "@repo/shared-state";
 import { getCachedPosts } from "@repo/helpers";
-import { IPost } from "@repo/types";
+import { IPost } from "@repo/core";
 import { GistCard, StakeCard } from "@repo/features";
 
 export const CachedFeed = () => {

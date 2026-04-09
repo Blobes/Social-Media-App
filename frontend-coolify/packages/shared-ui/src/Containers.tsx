@@ -4,10 +4,11 @@ import React from "react";
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { autoScroll, scrollBarStyle } from "@repo/helpers";
+import { GenericStyle } from "@repo/core";
 
 interface UIProps {
   children: React.ReactNode;
-  style?: any;
+  style?: GenericStyle;
   shouldScroll?: boolean;
 }
 export const RootUIContainer = ({

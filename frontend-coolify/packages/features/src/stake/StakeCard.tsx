@@ -3,11 +3,11 @@
 import React from "react";
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { GenericObject, IStake } from "@repo/types";
+import { GenericStyle, IStake } from "@repo/core";
 
 interface StakeProps {
   stake: IStake;
-  style?: GenericObject<string>;
+  style?: GenericStyle;
 }
 
 export const StakeCard = ({ stake, style = {} }: StakeProps) => {

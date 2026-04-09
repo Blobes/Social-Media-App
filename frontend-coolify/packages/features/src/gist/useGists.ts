@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { IGist } from "@repo/types";
+import { IGist } from "@repo/core";
 
 import { delay } from "@repo/helpers";
 import { GistService } from "./gistService";

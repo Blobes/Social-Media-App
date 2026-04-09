@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { Menu, paperClasses } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { MenuRef } from "@repo/types";
+import { MenuRef } from "@repo/core";
 
 interface MenuProps {
   contentElement: ReactNode;

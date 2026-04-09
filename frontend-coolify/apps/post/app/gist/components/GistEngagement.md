@@ -4,17 +4,17 @@ import { AnimatedWrapper } from "@repo/shared-ui";
 import { pulse } from "@repo/helpers";
 import { red } from "@mui/material/colors";
 import { useTheme } from "@mui/material/styles";
-import { UIMode } from "@repo/types";
+import { UIMode } from "@repo/core";
 
 interface EngagementProps {
-    likedByMe: boolean;
-    isLiking: boolean;
-    handleLike: () => void;
-    mode?: UIMode;
+likedByMe: boolean;
+isLiking: boolean;
+handleLike: () => void;
+mode?: UIMode;
 }
 
 export const GistEngagement = ({ likedByMe, isLiking, handleLike, mode }: EngagementProps) => {
-    const theme = useTheme();
+const theme = useTheme();
 
     return (
         <Stack direction="row" sx={{
@@ -81,4 +81,5 @@ export const GistEngagement = ({ likedByMe, isLiking, handleLike, mode }: Engage
             </IconButton>
         </Stack>
     );
+
 };

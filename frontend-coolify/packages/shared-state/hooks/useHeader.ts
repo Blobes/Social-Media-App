@@ -8,7 +8,7 @@ import { useMisc } from "./useMisc";
 import { usePage } from "./usePage";
 import { usePageScroll } from "./usePageScroll";
 import { useDragClose } from "./useDrag";
-import { MenuRef } from "@repo/types";
+import { MenuRef } from "@repo/core";
 import { clientRoutes, dragToCloseConfig } from "@repo/helpers";
 
 export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {

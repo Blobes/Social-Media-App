@@ -3,7 +3,7 @@
 import React from "react";
 import { IconButton, Stack, Typography, Fade } from "@mui/material";
 import { capitalize } from "@repo/helpers";
-import { PostType } from "@repo/types";
+import { PostType } from "@repo/core";
 import { ChevronLeft, MoreVertical } from "lucide-react";
 
 interface HeaderProps {

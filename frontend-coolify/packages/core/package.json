@@ -1,21 +1,15 @@
 {
-  "name": "@repo/features",
-  "version": "1.0.0",
-  "type": "module",
+  "name": "@repo/core",
+  "version": "0.0.1",
   "main": "./index.ts",
   "types": "./index.ts",
+  "type": "module",
   "private": true,
   "exports": {
-    ".": "./index.ts"
-  },
-  "dependencies": {
-    "@repo/shared-ui": "workspace:*",
-    "@repo/shared-state": "workspace:*",
-    "@repo/helpers": "workspace:*",
-    "@repo/theme": "workspace:*",
-    "@repo/core": "workspace:*",
-    "@repo/assets": "workspace:*",
-    "@tanstack/react-query": "catalog:"
+    ".": "./index.ts",
+    "./next-config": "./env-config/next-config.js",
+    "./tsconfig.base.json": "./env-config/tsconfig.base.json",
+    "./rewrites": "./env-config/rewrites.js"
   },
   "peerDependencies": {
     "next": "catalog:",
@@ -23,8 +17,7 @@
     "react-dom": "catalog:",
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
-    "@mui/material": "catalog:",
-    "lucide-react": "catalog:"
+    "@mui/material": "catalog:"
   },
   "devDependencies": {
     "next": "catalog:",

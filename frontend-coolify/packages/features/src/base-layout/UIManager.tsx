@@ -11,7 +11,7 @@ import {
   usePage,
   useSnackbar,
 } from "@repo/shared-state";
-import { DrawerRef, ModalRef } from "@repo/types";
+import { DrawerRef, ModalRef } from "@repo/core";
 import { useAuth } from "../auth/useAuth";
 export const UIManager = ({ children }: { children: React.ReactNode }) => {
   const drawerRef = useRef<DrawerRef>(null);

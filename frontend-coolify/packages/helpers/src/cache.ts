@@ -1,6 +1,6 @@
 "use client";
 
-import { IPostAuthor, IPost } from "@repo/types";
+import { IPostAuthor, IPost } from "@repo/core";
 import { get, set } from "idb-keyval";
 
 export interface Cached {

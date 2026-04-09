@@ -7,7 +7,7 @@ import { AnimatedWrapper } from "../../AnimationWrapper";
 import { pulse } from "@repo/helpers";
 import { red } from "@mui/material/colors";
 import { useTheme } from "@mui/material/styles";
-import { UIMode } from "@repo/types";
+import { UIMode } from "@repo/core";
 
 export interface LikeProps {
   likedByMe: boolean;

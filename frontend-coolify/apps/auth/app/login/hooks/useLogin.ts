@@ -10,7 +10,7 @@ import {
   clientRoutes,
   formatRemainingTime,
 } from "@repo/helpers";
-import { IPage } from "@repo/types";
+import { IPage } from "@repo/core";
 import { LoginService } from "../service";
 
 const MAX_ATTEMPTS = 3;

@@ -6,7 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import { DoubleTap } from "../DoubleTap";
 import Image from "next/image";
 import { VideoMedia } from "./VideoMedia";
-import { MediaProps, MediaStyle } from "@repo/types";
+import { MediaProps, MediaStyle } from "@repo/core";
 
 export interface GalleryProps {
   mediaList: MediaProps[];

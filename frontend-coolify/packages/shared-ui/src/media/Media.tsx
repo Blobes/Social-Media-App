@@ -3,7 +3,7 @@
 import React from "react";
 import { DoubleTap } from "../DoubleTap";
 import { MediaRenderer } from "./MediaRenderer";
-import { MediaProps } from "@repo/types";
+import { MediaProps } from "@repo/core";
 
 export const Media = (props: MediaProps) => {
   const { url, onSingleTap, onDoubleTap, useMedia, style, ...mediaData } =

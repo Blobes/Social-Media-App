@@ -1,7 +1,7 @@
 "use client";
 
 import { useGlobalContext } from "../GlobalContext";
-import { IPage } from "@repo/types";
+import { IPage } from "@repo/core";
 import {
   clientRoutes,
   disallowedRoutes,

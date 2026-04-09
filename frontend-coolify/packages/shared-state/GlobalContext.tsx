@@ -9,7 +9,7 @@ import {
   NetworkStatus,
   DrawerProps,
   ModalProps,
-} from "@repo/types";
+} from "@repo/core";
 import { clientRoutes } from "../helpers";
 
 interface Context {

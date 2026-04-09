@@ -1,7 +1,7 @@
 "use client";
 
 import { apiClient, checkNetworkError, serverApi } from "@repo/helpers";
-import { IUser, IListPayload, ISinglePayload } from "@repo/types";
+import { IUser, IListPayload, ISinglePayload } from "@repo/core";
 import { useCallback } from "react";
 
 export interface FollowResponse extends IUser {

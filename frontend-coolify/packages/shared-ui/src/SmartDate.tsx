@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { formatDate } from "@repo/helpers";
-import { DateType } from "@repo/types";
+import { DateType } from "@repo/core";
 import { Typography } from "@mui/material";
 import type { TypographyProps } from "@mui/material";
 

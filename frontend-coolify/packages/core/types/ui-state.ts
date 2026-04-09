@@ -1,5 +1,6 @@
 "use client";
 
+import { Theme } from "@mui/material/styles";
 import { FetchStatus } from "./payloads/modified";
 import { Direction } from "./ui-props";
 
@@ -18,9 +19,17 @@ export type DateType = "SHORTENED" | "COMPLETE" | "DATE-ONLY";
 export type InputType = "EMAIL" | "PHONE" | "PASSWORD" | "USERNAME" | "NUMBER";
 export type InputStatus = "VALID" | "INVALID";
 
-// Interfaces
 export type GenericObject<T> = {
   [key: string]: T | GenericObject<T>;
+};
+
+export type GenericStyle = {
+  // Each key can be a CSS property, a nested object, or a theme function
+  [key: string]:
+    | React.CSSProperties // Standard CSS
+    | ((theme: Theme) => React.CSSProperties | object) // Theme-aware function
+    | GenericStyle // Recursive nesting
+    | any; // Fallback for MUI-specific keys (e.g. "&:hover")
 };
 
 export interface INavItem {

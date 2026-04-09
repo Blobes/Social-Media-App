@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { Stepper } from "@repo/shared-ui";
 import { PasswordStep } from "../login/PasswordStep";
-import { DrawerRef, GenericObject, IStep } from "@repo/types";
+import { DrawerRef, GenericStyle, IStep } from "@repo/core";
 import { Stack } from "@mui/material";
 import Image from "next/image";
 import { img } from "@repo/assets";
@@ -15,9 +15,9 @@ interface StepperProps {
   modalRef?: React.RefObject<DrawerRef>;
   redirectTo?: string;
   style?: {
-    container?: GenericObject<string>;
-    headline?: GenericObject<string>;
-    tagline?: GenericObject<string>;
+    container?: GenericStyle;
+    headline?: GenericStyle;
+    tagline?: GenericStyle;
   };
 }
 
@@ -28,7 +28,7 @@ export const SignUpStepper: React.FC<StepperProps> = ({
 }) => {
   const theme = useTheme();
   const [credential, setCredential] = useState("");
-  const [currStep, setCurrStep] = useState<StepName>("CREDENTIAL");
+  const [currStep, setCurrStep] = useState<StepName>("PASSWORD");
 
   const steps: IStep<StepName>[] = [
     {
@@ -61,7 +61,9 @@ export const SignUpStepper: React.FC<StepperProps> = ({
       <Image
         alt="logo"
         src={img.logo}
-        style={{ borderRadius: "500px", width: "70px", height: "70px" }}
+        width={70}
+        height={70}
+        style={{ borderRadius: "500px" }}
       />
       <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />
     </Stack>

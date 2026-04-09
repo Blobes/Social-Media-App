@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { vibrate, processQueue } from "@repo/helpers";
-import { AuthStatus, UIMode } from "@repo/types";
+import { AuthStatus, UIMode } from "@repo/core";
 
 // Generic interface for any content that can be liked
 interface LikablePost {

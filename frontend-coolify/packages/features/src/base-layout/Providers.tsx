@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { GlobalThemeProvider } from "@repo/theme";
+import { GlobalThemeProvider } from "@repo/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { ContextProvider } from "@repo/shared-state";

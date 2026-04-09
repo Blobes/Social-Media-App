@@ -5,7 +5,7 @@ import { Divider, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AnchorLink } from "./Buttons";
 import { Fragment } from "react";
-import { INavItem, IPage } from "@repo/types";
+import { INavItem, IPage } from "@repo/core";
 
 interface footerProps {
   navList: INavItem[];

@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { IconButton, Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { ModalProps, ModalRef } from "@repo/types";
+import { ModalProps, ModalRef } from "@repo/core";
 import { Transition } from "./Transition";
 import { scrollBarStyle } from "@repo/helpers";
 import { X } from "lucide-react";

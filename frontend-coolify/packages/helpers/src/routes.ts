@@ -1,6 +1,6 @@
 "use client";
 
-import { IPage } from "@repo/types";
+import { IPage } from "@repo/core";
 
 export const clientRoutes: Record<string, IPage> = {
   // Web

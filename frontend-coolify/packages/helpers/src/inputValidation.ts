@@ -1,6 +1,6 @@
 "use client";
 
-import { InputType, InputValidation } from "@repo/types";
+import { InputType, InputValidation } from "@repo/core";
 
 export function validateEmail(email: string): InputValidation {
   if (!email || email.trim().length === 0) {

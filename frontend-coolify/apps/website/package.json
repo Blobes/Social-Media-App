@@ -21,14 +21,13 @@
     "@repo/shared-state": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/theme": "workspace:*",
-    "@repo/types": "workspace:*",
+    "@repo/core": "workspace:*",
     "@repo/assets": "workspace:*"
   },
   "devDependencies": {
     "typescript": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "@repo/env-config": "workspace:*"
+    "@types/react-dom": "catalog:"
   }
 }

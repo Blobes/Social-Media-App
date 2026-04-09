@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { GenericObject, IStep } from "@repo/types";
+import { GenericStyle, IStep } from "@repo/core";
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AppButton } from "./Buttons";
@@ -12,17 +12,19 @@ interface StepperProps<T> {
   steps: IStep<T>[];
   currStep: string;
   setCurrStep: (val: any) => void;
-  style?: GenericObject<any>;
+  style?: GenericStyle;
 }
 
-export const Stepper: React.FC<StepperProps<any>> = ({
+export const Stepper = <T,>({
   steps,
   currStep,
   setCurrStep,
   style = {},
-}) => {
+}: StepperProps<T>) => {
   const theme = useTheme();
   const activeIndex = steps.findIndex((s) => s.name === currStep);
+
+  if (activeIndex === -1) return null;
   const activeStep = steps[activeIndex];
   const prevStep = steps[activeIndex - 1];
 

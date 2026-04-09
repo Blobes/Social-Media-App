@@ -72,6 +72,7 @@ let designSystem = createTheme({
   fixedColors: {
     gray50: grey[50],
     gray800: "#06122B",
+    primary: "#9FAEFF",
     pTrans: "rgba(72, 107, 246, 0.12)",
   },
   typography: {

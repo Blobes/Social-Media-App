@@ -2,7 +2,7 @@
 
 import { serverApi } from "../routes";
 import { apiClient } from "../apiClient";
-import { FetchStatus, IUser } from "@repo/types";
+import { FetchStatus, IUser } from "@repo/core";
 
 interface TokenCheckResponse {
   payload: IUser | null;
@@ -57,8 +57,12 @@ const refreshAccessToken = async () => {
       method: "POST",
     });
     return true;
-  } catch (err) {
-    console.error(err);
+  } catch (err: any) {
+    if (err.status === 401 || err.status === 400) {
+      return false;
+    }
+
+    console.error("Auth Refresh Failed unexpectedly:", err.message);
     return false;
   }
 };

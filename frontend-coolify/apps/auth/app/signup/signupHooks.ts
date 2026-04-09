@@ -2,7 +2,7 @@
 
 import { useGlobalContext } from "@repo/shared-state";
 import { apiClient, deleteCookie } from "@repo/helpers";
-import { IUser, ISinglePayload, DrawerRef } from "@repo/types";
+import { IUser, ISinglePayload, DrawerRef } from "@repo/core";
 import { useRouter } from "next/navigation";
 
 interface LoginCredentials {

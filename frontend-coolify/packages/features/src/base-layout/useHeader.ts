@@ -4,7 +4,7 @@ import React, { useRef, useEffect } from "react";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import { clientRoutes, dragToCloseConfig } from "@repo/helpers";
-import { MenuRef } from "@repo/types";
+import { MenuRef } from "@repo/core";
 import {
   useDragClose,
   useGlobalContext,

@@ -1,6 +1,6 @@
 "use client";
 
-import { DateType } from "@repo/types";
+import { DateType } from "@repo/core";
 
 export const formatDate = (
   dateValue: string | number | Date,

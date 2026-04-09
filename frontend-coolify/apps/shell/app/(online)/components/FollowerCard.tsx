@@ -5,7 +5,7 @@ import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useUser } from "@repo/features";
 import { UserAvatar } from "@repo/shared-ui";
-import { IUser } from "@repo/types";
+import { IUser } from "@repo/core";
 import { AnchorLink, AppButton, Strip } from "@repo/shared-ui";
 
 interface FollowerProps {

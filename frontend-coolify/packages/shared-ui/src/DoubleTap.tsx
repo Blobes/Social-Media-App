@@ -4,13 +4,14 @@ import React, { useState, useCallback, useRef } from "react";
 import { Box } from "@mui/material";
 import { Heart } from "lucide-react";
 import { heartPop, vibrate } from "../../helpers";
+import { GenericStyle } from "@repo/core";
 
 interface DoubleTapProps {
   children: React.ReactNode;
   onSingleTap: () => void;
   onDoubleTap: () => void;
   iconSize?: number;
-  style?: any;
+  style?: GenericStyle;
 }
 
 export const DoubleTap = ({

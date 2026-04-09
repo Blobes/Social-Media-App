@@ -21,10 +21,9 @@
     "@repo/shared-state": "workspace:*",
     "@repo/shared-ui": "workspace:*",
     "@repo/theme": "workspace:*",
-    "@repo/types": "workspace:*"
+    "@repo/core": "workspace:*"
   },
   "devDependencies": {
-    "@repo/env-config": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

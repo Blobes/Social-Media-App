@@ -10,9 +10,9 @@
   "dependencies": {
     "@repo/assets": "workspace:*",
     "@repo/helpers": "workspace:*",
-    "@repo/types": "workspace:*",
-    "framer-motion": "^12.35.1",
-    "react-blurhash": "^0.3.0"
+    "@repo/core": "workspace:*",
+    "framer-motion": "catalog:",
+    "react-blurhash": "catalog:"
   },
   "peerDependencies": {
     "@emotion/react": "catalog:",

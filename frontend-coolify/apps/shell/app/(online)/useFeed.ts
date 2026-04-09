@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { IPost, IStake } from "@repo/types";
+import { IPost, IStake } from "@repo/core";
 import { delay } from "@repo/helpers";
 import { useStake } from "@repo/features";
 import { FeedService } from "./service";

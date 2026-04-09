@@ -48,7 +48,7 @@ export default function LoginPage() {
             container: {
               padding: theme.boxSpacing(18),
               backgroundColor: theme.palette.gray[0],
-              border: `1px solid ${theme.fixedColors.mainTrans}`,
+              border: `1px solid ${theme.fixedColors.pTrans}`,
             },
             primaryCta: { width: "100%" },
             icon: {

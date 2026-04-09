@@ -11,10 +11,10 @@ import {
   usePage,
 } from "@repo/shared-state";
 import { clientRoutes } from "@repo/helpers";
-import { MenuRef } from "@repo/types";
+import { GenericStyle, MenuRef } from "@repo/core";
 
 interface NavProps {
-  style?: any;
+  style?: GenericStyle;
 }
 export const DesktopNav: React.FC<NavProps> = ({ style }) => {
   const theme = useTheme();

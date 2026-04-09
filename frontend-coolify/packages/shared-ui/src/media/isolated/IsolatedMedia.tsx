@@ -3,7 +3,7 @@
 import React from "react";
 import { Box, Stack, Typography, Fade } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { IMedia, PostType } from "@repo/types";
+import { GenericStyle, IMedia, PostType } from "@repo/core";
 import { MediaRenderer } from "../MediaRenderer";
 import { DoubleTap } from "../../DoubleTap";
 import { Carousel } from "../../carousel/Carousel";
@@ -19,7 +19,7 @@ export interface IsolatedProps {
   postType?: PostType;
   isDesktop?: boolean;
   onDoubleTap?: () => void;
-  style?: any;
+  style?: GenericStyle;
   hideInfo?: boolean;
   initialIndex?: number;
 }

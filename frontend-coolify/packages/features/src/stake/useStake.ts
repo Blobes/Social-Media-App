@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { IStake } from "@repo/types";
+import { IStake } from "@repo/core";
 import { delay } from "@repo/helpers";
 import { stakeTestData } from "@repo/assets";
 

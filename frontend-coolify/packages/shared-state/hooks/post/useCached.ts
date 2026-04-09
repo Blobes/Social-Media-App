@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { IPostAuthor } from "@repo/types";
+import { IPostAuthor } from "@repo/core";
 import { getCachedAuthor } from "@repo/helpers";
 
 export const useCached = (authorId: string) => {

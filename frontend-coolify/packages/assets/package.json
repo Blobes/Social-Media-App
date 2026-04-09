@@ -9,7 +9,7 @@
     ".": "./index.ts"
   },
   "dependencies": {
-    "@repo/types": "workspace:*"
+    "@repo/core": "workspace:*"
   },
   "peerDependencies": {
     "next": "catalog:"

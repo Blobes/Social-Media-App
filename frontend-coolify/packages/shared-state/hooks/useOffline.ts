@@ -3,7 +3,7 @@
 import { usePage } from "./usePage";
 import { useGlobalContext } from "../GlobalContext";
 import { clientRoutes, getFromLocalStorage } from "@repo/helpers";
-import { IPage } from "@repo/types";
+import { IPage } from "@repo/core";
 
 export const useOffline = () => {
   const { setOfflineMode } = useGlobalContext();

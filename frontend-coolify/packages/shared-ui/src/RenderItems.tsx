@@ -3,7 +3,7 @@
 import React, { Fragment } from "react";
 import { Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { INavItem, IPage } from "@repo/types";
+import { GenericStyle, INavItem, IPage } from "@repo/core";
 import { matchPaths } from "@repo/helpers";
 import { usePathname } from "next/navigation";
 import { AnchorLink } from "./Buttons";
@@ -12,7 +12,7 @@ import { AnchorLink } from "./Buttons";
 export interface RenderListProps {
   list: INavItem[];
   itemAction?: () => void;
-  style?: any;
+  style?: GenericStyle;
   showCurrentPage?: boolean;
   hook: () => { navigateTo: (savePage: IPage) => void };
 }
@@ -28,7 +28,7 @@ export const RenderItemList: React.FC<RenderListProps> = ({
   const pathname = usePathname();
   const { fontSize, fontWeight, color, ...restStyle } = style;
 
-  const itemStyle: any = {
+  const itemStyle: GenericStyle = {
     alignItems: "center",
     gap: theme.gap(3),
     padding: theme.boxSpacing(2, 6),
@@ -53,7 +53,7 @@ export const RenderItemList: React.FC<RenderListProps> = ({
           // Render the "element" alone if there's no title
           return <Fragment key={index}>{item.element}</Fragment>;
         }
-        const isCurrentPage = matchPaths(pathname, item.url);
+        const isCurrentPage = matchPaths(pathname, item.url ?? "");
         return (
           <AnchorLink
             key={index}

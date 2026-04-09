@@ -8,9 +8,10 @@ import Image from "next/image";
 import { rotate } from "@repo/helpers";
 import { AnimatedWrapper } from "./AnimationWrapper";
 import { RootUIContainer } from "./Containers";
+import { GenericStyle } from "@repo/core";
 
 interface ProgressProps {
-  style?: any;
+  style?: GenericStyle;
   otherProps?: any;
   info?: string;
 }
@@ -21,9 +22,10 @@ export const ProgressIcon = ({ style, otherProps, info }: ProgressProps) => {
     <>
       <CircularProgress
         enableTrackSlot
-        sx={{ color: theme.palette.primary.dark, ...style }}
+        sx={{ color: theme.fixedColors.primary, ...style }}
         {...otherProps}
         thickness={2.5}
+        aria-label="Loading…"
       />
       {info && (
         <Typography

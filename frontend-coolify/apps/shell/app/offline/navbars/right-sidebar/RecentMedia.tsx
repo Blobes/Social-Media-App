@@ -12,7 +12,7 @@ export const RecentMedia = () => {
   return (
     <Stack
       sx={{
-        backgroundColor: theme.fixedColors.mainTrans,
+        backgroundColor: theme.fixedColors.pTrans,
         alignItems: "center",
         justifyContent: "flex-start",
         borderRadius: theme.radius[2],

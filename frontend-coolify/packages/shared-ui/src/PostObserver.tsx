@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { IGist, IPost, PostType, IStake } from "@repo/types";
+import { IGist, IPost, PostType, IStake } from "@repo/core";
 import { cachePost } from "@repo/helpers";
 import { Box } from "@mui/material";
 

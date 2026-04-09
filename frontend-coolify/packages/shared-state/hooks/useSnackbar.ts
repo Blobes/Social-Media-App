@@ -1,7 +1,7 @@
 "use client";
 
 import { useGlobalContext } from "../GlobalContext";
-import { IMessage } from "@repo/types";
+import { IMessage } from "@repo/core";
 
 export const useSnackbar = () => {
   const { snackBarMsg, setSnackBarMsg } = useGlobalContext();

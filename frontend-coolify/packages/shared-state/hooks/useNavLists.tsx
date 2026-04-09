@@ -2,7 +2,7 @@
 
 import React from "react";
 import { clientRoutes } from "@repo/helpers";
-import { INavItem } from "@repo/types";
+import { INavItem } from "@repo/core";
 import {
   BadgeQuestionMark,
   AudioLines,

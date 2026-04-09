@@ -4,14 +4,14 @@ import React from "react";
 import { Avatar, IconButton } from "@mui/material";
 import { getInitialsAndColors } from "@repo/helpers";
 import { BasicTooltip } from "./Tooltips";
-import { GenericObject, IUser } from "@repo/types";
+import { GenericStyle, IUser } from "@repo/core";
 import { useTheme } from "@mui/material/styles";
 
 interface UserAvatarProps {
   userInfo: IUser | null;
   action?: (e: React.MouseEvent<HTMLElement>) => void;
   url?: string;
-  style?: GenericObject<string>;
+  style?: GenericStyle;
   toolTipValue?: string;
 }
 

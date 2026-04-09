@@ -1,6 +1,6 @@
 "use client";
 
-import { NetworkStatus } from "@repo/types";
+import { NetworkStatus } from "@repo/core";
 
 export const checkSignal = async (): Promise<NetworkStatus> => {
   if (!navigator.onLine) {

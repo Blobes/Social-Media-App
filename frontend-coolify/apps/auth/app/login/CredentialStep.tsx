@@ -5,7 +5,7 @@ import { Stack, Typography } from "@mui/material";
 import { useGlobalContext } from "@repo/shared-state";
 import { AppButton, TextInput, InlineMsg, ProgressIcon } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
-import { DrawerRef, GenericObject } from "@repo/types";
+import { DrawerRef, GenericStyle } from "@repo/core";
 import { Mail } from "lucide-react";
 import { useCredential } from "./hooks/useCredential";
 import { StepName } from "./Login";
@@ -17,8 +17,8 @@ interface StepProps {
   existingInput?: string;
   setCredential?: (credential: string) => void;
   style?: {
-    headline?: GenericObject<string>;
-    tagline?: GenericObject<string>;
+    headline?: GenericStyle;
+    tagline?: GenericStyle;
   };
 }
 
@@ -72,7 +72,7 @@ export const CredentialStep: React.FC<StepProps> = ({
         onSubmit={handleSubmit}>
         <TextInput
           defaultValue={input}
-          label="Email | Phone | Username"
+          label="Email, Phone or Username"
           placeholder="Email address, phone or username"
           onChange={handleChange}
           helperText={validationMsg}

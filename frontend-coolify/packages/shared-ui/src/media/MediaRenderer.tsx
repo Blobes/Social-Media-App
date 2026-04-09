@@ -6,7 +6,7 @@ import { Box } from "@mui/material";
 import Image from "next/image";
 import { Blurhash } from "react-blurhash";
 import { VideoMedia } from "./VideoMedia";
-import { IMedia, MediaStyle, UseMedia } from "@repo/types";
+import { IMedia, MediaStyle, UseMedia } from "@repo/core";
 
 export interface RendererProps {
   media: IMedia;

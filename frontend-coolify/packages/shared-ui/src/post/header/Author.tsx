@@ -3,7 +3,7 @@
 import React from "react";
 import { Stack, Typography, SxProps, Theme } from "@mui/material";
 import { UserAvatar } from "../../UserAvatar";
-import { IPostAuthor } from "@repo/types";
+import { IPostAuthor } from "@repo/core";
 import { useTheme } from "@mui/material/styles";
 
 export interface AuthorProps {

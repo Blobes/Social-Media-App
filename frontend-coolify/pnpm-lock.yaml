@@ -42,6 +42,9 @@ catalogs:
     dotenv-cli:
       specifier: ^8.0.0
       version: 8.0.0
+    framer-motion:
+      specifier: ^12.35.1
+      version: 12.37.0
     idb-keyval:
       specifier: ^6.2.2
       version: 6.2.2
@@ -57,6 +60,9 @@ catalogs:
     react:
       specifier: ^19.2.0
       version: 19.2.4
+    react-blurhash:
+      specifier: ^0.3.0
+      version: 0.3.0
     react-dom:
       specifier: ^19.2.0
       version: 19.2.4
@@ -107,6 +113,9 @@ importers:
       '@repo/assets':
         specifier: workspace:*
         version: link:../../packages/assets
+      '@repo/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@repo/features':
         specifier: workspace:*
         version: link:../../packages/features
@@ -122,9 +131,6 @@ importers:
       '@repo/theme':
         specifier: workspace:*
         version: link:../../packages/theme
-      '@repo/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       lucide-react:
         specifier: 'catalog:'
         version: 0.562.0(react@19.2.4)
@@ -138,9 +144,6 @@ importers:
         specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
     devDependencies:
-      '@repo/env-config':
-        specifier: workspace:*
-        version: link:../../packages/env-config
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.15
@@ -165,6 +168,9 @@ importers:
       '@mui/material':
         specifier: 'catalog:'
         version: 7.3.9(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@repo/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@repo/features':
         specifier: workspace:*
         version: link:../../packages/features
@@ -180,9 +186,6 @@ importers:
       '@repo/theme':
         specifier: workspace:*
         version: link:../../packages/theme
-      '@repo/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       lucide-react:
         specifier: 'catalog:'
         version: 0.562.0(react@19.2.4)
@@ -196,9 +199,6 @@ importers:
         specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
     devDependencies:
-      '@repo/env-config':
-        specifier: workspace:*
-        version: link:../../packages/env-config
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.15
@@ -223,6 +223,9 @@ importers:
       '@mui/material':
         specifier: 'catalog:'
         version: 7.3.9(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@repo/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@repo/features':
         specifier: workspace:*
         version: link:../../packages/features
@@ -238,9 +241,6 @@ importers:
       '@repo/theme':
         specifier: workspace:*
         version: link:../../packages/theme
-      '@repo/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       lucide-react:
         specifier: 'catalog:'
         version: 0.562.0(react@19.2.4)
@@ -254,9 +254,6 @@ importers:
         specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
     devDependencies:
-      '@repo/env-config':
-        specifier: workspace:*
-        version: link:../../packages/env-config
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.15
@@ -284,6 +281,9 @@ importers:
       '@repo/assets':
         specifier: workspace:*
         version: link:../../packages/assets
+      '@repo/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@repo/features':
         specifier: workspace:*
         version: link:../../packages/features
@@ -299,9 +299,6 @@ importers:
       '@repo/theme':
         specifier: workspace:*
         version: link:../../packages/theme
-      '@repo/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       lucide-react:
         specifier: 'catalog:'
         version: 0.562.0(react@19.2.4)
@@ -315,9 +312,6 @@ importers:
         specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
     devDependencies:
-      '@repo/env-config':
-        specifier: workspace:*
-        version: link:../../packages/env-config
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.15
@@ -345,6 +339,9 @@ importers:
       '@repo/assets':
         specifier: workspace:*
         version: link:../../packages/assets
+      '@repo/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@repo/features':
         specifier: workspace:*
         version: link:../../packages/features
@@ -360,9 +357,6 @@ importers:
       '@repo/theme':
         specifier: workspace:*
         version: link:../../packages/theme
-      '@repo/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       lucide-react:
         specifier: 'catalog:'
         version: 0.562.0(react@19.2.4)
@@ -376,9 +370,6 @@ importers:
         specifier: 'catalog:'
         version: 19.2.4(react@19.2.4)
     devDependencies:
-      '@repo/env-config':
-        specifier: workspace:*
-        version: link:../../packages/env-config
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.15
@@ -394,12 +385,43 @@ importers:
 
   packages/assets:
     dependencies:
-      '@repo/types':
+      '@repo/core':
         specifier: workspace:*
-        version: link:../types
+        version: link:../core
       next:
         specifier: 'catalog:'
         version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+
+  packages/core:
+    dependencies:
+      '@emotion/react':
+        specifier: 'catalog:'
+        version: 11.14.0(@types/react@19.2.14)(react@19.2.4)
+      '@emotion/styled':
+        specifier: 'catalog:'
+        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)
+      '@mui/material':
+        specifier: 'catalog:'
+        version: 7.3.9(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+    devDependencies:
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.14)
+      next:
+        specifier: 'catalog:'
+        version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.4
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.4(react@19.2.4)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
 
   packages/env-config: {}
 
@@ -417,6 +439,9 @@ importers:
       '@repo/assets':
         specifier: workspace:*
         version: link:../assets
+      '@repo/core':
+        specifier: workspace:*
+        version: link:../core
       '@repo/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -429,9 +454,6 @@ importers:
       '@repo/theme':
         specifier: workspace:*
         version: link:../theme
-      '@repo/types':
-        specifier: workspace:*
-        version: link:../types
       '@tanstack/react-query':
         specifier: 'catalog:'
         version: 5.90.21(react@19.2.4)
@@ -475,9 +497,9 @@ importers:
       '@repo/assets':
         specifier: workspace:*
         version: link:../assets
-      '@repo/types':
+      '@repo/core':
         specifier: workspace:*
-        version: link:../types
+        version: link:../core
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.15
@@ -518,15 +540,15 @@ importers:
       '@repo/assets':
         specifier: workspace:*
         version: link:../assets
+      '@repo/core':
+        specifier: workspace:*
+        version: link:../core
       '@repo/helpers':
         specifier: workspace:*
         version: link:../helpers
       '@repo/theme':
         specifier: workspace:*
         version: link:../theme
-      '@repo/types':
-        specifier: workspace:*
-        version: link:../types
       colorthief:
         specifier: 'catalog:'
         version: 2.7.0
@@ -573,20 +595,20 @@ importers:
       '@repo/assets':
         specifier: workspace:*
         version: link:../assets
+      '@repo/core':
+        specifier: workspace:*
+        version: link:../core
       '@repo/helpers':
         specifier: workspace:*
         version: link:../helpers
-      '@repo/types':
-        specifier: workspace:*
-        version: link:../types
       framer-motion:
-        specifier: ^12.35.1
+        specifier: 'catalog:'
         version: 12.37.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       lucide-react:
         specifier: 'catalog:'
         version: 0.562.0(react@19.2.4)
       react-blurhash:
-        specifier: ^0.3.0
+        specifier: 'catalog:'
         version: 0.3.0(blurhash@2.0.5)(react@19.2.4)
       react-transition-group:
         specifier: 'catalog:'
@@ -644,12 +666,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
-
-  packages/types:
-    dependencies:
-      '@mui/material':
-        specifier: 'catalog:'
-        version: 7.3.9(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
 
 packages:
 

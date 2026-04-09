@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { styled } from "@mui/material/styles";
 import { TextareaAutosize, useMediaQuery } from "@mui/material";
-import { GenericObject } from "@repo/types";
+import { GenericStyle } from "@repo/core";
 import { scrollBarStyle } from "@repo/helpers";
 
 // Label
@@ -28,9 +28,9 @@ const StyledLabel = styled("label")<{ shrink: boolean }>(
 // Text area
 interface TextAreaProps {
   style?: {
-    default: GenericObject<string>;
-    focused: GenericObject<string>;
-    hover: GenericObject<string>;
+    default: GenericStyle;
+    focused: GenericStyle;
+    hover: GenericStyle;
   };
   maxRows?: number;
   minRows?: number;

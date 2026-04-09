@@ -9,7 +9,7 @@ import React, {
 import { Box, IconButton, Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { X } from "lucide-react";
-import { DrawerProps, DrawerRef } from "@repo/types";
+import { DrawerProps, DrawerRef } from "@repo/core";
 import { Transition } from "./Transition";
 import { applyBGEffects, scrollBarStyle } from "@repo/helpers";
 

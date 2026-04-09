@@ -4,6 +4,7 @@
   "type": "module",
   "exports": {
     "./next-config": "./next-config.js",
-    "./tsconfig.base.json": "./tsconfig.base.json"
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./rewrites": "./rewrites.js"
   }
 }

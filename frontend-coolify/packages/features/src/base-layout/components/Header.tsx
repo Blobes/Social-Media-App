@@ -56,9 +56,10 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
         <Image
           src={img.logo}
           alt="logo"
+          width={34}
+          height={34}
+          priority
           style={{
-            width: 34,
-            height: 34,
             borderRadius: theme.radius.full,
           }}
         />

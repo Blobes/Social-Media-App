@@ -9,7 +9,7 @@ import {
   PostEngagement,
   PostCaption,
 } from "@repo/shared-ui";
-import { IGist, UIMode } from "@repo/types";
+import { IGist, UIMode } from "@repo/core";
 
 interface Like {
   isLiking: boolean;

@@ -2,8 +2,8 @@
 
 import React, { Fragment } from "react";
 import { Box, Stack, Typography } from "@mui/material";
-import { SxProps, Theme } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import { GenericStyle } from "@repo/core";
 
 interface Item {
   text?: string;
@@ -12,7 +12,7 @@ interface Item {
 
 interface StripProps {
   items: Item[];
-  style?: SxProps<Theme>;
+  style?: GenericStyle;
 }
 
 export const Strip = ({ items = [], style = {} }: StripProps) => {
