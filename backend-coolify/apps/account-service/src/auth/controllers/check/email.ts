@@ -20,8 +20,6 @@ export const checkEmail = async (req: Request, res: Response): Promise<any> => {
       email: normalizedEmail,
     }).setOptions({ skipFilter: true });
 
-    res.send("Reached!");
-
     if (existingUser) {
       return res.status(200).json({
         status: "SUCCESS",

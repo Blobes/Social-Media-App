@@ -10,11 +10,11 @@ import { rateLimiter } from "./middleware/rateLimiter";
 import gatewayRoutes from "./proxy";
 
 export default async (app: Express) => {
-  // 1. CORS and Rate Limiting are fine at the top
+  // 1. CORS and Rate Limiting
   app.use(corsConfig());
   app.use(rateLimiter(100, 60));
 
-  // 2. Proxy to microservices MUST come before body parsers
+  // 2. Proxy to microservices before body parsers
   // This lets the raw data stream pass through to the internal services
   app.use("/", gatewayRoutes);
 
