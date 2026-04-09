@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyAuthToken } from "../middlewares/verifyTokens";
+import { verifyAuthToken } from "../middlewares/authToken";
 import { lookupTopics } from "../controller/topic/lookup";
 import { deleteUnusedTopics } from "../controller/topic/delete";
 import { manageTopics } from "../controller/topic/manage";

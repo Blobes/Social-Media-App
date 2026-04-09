@@ -1,8 +1,7 @@
 // Midllewares
 export * from "./middlewares/isAdmin";
 export * from "./middlewares/moderateContent";
-export * from "./middlewares/verifyTokens";
-export * from "./middlewares/refreshAuthToken";
+export * from "./middlewares/authToken";
 
 // Types
 export * from "./types/types";
