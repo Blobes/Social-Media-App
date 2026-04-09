@@ -15,6 +15,11 @@ import { followUser } from "./controllers/socials/followUser";
 
 const router: Router = express.Router();
 
+// Testing api.funstakes.net/user
+router.get("/", (req, res) => {
+  res.json({ message: "Welcome to Funstakes User API" });
+});
+
 // User Info
 router.get("/:id", getUserProfile);
 router.patch("/update-basic", verifyAuthToken, updateBasicInfo);

@@ -13,6 +13,11 @@ import { setPrimaryDevice } from "./controllers/session/primaryDevice";
 
 const router: Router = express.Router();
 
+// testing api.funstakes.net/auth
+router.get("/", (req, res) => {
+  res.json({ message: "Welcome to Funstakes Auth API" });
+});
+
 // --- DISCOVERY & AVAILABILITY ---
 // Public endpoints used during registration to check if data is unique
 router.post("/check-email", checkEmail);

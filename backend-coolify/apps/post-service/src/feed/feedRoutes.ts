@@ -6,6 +6,11 @@ import { getUserPosts } from "./controllers/getUserPosts";
 
 const router: Router = express.Router();
 
+// Testing api.funstakes.net/feed/test
+router.get("/test", (req, res) => {
+  res.json({ message: "Welcome to Funstakes Feed API" });
+});
+
 // Feed Logic
 router.get("/", verifyAuthToken, getAllPost);
 router.get("/followers", verifyAuthToken, getfollowersPosts);

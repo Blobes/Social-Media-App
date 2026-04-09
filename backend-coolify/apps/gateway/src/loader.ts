@@ -10,28 +10,28 @@ import { rateLimiter } from "./middleware/rateLimiter";
 import gatewayRoutes from "./proxy";
 
 export default async (app: Express) => {
-  // ====== Middlewares ======
+  // 1. CORS and Rate Limiting are fine at the top
   app.use(corsConfig());
+  app.use(rateLimiter(100, 60));
+
+  // 2. Proxy to microservices MUST come before body parsers
+  // This lets the raw data stream pass through to the internal services
+  app.use("/", gatewayRoutes);
+
+  // 3. Body Parsers come AFTER the proxy
+  // These will now only process requests intended for the Gateway's own routes
   app.use(express.json({ limit: "30mb" }));
   app.use(express.urlencoded({ limit: "30mb", extended: true }));
 
-  // Verify Upstash connectivity before starting the server
+  // Verify Upstash connectivity
   try {
     const status = await upstashClient.ping();
     console.log(`✅ Redis connected: ${status}`);
   } catch (err) {
-    // If Redis is down, we log it. The rateLimiter should handle "fail-open"
-    // logic so your app doesn't crash if Upstash has a rare blip.
     console.error("⚠️ Redis Connectivity Check Failed:", err);
   }
 
-  // Protect the entire stack with Rate Limiting – 100 requests per 60s window
-  app.use(rateLimiter(100, 60));
-
-  // Proxy to microservices
-  app.use("/", gatewayRoutes);
-
-  // Shared routes
+  // 4. Gateway's own shared routes (these need the body parser above)
   app.use("/report", reportRouter());
   app.use("/media", mediaRouter());
   app.use("/topic", topicRouter());

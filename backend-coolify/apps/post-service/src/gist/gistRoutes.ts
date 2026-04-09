@@ -8,6 +8,11 @@ import { getGist } from "./controllers/getGist";
 
 const router: Router = express.Router();
 
+// Testing api.funstakes.net/gists/test
+router.get("/test", (req, res) => {
+  res.json({ message: "Welcome to Funstakes Gist API" });
+});
+
 router.get("/", optVerifyToken, getGistList);
 router.post("/create", verifyAuthToken, moderateContent, createGist);
 router.get("/:id", optVerifyToken, getGist);

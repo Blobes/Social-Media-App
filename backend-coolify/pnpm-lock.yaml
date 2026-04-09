@@ -146,9 +146,6 @@ importers:
       bcrypt:
         specifier: 'catalog:'
         version: 6.0.0
-      cookie-parser:
-        specifier: 'catalog:'
-        version: 1.4.7
       dotenv:
         specifier: 'catalog:'
         version: 16.6.1
@@ -192,9 +189,6 @@ importers:
       '@repo/shared':
         specifier: workspace:*
         version: link:../../packages/shared
-      cookie-parser:
-        specifier: 'catalog:'
-        version: 1.4.7
       dotenv:
         specifier: 'catalog:'
         version: 16.6.1
@@ -266,9 +260,6 @@ importers:
       bullmq:
         specifier: 'catalog:'
         version: 5.71.0
-      cookie-parser:
-        specifier: 'catalog:'
-        version: 1.4.7
       dotenv:
         specifier: 'catalog:'
         version: 16.6.1
@@ -312,9 +303,6 @@ importers:
       bullmq:
         specifier: 'catalog:'
         version: 5.71.0
-      cookie-parser:
-        specifier: 'catalog:'
-        version: 1.4.7
       dotenv:
         specifier: 'catalog:'
         version: 16.6.1
