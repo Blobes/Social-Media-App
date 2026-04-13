@@ -5,21 +5,11 @@ import { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { Stepper } from "@repo/shared-ui";
 import { PasswordStep } from "../login/PasswordStep";
-import { DrawerRef, GenericStyle, IStep } from "@repo/core";
+import { IStep } from "@repo/core";
 import { Stack } from "@mui/material";
 import Image from "next/image";
 import { img } from "@repo/assets";
-import { StepName } from "../login/Login";
-
-interface StepperProps {
-  modalRef?: React.RefObject<DrawerRef>;
-  redirectTo?: string;
-  style?: {
-    container?: GenericStyle;
-    headline?: GenericStyle;
-    tagline?: GenericStyle;
-  };
-}
+import { StepName, StepperProps } from "../types";
 
 export const SignUpStepper: React.FC<StepperProps> = ({
   modalRef,
@@ -39,7 +29,10 @@ export const SignUpStepper: React.FC<StepperProps> = ({
           setStep={setCurrStep}
           credential={credential}
           redirectTo={redirectTo}
-          style={{ ...style.headline, ...style.tagline }}
+          style={{
+            headline: style?.headline,
+            tagline: style?.tagline,
+          }}
         />
       ),
     },

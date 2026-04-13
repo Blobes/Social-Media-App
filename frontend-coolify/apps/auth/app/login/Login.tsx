@@ -2,23 +2,14 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { GenericStyle, IStep } from "@repo/core";
+import { IStep } from "@repo/core";
 import { RestoreAccount, Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
 import Image from "next/image";
 import { img } from "@repo/assets";
 import { PasswordStep } from "./PasswordStep";
 import { CredentialStep } from "./CredentialStep";
-
-interface StepperProps {
-  style?: {
-    container?: GenericStyle;
-    headline?: GenericStyle;
-    tagline?: GenericStyle;
-  };
-}
-
-export type StepName = "CREDENTIAL" | "RESTORE" | "PASSWORD";
+import { StepName, StepperProps } from "../types";
 
 export const Login: React.FC<StepperProps> = ({ style = {} }) => {
   const theme = useTheme();
@@ -34,7 +25,10 @@ export const Login: React.FC<StepperProps> = ({ style = {} }) => {
           setStep={setCurrStep}
           existingInput={input}
           setCredential={setInput}
-          style={{ ...style.headline, ...style.tagline }}
+          style={{
+            headline: style?.headline,
+            tagline: style?.tagline,
+          }}
         />
       ),
     },
@@ -54,7 +48,10 @@ export const Login: React.FC<StepperProps> = ({ style = {} }) => {
           step={currStep}
           setStep={setCurrStep}
           credential={input}
-          style={{ ...style.headline, ...style.tagline }}
+          style={{
+            headline: style?.headline,
+            tagline: style?.tagline,
+          }}
         />
       ),
     },

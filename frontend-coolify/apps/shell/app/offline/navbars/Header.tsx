@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AppBar, Stack } from "@mui/material";
+import { AppBar } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useMisc, usePageScroll } from "@repo/shared-state";
 import { img } from "@repo/assets";
@@ -43,9 +43,9 @@ export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
       <Image
         src={img.logo}
         alt="logo"
+        width={34}
+        height={34}
         style={{
-          width: 34,
-          height: 34,
           borderRadius: `${theme.radius.full}`,
         }}
       />

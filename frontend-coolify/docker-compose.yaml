@@ -3,18 +3,26 @@ services:
   shell-app:
     build:
       context: .
+      args:
+        # This pulls the value from Coolify's env and passes it to the Docker build process
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
       dockerfile_inline: |
         FROM node:20-alpine AS builder
+        # We must declare ARGs in every stage that needs them
+        ARG NEXT_PUBLIC_API_URL
+        ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
         WORKDIR /app
         RUN corepack enable && corepack prepare pnpm@latest --activate
         COPY . .
         RUN pnpm install --frozen-lockfile
-        RUN pnpm install && pnpm --filter @repo/shell build
+        # Next.js will now find the ENV variable during this build step
+        RUN pnpm --filter @repo/shell build
 
         FROM node:20-alpine AS runner
         WORKDIR /app
         ENV NODE_ENV production
-        # Copy standalone build from Next.js (requires output: 'standalone' in next.config.js)
+        # Standalone copy logic (Exactly as you had it)
         COPY --from=builder /app/apps/shell/.next/standalone ./
         COPY --from=builder /app/apps/shell/.next/static ./apps/shell/.next/static
         COPY --from=builder /app/apps/shell/public ./apps/shell/public
@@ -24,7 +32,7 @@ services:
       - PORT=3000
       - AUTH_URL=http://auth-app:3002
       - POST_URL=http://post-app:3003
-      - NEXT_PUBLIC_API_URL=https://api.funstakes.net
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.shell.rule=Host(`funstakes.net`) || Host(`www.funstakes.net`)"
@@ -38,8 +46,12 @@ services:
   auth-app:
     build:
       context: .
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
       dockerfile_inline: |
         FROM node:20-alpine AS builder
+        ARG NEXT_PUBLIC_API_URL
+        ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
         WORKDIR /app
         RUN corepack enable && corepack prepare pnpm@latest --activate
         COPY . .
@@ -51,16 +63,20 @@ services:
         CMD ["node", "apps/auth/server.js"]
     environment:
       - PORT=3002
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     networks:
       - coolify
-    # No public domain needed; Shell talks to it internally
 
   # --- POST MFE ---
   post-app:
     build:
       context: .
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
       dockerfile_inline: |
         FROM node:20-alpine AS builder
+        ARG NEXT_PUBLIC_API_URL
+        ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
         WORKDIR /app
         RUN corepack enable && corepack prepare pnpm@latest --activate
         COPY . .
@@ -72,6 +88,7 @@ services:
         CMD ["node", "apps/post/server.js"]
     environment:
       - PORT=3003
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     networks:
       - coolify
 

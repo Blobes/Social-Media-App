@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "dotenv -e .env.development -- turbo run dev",
     "build": "dotenv -e .env.production -- turbo run build",
-    "start": "turbo run start",
+    "start": "dotenv -e .env.development -- turbo run start",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "check-types": "turbo run check-types",

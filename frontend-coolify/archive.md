@@ -12,7 +12,7 @@ const authBaseUrl = baseUrl(3002);
 const webBaseUrl = baseUrl(3006);
 const profileBaseUrl = baseUrl(3004);
 
-export const clientRoutes: Record<string, IPage> = {
+export const CLIENT_ROUTES: Record<string, IPage> = {
 // Web
 about: { title: "About", path: `${webBaseUrl}/about` },
 pricing: { title: "Pricing", path: `${webBaseUrl}/pricing` },
@@ -45,18 +45,18 @@ offline: { title: "Home", path: `${mainBaseUrl}/offline` },
 } as const;
 
 export const registeredRoutes = {
-auth: [clientRoutes.login.path, clientRoutes.signup.path],
+auth: [CLIENT_ROUTES.login.path, CLIENT_ROUTES.signup.path],
 web: [
-clientRoutes.about.path,
-clientRoutes.pricing.path,
-clientRoutes.blogs.path,
-clientRoutes.support.path,
-clientRoutes.privacy.path,
-clientRoutes.terms.path,
-clientRoutes.news.path,
+CLIENT_ROUTES.about.path,
+CLIENT_ROUTES.pricing.path,
+CLIENT_ROUTES.blogs.path,
+CLIENT_ROUTES.support.path,
+CLIENT_ROUTES.privacy.path,
+CLIENT_ROUTES.terms.path,
+CLIENT_ROUTES.news.path,
 ],
-app: [clientRoutes.home.path, clientRoutes.gist.path],
-offline: [clientRoutes.offline.path],
+app: [CLIENT_ROUTES.home.path, CLIENT_ROUTES.gist.path],
+offline: [CLIENT_ROUTES.offline.path],
 };
 
 export const disallowedRoutes: string[] = [];

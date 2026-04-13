@@ -1,0 +1,28 @@
+{
+  "node": {
+    "404dd3a065c5a96104889f436661ccb9113102011e": {
+      "workers": {
+        "app/login/page": {
+          "moduleId": "[project]/apps/auth/.next-internal/server/app/login/page/actions.js { ACTIONS_MODULE0 => \"[project]/packages/features/src/base-layout/BaseLayout.tsx [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "BaseLayout",
+          "filename": "packages/features/src/base-layout/BaseLayout.tsx"
+        },
+        "app/signup/page": {
+          "moduleId": "[project]/apps/auth/.next-internal/server/app/signup/page/actions.js { ACTIONS_MODULE0 => \"[project]/packages/features/src/base-layout/BaseLayout.tsx [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "BaseLayout",
+          "filename": "packages/features/src/base-layout/BaseLayout.tsx"
+        }
+      },
+      "layer": {
+        "app/login/page": "rsc",
+        "app/signup/page": "rsc"
+      },
+      "filename": "packages/features/src/base-layout/BaseLayout.tsx",
+      "exportedName": "BaseLayout"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "6D+zuGd2BX/xwNgyoaRSE+cEvUEcvUWtZIW+xrSnrKM="
+}

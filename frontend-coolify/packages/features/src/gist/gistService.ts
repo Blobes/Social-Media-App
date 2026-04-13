@@ -6,16 +6,20 @@ import {
   getPendingLike,
   clearPendingLike,
   enqueueLike,
-  serverApi,
-  apiBase,
 } from "@repo/helpers";
-import { IGist, ISinglePayload, IListPayload } from "@repo/core";
+import {
+  IGist,
+  ISinglePayload,
+  IListPayload,
+  API_BASE,
+  SERVER_API,
+} from "@repo/core";
 import { useCallback } from "react";
 
 export const GistService = () => {
   const fetchGistList = useCallback(async (): Promise<IListPayload<IGist>> => {
     try {
-      const res = await apiClient<IListPayload<IGist>>(apiBase.gists, {
+      const res = await apiClient<IListPayload<IGist>>(API_BASE.gists, {
         method: "GET",
       });
 
@@ -46,7 +50,7 @@ export const GistService = () => {
     ): Promise<LikeResponse | null> => {
       try {
         const res = await apiClient<ISinglePayload<LikeResponse>>(
-          serverApi.likeGist(gistId),
+          SERVER_API.likeGist(gistId),
           { method: "PUT" },
         );
         return res.payload;

@@ -18,7 +18,6 @@
     "@repo/shared-ui": "workspace:*",
     "@repo/shared-state": "workspace:*",
     "@repo/helpers": "workspace:*",
-    "@repo/theme": "workspace:*",
     "@repo/core": "workspace:*",
     "@repo/features": "workspace:*",
     "@mui/material": "catalog:"

@@ -1,0 +1,90 @@
+"use client";
+
+import React, { useRef, useEffect } from "react";
+import { useTheme } from "@mui/material/styles";
+import { useRouter } from "next/navigation";
+import { dragToCloseConfig } from "@repo/helpers";
+import { CLIENT_ROUTES, MenuRef } from "@repo/core";
+import {
+  useDragClose,
+  useGlobalContext,
+  useMisc,
+  usePage,
+  usePageScroll,
+} from "@repo/shared-state";
+
+export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
+  const { authStatus, authUser } = useGlobalContext();
+  const { openDrawer, closeDrawer, isDesktop, handleWindowResize } = useMisc();
+  const { setLastPage, navigateTo } = usePage();
+  const { handlePageScroll } = usePageScroll();
+  const theme = useTheme();
+  const router = useRouter();
+
+  const menuRef = useRef<MenuRef>(null);
+  const scrollDir = handlePageScroll(scrollRef);
+  const isLoggedIn = authStatus === "AUTHENTICATED";
+
+  useEffect(() => {
+    window.addEventListener("resize", handleWindowResize);
+    return () => window.removeEventListener("resize", handleWindowResize);
+  }, [handleWindowResize]);
+
+  const handleNotification = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setLastPage(CLIENT_ROUTES.notifications);
+    router.push(CLIENT_ROUTES.notifications.path);
+  };
+
+  const handleLogo = () => {
+    navigateTo(CLIENT_ROUTES.home);
+  };
+
+  interface AvartarParams {
+    desktop: React.MouseEvent<HTMLElement>;
+    mobile: { header: React.ReactNode; content: React.ReactNode };
+  }
+  const handleAvatar = (element: AvartarParams) => {
+    if (isDesktop) {
+      menuRef.current?.openMenu(element.desktop.currentTarget);
+    } else {
+      openMobileNav(element);
+    }
+  };
+
+  const openMobileNav = (element: AvartarParams) => {
+    openDrawer({
+      ...element.mobile,
+      source: "navbar",
+      onClose: closeDrawer,
+      useDragConfig: () => useDragClose(dragToCloseConfig()),
+      style: {
+        base: {
+          overlay: { padding: theme.boxSpacing(6), display: "none" },
+          content: { height: "100%", borderRadius: "0px" },
+        },
+        smallScreen: {
+          overlay: { padding: theme.boxSpacing(0), display: "flex" },
+        },
+        header: {
+          justifyContent: "space-between",
+          padding: theme.boxSpacing(5, 8),
+        },
+      },
+    });
+  };
+
+  return {
+    isLoggedIn,
+    isDesktop,
+    scrollDir,
+    authStatus,
+    menuRef,
+    handleNotification,
+    handleLogo,
+    handleAvatar,
+    openMobileNav, // Exported if needed by the UI to inject components
+    navigateTo,
+    authUser,
+  };
+};

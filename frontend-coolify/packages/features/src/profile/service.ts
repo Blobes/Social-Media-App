@@ -1,7 +1,7 @@
 "use client";
 
-import { apiClient, checkNetworkError, serverApi } from "@repo/helpers";
-import { IUser, IListPayload, ISinglePayload } from "@repo/core";
+import { apiClient, checkNetworkError } from "@repo/helpers";
+import { IUser, IListPayload, ISinglePayload, SERVER_API } from "@repo/core";
 import { useCallback } from "react";
 
 export interface FollowResponse extends IUser {
@@ -20,7 +20,7 @@ export const UserService = () => {
     async (userId: string): Promise<ISinglePayload<IUser>> => {
       try {
         const res = await apiClient<ISinglePayload<IUser>>(
-          serverApi.getUser(userId),
+          SERVER_API.getUser(userId),
           { method: "GET" },
         );
         return {
@@ -45,7 +45,7 @@ export const UserService = () => {
     async (userId: string): Promise<IListPayload<IUser>> => {
       try {
         const res = await apiClient<IListPayload<IUser>>(
-          serverApi.followers(userId),
+          SERVER_API.followers(userId),
           { method: "GET" },
         );
         return {
@@ -70,7 +70,7 @@ export const UserService = () => {
     async (userId: string): Promise<ISinglePayload<FollowPayload>> => {
       try {
         const res = await apiClient<ISinglePayload<FollowPayload>>(
-          serverApi.follow(userId),
+          SERVER_API.follow(userId),
           { method: "PUT" },
         );
         return {

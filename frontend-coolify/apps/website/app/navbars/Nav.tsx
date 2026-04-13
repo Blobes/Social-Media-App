@@ -4,28 +4,22 @@ import React, { useRef } from "react";
 import { Divider, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { RenderItemList, AppButton } from "@repo/shared-ui";
-import {
-  useGlobalContext,
-  useMisc,
-  useNavLists,
-  usePage,
-} from "@repo/shared-state";
-import { clientRoutes } from "@repo/helpers";
-import { GenericStyle, MenuRef } from "@repo/core";
+import { useGlobalContext, useMisc, usePage } from "@repo/shared-state";
+import { CLIENT_ROUTES, GenericStyle, LISTS, MenuRef } from "@repo/core";
 
 interface NavProps {
   style?: GenericStyle;
 }
 export const DesktopNav: React.FC<NavProps> = ({ style }) => {
   const theme = useTheme();
-  const { headerNavList } = useNavLists();
+  const { HEADER_NAV_LIST } = LISTS();
   const menuRef = useRef<MenuRef>(null);
 
   return (
     <Stack sx={{ ...style }}>
       <RenderItemList
-        list={headerNavList}
-        hook={usePage}
+        list={HEADER_NAV_LIST}
+        usePage={usePage}
         style={{
           padding: theme.boxSpacing(2.5, 6, 2.5, 6),
           fontWeight: "500",
@@ -41,7 +35,7 @@ export const DesktopNav: React.FC<NavProps> = ({ style }) => {
 
 export const MobileNav: React.FC<NavProps> = ({ style }) => {
   const theme = useTheme();
-  const { headerNavList } = useNavLists();
+  const { HEADER_NAV_LIST } = LISTS();
   const menuRef = useRef<MenuRef>(null);
   const { navigateTo } = usePage();
   const { authStatus } = useGlobalContext();
@@ -50,9 +44,9 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
   return (
     <Stack sx={{ ...style }}>
       <RenderItemList
-        list={headerNavList}
-        hook={usePage}
-        itemAction={() => {
+        list={HEADER_NAV_LIST}
+        usePage={usePage}
+        onItemClick={() => {
           menuRef.current?.closeMenu();
           closeDrawer();
         }}
@@ -70,11 +64,11 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
       <Divider />
       {authStatus === "AUTHENTICATED" && (
         <AppButton
-          href={clientRoutes.home.path}
+          href={CLIENT_ROUTES.home.path}
           variant="outlined"
           style={{ fontSize: "14px" }}
           onClick={() =>
-            navigateTo(clientRoutes.home, { type: "push", loadPage: true })
+            navigateTo(CLIENT_ROUTES.home, { type: "push", loadPage: true })
           }>
           Go to funstakes.com
         </AppButton>
@@ -83,10 +77,10 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
       {authStatus === "UNAUTHENTICATED" && (
         <>
           <AppButton
-            href={clientRoutes.signup.path}
+            href={CLIENT_ROUTES.signup.path}
             style={{ fontSize: "14px" }}
             onClick={() =>
-              navigateTo(clientRoutes.signup, {
+              navigateTo(CLIENT_ROUTES.signup, {
                 type: "push",
                 savePage: false,
                 loadPage: true,
@@ -95,11 +89,11 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
             Sign up
           </AppButton>
           <AppButton
-            href={clientRoutes.login.path}
+            href={CLIENT_ROUTES.login.path}
             variant="outlined"
             style={{ fontSize: "14px" }}
             onClick={() =>
-              navigateTo(clientRoutes.login, {
+              navigateTo(CLIENT_ROUTES.login, {
                 type: "push",
                 savePage: false,
                 loadPage: true,

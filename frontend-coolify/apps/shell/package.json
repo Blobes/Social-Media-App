@@ -20,7 +20,6 @@
     "@repo/helpers": "workspace:*",
     "@repo/shared-state": "workspace:*",
     "@repo/shared-ui": "workspace:*",
-    "@repo/theme": "workspace:*",
     "@repo/core": "workspace:*"
   },
   "devDependencies": {

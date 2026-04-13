@@ -8,16 +8,17 @@
   "exports": {
     ".": "./index.ts",
     "./next-config": "./env-config/next-config.js",
-    "./tsconfig.base.json": "./env-config/tsconfig.base.json",
-    "./rewrites": "./env-config/rewrites.js"
+    "./tsconfig.base.json": "./env-config/tsconfig.base.json"
   },
   "peerDependencies": {
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "lucide-react": "catalog:",
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
-    "@mui/material": "catalog:"
+    "@mui/material": "catalog:",
+    "@mui/system": "catalog:"
   },
   "devDependencies": {
     "next": "catalog:",

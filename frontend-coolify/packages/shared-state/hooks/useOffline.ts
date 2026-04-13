@@ -2,8 +2,8 @@
 
 import { usePage } from "./usePage";
 import { useGlobalContext } from "../GlobalContext";
-import { clientRoutes, getFromLocalStorage } from "@repo/helpers";
-import { IPage } from "@repo/core";
+import { getFromLocalStorage } from "@repo/helpers";
+import { CLIENT_ROUTES, IPage } from "@repo/core";
 
 export const useOffline = () => {
   const { setOfflineMode } = useGlobalContext();
@@ -12,7 +12,7 @@ export const useOffline = () => {
   const switchToOfflineMode = () => {
     setOfflineMode(true);
 
-    navigateTo(clientRoutes.offline, {
+    navigateTo(CLIENT_ROUTES.offline, {
       type: "push",
       savePage: false,
       loadPage: true,
@@ -21,7 +21,7 @@ export const useOffline = () => {
 
   const switchToOnlineMode = () => {
     setOfflineMode(false);
-    const savedPage = getFromLocalStorage<IPage>() || clientRoutes.home;
+    const savedPage = getFromLocalStorage<IPage>() || CLIENT_ROUTES.home;
     navigateTo(savedPage, { type: "replace", loadPage: true });
   };
 

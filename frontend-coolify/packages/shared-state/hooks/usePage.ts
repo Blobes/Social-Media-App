@@ -1,15 +1,18 @@
 "use client";
 
 import { useGlobalContext } from "../GlobalContext";
-import { IPage } from "@repo/core";
 import {
-  clientRoutes,
-  disallowedRoutes,
-  routesRegistry,
+  CLIENT_ROUTES,
+  DISALLOWED_ROUTES,
+  IPage,
+  ROUTES_REGISTRY,
+} from "@repo/core";
+import {
   delay,
   extractPageTitle,
   getFromLocalStorage,
   crossZoneCheck,
+  saveToLocalStorage,
 } from "@repo/helpers";
 import { usePathname, useRouter } from "next/navigation";
 import { useMisc } from "./useMisc";
@@ -20,17 +23,17 @@ export const usePage = () => {
   const { closeDrawer, closeModal } = useMisc();
   const router = useRouter();
 
-  const isOnWeb = (path: string) => routesRegistry.web.includes(path);
-  const isOnAuth = (path: string) => routesRegistry.auth.includes(path);
-  const isOnOffline = (path: string) => routesRegistry.offline.includes(path);
+  const isOnWeb = (path: string) => ROUTES_REGISTRY.web.includes(path);
+  const isOnAuth = (path: string) => ROUTES_REGISTRY.auth.includes(path);
+  const isOnOffline = (path: string) => ROUTES_REGISTRY.offline.includes(path);
   const isOnDisallowedRoutes = (path: string) =>
-    disallowedRoutes.includes(path);
+    DISALLOWED_ROUTES.includes(path);
   const pathname = usePathname();
 
   const setLastPage = ({ title, path }: IPage) => {
     const page = { title, path };
     setPage(page);
-    localStorage.setItem("saved_page", JSON.stringify(page));
+    saveToLocalStorage("saved_page", page);
   };
 
   interface NavigateOptions {
@@ -85,7 +88,7 @@ export const usePage = () => {
     );
 
     if (isOnDisallowedRoutes(pathname)) {
-      router.replace(clientRoutes.about.path);
+      router.replace(CLIENT_ROUTES.about.path);
       return;
     }
   };

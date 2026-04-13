@@ -1,5 +1,7 @@
 "use client";
 
+import { FetchStatus } from "@repo/core";
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const DEFAULT_TIMEOUT = 60000; // Default timeout in milliseconds (1 minute)
 
@@ -64,4 +66,25 @@ export const apiClient = async <T>(
     }
     throw error;
   }
+};
+
+export const checkNetworkError = (err: any) => {
+  const status = typeof err?.status === "number" ? err.status : undefined;
+  const isNetworkError =
+    status === undefined ||
+    status === 0 ||
+    status >= 500 ||
+    err.name === "AbortError" ||
+    err.name === "TypeError" ||
+    err.message === "Failed to fetch" ||
+    err.message === "Connection timed out or failed.";
+
+  if (isNetworkError) {
+    return {
+      payload: null,
+      status: "ERROR" as FetchStatus,
+      message: "Network connection failed",
+    };
+  }
+  return null;
 };

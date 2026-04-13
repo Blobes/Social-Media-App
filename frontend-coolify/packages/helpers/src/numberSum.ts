@@ -1,7 +1,7 @@
 "use client";
 
 // Number Summarizer
-export const summarizeNum = (digit: string | number): string => {
+export const summarizeNum = (digit: string | number = 0): string => {
   const num = typeof digit === "string" ? Number(digit) : digit;
 
   if (isNaN(num)) return "0";

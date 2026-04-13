@@ -5,11 +5,12 @@ import { useTheme } from "@mui/material/styles";
 import { Login } from "./Login";
 import { Stack } from "@mui/material";
 import { useGlobalContext } from "@repo/shared-state";
-import { applyBGPattern, clientRoutes } from "@repo/helpers";
+import { applyBGPattern } from "@repo/helpers";
 import { Feedback } from "@repo/shared-ui";
 import { ShieldCheck } from "lucide-react";
 import { usePage, useMisc } from "@repo/shared-state";
 import { ComfirmLogout } from "@repo/features";
+import { CLIENT_ROUTES } from "@repo/core";
 
 export default function LoginPage() {
   const theme = useTheme();
@@ -60,11 +61,11 @@ export default function LoginPage() {
           primaryCta={{
             label: "Go to Funstakes.com",
             action: () =>
-              navigateTo(clientRoutes.home, {
+              navigateTo(CLIENT_ROUTES.home, {
                 type: "replace",
                 loadPage: true,
               }),
-            href: clientRoutes.home.path,
+            href: CLIENT_ROUTES.home.path,
           }}
           secondaryCta={{
             label: "Logout",

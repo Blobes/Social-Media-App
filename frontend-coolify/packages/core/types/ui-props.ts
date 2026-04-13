@@ -1,10 +1,16 @@
 "use client";
 
 import { IMedia } from "./payloads/modified";
-import { GenericStyle } from "./ui-state";
+import { GenericStyle, IMenuItem } from "./ui-state";
 
 export type Direction = "left" | "right" | "up" | "down";
 export type TransitionType = "fade" | "grow" | "slide" | "zoom" | "collapse";
+
+export enum ListType {
+  COUNTRY = "COUNTRY",
+  NAVIGATION = "NAVIGATION",
+  DEFAULT = "ITEM",
+}
 
 // Transition
 export interface IDragConfig {
@@ -99,4 +105,16 @@ export interface MediaProps extends IMedia {
   onSingleTap?: (media?: IMedia) => void;
   onDoubleTap?: (media?: IMedia) => void;
   useMedia?: UseMedia;
+}
+
+export interface ICountryItem extends IMenuItem {
+  name?: string;
+  code?: string;
+  iso?: string;
+  flag?: string;
+  titleFlag?: string;
+  titleCode?: string;
+  isoCode?: string;
+  codeFlag?: string;
+  fullInfo?: string;
 }

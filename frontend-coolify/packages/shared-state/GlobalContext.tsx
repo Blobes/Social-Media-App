@@ -9,8 +9,8 @@ import {
   NetworkStatus,
   DrawerProps,
   ModalProps,
+  CLIENT_ROUTES,
 } from "@repo/core";
-import { clientRoutes } from "../helpers";
 
 interface Context {
   authStatus: AuthStatus;
@@ -19,8 +19,8 @@ interface Context {
   setAuthUser: React.Dispatch<React.SetStateAction<IUser | null>>;
   snackBarMsg: ISnackBarMsg;
   setSnackBarMsg: React.Dispatch<React.SetStateAction<ISnackBarMsg>>;
-  inlineMsg: string | null;
-  setInlineMsg: React.Dispatch<React.SetStateAction<string | null>>;
+  inlineMsg: React.ReactNode | null;
+  setInlineMsg: React.Dispatch<React.SetStateAction<React.ReactNode | null>>;
   isGlobalLoading: boolean;
   setGlobalLoading: React.Dispatch<React.SetStateAction<boolean>>;
   isAuthLoading: boolean;
@@ -55,10 +55,10 @@ export const ContextProvider = ({
     defaultDur: 5,
     dir: "up",
   });
-  const [inlineMsg, setInlineMsg] = useState<string | null>(null);
+  const [inlineMsg, setInlineMsg] = useState<React.ReactNode | null>(null);
   const [isGlobalLoading, setGlobalLoading] = useState(false);
   const [isAuthLoading, setAuthLoading] = useState(false);
-  const [lastPage, setPage] = useState<IPage>(clientRoutes.home);
+  const [lastPage, setPage] = useState<IPage>(CLIENT_ROUTES.home);
   const [drawerContent, setDrawerContent] = useState<DrawerProps | null>(null);
   const [modalContent, setModalContent] = useState<ModalProps | null>(null);
   const [networkStatus, setNetworkStatus] = useState<NetworkStatus>("UNKNOWN");

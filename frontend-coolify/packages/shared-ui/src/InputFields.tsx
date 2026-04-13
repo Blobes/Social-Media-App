@@ -4,12 +4,13 @@ import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { IconButton, InputAdornment, TextField } from "@mui/material";
 import { Eye, EyeClosed } from "lucide-react";
+import { GenericStyle } from "@repo/core";
 
-interface InputProps {
+export interface InputProps {
   variant?: "outlined" | "filled";
   id?: string;
   type?: "text" | "number" | "email" | "search" | "password";
-  defaultValue?: string;
+  value?: string;
   placeholder?: string;
   label?: string;
   helperText?: string;
@@ -18,6 +19,7 @@ interface InputProps {
   error?: boolean;
   affix?: React.ReactNode | string;
   affixPosition?: "start" | "end";
+  focusResizeWidth?: boolean;
   onChange?: (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) => void;
@@ -27,12 +29,13 @@ interface InputProps {
   onBlur?: (
     event: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) => void;
+  style?: GenericStyle;
 }
 export const TextInput = ({
   variant = "outlined",
   id = "",
   type = "text",
-  defaultValue,
+  value,
   placeholder = "Type here...",
   label = "Input Label",
   helperText = "",
@@ -50,7 +53,7 @@ export const TextInput = ({
       variant={variant}
       id={id}
       type={type}
-      defaultValue={defaultValue}
+      value={value}
       placeholder={placeholder}
       label={label}
       helperText={helperText}
@@ -85,7 +88,7 @@ export const TextInput = ({
 export const PasswordInput = ({
   variant = "outlined",
   id = "",
-  defaultValue,
+  value,
   placeholder = "Type here...",
   label = "Input Label",
   helperText = "",
@@ -111,7 +114,7 @@ export const PasswordInput = ({
       variant={variant}
       id={id}
       type={showPassword ? "text" : "password"}
-      defaultValue={defaultValue}
+      value={value}
       placeholder={placeholder}
       label={label}
       helperText={helperText}

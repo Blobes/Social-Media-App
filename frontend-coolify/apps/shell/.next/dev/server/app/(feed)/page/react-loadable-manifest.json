@@ -1,0 +1,9 @@
+{
+  "[project]/packages/features/src/base-layout/UIManager.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/packages/features/src/base-layout/UIManager.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/packages_features_src_base-layout_UIManager_tsx_5cf743bb._.js",
+      "static/chunks/packages_features_src_base-layout_UIManager_tsx_9b668097._.js"
+    ]
+  }
+}

@@ -5,8 +5,8 @@ import { CircularProgress, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { img } from "@repo/assets";
 import Image from "next/image";
-import { rotate } from "@repo/helpers";
-import { AnimatedWrapper } from "./AnimationWrapper";
+import { fadeIn, rotate } from "@repo/helpers";
+import { AnimatedWrapper } from "./AnimatedWrapper";
 import { RootUIContainer } from "./Containers";
 import { GenericStyle } from "@repo/core";
 
@@ -44,7 +44,6 @@ export const ProgressIcon = ({ style, otherProps, info }: ProgressProps) => {
 
 export const PageLoaderUI = () => {
   const theme = useTheme();
-
   return (
     <RootUIContainer
       style={{

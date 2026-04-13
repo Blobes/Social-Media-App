@@ -4,6 +4,7 @@ import React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import { InputBase, Stack, Typography } from "@mui/material";
 import { Search as SearchIcon } from "lucide-react";
+import { InputProps } from "./InputFields";
 
 const InputWrapper = styled(Stack)(({ theme }) => ({
   flexDirection: "row",
@@ -15,9 +16,6 @@ const InputWrapper = styled(Stack)(({ theme }) => ({
   [theme.breakpoints.down("sm")]: {
     width: "100%",
   },
-  "&:focus-within": {
-    width: "32%",
-  },
   // Border
   borderRadius: `${theme.radius.full}`,
   border: `1.5px solid transparent`,
@@ -28,13 +26,28 @@ const InputWrapper = styled(Stack)(({ theme }) => ({
   },
 }));
 
-export const SearchBar = () => {
+export const SearchBar = ({
+  onChange,
+  focusResizeWidth = true,
+  style,
+  placeholder,
+}: InputProps) => {
   return (
-    <InputWrapper>
+    <InputWrapper
+      sx={{
+        ...style,
+        ...(focusResizeWidth && {
+          "&:focus-within": {
+            width:
+              style?.width > 20 ? `calc(${style?.width - 5}%)` : style?.width,
+          },
+        }),
+      }}>
       <SearchIcon size="20" />
       <InputBase
-        placeholder="Explore"
+        placeholder={placeholder ?? "Explore"}
         inputProps={{ "aria-label": "search" }}
+        onChange={onChange}
         sx={{
           width: "100%",
           fontSize: "15px!important",

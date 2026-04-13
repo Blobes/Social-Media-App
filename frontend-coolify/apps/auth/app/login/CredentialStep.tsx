@@ -3,24 +3,18 @@
 import React from "react";
 import { Stack, Typography } from "@mui/material";
 import { useGlobalContext } from "@repo/shared-state";
-import { AppButton, TextInput, InlineMsg, ProgressIcon } from "@repo/shared-ui";
+import {
+  AppButton,
+  TextInput,
+  InlineMsg,
+  ProgressIcon,
+  DisplayList as CountryList,
+} from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
-import { DrawerRef, GenericStyle } from "@repo/core";
+import { ICountryItem, LISTS, ListType } from "@repo/core";
 import { Mail } from "lucide-react";
 import { useCredential } from "./hooks/useCredential";
-import { StepName } from "./Login";
-
-interface StepProps {
-  modalRef?: React.RefObject<DrawerRef>;
-  step?: StepName;
-  setStep?: (step: StepName) => void;
-  existingInput?: string;
-  setCredential?: (credential: string) => void;
-  style?: {
-    headline?: GenericStyle;
-    tagline?: GenericStyle;
-  };
-}
+import { StepProps } from "../types";
 
 export const CredentialStep: React.FC<StepProps> = ({
   setStep,
@@ -34,12 +28,15 @@ export const CredentialStep: React.FC<StepProps> = ({
   // Use the controller
   const {
     input,
+    setInput,
     validity,
     validationMsg,
     isAuthLoading,
     handleChange,
     handleSubmit,
     isSubmitDisabled,
+    countryMenuRef,
+    validateAndSet,
   } = useCredential({ existingInput, setStep, setCredential });
 
   return (
@@ -71,7 +68,7 @@ export const CredentialStep: React.FC<StepProps> = ({
         component="form"
         onSubmit={handleSubmit}>
         <TextInput
-          defaultValue={input}
+          value={input}
           label="Email, Phone or Username"
           placeholder="Email address, phone or username"
           onChange={handleChange}
@@ -84,6 +81,34 @@ export const CredentialStep: React.FC<StepProps> = ({
             />
           }
           affixPosition="end"
+        />
+
+        {/* Country list popup */}
+        <CountryList<ICountryItem>
+          menuRef={countryMenuRef}
+          list={LISTS().COUNTRY_LIST}
+          listName={ListType.COUNTRY}
+          showSearchBar
+          stickToScreen={false}
+          heightThreshold={65}
+          style={{
+            item: {
+              padding: theme.boxSpacing(4, 8),
+              gap: "10px",
+              borderRadius: 0,
+              "& svg": { width: "16px", height: "16px" },
+            },
+            container: {
+              padding: 0,
+            },
+          }}
+          onItemClick={(item) => {
+            if (item?.code) {
+              const newValue = `(+${item.code.replace(/\+/g, "")}) `;
+              setInput(newValue);
+              validateAndSet(newValue);
+            }
+          }}
         />
 
         <AppButton

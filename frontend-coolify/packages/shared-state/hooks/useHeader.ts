@@ -8,8 +8,8 @@ import { useMisc } from "./useMisc";
 import { usePage } from "./usePage";
 import { usePageScroll } from "./usePageScroll";
 import { useDragClose } from "./useDrag";
-import { MenuRef } from "@repo/core";
-import { clientRoutes, dragToCloseConfig } from "@repo/helpers";
+import { CLIENT_ROUTES, MenuRef } from "@repo/core";
+import { dragToCloseConfig } from "@repo/helpers";
 
 export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
   const { authStatus, authUser } = useGlobalContext();
@@ -30,12 +30,12 @@ export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
 
   const handleNotification = (e: React.MouseEvent) => {
     e.preventDefault();
-    setLastPage(clientRoutes.notifications);
-    router.push(clientRoutes.notifications.path);
+    setLastPage(CLIENT_ROUTES.notifications);
+    router.push(CLIENT_ROUTES.notifications.path);
   };
 
   const handleLogo = () => {
-    navigateTo(clientRoutes.home);
+    navigateTo(CLIENT_ROUTES.home);
   };
 
   interface AvartarParams {

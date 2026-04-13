@@ -2,6 +2,10 @@
 
 import { InputType, InputValidation } from "@repo/core";
 
+/**
+ * Validates an email address based on general format, length of local/domain
+ * parts, and common domain restrictions (e.g., no double dots).
+ */
 export function validateEmail(email: string): InputValidation {
   if (!email || email.trim().length === 0) {
     return { status: "INVALID", message: "Email is required." };
@@ -43,7 +47,61 @@ export function validateEmail(email: string): InputValidation {
   return { status: "VALID", message: "Valid email address." };
 }
 
-export function validatePassword(password: string): InputValidation {
+/**
+ * Validates a phone number:
+ * 1. Checks if it contains only valid characters (digits, +, -, (, ), space)
+ * 2. Ensures a minimum length (standard is ~10 digits globally for mobile)
+ * 3. Normalizes briefly to check digit count
+ */
+export const validatePhone = (phone: string): InputValidation => {
+  const input = phone ?? "";
+  const trimmed = input.trim();
+
+  if (trimmed.length === 0) {
+    return {
+      status: "INVALID",
+      message: "Phone number is required.",
+    };
+  }
+
+  // Regex for allowed characters in a phone string
+  const validChars = /^[\d\s\-+()]+$/;
+  if (!validChars.test(trimmed)) {
+    return {
+      status: "INVALID",
+      message: "Phone number contains invalid characters.",
+    };
+  }
+
+  // Strip everything but numbers to check actual length
+  const digitCount = trimmed.replace(/\D/g, "").length;
+
+  if (digitCount < 10) {
+    return {
+      status: "INVALID",
+      message: "Phone number is too short. (Minimum 10 digits)",
+    };
+  }
+
+  if (digitCount > 15) {
+    return {
+      status: "INVALID",
+      message: "Phone number is too long. (Maximum 15 digits)",
+    };
+  }
+
+  return {
+    status: "VALID",
+    message: "Valid phone number format.",
+  };
+};
+
+/**
+ * Validates a password's strength:
+ * Requires min 8 characters, at least one uppercase, one lowercase,
+ * one number, and one special character.
+ */
+export const validatePassword = (password: string): InputValidation => {
   const input = password ?? "";
 
   if (input.length === 0) {
@@ -92,100 +150,123 @@ export function validatePassword(password: string): InputValidation {
     status: "VALID",
     message: "Strong password.",
   };
-}
+};
+
+/**
+ * Validates a username based on strict rules:
+ * 1. Must be 5-25 characters.
+ * 2. Must start with a letter.
+ * 3. Can contain letters, numbers, and underscores only.
+ * 4. No spaces, hyphens, brackets, or other special characters.
+ */
+export const validateUsername = (username: string): InputValidation => {
+  const value = username.trim();
+
+  // Rule 3 (Length): 3 to 25 characters
+  if (value.length < 3 || value.length > 25) {
+    return {
+      status: "INVALID",
+      message: "Username must be between 3 and 25 characters.",
+    };
+  }
+  // Rule 2: Must start with a letter
+  const startsWithLetter = /^[a-zA-Z]/.test(value);
+  if (!startsWithLetter) {
+    return {
+      status: "INVALID",
+      message: "Username must start with a letter.",
+    };
+  }
+  // Rule 1 & 3: Letters, numbers, underscores only. No spaces/hyphens/brackets.
+  // ^[a-zA-Z] (starts with letter)
+  // [a-zA-Z0-9_]* (followed by letters, numbers, or underscores only)
+  // $ (end of string)
+  const validPattern = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+  if (!validPattern.test(value)) {
+    return {
+      status: "INVALID",
+      message:
+        "Only letters, numbers, and underscores are allowed as username.",
+    };
+  }
+
+  return { status: "VALID", message: "Username format is valid." };
+};
 
 interface Input {
   value: string;
   type: InputType;
 }
-export function validateInputs(inputs: Input[]): boolean {
-  const valResults: InputValidation[] = [];
-
-  let result;
-  inputs.forEach((input) => {
-    switch (input.type) {
-      case "EMAIL":
-        result = validateEmail(input.value);
-        valResults.push({
-          type: "EMAIL",
-          ...result,
-        });
-
-        break;
-      case "PASSWORD":
-        result = validatePassword(input.value);
-        valResults.push({
-          type: "PASSWORD",
-          ...result,
-        });
-    }
-  });
-
-  return valResults.some((res) => res.status.includes("INVALID"));
-}
-
+/**
+ * Dynamically detects the input type (Email, Phone, or Username) based on
+ * the string content and returns its specific validation status and message.
+ */
 export const getInputValidity = (input: string): InputValidation => {
   const value = input.trim();
 
   // Handle Empty State
-  if (!value) {
+  if (!value || value.length < 3) {
     return {
-      type: "USERNAME",
+      type: "UNKNOWN",
       status: "INVALID",
-      message: "Please enter your credentials.",
+      message: !value
+        ? "Credential is required"
+        : "Credential can't be less than 3 characters.",
     };
   }
-
-  // 1. Check for NUMBER
-  // Purely numeric input (no special characters or letters)
-  const isPureNumber = /^\d+$/.test(value);
-  if (isPureNumber && value.length < 7) {
-    return {
-      type: "NUMBER",
-      status: "VALID",
-      message: "Detected numeric input.",
-    };
-  }
-
-  // 2. Check for EMAIL
-  // If it contains '@', prioritize email logic
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // 1. Detect and Validate EMAIL
   if (value.includes("@")) {
-    const isValid = emailRegex.test(value);
     return {
+      ...validateEmail(value),
       type: "EMAIL",
-      status: isValid ? "VALID" : "INVALID",
-      message: isValid
-        ? "Email format is valid."
-        : "Please enter a valid email address.",
     };
   }
-
-  // 3. Check for PHONE
-  // Detects if it starts with '+' or contains phone-like characters
-  const hasPhoneChars = /^[\d\s\-+()]+$/.test(value);
-  const startsWithPhoneMarker = value.startsWith("+") || /^\d/.test(value);
-
-  if (hasPhoneChars && startsWithPhoneMarker && value.length >= 7) {
-    const phoneRegex = /^\+?[\d\s\-()]{10,}$/;
-    const isValid = phoneRegex.test(value);
+  // 2. Detect and Validate PHONE
+  const hasDigits = /\d/.test(value);
+  const hasLetters = /[a-zA-Z]/.test(value);
+  const isPhoneSymbolsOnly = /^[\d\s\-\(\)\+]+$/.test(value);
+  if (hasDigits && !hasLetters && isPhoneSymbolsOnly) {
     return {
+      ...validatePhone(value),
       type: "PHONE",
-      status: isValid ? "VALID" : "INVALID",
-      message: isValid
-        ? "Phone number format is valid."
-        : "Invalid phone number format.",
     };
   }
 
-  // 4. Fallback to USERNAME
-  // If it doesn't match the specific patterns above, it is treated as a username
+  // 3. Fallback to USERNAME (Requires an alphabet)
   return {
+    ...validateUsername(value),
     type: "USERNAME",
-    status: value.length >= 3 ? "VALID" : "INVALID",
-    message:
-      value.length >= 3
-        ? "Username format is valid."
-        : "Username must be at least 3 characters.",
   };
+};
+
+/**
+ * Bulk validation helper that iterates through an array of inputs and
+ * returns true if any single input fails its respective validation type.
+ */
+export const validateInputs = (inputs: Input[]): boolean => {
+  const valResults: InputValidation[] = [];
+
+  inputs.forEach((input) => {
+    let result: InputValidation;
+
+    switch (input.type) {
+      case "EMAIL":
+        result = validateEmail(input.value);
+        break;
+      case "PASSWORD":
+        result = validatePassword(input.value);
+        break;
+      case "PHONE":
+        result = validatePhone(input.value);
+        break;
+      case "USERNAME":
+        result = validateUsername(input.value);
+        break;
+      default:
+        result = { status: "VALID", message: "" };
+    }
+    valResults.push({ type: input.type, ...result });
+  });
+
+  return valResults.some((res) => res.status === "INVALID");
 };

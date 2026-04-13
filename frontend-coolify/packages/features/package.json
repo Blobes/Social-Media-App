@@ -12,9 +12,9 @@
     "@repo/shared-ui": "workspace:*",
     "@repo/shared-state": "workspace:*",
     "@repo/helpers": "workspace:*",
-    "@repo/theme": "workspace:*",
     "@repo/core": "workspace:*",
     "@repo/assets": "workspace:*",
+    "framer-motion": "catalog:",
     "@tanstack/react-query": "catalog:"
   },
   "peerDependencies": {

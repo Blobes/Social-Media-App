@@ -19,6 +19,7 @@ const baseUIStyles = createTheme({
         },
         svg: {
           stroke: theme.palette.gray?.[200],
+          flexShrink: "0!important",
         },
       }),
     },
@@ -47,7 +48,7 @@ const baseUIStyles = createTheme({
           borderRadius: theme.radius.full,
           alignSelf: "flex-start",
           height: "40px",
-          fontWeight: "600",
+          fontWeight: "500",
         }),
         contained: ({ theme }) => ({
           backgroundColor: theme.palette.primary.main,
@@ -56,7 +57,9 @@ const baseUIStyles = createTheme({
           "&:disabled": {
             backgroundColor: theme.palette.primary.main,
             color: theme.fixedColors.gray50,
-            opacity: 0.6,
+            opacity: 0.8,
+            pointerEvents: "auto",
+            cursor: "not-allowed",
           },
         }),
         outlined: ({ theme }) => ({
@@ -95,6 +98,7 @@ const baseUIStyles = createTheme({
         root: ({ theme }) => ({
           padding: theme.boxSpacing(3),
           margin: 0,
+          "&:hover": { backgroundColor: theme.fixedColors.pTrans },
         }),
       },
     },
@@ -216,19 +220,22 @@ const baseUIStyles = createTheme({
           "--TextField-default": theme.palette.gray[50],
           "--TextField-success": theme.palette.info.main,
           "--TextField-error": theme.palette.error.main,
-          "& .MuiInputBase-input": { fontSize: "15px" },
+          "& .MuiInputBase-input": { fontSize: "16px" },
           "& label": {
-            fontSize: "14px",
+            fontSize: "16px",
             transform: "translate(14px, 14px)",
           },
           "& label.Mui-error": { color: "var(--TextField-error)" },
           "& label.Mui-focused, & label.MuiInputLabel-shrink": {
-            transform: "translate(14px, -9px) scale(0.95)",
+            transform: "translate(6px, -16px) scale(0.9)",
+            padding: theme.boxSpacing(2, 4),
+            backgroundColor: theme.palette.gray[0],
           },
           "& .MuiFormHelperText-root": {
-            fontSize: "13px",
+            fontSize: "14px",
             lineHeight: "1.2em",
-            margin: theme.boxSpacing(2, 0, 0, 0),
+            fontWeight: "500",
+            margin: theme.boxSpacing(4, 0, 0, 0),
           },
         }),
       },

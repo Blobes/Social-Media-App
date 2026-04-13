@@ -9,7 +9,7 @@ export default function OfflineLayout({
 }>) {
   return (
     <BaseLayout>
-      <ClientOnly>
+      <ClientOnly showOfflineUI={false} showNetworkErrorUI={false}>
         <Wrapper>{children}</Wrapper>
       </ClientOnly>
     </BaseLayout>

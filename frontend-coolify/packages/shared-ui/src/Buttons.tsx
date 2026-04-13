@@ -41,11 +41,11 @@ export const AppButton = ({
     alignItems: "center",
   };
   const textVarDefaultStyle = {
-    fontSize: "14px",
-    fontWeight: "800",
+    fontSize: "15px",
+    fontWeight: "600",
     height: "unset",
-    color: theme.palette.primary.dark,
-    padding: theme.boxSpacing(0, 3),
+    color: theme.palette.primary.light,
+    padding: theme.boxSpacing(0, 4),
     minWidth: "unset",
     alignSelf: "unset",
     "&:hover": {

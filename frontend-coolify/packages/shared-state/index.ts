@@ -1,6 +1,6 @@
 export * from "./GlobalContext";
 export * from "./hooks/useColor";
-export * from "./hooks/useDateTime";
+export * from "./hooks/useDate";
 export * from "./hooks/useDrag";
 export * from "./hooks/useEvents";
 export * from "./hooks/useMisc";
@@ -8,6 +8,3 @@ export * from "./hooks/usePage";
 export * from "./hooks/usePageScroll";
 export * from "./hooks/useSnackbar";
 export * from "./hooks/useOffline";
-export * from "./hooks/useNavLists";
-export * from "./hooks/post/useCached";
-export * from "./hooks/post/usePostLike";

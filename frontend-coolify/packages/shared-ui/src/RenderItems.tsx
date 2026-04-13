@@ -1,46 +1,54 @@
 "use client";
 
 import React, { Fragment } from "react";
-import { Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { GenericStyle, INavItem, IPage } from "@repo/core";
+import { GenericStyle, ICountryItem, IMenuItem, IPage } from "@repo/core";
 import { matchPaths } from "@repo/helpers";
 import { usePathname } from "next/navigation";
 import { AnchorLink } from "./Buttons";
 
 // Props for the reusable nav renderer
-export interface RenderListProps {
-  list: INavItem[];
-  itemAction?: () => void;
+export interface RenderListProps<T extends IMenuItem> {
+  list: T[];
+  onItemClick?: (item?: IMenuItem & T) => void;
   style?: GenericStyle;
-  showCurrentPage?: boolean;
-  hook: () => { navigateTo: (savePage: IPage) => void };
+  showActiveItem?: boolean;
+  activeItem?: string;
+  usePage?: () => { navigateTo: (savePage: IPage) => void };
 }
-// Renders an advance nav list
-export const RenderItemList: React.FC<RenderListProps> = ({
+
+export const RenderItemList = <T extends IMenuItem>({
   list,
-  itemAction,
+  onItemClick,
   style = {},
-  showCurrentPage = true,
-  hook,
-}) => {
+  showActiveItem = true,
+  activeItem,
+  usePage,
+}: RenderListProps<T>) => {
   const theme = useTheme();
   const pathname = usePathname();
+  const hook = usePage ? usePage() : { navigateTo: () => {} };
+  const { navigateTo } = hook; // Call hook at top level to avoid conditional hook calls
+
   const { fontSize, fontWeight, color, ...restStyle } = style;
 
   const itemStyle: GenericStyle = {
     alignItems: "center",
+    flexDirection: "row",
+    cursor: "pointer",
     gap: theme.gap(3),
     padding: theme.boxSpacing(2, 6),
     borderRadius: theme.radius.full,
+    transition: "all 0.2s ease",
     "&:hover": {
       backgroundColor: theme.palette.gray.trans[1],
       outline: "none",
     },
     title: {
-      fontSize: `${fontSize ?? "15px"}!important`,
-      fontWeight: `${fontWeight ?? "600"}!important`,
-      color: `${color ?? theme.palette.gray[300]}!important`,
+      fontSize: (fontSize ?? "15px") + "!important",
+      fontWeight: (fontWeight ?? "600") + "!important",
+      color: (color ?? theme.palette.gray[300]) + "!important",
       "&:hover": { ...restStyle["&:hover"] },
     },
     ...restStyle,
@@ -49,39 +57,55 @@ export const RenderItemList: React.FC<RenderListProps> = ({
   return (
     <>
       {list.map((item, index) => {
-        if (!item.title && item.element) {
-          // Render the "element" alone if there's no title
+        const isLink = item.type === "LINK" || (!item.type && item.url);
+        const isActive = isLink
+          ? matchPaths(pathname, item.url ?? "")
+          : activeItem
+            ? Object.values(item).some(
+                (val) =>
+                  typeof val === "string" &&
+                  val.toLowerCase() === activeItem.toLowerCase(),
+              )
+            : false;
+
+        // Shared Click Handler
+        const handleClick = () => {
+          if (isLink && usePage) {
+            navigateTo({
+              title: item.title ?? "",
+              path: item.url ?? "",
+            } as IPage);
+          }
+          if (item.action) item.action();
+          if (onItemClick) (onItemClick as (item: IMenuItem) => void)(item);
+        };
+
+        // If it's just a raw element with no wrapper logic needed
+        if (item.type === "COMPONENT")
           return <Fragment key={index}>{item.element}</Fragment>;
-        }
-        const isCurrentPage = matchPaths(pathname, item.url ?? "");
+
+        // Wrapper Component: Use AnchorLink for links, div/button for actions
+        const Wrapper = (isLink ? AnchorLink : Stack) as React.ElementType;
+
         return (
-          <AnchorLink
+          <Wrapper
             key={index}
-            url={item.url ?? "#"}
-            onClick={() => {
-              const page = {
-                title: item.title,
-                path: item.url ?? "#",
-              };
-              hook().navigateTo(page as IPage);
-              if (item.action) item.action();
-              if (itemAction) itemAction();
-            }}
-            aria-current={isCurrentPage ? "page" : undefined}
-            role="link"
-            tabIndex={0}
-            style={{
+            {...(isLink ? { url: item.url ?? "" } : {})}
+            onClick={handleClick}
+            sx={{
               backgroundColor:
-                showCurrentPage && isCurrentPage
+                showActiveItem && isActive
                   ? theme.palette.gray.trans[1]
-                  : "none",
+                  : "transparent",
               ...itemStyle,
             }}>
+            {/* Render Flag/Icon element if it exists */}
             {item.element && item.element}
+
             {item.title && (
               <Typography sx={{ ...itemStyle.title }}>{item.title}</Typography>
             )}
-          </AnchorLink>
+          </Wrapper>
         );
       })}
     </>

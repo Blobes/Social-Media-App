@@ -6,10 +6,10 @@ import { useTheme } from "@mui/material/styles";
 import { useGlobalContext, useMisc, usePage } from "@repo/shared-state";
 import { DesktopNav, MobileNav } from "./Nav";
 import { AnchorLink, AppButton } from "@repo/shared-ui";
-import { clientRoutes } from "@repo/helpers";
 import Image from "next/image";
 import { Menu } from "lucide-react";
 import { img } from "@repo/assets";
+import { CLIENT_ROUTES } from "@repo/core";
 
 export const Header: React.FC = () => {
   const { authStatus } = useGlobalContext();
@@ -65,8 +65,8 @@ export const Header: React.FC = () => {
       }}>
       {/* Logo */}
       <AnchorLink
-        url={clientRoutes.about.path}
-        onClick={() => navigateTo(clientRoutes.about)}>
+        url={CLIENT_ROUTES.about.path}
+        onClick={() => navigateTo(CLIENT_ROUTES.about)}>
         <Image
           src={img.logo}
           alt="logo"
@@ -90,11 +90,11 @@ export const Header: React.FC = () => {
 
           {isLoggedIn && (
             <AppButton
-              href={clientRoutes.home.path}
+              href={CLIENT_ROUTES.home.path}
               variant="outlined"
               style={{ fontSize: "14px" }}
               onClick={() =>
-                navigateTo(clientRoutes.home, { type: "push", loadPage: true })
+                navigateTo(CLIENT_ROUTES.home, { type: "push", loadPage: true })
               }>
               Go to funstakes.com
             </AppButton>
@@ -103,10 +103,10 @@ export const Header: React.FC = () => {
           {authStatus === "UNAUTHENTICATED" && (
             <Stack direction="row" alignItems="center" spacing={theme.gap(0)}>
               <AppButton
-                href={clientRoutes.signup.path}
+                href={CLIENT_ROUTES.signup.path}
                 style={{ fontSize: "14px" }}
                 onClick={() =>
-                  navigateTo(clientRoutes.signup, {
+                  navigateTo(CLIENT_ROUTES.signup, {
                     type: "push",
                     savePage: false,
                     loadPage: true,
@@ -115,11 +115,11 @@ export const Header: React.FC = () => {
                 Sign up
               </AppButton>
               <AppButton
-                href={clientRoutes.login.path}
+                href={CLIENT_ROUTES.login.path}
                 variant="outlined"
                 style={{ fontSize: "14px" }}
                 onClick={() =>
-                  navigateTo(clientRoutes.login, {
+                  navigateTo(CLIENT_ROUTES.login, {
                     type: "push",
                     savePage: false,
                     loadPage: true,

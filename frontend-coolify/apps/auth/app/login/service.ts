@@ -1,5 +1,7 @@
-import { apiClient, serverApi } from "@repo/helpers";
-import { IUser, ISinglePayload } from "@repo/core";
+"use client";
+
+import { apiClient } from "@repo/helpers";
+import { IUser, ISinglePayload, SERVER_API } from "@repo/core";
 
 interface LoginCredentials {
   email: string;
@@ -14,14 +16,14 @@ interface checkResponse extends ISinglePayload<IUser> {
 
 export const LoginService = () => {
   const checkEmail = async (email: string): Promise<checkResponse> => {
-    return await apiClient<checkResponse>(serverApi.checkEmail, {
+    return await apiClient<checkResponse>(SERVER_API.checkEmail, {
       method: "POST",
       body: JSON.stringify({ email }),
     });
   };
 
   const checkPhone = async (phone: string): Promise<checkResponse> => {
-    return await apiClient<checkResponse>(serverApi.checkPhone, {
+    return await apiClient<checkResponse>(SERVER_API.checkPhone, {
       method: "POST",
       body: JSON.stringify({ phone: phone }),
     });
@@ -32,7 +34,7 @@ export const LoginService = () => {
     username: string,
     purpose: PurposeType = "LOGIN",
   ): Promise<checkResponse> => {
-    return await apiClient<checkResponse>(serverApi.checkUsername, {
+    return await apiClient<checkResponse>(SERVER_API.checkUsername, {
       method: "POST",
       body: JSON.stringify({ username, usedFor: purpose }),
     });
@@ -41,7 +43,7 @@ export const LoginService = () => {
   const login = async (
     credentials: LoginCredentials,
   ): Promise<LoginResponse> => {
-    return await apiClient<LoginResponse>(serverApi.login, {
+    return await apiClient<LoginResponse>(SERVER_API.login, {
       method: "POST",
       body: JSON.stringify(credentials),
     });

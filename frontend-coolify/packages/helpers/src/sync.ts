@@ -1,7 +1,6 @@
 "use client";
 
 import { apiClient } from "./apiClient";
-import { serverApi } from "./routes";
 
 // POST LIKE HANDLING HELPERS
 const pendingLikesKey = "pendingLikes";
@@ -32,7 +31,7 @@ export const enqueueLike = (postId: string, finalState: boolean) => {
 };
 
 let isSyncing = false;
-export const processQueue = async (authStatus: string) => {
+export const processQueue = async (authStatus: string, SERVER_API: any) => {
   //  If already syncing, don't start another loop
   if (isSyncing || authStatus !== "AUTHENTICATED") return;
 
@@ -46,7 +45,7 @@ export const processQueue = async (authStatus: string) => {
   try {
     for (const postId of postIds) {
       try {
-        await apiClient(serverApi.likeGist(postId), { method: "PUT" });
+        await apiClient(SERVER_API.likeGist(postId), { method: "PUT" });
 
         // Use a functional update style for the queue to prevent overwriting
         const currentQueue = JSON.parse(

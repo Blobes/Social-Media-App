@@ -1,5 +1,7 @@
+"use client";
+
+import { clearLoginLock, getLockRemaining } from "@repo/features";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { getLockRemaining, clearLoginLock } from "@repo/helpers";
 
 interface CountdownResult {
   remainingSec: number;
@@ -20,9 +22,7 @@ export const useLockCountdown = (
     intervalRef.current = null;
     setRemainingSec(0);
     clearLoginLock();
-
-    if (onComplete) onComplete(); // Notify the controller
-  }, [onComplete]);
+  }, []);
 
   useEffect(() => {
     if (!lockTimestamp) return;
@@ -33,6 +33,7 @@ export const useLockCountdown = (
       const remaining = getLockRemaining(lockTime, lockoutMin);
       if (remaining <= 0) {
         clearLock();
+        if (onComplete) onComplete(); // Notify the controller
       } else {
         setRemainingSec(remaining);
       }
@@ -44,7 +45,7 @@ export const useLockCountdown = (
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [lockTimestamp, lockoutMin, clearLock]);
+  }, [lockTimestamp, lockoutMin, clearLock, onComplete]);
 
   return {
     remainingSec,

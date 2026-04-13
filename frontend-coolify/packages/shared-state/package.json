@@ -10,16 +10,15 @@
   "dependencies": {
     "@repo/assets": "workspace:*",
     "@repo/helpers": "workspace:*",
-    "@repo/theme": "workspace:*",
     "@repo/core": "workspace:*"
   },
   "peerDependencies": {
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "@mui/material": "catalog:",
+    "lucide-react": "catalog:",
     "colorthief": "catalog:",
     "idb-keyval": "catalog:",
-    "lucide-react": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"

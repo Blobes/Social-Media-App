@@ -1,5 +1,6 @@
 "use client";
 
+import { SystemStyleObject } from "@mui/system";
 import { Theme } from "@mui/material/styles";
 import { FetchStatus } from "./payloads/modified";
 import { Direction } from "./ui-props";
@@ -16,24 +17,27 @@ export type NetworkStatus = "STABLE" | "UNSTABLE" | "OFFLINE" | "UNKNOWN";
 export type UIMode = "ONLINE" | "OFFLINE";
 export type DateType = "SHORTENED" | "COMPLETE" | "DATE-ONLY";
 
-export type InputType = "EMAIL" | "PHONE" | "PASSWORD" | "USERNAME" | "NUMBER";
+export type InputType =
+  | "EMAIL"
+  | "PHONE"
+  | "PASSWORD"
+  | "USERNAME"
+  | "NUMBER"
+  | "UNKNOWN";
 export type InputStatus = "VALID" | "INVALID";
 
-export type GenericObject<T> = {
-  [key: string]: T | GenericObject<T>;
+// export type GenericObject<T> = {
+//   [key: string]: T | GenericObject<T>;
+// };
+
+export type GenericStyle = SystemStyleObject<Theme> & {
+  [key: string]: any;
 };
 
-export type GenericStyle = {
-  // Each key can be a CSS property, a nested object, or a theme function
-  [key: string]:
-    | React.CSSProperties // Standard CSS
-    | ((theme: Theme) => React.CSSProperties | object) // Theme-aware function
-    | GenericStyle // Recursive nesting
-    | any; // Fallback for MUI-specific keys (e.g. "&:hover")
-};
-
-export interface INavItem {
+export interface IMenuItem {
+  id?: string;
   title?: string;
+  type?: "LINK" | "BUTTON" | "COMPONENT";
   element?: React.ReactNode;
   url?: string;
   action?: () => void;
@@ -41,11 +45,11 @@ export interface INavItem {
 
 export interface INavBar {
   setLastPage: (page: IPage) => void;
-  list: INavItem[];
+  list: IMenuItem[];
 }
 
 export interface IListItem {
-  item: React.ReactNode | string;
+  item: React.ReactNode;
   action?: () => void | null;
 }
 
@@ -61,6 +65,7 @@ export interface IMessage {
     label: string;
     action: () => void;
   };
+  icon?: React.ReactNode;
 }
 
 export interface ISnackBarMsg {

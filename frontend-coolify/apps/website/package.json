@@ -20,7 +20,6 @@
     "@repo/features": "workspace:*",
     "@repo/shared-state": "workspace:*",
     "@repo/helpers": "workspace:*",
-    "@repo/theme": "workspace:*",
     "@repo/core": "workspace:*",
     "@repo/assets": "workspace:*"
   },
