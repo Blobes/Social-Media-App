@@ -21,6 +21,6 @@ export interface StepProps {
   step?: StepName;
   setStep?: (step: StepName) => void;
   existingInput?: string;
-  setCredential?: (credential: string) => void;
+  setIdentifier?: (credential: string) => void;
   style?: StyleProps;
 }

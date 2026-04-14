@@ -17,7 +17,7 @@ import { clearLoginLock, formatRemainingTime } from "@repo/features";
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MIN = 2;
 
-export const useLogin = ({ email, setStep }: any) => {
+export const useLogin = ({ identifier, setStep }: any) => {
   const { login } = LoginService();
   const theme = useTheme();
 
@@ -139,7 +139,7 @@ export const useLogin = ({ email, setStep }: any) => {
     if (isLocked) return;
     setAuthLoading(true);
     try {
-      const res = await login({ email, password });
+      const res = await login({ identifier, password });
 
       if (res.status === "SUCCESS") {
         // Cleanup cookie on success

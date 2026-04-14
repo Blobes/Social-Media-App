@@ -8,7 +8,7 @@ import { Stack } from "@mui/material";
 import Image from "next/image";
 import { img } from "@repo/assets";
 import { PasswordStep } from "./PasswordStep";
-import { CredentialStep } from "./CredentialStep";
+import { IdentifierStep } from "./IdentifierStep";
 import { StepName, StepperProps } from "../types";
 
 export const Login: React.FC<StepperProps> = ({ style = {} }) => {
@@ -20,11 +20,11 @@ export const Login: React.FC<StepperProps> = ({ style = {} }) => {
     {
       name: "CREDENTIAL",
       element: (
-        <CredentialStep
+        <IdentifierStep
           step={currStep}
           setStep={setCurrStep}
           existingInput={input}
-          setCredential={setInput}
+          setIdentifier={setInput}
           style={{
             headline: style?.headline,
             tagline: style?.tagline,

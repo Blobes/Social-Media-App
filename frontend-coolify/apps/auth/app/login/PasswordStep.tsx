@@ -12,8 +12,8 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { Pencil } from "lucide-react";
 import { useLogin } from "./hooks/useLogin";
-import { StepName } from "./Login";
 import { GenericStyle } from "@repo/core";
+import { StepName } from "../types";
 
 interface StepProps {
   credential: string;
@@ -115,7 +115,7 @@ export const PasswordStep: React.FC<StepProps> = ({
             placeholder="Password"
             onChange={onPasswordChange}
             helperText={errorMsg}
-            error={password === "" && passwordValidity === "invalid"}
+            error={password === "" && passwordValidity === "INVALID"}
           />
         </Stack>
 
@@ -129,7 +129,7 @@ export const PasswordStep: React.FC<StepProps> = ({
           }}
           options={{
             disabled:
-              passwordValidity === "invalid" ||
+              passwordValidity === "INVALID" ||
               password === "" ||
               isLocked || // Now using the boolean from controller
               isAuthLoading,

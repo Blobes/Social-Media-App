@@ -4,7 +4,7 @@ import { apiClient } from "@repo/helpers";
 import { IUser, ISinglePayload, SERVER_API } from "@repo/core";
 
 interface LoginCredentials {
-  email: string;
+  identifier: string;
   password: string;
 }
 interface LoginResponse extends ISinglePayload<IUser> {

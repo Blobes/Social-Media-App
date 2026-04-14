@@ -13,13 +13,13 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { ICountryItem, LISTS, ListType } from "@repo/core";
 import { Mail } from "lucide-react";
-import { useCredential } from "./hooks/useCredential";
+import { useIdentifier } from "./hooks/useIdentifier";
 import { StepProps } from "../types";
 
-export const CredentialStep: React.FC<StepProps> = ({
+export const IdentifierStep: React.FC<StepProps> = ({
   setStep,
   existingInput,
-  setCredential,
+  setIdentifier,
   style = {},
 }) => {
   const theme = useTheme();
@@ -37,7 +37,7 @@ export const CredentialStep: React.FC<StepProps> = ({
     isSubmitDisabled,
     countryMenuRef,
     validateAndSet,
-  } = useCredential({ existingInput, setStep, setCredential });
+  } = useIdentifier({ existingInput, setStep, setIdentifier });
 
   return (
     <>

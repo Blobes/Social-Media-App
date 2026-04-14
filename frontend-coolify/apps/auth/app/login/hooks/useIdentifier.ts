@@ -10,18 +10,18 @@ import {
   sanitizePhoneNumber,
 } from "@repo/helpers";
 import { AccountStatus, InputStatus, MenuRef } from "@repo/core";
-import { StepName } from "../Login";
+import { StepName } from "../../types";
 
 interface CredentialProps {
   existingInput?: string;
   setStep?: (step: StepName) => void;
-  setCredential?: (credential: string) => void;
+  setIdentifier?: (credential: string) => void;
 }
 
-export const useCredential = ({
+export const useIdentifier = ({
   existingInput,
   setStep,
-  setCredential,
+  setIdentifier: setCredential,
 }: CredentialProps) => {
   const { checkEmail, checkPhone, checkUsername } = LoginService();
   const { isAuthLoading, setAuthLoading, setInlineMsg } = useGlobalContext();
