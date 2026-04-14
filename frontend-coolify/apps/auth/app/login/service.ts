@@ -3,6 +3,8 @@
 import { apiClient } from "@repo/helpers";
 import { IUser, ISinglePayload, SERVER_API } from "@repo/core";
 
+type PurposeType = "REGISTRATION" | "LOGIN";
+
 interface LoginCredentials {
   identifier: string;
   password: string;
@@ -29,7 +31,6 @@ export const LoginService = () => {
     });
   };
 
-  type PurposeType = "REGISTRATION" | "LOGIN";
   const checkUsername = async (
     username: string,
     purpose: PurposeType = "LOGIN",

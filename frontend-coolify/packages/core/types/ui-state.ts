@@ -10,6 +10,7 @@ export type AuthStatus =
   | "UNKNOWN"
   | "AUTHENTICATED"
   | "UNAUTHENTICATED"
+  | "DEACTIVATED"
   | "PENDING"
   | "ERROR";
 

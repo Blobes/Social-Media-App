@@ -3,22 +3,23 @@
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { IStep } from "@repo/core";
-import { RestoreAccount, Stepper } from "@repo/shared-ui";
+import { Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
 import Image from "next/image";
 import { img } from "@repo/assets";
 import { PasswordStep } from "./PasswordStep";
 import { IdentifierStep } from "./IdentifierStep";
 import { StepName, StepperProps } from "../types";
+import { RestoreAccount } from "@repo/features";
 
 export const Login: React.FC<StepperProps> = ({ style = {} }) => {
   const theme = useTheme();
   const [input, setInput] = useState("");
-  const [currStep, setCurrStep] = useState<StepName>("CREDENTIAL");
+  const [currStep, setCurrStep] = useState<StepName>("IDENTIFIER");
 
   const steps: IStep<StepName>[] = [
     {
-      name: "CREDENTIAL",
+      name: "IDENTIFIER",
       element: (
         <IdentifierStep
           step={currStep}
@@ -33,7 +34,7 @@ export const Login: React.FC<StepperProps> = ({ style = {} }) => {
       ),
     },
     {
-      name: "RESTORE",
+      name: "RESTORE_ACCOUNT",
       element: (
         <RestoreAccount
           headline={`${input} is deactivated`}

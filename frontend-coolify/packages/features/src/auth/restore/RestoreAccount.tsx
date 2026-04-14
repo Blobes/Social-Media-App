@@ -2,8 +2,10 @@
 
 import React from "react";
 import { ShieldBan } from "lucide-react";
-import { Feedback } from "./Feedback";
 import { useTheme } from "@mui/material/styles";
+import { Feedback } from "@repo/shared-ui";
+import { usePage } from "@repo/shared-state";
+import { CLIENT_ROUTES } from "@repo/core";
 
 interface RestoreProps {
   headline?: string;
@@ -12,6 +14,8 @@ interface RestoreProps {
 
 export const RestoreAccount = ({ headline, tagline }: RestoreProps) => {
   const theme = useTheme();
+  const { navigateTo } = usePage();
+
   return (
     <Feedback
       headline={headline || "Account is Deactivated"}
@@ -31,7 +35,7 @@ export const RestoreAccount = ({ headline, tagline }: RestoreProps) => {
       icon={<ShieldBan />}
       primaryCta={{
         label: "Restore account",
-        action: () => alert("Will take user to account restoration screen"),
+        action: () => navigateTo(CLIENT_ROUTES.restoreAccount),
       }}
     />
   );

@@ -4,18 +4,27 @@ import { IMediaPayload } from "./media";
 import { IGistPayload, IStakePayload } from "./post";
 import { IUserPayload } from "./user";
 
-export type FetchStatus = "SUCCESS" | "ERROR" | "INFO" | "WARNING" | null;
+export type FetchStatus =
+  | "SUCCESS"
+  | "UNAUTHORIZED"
+  | "ERROR"
+  | "INFO"
+  | "WARNING"
+  | "DEACTIVATED"
+  | null;
 
 export interface ISinglePayload<T> {
   message: string;
   payload: T | null;
   status: FetchStatus;
+  httpStatus?: number;
 }
 
 export interface IListPayload<T> {
   message: string;
   payload: T[] | null;
   status: FetchStatus;
+  httpStatus?: number;
 }
 
 export interface IMedia extends IMediaPayload {

@@ -65,15 +65,19 @@ const loginUser = async (req: LoginRequest, res: Response): Promise<any> => {
       return res.status(200).json({
         status: "DEACTIVATED",
         message: `The account associated with this ${idType.toLowerCase()} is deactivated. Please restore it to log in.`,
-        payload: { userId: user._id },
+        payload: {
+          userId: user._id,
+          email: user.email,
+          phoneNumber: user.phoneNumber,
+        },
       });
     }
 
     // 3. Password Verification
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({
-        status: "ERROR",
+      return res.status(401).json({
+        status: "UNAUTHORIZED",
         message: `Incorrect password for this ${idType.toLowerCase()}.`,
         payload: null,
       });

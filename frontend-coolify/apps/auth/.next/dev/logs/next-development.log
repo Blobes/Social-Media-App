@@ -1,1 +1,300 @@
 [00:00:03.249] Server  LOG     ✓ Ready in 2.5s
+[00:38:53.769] Server  LOG     ✓ Compiled in 9ms
+[00:58:00.960] Server  LOG     ✓ Compiled in 520ms
+[00:58:07.767] Server  ERROR   ⨯ ./packages/shared-ui/index.ts:37:1
+Module not found: Can't resolve './src/RestoreAccount'
+  35 | export * from "./src/Skeletons";
+  36 | export * from "./src/PostObserver";
+> 37 | export * from "./src/RestoreAccount";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  38 | export * from "./src/carousel/Carousel";
+  39 | export * from "./src/carousel/Controls";
+  40 | export * from "./src/media/isolated/IsolatedMedia";
+
+
+
+Import traces:
+  #1 [Server Component]:
+    ./packages/shared-ui/index.ts
+    ./apps/auth/app/layout.tsx
+
+  #2 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #3 [Client Component SSR]:
+    ./packages/shared-ui/index.ts [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #4 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./apps/auth/app/login/Login.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #5 [Client Component SSR]:
+    ./packages/shared-ui/index.ts [Client Component SSR]
+    ./apps/auth/app/login/Login.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #6 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./packages/features/src/auth/restore/RestoreAccount.tsx [Client Component Browser]
+    ./packages/features/src/auth/restore/RestoreAccount.tsx [Server Component]
+    ./packages/features/index.ts [Server Component]
+    ./apps/auth/app/layout.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:58:07.768] Server  ERROR   ⨯ ./packages/shared-ui/index.ts:37:1
+Module not found: Can't resolve './src/RestoreAccount'
+  35 | export * from "./src/Skeletons";
+  36 | export * from "./src/PostObserver";
+> 37 | export * from "./src/RestoreAccount";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  38 | export * from "./src/carousel/Carousel";
+  39 | export * from "./src/carousel/Controls";
+  40 | export * from "./src/media/isolated/IsolatedMedia";
+
+
+
+Import traces:
+  #1 [Server Component]:
+    ./packages/shared-ui/index.ts
+    ./apps/auth/app/layout.tsx
+
+  #2 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #3 [Client Component SSR]:
+    ./packages/shared-ui/index.ts [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #4 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./apps/auth/app/login/Login.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #5 [Client Component SSR]:
+    ./packages/shared-ui/index.ts [Client Component SSR]
+    ./apps/auth/app/login/Login.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #6 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./packages/features/src/auth/restore/RestoreAccount.tsx [Client Component Browser]
+    ./packages/features/src/auth/restore/RestoreAccount.tsx [Server Component]
+    ./packages/features/index.ts [Server Component]
+    ./apps/auth/app/layout.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:58:07.771] Server  ERROR   ⨯ ./packages/shared-ui/index.ts:37:1
+Module not found: Can't resolve './src/RestoreAccount'
+  35 | export * from "./src/Skeletons";
+  36 | export * from "./src/PostObserver";
+> 37 | export * from "./src/RestoreAccount";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  38 | export * from "./src/carousel/Carousel";
+  39 | export * from "./src/carousel/Controls";
+  40 | export * from "./src/media/isolated/IsolatedMedia";
+
+
+
+Import traces:
+  #1 [Server Component]:
+    ./packages/shared-ui/index.ts
+    ./apps/auth/app/layout.tsx
+
+  #2 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #3 [Client Component SSR]:
+    ./packages/shared-ui/index.ts [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #4 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./apps/auth/app/login/Login.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #5 [Client Component SSR]:
+    ./packages/shared-ui/index.ts [Client Component SSR]
+    ./apps/auth/app/login/Login.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #6 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./packages/features/src/auth/restore/RestoreAccount.tsx [Client Component Browser]
+    ./packages/features/src/auth/restore/RestoreAccount.tsx [Server Component]
+    ./packages/features/index.ts [Server Component]
+    ./apps/auth/app/layout.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:58:07.773] Server  ERROR   ⨯ ./packages/shared-ui/index.ts:37:1
+Module not found: Can't resolve './src/RestoreAccount'
+  35 | export * from "./src/Skeletons";
+  36 | export * from "./src/PostObserver";
+> 37 | export * from "./src/RestoreAccount";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  38 | export * from "./src/carousel/Carousel";
+  39 | export * from "./src/carousel/Controls";
+  40 | export * from "./src/media/isolated/IsolatedMedia";
+
+
+
+Import traces:
+  #1 [Server Component]:
+    ./packages/shared-ui/index.ts
+    ./apps/auth/app/layout.tsx
+
+  #2 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #3 [Client Component SSR]:
+    ./packages/shared-ui/index.ts [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #4 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./apps/auth/app/login/Login.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #5 [Client Component SSR]:
+    ./packages/shared-ui/index.ts [Client Component SSR]
+    ./apps/auth/app/login/Login.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #6 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./packages/features/src/auth/restore/RestoreAccount.tsx [Client Component Browser]
+    ./packages/features/src/auth/restore/RestoreAccount.tsx [Server Component]
+    ./packages/features/index.ts [Server Component]
+    ./apps/auth/app/layout.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:58:07.775] Server  ERROR   ⨯ ./packages/shared-ui/index.ts:37:1
+Module not found: Can't resolve './src/RestoreAccount'
+  35 | export * from "./src/Skeletons";
+  36 | export * from "./src/PostObserver";
+> 37 | export * from "./src/RestoreAccount";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  38 | export * from "./src/carousel/Carousel";
+  39 | export * from "./src/carousel/Controls";
+  40 | export * from "./src/media/isolated/IsolatedMedia";
+
+
+
+Import traces:
+  #1 [Server Component]:
+    ./packages/shared-ui/index.ts
+    ./apps/auth/app/layout.tsx
+
+  #2 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #3 [Client Component SSR]:
+    ./packages/shared-ui/index.ts [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #4 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./apps/auth/app/login/Login.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #5 [Client Component SSR]:
+    ./packages/shared-ui/index.ts [Client Component SSR]
+    ./apps/auth/app/login/Login.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #6 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./packages/features/src/auth/restore/RestoreAccount.tsx [Client Component Browser]
+    ./packages/features/src/auth/restore/RestoreAccount.tsx [Server Component]
+    ./packages/features/index.ts [Server Component]
+    ./apps/auth/app/layout.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:58:07.777] Server  ERROR   ⨯ ./packages/shared-ui/index.ts:37:1
+Module not found: Can't resolve './src/RestoreAccount'
+  35 | export * from "./src/Skeletons";
+  36 | export * from "./src/PostObserver";
+> 37 | export * from "./src/RestoreAccount";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  38 | export * from "./src/carousel/Carousel";
+  39 | export * from "./src/carousel/Controls";
+  40 | export * from "./src/media/isolated/IsolatedMedia";
+
+
+
+Import traces:
+  #1 [Server Component]:
+    ./packages/shared-ui/index.ts
+    ./apps/auth/app/layout.tsx
+
+  #2 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #3 [Client Component SSR]:
+    ./packages/shared-ui/index.ts [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #4 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./apps/auth/app/login/Login.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Client Component Browser]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #5 [Client Component SSR]:
+    ./packages/shared-ui/index.ts [Client Component SSR]
+    ./apps/auth/app/login/Login.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Client Component SSR]
+    ./apps/auth/app/login/page.tsx [Server Component]
+
+  #6 [Client Component Browser]:
+    ./packages/shared-ui/index.ts [Client Component Browser]
+    ./packages/features/src/auth/restore/RestoreAccount.tsx [Client Component Browser]
+    ./packages/features/src/auth/restore/RestoreAccount.tsx [Server Component]
+    ./packages/features/index.ts [Server Component]
+    ./apps/auth/app/layout.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:58:26.356] Server  LOG     ✓ Compiled in 57ms
+[01:03:22.342] Server  LOG     ✓ Compiled in 95ms
+[01:26:41.836] Server  LOG     ✓ Compiled in 9ms

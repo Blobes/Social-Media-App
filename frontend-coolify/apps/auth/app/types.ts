@@ -2,7 +2,7 @@
 
 import { DrawerRef, GenericStyle } from "@repo/core";
 
-export type StepName = "CREDENTIAL" | "RESTORE" | "PASSWORD";
+export type StepName = "IDENTIFIER" | "RESTORE_ACCOUNT" | "PASSWORD";
 
 export interface StyleProps {
   container?: GenericStyle;

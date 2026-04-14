@@ -4,6 +4,7 @@ export * from "./src/auth/logout/useLogout";
 export * from "./src/auth/logout/Logout";
 export * from "./src/auth/login/service";
 export * from "./src/auth/login/timer";
+export * from "./src/auth/restore/RestoreAccount";
 
 // Gist
 export * from "./src/gist/view/useGists";

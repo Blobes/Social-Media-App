@@ -13,11 +13,17 @@ import {
 import { CLIENT_ROUTES, InputStatus, IPage } from "@repo/core";
 import { LoginService } from "../service";
 import { clearLoginLock, formatRemainingTime } from "@repo/features";
+import { StepName } from "../../types";
 
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MIN = 2;
 
-export const useLogin = ({ identifier, setStep }: any) => {
+interface UseLogin {
+  identifier: string;
+  setStep?: (step: StepName) => void;
+}
+
+export const useLogin = ({ identifier, setStep }: UseLogin) => {
   const { login } = LoginService();
   const theme = useTheme();
 
@@ -94,7 +100,7 @@ export const useLogin = ({ identifier, setStep }: any) => {
   }, [remainingSec, isLocked, setInlineMsg]);
 
   // Logic to process failures
-  const handleFailedAttempt = useCallback(() => {
+  const handleFailedPassword = useCallback(() => {
     const current = parseInt(getCookie("loginAttempts") || "0", 10);
     const nextAttempts = current + 1;
 
@@ -141,31 +147,37 @@ export const useLogin = ({ identifier, setStep }: any) => {
     try {
       const res = await login({ identifier, password });
 
-      if (res.status === "SUCCESS") {
-        // Cleanup cookie on success
-        clearLoginLock();
-        // Reset the stepper for the next time they open it
-        if (setStep) setStep("email");
+      if (res.httpStatus === 200) {
+        clearLoginLock(); // Cleanup cookie on success
 
-        // Navigate
-        setGlobalLoading(true);
-        const savedPage = getFromLocalStorage<IPage>();
-        const savedPath = savedPage ? savedPage.path : "";
-        const isLastWeb = isOnWeb(savedPath);
-        const page = !isLastWeb && savedPage ? savedPage : CLIENT_ROUTES.home;
-        navigateTo(page);
+        // Handle "DEACTIVATED" branch first
+        if (res.status === "DEACTIVATED") {
+          setAuthStatus("DEACTIVATED");
+          if (setStep) setStep("RESTORE_ACCOUNT");
+        }
 
-        setAuthUser(res.payload);
-        setAuthStatus("AUTHENTICATED");
+        // Handle "SUCCESS" branch
+        if (res.status === "SUCCESS") {
+          setGlobalLoading(true);
+          setAuthUser(res.payload);
+          setAuthStatus("AUTHENTICATED");
+          if (setStep) setStep("IDENTIFIER");
+
+          const savedPage = getFromLocalStorage<IPage>();
+          const page =
+            savedPage && !isOnWeb(savedPage.path)
+              ? savedPage
+              : CLIENT_ROUTES.home;
+          navigateTo(page);
+        }
       }
     } catch (error: any) {
-      const isPasswordErr = error.message?.toLowerCase().includes("password");
+      const isPasswordErr = error.status === "UNAUTHORIZED";
+      if (isPasswordErr) handleFailedPassword();
+      else setInlineMsg(error.message || "Login failed");
 
-      if (isPasswordErr) {
-        handleFailedAttempt();
-      } else {
-        setInlineMsg(error.message || "Login failed");
-      }
+      // Ensure the UI knows we are in an error state
+      setAuthStatus("ERROR");
     } finally {
       await delay();
       setAuthLoading(false);

@@ -34,7 +34,6 @@ export * from "./src/SvgIcon";
 export * from "./src/StatusSwitcher";
 export * from "./src/Skeletons";
 export * from "./src/PostObserver";
-export * from "./src/RestoreAccount";
 export * from "./src/carousel/Carousel";
 export * from "./src/carousel/Controls";
 export * from "./src/media/isolated/IsolatedMedia";

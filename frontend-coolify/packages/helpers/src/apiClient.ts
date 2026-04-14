@@ -33,18 +33,28 @@ export const apiClient = async <T>(
 
     if (!response.ok) {
       let message = "Something went wrong";
+      let status = "ERROR"; // The custom string (e.g., "UNAUTHORIZED")
+
       try {
         const errorData = await response.json();
         message = errorData?.message ?? message;
+        status = errorData?.status ?? "ERROR";
       } catch {
         message =
           response.statusText || `Request failed with ${response.status}`;
       }
+
       const error = new Error(message) as any;
-      error.status = response.status;
+      error.httpStatus = response.status; // Always a Number (e.g., 401)
+      error.status = status; // Always a String (e.g., "UNAUTHORIZED")
       throw error;
     }
-    return await response.json();
+
+    const data = await response.json();
+    return {
+      ...data, // This includes your "status": "DEACTIVATED" string
+      httpStatus: response.status, // This is the 200 numeric code
+    } as T;
   } catch (error: any) {
     clearTimeout(timeoutId);
     // AbortError name is standard; when abort("timeout") is used,

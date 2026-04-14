@@ -15,6 +15,7 @@ export const CLIENT_ROUTES: Record<string, IPage> = {
   // Auth
   login: { title: "Login", path: "/login" },
   signup: { title: "Signup", path: "/signup" },
+  restoreAccount: { title: "Restore Account", path: "/restore-account" },
 
   // App
   home: { title: "Home", path: "/" },

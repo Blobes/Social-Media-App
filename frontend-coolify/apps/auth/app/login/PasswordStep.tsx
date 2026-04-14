@@ -27,7 +27,7 @@ interface StepProps {
 }
 
 export const PasswordStep: React.FC<StepProps> = ({
-  credential,
+  credential: identifier,
   setStep,
   style = {},
 }) => {
@@ -43,7 +43,7 @@ export const PasswordStep: React.FC<StepProps> = ({
     isAuthLoading,
     inlineMsg,
     isLocked,
-  } = useLogin({ credential, setStep });
+  } = useLogin({ identifier, setStep });
 
   return (
     <>
@@ -91,7 +91,7 @@ export const PasswordStep: React.FC<StepProps> = ({
                 fontWeight: "500",
                 fontSize: "16px",
               }}>
-              {credential}
+              {identifier}
             </Typography>
             <BasicTooltip title={"Change credential"}>
               <IconButton
@@ -103,7 +103,7 @@ export const PasswordStep: React.FC<StepProps> = ({
                   width: "48px",
                   backgroundColor: theme.fixedColors.pTrans,
                 }}
-                onClick={() => setStep?.("CREDENTIAL")}>
+                onClick={() => setStep?.("IDENTIFIER")}>
                 <Pencil
                   style={{ width: "20px", stroke: theme.palette.gray[200] }}
                 />

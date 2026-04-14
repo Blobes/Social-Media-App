@@ -12,7 +12,7 @@ import {
 import { AccountStatus, InputStatus, MenuRef } from "@repo/core";
 import { StepName } from "../../types";
 
-interface CredentialProps {
+interface UseIdentifier {
   existingInput?: string;
   setStep?: (step: StepName) => void;
   setIdentifier?: (credential: string) => void;
@@ -21,8 +21,8 @@ interface CredentialProps {
 export const useIdentifier = ({
   existingInput,
   setStep,
-  setIdentifier: setCredential,
-}: CredentialProps) => {
+  setIdentifier,
+}: UseIdentifier) => {
   const { checkEmail, checkPhone, checkUsername } = LoginService();
   const { isAuthLoading, setAuthLoading, setInlineMsg } = useGlobalContext();
   const countryMenuRef = useRef<MenuRef>(null);
@@ -125,7 +125,7 @@ export const useIdentifier = ({
         res.payload.accountStatus === "DEACTIVATED"
       ) {
         // setAccStatus("DEACTIVATED");
-        setStep?.("RESTORE");
+        setStep?.("RESTORE_ACCOUNT");
         // setInlineMsg(
         //   res.message ||
         //     "This account is deactivated. Please restore it to log in.",
@@ -135,7 +135,7 @@ export const useIdentifier = ({
 
       // 2. Handle Existing User (Account found)
       if (res.status === "SUCCESS" && res.isExisting === true) {
-        setCredential?.(input);
+        setIdentifier?.(input);
         setStep?.("PASSWORD");
       }
       // 3. Handle Credential Not Found

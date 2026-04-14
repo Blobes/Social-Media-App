@@ -1,1 +1,6 @@
 [00:00:03.212] Server  LOG     ✓ Ready in 2.4s
+[00:02:06.566] Server  ERROR   (node:16901) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[00:02:09.603] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:02:14.239] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
+[00:02:14.239] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
