@@ -1,48 +1,6 @@
-[00:00:03.212] Server  LOG     ✓ Ready in 2.4s
-[00:02:06.566] Server  ERROR   (node:16901) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+[00:00:01.410] Server  LOG     ✓ Ready in 967ms
+[00:00:01.893] Server  ERROR   (node:1362) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
 (Use `node --trace-deprecation ...` to show where the warning was created)
-[00:02:09.603] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:14.239] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[00:02:14.239] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[01:41:10.205] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:41:13.600] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[01:41:13.600] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[01:41:27.317] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:41:31.261] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[01:41:31.261] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[01:42:36.869] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:42:41.457] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[01:42:41.457] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[01:45:18.423] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:45:24.806] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[01:45:24.806] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:39:02.348] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[02:39:16.154] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:39:16.154] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:48:48.723] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[02:48:53.733] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:48:53.733] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:49:53.572] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[02:49:59.108] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:49:59.108] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:51:06.286] Server  WARN    ⚠ Cross origin request detected from 127.0.0.1 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
-Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
-[02:51:06.319] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[02:51:08.954] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[02:51:13.197] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:51:13.197] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:51:35.042] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[02:51:39.294] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:51:39.294] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:53:56.487] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[02:54:03.017] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:54:03.017] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:55:09.707] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[02:55:14.929] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:55:14.929] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:55:38.613] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[02:55:43.329] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[02:55:43.329] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
-[03:22:02.760] Browser LOG     Network: Offline
-[03:22:02.760] Browser ERROR   Internal React error: Expected static flag was missing. Please notify the React team.
-[03:22:06.881] Browser LOG     Network: Online
+[00:00:02.621] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:09.818] Browser LOG     Cache Cleanup Sync: Kept 0 posts.
+[00:00:09.818] Browser LOG     Cache Cleanup Sync: Kept 0 posts.

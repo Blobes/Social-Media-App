@@ -229,7 +229,7 @@ const useLogin = ({ identifier, setStep })=>{
     _s();
     const { login } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$auth$2f$app$2f$login$2f$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LoginService"])();
     const theme = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f40$mui$2b$material$40$7$2e$3$2e$9_$40$emotion$2b$react$40$11$2e$14$2e$0_$40$types$2b$react$40$19$2e$2$2e$14_react$40$19$2e$2$2e$4_$5f40$emotion$2b$_5efc65b7a21bb615fd4ee8d4bf58b896$2f$node_modules$2f40$mui$2f$material$2f$esm$2f$styles$2f$useTheme$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__useTheme$3e$__["useTheme"])();
-    const inlineStyle = {
+    const inlineMsgStyle = {
         color: theme.palette.gray[0],
         background: theme.palette.primary.main,
         padding: theme.boxSpacing(0, 3),
@@ -293,7 +293,7 @@ const useLogin = ({ identifier, setStep })=>{
                         "You've exceeded the maximum login attempts. Try again in",
                         " ",
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                            style: inlineStyle,
+                            style: inlineMsgStyle,
                             children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$auth$2f$login$2f$timer$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatRemainingTime"])(remainingSec)
                         }, void 0, false, {
                             fileName: "[project]/apps/auth/app/login/hooks/useLogin.tsx",
@@ -338,7 +338,7 @@ const useLogin = ({ identifier, setStep })=>{
                     "You have",
                     " ",
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                        style: inlineStyle,
+                        style: inlineMsgStyle,
                         children: MAX_ATTEMPTS - nextAttempts
                     }, void 0, false, {
                         fileName: "[project]/apps/auth/app/login/hooks/useLogin.tsx",

@@ -2,8 +2,8 @@ import { withBaseConfig, mapAppAssets } from "@repo/core/next-config";
 
 const nextConfig = {
   async rewrites() {
-    const authUrl = process.env.AUTH_URL;
-    const postUrl = process.env.POST_URL;
+    const authUrl = process.env.AUTH_URL || "http://auth-app:3002";
+    const postUrl = process.env.POST_URL || "http://post-app:3003";
 
     return {
       beforeFiles: [

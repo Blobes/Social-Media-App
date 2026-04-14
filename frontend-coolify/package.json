@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "dotenv -e .env.development -- turbo run dev",
-    "build": "dotenv -e .env.production -- turbo run build",
+    "build": "turbo run build",
     "start": "dotenv -e .env.development -- turbo run start",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",

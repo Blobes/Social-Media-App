@@ -11,11 +11,7 @@ export const genAccessTokens = (
   res: Response,
   sessionId: string,
 ) => {
-  const origin = req.get("origin") || "";
-  const isLocalDev = origin.includes("localhost");
-
   const userId = user._id?.toString() || user.id?.toString();
-
   // We embed the sessionId in the Access Token so the 'protect'
   // middleware can verify the session state in Redis.
   const accessToken = jwt.sign(
