@@ -3,19 +3,21 @@
 
 type AppRoutes = never
 type PageRoutes = never
-type LayoutRoutes = never
+type LayoutRoutes = "/"
 type RedirectRoutes = never
 type RewriteRoutes = never
 type Routes = AppRoutes | PageRoutes | LayoutRoutes | RedirectRoutes | RewriteRoutes
 
 
 interface ParamMap {
+  "/": {}
 }
 
 
 export type ParamsOf<Route extends Routes> = ParamMap[Route]
 
 interface LayoutSlotMap {
+  "/": never
 }
 
 
@@ -51,8 +53,5 @@ declare global {
     children: React.ReactNode
   } & {
     [K in LayoutSlotMap[LayoutRoute]]: React.ReactNode
-  }
-}
-eact.ReactNode
   }
 }
