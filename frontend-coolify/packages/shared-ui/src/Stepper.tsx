@@ -29,7 +29,7 @@ export const Stepper = <T,>({
   const prevStep = steps[activeIndex - 1];
 
   return (
-    <Stack sx={{ gap: theme.gap(14), width: "100%", ...style }}>
+    <Stack sx={{ gap: theme.gap(18), width: "100%", ...style }}>
       {activeStep.allowPrevious && activeIndex > 0 && (
         <BasicTooltip title={`Back to ${prevStep.name}`}>
           <AppButton

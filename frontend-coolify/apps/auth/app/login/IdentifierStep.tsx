@@ -24,6 +24,7 @@ export const IdentifierStep: React.FC<StepProps> = ({
 }) => {
   const theme = useTheme();
   const { inlineMsg } = useGlobalContext();
+  const { COUNTRY_LIST } = LISTS();
 
   // Use the controller
   const {
@@ -86,7 +87,7 @@ export const IdentifierStep: React.FC<StepProps> = ({
         {/* Country list popup */}
         <CountryList<ICountryItem>
           menuRef={countryMenuRef}
-          list={LISTS().COUNTRY_LIST}
+          list={COUNTRY_LIST}
           listName={ListType.COUNTRY}
           showSearchBar
           stickToScreen={false}

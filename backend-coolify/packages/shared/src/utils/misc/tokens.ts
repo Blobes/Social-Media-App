@@ -26,8 +26,9 @@ export const genAccessTokens = (
 
   res.cookie("access_token", accessToken, {
     httpOnly: true,
-    secure: !isLocalDev,
-    sameSite: isLocalDev ? "lax" : "none",
+    secure: true,
+    sameSite: "none",
+    domain: ".funstakes.net",
     path: "/",
     maxAge: 15 * 60 * 1000,
   });
@@ -68,8 +69,9 @@ export const genRefreshTokens = async (
 
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true,
-    secure: !isLocalDev,
-    sameSite: isLocalDev ? "lax" : "none",
+    secure: true,
+    sameSite: "none",
+    domain: ".funstakes.net",
     path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });

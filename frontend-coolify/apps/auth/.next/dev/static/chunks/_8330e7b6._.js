@@ -404,8 +404,6 @@ const useLogin = ({ identifier, setStep })=>{
             const isPasswordErr = error.status === "UNAUTHORIZED";
             if (isPasswordErr) handleFailedPassword();
             else setInlineMsg(error.message || "Login failed");
-            // Ensure the UI knows we are in an error state
-            setAuthStatus("ERROR");
         } finally{
             await (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$helpers$2f$src$2f$misc$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["delay"])();
             setAuthLoading(false);
@@ -844,6 +842,7 @@ const IdentifierStep = ({ setStep, existingInput, setIdentifier, style = {} })=>
     _s();
     const theme = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f40$mui$2b$material$40$7$2e$3$2e$9_$40$emotion$2b$react$40$11$2e$14$2e$0_$40$types$2b$react$40$19$2e$2$2e$14_react$40$19$2e$2$2e$4_$5f40$emotion$2b$_5efc65b7a21bb615fd4ee8d4bf58b896$2f$node_modules$2f40$mui$2f$material$2f$esm$2f$styles$2f$useTheme$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__useTheme$3e$__["useTheme"])();
     const { inlineMsg } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$state$2f$GlobalContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useGlobalContext"])();
+    const { COUNTRY_LIST } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$core$2f$constants$2f$lists$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LISTS"])();
     // Use the controller
     const { input, setInput, validity, validationMsg, isAuthLoading, handleChange, handleSubmit, isSubmitDisabled, countryMenuRef, validateAndSet } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$auth$2f$app$2f$login$2f$hooks$2f$useIdentifier$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useIdentifier"])({
         existingInput,
@@ -864,7 +863,7 @@ const IdentifierStep = ({ setStep, existingInput, setIdentifier, style = {} })=>
                         children: "Blobes Socials, A Place For Nigerians"
                     }, void 0, false, {
                         fileName: "[project]/apps/auth/app/login/IdentifierStep.tsx",
-                        lineNumber: 45,
+                        lineNumber: 46,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f40$mui$2b$material$40$7$2e$3$2e$9_$40$emotion$2b$react$40$11$2e$14$2e$0_$40$types$2b$react$40$19$2e$2$2e$14_react$40$19$2e$2$2e$4_$5f40$emotion$2b$_5efc65b7a21bb615fd4ee8d4bf58b896$2f$node_modules$2f40$mui$2f$material$2f$esm$2f$Typography$2f$Typography$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Typography$3e$__["Typography"], {
@@ -879,13 +878,13 @@ const IdentifierStep = ({ setStep, existingInput, setIdentifier, style = {} })=>
                         children: "Enter your email address to continue."
                     }, void 0, false, {
                         fileName: "[project]/apps/auth/app/login/IdentifierStep.tsx",
-                        lineNumber: 51,
+                        lineNumber: 52,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/auth/app/login/IdentifierStep.tsx",
-                lineNumber: 44,
+                lineNumber: 45,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             inlineMsg && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$ui$2f$src$2f$InlineMsg$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["InlineMsg"], {
@@ -893,7 +892,7 @@ const IdentifierStep = ({ setStep, existingInput, setIdentifier, style = {} })=>
                 type: "ERROR"
             }, void 0, false, {
                 fileName: "[project]/apps/auth/app/login/IdentifierStep.tsx",
-                lineNumber: 64,
+                lineNumber: 65,
                 columnNumber: 21
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f40$mui$2b$material$40$7$2e$3$2e$9_$40$emotion$2b$react$40$11$2e$14$2e$0_$40$types$2b$react$40$19$2e$2$2e$14_react$40$19$2e$2$2e$4_$5f40$emotion$2b$_5efc65b7a21bb615fd4ee8d4bf58b896$2f$node_modules$2f40$mui$2f$material$2f$esm$2f$Stack$2f$Stack$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Stack$3e$__["Stack"], {
@@ -917,18 +916,18 @@ const IdentifierStep = ({ setStep, existingInput, setIdentifier, style = {} })=>
                             }
                         }, void 0, false, {
                             fileName: "[project]/apps/auth/app/login/IdentifierStep.tsx",
-                            lineNumber: 78,
+                            lineNumber: 79,
                             columnNumber: 13
                         }, void 0),
                         affixPosition: "end"
                     }, void 0, false, {
                         fileName: "[project]/apps/auth/app/login/IdentifierStep.tsx",
-                        lineNumber: 70,
+                        lineNumber: 71,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$ui$2f$src$2f$Menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DisplayList"], {
                         menuRef: countryMenuRef,
-                        list: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$core$2f$constants$2f$lists$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LISTS"])().COUNTRY_LIST,
+                        list: COUNTRY_LIST,
                         listName: __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$core$2f$types$2f$ui$2d$props$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ListType"].COUNTRY,
                         showSearchBar: true,
                         stickToScreen: false,
@@ -956,7 +955,7 @@ const IdentifierStep = ({ setStep, existingInput, setIdentifier, style = {} })=>
                         }
                     }, void 0, false, {
                         fileName: "[project]/apps/auth/app/login/IdentifierStep.tsx",
-                        lineNumber: 87,
+                        lineNumber: 88,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$ui$2f$src$2f$Buttons$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AppButton"], {
@@ -976,18 +975,18 @@ const IdentifierStep = ({ setStep, existingInput, setIdentifier, style = {} })=>
                             }
                         }, void 0, false, {
                             fileName: "[project]/apps/auth/app/login/IdentifierStep.tsx",
-                            lineNumber: 124,
+                            lineNumber: 125,
                             columnNumber: 13
                         }, ("TURBOPACK compile-time value", void 0)) : "Continue"
                     }, void 0, false, {
                         fileName: "[project]/apps/auth/app/login/IdentifierStep.tsx",
-                        lineNumber: 114,
+                        lineNumber: 115,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/auth/app/login/IdentifierStep.tsx",
-                lineNumber: 66,
+                lineNumber: 67,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]

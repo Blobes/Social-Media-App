@@ -1,5 +1,21 @@
 {
-  "node": {},
+  "node": {
+    "40e190323ed3d95b15b1ff68ca5d1c3a958ceae2aa": {
+      "workers": {
+        "app/(feed)/page": {
+          "moduleId": "[project]/apps/shell/.next-internal/server/app/(feed)/page/actions.js { ACTIONS_MODULE0 => \"[project]/packages/features/src/base-layout/BaseLayout.tsx [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "BaseLayout",
+          "filename": "packages/features/src/base-layout/BaseLayout.tsx"
+        }
+      },
+      "layer": {
+        "app/(feed)/page": "rsc"
+      },
+      "filename": "packages/features/src/base-layout/BaseLayout.tsx",
+      "exportedName": "BaseLayout"
+    }
+  },
   "edge": {},
   "encryptionKey": "pnpPABKdNESWDw8Gmzizdx/VJBWzERSnOMunkp0nbDw="
 }

@@ -27,7 +27,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
   const { login } = LoginService();
   const theme = useTheme();
 
-  const inlineStyle = {
+  const inlineMsgStyle = {
     color: theme.palette.gray[0],
     background: theme.palette.primary.main,
     padding: theme.boxSpacing(0, 3),
@@ -90,7 +90,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
       setInlineMsg(
         <span>
           You've exceeded the maximum login attempts. Try again in{" "}
-          <strong style={inlineStyle}>
+          <strong style={inlineMsgStyle}>
             {formatRemainingTime(remainingSec)}
           </strong>
           . Or reset your password.
@@ -114,7 +114,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     setInlineMsg(
       <span>
         <strong>Incorrect password. </strong>You have{" "}
-        <strong style={inlineStyle}>{MAX_ATTEMPTS - nextAttempts}</strong>
+        <strong style={inlineMsgStyle}>{MAX_ATTEMPTS - nextAttempts}</strong>
         {MAX_ATTEMPTS - nextAttempts === 1 ? "attempt" : "attempts"} left before
         your login is temporarily locked.
       </span>,
@@ -161,6 +161,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
           setGlobalLoading(true);
           setAuthUser(res.payload);
           setAuthStatus("AUTHENTICATED");
+
           if (setStep) setStep("IDENTIFIER");
 
           const savedPage = getFromLocalStorage<IPage>();
@@ -175,9 +176,6 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
       const isPasswordErr = error.status === "UNAUTHORIZED";
       if (isPasswordErr) handleFailedPassword();
       else setInlineMsg(error.message || "Login failed");
-
-      // Ensure the UI knows we are in an error state
-      setAuthStatus("ERROR");
     } finally {
       await delay();
       setAuthLoading(false);
