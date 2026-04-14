@@ -1,9 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # Dependencies
-/node_modules
-/.pnp
-/.pnp.js
+node_modules
+.pnp
+.pnp.js
 .yarn/install-state.gz
 
 # Testing
@@ -16,10 +16,10 @@
 .vercel
 
 # Build Outputs
-/build 
-/dist
-/.next/
-/out/
+build 
+dist
+.next/
+out/
 
 # Debug
 npm-debug.log*

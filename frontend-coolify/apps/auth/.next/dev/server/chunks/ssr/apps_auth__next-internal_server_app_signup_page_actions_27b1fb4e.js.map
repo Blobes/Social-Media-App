@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///Users/ifeanyinicholas/Desktop/blobes/Projects/FunStakes-V2/frontend-coolify/apps/auth/.next-internal/server/app/signup/page/actions.js%20%28server%20actions%20loader%29"],"sourcesContent":["export {BaseLayout as '404dd3a065c5a96104889f436661ccb9113102011e'} from 'ACTIONS_MODULE0'\n"],"names":[],"mappings":";AAAA"}}]
-}
