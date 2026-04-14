@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Drawer,
   Modal,
@@ -8,6 +8,7 @@ import {
   PageLoaderUI,
   OfflinePromptUI,
   NetworkGlitchUI,
+  SplashUI,
 } from "@repo/shared-ui";
 import { usePathname } from "next/navigation";
 import {
@@ -33,7 +34,7 @@ export interface UIManagerProps {
   showNetworkErrorUI?: boolean;
 }
 
-export const UIManager = ({
+export const GlobalUIManager = ({
   children,
   showOfflineUI = true,
   showNetworkErrorUI = true,
@@ -59,10 +60,14 @@ export const UIManager = ({
   const { setSBTimer, removeSBMessage } = useSnackbar();
   const { switchToOfflineMode } = useOffline();
 
+  const [isMounted, setIsMounted] = useState(false);
+
   // Register events
   useEventListener(verifyAuth);
 
   useEffect(() => {
+    setIsMounted(true);
+
     const init = async () => {
       try {
         setGlobalLoading(true);
@@ -89,10 +94,13 @@ export const UIManager = ({
     });
   }, [drawerContent, openDrawer, modalContent, openModal]);
 
-  // // Page Load Handler
+  // Page Load Handler
   useEffect(() => {
     handleCurrentPage();
   }, [pathname]);
+
+  // Splash UI
+  if (!isMounted) return <SplashUI />;
 
   // Page loader UI
   const isInitializing =

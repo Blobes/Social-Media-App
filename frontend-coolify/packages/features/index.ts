@@ -20,7 +20,7 @@ export * from "./src/stake/useStake";
 export * from "./src/stake/StakeCard";
 
 // Base layout
-export * from "./src/base-layout/ClientOnly";
+export * from "./src/base-layout/GlobalUIManager";
 export * from "./src/base-layout/default/AppWrapper";
 export * from "./src/base-layout/BaseLayout";
 

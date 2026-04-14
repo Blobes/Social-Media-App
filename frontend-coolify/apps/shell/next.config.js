@@ -2,8 +2,15 @@ import { withBaseConfig, mapAppAssets } from "@repo/core/next-config";
 
 const nextConfig = {
   async rewrites() {
-    const authUrl = process.env.AUTH_URL || "http://auth-app:3002";
-    const postUrl = process.env.POST_URL || "http://post-app:3003";
+    const isDev = process.env.NODE_ENV === "development";
+
+    // Browsers need to see localhost:PORT, while Docker-to-Docker needs service:PORT
+    const authUrl =
+      process.env.AUTH_URL ||
+      (isDev ? "http://localhost:3002" : "http://auth-app:3002");
+    const postUrl =
+      process.env.POST_URL ||
+      (isDev ? "http://localhost:3003" : "http://post-app:3003");
 
     return {
       beforeFiles: [

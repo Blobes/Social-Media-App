@@ -48,7 +48,7 @@ export const personalizeFeed = <T extends IBasePost>(
 
         // 5. Location Scoring (+5)
         // Accesses post.location.name based on your GistSchema
-        const postLocationName = post.location?.toLowerCase();
+        const postLocationName = post.location?.name?.toLowerCase();
         if (userLocationName && postLocationName === userLocationName) {
           score += 5;
         }

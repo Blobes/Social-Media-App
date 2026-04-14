@@ -25,7 +25,9 @@ export const crossZoneCheck = (path: string): boolean => {
   const targetPath = path.toLowerCase();
   const currentPath = window.location.pathname.toLowerCase();
 
-  if (targetPath === "/" || targetPath === currentPath) return false;
+  if (targetPath === "/") return currentPath !== "/";
+
+  if (targetPath === currentPath) return false;
 
   const targetZone = getPathZone(targetPath);
   const currentZone = getPathZone(currentPath);

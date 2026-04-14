@@ -1,5 +1,5 @@
 import React from "react";
-import { BaseLayout, ClientOnly } from "@repo/features";
+import { BaseLayout, GlobalUIManager } from "@repo/features";
 import { Wrapper } from "./Wrapper";
 
 export default function RootLayout({
@@ -9,9 +9,9 @@ export default function RootLayout({
 }>) {
   return (
     <BaseLayout>
-      <ClientOnly showOfflineUI={false} showNetworkErrorUI={false}>
+      <GlobalUIManager showOfflineUI={false} showNetworkErrorUI={false}>
         <Wrapper>{children}</Wrapper>
-      </ClientOnly>
+      </GlobalUIManager>
     </BaseLayout>
   );
 }

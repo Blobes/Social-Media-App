@@ -1,3 +1,16 @@
 {
-  "extends": "@repo/core/tsconfig.base.json"
+  "extends": "@repo/core/tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2017",
+    "esModuleInterop": true
+  },
+  "include": [
+    "../../packages/core/env-config/**/*.js",
+    "../../packages/core/env-config/**/*.ts",
+    "../../packages/core/env-config/**/*.tsx",
+    "../../packages/core/env-config/next-env.d.ts",
+    "../../packages/core/env-config/next.config.js",
+    "../../packages/core/env-config/.next/types/**/*.ts",
+    ".next/types/**/*.ts"
+  ]
 }

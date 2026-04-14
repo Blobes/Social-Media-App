@@ -54,10 +54,10 @@ export const usePage = () => {
     if (savePage) setLastPage(page);
 
     // Cross zone dynamic navigation
-    if (isCrossZone) {
+    if (isCrossZone || page.path === "/") {
       if (loadPage) setGlobalLoading(true);
-      if (type === "replace") window.location.replace(page.path);
-      else window.location.assign(page.path);
+      // if (type === "replace") window.location.replace(page.path);
+      window.location.assign(page.path);
       return;
     }
 

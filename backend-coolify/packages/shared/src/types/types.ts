@@ -96,7 +96,12 @@ export interface IBasePost {
   id: any;
   authorId: any;
   topics?: string[];
-  location?: string;
+  //location?: string;
+  location?: {
+    name?: string;
+    type: "Point";
+    coordinates: [number, number]; // [longitude, latitude]
+  };
   hasSensitiveGraphic?: boolean;
   [key: string]: any; // Allows for post-specific fields (e.g., gist content, video URL)
 }

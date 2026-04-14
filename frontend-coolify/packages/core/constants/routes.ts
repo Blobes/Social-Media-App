@@ -57,8 +57,8 @@ export const API_BASE = {
   auth: "/auth",
   user: "/user",
   // Posts
-  feed: "/post/feed",
-  gists: "post/gists",
+  feed: "/feed",
+  gists: "/gists",
   media: "/media",
   // Report
   report: "/report",

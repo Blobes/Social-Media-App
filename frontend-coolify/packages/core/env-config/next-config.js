@@ -1,7 +1,22 @@
 export function withBaseConfig(appConfig = {}, backendApi) {
   return {
     ...appConfig,
-    output: "standalone",
+    output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
+    async headers() {
+      return [
+        {
+          source: "/_next/:path*",
+          headers: [
+            { key: "Access-Control-Allow-Origin", value: "*" },
+            {
+              key: "Access-Control-Allow-Methods",
+              value: "GET,OPTIONS,PATCH,POST",
+            },
+            { key: "Access-Control-Allow-Headers", value: "Content-Type" },
+          ],
+        },
+      ];
+    },
     async rewrites() {
       const baseRewrites = appConfig.rewrites
         ? await appConfig.rewrites()
@@ -30,8 +45,7 @@ export function mapAppAssets(apps) {
   return Object.entries(apps)
     .filter(([_, url]) => !!url)
     .map(([name, url]) => ({
-      // This matches the assetPrefix we set in Step 1
-      source: `/_next/static/${name}/_next/static/:path*`,
-      destination: `${url}/_next/static/:path*`,
+      source: `/${name}-assets/_next/:path*`,
+      destination: `${url}/_next/:path*`,
     }));
 }

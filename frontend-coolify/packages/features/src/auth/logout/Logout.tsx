@@ -25,15 +25,10 @@ export const ComfirmLogout = () => {
         Do you really want to logout?
       </Typography>
       <Stack direction="row">
-        <AppButton
-          variant="outlined"
-          href={CLIENT_ROUTES.signup.path}
-          onClick={closeModal}>
+        <AppButton variant="outlined" onClick={closeModal}>
           Not really
         </AppButton>
-        <AppButton
-          href={CLIENT_ROUTES.signup.path}
-          onClick={async () => await handleLogout()}>
+        <AppButton onClick={async () => await handleLogout()}>
           Sure I do
         </AppButton>
       </Stack>

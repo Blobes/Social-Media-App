@@ -18,7 +18,7 @@ export async function BaseLayout({ children }: { children: React.ReactNode }) {
           rel="stylesheet"
         />
       </head>
-      <body style={{ backgroundColor: "#010516!important" }}>
+      <body>
         <SharedProviders>{children}</SharedProviders>
         <noscript>You need to enable JavaScript to run this app!</noscript>
       </body>

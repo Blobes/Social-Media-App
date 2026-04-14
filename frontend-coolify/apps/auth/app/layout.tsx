@@ -1,7 +1,7 @@
 import React from "react";
 import { RootUIContainer } from "@repo/shared-ui";
 import { Metadata, Viewport } from "next";
-import { BaseLayout, ClientOnly } from "@repo/features";
+import { BaseLayout, GlobalUIManager } from "@repo/features";
 import { baseMetadata, sharedViewport } from "@repo/helpers";
 
 export const viewport: Viewport = {
@@ -19,9 +19,9 @@ export default async function RootLayout({
 }>) {
   return (
     <BaseLayout>
-      <ClientOnly>
+      <GlobalUIManager>
         <RootUIContainer shouldScroll={true}>{children}</RootUIContainer>
-      </ClientOnly>
+      </GlobalUIManager>
     </BaseLayout>
   );
 }
