@@ -8718,58 +8718,72 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$core$2f$constant
 ;
 ;
 const LoginService = ()=>{
+    // Use ISinglePayload with IUser as the generic type
     const verifyAndFetchUser = async ()=>{
         try {
             const res = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$helpers$2f$src$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"])(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$core$2f$constants$2f$routes$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SERVER_API"].verifyAuthToken);
+            if (res.status === "SUCCESS") {
+                return {
+                    payload: res.payload,
+                    status: "SUCCESS",
+                    message: res.message,
+                    httpStatus: res.httpStatus
+                };
+            }
             return {
-                payload: res.user,
-                status: "SUCCESS"
+                payload: null,
+                status: res.status || "ERROR",
+                message: res.message || "Verification failed"
             };
         } catch (err) {
-            const status = typeof err?.status === "number" ? err.status : undefined;
-            // Catch 401 (Missing/Expired) OR 403 (Invalid)
-            if (status === 401 || status === 403) {
-                // Try to refresh once
+            // Check for Unauthorized using both custom status string and numeric code
+            const isAuthIssue = err.status === "UNAUTHORIZED" || err.httpStatus === 401 || err.httpStatus === 403;
+            if (isAuthIssue) {
                 const refreshed = await refreshAccessToken();
                 if (refreshed) {
                     try {
+                        // Retry the call
                         const retryRes = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$helpers$2f$src$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"])(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$core$2f$constants$2f$routes$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SERVER_API"].verifyAuthToken);
                         return {
-                            payload: retryRes.user,
-                            status: "SUCCESS"
+                            payload: retryRes.payload,
+                            status: "SUCCESS",
+                            message: "Session restored"
                         };
                     } catch  {
                         return {
                             payload: null,
-                            status: "ERROR"
+                            status: "ERROR",
+                            message: "Retry failed"
                         };
                     }
                 }
                 return {
                     payload: null,
-                    status: "UNAUTHORIZED"
+                    status: "UNAUTHORIZED",
+                    message: "Session expired"
                 };
             }
-            // Check if it's a network error (incl. timeout, unknown;
-            //  fetcher sets status 0 for these)
+            // Fallback to network error check
             const networkError = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$helpers$2f$src$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["checkNetworkError"])(err);
             if (networkError) return networkError;
             return {
                 payload: null,
-                status: "ERROR"
+                status: "ERROR",
+                message: err.message || "An unexpected error occurred",
+                httpStatus: err.httpStatus
             };
         }
     };
     const refreshAccessToken = async ()=>{
         try {
+            // Typing the refresh call as well
             const res = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$helpers$2f$src$2f$apiClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"])(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$core$2f$constants$2f$routes$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SERVER_API"].refreshToken, {
                 method: "POST"
             });
-            return true;
+            return res.status === "SUCCESS";
         } catch (err) {
-            if (err.status === 401 || err.status === 400) {
-                return false;
-            }
+            const isExpired = err.httpStatus === 401 || err.httpStatus === 400 || err.status === "UNAUTHORIZED";
+            if (isExpired) return false;
             console.error("Auth Refresh Failed unexpectedly:", err.message);
             return false;
         }
@@ -8794,59 +8808,93 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$state$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/shared-state/index.ts [app-client] (ecmascript) <locals>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$state$2f$GlobalContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/shared-state/GlobalContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$state$2f$hooks$2f$usePage$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/shared-state/hooks/usePage.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$state$2f$hooks$2f$useSnackbar$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/shared-state/hooks/useSnackbar.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$auth$2f$login$2f$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/features/src/auth/login/service.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$core$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/core/index.ts [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$core$2f$constants$2f$routes$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/core/constants/routes.ts [app-client] (ecmascript)");
 var _s = __turbopack_context__.k.signature();
 "use client";
+;
 ;
 ;
 const useAuth = ()=>{
     _s();
     const { setAuthUser, setAuthStatus } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$state$2f$GlobalContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useGlobalContext"])();
     const { setSBMessage } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$state$2f$hooks$2f$useSnackbar$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSnackbar"])();
+    const { verifyAndFetchUser } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$auth$2f$login$2f$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LoginService"])();
+    const { navigateTo } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$state$2f$hooks$2f$usePage$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePage"])();
     const verifyAuth = async ()=>{
         try {
-            const res = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$auth$2f$login$2f$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LoginService"])().verifyAndFetchUser();
-            // Success
+            const res = await verifyAndFetchUser();
+            // 1. SUCCESS: User is logged in
             if (res.status === "SUCCESS" && res.payload) {
                 setAuthUser(res.payload);
                 setAuthStatus("AUTHENTICATED");
                 return;
             }
-            // Network Erorr / Offline
-            if (res.status === "ERROR") {
-                setAuthUser(null);
-                setAuthStatus("ERROR");
-                if (res.message) setSBMessage({
-                    msg: {
-                        content: res.message,
-                        msgStatus: "ERROR",
-                        hasClose: true
-                    }
-                });
-                return;
-            }
-            // Unauthorized State
+            // 2. UNAUTHORIZED: No session or expired (after refresh attempt)
             if (res.status === "UNAUTHORIZED") {
                 setAuthUser(null);
                 setAuthStatus("UNAUTHENTICATED");
                 return;
             }
+            // 3. DEACTIVATED: Handled specifically
+            if (res.status === "DEACTIVATED") {
+                setAuthUser(res.payload);
+                setAuthStatus("DEACTIVATED");
+                navigateTo(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$core$2f$constants$2f$routes$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CLIENT_ROUTES"].restoreAccount);
+                return;
+            }
+            // 4. ERROR: Network failure or Server 500
+            if (res.status === "ERROR") {
+                setAuthUser(null);
+                setAuthStatus("ERROR");
+                if (res.message) {
+                    setSBMessage({
+                        msg: {
+                            content: res.message,
+                            msgStatus: "ERROR",
+                            hasClose: true
+                        }
+                    });
+                }
+                return;
+            }
+            // 5. Fallback for safety
+            setAuthStatus("UNAUTHENTICATED");
+        // // Network Erorr / Offline
+        // if (res.status === "ERROR") {
+        //   setAuthUser(null);
+        //   setAuthStatus("ERROR");
+        //   if (res.message)
+        //     setSBMessage({
+        //       msg: { content: res.message, msgStatus: "ERROR", hasClose: true },
+        //     });
+        //   return;
+        // }
+        // // Unauthorized State
+        // if (res.status === "UNAUTHORIZED") {
+        //   setAuthUser(null);
+        //   setAuthStatus("UNAUTHENTICATED");
+        //   return;
+        // }
         } catch (err) {
-            // If we reach here, a critical code error occurred
+            // Critical runtime error (e.g. malformed code)
             setAuthUser(null);
             setAuthStatus("ERROR");
-            console.log("Bad really bad");
+            console.error("Critical Auth Hook Failure:", err);
         }
     };
     return {
         verifyAuth
     };
 };
-_s(useAuth, "/RjvbLsrNfo9xFg5mOiK/s3QusY=", false, function() {
+_s(useAuth, "OtZz/+CbUyQs4GK9F0qS5oHZ/qI=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$state$2f$GlobalContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useGlobalContext"],
-        __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$state$2f$hooks$2f$useSnackbar$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSnackbar"]
+        __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$state$2f$hooks$2f$useSnackbar$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSnackbar"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$state$2f$hooks$2f$usePage$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePage"]
     ];
 });
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
