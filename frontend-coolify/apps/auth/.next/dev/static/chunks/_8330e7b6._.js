@@ -9,6 +9,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$
 var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$auth$2f$logout$2f$Logout$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/features/src/auth/logout/Logout.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$auth$2f$login$2f$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/features/src/auth/login/service.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$auth$2f$login$2f$timer$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/features/src/auth/login/timer.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$auth$2f$restore$2f$RestoreAccount$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/features/src/auth/restore/RestoreAccount.tsx [app-client] (ecmascript)");
 // Gist
 var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$gist$2f$view$2f$useGists$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/features/src/gist/view/useGists.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$gist$2f$view$2f$useGistLike$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/features/src/gist/view/useGistLike.ts [app-client] (ecmascript)");
@@ -33,6 +34,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$
 // Hooks
 var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$post$2f$hooks$2f$usePostLike$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/features/src/post/hooks/usePostLike.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$post$2f$hooks$2f$useCached$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/features/src/post/hooks/useCached.ts [app-client] (ecmascript)");
+;
 ;
 ;
 ;
@@ -295,14 +297,14 @@ const useLogin = ({ identifier, setStep })=>{
                             children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$auth$2f$login$2f$timer$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatRemainingTime"])(remainingSec)
                         }, void 0, false, {
                             fileName: "[project]/apps/auth/app/login/hooks/useLogin.tsx",
-                            lineNumber: 87,
+                            lineNumber: 93,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         ". Or reset your password."
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/auth/app/login/hooks/useLogin.tsx",
-                    lineNumber: 85,
+                    lineNumber: 91,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)));
             }
@@ -313,8 +315,8 @@ const useLogin = ({ identifier, setStep })=>{
         setInlineMsg
     ]);
     // Logic to process failures
-    const handleFailedAttempt = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "useLogin.useCallback[handleFailedAttempt]": ()=>{
+    const handleFailedPassword = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "useLogin.useCallback[handleFailedPassword]": ()=>{
             const current = parseInt((0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$helpers$2f$src$2f$storage$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getCookie"])("loginAttempts") || "0", 10);
             const nextAttempts = current + 1;
             (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$helpers$2f$src$2f$storage$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["setCookie"])("loginAttempts", String(nextAttempts), LOCKOUT_MIN);
@@ -330,7 +332,7 @@ const useLogin = ({ identifier, setStep })=>{
                         children: "Incorrect password. "
                     }, void 0, false, {
                         fileName: "[project]/apps/auth/app/login/hooks/useLogin.tsx",
-                        lineNumber: 110,
+                        lineNumber: 116,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     "You have",
@@ -340,7 +342,7 @@ const useLogin = ({ identifier, setStep })=>{
                         children: MAX_ATTEMPTS - nextAttempts
                     }, void 0, false, {
                         fileName: "[project]/apps/auth/app/login/hooks/useLogin.tsx",
-                        lineNumber: 111,
+                        lineNumber: 117,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     MAX_ATTEMPTS - nextAttempts === 1 ? "attempt" : "attempts",
@@ -348,12 +350,12 @@ const useLogin = ({ identifier, setStep })=>{
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/auth/app/login/hooks/useLogin.tsx",
-                lineNumber: 109,
+                lineNumber: 115,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)));
             return false;
         }
-    }["useLogin.useCallback[handleFailedAttempt]"], [
+    }["useLogin.useCallback[handleFailedPassword]"], [
         setInlineMsg
     ]);
     // Passowrd change Handlers
@@ -380,28 +382,30 @@ const useLogin = ({ identifier, setStep })=>{
                 identifier,
                 password
             });
-            if (res.status === "SUCCESS") {
-                // Cleanup cookie on success
-                (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$auth$2f$login$2f$timer$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["clearLoginLock"])();
-                // Reset the stepper for the next time they open it
-                if (setStep) setStep("email");
-                // Navigate
-                setGlobalLoading(true);
-                const savedPage = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$helpers$2f$src$2f$storage$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getFromLocalStorage"])();
-                const savedPath = savedPage ? savedPage.path : "";
-                const isLastWeb = isOnWeb(savedPath);
-                const page = !isLastWeb && savedPage ? savedPage : __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$core$2f$constants$2f$routes$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CLIENT_ROUTES"].home;
-                navigateTo(page);
-                setAuthUser(res.payload);
-                setAuthStatus("AUTHENTICATED");
+            if (res.httpStatus === 200) {
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$auth$2f$login$2f$timer$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["clearLoginLock"])(); // Cleanup cookie on success
+                // Handle "DEACTIVATED" branch first
+                if (res.status === "DEACTIVATED") {
+                    setAuthStatus("DEACTIVATED");
+                    if (setStep) setStep("RESTORE_ACCOUNT");
+                }
+                // Handle "SUCCESS" branch
+                if (res.status === "SUCCESS") {
+                    setGlobalLoading(true);
+                    setAuthUser(res.payload);
+                    setAuthStatus("AUTHENTICATED");
+                    if (setStep) setStep("IDENTIFIER");
+                    const savedPage = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$helpers$2f$src$2f$storage$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getFromLocalStorage"])();
+                    const page = savedPage && !isOnWeb(savedPage.path) ? savedPage : __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$core$2f$constants$2f$routes$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CLIENT_ROUTES"].home;
+                    navigateTo(page);
+                }
             }
         } catch (error) {
-            const isPasswordErr = error.message?.toLowerCase().includes("password");
-            if (isPasswordErr) {
-                handleFailedAttempt();
-            } else {
-                setInlineMsg(error.message || "Login failed");
-            }
+            const isPasswordErr = error.status === "UNAUTHORIZED";
+            if (isPasswordErr) handleFailedPassword();
+            else setInlineMsg(error.message || "Login failed");
+            // Ensure the UI knows we are in an error state
+            setAuthStatus("ERROR");
         } finally{
             await (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$helpers$2f$src$2f$misc$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["delay"])();
             setAuthLoading(false);
@@ -419,7 +423,7 @@ const useLogin = ({ identifier, setStep })=>{
         errorMsg
     };
 };
-_s(useLogin, "CmxF50mvkFfI2EIAMOpdI8FvqZo=", false, function() {
+_s(useLogin, "xPlajaFOhMHepKYR3KG40arWa0g=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f40$mui$2b$material$40$7$2e$3$2e$9_$40$emotion$2b$react$40$11$2e$14$2e$0_$40$types$2b$react$40$19$2e$2$2e$14_react$40$19$2e$2$2e$4_$5f40$emotion$2b$_5efc65b7a21bb615fd4ee8d4bf58b896$2f$node_modules$2f40$mui$2f$material$2f$esm$2f$styles$2f$useTheme$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__useTheme$3e$__["useTheme"],
         __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$state$2f$GlobalContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useGlobalContext"],
@@ -460,12 +464,12 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-const PasswordStep = ({ credential, setStep, style = {} })=>{
+const PasswordStep = ({ credential: identifier, setStep, style = {} })=>{
     _s();
     const theme = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f40$mui$2b$material$40$7$2e$3$2e$9_$40$emotion$2b$react$40$11$2e$14$2e$0_$40$types$2b$react$40$19$2e$2$2e$14_react$40$19$2e$2$2e$4_$5f40$emotion$2b$_5efc65b7a21bb615fd4ee8d4bf58b896$2f$node_modules$2f40$mui$2f$material$2f$esm$2f$styles$2f$useTheme$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__useTheme$3e$__["useTheme"])();
     // Consuming the controller
     const { password, passwordValidity, errorMsg, onPasswordChange, handleSubmit, isAuthLoading, inlineMsg, isLocked } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$auth$2f$app$2f$login$2f$hooks$2f$useLogin$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLogin"])({
-        credential,
+        identifier,
         setStep
     });
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -541,7 +545,7 @@ const PasswordStep = ({ credential, setStep, style = {} })=>{
                                             fontWeight: "500",
                                             fontSize: "16px"
                                         },
-                                        children: credential
+                                        children: identifier
                                     }, void 0, false, {
                                         fileName: "[project]/apps/auth/app/login/PasswordStep.tsx",
                                         lineNumber: 80,
@@ -558,7 +562,7 @@ const PasswordStep = ({ credential, setStep, style = {} })=>{
                                                 width: "48px",
                                                 backgroundColor: theme.fixedColors.pTrans
                                             },
-                                            onClick: ()=>setStep?.("CREDENTIAL"),
+                                            onClick: ()=>setStep?.("IDENTIFIER"),
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$562$2e$0_react$40$19$2e$2$2e$4$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$pencil$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Pencil$3e$__["Pencil"], {
                                                 style: {
                                                     width: "20px",
@@ -671,7 +675,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-const useIdentifier = ({ existingInput, setStep, setIdentifier: setCredential })=>{
+const useIdentifier = ({ existingInput, setStep, setIdentifier })=>{
     _s();
     const { checkEmail, checkPhone, checkUsername } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$auth$2f$app$2f$login$2f$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LoginService"])();
     const { isAuthLoading, setAuthLoading, setInlineMsg } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$state$2f$GlobalContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useGlobalContext"])();
@@ -758,7 +762,7 @@ const useIdentifier = ({ existingInput, setStep, setIdentifier: setCredential })
             const res = await (inputType === "EMAIL" ? checkEmail(cleaned) : inputType === "PHONE" ? checkPhone(cleaned) : checkUsername(cleaned, "LOGIN"));
             if (res.status === "SUCCESS" && res.payload && res.payload.accountStatus === "DEACTIVATED") {
                 // setAccStatus("DEACTIVATED");
-                setStep?.("RESTORE");
+                setStep?.("RESTORE_ACCOUNT");
                 // setInlineMsg(
                 //   res.message ||
                 //     "This account is deactivated. Please restore it to log in.",
@@ -767,7 +771,7 @@ const useIdentifier = ({ existingInput, setStep, setIdentifier: setCredential })
             }
             // 2. Handle Existing User (Account found)
             if (res.status === "SUCCESS" && res.isExisting === true) {
-                setCredential?.(input);
+                setIdentifier?.(input);
                 setStep?.("PASSWORD");
             } else {
                 setInlineMsg(`We couldn't find an account with the ${inputType?.toLowerCase() + (inputType === "PHONE" ? " number" : "")}.
@@ -1014,7 +1018,6 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$ne
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@16.1.6_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f40$mui$2b$material$40$7$2e$3$2e$9_$40$emotion$2b$react$40$11$2e$14$2e$0_$40$types$2b$react$40$19$2e$2$2e$14_react$40$19$2e$2$2e$4_$5f40$emotion$2b$_5efc65b7a21bb615fd4ee8d4bf58b896$2f$node_modules$2f40$mui$2f$material$2f$esm$2f$styles$2f$useTheme$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__useTheme$3e$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/@mui+material@7.3.9_@emotion+react@11.14.0_@types+react@19.2.14_react@19.2.4__@emotion+_5efc65b7a21bb615fd4ee8d4bf58b896/node_modules/@mui/material/esm/styles/useTheme.js [app-client] (ecmascript) <export default as useTheme>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$ui$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/shared-ui/index.ts [app-client] (ecmascript) <locals>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$ui$2f$src$2f$RestoreAccount$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/shared-ui/src/RestoreAccount.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$ui$2f$src$2f$Stepper$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/shared-ui/src/Stepper.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f40$mui$2b$material$40$7$2e$3$2e$9_$40$emotion$2b$react$40$11$2e$14$2e$0_$40$types$2b$react$40$19$2e$2$2e$14_react$40$19$2e$2$2e$4_$5f40$emotion$2b$_5efc65b7a21bb615fd4ee8d4bf58b896$2f$node_modules$2f40$mui$2f$material$2f$esm$2f$Stack$2f$Stack$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Stack$3e$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/@mui+material@7.3.9_@emotion+react@11.14.0_@types+react@19.2.14_react@19.2.4__@emotion+_5efc65b7a21bb615fd4ee8d4bf58b896/node_modules/@mui/material/esm/Stack/Stack.js [app-client] (ecmascript) <export default as Stack>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@16.1.6_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/image.js [app-client] (ecmascript)");
@@ -1022,9 +1025,12 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$assets$2f$index$
 var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$assets$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/assets/constants.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$auth$2f$app$2f$login$2f$PasswordStep$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/auth/app/login/PasswordStep.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$auth$2f$app$2f$login$2f$IdentifierStep$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/auth/app/login/IdentifierStep.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$index$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/packages/features/index.ts [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$auth$2f$restore$2f$RestoreAccount$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/packages/features/src/auth/restore/RestoreAccount.tsx [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
 "use client";
+;
 ;
 ;
 ;
@@ -1037,10 +1043,10 @@ const Login = ({ style = {} })=>{
     _s();
     const theme = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f40$mui$2b$material$40$7$2e$3$2e$9_$40$emotion$2b$react$40$11$2e$14$2e$0_$40$types$2b$react$40$19$2e$2$2e$14_react$40$19$2e$2$2e$4_$5f40$emotion$2b$_5efc65b7a21bb615fd4ee8d4bf58b896$2f$node_modules$2f40$mui$2f$material$2f$esm$2f$styles$2f$useTheme$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__useTheme$3e$__["useTheme"])();
     const [input, setInput] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
-    const [currStep, setCurrStep] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("CREDENTIAL");
+    const [currStep, setCurrStep] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("IDENTIFIER");
     const steps = [
         {
-            name: "CREDENTIAL",
+            name: "IDENTIFIER",
             element: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$auth$2f$app$2f$login$2f$IdentifierStep$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["IdentifierStep"], {
                 step: currStep,
                 setStep: setCurrStep,
@@ -1052,18 +1058,18 @@ const Login = ({ style = {} })=>{
                 }
             }, void 0, false, {
                 fileName: "[project]/apps/auth/app/login/Login.tsx",
-                lineNumber: 23,
+                lineNumber: 24,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0))
         },
         {
-            name: "RESTORE",
-            element: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$ui$2f$src$2f$RestoreAccount$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["RestoreAccount"], {
+            name: "RESTORE_ACCOUNT",
+            element: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$features$2f$src$2f$auth$2f$restore$2f$RestoreAccount$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["RestoreAccount"], {
                 headline: `${input} is deactivated`,
                 tagline: "This account has been deactivated. Restore it to log in"
             }, void 0, false, {
                 fileName: "[project]/apps/auth/app/login/Login.tsx",
-                lineNumber: 38,
+                lineNumber: 39,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0))
         },
@@ -1079,7 +1085,7 @@ const Login = ({ style = {} })=>{
                 }
             }, void 0, false, {
                 fileName: "[project]/apps/auth/app/login/Login.tsx",
-                lineNumber: 47,
+                lineNumber: 48,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0))
         }
@@ -1109,7 +1115,7 @@ const Login = ({ style = {} })=>{
                 }
             }, void 0, false, {
                 fileName: "[project]/apps/auth/app/login/Login.tsx",
-                lineNumber: 75,
+                lineNumber: 76,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$1$2e$6_react$2d$dom$40$19$2e$2$2e$4_react$40$19$2e$2$2e$4_$5f$react$40$19$2e$2$2e$4$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$packages$2f$shared$2d$ui$2f$src$2f$Stepper$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Stepper"], {
@@ -1118,17 +1124,17 @@ const Login = ({ style = {} })=>{
                 setCurrStep: setCurrStep
             }, void 0, false, {
                 fileName: "[project]/apps/auth/app/login/Login.tsx",
-                lineNumber: 84,
+                lineNumber: 85,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/apps/auth/app/login/Login.tsx",
-        lineNumber: 61,
+        lineNumber: 62,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(Login, "JaxedAAyfL5w/RNJjqwDCEJbk1s=", false, function() {
+_s(Login, "IITPPX4ponMJoYb23tklZJG+ZA0=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f40$mui$2b$material$40$7$2e$3$2e$9_$40$emotion$2b$react$40$11$2e$14$2e$0_$40$types$2b$react$40$19$2e$2$2e$14_react$40$19$2e$2$2e$4_$5f40$emotion$2b$_5efc65b7a21bb615fd4ee8d4bf58b896$2f$node_modules$2f40$mui$2f$material$2f$esm$2f$styles$2f$useTheme$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__useTheme$3e$__["useTheme"]
     ];

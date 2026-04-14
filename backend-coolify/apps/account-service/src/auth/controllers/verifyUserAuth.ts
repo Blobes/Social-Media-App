@@ -32,7 +32,7 @@ export const verifyUserAuth: RequestHandler = async (
 
       return res.status(401).json({
         status: "ERROR",
-        message: "User account not found or deactivated",
+        message: "User account not found",
         payload: null,
       });
     }

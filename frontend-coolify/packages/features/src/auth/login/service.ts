@@ -1,67 +1,92 @@
 "use client";
 
 import { apiClient, checkNetworkError } from "@repo/helpers";
-import { IUser, SERVER_API } from "@repo/core";
-
-interface TokenCheckResponse {
-  payload: IUser | null;
-  message?: string;
-  status?: "SUCCESS" | "UNAUTHORIZED" | "ERROR";
-}
+import { IUser, SERVER_API, ISinglePayload, FetchStatus } from "@repo/core";
 
 export const LoginService = () => {
-  const verifyAndFetchUser = async (): Promise<TokenCheckResponse> => {
+  // Use ISinglePayload with IUser as the generic type
+  const verifyAndFetchUser = async (): Promise<ISinglePayload<IUser>> => {
     try {
-      const res = await apiClient<{ user: IUser }>(SERVER_API.verifyAuthToken);
-      return { payload: res.user, status: "SUCCESS" };
-    } catch (err: any) {
-      const status = typeof err?.status === "number" ? err.status : undefined;
+      const res = await apiClient<ISinglePayload<IUser>>(
+        SERVER_API.verifyAuthToken,
+      );
 
-      // Catch 401 (Missing/Expired) OR 403 (Invalid)
-      if (status === 401 || status === 403) {
-        // Try to refresh once
+      if (res.status === "SUCCESS") {
+        return {
+          payload: res.payload,
+          status: "SUCCESS",
+          message: res.message,
+          httpStatus: res.httpStatus,
+        };
+      }
+
+      return {
+        payload: null,
+        status: res.status || "ERROR",
+        message: res.message || "Verification failed",
+      };
+    } catch (err: any) {
+      // Check for Unauthorized using both custom status string and numeric code
+      const isAuthIssue =
+        err.status === ("UNAUTHORIZED" as FetchStatus) ||
+        err.httpStatus === 401 ||
+        err.httpStatus === 403;
+
+      if (isAuthIssue) {
         const refreshed = await refreshAccessToken();
         if (refreshed) {
           try {
-            const retryRes = await apiClient<{ user: IUser }>(
+            // Retry the call
+            const retryRes = await apiClient<ISinglePayload<IUser>>(
               SERVER_API.verifyAuthToken,
             );
-            return { payload: retryRes.user, status: "SUCCESS" };
-          } catch {
             return {
-              payload: null,
-              status: "ERROR",
+              payload: retryRes.payload,
+              status: "SUCCESS",
+              message: "Session restored",
             };
+          } catch {
+            return { payload: null, status: "ERROR", message: "Retry failed" };
           }
         }
         return {
           payload: null,
           status: "UNAUTHORIZED",
+          message: "Session expired",
         };
       }
 
-      // Check if it's a network error (incl. timeout, unknown;
-      //  fetcher sets status 0 for these)
+      // Fallback to network error check
       const networkError = checkNetworkError(err);
-      if (networkError) return networkError as TokenCheckResponse;
+      if (networkError) return networkError as ISinglePayload<IUser>;
 
       return {
         payload: null,
         status: "ERROR",
+        message: err.message || "An unexpected error occurred",
+        httpStatus: err.httpStatus,
       };
     }
   };
 
-  const refreshAccessToken = async () => {
+  const refreshAccessToken = async (): Promise<boolean> => {
     try {
-      const res = await apiClient(SERVER_API.refreshToken, {
-        method: "POST",
-      });
-      return true;
+      // Typing the refresh call as well
+      const res = await apiClient<ISinglePayload<any>>(
+        SERVER_API.refreshToken,
+        {
+          method: "POST",
+        },
+      );
+      return res.status === "SUCCESS";
     } catch (err: any) {
-      if (err.status === 401 || err.status === 400) {
-        return false;
-      }
+      const isExpired =
+        err.httpStatus === 401 ||
+        err.httpStatus === 400 ||
+        err.status === "UNAUTHORIZED";
+
+      if (isExpired) return false;
+
       console.error("Auth Refresh Failed unexpectedly:", err.message);
       return false;
     }

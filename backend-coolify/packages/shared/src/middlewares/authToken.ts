@@ -20,9 +20,11 @@ export const verifyAuthToken: RequestHandler = async (
   }
 
   if (!token) {
-    return res
-      .status(401)
-      .json({ message: "No token provided", status: "UNAUTHORIZED" });
+    return res.status(401).json({
+      message: "No token provided",
+      status: "UNAUTHORIZED",
+      payload: null,
+    });
   }
 
   try {
@@ -44,6 +46,7 @@ export const verifyAuthToken: RequestHandler = async (
       return res.status(401).json({
         message: "Session expired or revoked",
         status: "UNAUTHORIZED",
+        payload: null,
       });
     }
 
@@ -51,9 +54,11 @@ export const verifyAuthToken: RequestHandler = async (
     req.user = payload;
     next();
   } catch (err) {
-    return res
-      .status(401)
-      .json({ message: "Invalid or expired token", status: "UNAUTHORIZED" });
+    return res.status(401).json({
+      status: "UNAUTHORIZED",
+      message: "Invalid or expired token",
+      payload: null,
+    });
   }
 };
 
@@ -106,8 +111,9 @@ export const refreshAuthToken: RequestHandler = async (
 
   if (!refreshToken) {
     return res.status(401).json({
-      message: "No refresh token provided",
       status: "UNAUTHORIZED",
+      message: "No refresh token provided",
+      payload: null,
     });
   }
 
@@ -129,8 +135,9 @@ export const refreshAuthToken: RequestHandler = async (
       res.clearCookie("refresh_token");
 
       return res.status(401).json({
-        message: "Session has been revoked",
         status: "UNAUTHORIZED",
+        message: "Session has been revoked",
+        payload: null,
       });
     }
 
@@ -142,6 +149,7 @@ export const refreshAuthToken: RequestHandler = async (
     return res.status(200).json({
       status: "SUCCESS",
       message: "Token refreshed successfully",
+      payload: null,
     });
   } catch (err) {
     // Catch-all for expired or tampered JWTs
@@ -149,8 +157,9 @@ export const refreshAuthToken: RequestHandler = async (
     res.clearCookie("refresh_token");
 
     return res.status(401).json({
-      message: "Expired or invalid refresh token",
       status: "UNAUTHORIZED",
+      message: "Expired or invalid refresh token",
+      payload: null,
     });
   }
 };
