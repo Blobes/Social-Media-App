@@ -68,17 +68,24 @@ export const getAllPost = async (
 
       // Trim to requested page size
       const candidatePosts = personalizedPosts.slice(0, limit);
-      const postIds = candidatePosts.map((p: any) => p._id);
 
       // --- 3. DYNAMIC SOCIAL HYDRATION ---
-      // Fetch "likedByMe" and "isFollowing" for the survivors
+      const postIdsAsStrings = candidatePosts.map((p: any) => String(p._id));
+      const postIdsAsObjects = postIdsAsStrings.map(
+        (id) => new mongoose.Types.ObjectId(id),
+      );
       const socialData = await GistModel.aggregate([
         {
           $match: {
-            _id: { $in: postIds.map((id) => new mongoose.Types.ObjectId(id)) },
+            _id: { $in: postIdsAsObjects },
           },
         },
-        { $addFields: { __order: { $indexOfArray: [postIds, "$_id"] } } },
+        { $addFields: { stringId: { $toString: "$_id" } } },
+        {
+          $addFields: {
+            __order: { $indexOfArray: [postIdsAsStrings, "$stringId"] },
+          },
+        },
         { $sort: { __order: 1 } },
         ...getPostSocialData({ userId: String(userId) }),
       ]);

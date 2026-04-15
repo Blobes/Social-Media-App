@@ -57,6 +57,7 @@ export const getGistList = async (
       const gistIdsAsObjects = candidateGists.map(
         (g: any) => new mongoose.Types.ObjectId(String(g._id)),
       );
+
       const gistIdsAsStrings = candidateGists.map((g: any) => String(g._id));
 
       const socialData = await GistModel.aggregate([
@@ -70,6 +71,7 @@ export const getGistList = async (
         { $sort: { __order: 1 } },
         ...getPostSocialData({ userId: String(userId) }),
       ]);
+
       // Map the social data back using a Map for O(1) lookup to prevent index errors
       socialMap = new Map((socialData || []).map((s) => [String(s._id), s]));
 
