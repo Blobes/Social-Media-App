@@ -7,7 +7,6 @@ import { useTheme } from "@mui/material/styles";
 import { useMisc } from "@repo/shared-state";
 import { LogOut, LogOutIcon } from "lucide-react";
 import { useLogout } from "./useLogout";
-import { CLIENT_ROUTES } from "@repo/core";
 
 export const ComfirmLogout = () => {
   const { closeModal } = useMisc();
@@ -37,22 +36,23 @@ export const ComfirmLogout = () => {
 };
 
 export const Logout = () => {
-  const { openModal, closeModal } = useMisc();
+  const { openModal, closeModal, closeDrawer } = useMisc();
   const theme = useTheme();
 
   return (
     <AppButton
       variant="text"
-      onClick={() =>
-        openModal({ content: <ComfirmLogout />, onClose: closeModal })
-      }
+      onClick={() => {
+        closeDrawer();
+        openModal({ content: <ComfirmLogout />, onClose: closeModal });
+      }}
       style={{
         width: "100%",
         gap: theme.gap(10),
         padding: theme.boxSpacing(0),
         "& svg": { width: "22px", height: "22px" },
         "&:hover": {
-          background: "none",
+          background: "transparent",
         },
       }}>
       <LogOut />
