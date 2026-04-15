@@ -1,6 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
-import { BaseLayout, ClientOnly, DefaultWrapper } from "@repo/features";
+import { BaseLayout, DefaultWrapper, GlobalUIManager } from "@repo/features";
 import { baseMetadata } from "@repo/helpers";
 
 export const metadata: Metadata = {
@@ -15,9 +15,9 @@ export default async function RootLayout({
 }>) {
   return (
     <BaseLayout>
-      <ClientOnly>
+      <GlobalUIManager>
         <DefaultWrapper>{children}</DefaultWrapper>
-      </ClientOnly>
+      </GlobalUIManager>
     </BaseLayout>
   );
 }
