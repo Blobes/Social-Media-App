@@ -30,7 +30,8 @@ export const UserAvatar = ({
   const { firstName, lastName, profileImage } = userInfo;
 
   const initials = getInitialsAndColors(`${firstName} ${lastName}`);
-  const { marginTop, marginLeft, ...others } = style;
+  const { marginTop, marginLeft, ...otherStyle } = style;
+  const dynamicFontSize = `calc(${otherStyle.width || "30px"} * 0.45)`;
 
   return (
     <BasicTooltip title={toolTipValue} sx={{ borderRadius: theme.radius[3] }}>
@@ -49,13 +50,13 @@ export const UserAvatar = ({
             color: initials.textColor,
             bgcolor: initials.bgColor,
             borderRadius: theme.radius[100],
-            fontSize: "14px",
+            fontSize: dynamicFontSize,
             fontWeight: "500",
-            ...others,
+            ...otherStyle,
           }}
           alt={`${firstName} ${lastName}`}
           children={initials.initials}
-          src={profileImage ? profileImage : " "}
+          src={profileImage ? profileImage : ""}
         />
       </IconButton>
     </BasicTooltip>

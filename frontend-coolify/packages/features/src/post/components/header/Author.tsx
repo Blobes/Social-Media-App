@@ -31,7 +31,7 @@ export const AuthorInfo = ({
           lastName: author.lastName,
           profileImage: author.profileImage,
         }}
-        style={{ width: avatarSize, height: avatarSize, fontSize: "16px" }}
+        style={{ width: avatarSize, height: avatarSize }}
         aria-label={author.fullName}
       />
       <Stack sx={{ width: "100%", gap: theme.gap(0), minWidth: "40px" }}>

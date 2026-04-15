@@ -155,7 +155,9 @@ export const CACHE_KEYS = {
   USER_FOLLOWING: (userId: string) => `user:${userId}:following`,
   USER_FOLLOWERS: (userId: string, page: number, limit: number) =>
     `user:${userId}:followers:${userId}:p:${page}:l:${limit}`,
-  USER_BLOCKED: (userId: string) => `user:${userId}:blocked`,
+  USER_BLOCKINGS: (userId: string) => `user:${userId}:blockings`, // List of users blocked by this user
+  USER_BLOCKERS: (userId: string) => `user:${userId}:blockers`, // List of users that has blocked this user
+
   USER_PREFERENCES: (userId: string) => `user:${userId}:prefs`,
 
   // --- Invalidation Patterns (Wildcards) ---

@@ -38,9 +38,6 @@ export const genRefreshTokens = async (
   res: Response,
   sessionId: string,
 ) => {
-  const origin = req.get("origin") || "";
-  const isLocalDev = origin.includes("localhost");
-
   const userId = user._id?.toString() || user.id?.toString();
 
   const refreshToken = jwt.sign(

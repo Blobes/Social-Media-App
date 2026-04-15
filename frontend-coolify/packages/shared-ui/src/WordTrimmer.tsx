@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { Typography, Box, TypographyProps } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { motion, LayoutGroup } from "framer-motion";
-import { AppButton } from "@repo/shared-ui";
 import { GenericStyle } from "@repo/core";
+import { AppButton } from "./Buttons";
 
 interface WordTrimmerProps {
   children?: React.ReactNode;

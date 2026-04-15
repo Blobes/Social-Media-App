@@ -34,6 +34,7 @@ export const RenderItemList = <T extends IMenuItem>({
   const { fontSize, fontWeight, color, ...restStyle } = style;
 
   const itemStyle: GenericStyle = {
+    display: "flex",
     alignItems: "center",
     flexDirection: "row",
     cursor: "pointer",
@@ -41,6 +42,7 @@ export const RenderItemList = <T extends IMenuItem>({
     padding: theme.boxSpacing(2, 6),
     borderRadius: theme.radius.full,
     transition: "all 0.2s ease",
+    textDecoration: "none",
     "&:hover": {
       backgroundColor: theme.palette.gray.trans[1],
       outline: "none",
@@ -49,7 +51,7 @@ export const RenderItemList = <T extends IMenuItem>({
       fontSize: (fontSize ?? "15px") + "!important",
       fontWeight: (fontWeight ?? "600") + "!important",
       color: (color ?? theme.palette.gray[300]) + "!important",
-      "&:hover": { ...restStyle["&:hover"] },
+      "&:hover": { textDecoration: "none", ...restStyle["&:hover"] },
     },
     ...restStyle,
   };

@@ -5,7 +5,7 @@ import { CircularProgress, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { img } from "@repo/assets";
 import Image from "next/image";
-import { fadeIn, rotate } from "@repo/helpers";
+import { rotate } from "@repo/helpers";
 import { AnimatedWrapper } from "./AnimatedWrapper";
 import { RootUIContainer } from "./Containers";
 import { GenericStyle } from "@repo/core";

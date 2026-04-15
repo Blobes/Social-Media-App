@@ -135,12 +135,12 @@ export const MobileNav = ({}) => {
           style={{
             gap: theme.gap(10),
             padding: 0,
-            background: "none",
+            background: "transparent",
             width: "100%",
             textAlign: "left",
             fontSize: "18px",
             "&:hover": {
-              background: "none",
+              background: "transparent",
               color: theme.palette.primary.dark + "!important",
             },
             "& svg": {

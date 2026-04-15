@@ -6,9 +6,9 @@ import { useGlobalContext, usePage, useSnackbar } from "@repo/shared-state";
 import { usePathname, useRouter } from "next/navigation";
 
 export const useLogout = () => {
-  const { setAuthUser, setAuthStatus, setSnackBarMsg } = useGlobalContext();
+  const { setAuthUser, setAuthStatus } = useGlobalContext();
   const { navigateTo } = usePage();
-  const { setSBMessage } = useSnackbar();
+  const { setSBMessage, clearSBMessages } = useSnackbar();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -33,7 +33,7 @@ export const useLogout = () => {
       console.error("Logout failed:", error);
     }
     //Reset feedback state
-    setSnackBarMsg((prev: any) => ({ ...prev, messages: [], inlineMsg: null }));
+    clearSBMessages();
   };
 
   return { handleLogout };

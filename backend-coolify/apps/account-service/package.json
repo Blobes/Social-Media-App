@@ -16,7 +16,9 @@
     "dotenv": "catalog:",
     "express": "catalog:",
     "mongoose": "catalog:",
-    "uuid": "catalog:"
+    "uuid": "catalog:",
+    "jsonwebtoken": "catalog:",
+    "@types/jsonwebtoken": "catalog:"
   },
   "devDependencies": {
     "@types/bcrypt": "catalog:",

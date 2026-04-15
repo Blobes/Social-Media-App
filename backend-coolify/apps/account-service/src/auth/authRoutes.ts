@@ -5,12 +5,13 @@ import { createAccount } from "./controllers/createAccount";
 import { verifyEmailCode } from "./controllers/otp/verifyEmailCode";
 import { sendEmailCode } from "./controllers/otp/sendEmailCode";
 import loginUser from "./controllers/session/login";
-import { refreshAuthToken, verifyAuthToken } from "@repo/shared";
-import { verifyUserAuth } from "./controllers/verifyUserAuth";
+import { verifyAuthToken } from "@repo/shared";
+import { verifySession } from "./controllers/session/verifySession";
 import { logoutUser } from "./controllers/session/logout";
 import { getActiveSessions } from "./controllers/session/activeSessions";
-import { setPrimaryDevice } from "./controllers/session/primaryDevice";
+import { setPrimarySession } from "./controllers/session/primarySession";
 import { checkPhone } from "./controllers/check/phone";
+import { refreshSession } from "./controllers/session/refreshSession";
 
 const router: Router = express.Router();
 
@@ -32,13 +33,13 @@ router.post("/resend-email-code", sendEmailCode);
 
 // --- SESSION MANAGEMENT ---
 router.post("/login", loginUser);
-router.post("/refresh", refreshAuthToken);
-router.post("/logout", logoutUser);
+router.post("/refresh", refreshSession);
+router.post("/logout", verifyAuthToken, logoutUser);
 router.get("/sessions", getActiveSessions);
-router.patch("/sessions/primary", setPrimaryDevice);
+router.patch("/sessions/primary", setPrimarySession);
 
 // --- IDENTITY VERIFICATION ---
 // Used by the client to sync the current user state on app load
-router.get("/verify-auth", verifyAuthToken, verifyUserAuth);
+router.get("/verify-session", verifyAuthToken, verifySession);
 
 export default router;

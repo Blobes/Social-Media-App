@@ -49,7 +49,6 @@ export const ProfileCard = () => {
           marginTop: theme.boxSpacing(-20),
           width: "70px",
           height: "70px",
-          fontSize: "30px",
         }}
       />
       <Stack

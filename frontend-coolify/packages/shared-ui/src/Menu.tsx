@@ -53,7 +53,7 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
           paper: {
             sx: {
               borderRadius: theme.radius[2],
-              padding: theme.boxSpacing(4),
+              padding: theme.boxSpacing(2),
               border: `1px solid ${theme.palette.gray[50]}`,
               width: "fit-content",
               minWidth: 150,
@@ -143,7 +143,7 @@ export const DisplayList = <T extends IMenuItem>({
 
   // Default styles for nav menus
   const itemStyle: GenericStyle = {
-    padding: theme.boxSpacing(4, 8),
+    padding: theme.boxSpacing(4, 6),
     gap: theme.gap(8),
     textAlign: "left",
     width: "100%",

@@ -19,7 +19,7 @@ export const logoutUser = async (
 
   if (!userId) {
     return res.status(401).json({
-      status: "ERROR",
+      status: "UNAUTHORIZED",
       message: "Unauthorized",
       payload: null,
     });

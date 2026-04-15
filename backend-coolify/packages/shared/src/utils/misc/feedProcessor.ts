@@ -1,6 +1,6 @@
 import { IBasePost, IUserPreferences } from "../../types/types";
 import { UserModel, BlockedModel } from "@repo/database";
-import { getOrSetCacheSet } from "../redis/cache";
+import { CACHE_KEYS, getOrSetCacheSet } from "../redis/cache";
 
 /**
  * personalizeFeed: A generic ranking engine for all post types.
@@ -72,7 +72,7 @@ export const getUserPreferences = async (
     UserModel.findById(userId)
       .select("preferences location username firstName lastName")
       .lean(),
-    getOrSetCacheSet(`user:${userId}:blocks`, async () => {
+    getOrSetCacheSet(CACHE_KEYS.USER_BLOCKINGS(userId), async () => {
       const docs = await BlockedModel.find({ blockerId: userId })
         .select("blockedId")
         .lean();

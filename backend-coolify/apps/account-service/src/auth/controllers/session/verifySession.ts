@@ -7,7 +7,7 @@ import {
 } from "@repo/shared";
 import { RequestHandler, Response } from "express";
 
-export const verifyUserAuth: RequestHandler = async (
+export const verifySession: RequestHandler = async (
   req: IAuthRequest,
   res: Response,
 ): Promise<any> => {

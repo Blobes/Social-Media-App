@@ -40,7 +40,7 @@ export const SnackBars = ({
         position: "fixed",
         ...(snackBarMsg.dir === "up" ? { bottom: "10px" } : { top: "10px" }),
         right: "10px",
-        zIndex: 1000,
+        zIndex: 2000,
         width: "94%",
         [theme.breakpoints.up("sm")]: {
           maxWidth: isExpanded ? "400px" : "350px",

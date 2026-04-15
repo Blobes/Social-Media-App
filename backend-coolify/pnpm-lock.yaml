@@ -143,6 +143,9 @@ importers:
       '@repo/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@types/jsonwebtoken':
+        specifier: 'catalog:'
+        version: 9.0.10
       bcrypt:
         specifier: 'catalog:'
         version: 6.0.0
@@ -155,6 +158,9 @@ importers:
       express:
         specifier: 'catalog:'
         version: 4.22.1
+      jsonwebtoken:
+        specifier: 'catalog:'
+        version: 9.0.3
       mongoose:
         specifier: 'catalog:'
         version: 9.3.0

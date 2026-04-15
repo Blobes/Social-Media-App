@@ -2,7 +2,7 @@ import { UserModel } from "@repo/database";
 import { IAuthRequest } from "@repo/shared";
 import { Response } from "express";
 
-export const setPrimaryDevice = async (
+export const setPrimarySession = async (
   req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
