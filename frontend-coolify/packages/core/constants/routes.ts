@@ -74,7 +74,7 @@ export const SERVER_API = {
   checkEmail: `${API_BASE.auth}/check-email`,
   checkPhone: `${API_BASE.auth}/check-phone`,
   checkUsername: `${API_BASE.auth}/check-username`,
-  verifyAuthToken: `${API_BASE.auth}/verify-session`,
+  verifyUserSession: `${API_BASE.auth}/verify-session`,
   refreshToken: `${API_BASE.auth}/refresh`,
 
   // Media

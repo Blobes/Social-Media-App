@@ -8,7 +8,7 @@ export const LoginService = () => {
   const verifyAndFetchUser = async (): Promise<ISinglePayload<IUser>> => {
     try {
       const res = await apiClient<ISinglePayload<IUser>>(
-        SERVER_API.verifyAuthToken,
+        SERVER_API.verifyUserSession,
       );
 
       if (res.status === "SUCCESS") {
@@ -38,7 +38,7 @@ export const LoginService = () => {
           try {
             // Retry the call
             const retryRes = await apiClient<ISinglePayload<IUser>>(
-              SERVER_API.verifyAuthToken,
+              SERVER_API.verifyUserSession,
             );
             return {
               payload: retryRes.payload,
