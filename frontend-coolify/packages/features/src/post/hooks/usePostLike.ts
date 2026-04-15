@@ -56,37 +56,37 @@ export const usePostLike = <T extends LikablePost>(
   const { _id, likedByMe } = postData;
 
   // Sync with localStorage on mount (Handles refreshes while offline)
-  // useEffect(() => {
-  //   const pendingLike = getPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
-  //   if (pendingLike !== null && pendingLike !== likedByMe) {
-  //     setPostData((prev) => ({
-  //       ...prev,
-  //       likedByMe: pendingLike,
-  //       likeCount: prev.likeCount + (pendingLike ? 1 : -1),
-  //     }));
-  //   }
-  // }, [_id, getPendingLike, likedByMe]);
-
   useEffect(() => {
     const pendingLike = getPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
-
-    // If we have a stored intent that differs from what the server sent
     if (pendingLike !== null && pendingLike !== likedByMe) {
-      setPostData((prev) => {
-        // Calculate the difference:
-        // If we intended to LIKE but the server says we HAVEN'T, add 1.
-        // If we intended to UNLIKE but the server says we HAVE, subtract 1.
-        const adjustment = pendingLike ? 1 : -1;
-
-        return {
-          ...prev,
-          likedByMe: pendingLike,
-          // Only adjust if the server data hasn't already accounted for it
-          likeCount: prev.likeCount + adjustment,
-        };
-      });
+      setPostData((prev) => ({
+        ...prev,
+        likedByMe: pendingLike,
+        likeCount: prev.likeCount + (pendingLike ? 1 : -1),
+      }));
     }
-  }, [_id]); // Remove likedByMe from dependencies to prevent infinite loops
+  }, [_id, getPendingLike]);
+
+  // useEffect(() => {
+  //   const pendingLike = getPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
+
+  //   // If we have a stored intent that differs from what the server sent
+  //   if (pendingLike !== null && pendingLike !== likedByMe) {
+  //     setPostData((prev) => {
+  //       // Calculate the difference:
+  //       // If we intended to LIKE but the server says we HAVEN'T, add 1.
+  //       // If we intended to UNLIKE but the server says we HAVE, subtract 1.
+  //       const adjustment = pendingLike ? 1 : -1;
+
+  //       return {
+  //         ...prev,
+  //         likedByMe: pendingLike,
+  //         // Only adjust if the server data hasn't already accounted for it
+  //         likeCount: prev.likeCount + adjustment,
+  //       };
+  //     });
+  //   }
+  // }, [_id]); // Remove likedByMe from dependencies to prevent infinite loops
 
   const handleLike = useCallback(async () => {
     if (isLiking) return;

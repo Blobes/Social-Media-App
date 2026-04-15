@@ -1,3 +1,4 @@
+import { hydrateSocialState } from "@/feed/syncPost";
 import { GistModel } from "@repo/database";
 import {
   IAuthRequest,
@@ -80,27 +81,30 @@ export const getGistList = async (
       );
     }
 
-    const finalPayload = candidateGists.map((gist: any) => {
-      const gistIdStr = String(gist._id);
-      const social = socialMap.get(gistIdStr);
-      const gistObj = gist.toObject ? gist.toObject() : gist;
-      return {
-        ...gistObj,
+    // const finalPayload = candidateGists.map((gist: any) => {
+    //   const gistIdStr = String(gist._id);
+    //   const social = socialMap.get(gistIdStr);
+    //   const gistObj = gist.toObject ? gist.toObject() : gist;
+    //   return {
+    //     ...gistObj,
 
-        likeCount: social ? social.likeCount : (gistObj.likeCount ?? 0),
-        commentCount: social
-          ? social.commentCount
-          : (gistObj.commentCount ?? 0),
-        viewCount: social ? social.viewCount : (gistObj.viewCount ?? 0),
-        likedByMe: social?.likedByMe ?? false,
+    //     likeCount: social ? social.likeCount : (gistObj.likeCount ?? 0),
+    //     commentCount: social
+    //       ? social.commentCount
+    //       : (gistObj.commentCount ?? 0),
+    //     viewCount: social ? social.viewCount : (gistObj.viewCount ?? 0),
+    //     likedByMe: social?.likedByMe ?? false,
 
-        author: {
-          ...(gistObj.author || {}),
-          isFollowing: social?.isFollowing ?? false,
-          followsMe: social?.followsMe ?? false,
-        },
-      };
-    });
+    //     author: {
+    //       ...(gistObj.author || {}),
+    //       isFollowing: social?.isFollowing ?? false,
+    //       followsMe: social?.followsMe ?? false,
+    //     },
+    //   };
+    // });
+
+    // Merge real-time social flags into the cached static objects
+    const finalPayload = hydrateSocialState(candidateGists, socialMap);
 
     return res.status(200).json({
       status: "SUCCESS",

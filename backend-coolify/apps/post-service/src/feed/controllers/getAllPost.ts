@@ -10,6 +10,7 @@ import {
 } from "@repo/shared";
 import { Response } from "express";
 import mongoose from "mongoose";
+import { hydrateSocialState } from "../syncPost";
 
 export const getAllPost = async (
   req: IAuthRequest,
@@ -82,21 +83,12 @@ export const getAllPost = async (
         ...getPostSocialData({ userId: String(userId) }),
       ]);
 
-      // Merge real-time social flags into the cached static objects
-      finalPayload = candidatePosts.map((post: any, index: number) => {
-        const social = socialData[index];
-        return {
-          ...post,
-          likedByMe: social?.likedByMe || false,
-          author: {
-            ...post.author,
-            isFollowing: social?.isFollowing || false,
-            followsMe: social?.followsMe || false,
-          },
-        };
-      });
-    }
+      // Convert to Map for O(1) lookup in the helper
+      const socialMap = new Map(socialData.map((s) => [String(s._id), s]));
 
+      // Merge real-time social flags into the cached static objects
+      finalPayload = hydrateSocialState(candidatePosts, socialMap);
+    }
     // --- 4. RESPONSE ---
     return res.status(200).json({
       status: "SUCCESS",
