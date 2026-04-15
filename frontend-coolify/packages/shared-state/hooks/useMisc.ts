@@ -29,7 +29,7 @@ export const useMisc = () => {
     setDrawerContent((prev: any) => (prev === update ? prev : update));
   };
   const closeDrawer = async () => {
-    await delay(200);
+    await delay();
     setDrawerContent(null);
   };
 
@@ -37,7 +37,7 @@ export const useMisc = () => {
     setModalContent((prev: any) => (prev === update ? prev : update));
   };
   const closeModal = async () => {
-    await delay(200);
+    await delay();
     setModalContent(null);
   };
 

@@ -36,7 +36,7 @@ export const ComfirmLogout = () => {
 };
 
 export const Logout = () => {
-  const { openModal, closeModal, closeDrawer } = useMisc();
+  const { openModal, closeDrawer } = useMisc();
   const theme = useTheme();
 
   return (
@@ -44,7 +44,7 @@ export const Logout = () => {
       variant="text"
       onClick={() => {
         closeDrawer();
-        openModal({ content: <ComfirmLogout />, onClose: closeModal });
+        openModal({ content: <ComfirmLogout /> });
       }}
       style={{
         width: "100%",
