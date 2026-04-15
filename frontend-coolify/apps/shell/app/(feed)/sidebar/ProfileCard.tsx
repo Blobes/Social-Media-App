@@ -3,7 +3,7 @@
 import React from "react";
 import { Stack, Typography, Divider } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext } from "@repo/shared-state";
+import { useGlobalContext } from "@repo/shared-hooks";
 import Image from "next/image";
 import { UserAvatar, AppButton } from "@repo/shared-ui";
 import { summarizeNum } from "@repo/helpers";

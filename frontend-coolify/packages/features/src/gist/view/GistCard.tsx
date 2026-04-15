@@ -8,14 +8,13 @@ import {
   useAdaptiveTime,
   useSnackbar,
   useMisc,
-} from "@repo/shared-state";
+} from "@repo/shared-hooks";
 import { UIMode, IGist, MediaProps, GenericStyle } from "@repo/core";
 import { mediaData } from "@repo/assets";
 import { Feedback, PostObserver, WordTrimmer } from "@repo/shared-ui";
 import { GistService } from "../gistService";
 import { GistMedia } from "./GistMedia";
 import { PostHeader } from "../../post/components/header/PostHeader";
-import { PostCaption } from "../../post/components/Caption";
 import { Metrics } from "../../post/components/Metrics";
 import { PostEngagement } from "../../post/components/engagement/Engagement";
 import { usePostLike as useGistLike } from "../../post/hooks/usePostLike";

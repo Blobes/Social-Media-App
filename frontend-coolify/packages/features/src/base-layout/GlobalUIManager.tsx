@@ -24,7 +24,7 @@ import {
   useOffline,
   usePage,
   useSnackbar,
-} from "@repo/shared-state";
+} from "@repo/shared-hooks";
 import { AuthStatus, DrawerRef, ModalRef } from "@repo/core";
 import { useAuth } from "../auth/login/useAuth";
 

@@ -3,7 +3,7 @@
 import React from "react";
 import { BlurEffect, RootUIContainer, Footer } from "@repo/shared-ui";
 import { Header } from "./navbars/Header";
-import { usePage } from "@repo/shared-state";
+import { usePage } from "@repo/shared-hooks";
 import { LISTS } from "@repo/core";
 
 export const Wrapper = ({ children }: { children: React.ReactNode }) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useGlobalContext, usePage, useSnackbar } from "@repo/shared-state";
+import { useGlobalContext, usePage, useSnackbar } from "@repo/shared-hooks";
 import { LoginService } from "./service";
 import { CLIENT_ROUTES } from "@repo/core";
 

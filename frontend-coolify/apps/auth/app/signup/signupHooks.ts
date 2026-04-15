@@ -1,6 +1,6 @@
 "use client";
 
-import { useGlobalContext } from "@repo/shared-state";
+import { useGlobalContext } from "@repo/shared-hooks";
 import { apiClient, deleteCookie } from "@repo/helpers";
 import { IUser, ISinglePayload, DrawerRef } from "@repo/core";
 import { useRouter } from "next/navigation";

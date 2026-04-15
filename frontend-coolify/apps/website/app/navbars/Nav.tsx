@@ -4,7 +4,7 @@ import React, { useRef } from "react";
 import { Divider, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { RenderItemList, AppButton } from "@repo/shared-ui";
-import { useGlobalContext, useMisc, usePage } from "@repo/shared-state";
+import { useGlobalContext, useMisc, usePage } from "@repo/shared-hooks";
 import { CLIENT_ROUTES, GenericStyle, LISTS, MenuRef } from "@repo/core";
 
 interface NavProps {

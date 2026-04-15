@@ -4,7 +4,7 @@ import React from "react";
 import { AppButton } from "@repo/shared-ui";
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useMisc } from "@repo/shared-state";
+import { useMisc } from "@repo/shared-hooks";
 import { LogOut, LogOutIcon } from "lucide-react";
 import { useLogout } from "./useLogout";
 
@@ -36,7 +36,7 @@ export const ComfirmLogout = () => {
 };
 
 export const Logout = () => {
-  const { openModal, closeDrawer } = useMisc();
+  const { openModal, closeDrawer, closeModal } = useMisc();
   const theme = useTheme();
 
   return (
@@ -44,7 +44,7 @@ export const Logout = () => {
       variant="text"
       onClick={() => {
         closeDrawer();
-        openModal({ content: <ComfirmLogout /> });
+        openModal({ content: <ComfirmLogout />, onClose: closeModal });
       }}
       style={{
         width: "100%",

@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { AppBar, Stack, IconButton } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext, useMisc, usePage } from "@repo/shared-state";
+import { useGlobalContext, useMisc, usePage } from "@repo/shared-hooks";
 import { DesktopNav, MobileNav } from "./Nav";
 import { AnchorLink, AppButton } from "@repo/shared-ui";
 import Image from "next/image";

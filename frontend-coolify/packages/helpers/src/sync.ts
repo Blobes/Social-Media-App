@@ -1,69 +1,92 @@
 "use client";
 
-import { apiClient } from "./apiClient";
+import { GenericQueue } from "@repo/core";
 
-// POST LIKE HANDLING HELPERS
-const pendingLikesKey = "pendingLikes";
-const likeQueueKey = "likeQueue";
-// --- Pending likes ---
-export const setPendingLike = (postId: string, liked: boolean) => {
-  const pending = JSON.parse(localStorage.getItem(pendingLikesKey) || "{}");
-  pending[postId] = liked;
-  localStorage.setItem(pendingLikesKey, JSON.stringify(pending));
+// // POST LIKE HANDLING HELPERS
+// const pendingLikesKey = "pendingLikes";
+// const likeQueueKey = QueueKeys.POST.like;
+/**
+ * Generic helper to manage pending/optimistic states in localStorage
+ */
+export const setPendingState = <T>(key: string, id: string, value: T) => {
+  if (typeof window === "undefined") return;
+  const pending = JSON.parse(localStorage.getItem(key) || "{}");
+  pending[id] = value;
+  localStorage.setItem(key, JSON.stringify(pending));
 };
 
-export const getPendingLike = (postId: string): boolean | null => {
-  const pending = JSON.parse(localStorage.getItem(pendingLikesKey) || "{}");
-  return pending[postId] ?? null;
+export const getPendingState = <T>(key: string, id: string): T | null => {
+  if (typeof window === "undefined") return null;
+  const pending = JSON.parse(localStorage.getItem(key) || "{}");
+  return (pending[id] as T) ?? null;
 };
 
-export const clearPendingLike = (postId: string) => {
-  const pending = JSON.parse(localStorage.getItem(pendingLikesKey) || "{}");
-  delete pending[postId];
-  localStorage.setItem(pendingLikesKey, JSON.stringify(pending));
+export const clearPendingState = (key: string, id: string) => {
+  if (typeof window === "undefined") return;
+  const pending = JSON.parse(localStorage.getItem(key) || "{}");
+  if (pending[id] !== undefined) {
+    delete pending[id];
+    localStorage.setItem(key, JSON.stringify(pending));
+  }
 };
-// --- Offline queue ---
-export const enqueueLike = (postId: string, finalState: boolean) => {
-  const queue = JSON.parse(localStorage.getItem(likeQueueKey) || "{}");
-  // Overwrites any previous pending action for this specific post
-  queue[postId] = { liked: finalState, timestamp: Date.now() };
-  localStorage.setItem(likeQueueKey, JSON.stringify(queue));
+// // --- Offline queue ---
+// export const enqueueLike = (postId: string, finalState: boolean) => {
+//   const queue = JSON.parse(localStorage.getItem(likeQueueKey) || "{}");
+//   // Overwrites any previous pending action for this specific post
+//   queue[postId] = { liked: finalState, timestamp: Date.now() };
+//   localStorage.setItem(likeQueueKey, JSON.stringify(queue));
+// };
+
+export const enqueueTask = <T>(queueKey: string, id: string, payload: T) => {
+  const queue = JSON.parse(localStorage.getItem(queueKey) || "{}");
+  queue[id] = { payload, timestamp: Date.now() };
+  localStorage.setItem(queueKey, JSON.stringify(queue));
 };
 
-let isSyncing = false;
-export const processQueue = async (authStatus: string, SERVER_API: any) => {
-  //  If already syncing, don't start another loop
-  if (isSyncing || authStatus !== "AUTHENTICATED") return;
+let isSyncing: Record<string, boolean> = {}; // Track sync status per queue key
 
-  const queue = JSON.parse(localStorage.getItem(likeQueueKey) || "{}");
-  const postIds = Object.keys(queue);
+export const processQueue = async <T>(
+  authStatus: string,
+  queueKey: string,
+  apiCall: (id: string, payload: T) => Promise<void>,
+) => {
+  // 1. Guards: Don't sync if unauthorized or if THIS specific queue is already running
+  if (isSyncing[queueKey] || authStatus !== "AUTHENTICATED") return;
 
-  if (!postIds.length) return;
+  const getQueue = (): GenericQueue =>
+    JSON.parse(localStorage.getItem(queueKey) || "{}");
 
-  isSyncing = true; // Lock the door
+  const items = Object.keys(getQueue());
+  if (!items.length) return;
+
+  isSyncing[queueKey] = true;
 
   try {
-    for (const postId of postIds) {
+    for (const id of items) {
+      const currentQueue = getQueue();
+      const task = currentQueue[id];
+
+      if (!task) continue;
+
       try {
-        await apiClient(SERVER_API.likeGist(postId), { method: "PUT" });
+        // Execute the generic API call passed by the caller
+        await apiCall(id, task.payload);
 
-        // Use a functional update style for the queue to prevent overwriting
-        const currentQueue = JSON.parse(
-          localStorage.getItem(likeQueueKey) || "{}",
-        );
-        delete currentQueue[postId];
-        localStorage.setItem(likeQueueKey, JSON.stringify(currentQueue));
+        // Success: Remove item from storage
+        const updatedQueue = getQueue();
+        delete updatedQueue[id];
+        localStorage.setItem(queueKey, JSON.stringify(updatedQueue));
 
-        clearPendingLike(postId);
+        // Optional: Small throttle
+        await new Promise((r) => setTimeout(r, 50));
+      } catch (err: any) {
+        console.error(`[Queue: ${queueKey}] Failed for ${id}:`, err);
 
-        // Optional: Add a tiny 50ms delay to let the DB "breathe" between updates
-        await new Promise((resolve) => setTimeout(resolve, 50));
-      } catch (err) {
-        console.error("Failed to sync offline like for:", postId, err);
-        // If it's a 401/Unauthorized, we should probably stop the whole loop
+        // If the error is an Auth error, stop the entire queue immediately
+        if (err.status === 401) break;
       }
     }
   } finally {
-    isSyncing = false; // Unlock the door when totally finished
+    isSyncing[queueKey] = false;
   }
 };

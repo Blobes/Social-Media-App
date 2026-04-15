@@ -36,11 +36,32 @@ export const crossZoneCheck = (path: string): boolean => {
   return !matchPaths(targetZone, currentZone);
 };
 
+let prefetchTimeout: NodeJS.Timeout;
+
 export const prefetchPage = (href?: string, isCrossZone?: boolean) => {
   if (isCrossZone && href && typeof window !== "undefined") {
-    const link = document.createElement("link");
-    link.rel = "prefetch";
-    link.href = href;
-    document.head.appendChild(link);
+    if (prefetchTimeout) clearTimeout(prefetchTimeout);
+    // Check if we've already prefetched this exact URL
+    const alreadyPrefetched = document.querySelector(
+      `link[rel="prefetch"][href="${href}"]`,
+    );
+    if (!alreadyPrefetched) {
+      const link = document.createElement("link");
+      link.rel = "prefetch";
+      link.href = href;
+      link.setAttribute("as", "document");
+      document.head.appendChild(link);
+    }
   }
+};
+
+export const debouncedPrefetch = (
+  href: string,
+  isCrossZone: boolean,
+  delay = 1500,
+) => {
+  if (prefetchTimeout) clearTimeout(prefetchTimeout);
+  prefetchTimeout = setTimeout(() => {
+    prefetchPage(href, isCrossZone);
+  }, delay);
 };

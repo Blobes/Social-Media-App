@@ -9,7 +9,7 @@ import { useTheme } from "@mui/material/styles";
 
 interface UserAvatarProps {
   userInfo: IUser | null;
-  action?: (e: React.MouseEvent<HTMLElement>) => void;
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
   url?: string;
   style?: GenericStyle;
   toolTipValue?: string;
@@ -17,7 +17,7 @@ interface UserAvatarProps {
 
 export const UserAvatar = ({
   userInfo,
-  action,
+  onClick,
   url,
   style = { width: "30px", height: "30px" },
   toolTipValue = "",
@@ -37,7 +37,7 @@ export const UserAvatar = ({
     <BasicTooltip title={toolTipValue} sx={{ borderRadius: theme.radius[3] }}>
       <IconButton
         {...(url ? { href: url } : {})}
-        onClick={action && action}
+        onClick={onClick}
         sx={{
           borderRadius: theme.radius.full,
           padding: theme.boxSpacing(2),

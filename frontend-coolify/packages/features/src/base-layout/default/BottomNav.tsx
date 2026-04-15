@@ -3,7 +3,7 @@
 import React from "react";
 import { AppBar, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { usePageScroll } from "@repo/shared-state";
+import { usePageScroll } from "@repo/shared-hooks";
 
 interface NavProps {
   scrollRef?: React.RefObject<HTMLElement | null>;

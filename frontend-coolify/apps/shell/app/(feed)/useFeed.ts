@@ -20,11 +20,11 @@ export const useFeed = () => {
       setLoading(true);
       const res = await fetchFeed();
 
-      if (res?.payload) {
-        // const feedList: IPost[] = res.payload.map((post: any) => ({
-        //   ...post,
-        //   type: String(post.postType).toUpperCase() || "GIST",
-        // }));
+      if (res.status === "SUCCESS" && res.payload) {
+        const feedList: IPost[] = res.payload.map((post: IPost) => ({
+          ...post,
+          type: String(post.postType).toUpperCase() || "GIST",
+        }));
 
         // Map the local stakes
         const stakeList: IPost[] = stakes.map((stake: IStake) => ({
@@ -33,13 +33,13 @@ export const useFeed = () => {
         }));
 
         // 4. Combine and Sort
-        const combinedList = [...feed, ...stakeList];
+        const combinedList = [...feedList, ...stakeList];
 
         // 5. Update State with the fully casted IPost[]
         setFeed(combinedList);
         setMessage(res.message);
       }
-    } catch (error) {
+    } catch (error: any) {
       setMessage(error.message);
     } finally {
       await delay();

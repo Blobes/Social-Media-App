@@ -92,3 +92,10 @@ export interface IPage {
   title: string;
   path: string;
 }
+
+export interface QueueItem<T = any> {
+  payload: T;
+  timestamp: number;
+  retryCount?: number;
+}
+export type GenericQueue = Record<string, QueueItem>;

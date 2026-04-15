@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext, useSnackbar, usePage } from "@repo/shared-state";
+import { useGlobalContext, useSnackbar, usePage } from "@repo/shared-hooks";
 import { useLockCountdown } from "./useLockCount";
 import {
   setCookie,

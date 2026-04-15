@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { useGlobalContext, useSnackbar } from "@repo/shared-state";
+import { useGlobalContext, useSnackbar } from "@repo/shared-hooks";
 import { FollowResponse, UserService } from "./service";
 import { IUser } from "@repo/core";
 import { delay } from "@repo/helpers";

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { vibrate, processQueue } from "@repo/helpers";
-import { AuthStatus, SERVER_API, UIMode } from "@repo/core";
+import { AuthStatus, QUEUE_KEYS, UIMode } from "@repo/core";
 
 // Generic interface for any content that can be liked
 interface LikablePost {
@@ -14,9 +14,9 @@ interface LikablePost {
 }
 
 interface UsePostLikeContext {
-  getPendingLike: (id: string) => boolean | null;
-  setPendingLike: (id: string, value: boolean) => void;
-  clearPendingLike: (id: string) => void;
+  getPendingLike: (key: string, id: string) => boolean | null;
+  setPendingLike: (key: string, id: string, value: boolean) => void;
+  clearPendingLike: (key: string, id: string) => void;
   authStatus: AuthStatus;
   setModalContent: (content: any) => void;
   isOffline: boolean;
@@ -56,16 +56,37 @@ export const usePostLike = <T extends LikablePost>(
   const { _id, likedByMe } = postData;
 
   // Sync with localStorage on mount (Handles refreshes while offline)
+  // useEffect(() => {
+  //   const pendingLike = getPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
+  //   if (pendingLike !== null && pendingLike !== likedByMe) {
+  //     setPostData((prev) => ({
+  //       ...prev,
+  //       likedByMe: pendingLike,
+  //       likeCount: prev.likeCount + (pendingLike ? 1 : -1),
+  //     }));
+  //   }
+  // }, [_id, getPendingLike, likedByMe]);
+
   useEffect(() => {
-    const pendingLike = getPendingLike(_id);
+    const pendingLike = getPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
+
+    // If we have a stored intent that differs from what the server sent
     if (pendingLike !== null && pendingLike !== likedByMe) {
-      setPostData((prev) => ({
-        ...prev,
-        likedByMe: pendingLike,
-        likeCount: prev.likeCount + (pendingLike ? 1 : -1),
-      }));
+      setPostData((prev) => {
+        // Calculate the difference:
+        // If we intended to LIKE but the server says we HAVEN'T, add 1.
+        // If we intended to UNLIKE but the server says we HAVE, subtract 1.
+        const adjustment = pendingLike ? 1 : -1;
+
+        return {
+          ...prev,
+          likedByMe: pendingLike,
+          // Only adjust if the server data hasn't already accounted for it
+          likeCount: prev.likeCount + adjustment,
+        };
+      });
     }
-  }, [_id, getPendingLike, likedByMe]);
+  }, [_id]); // Remove likedByMe from dependencies to prevent infinite loops
 
   const handleLike = useCallback(async () => {
     if (isLiking) return;
@@ -102,7 +123,7 @@ export const usePostLike = <T extends LikablePost>(
     }));
 
     // 2. Persist to Queue (Local Storage)
-    setPendingLike(_id, nextLiked);
+    setPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id, nextLiked);
 
     // 3. Feedback
     if (nextLiked) vibrate();
@@ -117,12 +138,12 @@ export const usePostLike = <T extends LikablePost>(
           likedByMe: payload.likedByMe,
           likeCount: payload.likeCount,
         }));
-        clearPendingLike(_id);
+        clearPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
       }
     } catch (error) {
       // Rollback strategy: In a hard failure, we clear the queue.
       // You could also revert the UI state here if desired.
-      clearPendingLike(_id);
+      clearPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
     } finally {
       setIsLiking(false);
     }
@@ -145,8 +166,9 @@ export const usePostLike = <T extends LikablePost>(
   // Background syncing for connectivity changes
   useEffect(() => {
     if (authStatus === "AUTHENTICATED") {
-      processQueue(authStatus, SERVER_API);
-      const handleOnline = () => processQueue(authStatus, SERVER_API);
+      processQueue(authStatus, QUEUE_KEYS.POST.LIKE, onLikeApi);
+      const handleOnline = () =>
+        processQueue(authStatus, QUEUE_KEYS.POST.LIKE, onLikeApi);
       window.addEventListener("online", handleOnline);
       return () => window.removeEventListener("online", handleOnline);
     }

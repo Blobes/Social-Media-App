@@ -12,7 +12,7 @@ import {
 } from "@repo/shared-ui";
 import { AppHeader } from "./Header";
 import { scrollBarStyle } from "@repo/helpers";
-import { useGlobalContext, useMisc, useOffline } from "@repo/shared-state";
+import { useGlobalContext, useMisc, useOffline } from "@repo/shared-hooks";
 
 interface WrapperProps {
   children: React.ReactNode;

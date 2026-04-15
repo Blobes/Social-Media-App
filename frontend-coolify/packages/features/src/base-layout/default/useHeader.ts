@@ -11,7 +11,7 @@ import {
   useMisc,
   usePage,
   usePageScroll,
-} from "@repo/shared-state";
+} from "@repo/shared-hooks";
 
 export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
   const { authStatus, authUser } = useGlobalContext();

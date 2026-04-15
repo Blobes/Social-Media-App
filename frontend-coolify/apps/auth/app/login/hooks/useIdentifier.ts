@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useGlobalContext } from "@repo/shared-state";
+import { useGlobalContext } from "@repo/shared-hooks";
 import { LoginService } from "../service";
 import {
   delay,

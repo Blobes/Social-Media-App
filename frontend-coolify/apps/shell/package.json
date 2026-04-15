@@ -18,7 +18,7 @@
     "@repo/assets": "workspace:*",
     "@repo/features": "workspace:*",
     "@repo/helpers": "workspace:*",
-    "@repo/shared-state": "workspace:*",
+    "@repo/shared-hooks": "workspace:*",
     "@repo/shared-ui": "workspace:*",
     "@repo/core": "workspace:*"
   },

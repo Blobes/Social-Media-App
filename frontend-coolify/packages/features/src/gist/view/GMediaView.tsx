@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useTheme } from "@mui/material/styles";
-import { useAdaptiveTime, useMisc } from "@repo/shared-state";
+import { useAdaptiveTime, useMisc } from "@repo/shared-hooks";
 import { IsolatedMedia } from "@repo/shared-ui";
 import { IGist, UIMode } from "@repo/core";
 import { PostEngagement } from "../../post/components/engagement/Engagement";

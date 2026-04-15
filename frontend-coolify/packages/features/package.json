@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@repo/shared-ui": "workspace:*",
-    "@repo/shared-state": "workspace:*",
+    "@repo/shared-hooks": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/core": "workspace:*",
     "@repo/assets": "workspace:*",

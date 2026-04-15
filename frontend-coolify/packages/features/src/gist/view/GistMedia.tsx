@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useTheme } from "@mui/material/styles";
-import { useImageColors, useMisc } from "@repo/shared-state";
+import { useImageColors, useMisc } from "@repo/shared-hooks";
 import { GalleryProps, MediaGallery, Media } from "@repo/shared-ui";
 import { useCallback, useMemo } from "react";
 import { applyBGEffects } from "@repo/helpers";

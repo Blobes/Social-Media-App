@@ -3,7 +3,7 @@
 import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { Stack } from "@mui/material";
-import { useGlobalContext } from "@repo/shared-state";
+import { useGlobalContext } from "@repo/shared-hooks";
 import { useEffect } from "react";
 import { FollowerCard } from "./FollowerCard";
 import { ProgressIcon, Feedback } from "@repo/shared-ui";

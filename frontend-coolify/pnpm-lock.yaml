@@ -122,9 +122,9 @@ importers:
       '@repo/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
-      '@repo/shared-state':
+      '@repo/shared-hooks':
         specifier: workspace:*
-        version: link:../../packages/shared-state
+        version: link:../../packages/shared-hooks
       '@repo/shared-ui':
         specifier: workspace:*
         version: link:../../packages/shared-ui
@@ -174,9 +174,9 @@ importers:
       '@repo/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
-      '@repo/shared-state':
+      '@repo/shared-hooks':
         specifier: workspace:*
-        version: link:../../packages/shared-state
+        version: link:../../packages/shared-hooks
       '@repo/shared-ui':
         specifier: workspace:*
         version: link:../../packages/shared-ui
@@ -226,9 +226,9 @@ importers:
       '@repo/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
-      '@repo/shared-state':
+      '@repo/shared-hooks':
         specifier: workspace:*
-        version: link:../../packages/shared-state
+        version: link:../../packages/shared-hooks
       '@repo/shared-ui':
         specifier: workspace:*
         version: link:../../packages/shared-ui
@@ -281,9 +281,9 @@ importers:
       '@repo/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
-      '@repo/shared-state':
+      '@repo/shared-hooks':
         specifier: workspace:*
-        version: link:../../packages/shared-state
+        version: link:../../packages/shared-hooks
       '@repo/shared-ui':
         specifier: workspace:*
         version: link:../../packages/shared-ui
@@ -336,9 +336,9 @@ importers:
       '@repo/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
-      '@repo/shared-state':
+      '@repo/shared-hooks':
         specifier: workspace:*
-        version: link:../../packages/shared-state
+        version: link:../../packages/shared-hooks
       '@repo/shared-ui':
         specifier: workspace:*
         version: link:../../packages/shared-ui
@@ -434,9 +434,9 @@ importers:
       '@repo/helpers':
         specifier: workspace:*
         version: link:../helpers
-      '@repo/shared-state':
+      '@repo/shared-hooks':
         specifier: workspace:*
-        version: link:../shared-state
+        version: link:../shared-hooks
       '@repo/shared-ui':
         specifier: workspace:*
         version: link:../shared-ui
@@ -515,7 +515,7 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  packages/shared-state:
+  packages/shared-hooks:
     dependencies:
       '@emotion/react':
         specifier: 'catalog:'

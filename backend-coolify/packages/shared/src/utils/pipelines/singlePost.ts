@@ -114,6 +114,11 @@ export const getPostSocialData = ({
     ...dynamicPostDecorator({ userId }),
     {
       $project: {
+        likeCount: { $ifNull: ["$likeCount", 0] },
+        commentCount: { $ifNull: ["$commentCount", 0] },
+        shareCount: { $ifNull: ["$shareCount", 0] },
+        viewCount: { $ifNull: ["$viewCount", 0] },
+
         likedByMe: {
           $gt: [
             {

@@ -101,7 +101,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
                   height: "28px",
                 },
               }}
-              action={(event: React.MouseEvent<HTMLElement>) =>
+              onClick={(event: React.MouseEvent<HTMLElement>) =>
                 handleAvatar({
                   desktop: event,
                   mobile: {

@@ -20,6 +20,7 @@ export const VideoMedia = ({
   setIsLoaded,
   style,
   viewMode = "LIST",
+  ownerId,
   ...props
 }: VideoProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);

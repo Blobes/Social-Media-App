@@ -4,11 +4,11 @@ import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { Login } from "./Login";
 import { Stack } from "@mui/material";
-import { useGlobalContext } from "@repo/shared-state";
+import { useGlobalContext } from "@repo/shared-hooks";
 import { applyBGPattern } from "@repo/helpers";
 import { Feedback } from "@repo/shared-ui";
 import { ShieldCheck } from "lucide-react";
-import { usePage, useMisc } from "@repo/shared-state";
+import { usePage, useMisc } from "@repo/shared-hooks";
 import { ComfirmLogout } from "@repo/features";
 import { CLIENT_ROUTES } from "@repo/core";
 

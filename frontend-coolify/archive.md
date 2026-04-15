@@ -216,7 +216,7 @@ export default theme;
 
 // transpilePackages: [
 // "@repo/shared-ui",
-// "@repo/shared-state",
+// "@repo/shared-hooks",
 // "@repo/helpers",
 // "@repo/theme",
 // "@repo/core",
@@ -448,7 +448,7 @@ return { author, error };
 "use client";
 
 import { fetcher, checkNetworkError, serverApi } from "@repo/helpers";
-import { useSnackbar } from "@repo/shared-state";
+import { useSnackbar } from "@repo/shared-hooks";
 import { IUser, IListResponse, ISingleResponse } from "@repo/core";
 
 export const useUser = () => {
@@ -653,12 +653,12 @@ onDoubleTap, style, viewMode = "ISOLATED", dimensions, hooks }: MediaProps) => {
 
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext, usePost, usePostLike } from "@repo/shared-state";
+import { useGlobalContext, usePost, usePostLike } from "@repo/shared-hooks";
 import { GenericObject, UIMode, IGist } from "@repo/core";
 import { useGistService } from "../app/service";
 import { getCachedAuthor, summarizeNum } from "@repo/helpers";
 import { Empty, MediaProps, PostObserver, Strip } from "@repo/shared-ui";
-import { useSnackbar, useMisc } from "@repo/shared-state";
+import { useSnackbar, useMisc } from "@repo/shared-hooks";
 import { mediaData } from "@repo/test-data";
 import { GistMedia } from "../app/components/GistMedia";
 import { useGistLike } from "../app/hooks/useGistLike";

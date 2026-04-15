@@ -18,7 +18,7 @@
     "lucide-react": "catalog:",
     "@repo/shared-ui": "workspace:*",
     "@repo/features": "workspace:*",
-    "@repo/shared-state": "workspace:*",
+    "@repo/shared-hooks": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/core": "workspace:*",
     "@repo/assets": "workspace:*"

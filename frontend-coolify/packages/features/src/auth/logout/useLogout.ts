@@ -7,7 +7,7 @@ import {
   useMisc,
   usePage,
   useSnackbar,
-} from "@repo/shared-state";
+} from "@repo/shared-hooks";
 import { usePathname, useRouter } from "next/navigation";
 
 export const useLogout = () => {

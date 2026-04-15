@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { useMisc, useOffline } from "@repo/shared-state";
+import { useMisc, useOffline } from "@repo/shared-hooks";
 import { Stack } from "@mui/material";
-import { useGlobalContext } from "@repo/shared-state";
+import { useGlobalContext } from "@repo/shared-hooks";
 import { useTheme } from "@mui/material/styles";
 import { useEffect, useRef } from "react";
 import { Header } from "./navbars/Header";

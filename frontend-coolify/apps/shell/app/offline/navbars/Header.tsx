@@ -3,7 +3,7 @@
 import React from "react";
 import { AppBar } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useMisc, usePageScroll } from "@repo/shared-state";
+import { useMisc, usePageScroll } from "@repo/shared-hooks";
 import { img } from "@repo/assets";
 import Image from "next/image";
 import { SVGIcon } from "@repo/shared-ui";

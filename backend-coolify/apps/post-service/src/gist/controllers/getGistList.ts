@@ -86,7 +86,14 @@ export const getGistList = async (
       const gistObj = gist.toObject ? gist.toObject() : gist;
       return {
         ...gistObj,
+
+        likeCount: social ? social.likeCount : (gistObj.likeCount ?? 0),
+        commentCount: social
+          ? social.commentCount
+          : (gistObj.commentCount ?? 0),
+        viewCount: social ? social.viewCount : (gistObj.viewCount ?? 0),
         likedByMe: social?.likedByMe ?? false,
+
         author: {
           ...(gistObj.author || {}),
           isFollowing: social?.isFollowing ?? false,

@@ -4,8 +4,18 @@ import React from "react";
 import { Button, Link } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import NextLink from "next/link";
-import { crossZoneCheck, prefetchPage } from "@repo/helpers";
+import { crossZoneCheck, debouncedPrefetch, prefetchPage } from "@repo/helpers";
 import { GenericStyle } from "@repo/core";
+
+const handlePrefetch = (
+  href: string,
+  isCrossZone: boolean,
+  onHover = false,
+) => {
+  if (!isCrossZone) return;
+  if (onHover) debouncedPrefetch(href, !!isCrossZone);
+  else prefetchPage(href, isCrossZone);
+};
 
 interface ButtonProps {
   variant?: "text" | "contained" | "outlined";
@@ -69,16 +79,20 @@ export const AppButton = ({
 
   if (href) {
     const isCrossZone = crossZoneCheck(href);
+
     return (
       <Button
         component={isCrossZone ? "a" : NextLink}
         href={href}
-        onMouseEnter={() => prefetchPage(href, isCrossZone)}
+        onMouseEnter={() => handlePrefetch(href, isCrossZone, true)}
+        onMouseDown={() => handlePrefetch(href, isCrossZone)}
+        onTouchStart={() => handlePrefetch(href, isCrossZone)}
         {...buttonProps}>
         {children}
       </Button>
     );
   }
+
   return (
     <Button type={submit ? "submit" : "button"} {...buttonProps}>
       {children}
@@ -124,7 +138,9 @@ export const AnchorLink = ({
       sx={{
         ...mergedStyle,
       }}
-      onMouseEnter={() => prefetchPage(url, isCrossZone)}
+      onMouseEnter={() => handlePrefetch(url, isCrossZone, true)}
+      onMouseDown={() => handlePrefetch(url, isCrossZone)}
+      onTouchStart={() => handlePrefetch(url, isCrossZone)}
       {...rest}>
       {children}
     </Link>

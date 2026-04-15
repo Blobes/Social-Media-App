@@ -1,6 +1,6 @@
 "use client";
 
-import { useGlobalContext } from "../GlobalContext";
+import { useGlobalContext } from "./useContext";
 import { useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { delay, checkSignal } from "@repo/helpers";
@@ -29,7 +29,7 @@ export const useMisc = () => {
     setDrawerContent((prev: any) => (prev === update ? prev : update));
   };
   const closeDrawer = async () => {
-    await delay();
+    await delay(200);
     setDrawerContent(null);
   };
 
@@ -37,7 +37,7 @@ export const useMisc = () => {
     setModalContent((prev: any) => (prev === update ? prev : update));
   };
   const closeModal = async () => {
-    await delay();
+    await delay(200);
     setModalContent(null);
   };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useGlobalContext } from "../GlobalContext";
+import { useGlobalContext } from "./useContext";
 import {
   CLIENT_ROUTES,
   DISALLOWED_ROUTES,

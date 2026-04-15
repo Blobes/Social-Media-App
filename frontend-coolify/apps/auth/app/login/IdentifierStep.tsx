@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Stack, Typography } from "@mui/material";
-import { useGlobalContext } from "@repo/shared-state";
+import { useGlobalContext } from "@repo/shared-hooks";
 import {
   AppButton,
   TextInput,

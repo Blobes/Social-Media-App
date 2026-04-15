@@ -5,7 +5,7 @@ import { Stack, IconButton, SxProps, Theme } from "@mui/material";
 import { UserPlus, EllipsisVertical } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { SmartDate } from "@repo/shared-ui";
-import { useAdaptiveTime } from "@repo/shared-state";
+import { useAdaptiveTime } from "@repo/shared-hooks";
 
 interface UseActions {
   useAdaptiveTime: () => any;

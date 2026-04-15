@@ -12,7 +12,7 @@ import {
 } from "@repo/shared-ui";
 import { summarizeNum } from "@repo/helpers";
 import { SlidersHorizontal, WalletMinimal } from "lucide-react";
-import { useGlobalContext, useMisc, usePage } from "@repo/shared-state";
+import { useGlobalContext, useMisc, usePage } from "@repo/shared-hooks";
 import { LISTS, MenuRef } from "@repo/core";
 import { Logout } from "../../auth/logout/Logout";
 

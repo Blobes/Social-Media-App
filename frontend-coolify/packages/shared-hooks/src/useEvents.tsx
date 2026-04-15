@@ -2,7 +2,7 @@
 
 import React, { useEffect, useCallback } from "react";
 import { useSnackbar } from "./useSnackbar";
-import { useGlobalContext } from "../GlobalContext";
+import { useGlobalContext } from "./useContext";
 import { useOffline } from "./useOffline";
 import { usePage } from "./usePage";
 import { removeFromLocalStorage, saveToLocalStorage } from "@repo/helpers";

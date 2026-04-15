@@ -12,6 +12,11 @@ export enum ListType {
   DEFAULT = "ITEM",
 }
 
+export enum QueueType {
+  POST = "POST",
+  USER = "USER",
+}
+
 // Transition
 export interface IDragConfig {
   axis: "X" | "Y";

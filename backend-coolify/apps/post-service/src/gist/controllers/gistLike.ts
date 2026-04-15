@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 import { Response } from "express";
-import { IAuthRequest } from "@repo/shared";
+import {
+  CACHE_KEYS,
+  IAuthRequest,
+  invalidateCache,
+  invalidatePattern,
+} from "@repo/shared";
 import { GistLikeModel, GistModel } from "@repo/database";
 
 export const gistLike = async (
@@ -84,6 +89,8 @@ export const gistLike = async (
     }
 
     await session.commitTransaction();
+
+    invalidateCache(CACHE_KEYS.POST("GIST", gistId));
 
     // 4. Fetch the final count post-transaction for accuracy
     const updatedGist = await GistModel.findById(gistId)

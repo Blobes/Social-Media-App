@@ -8,7 +8,6 @@ export * from "./src/auth/restore/RestoreAccount";
 
 // Gist
 export * from "./src/gist/view/useGists";
-export * from "./src/gist/view/useGistLike";
 export * from "./src/gist/view/GistCard";
 export * from "./src/gist/gistService";
 

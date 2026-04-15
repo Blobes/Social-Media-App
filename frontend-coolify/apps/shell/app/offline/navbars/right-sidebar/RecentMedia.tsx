@@ -3,7 +3,7 @@
 import React from "react";
 import { Stack, Typography, Divider } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext } from "@repo/shared-state";
+import { useGlobalContext } from "@repo/shared-hooks";
 
 export const RecentMedia = () => {
   const theme = useTheme();

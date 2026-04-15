@@ -3,7 +3,7 @@
 import React from "react";
 import { Stack, FormControl } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext } from "@repo/shared-state";
+import { useGlobalContext } from "@repo/shared-hooks";
 import { AppButton, UserAvatar, ResponsiveTextarea } from "@repo/shared-ui";
 import { Image, Play } from "lucide-react";
 

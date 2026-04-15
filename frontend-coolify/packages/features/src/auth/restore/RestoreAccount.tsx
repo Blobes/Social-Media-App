@@ -4,7 +4,7 @@ import React from "react";
 import { ShieldBan } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { Feedback } from "@repo/shared-ui";
-import { usePage } from "@repo/shared-state";
+import { usePage } from "@repo/shared-hooks";
 import { CLIENT_ROUTES } from "@repo/core";
 
 interface RestoreProps {

@@ -4,7 +4,7 @@ import React from "react";
 import { GlobalThemeProvider } from "@repo/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import { ContextProvider } from "@repo/shared-state";
+import { ContextProvider } from "@repo/shared-hooks";
 
 export function SharedProviders({ children }: { children: React.ReactNode }) {
   // We initialize the QueryClient inside a useState to ensure it's

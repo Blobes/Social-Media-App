@@ -1,7 +1,7 @@
 "use client";
 
 import { usePage } from "./usePage";
-import { useGlobalContext } from "../GlobalContext";
+import { useGlobalContext } from "./useContext";
 import { getFromLocalStorage } from "@repo/helpers";
 import { CLIENT_ROUTES, IPage } from "@repo/core";
 
