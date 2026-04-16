@@ -3,7 +3,7 @@ import { Response } from "express";
 import {
   IAuthRequest,
   getOrSetCache,
-  decorateUserSocial,
+  userSocialLookup,
   getStaticUserList,
   CACHE_KEYS,
 } from "@repo/shared";
@@ -71,10 +71,7 @@ export const getFollowers = async (
 
     // 2. Decorate the list with the current viewer's social context
     // This adds 'isFollowing' and 'followsMe' dynamically in Node.js
-    const finalFollowers = await decorateUserSocial(
-      neutralFollowers,
-      authUserId,
-    );
+    const finalFollowers = await userSocialLookup(neutralFollowers, authUserId);
 
     return res.status(200).json({
       message:

@@ -5,7 +5,7 @@ import {
   getStaticUserList,
   invalidateCache,
   userSensitiveFields,
-  decorateUserSocial,
+  userSocialLookup,
   CACHE_KEYS,
 } from "@repo/shared";
 import { FollowModel, UserModel } from "@repo/database";
@@ -95,7 +95,7 @@ export const followUser = async (
     const userB = rawTargetUser[0];
 
     // Decorate with social context (isFollowing, followsMe)
-    const decoratedUsers = await decorateUserSocial(
+    const decoratedUsers = await userSocialLookup(
       [userA, userB],
       String(currUserId),
     );

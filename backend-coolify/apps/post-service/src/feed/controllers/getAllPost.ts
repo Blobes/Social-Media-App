@@ -80,13 +80,14 @@ export const getAllPost = async (
         // Pull in Stakes
         {
           $unionWith: {
-            coll: "stakes", // Ensure this matches your actual MongoDB collection name for Stakes
+            coll: "stakes",
             pipeline: [
               { $match: { _id: { $in: postIdsObjects } } },
               { $addFields: { postType: "STAKE" } }, // Inject type for Stakes
             ],
           },
         },
+        { $sort: { __order: 1 } },
 
         // 4. Now that we have all docs + their types, run the social logic
         // This will keep likeCount/commentCount intact from the DB

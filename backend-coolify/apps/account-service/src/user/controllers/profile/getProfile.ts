@@ -6,7 +6,7 @@ import {
   userPrivateFields,
   userSensitiveFields,
   getOrSetCache,
-  decorateUserSocial,
+  userSocialLookup,
   CACHE_KEYS, // Our new centralized decorator
 } from "@repo/shared";
 import { UserModel } from "@repo/database";
@@ -76,7 +76,7 @@ const getUserProfile = async (
     // 3. DECORATE SOCIAL CONTEXT
     // Uses the high-performance utility to "paint" isFollowing/followsMe
     // Note: If authUserId is null, the decorator returns the profile as-is
-    const userProfile = await decorateUserSocial(
+    const userProfile = await userSocialLookup(
       { ...baseProfile, isOwner },
       authUserId,
     );
