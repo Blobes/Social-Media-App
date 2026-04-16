@@ -17,21 +17,19 @@ export const RootUIContainer = ({
   shouldScroll = false,
 }: UIProps) => {
   const theme = useTheme();
-  return (
-    <Stack
-      sx={{
-        position: "fixed",
-        height: "100svh",
-        width: "100%",
-        gap: 0,
-        backgroundColor: theme.palette.gray[0],
-        ...(shouldScroll && {
-          ...autoScroll().base,
-          ...scrollBarStyle(theme),
-        }),
-        ...style,
-      }}>
-      {children}
-    </Stack>
-  );
+
+  const combinedStyle: GenericStyle = {
+    position: "fixed",
+    height: "100svh",
+    width: "100%",
+    gap: 0,
+    backgroundColor: theme.palette.gray?.[0],
+    ...(shouldScroll && {
+      ...autoScroll().base,
+      ...scrollBarStyle(theme),
+    }),
+    ...style,
+  };
+
+  return <Stack sx={combinedStyle}>{children}</Stack>;
 };

@@ -70,10 +70,16 @@ export const getAllPost = async (
       const candidatePosts = personalizedPosts.slice(0, limit);
 
       // --- 3. DYNAMIC SOCIAL HYDRATION ---
-      const postIdsAsStrings = candidatePosts.map((p: any) => String(p._id));
-      const postIdsAsObjects = postIdsAsStrings.map(
-        (id) => new mongoose.Types.ObjectId(id),
+      const postIdsAsObjects = candidatePosts.map(
+        (p: any) => new mongoose.Types.ObjectId(String(p._id)),
       );
+
+      const postIdsAsStrings = candidatePosts.map((p: any) => String(p._id));
+
+      // const postIdsAsStrings = candidatePosts.map((p: any) => String(p._id));
+      // const postIdsAsObjects = postIdsAsStrings.map(
+      //   (id) => new mongoose.Types.ObjectId(id),
+      // );
       const socialData = await GistModel.aggregate([
         {
           $match: {

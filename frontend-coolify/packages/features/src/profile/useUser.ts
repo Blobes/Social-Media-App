@@ -51,7 +51,7 @@ export const useUser = () => {
 
   const handleFollow = useCallback(
     async (initialUser: IUser) => {
-      if (isLoading) return;
+      if (isLoading || !initialUser._id) return;
       setLoading(true);
       try {
         const res = await followUser(initialUser._id);

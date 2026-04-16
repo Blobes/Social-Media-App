@@ -5,17 +5,18 @@ import { Stack, SxProps, Theme } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AuthorInfo, AuthorProps } from "./Author";
 import { HeaderActions, ActionsProps } from "./Actions";
+import { GenericStyle } from "@repo/core";
 
 export interface PostHeaderProps {
   authorProps: AuthorProps;
   actionProps: ActionsProps;
-  sx?: SxProps<Theme>;
+  style?: GenericStyle;
 }
 
 export const PostHeader = ({
   authorProps,
   actionProps,
-  sx,
+  style,
 }: PostHeaderProps) => {
   const theme = useTheme();
 
@@ -29,7 +30,7 @@ export const PostHeader = ({
         [theme.breakpoints.down("md")]: {
           padding: theme.boxSpacing(0, 4),
         },
-        ...sx,
+        ...style,
       }}>
       <AuthorInfo {...authorProps} />
 

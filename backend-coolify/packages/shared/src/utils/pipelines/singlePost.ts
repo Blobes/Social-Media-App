@@ -32,7 +32,11 @@ export const getPostStaticData = (): PipelineStage[] => {
         // Constructing Author object
         author: {
           _id: { $ifNull: ["$authorDetails._id", "$authorId"] },
-          username: { $ifNull: ["$authorDetails.username", "user"] },
+          username: {
+            $toLower: {
+              $ifNull: ["$authorDetails.username", "$authorDetails.firstName"],
+            },
+          },
           firstName: { $ifNull: ["$authorDetails.firstName", ""] },
           lastName: { $ifNull: ["$authorDetails.lastName", ""] },
           profileImage: { $ifNull: ["$authorDetails.profileImage", null] },
