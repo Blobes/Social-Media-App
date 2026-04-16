@@ -58,42 +58,30 @@ export const getAllPost = async (
     let socialMap = new Map();
 
     if (userId) {
-      const postIdsAsObjects = candidatePosts.map(
-        (p: any) => new mongoose.Types.ObjectId(String(p._id)),
+      const userPreferences = await getUserPreferences(userId, req.user);
+
+      // 1. Personalize FIRST
+      const personalized = personalizeFeed(staticPosts, userPreferences);
+      candidatePosts = personalized.slice(0, limit);
+
+      // 2. Get IDs for the survivors
+      const postIdsStrings = candidatePosts.map((p) => String(p._id));
+      const postIdsObjects = postIdsStrings.map(
+        (id) => new mongoose.Types.ObjectId(id),
       );
 
-      const postIdsAsStrings = candidatePosts.map((p: any) => String(p._id));
-
+      // 3. Fetch social data for ONLY these specific posts
       const socialData = await GistModel.aggregate([
-        {
-          $match: {
-            _id: { $in: postIdsAsObjects },
-          },
-        },
-        { $addFields: { stringId: { $toString: "$_id" } } },
-        {
-          $addFields: {
-            __order: { $indexOfArray: [postIdsAsStrings, "$stringId"] },
-          },
-        },
-        { $sort: { __order: 1 } },
+        { $match: { _id: { $in: postIdsObjects } } },
+        { $project: { postType: 1, _id: 1 } }, // Crucial for the decorator
         ...getPostSocialData({ userId: String(userId) }),
       ]);
 
-      // Convert to Map for O(1) lookup in the helper
       socialMap = new Map(socialData.map((s) => [String(s._id), s]));
-
-      // Fetch Preferences + Blocks (Parallel DB/Redis hit via utility)
-      const userPreferences = await getUserPreferences(userId, req.user);
-
-      // Rank by topics/location and filter out blocked users
-      candidatePosts = personalizeFeed(staticPosts, userPreferences).slice(
-        0,
-        limit,
-      );
     }
 
     const finalPayload = hydrateSocialState(candidatePosts, socialMap);
+
     // --- 4. RESPONSE ---
     return res.status(200).json({
       status: "SUCCESS",
