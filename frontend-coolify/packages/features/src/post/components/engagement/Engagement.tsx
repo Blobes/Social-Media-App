@@ -8,6 +8,7 @@ import { BookmarkButton, BookmarkProps } from "./Bookmark";
 import { ShareButton, ShareProps } from "./Share";
 import { ReplyButton, ReplyProps } from "./Reply";
 import { summarizeNum } from "@repo/helpers";
+import { GenericStyle } from "@repo/core";
 
 interface Hide {
   like?: boolean;
@@ -24,7 +25,7 @@ export interface EngagementProps {
   hide?: Hide;
   addition?: React.ReactNode;
   variant?: "HORIZONTAL" | "VERTICAL";
-  sx?: SxProps<Theme>;
+  style?: GenericStyle;
 }
 
 export const PostEngagement = ({
@@ -35,7 +36,7 @@ export const PostEngagement = ({
   hide = {},
   addition,
   variant = "HORIZONTAL",
-  sx,
+  style,
 }: EngagementProps) => {
   const theme = useTheme();
   const isVertical = variant === "VERTICAL";
@@ -71,7 +72,7 @@ export const PostEngagement = ({
         [theme.breakpoints.down("md")]: {
           padding: isVertical ? theme.boxSpacing(2) : theme.boxSpacing(4, 6),
         },
-        ...sx,
+        ...style,
       }}>
       {/* Main Action Group */}
       <Stack

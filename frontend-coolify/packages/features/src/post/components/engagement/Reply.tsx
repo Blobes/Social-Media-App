@@ -1,16 +1,17 @@
 "use client";
 
 import React from "react";
-import { IconButton, SxProps, Theme } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { MessageCircle } from "lucide-react";
+import { GenericStyle } from "@repo/core";
 
 export interface ReplyProps {
   onClick?: () => void;
   size?: number;
-  sx?: SxProps<Theme>;
+  style?: GenericStyle;
 }
 
-export const ReplyButton = ({ onClick, size = 24, sx }: ReplyProps) => (
+export const ReplyButton = ({ onClick, size = 24, style }: ReplyProps) => (
   <IconButton
     onClick={onClick}
     sx={{
@@ -21,7 +22,7 @@ export const ReplyButton = ({ onClick, size = 24, sx }: ReplyProps) => (
         transform: "scale(1.08)",
         background: "none",
       },
-      ...sx,
+      ...style,
     }}>
     <MessageCircle size={size} />
   </IconButton>

@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { IconButton, SxProps, Theme } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { Heart } from "lucide-react";
 import { pulse } from "@repo/helpers";
 import { red } from "@mui/material/colors";
 import { useTheme } from "@mui/material/styles";
-import { UIMode } from "@repo/core";
+import { GenericStyle, UIMode } from "@repo/core";
 import { AnimatedWrapper } from "@repo/shared-ui";
 
 export interface LikeProps {
@@ -15,7 +15,7 @@ export interface LikeProps {
   handleLike: () => void;
   mode?: UIMode;
   size?: number;
-  sx?: SxProps<Theme>;
+  style?: GenericStyle;
 }
 
 export const LikeButton = ({
@@ -24,15 +24,12 @@ export const LikeButton = ({
   handleLike,
   mode = "ONLINE",
   size = 24,
-  sx,
+  style,
 }: LikeProps) => {
   const theme = useTheme();
 
-  const iconColor = likedByMe
-    ? mode === "ONLINE"
-      ? red[500]
-      : theme.palette.grey[200]
-    : theme.palette.grey[400];
+  const iconColor =
+    likedByMe && mode === "ONLINE" ? red[500] : theme.palette.gray[200];
 
   return (
     <IconButton
@@ -45,7 +42,7 @@ export const LikeButton = ({
           transform: "scale(1.08)",
           background: "none",
         },
-        ...sx,
+        ...style,
       }}>
       <AnimatedWrapper
         sx={{ ...(isLiking && { animation: `${pulse()} 0.3s linear` }) }}>

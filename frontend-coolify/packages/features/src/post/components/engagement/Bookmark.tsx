@@ -4,19 +4,20 @@ import React from "react";
 import { IconButton, SxProps, Theme } from "@mui/material";
 import { Bookmark } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
+import { GenericStyle } from "@repo/core";
 
 export interface BookmarkProps {
   bookmarked: boolean;
   onClick: () => void;
   size?: number;
-  sx?: SxProps<Theme>;
+  style?: GenericStyle;
 }
 
 export const BookmarkButton = ({
   bookmarked,
   onClick,
   size = 24,
-  sx,
+  style,
 }: BookmarkProps) => {
   const theme = useTheme();
 
@@ -31,7 +32,7 @@ export const BookmarkButton = ({
           transform: "scale(1.08)",
           background: "none",
         },
-        ...sx,
+        ...style,
       }}>
       <Bookmark
         size={size}

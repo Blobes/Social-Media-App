@@ -11,7 +11,7 @@ export const apiClient = async <T>(
   timeout = DEFAULT_TIMEOUT,
 ): Promise<T> => {
   const controller = new AbortController();
-  const signal = controller.signal;
+  const signal = options.signal || controller.signal;
   const timeoutId = setTimeout(() => controller.abort("timeout"), timeout);
 
   try {

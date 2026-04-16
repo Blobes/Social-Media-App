@@ -3,11 +3,10 @@
 import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { useAdaptiveTime, useMisc } from "@repo/shared-hooks";
-import { IsolatedMedia } from "@repo/shared-ui";
+import { IsolatedMedia, WordTrimmer } from "@repo/shared-ui";
 import { IGist, UIMode } from "@repo/core";
 import { PostEngagement } from "../../post/components/engagement/Engagement";
 import { PostHeader } from "../../post/components/header/PostHeader";
-import { PostCaption } from "../../post/components/Caption";
 
 interface Like {
   isLiking: boolean;
@@ -65,13 +64,14 @@ export const GistMediaView = ({
   );
 
   const postCaption = (
-    <PostCaption
-      caption={latestCaption.caption}
-      limit={200}
+    <WordTrimmer
+      text={latestCaption.caption}
       style={{
-        padding: theme.boxSpacing(4, 0),
-        [theme.breakpoints.down("md")]: {
-          padding: theme.boxSpacing(4, 6),
+        container: {
+          padding: theme.boxSpacing(4, 0),
+          [theme.breakpoints.down("md")]: {
+            padding: theme.boxSpacing(4, 6),
+          },
         },
       }}
     />
