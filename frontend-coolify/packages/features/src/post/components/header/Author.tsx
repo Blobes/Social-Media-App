@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Stack, Typography, SxProps, Theme } from "@mui/material";
-import { IPostAuthor } from "@repo/core";
+import { GenericStyle, IPostAuthor } from "@repo/core";
 import { useTheme } from "@mui/material/styles";
 import { UserAvatar } from "@repo/shared-ui";
 
@@ -10,21 +10,21 @@ export interface AuthorProps {
   author: IPostAuthor;
   avatarSize?: string;
   showUsername?: boolean;
-  sx?: SxProps<Theme>;
+  style?: GenericStyle;
 }
 
 export const AuthorInfo = ({
   author,
   avatarSize = "32px",
   showUsername = true,
-  sx,
+  style,
 }: AuthorProps) => {
   const theme = useTheme();
 
   return (
     <Stack
       direction="row"
-      sx={{ alignItems: "center", gap: theme.gap(2), ...sx }}>
+      sx={{ alignItems: "center", width: "100%", gap: theme.gap(2), ...style }}>
       <UserAvatar
         userInfo={{
           firstName: author.firstName,

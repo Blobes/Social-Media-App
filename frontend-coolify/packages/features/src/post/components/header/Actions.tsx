@@ -59,7 +59,6 @@ export const HeaderActions = ({
         sx={{
           color: theme.palette.gray[200],
           padding: theme.boxSpacing(0, 4),
-          fontWeight: "600",
           width: "fit-content",
           flex: "none",
           [theme.breakpoints.down("md")]: {

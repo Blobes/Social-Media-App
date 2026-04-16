@@ -54,32 +54,16 @@ export const getAllPost = async (
     }
 
     // --- 2. PERSONALIZATION & FILTERING ---
-    let finalPayload = staticPosts;
+    let candidatePosts = staticPosts.slice(0, limit);
+    let socialMap = new Map();
 
     if (userId) {
-      // Fetch Preferences + Blocks (Parallel DB/Redis hit via utility)
-      const userPreferences = await getUserPreferences(
-        String(userId),
-        req.user,
-      );
-
-      // Rank by topics/location and filter out blocked users
-      const personalizedPosts = personalizeFeed(staticPosts, userPreferences);
-
-      // Trim to requested page size
-      const candidatePosts = personalizedPosts.slice(0, limit);
-
-      // --- 3. DYNAMIC SOCIAL HYDRATION ---
       const postIdsAsObjects = candidatePosts.map(
         (p: any) => new mongoose.Types.ObjectId(String(p._id)),
       );
 
       const postIdsAsStrings = candidatePosts.map((p: any) => String(p._id));
 
-      // const postIdsAsStrings = candidatePosts.map((p: any) => String(p._id));
-      // const postIdsAsObjects = postIdsAsStrings.map(
-      //   (id) => new mongoose.Types.ObjectId(id),
-      // );
       const socialData = await GistModel.aggregate([
         {
           $match: {
@@ -97,11 +81,19 @@ export const getAllPost = async (
       ]);
 
       // Convert to Map for O(1) lookup in the helper
-      const socialMap = new Map(socialData.map((s) => [String(s._id), s]));
+      socialMap = new Map(socialData.map((s) => [String(s._id), s]));
 
-      // Merge real-time social flags into the cached static objects
-      finalPayload = hydrateSocialState(candidatePosts, socialMap);
+      // Fetch Preferences + Blocks (Parallel DB/Redis hit via utility)
+      const userPreferences = await getUserPreferences(userId, req.user);
+
+      // Rank by topics/location and filter out blocked users
+      candidatePosts = personalizeFeed(staticPosts, userPreferences).slice(
+        0,
+        limit,
+      );
     }
+
+    const finalPayload = hydrateSocialState(candidatePosts, socialMap);
     // --- 4. RESPONSE ---
     return res.status(200).json({
       status: "SUCCESS",
