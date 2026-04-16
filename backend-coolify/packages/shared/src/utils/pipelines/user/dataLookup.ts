@@ -1,10 +1,9 @@
 import { FollowModel } from "@repo/database";
 
 /**
- * decorateUserSocial: Injects 'isFollowing' and 'followsMe' into user objects.
- * This is 10x more efficient than MongoDB $lookups for high-traffic profiles.
+ * Looks up other user related collect and Injects 'isFollowing' and 'followsMe' into user objects.
  */
-export const decorateUserSocial = async (
+export const userSocialLookup = async (
   users: any | any[],
   viewerId?: string,
 ): Promise<any | any[]> => {

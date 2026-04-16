@@ -30,10 +30,10 @@ export * from "./routes/report";
 export * from "./routes/health";
 
 // Utility
-export * from "./utils/pipelines/postList";
-export * from "./utils/pipelines/singlePost";
-export * from "./utils/pipelines/singleUser";
-export * from "./utils/pipelines/userList";
+export * from "./utils/pipelines/post/postList";
+export * from "./utils/pipelines/post/singlePost";
+export * from "./utils/pipelines/user/singleUser";
+export * from "./utils/pipelines/user/userList";
 export * from "./utils/media/createBatch";
 export * from "./utils/media/hardDelete";
 export * from "./utils/media/softDelete";
@@ -46,8 +46,8 @@ export * from "./utils/misc/tokens";
 export * from "./utils/misc/session";
 export * from "./utils/redis/cache";
 export * from "./utils/redis/ratelimit";
-export * from "./utils/decorators/userDecorator";
-export * from "./utils/decorators/postDecorator";
+export * from "./utils/pipelines/user/dataLookup";
+export * from "./utils/pipelines/post/dataLookup";
 
 // Environment config
 export * from "../env-config/express/config";

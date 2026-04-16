@@ -57,23 +57,39 @@ export const getAllPost = async (
     let candidatePosts = staticPosts.slice(0, limit);
     let socialMap = new Map();
 
-    if (userId) {
+    if (userId && candidatePosts.length > 0) {
       const userPreferences = await getUserPreferences(userId, req.user);
 
-      // 1. Personalize FIRST
-      const personalized = personalizeFeed(staticPosts, userPreferences);
-      candidatePosts = personalized.slice(0, limit);
-
-      // 2. Get IDs for the survivors
-      const postIdsStrings = candidatePosts.map((p) => String(p._id));
-      const postIdsObjects = postIdsStrings.map(
-        (id) => new mongoose.Types.ObjectId(id),
+      // 1. Personalize first
+      candidatePosts = personalizeFeed(staticPosts, userPreferences).slice(
+        0,
+        limit,
       );
 
-      // 3. Fetch social data for ONLY these specific posts
+      // 2. Get IDs
+      const postIdsObjects = candidatePosts.map(
+        (p) => new mongoose.Types.ObjectId(String(p._id)),
+      );
+
+      // 3. Fetch social data across multiple collections
       const socialData = await GistModel.aggregate([
+        // Start with Gists
         { $match: { _id: { $in: postIdsObjects } } },
-        { $project: { postType: 1, _id: 1 } }, // Crucial for the decorator
+        { $addFields: { postType: "GIST" } }, // Inject the type so the decorator knows what to do
+
+        // Pull in Stakes
+        {
+          $unionWith: {
+            coll: "stakes", // Ensure this matches your actual MongoDB collection name for Stakes
+            pipeline: [
+              { $match: { _id: { $in: postIdsObjects } } },
+              { $addFields: { postType: "STAKE" } }, // Inject type for Stakes
+            ],
+          },
+        },
+
+        // 4. Now that we have all docs + their types, run the social logic
+        // This will keep likeCount/commentCount intact from the DB
         ...getPostSocialData({ userId: String(userId) }),
       ]);
 

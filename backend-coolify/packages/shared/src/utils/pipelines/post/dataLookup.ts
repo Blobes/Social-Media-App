@@ -1,6 +1,6 @@
 import mongoose, { PipelineStage } from "mongoose";
 
-export const staticPostDecorator = (): PipelineStage[] => {
+export const postStaticLookup = (): PipelineStage[] => {
   return [
     // Author Lookup
     {
@@ -36,7 +36,7 @@ export const staticPostDecorator = (): PipelineStage[] => {
 };
 
 // Dynamic decorator
-export const dynamicPostDecorator = ({
+export const postDynamicLookup = ({
   userId,
 }: {
   userId?: string | null;

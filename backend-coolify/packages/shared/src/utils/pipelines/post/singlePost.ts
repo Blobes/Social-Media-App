@@ -1,8 +1,5 @@
 import { PipelineStage } from "mongoose";
-import {
-  staticPostDecorator,
-  dynamicPostDecorator,
-} from "../decorators/postDecorator";
+import { postStaticLookup, postDynamicLookup } from "./dataLookup";
 
 /**
  * Generates the full static data pipeline for Posts (Gists & Stakes).
@@ -11,7 +8,7 @@ import {
 export const getPostStaticData = (): PipelineStage[] => {
   return [
     // Join with Users and Media collections
-    ...staticPostDecorator(),
+    ...postStaticLookup(),
 
     // Structural Formatting & Author Normalization
     {
@@ -115,7 +112,7 @@ export const getPostSocialData = ({
   userId: string;
 }): PipelineStage[] => {
   return [
-    ...dynamicPostDecorator({ userId }),
+    ...postDynamicLookup({ userId }),
     {
       $project: {
         likeCount: { $ifNull: ["$likeCount", 0] },
