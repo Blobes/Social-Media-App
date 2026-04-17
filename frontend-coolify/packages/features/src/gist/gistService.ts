@@ -2,10 +2,9 @@
 
 import {
   apiClient,
-  setPendingState,
-  getPendingState,
-  clearPendingState,
-  enqueueTask,
+  queueItem,
+  getQueueItem,
+  removeQueueItem,
 } from "@repo/helpers";
 import {
   IGist,
@@ -13,7 +12,6 @@ import {
   IListPayload,
   API_BASE,
   SERVER_API,
-  QUEUE_KEYS,
 } from "@repo/core";
 import { useCallback } from "react";
 
@@ -45,19 +43,15 @@ export const GistService = () => {
   }
   // Handle like
   const fetchGistLike = useCallback(
-    async (
-      gistId: string,
-      intendedState: boolean,
-    ): Promise<LikeResponse | null> => {
+    async (gistId: string): Promise<LikeResponse | null> => {
       try {
         const res = await apiClient<ISinglePayload<LikeResponse>>(
           SERVER_API.likeGist(gistId),
           { method: "POST" },
         );
         return res.payload;
-      } catch {
-        enqueueTask<boolean>(QUEUE_KEYS.POST.LIKE, gistId, intendedState);
-        return null;
+      } catch (error) {
+        throw error;
       }
     },
     [],
@@ -65,9 +59,9 @@ export const GistService = () => {
 
   return {
     fetchGistLike,
-    getPendingLike: getPendingState,
-    setPendingLike: setPendingState,
-    clearPendingLike: clearPendingState,
+    getPendingLike: getQueueItem,
+    setPendingLike: queueItem,
+    clearPendingLike: removeQueueItem,
     fetchGistList,
   };
 };

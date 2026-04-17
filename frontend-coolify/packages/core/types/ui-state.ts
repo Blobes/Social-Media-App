@@ -94,8 +94,9 @@ export interface IPage {
 }
 
 export interface QueueItem<T = any> {
-  payload: T;
-  timestamp: number;
+  newValue: T;
+  prevValue?: T;
+  timestamp?: number;
   retryCount?: number;
 }
 export type GenericQueue = Record<string, QueueItem>;

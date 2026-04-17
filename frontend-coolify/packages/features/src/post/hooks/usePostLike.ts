@@ -2,8 +2,9 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { vibrate, processQueue } from "@repo/helpers";
-import { AuthStatus, QUEUE_KEYS, UIMode } from "@repo/core";
+import { AuthStatus, QUEUE_KEYS, QueueItem, UIMode } from "@repo/core";
 
+// --- Interfaces ---
 interface LikablePost {
   _id: string;
   likedByMe: boolean;
@@ -13,8 +14,8 @@ interface LikablePost {
 }
 
 interface UsePostLikeContext {
-  getPendingLike: (key: string, id: string) => boolean | null;
-  setPendingLike: (key: string, id: string, value: boolean) => void;
+  getPendingLike: (key: string, id: string) => QueueItem<boolean> | null;
+  setPendingLike: (key: string, id: string, item: QueueItem<boolean>) => void;
   clearPendingLike: (key: string, id: string) => void;
   authStatus: AuthStatus;
   setModalContent: (content: any) => void;
@@ -25,9 +26,10 @@ interface UsePostLikeContext {
   LoginPrompt?: React.ReactNode;
 }
 
+// --- Hook ---
 export const usePostLike = <T extends LikablePost>(
   post: T,
-  onLikeApi: (id: string, nextState: boolean) => Promise<any>,
+  onLikeApi: (id: string) => Promise<any>,
   context: UsePostLikeContext,
 ) => {
   const {
@@ -43,31 +45,68 @@ export const usePostLike = <T extends LikablePost>(
     LoginPrompt: LoginStepper,
   } = context;
 
+  // --- State & Refs ---
   const [postData, setPostData] = useState<T>(post);
   const [isLiking, setIsLiking] = useState(false);
 
-  // LOGIC REFS
-  const clickGate = useRef(false); // UI Throttle: Prevents clicking within 1s
-  const stateVersion = useRef(0); // Version Tracking: Detects if UI state changed during API call
+  const lastStoredVal = useRef(post.likedByMe);
+  const clickCount = useRef(0);
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   const { _id } = postData;
 
-  // Sync localStorage on mount
+  // --- Lifecycle: Sync localStorage on mount ---
   useEffect(() => {
-    const pendingLike = getPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
-    if (pendingLike !== null && pendingLike !== post.likedByMe) {
+    const pending = getPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
+    const pendingLike = pending?.newValue;
+
+    if (pendingLike !== undefined && pendingLike !== post.likedByMe) {
       setPostData((prev) => ({
         ...prev,
         likedByMe: pendingLike,
         likeCount: prev.likeCount + (pendingLike ? 1 : -1),
       }));
+      clearPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
     }
-  }, [_id, getPendingLike, post.likedByMe]);
+  }, [_id, getPendingLike, post.likedByMe, clearPendingLike]);
 
+  // --- Lifecycle: Background sync ---
+  useEffect(() => {
+    if (authStatus === "AUTHENTICATED") {
+      processQueue(authStatus, QUEUE_KEYS.POST.PENDING_LIKES, onLikeApi);
+
+      const handleOnline = () =>
+        processQueue(authStatus, QUEUE_KEYS.POST.PENDING_LIKES, onLikeApi);
+
+      window.addEventListener("online", handleOnline);
+      return () => window.removeEventListener("online", handleOnline);
+    }
+  }, [authStatus, onLikeApi]);
+
+  // --- Logic Helpers ---
+  const toggleUI = useCallback(
+    (nextState: boolean) => {
+      setIsLiking(true);
+      setPostData((prev) => ({
+        ...prev,
+        likedByMe: nextState,
+        likeCount: prev.likeCount + (nextState ? 1 : -1),
+      }));
+
+      setPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id, {
+        newValue: nextState,
+        prevValue: lastStoredVal.current,
+      });
+
+      if (nextState) vibrate();
+      setTimeout(() => setIsLiking(false), 500);
+    },
+    [_id, setPendingLike],
+  );
+
+  // --- Main Action ---
   const handleLike = useCallback(async () => {
-    if (clickGate.current) return;
-
-    // GUARDS
+    // 1. Guards
     if (authStatus === "UNAUTHENTICATED") {
       setModalContent({ content: LoginStepper });
       return;
@@ -86,52 +125,45 @@ export const usePostLike = <T extends LikablePost>(
       return;
     }
 
+    // 2. Optimistic Update
     const nextLiked = !postData.likedByMe;
+    toggleUI(nextLiked);
 
-    // --- STEP 1: INSTANT UI TOGGLE ---
-    clickGate.current = true; // Lock the UI
-    setIsLiking(true);
+    // 3. Debounce Control
+    clickCount.current += 1;
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
-    setPostData((prev) => {
-      setPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id, nextLiked);
-      return {
-        ...prev,
-        likedByMe: nextLiked,
-        likeCount: prev.likeCount + (nextLiked ? 1 : -1),
-      };
-    });
+    debounceTimer.current = setTimeout(async () => {
+      const isEven = clickCount.current % 2 === 0;
 
-    if (nextLiked) vibrate();
+      // Check if user toggled back to original state during the 3s window
+      if (clickCount.current > 1 && isEven) {
+        setPostData((prev) => prev);
+        clearPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
+        clickCount.current = 0;
+        return;
+      }
 
-    stateVersion.current += 1; // Increment version for every valid UI change
-    const localVersion = stateVersion.current;
+      // 4. API Sync
+      try {
+        const payload = await onLikeApi(_id);
 
-    // setTimeout(() => {
-    //   clickGate.current = false;
-    // }, 1000);
-
-    try {
-      const payload = await onLikeApi(_id, nextLiked);
-
-      if (payload) {
-        setPostData((prev) => {
-          if (stateVersion.current !== localVersion) return prev;
-          return {
+        if (payload) {
+          setPostData((prev) => ({
             ...prev,
             likeCount: payload.likeCount,
             likedByMe: payload.likedByMe,
-          };
-        });
-        clearPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
+          }));
+
+          lastStoredVal.current = payload.likedByMe;
+          clearPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
+        }
+      } catch (error) {
+        console.error("Sync failed:", error);
+      } finally {
+        clickCount.current = 0;
       }
-    } catch (error) {
-      setPostData((prev) => prev);
-      clearPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
-      console.error("Sync failed:", error);
-    } finally {
-      clickGate.current = false;
-      setIsLiking(false);
-    }
+    }, 3000);
   }, [
     _id,
     authStatus,
@@ -140,23 +172,12 @@ export const usePostLike = <T extends LikablePost>(
     isUnstableNetwork,
     mode,
     onLikeApi,
-    setPendingLike,
     clearPendingLike,
     setSBMessage,
     setModalContent,
     LoginStepper,
+    toggleUI,
   ]);
-
-  // Background sync effect...
-  useEffect(() => {
-    if (authStatus === "AUTHENTICATED") {
-      processQueue(authStatus, QUEUE_KEYS.POST.LIKE, onLikeApi);
-      const handleOnline = () =>
-        processQueue(authStatus, QUEUE_KEYS.POST.LIKE, onLikeApi);
-      window.addEventListener("online", handleOnline);
-      return () => window.removeEventListener("online", handleOnline);
-    }
-  }, [authStatus, onLikeApi]);
 
   return { postData, isLiking, handleLike };
 };

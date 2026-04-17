@@ -26,7 +26,15 @@ export const genAccessTokens = (
     sameSite: "none",
     domain: ".funstakes.net",
     path: "/",
-    maxAge: 15 * 60 * 1000,
+    maxAge: 30 * 60 * 1000,
+  });
+
+  // Hint access token cookie
+  res.cookie("is_logged_in", "true", {
+    httpOnly: false,
+    secure: true,
+    sameSite: "none",
+    maxAge: 30 * 60 * 1000, // Match the expiry of the real token
   });
 
   return accessToken;
@@ -70,6 +78,26 @@ export const genRefreshTokens = async (
   });
 
   return refreshToken;
+};
+
+export const clearAuthTokens = (res: Response) => {
+  res.clearCookie("access_token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    path: "/",
+  });
+  res.clearCookie("is_logged_in", {
+    httpOnly: false,
+    secure: true,
+    sameSite: "none",
+  });
+  res.clearCookie("refresh_token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    path: "/",
+  });
 };
 
 export const genVerificationCode = () => {

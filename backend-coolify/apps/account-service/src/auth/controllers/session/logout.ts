@@ -1,8 +1,8 @@
 import {
-  CACHE_KEYS,
+  cleanUserSessions,
+  clearAuthTokens,
   IAuthRequest,
-  invalidatePattern,
-  upstashClient,
+  removeSession,
 } from "@repo/shared";
 import { Response } from "express";
 
@@ -28,30 +28,29 @@ export const logoutUser = async (
   try {
     if (logoutAll) {
       // --- GLOBAL LOGOUT: Kill every session for this user ---
-      // This uses the "Grenade" approach to clear all session keys in Upstash
-      await invalidatePattern(CACHE_KEYS.WILDCARD_USER_SESSIONS(userId));
+      cleanUserSessions({ userId });
     } else {
       // --- TARGETED LOGOUT: Kill a specific session ---
       // If no targetId is provided, we default to the current active session
       const idToKill = targetSessionId || currentSessionId;
-      if (idToKill)
-        await upstashClient.del(CACHE_KEYS.USER_SESSION(userId, idToKill));
+      if (idToKill) removeSession(userId, idToKill);
     }
 
     // Clear cookies on the client side if the user is logging out of their current device
     if (logoutAll || !targetSessionId || targetSessionId === currentSessionId) {
-      res.clearCookie("access_token", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        path: "/",
-      });
-      res.clearCookie("refresh_token", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        path: "/",
-      });
+      clearAuthTokens(res);
+      // res.clearCookie("access_token", {
+      //   httpOnly: true,
+      //   secure: true,
+      //   sameSite: "none",
+      //   path: "/",
+      // });
+      // res.clearCookie("refresh_token", {
+      //   httpOnly: true,
+      //   secure: true,
+      //   sameSite: "none",
+      //   path: "/",
+      // });
     }
 
     return res.status(200).json({

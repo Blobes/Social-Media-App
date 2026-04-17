@@ -3,6 +3,7 @@ import { Response, NextFunction, RequestHandler } from "express";
 import { IAuthRequest, IJwtUser } from "../types/types";
 import { upstashClient } from "../services/upstash";
 import { CACHE_KEYS } from "../utils/redis/cache";
+import { clearAuthTokens } from "../utils/misc/tokens";
 
 /**
  * Authentication Verification Middleware.
@@ -39,8 +40,9 @@ export const verifyAuthToken: RequestHandler = async (
 
     if (!sessionActive) {
       // Clear the cookies since the session is revoked in Redis
-      res.clearCookie("access_token");
-      res.clearCookie("refresh_token");
+      clearAuthTokens(res);
+      // res.clearCookie("access_token");
+      // res.clearCookie("refresh_token");
 
       return res.status(401).json({
         message: "Session expired or revoked",
@@ -89,8 +91,9 @@ export const optVerifyToken: RequestHandler = async (
       // Attach user data only if the session is still valid in our store
       req.user = payload;
     } else {
-      res.clearCookie("access_token");
-      res.clearCookie("refresh_token");
+      clearAuthTokens(res);
+      // res.clearCookie("access_token");
+      // res.clearCookie("refresh_token");
     }
     next();
   } catch (err) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { GenericQueue } from "@repo/core";
+import { GenericQueue, QueueItem } from "@repo/core";
 
 // // POST LIKE HANDLING HELPERS
 // const pendingLikesKey = "pendingLikes";
@@ -8,25 +8,36 @@ import { GenericQueue } from "@repo/core";
 /**
  * Generic helper to manage pending/optimistic states in localStorage
  */
-export const setPendingState = <T>(key: string, id: string, value: T) => {
+export const queueItem = <T extends QueueItem>(
+  key: string,
+  id: string,
+  item: T,
+) => {
   if (typeof window === "undefined") return;
-  const pending = JSON.parse(localStorage.getItem(key) || "{}");
-  pending[id] = value;
-  localStorage.setItem(key, JSON.stringify(pending));
+  const queue = JSON.parse(localStorage.getItem(key) || "{}");
+  queue[id] = {
+    newValue: item.newValue,
+    prevValue: item.prevValue,
+    timestamp: Date.now(),
+  } as T;
+  localStorage.setItem(key, JSON.stringify(queue));
 };
 
-export const getPendingState = <T>(key: string, id: string): T | null => {
+export const getQueueItem = <T extends QueueItem>(
+  key: string,
+  id: string,
+): T | null => {
   if (typeof window === "undefined") return null;
-  const pending = JSON.parse(localStorage.getItem(key) || "{}");
-  return (pending[id] as T) ?? null;
+  const queue = JSON.parse(localStorage.getItem(key) || "{}");
+  return (queue[id] as T) ?? null;
 };
 
-export const clearPendingState = (key: string, id: string) => {
+export const removeQueueItem = (key: string, id: string) => {
   if (typeof window === "undefined") return;
-  const pending = JSON.parse(localStorage.getItem(key) || "{}");
-  if (pending[id] !== undefined) {
-    delete pending[id];
-    localStorage.setItem(key, JSON.stringify(pending));
+  const queue = JSON.parse(localStorage.getItem(key) || "{}");
+  if (queue[id] !== undefined) {
+    delete queue[id];
+    localStorage.setItem(key, JSON.stringify(queue));
   }
 };
 // // --- Offline queue ---
@@ -37,56 +48,54 @@ export const clearPendingState = (key: string, id: string) => {
 //   localStorage.setItem(likeQueueKey, JSON.stringify(queue));
 // };
 
-export const enqueueTask = <T>(queueKey: string, id: string, payload: T) => {
-  const queue = JSON.parse(localStorage.getItem(queueKey) || "{}");
-  queue[id] = { payload, timestamp: Date.now() };
-  localStorage.setItem(queueKey, JSON.stringify(queue));
+const getOrSetQueue = (key: string) => {
+  if (typeof window === "undefined") return null;
+
+  let queue = JSON.parse(localStorage.getItem(key) || "{}");
+  const len = Object.keys(queue).length;
+  if (len > 0) return queue;
+
+  localStorage.setItem(key, JSON.stringify({}));
+  queue = JSON.parse(localStorage.getItem(key) || "{}");
+  return queue;
 };
 
 let isSyncing: Record<string, boolean> = {}; // Track sync status per queue key
 
-export const processQueue = async <T>(
+export const processQueue = async <T extends QueueItem>(
   authStatus: string,
-  queueKey: string,
-  apiCall: (id: string, payload: T) => Promise<void>,
+  key: string,
+  apiCall: (id: string) => Promise<void>,
 ) => {
-  // 1. Guards: Don't sync if unauthorized or if THIS specific queue is already running
-  if (isSyncing[queueKey] || authStatus !== "AUTHENTICATED") return;
+  // Guards: Don't sync if unauthorized or if THIS specific queue is already running
+  if (isSyncing[key] || authStatus !== "AUTHENTICATED") return;
 
-  const getQueue = (): GenericQueue =>
-    JSON.parse(localStorage.getItem(queueKey) || "{}");
-
-  const items = Object.keys(getQueue());
+  const items = Object.keys(getOrSetQueue(key));
   if (!items.length) return;
 
-  isSyncing[queueKey] = true;
+  isSyncing[key] = true;
 
   try {
     for (const id of items) {
-      const currentQueue = getQueue();
-      const task = currentQueue[id];
+      const currentQueue = getOrSetQueue(key);
+      const task: T = currentQueue[id];
 
-      if (!task) continue;
+      if (!task || task.newValue === task.prevValue) {
+        removeQueueItem(key, id);
+        continue;
+      }
 
       try {
-        // Execute the generic API call passed by the caller
-        await apiCall(id, task.payload);
-
+        await apiCall(id);
         // Success: Remove item from storage
-        const updatedQueue = getQueue();
-        delete updatedQueue[id];
-        localStorage.setItem(queueKey, JSON.stringify(updatedQueue));
-
-        // Optional: Small throttle
+        removeQueueItem(key, id);
         await new Promise((r) => setTimeout(r, 50));
       } catch (err: any) {
-        console.error(`[Queue: ${queueKey}] Failed for ${id}:`, err);
-
-        // If the error is an Auth error, stop the entire queue immediately
+        console.error(`[Queue: ${key}] Failed for ${id}:`, err);
         if (err.status === 401) break;
       }
     }
   } finally {
-    isSyncing[queueKey] = false;
+    isSyncing[key] = false;
   }
 };

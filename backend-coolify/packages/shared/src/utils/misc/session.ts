@@ -1,4 +1,5 @@
 import { upstashClient } from "../../services/upstash";
+import { CACHE_KEYS } from "../redis/cache";
 
 interface SessionCleanupOptions {
   userId: string;
@@ -12,13 +13,13 @@ interface SessionCleanupOptions {
  * performs a selective or global cleanup.
  * @returns boolean - Returns true if the current session was preserved.
  */
-export const manageUserSessions = async ({
+export const cleanUserSessions = async ({
   userId,
   currentSessionId,
   keepCurrentIfPrimary = false,
   primarySessionId,
 }: SessionCleanupOptions): Promise<boolean> => {
-  const sessionPattern = `session:${userId}:*`;
+  const sessionPattern = CACHE_KEYS.WILDCARD_USER_ALL(userId);
   let cursor = "0";
   let keptCurrentSession = false;
 
@@ -55,4 +56,11 @@ export const manageUserSessions = async ({
     console.error("Session Cleanup Utility Error:", error);
     throw new Error("Failed to process session cleanup");
   }
+};
+
+export const removeSession = async (
+  userId: string,
+  targetSessionId: string,
+) => {
+  await upstashClient.del(CACHE_KEYS.USER_SESSION(userId, targetSessionId));
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useRef } from "react";
 import { useSnackbar } from "./useSnackbar";
 import { useGlobalContext } from "./useContext";
 import { useOffline } from "./useOffline";
@@ -15,7 +15,7 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
   const { switchToOnlineMode } = useOffline();
   const { navigateTo } = usePage();
 
-  const online = useCallback(() => {
+  const handleOnline = useCallback(() => {
     console.log("Network: Online");
     removeSBMessage();
     switchToOnlineMode();
@@ -24,7 +24,7 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
     verifyAuth();
   }, [removeSBMessage, switchToOnlineMode, setNetworkStatus, verifyAuth]);
 
-  const offline = useCallback(() => {
+  const handleOffline = useCallback(() => {
     console.log("Network: Offline");
     setSBMessage({
       msg: {
@@ -46,23 +46,39 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
         icon: <WifiOff />,
       },
     });
+    // setNetworkStatus("OFFLINE");
     saveToLocalStorage<AuthStatus>("last_auth_status", authStatus);
   }, [setSBMessage, navigateTo]);
 
+  // Define handler for user session changes
+  const handleAuth = () => {
+    if (document.visibilityState === "visible") {
+      console.log("Verifying session...");
+      verifyAuth();
+    }
+  };
+
+  const handlePageTransition = (event: PageTransitionEvent) => {
+    if (event.persisted) setGlobalLoading(false);
+  };
+
   // Manage listeners internally
   useEffect(() => {
-    const handlePageTransition = (event: PageTransitionEvent) => {
-      if (event.persisted) setGlobalLoading(false);
-    };
+    // verifies user session every 10 minutes
+    const interval = setInterval(() => handleAuth(), 1000 * 60 * 10);
 
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
     window.addEventListener("pageshow", handlePageTransition);
-    window.addEventListener("online", online);
-    window.addEventListener("offline", offline);
+    window.addEventListener("visibilitychange", handleAuth);
 
     return () => {
-      window.removeEventListener("online", online);
-      window.removeEventListener("offline", offline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
       window.removeEventListener("pageshow", handlePageTransition);
+      window.removeEventListener("visibilitychange", handleAuth);
+      // visibilitychange
+      clearInterval(interval);
     };
-  }, [online, offline, setGlobalLoading]); // Re-bind if logic changes
+  }, [handleOnline, handleOffline, setGlobalLoading, verifyAuth]); // Re-bind if logic changes
 };
