@@ -83,6 +83,12 @@ export const GlobalUIManager = ({
     init();
   }, []);
 
+  // Auth and network signal check
+  useEffect(() => {
+    verifySignal();
+    verifyAuth();
+  }, [authStatus, networkStatus]);
+
   // Drawer & Modal Open / Close
   useEffect(() => {
     if (!drawerContent) drawerRef.current?.closeDrawer();
