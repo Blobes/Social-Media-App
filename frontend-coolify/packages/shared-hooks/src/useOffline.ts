@@ -1,15 +1,24 @@
 "use client";
 
+import { useCallback } from "react";
 import { usePage } from "./usePage";
-import { useGlobalContext } from "./useContext";
 import { getFromLocalStorage } from "@repo/helpers";
 import { CLIENT_ROUTES, IPage } from "@repo/core";
+import { useGlobalStore } from "./store/useGlobalStore";
 
+/**
+ * Manages transitions between online and offline application states.
+ */
 export const useOffline = () => {
-  const { setOfflineMode } = useGlobalContext();
+  // Use atomic selector for the setter to avoid unnecessary subscriptions
+  const setOfflineMode = useGlobalStore((state) => state.setOfflineMode);
+
   const { navigateTo } = usePage();
 
-  const switchToOfflineMode = () => {
+  /**
+   * Activates offline mode and redirects to the offline content route.
+   */
+  const switchToOfflineMode = useCallback(() => {
     setOfflineMode(true);
 
     navigateTo(CLIENT_ROUTES.offline, {
@@ -17,13 +26,22 @@ export const useOffline = () => {
       savePage: false,
       loadPage: true,
     });
-  };
+  }, [setOfflineMode, navigateTo]);
 
-  const switchToOnlineMode = () => {
+  /**
+   * Restores online mode and redirects back to the last saved page or home.
+   */
+  const switchToOnlineMode = useCallback(() => {
     setOfflineMode(false);
+
+    // Retrieve the last known location or fallback to home
     const savedPage = getFromLocalStorage<IPage>() || CLIENT_ROUTES.home;
-    navigateTo(savedPage, { type: "replace", loadPage: true });
-  };
+
+    navigateTo(savedPage, {
+      type: "replace",
+      loadPage: true,
+    });
+  }, [setOfflineMode, navigateTo]);
 
   return {
     switchToOfflineMode,

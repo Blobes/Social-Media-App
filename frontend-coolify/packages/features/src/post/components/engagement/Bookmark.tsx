@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { IconButton, SxProps, Theme } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { Bookmark } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { GenericStyle } from "@repo/core";

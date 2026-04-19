@@ -1,63 +1,73 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { IPost, IStake } from "@repo/core";
-import { delay } from "@repo/helpers";
+import { IPost, IStake, QUERY_KEYS } from "@repo/core";
 import { useStake } from "@repo/features";
 import { FeedService } from "./service";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
+/**
+ * Manages the unified feed and dissolves bulk results into granular cache entries.
+ */
 export const useFeed = () => {
-  const router = useRouter();
-  const [feed, setFeed] = useState<IPost[]>([]);
-  const [isLoading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const { stakes } = useStake();
   const { fetchFeed } = FeedService();
 
-  const handleFeed = useCallback(async () => {
-    try {
-      setLoading(true);
+  const {
+    data: feed = [],
+    error,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: [QUERY_KEYS.POST.FEED],
+    queryFn: async () => {
       const res = await fetchFeed();
-
-      if (res.status === "SUCCESS" && res.payload) {
-        const feedList: IPost[] = res.payload.map((post: IPost) => ({
-          ...post,
-          type: String(post.postType).toUpperCase() || "GIST",
-        }));
-
-        // Map the local stakes
-        const stakeList: IPost[] = stakes.map((stake: IStake) => ({
-          ...stake,
-          postType: "STAKE" as const,
-        }));
-
-        // 4. Combine and Sort
-        const combinedList = [...feedList, ...stakeList];
-
-        // 5. Update State with the fully casted IPost[]
-        setFeed(combinedList);
-        setMessage(res.message);
+      if (res.status !== "SUCCESS") {
+        throw new Error(res.message || "Failed to fetch feed");
       }
-    } catch (error: any) {
-      setMessage(error.message);
-    } finally {
-      await delay();
-      setLoading(false);
-    }
-  }, [fetchFeed, stakes]);
+      const remotePayload = res.payload || [];
+      // Dissolve Strategy: Push each post into its own granular key based on its ID.
+      // This allows useCachedData and usePostSeen to work without refetching.
+      remotePayload.forEach((post: IPost) => {
+        // We use the broad GISTS or STAKES key + ID
+        const baseKey =
+          post.postType === "STAKE"
+            ? QUERY_KEYS.POST.STAKES
+            : QUERY_KEYS.POST.GISTS;
 
-  useEffect(() => {
-    handleFeed();
-  }, [handleFeed]);
+        queryClient.setQueryData([baseKey, post._id], post);
+      });
+      return remotePayload;
+    },
 
-  const handleRefresh = useCallback(() => {
-    router.refresh();
-  }, [router]);
+    /**
+     * Combines remote feed and local stakes into a single unified list.
+     */
+    select: (remotePayload: IPost[]) => {
+      const feedList = remotePayload.map((post) => ({
+        ...post,
+        postType: post.postType || "GIST",
+      })) as IPost[];
+
+      const stakeList = stakes.map((stake: IStake) => ({
+        ...stake,
+        postType: "STAKE" as const,
+      })) as IPost[];
+
+      return [...feedList, ...stakeList];
+    },
+
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
+
+  const handleRefresh = async () => {
+    await refetch();
+  };
 
   return {
     feed,
-    message,
+    message: error instanceof Error ? error.message : null,
     isLoading,
     handleRefresh,
   };

@@ -12,7 +12,7 @@ import { WordTrimmer } from "./WordTrimmer";
 
 interface SnackbarProps {
   snackBarMsg: ISnackBarMsg;
-  removeMessage: (id: number) => void;
+  removeMessage: (id: string) => void;
   setSBTimer: () => void;
 }
 

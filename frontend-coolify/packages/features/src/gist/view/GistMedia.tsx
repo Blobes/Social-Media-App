@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useTheme } from "@mui/material/styles";
-import { useImageColors, useMisc } from "@repo/shared-hooks";
+import { useMisc } from "@repo/shared-hooks";
 import { GalleryProps, MediaGallery, Media } from "@repo/shared-ui";
 import { useCallback, useMemo } from "react";
 import { applyBGEffects } from "@repo/helpers";
@@ -51,7 +51,7 @@ export const GistMedia = ({
         content: (
           <GistMediaView
             gist={gist}
-            like={{ handleLike: handleLike, isLiking }}
+            like={{ handleLike, isLiking }}
             initialIndex={index}
             mode={mode}
           />
@@ -69,10 +69,14 @@ export const GistMedia = ({
         ...media,
         id: mediaId,
         onSingleTap: () => handleMedia(index),
-        ...(!gist.likedByMe && { onDoubleTap: handleLike }),
+        onDoubleTap: () => {
+          if (!gist.likedByMe && !isLiking) {
+            handleLike();
+          }
+        },
       };
     });
-  }, [mediaList, handleMedia]);
+  }, [mediaList, handleMedia, gist.likedByMe, isLiking, handleLike]);
 
   const singleMedia = mappedList[0];
 
@@ -80,7 +84,7 @@ export const GistMedia = ({
     <Media
       {...singleMedia}
       style={{ container: mediaStyle.container }}
-      useMedia={{ useImageColors, useMisc }}
+      useMedia={{ useMisc }}
     />
   ) : (
     <MediaGallery

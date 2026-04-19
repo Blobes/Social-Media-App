@@ -8,10 +8,16 @@ import { Milestone } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { autoScroll } from "@repo/helpers";
 import { GistCard, useGists } from "@repo/features";
+import { useCachedData } from "@repo/shared-hooks";
+import { IGist, QUERY_KEYS } from "@repo/core";
 
 export const Gists = () => {
   const theme = useTheme();
-  const { gists, message, isLoading, handleRefresh } = useGists();
+  const { gists: onlineGists, message, isLoading, handleRefresh } = useGists();
+  const cachedGists = useCachedData<IGist>([QUERY_KEYS.POST.GISTS]);
+
+  // Determine which data to display. Priority: Online data > Cached data.
+  const gists = onlineGists.length > 0 ? onlineGists : cachedGists;
 
   const containerStyle = useMemo(
     () => ({
@@ -40,7 +46,7 @@ export const Gists = () => {
         <GistSkeleton />
       ) : gists.length < 1 ? (
         <Feedback
-          tagline={message || "Something went wrong, check your network"}
+          tagline={message || "No gists found in cache or online."}
           icon={<Milestone />}
           primaryCta={{
             type: "BUTTON",

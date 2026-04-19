@@ -12,7 +12,7 @@ import {
 } from "@repo/shared-ui";
 import { summarizeNum } from "@repo/helpers";
 import { SlidersHorizontal, WalletMinimal } from "lucide-react";
-import { useGlobalContext, useMisc, usePage } from "@repo/shared-hooks";
+import { useGlobalStore, useMisc, usePage } from "@repo/shared-hooks";
 import { LISTS, MenuRef } from "@repo/core";
 import { Logout } from "../../auth/logout/Logout";
 
@@ -49,7 +49,7 @@ export const DesktopNav = ({
 // User info
 const UserInfo = () => {
   const theme = useTheme();
-  const { authUser } = useGlobalContext();
+  const authUser = useGlobalStore((state) => state.authUser);
 
   if (!authUser) return null;
 

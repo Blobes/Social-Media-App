@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { AppBar, Stack, IconButton } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext, useMisc, usePage } from "@repo/shared-hooks";
+import { useGlobalStore, useMisc, usePage } from "@repo/shared-hooks";
 import { DesktopNav, MobileNav } from "./Nav";
 import { AnchorLink, AppButton } from "@repo/shared-ui";
 import Image from "next/image";
@@ -12,7 +12,7 @@ import { img } from "@repo/assets";
 import { CLIENT_ROUTES } from "@repo/core";
 
 export const Header: React.FC = () => {
-  const { authStatus } = useGlobalContext();
+  const authStatus = useGlobalStore((state) => state.authStatus);
   const { openDrawer, closeDrawer, isDesktop, handleWindowResize } = useMisc();
   const { navigateTo } = usePage();
   const theme = useTheme();

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Stack, Typography } from "@mui/material";
-import { useGlobalContext } from "@repo/shared-hooks";
+import { useGlobalStore } from "@repo/shared-hooks";
 import {
   AppButton,
   TextInput,
@@ -23,7 +23,8 @@ export const IdentifierStep: React.FC<StepProps> = ({
   style = {},
 }) => {
   const theme = useTheme();
-  const { inlineMsg } = useGlobalContext();
+  const inlineMsg = useGlobalStore((state) => state.inlineMsg);
+
   const { COUNTRY_LIST } = LISTS();
 
   // Use the controller

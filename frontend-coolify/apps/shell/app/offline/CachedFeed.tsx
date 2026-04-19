@@ -1,36 +1,34 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { delay, autoScroll } from "@repo/helpers";
 import { Feedback, GistSkeleton, StakeSkeleton } from "@repo/shared-ui";
 import { CircleSlash2 } from "lucide-react";
-import { usePage } from "@repo/shared-hooks";
-import { getCachedPosts } from "@repo/helpers";
-import { CLIENT_ROUTES, IPost } from "@repo/core";
+import { useCachedData, usePage } from "@repo/shared-hooks";
+import { CLIENT_ROUTES, IPost, QUERY_KEYS } from "@repo/core";
 import { GistCard, StakeCard } from "@repo/features";
 
 export const CachedFeed = () => {
   const theme = useTheme();
-  const [feed, setFeed] = useState<IPost[]>([]);
-  const [isLoading, setLoading] = useState(false);
   const { navigateTo } = usePage();
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleFeed = useCallback(async () => {
-    try {
-      setLoading(true);
-      const cachedPosts = await getCachedPosts();
-      if (cachedPosts) setFeed(cachedPosts);
-    } finally {
-      await delay();
-      setLoading(false);
-    }
-  }, [getCachedPosts]);
+  // Pulling the reactive data from cache.
+  const feed = useCachedData<IPost>([
+    [QUERY_KEYS.POST.GISTS],
+    [QUERY_KEYS.POST.STAKES],
+  ]);
 
+  // Artificial delay to ensure skeletons are visible and transitions are smooth.
   useEffect(() => {
-    handleFeed();
-  }, [handleFeed]);
+    const init = async () => {
+      await delay();
+      setIsLoading(false);
+    };
+    init();
+  }, []);
 
   const containerStyle = useMemo(
     () => ({

@@ -1,5 +1,8 @@
 "use client";
 
+import { height, width } from "@mui/system";
+import { AnalyzedImage } from "@repo/core";
+
 // Delay function
 export const delay = (ms: number = 1500) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -28,4 +31,16 @@ export const vibrate = (ms: number = 100) => {
   if (isTouchDevice && "vibrate" in navigator) {
     navigator.vibrate(ms);
   }
+};
+
+/**
+ * Determines orientation based on natural image dimensions.
+ */
+export const analyzeImage = (img: HTMLImageElement): AnalyzedImage | null => {
+  if (!img) return null;
+  return {
+    height: img.naturalHeight,
+    width: img.naturalWidth,
+    isPortrait: img.naturalHeight > img.naturalWidth,
+  };
 };

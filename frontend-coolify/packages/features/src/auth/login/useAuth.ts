@@ -1,79 +1,96 @@
 "use client";
 
-import { useGlobalContext, usePage, useSnackbar } from "@repo/shared-hooks";
+import { usePage, useSnackbar, useGlobalStore } from "@repo/shared-hooks";
 import { LoginService } from "./service";
-import { CLIENT_ROUTES } from "@repo/core";
-import { useCallback, useRef } from "react";
+import { CLIENT_ROUTES, QUERY_KEYS } from "@repo/core";
+import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 
+/**
+ * Manages user authentication state and session verification.
+ * Automatically pings the server every 10 minutes or on window focus.
+ */
 export const useAuth = () => {
-  const { setAuthUser, setAuthStatus } = useGlobalContext();
+  /**
+   * Performance: Using individual selectors
+   */
+  const setAuthUser = useGlobalStore((state) => state.setAuthUser);
+  const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
+
   const { setSBMessage } = useSnackbar();
   const { verifyAndFetchUser } = LoginService();
   const { navigateTo } = usePage();
 
-  const lastChecked = useRef(0);
-  const THRESHOLD = 1000 * 60 * 15; // 15 Minutes
-  const verifyAuth = useCallback(async () => {
-    // Check if we checked recently
-    const hasToken = document.cookie
-      .split(";")
-      .some((item) => item.trim().startsWith("is_logged_in="));
+  const { refetch, isFetching } = useQuery({
+    queryKey: [QUERY_KEYS.USER.SESSION],
+    queryFn: async () => {
+      // Checking for the hint cookie before making a network request
+      const hasToken = document.cookie
+        .split(";")
+        .some((item) => item.trim().startsWith("is_logged_in="));
 
-    const now = Date.now();
-    if (now - lastChecked.current < THRESHOLD && hasToken) {
-      console.log("Skipping session verification: Checked recently.");
-      return;
-    }
-    // Update the timestamp before verifying
-    lastChecked.current = now;
+      if (hasToken) return;
 
-    try {
-      const res = await verifyAndFetchUser();
+      try {
+        const res = await verifyAndFetchUser();
 
-      // 1. SUCCESS: User is logged in
-      if (res.status === "SUCCESS" && res.payload) {
-        setAuthUser(res.payload);
-        setAuthStatus("AUTHENTICATED");
-        return;
-      }
+        // SUCCESS: User session is valid
+        if (res.status === "SUCCESS" && res.payload) {
+          setAuthUser(res.payload);
+          setAuthStatus("AUTHENTICATED");
+          return res.payload;
+        }
 
-      // 2. UNAUTHORIZED: No session or expired (after refresh attempt)
-      if (res.status === "UNAUTHORIZED") {
-        setAuthUser(null);
+        // UNAUTHORIZED: Session expired or invalid
+        if (res.status === "UNAUTHORIZED") {
+          setAuthUser(null);
+          setAuthStatus("UNAUTHENTICATED");
+          return null;
+        }
+
+        // DEACTIVATED: User exists but account is locked
+        if (res.status === "DEACTIVATED") {
+          setAuthUser(res.payload);
+          setAuthStatus("DEACTIVATED");
+          navigateTo(CLIENT_ROUTES.restoreAccount);
+          return res.payload;
+        }
+
+        // ERROR: Network or server failure
+        if (res.status === "ERROR") {
+          setAuthUser(null);
+          setAuthStatus("ERROR");
+          if (res.message) {
+            setSBMessage({
+              msg: { content: res.message, msgStatus: "ERROR", hasClose: true },
+            });
+          }
+          return null;
+        }
+
         setAuthStatus("UNAUTHENTICATED");
-        return;
-      }
-
-      // 3. DEACTIVATED: Handled specifically
-      if (res.status === "DEACTIVATED") {
-        setAuthUser(res.payload);
-        setAuthStatus("DEACTIVATED");
-        navigateTo(CLIENT_ROUTES.restoreAccount);
-        return;
-      }
-
-      // 4. ERROR: Network failure or Server 500
-      if (res.status === "ERROR") {
+        return null;
+      } catch (err) {
         setAuthUser(null);
         setAuthStatus("ERROR");
-        if (res.message) {
-          setSBMessage({
-            msg: { content: res.message, msgStatus: "ERROR", hasClose: true },
-          });
-        }
-        return;
+        console.error("Critical Auth Hook Failure:", err);
+        throw err;
       }
+    },
+    // REPLACES manual visibilitychange listener
+    refetchOnWindowFocus: true,
+    // REPLACES manual 10-minute setInterval
+    refetchInterval: 1000 * 60 * 10,
+    // Set to true if you want it to run automatically on mount
+    enabled: true,
+  });
 
-      // 5. Fallback for safety
-      setAuthStatus("UNAUTHENTICATED");
-    } catch (err: any) {
-      // Critical runtime error (e.g. malformed code)
-      lastChecked.current = 0; // Reset on error so we can retry immediately
-      setAuthUser(null);
-      setAuthStatus("ERROR");
-      console.error("Critical Auth Hook Failure:", err);
-    }
-  }, [verifyAndFetchUser, setAuthUser, setAuthStatus, navigateTo]);
+  const verifyAuth = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
 
-  return { verifyAuth };
+  return {
+    verifyAuth,
+    isVerifying: isFetching,
+  };
 };

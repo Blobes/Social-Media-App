@@ -77,14 +77,12 @@ export const mediaData: MediaProps[] = [
     _id: "media1",
     ownerId: "3",
     url: img.pic1,
-
     status: "READY",
   },
   {
     _id: "media2",
     ownerId: "2",
     url: img.pic2,
-
     status: "READY",
   },
   {

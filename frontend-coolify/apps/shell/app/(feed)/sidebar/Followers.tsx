@@ -3,21 +3,16 @@
 import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { Stack } from "@mui/material";
-import { useGlobalContext } from "@repo/shared-hooks";
-import { useEffect } from "react";
 import { FollowerCard } from "./FollowerCard";
 import { ProgressIcon, Feedback } from "@repo/shared-ui";
 import { UserMinus } from "lucide-react";
 import { useUser } from "@repo/features";
+import { useGlobalStore } from "@repo/shared-hooks";
 
 export const Followers = () => {
   const theme = useTheme();
-  const { authUser } = useGlobalContext();
-  const { getFollowers, followers, isLoading, message } = useUser();
-
-  useEffect(() => {
-    if (authUser?._id) getFollowers(authUser._id);
-  }, [authUser?._id, getFollowers]);
+  const authUser = useGlobalStore((state) => state.authUser);
+  const { followers, isLoading, message } = useUser(authUser?._id);
 
   return (
     <>

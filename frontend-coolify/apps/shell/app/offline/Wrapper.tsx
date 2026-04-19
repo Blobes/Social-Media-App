@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import { useMisc, useOffline } from "@repo/shared-hooks";
+import { useGlobalStore, useMisc, useOffline } from "@repo/shared-hooks";
 import { Stack } from "@mui/material";
-import { useGlobalContext } from "@repo/shared-hooks";
 import { useTheme } from "@mui/material/styles";
 import { useEffect, useRef } from "react";
 import { Header } from "./navbars/Header";
@@ -16,7 +15,7 @@ import { scrollBarStyle } from "@repo/helpers";
 export const Wrapper = ({ children }: { children: React.ReactNode }) => {
   const { isDesktop, isOnline } = useMisc();
   const theme = useTheme();
-  const { networkStatus } = useGlobalContext();
+  const networkStatus = useGlobalStore((state) => state.networkStatus);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { switchToOnlineMode } = useOffline();
 

@@ -3,7 +3,8 @@
 import React from "react";
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { GenericStyle, IStake } from "@repo/core";
+import { GenericStyle, IPost, IStake, QUERY_KEYS } from "@repo/core";
+import { usePostSeen } from "../post/hooks/usePostSeen";
 
 interface StakeProps {
   stake: IStake;
@@ -13,9 +14,13 @@ interface StakeProps {
 export const StakeCard = ({ stake, style = {} }: StakeProps) => {
   const theme = useTheme();
   const { content, media } = stake;
+  const { elementRef } = usePostSeen<IPost>(stake as IPost, [
+    QUERY_KEYS.POST.STAKES,
+  ]);
 
   return (
     <Stack
+      ref={elementRef as React.RefObject<HTMLDivElement>}
       sx={{
         gap: theme.gap(0),
         flexGrow: "0",

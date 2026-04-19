@@ -8,3 +8,6 @@ export * from "./src/usePage";
 export * from "./src/usePageScroll";
 export * from "./src/useSnackbar";
 export * from "./src/useOffline";
+export * from "./src/store/useGlobalStore";
+export * from "./src/store/useGistStore";
+export * from "./src/useCached";

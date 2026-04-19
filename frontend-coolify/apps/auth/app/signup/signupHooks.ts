@@ -1,9 +1,9 @@
 "use client";
 
-import { useGlobalContext } from "@repo/shared-hooks";
 import { apiClient, deleteCookie } from "@repo/helpers";
 import { IUser, ISinglePayload, DrawerRef } from "@repo/core";
 import { useRouter } from "next/navigation";
+import { useGlobalStore } from "@repo/shared-hooks";
 
 interface LoginCredentials {
   email: string;
@@ -21,13 +21,11 @@ interface SignupInfo {
 }
 
 export const useSignup = (drawerRef?: React.RefObject<DrawerRef>) => {
-  const {
-    setAuthUser,
-    setAuthStatus: setLoginStatus,
-    setPage,
-    setSnackBarMsg: setSnackBarMsgs,
-    setInlineMsg,
-  } = useGlobalContext();
+  const inlineMsg = useGlobalStore((state) => state.inlineMsg);
+  const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
+  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
+  const setAuthUser = useGlobalStore((state) => state.setAuthUser);
+  const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
   const router = useRouter();
 
   const handleLogin = async (
@@ -43,7 +41,7 @@ export const useSignup = (drawerRef?: React.RefObject<DrawerRef>) => {
       // Step 3: On success — reset auth state
       const { message: message, payload, status } = res;
       setAuthUser(payload!);
-      setLoginStatus("AUTHENTICATED");
+      setAuthStatus("AUTHENTICATED");
       deleteCookie("loginAttempts"); // reset attempt count
 
       return {

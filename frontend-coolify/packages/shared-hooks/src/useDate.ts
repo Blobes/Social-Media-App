@@ -1,37 +1,28 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { formatDate } from "@repo/helpers";
+import { useGlobalStore } from "./store/useGlobalStore";
 
+/**
+ * Optimized hook that subscribes to a single global clock pulse.
+ * Only re-formats if the timestamp is "fresh" (less than 1 hour old).
+ */
 export const useAdaptiveTime = (timestamp: string | number) => {
-  // 1. Initial Calculation to see where we stand
-  const [display, setDisplay] = useState(() =>
-    formatDate(timestamp, "SHORTENED"),
-  );
+  const now = useGlobalStore((state) => state.now);
 
-  // 2. Determine if we need an interval
-  // We check if the current 'shortened' string suggests it's older than an hour.
-  // Since the formatter uses "m" for minutes, if it contains "m" or is "Now", we tick.
-  const isFresh = useMemo(() => {
-    const isMinute = display.endsWith("m");
-    const isNow = display === "Now";
-    return isNow || isMinute;
-  }, [display]);
+  return useMemo(() => {
+    const timeInMs =
+      typeof timestamp === "string" ? new Date(timestamp).getTime() : timestamp;
 
-  useEffect(() => {
-    // If it's older than an hour, don't start the interval at all
-    if (!isFresh) return;
+    const ageInMinutes = (now - timeInMs) / 1000 / 60;
 
-    const timer = setInterval(() => {
-      const nextValue = formatDate(timestamp, "SHORTENED");
-      setDisplay(nextValue);
+    // If the post is older than 60 minutes, the "SHORTENED" format
+    // (like '1h', '2h', '1d') only changes once per hour or day.
+    // We skip the minute-by-minute re-calculation for these.
+    if (ageInMinutes > 60) return formatDate(timestamp, "SHORTENED");
 
-      // Optimization: If the new value no longer ends in 'm' (it's now '1h'),
-      // the next effect run will clean this up via the dependency array.
-    }, 60000);
-
-    return () => clearInterval(timer);
-  }, [timestamp, isFresh]); // Re-evaluate if timestamp or "freshness" changes
-
-  return display;
+    // For "fresh" posts (0-60m), we re-format every minute.
+    return formatDate(timestamp, "SHORTENED");
+  }, [timestamp, now]);
 };

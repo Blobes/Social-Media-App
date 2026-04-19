@@ -19,7 +19,7 @@ import {
 } from "@repo/helpers";
 import {
   useEventListener,
-  useGlobalStore,
+  useGlobalContext,
   useMisc,
   useOffline,
   usePage,
@@ -28,15 +28,12 @@ import {
 import { AuthStatus, DrawerRef, ModalRef } from "@repo/core";
 import { useAuth } from "../auth/login/useAuth";
 
-export interface UIManagerProps {
+interface UIManagerProps {
   children: React.ReactNode;
   showOfflineUI?: boolean;
   showNetworkErrorUI?: boolean;
 }
 
-/** * Manages the global UI state, including modals, drawers, snackbars, and system-level screens.
- * Orchestrates the initial app boot sequence.
- */
 export const GlobalUIManager = ({
   children,
   showOfflineUI = true,
@@ -44,37 +41,34 @@ export const GlobalUIManager = ({
 }: UIManagerProps) => {
   const drawerRef = useRef<DrawerRef>(null);
   const modalRef = useRef<ModalRef>(null);
-
-  // Destructuring state and actions from the Zustand store
-  const snackBarMsg = useGlobalStore((state) => state.snackBarMsg);
-  const drawerContent = useGlobalStore((state) => state.drawerContent);
-  const modalContent = useGlobalStore((state) => state.modalContent);
-  const isGlobalLoading = useGlobalStore((state) => state.isGlobalLoading);
-  const authStatus = useGlobalStore((state) => state.authStatus);
-  const networkStatus = useGlobalStore((state) => state.networkStatus);
-  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
-  const offlineMode = useGlobalStore((state) => state.offlineMode);
-  const checkingSignal = useGlobalStore((state) => state.checkingSignal);
-
-  const { verifySignal, isUnstableNetwork, isOffline } = useMisc();
+  const { openDrawer, openModal, verifySignal, isUnstableNetwork, isOffline } =
+    useMisc();
   const { handleCurrentPage } = usePage();
+  const {
+    snackBarMsg,
+    drawerContent,
+    modalContent,
+    isGlobalLoading,
+    authStatus,
+    networkStatus,
+    setGlobalLoading,
+    offlineMode,
+    checkingSignal,
+  } = useGlobalContext();
   const pathname = usePathname();
-  const { verifyAuth, isVerifying } = useAuth();
+  const { verifyAuth } = useAuth();
   const { setSBTimer, removeSBMessage } = useSnackbar();
   const { switchToOfflineMode } = useOffline();
-  const isMounted = useRef(false);
-  //const [isMounted, setIsMounted] = useState(false);
 
-  // Registering global events on mount
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Register events
   useEventListener(verifyAuth);
 
-  /** * Handles the application initialization sequence.
-   */
   useEffect(() => {
-    const init = async () => {
-      if (isMounted.current) return;
-      isMounted.current = true;
+    setIsMounted(true);
 
+    const init = async () => {
       try {
         setGlobalLoading(true);
         registerSW();
@@ -83,22 +77,13 @@ export const GlobalUIManager = ({
         await verifyAuth();
       } finally {
         setGlobalLoading(false);
-        //  cleanupCache();
+        cleanupCache();
       }
     };
     init();
-  }, [verifyAuth, verifySignal]);
-
-  // Global timer
-  useEffect(() => {
-    const heartbeat = setInterval(() => {
-      useGlobalStore.getState().updateNow();
-    }, 60000); // The "Pulse"
-    return () => clearInterval(heartbeat);
   }, []);
 
-  /** * Syncs the local refs for Drawer and Modal with the global Zustand state.
-   */
+  // Drawer & Modal Open / Close
   useEffect(() => {
     if (!drawerContent) drawerRef.current?.closeDrawer();
     if (!modalContent) modalRef.current?.closeModal();
@@ -107,36 +92,32 @@ export const GlobalUIManager = ({
       if (drawerContent) drawerRef.current?.openDrawer();
       if (modalContent) modalRef.current?.openModal();
     });
-  }, [drawerContent, modalContent]);
+  }, [drawerContent, openDrawer, modalContent, openModal]);
 
-  /** * Responds to route changes to update internal page tracking.
-   */
+  // Page Load Handler
   useEffect(() => {
     handleCurrentPage();
   }, [pathname]);
 
-  // Showing Splash UI during hydration
-  if (!isMounted.current) return <SplashUI />;
+  // Splash UI
+  if (!isMounted) return <SplashUI />;
 
-  // Determining if the app is still in its initial boot state
+  // Page loader UI
   const isInitializing =
     isGlobalLoading || authStatus === "PENDING" || networkStatus === "UNKNOWN";
-
   if (isInitializing) return <PageLoaderUI />;
 
   const isLastLoggedOut =
     getFromLocalStorage<AuthStatus>({ key: "last_auth_status" }) ===
     "UNAUTHENTICATED";
 
-  // Logic for displaying the Offline Prompt
+  // Handle Offline State
   const shouldShowOffline =
     showOfflineUI && isOffline && !offlineMode && !isLastLoggedOut;
-
   if (shouldShowOffline) {
     return <OfflinePromptUI handleOffline={switchToOfflineMode} />;
   }
-
-  // Logic for displaying Network Glitches or Critical Auth Errors
+  // Handle Network Stability or Auth Failures
   const hasNetworkGlitch =
     showNetworkErrorUI && isUnstableNetwork && !isOffline;
   const hasAuthError = authStatus === "ERROR";
@@ -151,11 +132,11 @@ export const GlobalUIManager = ({
     );
   }
 
-  // Main UI rendering with portal-like overlays
+  // Render the app UIs
   return (
     <>
       {children}
-      {snackBarMsg.messages && snackBarMsg.messages.length > 0 && (
+      {snackBarMsg.messages && (
         <SnackBars
           snackBarMsg={snackBarMsg}
           removeMessage={removeSBMessage}

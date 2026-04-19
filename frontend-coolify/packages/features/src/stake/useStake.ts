@@ -1,38 +1,48 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { IStake } from "@repo/core";
 import { delay } from "@repo/helpers";
 import { stakeTestData } from "@repo/assets";
 
+/**
+ * Manages stake data fetching and state synchronization.
+ */
 export const useStake = () => {
-  const router = useRouter();
+  /**
+   * Fetches stake data with a simulated delay for testing.
+   */
+  const fetchStakes = async (): Promise<IStake[]> => {
+    await delay();
+    return stakeTestData;
+  };
 
-  const [stakes, setStakes] = useState<IStake[]>(stakeTestData);
-  const [isLoading, setLoading] = useState(false);
+  // Implementation of TanStack Query for data fetching
+  const {
+    data: stakes = [],
+    isLoading,
+    isFetching,
+    refetch,
+    error,
+  } = useQuery({
+    queryKey: ["stakes"],
+    queryFn: fetchStakes,
+    // Adjust staleTime as needed for production data
+    staleTime: 1000 * 60 * 5,
+  });
 
-  const handleStakes = useCallback(async () => {
-    try {
-      setLoading(true);
-      setStakes(stakeTestData);
-    } finally {
-      await delay();
-      setLoading(false);
-    }
-  }, [stakeTestData]);
-
-  useEffect(() => {
-    handleStakes();
-  }, [handleStakes]);
-
+  /**
+   * Manually triggers a refresh of the stake data.
+   */
   const handleRefresh = useCallback(() => {
-    router.refresh();
-  }, [router]);
+    refetch();
+  }, [refetch]);
 
   return {
     stakes,
-    isLoading,
+    isLoading: isLoading || isFetching,
     handleRefresh,
+    error: error instanceof Error ? error.message : null,
   };
 };

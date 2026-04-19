@@ -55,7 +55,7 @@ export interface IListItem {
 }
 
 export interface IMessage {
-  id?: number;
+  id?: string;
   title?: string | null;
   content?: string | null;
   msgStatus?: FetchStatus;

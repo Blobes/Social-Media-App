@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useGlobalContext } from "@repo/shared-hooks";
+import { useGlobalStore } from "@repo/shared-hooks";
+import { useMutation } from "@tanstack/react-query";
 import { LoginService } from "../service";
 import {
   delay,
@@ -24,14 +25,18 @@ export const useIdentifier = ({
   setIdentifier,
 }: UseIdentifier) => {
   const { checkEmail, checkPhone, checkUsername } = LoginService();
-  const { isAuthLoading, setAuthLoading, setInlineMsg } = useGlobalContext();
+
+  /**
+   * Syncing with Zustand Store
+   */
+  const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
+
   const countryMenuRef = useRef<MenuRef>(null);
 
   // Local UI State
   const [input, setInput] = useState(existingInput ?? "");
   const [validity, setValidity] = useState<InputStatus>();
   const [validationMsg, setValidationMsg] = useState("");
-  const [accStatus, setAccStatus] = useState<AccountStatus>();
 
   const inputValidity = getInputValidity(input);
   const isValidInput = inputValidity.status === "VALID";
@@ -39,6 +44,54 @@ export const useIdentifier = ({
   useEffect(() => {
     if (input !== "" && isValidInput) setValidity("VALID");
   }, [existingInput, isValidInput]);
+
+  /**
+   * TanStack Mutation handles the server-side check.
+   * This replaces the manual try/catch and loading state management.
+   */
+  const { mutate, isPending: isAuthLoading } = useMutation({
+    mutationFn: async (val: string) => {
+      await delay();
+      const inputType = inputValidity.type;
+      const cleaned = inputType === "PHONE" ? sanitizePhoneNumber(val) : val;
+
+      if (inputType === "EMAIL") return await checkEmail(cleaned);
+      if (inputType === "PHONE") return await checkPhone(cleaned);
+      return await checkUsername(cleaned, "LOGIN");
+    },
+    onSuccess: (res) => {
+      const inputType = inputValidity.type;
+
+      // 1. Handle Deactivated
+      if (
+        res.status === "SUCCESS" &&
+        res.payload?.accountStatus === "DEACTIVATED"
+      ) {
+        setStep?.("RESTORE_ACCOUNT");
+        return;
+      }
+
+      // 2. Handle Existing User
+      if (res.status === "SUCCESS" && res.isExisting === true) {
+        setIdentifier?.(input);
+        setStep?.("PASSWORD");
+      }
+      // 3. Handle Credential Not Found
+      else {
+        setInlineMsg(
+          `We couldn't find an account with the ${
+            inputType?.toLowerCase() + (inputType === "PHONE" ? " number" : "")
+          }.`,
+        );
+      }
+    },
+    onError: (error: any) => {
+      setInlineMsg(error.message || "An error occurred. Please try again.");
+    },
+    onMutate: () => {
+      setInlineMsg(null);
+    },
+  });
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -52,7 +105,6 @@ export const useIdentifier = ({
       const isPhoneAttempt = /^[0-9+\(]/.test(inputValue);
 
       if (isPhoneAttempt && !hasLetters && inputValue.length > 0) {
-        // RESTORED: Trigger menu on first character
         if (inputValue.length < 3) {
           countryMenuRef.current?.openMenu(target);
         }
@@ -61,25 +113,17 @@ export const useIdentifier = ({
         inputValue = formatPhoneNumber(inputValue);
         const newLen = inputValue.length;
 
-        // Adjust cursor: If the formatter added characters (like brackets/spaces),
-        // we move the pointer forward so the user stays on the digit they typed.
         if (!isDeleting) {
           start = start + (newLen - oldLen);
         }
       }
 
-      // Update States
       setInput(inputValue);
-      setAccStatus(undefined);
 
-      // RESTORED: Pointer Management
-      // We use requestAnimationFrame to ensure the DOM has updated with the
-      // new 'inputValue' before we force the cursor position.
       window.requestAnimationFrame(() => {
         target.setSelectionRange(start, start);
       });
 
-      // Validation Logic
       validateAndSet(inputValue);
     },
     [setInput, setValidity, setValidationMsg],
@@ -97,67 +141,18 @@ export const useIdentifier = ({
     [setInput, setValidity, setValidationMsg],
   );
 
-  const handleSubmit = async (e: React.SubmitEvent) => {
+  /**
+   * Submitting via the mutation trigger.
+   */
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValidInput || !input) return;
-
-    setAuthLoading(true);
-    setInlineMsg(null);
-
-    try {
-      await delay();
-      const inputType = inputValidity.type;
-
-      // Transform if phone number " (080) 576-58540 " -> "+2348057658540"
-      const cleaned =
-        inputValidity.type === "PHONE" ? sanitizePhoneNumber(input) : input;
-
-      // Passing "LOGIN" for username checks to ensure we get deactivated status
-      const res = await (inputType === "EMAIL"
-        ? checkEmail(cleaned)
-        : inputType === "PHONE"
-          ? checkPhone(cleaned)
-          : checkUsername(cleaned, "LOGIN"));
-
-      if (
-        res.status === "SUCCESS" &&
-        res.payload &&
-        res.payload.accountStatus === "DEACTIVATED"
-      ) {
-        // setAccStatus("DEACTIVATED");
-        setStep?.("RESTORE_ACCOUNT");
-        // setInlineMsg(
-        //   res.message ||
-        //     "This account is deactivated. Please restore it to log in.",
-        // );
-        return;
-      }
-
-      // 2. Handle Existing User (Account found)
-      if (res.status === "SUCCESS" && res.isExisting === true) {
-        setIdentifier?.(input);
-        setStep?.("PASSWORD");
-      }
-      // 3. Handle Credential Not Found
-      else {
-        setInlineMsg(
-          `We couldn't find an account with the ${
-            inputType?.toLowerCase() + (inputType === "PHONE" ? " number" : "")
-          }.
-         `,
-        );
-      }
-    } catch (error: any) {
-      setInlineMsg(error.message || "An error occurred. Please try again.");
-    } finally {
-      setAuthLoading(false);
-    }
+    mutate(input);
   };
 
   return {
     input,
     setInput,
-    // accStatus,
     validity,
     validationMsg,
     isAuthLoading,

@@ -1,13 +1,14 @@
 "use client";
 
 import React from "react";
-import { IconButton, SxProps, Theme } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { Send } from "lucide-react";
+import { GenericStyle } from "@repo/core";
 
 export interface ShareProps {
   onClick?: () => void;
   size?: number;
-  sx?: SxProps<Theme>;
+  sx?: GenericStyle;
 }
 
 export const ShareButton = ({ onClick, size = 24, sx }: ShareProps) => (

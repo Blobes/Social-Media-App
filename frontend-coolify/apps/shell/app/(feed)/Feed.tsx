@@ -9,10 +9,20 @@ import { useFeed } from "./useFeed";
 import { useTheme } from "@mui/material/styles";
 import { GistCard, StakeCard } from "@repo/features";
 import { autoScroll } from "@repo/helpers";
+import { useCachedData } from "@repo/shared-hooks";
+import { IGist, IPost, QUERY_KEYS } from "@repo/core";
 
 export const Feed = () => {
   const theme = useTheme();
-  const { feed, message, isLoading, handleRefresh } = useFeed();
+  const { feed: onlinePosts, message, isLoading, handleRefresh } = useFeed();
+
+  const cachedPosts = useCachedData<IPost>([
+    [QUERY_KEYS.POST.GISTS],
+    [QUERY_KEYS.POST.STAKES],
+  ]);
+
+  // Determine which data to display. Priority: Online data > Cached data.
+  const feed = onlinePosts.length > 0 ? onlinePosts : cachedPosts;
 
   const containerStyle = useMemo(
     () => ({

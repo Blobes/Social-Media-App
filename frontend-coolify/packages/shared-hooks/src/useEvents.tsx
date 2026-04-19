@@ -1,20 +1,29 @@
 "use client";
 
-import React, { useEffect, useCallback, useRef } from "react";
+import React, { useEffect, useCallback } from "react";
+import { WifiOff } from "lucide-react";
 import { useSnackbar } from "./useSnackbar";
-import { useGlobalContext } from "./useContext";
 import { useOffline } from "./useOffline";
 import { usePage } from "./usePage";
 import { removeFromLocalStorage, saveToLocalStorage } from "@repo/helpers";
 import { AuthStatus, CLIENT_ROUTES } from "@repo/core";
-import { WifiOff } from "lucide-react";
+import { useGlobalStore } from "./store/useGlobalStore";
 
+/**
+ * Manages global window event listeners for network, lifecycle, and transitions.
+ */
 export const useEventListener = (verifyAuth: () => Promise<void>) => {
   const { setSBMessage, removeSBMessage } = useSnackbar();
-  const { setNetworkStatus, setGlobalLoading, authStatus } = useGlobalContext();
+  const setNetworkStatus = useGlobalStore((state) => state.setNetworkStatus);
+  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
+  const authStatus = useGlobalStore((state) => state.authStatus);
+
   const { switchToOnlineMode } = useOffline();
   const { navigateTo } = usePage();
 
+  /**
+   * Restores online state and verifies session.
+   */
   const handleOnline = useCallback(() => {
     console.log("Network: Online");
     removeSBMessage();
@@ -24,11 +33,14 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
     verifyAuth();
   }, [removeSBMessage, switchToOnlineMode, setNetworkStatus, verifyAuth]);
 
+  /**
+   * Notifies user of offline status and saves auth intent.
+   */
   const handleOffline = useCallback(() => {
     console.log("Network: Offline");
     setSBMessage({
       msg: {
-        id: Date.now(),
+        id: "offline-notification",
         title: "No internet connection",
         content: "Switch to offline content.",
         msgStatus: "INFO",
@@ -46,39 +58,33 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
         icon: <WifiOff />,
       },
     });
-    // setNetworkStatus("OFFLINE");
     saveToLocalStorage<AuthStatus>("last_auth_status", authStatus);
-  }, [setSBMessage, navigateTo]);
+  }, [setSBMessage, navigateTo, authStatus]);
 
-  // Define handler for user session changes
-  const handleAuth = () => {
-    if (document.visibilityState === "visible") {
-      console.log("Verifying session...");
-      verifyAuth();
-    }
-  };
+  /**
+   * Ensures loading states are cleared when navigating back via history.
+   */
+  const handlePageTransition = useCallback(
+    (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        setGlobalLoading(false);
+      }
+    },
+    [setGlobalLoading],
+  );
 
-  const handlePageTransition = (event: PageTransitionEvent) => {
-    if (event.persisted) setGlobalLoading(false);
-  };
-
-  // Manage listeners internally
+  /**
+   * Effect to manage the lifecycle of window event listeners.
+   */
   useEffect(() => {
-    // verifies user session every 10 minutes
-    const interval = setInterval(() => handleAuth(), 1000 * 60 * 10);
-
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
     window.addEventListener("pageshow", handlePageTransition);
-    window.addEventListener("visibilitychange", handleAuth);
 
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
       window.removeEventListener("pageshow", handlePageTransition);
-      window.removeEventListener("visibilitychange", handleAuth);
-      // visibilitychange
-      clearInterval(interval);
     };
-  }, [handleOnline, handleOffline, setGlobalLoading, verifyAuth]); // Re-bind if logic changes
+  }, [handleOnline, handleOffline, handlePageTransition]);
 };

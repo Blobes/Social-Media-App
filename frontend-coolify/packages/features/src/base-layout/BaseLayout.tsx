@@ -2,6 +2,9 @@
 
 import React from "react";
 import { SharedProviders } from "./Providers";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@repo/helpers";
+import { GlobalThemeProvider } from "@repo/core";
 
 export async function BaseLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -19,7 +22,9 @@ export async function BaseLayout({ children }: { children: React.ReactNode }) {
         />
       </head>
       <body>
-        <SharedProviders>{children}</SharedProviders>
+        <QueryClientProvider client={queryClient}>
+          <GlobalThemeProvider>{children}</GlobalThemeProvider>
+        </QueryClientProvider>
         <noscript>You need to enable JavaScript to run this app!</noscript>
       </body>
     </html>

@@ -1,45 +1,49 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { IGist } from "@repo/core";
-import { delay } from "@repo/helpers";
+import { useCallback } from "react";
+import { QUERY_KEYS, IGist } from "@repo/core";
 import { GistService } from "../gistService";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
+/**
+ * Hook to manage gist list fetching and granular cache synchronization.
+ */
 export const useGists = () => {
-  const router = useRouter();
-  const [gists, setGists] = useState<IGist[]>([]);
+  const queryClient = useQueryClient();
   const { fetchGistList } = GistService();
-  const [message, setMessage] = useState<string | null>(null);
-  const [isLoading, setLoading] = useState(false);
 
-  const handleGists = useCallback(async () => {
-    try {
-      setLoading(true);
+  /**
+   * Fetches the gist list and dissolves results into individual cache entries.
+   */
+  const { data, error, isLoading, refetch } = useQuery({
+    queryKey: [QUERY_KEYS.POST.GISTS],
+    queryFn: async () => {
       const res = await fetchGistList();
-      if (res?.payload) {
-        setGists(res.payload);
-        setMessage(res.message);
+
+      if (res?.payload && Array.isArray(res.payload)) {
+        // Dissolve Strategy: Populate granular keys for each gist to support usePostSeen
+        // and useCachedData without further network requests.
+        res.payload.forEach((gist: IGist) => {
+          queryClient.setQueryData([QUERY_KEYS.POST.GISTS, gist._id], gist);
+        });
       }
-    } catch (err: any) {
-      setMessage(err.message);
-    } finally {
-      await delay();
-      setLoading(false);
-    }
-  }, [fetchGistList]);
+      return res;
+    },
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
-  useEffect(() => {
-    handleGists();
-  }, [handleGists]);
-
+  /**
+   * Manual trigger to refresh gist data.
+   */
   const handleRefresh = useCallback(() => {
-    router.refresh();
-  }, [router]);
+    refetch();
+  }, [refetch]);
 
   return {
-    gists,
-    message,
+    // Return the payload data directly from the TanStack cache
+    gists: data?.payload || [],
+    message: error instanceof Error ? error.message : data?.message || null,
     isLoading,
     handleRefresh,
   };

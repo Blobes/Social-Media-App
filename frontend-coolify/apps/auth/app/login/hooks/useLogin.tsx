@@ -2,7 +2,8 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalContext, useSnackbar, usePage } from "@repo/shared-hooks";
+import { useSnackbar, usePage, useGlobalStore } from "@repo/shared-hooks";
+import { useMutation } from "@tanstack/react-query";
 import { useLockCountdown } from "./useLockCount";
 import {
   setCookie,
@@ -24,8 +25,22 @@ interface UseLogin {
 }
 
 export const useLogin = ({ identifier, setStep }: UseLogin) => {
-  const { login } = LoginService();
   const theme = useTheme();
+  const { login } = LoginService();
+  const { isOnWeb, navigateTo } = usePage();
+  const { setSBMessage } = useSnackbar();
+
+  const inlineMsg = useGlobalStore((state) => state.inlineMsg);
+  const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
+  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
+  const setAuthUser = useGlobalStore((state) => state.setAuthUser);
+  const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
+
+  // Form & Lock State
+  const [activeLockTime, setActiveLockTime] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
+  const [passwordValidity, setPasswordValidity] = useState<InputStatus>();
+  const [errorMsg, setErrorMsg] = useState("");
 
   const inlineMsgStyle = {
     color: theme.palette.gray[0],
@@ -35,30 +50,11 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     borderRadius: theme.radius[1],
   };
 
-  const {
-    inlineMsg,
-    setInlineMsg,
-    isAuthLoading,
-    setAuthLoading,
-    setGlobalLoading,
-    setAuthUser,
-    setAuthStatus,
-  } = useGlobalContext();
-  const { isOnWeb, navigateTo } = usePage();
-  const { setSBMessage } = useSnackbar();
-  // Manage Lock State
-  const [activeLockTime, setActiveLockTime] = useState<string | null>(null);
-  // Form State
-  const [password, setPassword] = useState("");
-  const [passwordValidity, setPasswordValidity] = useState<InputStatus>();
-  const [errorMsg, setErrorMsg] = useState("");
-
   const resetLockStates = useCallback(() => {
     setActiveLockTime(null);
     setInlineMsg(null);
   }, [setInlineMsg]);
 
-  // FACTOR IN THE COMPLETION LOGIC
   const { remainingSec, isLocked } = useLockCountdown(
     activeLockTime,
     LOCKOUT_MIN,
@@ -70,36 +66,9 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     }, [resetLockStates, setSBMessage]),
   );
 
-  // An Effect to grab the cookie once on mount
-  useEffect(() => {
-    const lockTime = getCookie("loginLockTime");
-    const attempts = getCookie("loginAttempts");
-
-    if (lockTime) {
-      setActiveLockTime(lockTime);
-    } else if (attempts) {
-      // No lock, but old attempts exist: Wipe them on refresh
-      clearLoginLock();
-      resetLockStates();
-    }
-  }, [resetLockStates]);
-
-  // Sync lock time with feedback UI
-  useEffect(() => {
-    if (isLocked) {
-      setInlineMsg(
-        <span>
-          You've exceeded the maximum login attempts. Try again in{" "}
-          <strong style={inlineMsgStyle}>
-            {formatRemainingTime(remainingSec)}
-          </strong>
-          . Or reset your password.
-        </span>,
-      );
-    }
-  }, [remainingSec, isLocked, setInlineMsg]);
-
-  // Logic to process failures
+  /**
+   * Process failed attempts and set cookies
+   */
   const handleFailedPassword = useCallback(() => {
     const current = parseInt(getCookie("loginAttempts") || "0", 10);
     const nextAttempts = current + 1;
@@ -109,8 +78,9 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
       const lockTime = String(Date.now());
       setCookie("loginLockTime", String(lockTime), LOCKOUT_MIN);
       setActiveLockTime(lockTime);
-      return true; // Is now locked
+      return true;
     }
+
     setInlineMsg(
       <span>
         <strong>Incorrect password. </strong>You have{" "}
@@ -120,43 +90,24 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
       </span>,
     );
     return false;
-  }, [setInlineMsg]);
+  }, [setInlineMsg, theme]);
 
-  // Passowrd change Handlers
-  const onPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const value = e.target.value;
-    if (value.length >= 6) {
-      setPassword(value);
-      setPasswordValidity("VALID");
-      setErrorMsg("");
-    } else if (value.length === 0) {
-      setPasswordValidity("INVALID");
-      setErrorMsg("Password is required.");
-    } else {
-      setPassword(value);
-      setPasswordValidity(undefined);
-    }
-  };
-
-  const handleSubmit = async (e: React.SubmitEvent) => {
-    e.preventDefault();
-    if (isLocked) return;
-    setAuthLoading(true);
-    try {
-      const res = await login({ identifier, password });
-
+  // TanStack Mutation for Login
+  const { mutate, isPending: isAuthLoading } = useMutation({
+    mutationFn: async () => {
+      // Simulate network delay if needed
+      await delay();
+      return await login({ identifier, password });
+    },
+    onSuccess: (res) => {
       if (res.httpStatus === 200) {
-        clearLoginLock(); // Cleanup cookie on success
+        clearLoginLock();
 
-        // Handle "DEACTIVATED" branch first
         if (res.status === "DEACTIVATED") {
           setAuthStatus("DEACTIVATED");
           if (setStep) setStep("RESTORE_ACCOUNT");
         }
 
-        // Handle "SUCCESS" branch
         if (res.status === "SUCCESS") {
           setGlobalLoading(true);
           setAuthUser(res.payload);
@@ -172,14 +123,63 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
           navigateTo(page);
         }
       }
-    } catch (error: any) {
+    },
+    onError: (error: any) => {
       const isPasswordErr = error.status === "UNAUTHORIZED";
-      if (isPasswordErr) handleFailedPassword();
-      else setInlineMsg(error.message || "Login failed");
-    } finally {
-      await delay();
-      setAuthLoading(false);
+      if (isPasswordErr) {
+        handleFailedPassword();
+      } else {
+        setInlineMsg(error.message || "Login failed");
+      }
+    },
+  });
+
+  useEffect(() => {
+    const lockTime = getCookie("loginLockTime");
+    const attempts = getCookie("loginAttempts");
+
+    if (lockTime) {
+      setActiveLockTime(lockTime);
+    } else if (attempts) {
+      clearLoginLock();
+      resetLockStates();
     }
+  }, [resetLockStates]);
+
+  useEffect(() => {
+    if (isLocked) {
+      setInlineMsg(
+        <span>
+          You've exceeded the maximum login attempts. Try again in{" "}
+          <strong style={inlineMsgStyle}>
+            {formatRemainingTime(remainingSec)}
+          </strong>
+          . Or reset your password.
+        </span>,
+      );
+    }
+  }, [remainingSec, isLocked, setInlineMsg]);
+
+  const onPasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const value = e.target.value;
+    setPassword(value);
+    if (value.length >= 6) {
+      setPasswordValidity("VALID");
+      setErrorMsg("");
+    } else if (value.length === 0) {
+      setPasswordValidity("INVALID");
+      setErrorMsg("Password is required.");
+    } else {
+      setPasswordValidity(undefined);
+    }
+  };
+
+  const handleSubmit = (e: React.SubmitEvent) => {
+    e.preventDefault();
+    if (isLocked) return;
+    mutate();
   };
 
   return {

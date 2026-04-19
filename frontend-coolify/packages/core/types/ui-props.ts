@@ -12,7 +12,7 @@ export enum ListType {
   DEFAULT = "ITEM",
 }
 
-export enum QueueType {
+export enum KeyType {
   POST = "POST",
   USER = "USER",
 }
@@ -98,7 +98,6 @@ export interface DrawerProps {
 
 // Media
 export interface UseMedia {
-  useImageColors: (src: string) => { isPortrait: boolean };
   useMisc: () => { isDesktop: boolean };
 }
 export interface MediaStyle {
@@ -122,4 +121,10 @@ export interface ICountryItem extends IMenuItem {
   isoCode?: string;
   codeFlag?: string;
   fullInfo?: string;
+}
+
+export interface AnalyzedImage {
+  height: number;
+  width: number;
+  isPortrait: boolean;
 }

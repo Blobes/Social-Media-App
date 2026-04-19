@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import Image from "next/image";
 import { Blurhash } from "react-blurhash";
 import { VideoMedia } from "./VideoMedia";
-import { IMedia, MediaStyle, UseMedia } from "@repo/core";
+import { AnalyzedImage, IMedia, MediaStyle, UseMedia } from "@repo/core";
+import { analyzeImage } from "@repo/helpers";
 
 export interface RendererProps {
   media: IMedia;
@@ -17,13 +18,29 @@ export interface RendererProps {
 export const MediaRenderer = ({ media, style, useRender }: RendererProps) => {
   const theme = useTheme();
   const [isLoaded, setIsLoaded] = useState(false);
+  const [analyzedImg, setAnalyzedImg] = useState<AnalyzedImage>();
 
   const { _id, url, type, alt, dimensions, blurHash } = media;
   const mediaType = type ?? "IMAGE";
+  const { width, height, aspectRatio } = dimensions || {};
 
-  const isPortrait = useRender?.useImageColors
-    ? useRender.useImageColors(url).isPortrait
-    : false;
+  const isPortrait = useMemo(() => {
+    if (aspectRatio !== undefined) return aspectRatio < 1;
+    if (height && width) return height > width;
+    return analyzedImg?.isPortrait;
+  }, [aspectRatio, height, width]);
+
+  // Handles the image load event to check dimensions only if metadata was insufficient.
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    setIsLoaded(true);
+
+    if (aspectRatio !== undefined || (height && width)) return;
+    const img = e.currentTarget;
+    const analyzed = analyzeImage(img);
+    if (analyzed && analyzed !== analyzedImg) {
+      setAnalyzedImg(analyzed);
+    }
+  };
 
   const isDesktop = useRender?.useMisc ? useRender.useMisc().isDesktop : true;
 
@@ -103,12 +120,12 @@ export const MediaRenderer = ({ media, style, useRender }: RendererProps) => {
       {mediaType === "IMAGE" ? (
         <Image
           src={url}
-          width={dimensions?.width || 1200}
-          height={dimensions?.height || 675}
+          width={dimensions?.width || analyzedImg?.width}
+          height={dimensions?.height || analyzedImg?.height}
           sizes="100vw"
           loading="lazy"
           alt={alt || "Post image"}
-          onLoad={() => setIsLoaded(true)}
+          onLoad={handleImageLoad}
           style={contentStyle}
         />
       ) : (

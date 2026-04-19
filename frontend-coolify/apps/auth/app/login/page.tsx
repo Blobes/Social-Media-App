@@ -4,17 +4,16 @@ import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { Login } from "./Login";
 import { Stack } from "@mui/material";
-import { useGlobalContext } from "@repo/shared-hooks";
 import { applyBGPattern } from "@repo/helpers";
 import { Feedback } from "@repo/shared-ui";
 import { ShieldCheck } from "lucide-react";
-import { usePage, useMisc } from "@repo/shared-hooks";
+import { usePage, useMisc, useGlobalStore } from "@repo/shared-hooks";
 import { ComfirmLogout } from "@repo/features";
 import { CLIENT_ROUTES } from "@repo/core";
 
 export default function LoginPage() {
   const theme = useTheme();
-  const { authStatus } = useGlobalContext();
+  const authStatus = useGlobalStore((state) => state.authStatus);
   const { openModal, closeModal } = useMisc();
   const { navigateTo } = usePage();
 

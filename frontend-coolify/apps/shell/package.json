@@ -15,12 +15,14 @@
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "zustand": "^5.0.12",
     "@repo/assets": "workspace:*",
     "@repo/features": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/shared-hooks": "workspace:*",
     "@repo/shared-ui": "workspace:*",
-    "@repo/core": "workspace:*"
+    "@repo/core": "workspace:*",
+    "@tanstack/react-query": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

@@ -16,6 +16,8 @@
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "lucide-react": "catalog:",
+    "zustand": "catalog:",
+    "@tanstack/react-query": "catalog:",
     "@repo/shared-ui": "workspace:*",
     "@repo/shared-hooks": "workspace:*",
     "@repo/helpers": "workspace:*",

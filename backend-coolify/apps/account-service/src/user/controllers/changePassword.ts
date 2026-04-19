@@ -3,7 +3,7 @@ import {
   CACHE_KEYS,
   IAuthRequest,
   invalidateCache,
-  manageUserSessions,
+  cleanUserSessions,
 } from "@repo/shared";
 import bcrypt from "bcrypt";
 import { Response } from "express";
@@ -84,7 +84,7 @@ export const changePassword = async (
 
     // --- REUSABLE SESSION CLEANUP ---
     // This utility handles the scanning and conditional deletion
-    const wasSessionPreserved = await manageUserSessions({
+    const wasSessionPreserved = await cleanUserSessions({
       userId,
       currentSessionId,
       keepCurrentIfPrimary: true,

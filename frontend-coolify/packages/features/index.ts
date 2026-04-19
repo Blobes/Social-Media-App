@@ -26,12 +26,9 @@ export * from "./src/base-layout/BaseLayout";
 //Post
 // Components
 export * from "./src/post/components/engagement/Bookmark";
-//export * from "./src/post/components/Caption";
 export * from "./src/post/components/engagement/Engagement";
 export * from "./src/post/components/engagement/Like";
 export * from "./src/post/components/header/PostHeader";
 export * from "./src/post/components/Metrics";
 // Hooks
-export * from "./src/post/hooks/usePostLike";
-export * from "./src/post/hooks/useCached";
 export * from "./src/post/hooks/usePostLike";

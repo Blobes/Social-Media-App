@@ -20,7 +20,10 @@
     "@emotion/styled": "catalog:",
     "@mui/material": "catalog:",
     "@types/node": "catalog:",
-    "@mui/system": "catalog:"
+    "@mui/system": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-query-persist-client": "catalog:",
+    "@tanstack/query-async-storage-persister": "catalog:"
   },
   "devDependencies": {
     "next": "catalog:",

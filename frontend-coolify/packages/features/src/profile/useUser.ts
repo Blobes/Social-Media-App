@@ -1,86 +1,112 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { useGlobalContext, useSnackbar } from "@repo/shared-hooks";
-import { FollowResponse, UserService } from "./service";
+import { useCallback } from "react";
+import { useSnackbar, useGlobalStore } from "@repo/shared-hooks";
+import { UserService } from "./service";
 import { IUser } from "@repo/core";
-import { delay } from "@repo/helpers";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-export const useUser = () => {
+/**
+ * Manages user data fetching, follower lists, and follow/unfollow mutations.
+ */
+export const useUser = (userId?: string) => {
   const { fetchUser, fetchFollowers, followUser } = UserService();
   const { setSBMessage } = useSnackbar();
-  const { setAuthUser } = useGlobalContext();
+  const queryClient = useQueryClient();
 
-  const [updatedUser, setUpdatedUser] = useState<FollowResponse>();
-  const [isLoading, setLoading] = useState(false);
-  const [followers, setFollowers] = useState<IUser[]>([]);
-  const [message, setMessage] = useState<string | null>(null);
+  // Accessing global state via selectors for stable references
+  const setAuthUser = useGlobalStore((state) => state.setAuthUser);
 
-  const getUser = useCallback(
-    async (userId: string) => {
-      return await fetchUser(userId);
+  /**
+   * Fetches specific user profile data.
+   * Query is enabled only if a userId is provided.
+   */
+  const userQuery = useQuery({
+    queryKey: ["user", userId],
+    queryFn: () => fetchUser(userId!),
+    enabled: !!userId,
+  });
+
+  /**
+   * Fetches the list of followers for a user.
+   */
+  const followersQuery = useQuery({
+    queryKey: ["followers", userId],
+    queryFn: async () => {
+      const res = await fetchFollowers(userId!);
+      if (res.status !== "SUCCESS") throw new Error(res.message);
+      return res.payload || [];
     },
-    [fetchUser],
-  );
+    enabled: !!userId,
+  });
 
-  const getFollowers = useCallback(
-    async (userId: string) => {
-      if (!userId) return;
-      try {
-        setLoading(true);
-        setMessage(null);
+  /**
+   * Mutation for following/unfollowing a user.
+   * Updates global auth state and invalidates relevant queries on success.
+   */
+  const followMutation = useMutation({
+    mutationFn: (targetId: string) => followUser(targetId),
+    onSuccess: (res) => {
+      setSBMessage({
+        msg: {
+          content: res.message,
+          msgStatus: res.status,
+        },
+      });
 
-        const res = await fetchFollowers(userId);
+      if (res.status === "SUCCESS" && res.payload) {
+        // Update global session user
+        setAuthUser(res.payload.currentUser);
 
-        if (res.status === "SUCCESS" && res.payload) {
-          setFollowers(res.payload);
-          setMessage(res.message);
-        } else {
-          setMessage(res.message || "Failed to load followers");
-        }
-        return res;
-      } catch (error: any) {
-        setMessage(error.message || "Something went wrong.");
-      } finally {
-        await delay();
-        setLoading(false);
+        // Invalidate queries to trigger fresh data fetch across the app
+        queryClient.invalidateQueries({
+          queryKey: ["user", res.payload.targetUser._id],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["followers", res.payload.targetUser._id],
+        });
       }
     },
-    [fetchFollowers],
-  );
+    onError: (error: any) => {
+      setSBMessage({
+        msg: {
+          content: error.message || "Failed to update follow status",
+          msgStatus: "ERROR",
+        },
+      });
+    },
+  });
 
+  /**
+   * Wrapper for follow logic to maintain compatibility with existing components.
+   */
   const handleFollow = useCallback(
     async (initialUser: IUser) => {
-      if (isLoading || !initialUser._id) return;
-      setLoading(true);
-      try {
-        const res = await followUser(initialUser._id);
-        setSBMessage({
-          msg: {
-            content: res.message,
-            msgStatus: res.status,
-          },
-        });
-
-        if (res.status === "SUCCESS" && res.payload) {
-          setAuthUser(res.payload.currentUser);
-          setUpdatedUser(res.payload.targetUser);
-        }
-        return res;
-      } finally {
-        setLoading(false);
-      }
+      if (!initialUser._id) return;
+      return followMutation.mutateAsync(initialUser._id);
     },
-    [followUser, isLoading, setSBMessage, setAuthUser],
+    [followMutation],
   );
 
   return {
+    // Mutation
     handleFollow,
-    getFollowers,
-    getUser,
-    updatedUser,
-    isLoading,
-    followers,
-    message,
+    isFollowing: followMutation.isPending,
+
+    // User Data
+    user: userQuery.data,
+    isUserLoading: userQuery.isLoading,
+    userError: userQuery.error,
+
+    // Followers Data
+    followers: followersQuery.data || [],
+    isFollowersLoading: followersQuery.isLoading,
+    message: followersQuery.error?.message || null,
+
+    // Aggregated loading state for backward compatibility
+    isLoading:
+      userQuery.isLoading ||
+      followersQuery.isLoading ||
+      followMutation.isPending,
   };
 };

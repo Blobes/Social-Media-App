@@ -5,14 +5,10 @@ import { Stack } from "@mui/material";
 import { LeftNav } from "./LeftNav";
 import { useTheme } from "@mui/material/styles";
 import { BottomNav } from "./BottomNav";
-import {
-  NetworkGlitchUI,
-  RootUIContainer,
-  OfflinePromptUI,
-} from "@repo/shared-ui";
+import { RootUIContainer } from "@repo/shared-ui";
 import { AppHeader } from "./Header";
 import { scrollBarStyle } from "@repo/helpers";
-import { useGlobalContext, useMisc, useOffline } from "@repo/shared-hooks";
+import { useGlobalStore, useMisc } from "@repo/shared-hooks";
 
 interface WrapperProps {
   children: React.ReactNode;
@@ -25,7 +21,7 @@ export const DefaultWrapper = ({
 }: WrapperProps) => {
   const { isDesktop } = useMisc();
   const theme = useTheme();
-  const { authStatus } = useGlobalContext();
+  const authStatus = useGlobalStore((state) => state.authStatus);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   return (

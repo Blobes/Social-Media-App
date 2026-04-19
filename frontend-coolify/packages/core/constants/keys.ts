@@ -1,12 +1,24 @@
-import { QueueType } from "../types/ui-props";
+import { KeyType } from "../types/ui-props";
 
 export const QUEUE_KEYS = {
-  [QueueType.POST]: {
+  [KeyType.POST]: {
     LIKE: "post_like",
     PENDING_LIKES: "pending_post_likes",
     POST_BOOKMARK: "pending_bookmarks",
   },
-  [QueueType.USER]: {
+  [KeyType.USER]: {
     USER_FOLLOW: "pending_follows",
   },
+};
+
+export const QUERY_KEYS = {
+  [KeyType.POST]: {
+    GISTS: "gists",
+    STAKES: "stakes",
+    FEED: "gists",
+  },
+  [KeyType.USER]: {
+    SESSION: "auth_sessions",
+  },
+  OFFLINE_CACHE: "offline_cache",
 };

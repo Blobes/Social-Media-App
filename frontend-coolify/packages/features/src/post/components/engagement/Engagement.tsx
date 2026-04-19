@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Stack, SxProps, Theme, Box, Typography } from "@mui/material";
+import { Stack, Box, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { LikeButton, LikeProps } from "./Like";
 import { BookmarkButton, BookmarkProps } from "./Bookmark";
