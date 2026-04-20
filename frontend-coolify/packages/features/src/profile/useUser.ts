@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { useSnackbar, useGlobalStore } from "@repo/shared-hooks";
 import { UserService } from "./service";
-import { IUser } from "@repo/core";
+import { IUser, QUERY_KEYS } from "@repo/core";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 /**
@@ -22,7 +22,7 @@ export const useUser = (userId?: string) => {
    * Query is enabled only if a userId is provided.
    */
   const userQuery = useQuery({
-    queryKey: ["user", userId],
+    queryKey: [QUERY_KEYS.USER.TARGET, userId],
     queryFn: () => fetchUser(userId!),
     enabled: !!userId,
   });
@@ -31,7 +31,7 @@ export const useUser = (userId?: string) => {
    * Fetches the list of followers for a user.
    */
   const followersQuery = useQuery({
-    queryKey: ["followers", userId],
+    queryKey: [QUERY_KEYS.USER.FOLLOWERS, userId],
     queryFn: async () => {
       const res = await fetchFollowers(userId!);
       if (res.status !== "SUCCESS") throw new Error(res.message);
@@ -60,10 +60,10 @@ export const useUser = (userId?: string) => {
 
         // Invalidate queries to trigger fresh data fetch across the app
         queryClient.invalidateQueries({
-          queryKey: ["user", res.payload.targetUser._id],
+          queryKey: [QUERY_KEYS.USER.TARGET, res.payload.targetUser._id],
         });
         queryClient.invalidateQueries({
-          queryKey: ["followers", res.payload.targetUser._id],
+          queryKey: [QUERY_KEYS.USER.FOLLOWERS, res.payload.targetUser._id],
         });
       }
     },
@@ -89,12 +89,12 @@ export const useUser = (userId?: string) => {
   );
 
   return {
-    // Mutation
+    // Follow Mutation
     handleFollow,
-    isFollowing: followMutation.isPending,
+    followedUser: followMutation.data?.payload?.targetUser,
 
     // User Data
-    user: userQuery.data,
+    userRes: userQuery.data,
     isUserLoading: userQuery.isLoading,
     userError: userQuery.error,
 

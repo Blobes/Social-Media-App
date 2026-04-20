@@ -13,19 +13,11 @@ interface FollowerProps {
 }
 export const FollowerCard = ({ follower }: FollowerProps) => {
   const theme = useTheme();
-  const { handleFollow, updatedUser, isLoading } = useUser();
+  const { handleFollow, followedUser, isLoading } = useUser(follower._id);
 
-  if (!updatedUser) return null;
+  if (!followedUser) return null;
 
-  const {
-    username,
-    firstName,
-    lastName,
-    fullName,
-    profileImage,
-    isFollowing,
-    followsMe,
-  } = updatedUser;
+  const { username, fullName, isFollowing, followsMe } = followedUser;
 
   return (
     <Stack
@@ -44,7 +36,7 @@ export const FollowerCard = ({ follower }: FollowerProps) => {
           alignItems: "center",
         }}>
         <UserAvatar
-          userInfo={updatedUser}
+          userInfo={followedUser}
           style={{
             width: "35px",
             height: "35px",

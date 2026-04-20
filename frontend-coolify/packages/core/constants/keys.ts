@@ -19,6 +19,8 @@ export const QUERY_KEYS = {
   },
   [KeyType.USER]: {
     SESSION: "auth_sessions",
+    TARGET: "user",
+    FOLLOWERS: "followers",
   },
   OFFLINE_CACHE: "offline_cache",
 };
