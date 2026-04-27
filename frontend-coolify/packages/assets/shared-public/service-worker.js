@@ -1,5 +1,5 @@
 // const API_CACHE = "funstakes-api-v2";
-const STATIC_CACHE = "funstakes-static-v4";
+const STATIC_CACHE = "funstakes-static-v1";
 
 const ESSENTIAL_ASSETS = [
   "/",
@@ -47,6 +47,22 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  if (url.searchParams.has("_rsc")) {
+    event.respondWith(
+      fetch(request).catch(async () => {
+        const cache = await caches.open(STATIC_CACHE);
+        // Try to find the base page without the _rsc query param
+        const match = await cache.match(url.pathname);
+        if (match) return match;
+        // If no match, return a minimal JSON response to stop Next.js from panicking
+        return new Response(JSON.stringify({ offline: true }), {
+          headers: { "Content-Type": "application/json" },
+        });
+      }),
+    );
+    return;
+  }
+
   // 1. Ignore non-GET and API calls
   if (request.method !== "GET" || url.pathname.startsWith("/api")) return;
 
@@ -80,6 +96,8 @@ self.addEventListener("fetch", (event) => {
   // 3. STRATEGY: Cache-First for Assets
   const isStatic =
     url.pathname.startsWith("/_next/static") ||
+    url.pathname.startsWith("/_next/image") ||
+    url.pathname.includes("-assets/") || // Catch Micro-Frontend assets
     url.pathname.startsWith("/images") ||
     url.pathname.includes("turbopack") ||
     /\.(js|css|png|jpg|svg|ico)$/i.test(url.pathname);

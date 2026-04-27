@@ -90,7 +90,7 @@ export const MediaRenderer = ({ media, style, useRender }: RendererProps) => {
             position: "absolute",
             inset: 0,
             zIndex: 1,
-            filter: "blur(8px)",
+            filter: "blur(48px)",
             transform: "scale(1.1)", // Prevents white edges
           }}>
           <Blurhash
@@ -109,7 +109,7 @@ export const MediaRenderer = ({ media, style, useRender }: RendererProps) => {
           fill
           style={{
             objectFit: "cover",
-            filter: "blur(8px)",
+            filter: "blur(48px)",
             opacity: 0.6, // Slightly lower opacity for better contrast
           }}
           priority={false}
@@ -120,8 +120,8 @@ export const MediaRenderer = ({ media, style, useRender }: RendererProps) => {
       {mediaType === "IMAGE" ? (
         <Image
           src={url}
-          width={dimensions?.width || analyzedImg?.width}
-          height={dimensions?.height || analyzedImg?.height}
+          width={dimensions?.width || analyzedImg?.width || 0}
+          height={dimensions?.height || analyzedImg?.height || 0}
           sizes="100vw"
           loading="lazy"
           alt={alt || "Post image"}

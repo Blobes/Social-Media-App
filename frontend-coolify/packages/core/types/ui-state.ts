@@ -56,8 +56,8 @@ export interface IListItem {
 
 export interface IMessage {
   id?: string;
-  title?: string | null;
-  content?: string | null;
+  headline?: string | null;
+  tagline?: string | null;
   msgStatus?: FetchStatus;
   behavior?: "FIXED" | "TIMED";
   duration?: number;

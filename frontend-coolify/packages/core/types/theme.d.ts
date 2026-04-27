@@ -1,6 +1,12 @@
 import "@mui/material/styles";
 
 declare module "@mui/material/styles" {
+  interface PaletteColor {
+    trans: string;
+  }
+  interface SimplePaletteColorOptions {
+    trans?: string;
+  }
   interface Palette {
     gray: {
       0: string;
@@ -11,13 +17,19 @@ declare module "@mui/material/styles" {
       trans: {
         1: string;
         2: string;
-        // Explicitly define overlay as a function
         overlay: (trans?: number) => string;
       };
+    };
+    error: {
+      light: string;
+      main: string;
+      dark: string;
+      trans: string;
     };
   }
   interface PaletteOptions {
     gray?: Partial<Palette["gray"]>;
+    error?: Partial<Palette["error"]>;
   }
 
   interface Theme {

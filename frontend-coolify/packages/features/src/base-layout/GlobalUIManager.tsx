@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Drawer,
   Modal,
@@ -11,12 +11,7 @@ import {
   SplashUI,
 } from "@repo/shared-ui";
 import { usePathname } from "next/navigation";
-import {
-  registerSW,
-  delay,
-  cleanupCache,
-  getFromLocalStorage,
-} from "@repo/helpers";
+import { registerSW, delay, getFromLocalStorage } from "@repo/helpers";
 import {
   useEventListener,
   useGlobalStore,
@@ -59,17 +54,15 @@ export const GlobalUIManager = ({
   const { verifySignal, isUnstableNetwork, isOffline } = useMisc();
   const { handleCurrentPage } = usePage();
   const pathname = usePathname();
-  const { verifyAuth, isVerifying } = useAuth();
+  const { verifyAuth } = useAuth();
   const { setSBTimer, removeSBMessage } = useSnackbar();
   const { switchToOfflineMode } = useOffline();
   const isMounted = useRef(false);
-  //const [isMounted, setIsMounted] = useState(false);
 
   // Registering global events on mount
   useEventListener(verifyAuth);
 
-  /** * Handles the application initialization sequence.
-   */
+  // Handles the application initialization sequence.
   useEffect(() => {
     const init = async () => {
       if (isMounted.current) return;
@@ -83,7 +76,6 @@ export const GlobalUIManager = ({
         await verifyAuth();
       } finally {
         setGlobalLoading(false);
-        //  cleanupCache();
       }
     };
     init();
@@ -97,8 +89,7 @@ export const GlobalUIManager = ({
     return () => clearInterval(heartbeat);
   }, []);
 
-  /** * Syncs the local refs for Drawer and Modal with the global Zustand state.
-   */
+  // Syncs the local refs for Drawer and Modal with the global Zustand state.
   useEffect(() => {
     if (!drawerContent) drawerRef.current?.closeDrawer();
     if (!modalContent) modalRef.current?.closeModal();
@@ -109,8 +100,7 @@ export const GlobalUIManager = ({
     });
   }, [drawerContent, modalContent]);
 
-  /** * Responds to route changes to update internal page tracking.
-   */
+  // Responds to route changes to update internal page tracking.
   useEffect(() => {
     handleCurrentPage();
   }, [pathname]);
@@ -137,12 +127,14 @@ export const GlobalUIManager = ({
   }
 
   // Logic for displaying Network Glitches or Critical Auth Errors
-  const hasNetworkGlitch =
-    showNetworkErrorUI && isUnstableNetwork && !isOffline;
+  const hasNetworkGlitch = isUnstableNetwork && !isOffline;
   const hasAuthError = authStatus === "ERROR";
   const isGuestOffline = isOffline && isLastLoggedOut;
 
-  if (hasNetworkGlitch || hasAuthError || isGuestOffline) {
+  if (
+    showNetworkErrorUI &&
+    (hasNetworkGlitch || hasAuthError || isGuestOffline)
+  ) {
     return (
       <NetworkGlitchUI
         checkingSignal={checkingSignal}

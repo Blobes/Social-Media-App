@@ -7,8 +7,10 @@ export function Prefetcher({ route }: { route: string }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Next.js handles the caching and service worker integration for you
-    router.prefetch(route);
+    // Only prefetch if we are actually online
+    if (typeof window !== "undefined" && window.navigator.onLine) {
+      router.prefetch(route);
+    }
   }, [router, route]);
 
   return null;

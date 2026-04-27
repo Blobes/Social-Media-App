@@ -10,7 +10,7 @@ import { useTheme } from "@mui/material/styles";
 import { GistCard, StakeCard } from "@repo/features";
 import { autoScroll } from "@repo/helpers";
 import { useCachedData } from "@repo/shared-hooks";
-import { IGist, IPost, QUERY_KEYS } from "@repo/core";
+import { IPost, QUERY_KEYS } from "@repo/core";
 
 export const Feed = () => {
   const theme = useTheme();

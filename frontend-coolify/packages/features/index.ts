@@ -7,7 +7,8 @@ export * from "./src/auth/login/timer";
 export * from "./src/auth/restore/RestoreAccount";
 
 // Gist
-export * from "./src/gist/view/useGists";
+export * from "./src/gist/view/hooks/useGists";
+export * from "./src/gist/view/hooks/useGistView";
 export * from "./src/gist/view/GistCard";
 export * from "./src/gist/gistService";
 

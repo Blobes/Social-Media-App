@@ -4,61 +4,67 @@ import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { useAdaptiveTime, useMisc } from "@repo/shared-hooks";
 import { IsolatedMedia, WordTrimmer } from "@repo/shared-ui";
-import { IGist, UIMode } from "@repo/core";
+import { IGist, MediaProps, UIMode } from "@repo/core";
 import { PostEngagement } from "../../post/components/engagement/Engagement";
 import { PostHeader } from "../../post/components/header/PostHeader";
-
-interface Like {
-  isLiking: boolean;
-  handleLike: () => void;
-}
+import { LikeState } from "./GistMedia";
+import { useGistLikeState } from "./hooks/useGistView";
 
 interface ViewProps {
   gist: IGist;
-  like: Like;
   initialIndex: number;
   mode: UIMode;
+  mediaList: MediaProps[];
+  likeState: LikeState;
 }
 
 export const GistMediaView = ({
   gist,
-  like,
   mode,
   initialIndex,
+  mediaList,
+  likeState,
 }: ViewProps) => {
   const theme = useTheme();
   const { isDesktop } = useMisc();
+  const { localLikeState, localIsLiking, handleGistLike } =
+    useGistLikeState(likeState);
 
-  const { handleLike, isLiking } = like;
-
-  // Destructure required data from the gist object
-  const { author, createdAt, latestCaption, likeCount, media, likedByMe } =
-    gist;
+  const { author, createdAt, latestCaption, media } = gist;
+  const { likedByMe, likeCount } = localLikeState;
 
   const postHeader = (
     <PostHeader
       authorProps={{
-        author: author,
+        author,
         avatarSize: "36px",
       }}
       actionProps={{
         createdAt,
         useActions: { useAdaptiveTime: () => useAdaptiveTime },
         onMore: () => console.log("Open Menu"),
-        onFollow: () => console.log("Follow User"),
       }}
     />
   );
 
-  const postEngagment = (
+  const postEngagement = (
     <PostEngagement
       variant="VERTICAL"
-      like={{ likedByMe, isLiking, handleLike, mode, count: likeCount }}
+      like={{
+        likedByMe,
+        isLiking: localIsLiking,
+        handleLike: handleGistLike,
+        mode,
+        count: likeCount,
+      }}
       reply={{ onClick: () => console.log("Reply clicked") }}
       share={{ onClick: () => console.log("Share clicked") }}
       bookmark={{
         bookmarked: false,
         onClick: () => console.log("Bookmark toggled"),
+      }}
+      follow={{
+        onClick: () => console.log("Follow clicked"),
       }}
     />
   );
@@ -79,12 +85,12 @@ export const GistMediaView = ({
 
   return (
     <IsolatedMedia
-      mediaList={media}
+      mediaList={mediaList || media}
       postHeader={postHeader}
-      postEngagment={postEngagment}
+      postEngagment={postEngagement}
       postCaption={postCaption}
       isDesktop={isDesktop}
-      onDoubleTap={handleLike}
+      onDoubleTap={handleGistLike}
       initialIndex={initialIndex}
     />
   );

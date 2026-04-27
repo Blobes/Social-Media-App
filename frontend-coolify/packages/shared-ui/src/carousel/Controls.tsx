@@ -15,7 +15,10 @@ export const CarouselArrows = ({ onPrev, onNext }: ArrowProps) => {
   return (
     <>
       <IconButton
-        onClick={onPrev}
+        data-no-doubletap
+        onClick={() => {
+          onPrev();
+        }}
         sx={{
           position: "absolute",
           left: 8,
@@ -25,6 +28,7 @@ export const CarouselArrows = ({ onPrev, onNext }: ArrowProps) => {
         <ChevronLeft />
       </IconButton>
       <IconButton
+        data-no-doubletap
         onClick={onNext}
         sx={{
           position: "absolute",
@@ -51,7 +55,8 @@ export const CarouselDots = ({ length, current, onGoTo }: DotProps) => {
       {Array.from({ length }).map((_, i) => (
         <Box
           key={i}
-          onClick={() => onGoTo(i)}
+          data-no-doubletap
+          onClick={(e) => onGoTo(i)}
           sx={{
             width: 8,
             height: 8,

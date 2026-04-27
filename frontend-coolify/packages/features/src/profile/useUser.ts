@@ -49,7 +49,7 @@ export const useUser = (userId?: string) => {
     onSuccess: (res) => {
       setSBMessage({
         msg: {
-          content: res.message,
+          tagline: res.message,
           msgStatus: res.status,
         },
       });
@@ -70,7 +70,7 @@ export const useUser = (userId?: string) => {
     onError: (error: any) => {
       setSBMessage({
         msg: {
-          content: error.message || "Failed to update follow status",
+          tagline: error.message || "Failed to update follow status",
           msgStatus: "ERROR",
         },
       });

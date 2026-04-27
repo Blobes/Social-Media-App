@@ -5,13 +5,14 @@ import { QUEUE_KEYS } from "@repo/core";
 import { updateCacheItem } from "@repo/helpers";
 
 /**
- * Manages the API mutation and TanStack Query cache.
+ * Syncs server-confirmed like state back into cache and optional external stores.
  */
 export const usePostLikeMutation = (
   onLikeApi: (id: string) => Promise<any>,
   setSBMessage: (config: any) => void,
   queryKey?: string[],
   clearPendingLike?: (key: string, id: string) => void,
+  updateStore?: (id: string, likedByMe: boolean, likeCount: number) => void,
 ) => {
   const queryClient = useQueryClient();
 
@@ -19,13 +20,18 @@ export const usePostLikeMutation = (
     mutationFn: onLikeApi,
     onSuccess: (payload, id) => {
       if (payload && queryKey) {
-        // Sync the cache without refetching.
         updateCacheItem(queryClient, queryKey, id, (item) => ({
           ...item,
           likedByMe: payload.likedByMe,
           likeCount: payload.likeCount,
         }));
       }
+
+      // Keep the external store aligned with the final server-confirmed value.
+      if (payload && updateStore) {
+        updateStore(id, payload.likedByMe, payload.likeCount);
+      }
+
       if (clearPendingLike) {
         clearPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, id);
       }
@@ -40,6 +46,7 @@ export const usePostLikeMutation = (
         },
         override: true,
       });
+
       console.error("Post like sync failed:", error);
     },
   });

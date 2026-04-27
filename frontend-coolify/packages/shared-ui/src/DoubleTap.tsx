@@ -29,7 +29,12 @@ export const DoubleTap = ({
   const touchStartPos = useRef({ x: 0, y: 0 });
   const isMovement = useRef(false);
 
+  const shouldIgnoreTarget = (target: EventTarget | null) => {
+    return target instanceof Element && !!target.closest("[data-no-doubletap]");
+  };
+
   const handlePointerDown = (e: React.PointerEvent) => {
+    if (shouldIgnoreTarget(e.target)) return;
     touchStartPos.current = { x: e.clientX, y: e.clientY };
     isMovement.current = false;
   };
@@ -45,7 +50,9 @@ export const DoubleTap = ({
 
   const handlePointerUp = useCallback(
     (e: React.PointerEvent) => {
+      if (shouldIgnoreTarget(e.target)) return;
       e.stopPropagation();
+
       // 1. If the finger moved, it's a scroll—ABORT
       if (isMovement.current) {
         if (timer.current) {

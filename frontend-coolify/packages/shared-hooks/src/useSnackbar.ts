@@ -4,6 +4,12 @@ import { useCallback } from "react";
 import { useGlobalStore } from "./store/useGlobalStore";
 import { IMessage } from "@repo/core";
 
+export interface SBMessage {
+  msg?: IMessage;
+  delay?: number;
+  override?: boolean;
+}
+
 /**
  * Optimized snackbar hook.
  * Uses atomic selectors and stable callbacks to prevent re-render loops.
@@ -16,12 +22,6 @@ export const useSnackbar = () => {
   const removeSnackBarAction = useGlobalStore(
     (state) => state.removeSnackBarMsg,
   );
-
-  interface SBMessage {
-    msg?: IMessage;
-    delay?: number;
-    override?: boolean;
-  }
 
   /**
    * Sets a snackbar message with optional delay and override behavior.

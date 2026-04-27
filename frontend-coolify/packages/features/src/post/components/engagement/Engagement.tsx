@@ -9,12 +9,14 @@ import { ShareButton, ShareProps } from "./Share";
 import { ReplyButton, ReplyProps } from "./Reply";
 import { summarizeNum } from "@repo/helpers";
 import { GenericStyle } from "@repo/core";
+import { FollowButton, FollowProps } from "./Follow";
 
 interface Hide {
   like?: boolean;
   share?: boolean;
   reply?: boolean;
   bookmark?: boolean;
+  follow?: boolean;
 }
 
 export interface EngagementProps {
@@ -22,6 +24,7 @@ export interface EngagementProps {
   reply: ReplyProps & { count?: number };
   bookmark: BookmarkProps & { count?: number };
   share: ShareProps & { count?: number };
+  follow?: FollowProps;
   hide?: Hide;
   addition?: React.ReactNode;
   variant?: "HORIZONTAL" | "VERTICAL";
@@ -33,6 +36,7 @@ export const PostEngagement = ({
   reply,
   bookmark,
   share,
+  follow,
   hide = {},
   addition,
   variant = "HORIZONTAL",
@@ -104,7 +108,7 @@ export const PostEngagement = ({
             share.count,
           )}
 
-        {/* In Vertical variant, Bookmark lives inside the main stack */}
+        {/* In Vertical variant, Bookmark and Follow Icon lives inside the main stack */}
         {isVertical &&
           !hide.bookmark &&
           renderAction(
@@ -120,15 +124,22 @@ export const PostEngagement = ({
       {addition && addition}
 
       {/* In Horizontal variant, Bookmark is pushed to the far right */}
-      {!isVertical && !hide.bookmark && (
-        <Box>
+
+      <Stack direction="row">
+        {!isVertical &&
+          !hide.follow &&
+          follow &&
+          renderAction(
+            <FollowButton onClick={follow.onClick} size={follow.size} />,
+          )}
+        {!isVertical && !hide.bookmark && (
           <BookmarkButton
             bookmarked={bookmark.bookmarked}
             onClick={bookmark.onClick}
             size={bookmark.size}
           />
-        </Box>
-      )}
+        )}
+      </Stack>
     </Stack>
   );
 };

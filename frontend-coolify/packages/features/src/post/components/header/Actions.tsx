@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Stack, IconButton, SxProps, Theme } from "@mui/material";
-import { UserPlus, EllipsisVertical } from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { SmartDate } from "@repo/shared-ui";
 import { useAdaptiveTime } from "@repo/shared-hooks";
@@ -13,18 +13,14 @@ interface UseActions {
 
 export interface ActionsProps {
   createdAt: string | number;
-  onFollow?: () => void;
   onMore?: () => void;
-  showFollow?: boolean;
   sx?: SxProps<Theme>;
   useActions: UseActions;
 }
 
 export const HeaderActions = ({
   createdAt,
-  onFollow,
   onMore,
-  showFollow = true,
   useActions,
   sx,
 }: ActionsProps) => {
@@ -53,7 +49,7 @@ export const HeaderActions = ({
         ...sx,
       }}>
       <SmartDate
-        variant="body2"
+        variant="body3"
         timestamp={createdAt}
         adaptiveTime={useAdaptiveTime}
         sx={{
@@ -66,12 +62,6 @@ export const HeaderActions = ({
           },
         }}
       />
-
-      {showFollow && (
-        <IconButton sx={iconButtonSx} onClick={onFollow}>
-          <UserPlus style={{ stroke: theme.palette.gray[200] }} size={20} />
-        </IconButton>
-      )}
 
       <IconButton sx={iconButtonSx} onClick={onMore}>
         <EllipsisVertical

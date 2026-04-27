@@ -3,18 +3,18 @@
 import React from "react";
 import { IconButton, Stack, Typography, Fade } from "@mui/material";
 import { capitalize } from "@repo/helpers";
-import { PostType } from "@repo/core";
+import { MediaSourceType } from "@repo/core";
 import { ChevronLeft, MoreVertical } from "lucide-react";
 
 interface HeaderProps {
-  postType?: PostType;
+  sourceType?: MediaSourceType;
   onBackClick: () => void;
   onMoreClick: () => void;
   hide?: boolean;
 }
 
 export const IsolatedHeader = ({
-  postType,
+  sourceType,
   onBackClick,
   onMoreClick,
   hide = false,
@@ -28,9 +28,9 @@ export const IsolatedHeader = ({
       <IconButton onClick={onBackClick}>
         <ChevronLeft />
       </IconButton>
-      {postType && (
+      {sourceType && (
         <Typography variant="subtitle1" fontWeight="bold">
-          {capitalize(postType.toLowerCase())}
+          {capitalize(sourceType.toLowerCase())}
         </Typography>
       )}
       <IconButton onClick={onMoreClick}>

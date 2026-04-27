@@ -7,22 +7,28 @@ import { GalleryProps, MediaGallery, Media } from "@repo/shared-ui";
 import { useCallback, useMemo } from "react";
 import { applyBGEffects } from "@repo/helpers";
 import { IGist, UIMode } from "@repo/core";
-import { GistMediaView } from "./GMediaView";
+import { GistMediaView } from "./GistMediaView";
+
+export interface LikeState {
+  likedByMe: boolean;
+  likeCount: number;
+  isLiking: boolean;
+  handleLike: () => void;
+  canInteract?: () => boolean;
+}
 
 export interface GistMediaProps extends GalleryProps {
-  handleLike: () => void;
   gist: IGist;
   mode: UIMode;
-  isLiking: boolean;
+  likeState: LikeState;
 }
 
 export const GistMedia = ({
   mediaList,
   style,
-  handleLike,
+  likeState,
   gist,
   mode,
-  isLiking,
 }: GistMediaProps) => {
   const theme = useTheme();
   const { openModal, closeModal } = useMisc();
@@ -46,12 +52,13 @@ export const GistMedia = ({
 
   const handleMedia = useCallback(
     (index?: number) => {
-      if (!index) return;
+      if (index === undefined || index === null) return;
       openModal({
         content: (
           <GistMediaView
             gist={gist}
-            like={{ handleLike, isLiking }}
+            mediaList={mediaList}
+            likeState={likeState}
             initialIndex={index}
             mode={mode}
           />
@@ -59,7 +66,7 @@ export const GistMedia = ({
         onClose: closeModal,
       });
     },
-    [openModal],
+    [openModal, closeModal, gist, mediaList, likeState, mode],
   );
 
   const mappedList = useMemo(() => {
@@ -70,13 +77,13 @@ export const GistMedia = ({
         id: mediaId,
         onSingleTap: () => handleMedia(index),
         onDoubleTap: () => {
-          if (!gist.likedByMe && !isLiking) {
-            handleLike();
+          if (!likeState.likedByMe && !likeState.isLiking) {
+            likeState.handleLike();
           }
         },
       };
     });
-  }, [mediaList, handleMedia, gist.likedByMe, isLiking, handleLike]);
+  }, [mediaList, handleMedia, gist.likedByMe, likeState]);
 
   const singleMedia = mappedList[0];
 

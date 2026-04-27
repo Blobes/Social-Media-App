@@ -62,7 +62,7 @@ export const useAuth = () => {
           setAuthStatus("ERROR");
           if (res.message) {
             setSBMessage({
-              msg: { content: res.message, msgStatus: "ERROR", hasClose: true },
+              msg: { tagline: res.message, msgStatus: "ERROR", hasClose: true },
             });
           }
           return null;

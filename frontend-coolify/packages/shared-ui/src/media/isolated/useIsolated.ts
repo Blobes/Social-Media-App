@@ -16,8 +16,9 @@ export const useIsolatedMedia = ({
 }: UseIsolatedProps) => {
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const [activeMedia, setActiveMedia] = useState<IMedia | null>(
-    mediaList?.[0] || null,
+    mediaList?.[initialIndex] || null,
   );
+
   const [hideInfo, setHideInfo] = useState(false);
 
   const handleSingleTap = useCallback(() => {

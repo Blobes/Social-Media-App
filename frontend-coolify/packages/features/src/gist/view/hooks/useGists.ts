@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { QUERY_KEYS, IGist } from "@repo/core";
-import { GistService } from "../gistService";
+import { GistService } from "../../gistService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 /**

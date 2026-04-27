@@ -1,4 +1,4 @@
-export function withBaseConfig(appConfig = {}, backendApi) {
+export function withBaseConfig(appConfig = {}, backendApi, appName) {
   return {
     ...appConfig,
     output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
@@ -31,6 +31,10 @@ export function withBaseConfig(appConfig = {}, backendApi) {
         ...baseRewrites,
         beforeFiles: [
           ...beforeFiles,
+          {
+            source: `/${appName}-assets/_next/:path*`,
+            destination: "/_next/:path*",
+          },
           {
             source: "/api/:path*",
             destination: `${backendApi}/:path*`,

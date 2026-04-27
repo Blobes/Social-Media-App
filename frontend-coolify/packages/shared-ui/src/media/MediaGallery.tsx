@@ -65,8 +65,6 @@ export const MediaGallery = ({ mediaList, style, bgEffects }: GalleryProps) => {
       rows: pattern[index].rows,
       cols: pattern[index].cols,
     }));
-
-    // Only re-run if the actual list of media changes (e.g., a new post)
   }, [mediaList]);
 
   const remainingCount = mediaList.length - 5;

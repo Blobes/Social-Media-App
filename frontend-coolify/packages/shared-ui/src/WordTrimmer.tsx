@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Typography, Box, TypographyProps } from "@mui/material";
+import { Typography, Box, TypographyProps, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { motion, LayoutGroup } from "framer-motion";
 import { GenericStyle } from "@repo/core";
@@ -51,7 +51,7 @@ export const WordTrimmer = ({
       : text;
 
   return (
-    <Box sx={{ width: "100%", ...style?.container }}>
+    <Stack sx={{ width: "100%", ...style?.container }}>
       <LayoutGroup>
         <Typography
           variant={variant}
@@ -90,6 +90,6 @@ export const WordTrimmer = ({
           {children}
         </Typography>
       </LayoutGroup>
-    </Box>
+    </Stack>
   );
 };

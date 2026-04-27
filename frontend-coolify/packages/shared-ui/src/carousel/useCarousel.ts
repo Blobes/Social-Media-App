@@ -6,8 +6,12 @@ export const useCarousel = (
   length: number,
   interval = 5000,
   autoPlay = false,
+  initialIndex = 0,
 ) => {
-  const [index, setIndex] = useState(0);
+  const safeInitialIndex =
+    length > 0 ? Math.min(Math.max(initialIndex, 0), length - 1) : 0;
+
+  const [index, setIndex] = useState(safeInitialIndex);
   const [direction, setDirection] = useState(0);
 
   const variants = {

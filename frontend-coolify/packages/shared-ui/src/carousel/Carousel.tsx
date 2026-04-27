@@ -3,7 +3,6 @@
 import React from "react";
 import { Box, SxProps, Theme } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
-
 import { useCarousel } from "./useCarousel";
 import { CarouselArrows, CarouselDots } from "./Controls";
 import { useEffect } from "react";
@@ -20,6 +19,7 @@ interface CarouselProps {
   autoPlay?: boolean;
   interval?: number;
   setCurrentIndex?: (index: number) => void;
+  initialIndex?: number;
 }
 
 export const Carousel = ({
@@ -29,11 +29,13 @@ export const Carousel = ({
   autoPlay = false,
   interval,
   setCurrentIndex,
+  initialIndex = 0,
 }: CarouselProps) => {
   const { variants, index, direction, next, prev, goTo } = useCarousel(
     items.length,
     interval,
     autoPlay,
+    initialIndex,
   );
 
   // Wrapper for callback

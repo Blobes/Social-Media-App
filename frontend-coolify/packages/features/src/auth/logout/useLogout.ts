@@ -49,7 +49,7 @@ export const useLogout = () => {
     },
     onError: (error: any) => {
       setSBMessage({
-        msg: { content: error.message, msgStatus: "ERROR" },
+        msg: { tagline: error.message, msgStatus: "ERROR" },
       });
       console.error("Logout failed:", error);
     },

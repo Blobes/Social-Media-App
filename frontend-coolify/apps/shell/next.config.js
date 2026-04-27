@@ -45,4 +45,4 @@ const nextConfig = {
   },
 };
 
-export default withBaseConfig(nextConfig, "https://api.funstakes.net");
+export default withBaseConfig(nextConfig, "https://api.funstakes.net", "shell");

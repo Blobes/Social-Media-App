@@ -41,8 +41,7 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
     setSBMessage({
       msg: {
         id: "offline-notification",
-        title: "No internet connection",
-        content: "Switch to offline content.",
+        tagline: "No internet connection",
         msgStatus: "INFO",
         behavior: "FIXED",
         hasClose: true,

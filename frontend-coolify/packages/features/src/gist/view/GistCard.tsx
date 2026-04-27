@@ -9,7 +9,6 @@ import {
   useMisc,
   useGlobalStore,
   useGistStore,
-  useCachedData,
 } from "@repo/shared-hooks";
 import {
   UIMode,
@@ -17,7 +16,6 @@ import {
   MediaProps,
   GenericStyle,
   IPost,
-  IPostAuthor,
   QUERY_KEYS,
 } from "@repo/core";
 import { mediaData } from "@repo/assets";
@@ -35,67 +33,66 @@ interface GistProps {
   style?: GenericStyle;
   mode?: UIMode;
 }
+
 export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
   const theme = useTheme();
   const { setSBMessage } = useSnackbar();
   const { fetchGistLike, getPendingLike, setPendingLike, clearPendingLike } =
     GistService();
+
   const authStatus = useGlobalStore((state) => state.authStatus);
   const setModalContent = useGlobalStore((state) => state.setModalContent);
   const { isOffline, isUnstableNetwork } = useMisc();
-
-  // Inside GistCard component...
   const updateGistLike = useGistStore((state) => state.updateGistLike);
 
-  const {
-    postData: gistData,
-    isLiking,
-    handleLike,
-  } = useGistLike(gist, fetchGistLike, {
-    getPendingLike,
-    setPendingLike,
-    clearPendingLike,
-    authStatus,
-    setModalContent,
-    isOffline,
-    isUnstableNetwork,
-    setSBMessage,
-    mode,
-    LoginPrompt: <Typography>Login to engage</Typography>,
-    updateStore: updateGistLike, // Passing the specific Zustand updater
-    queryKey: [QUERY_KEYS.POST.GISTS], // Passing the TanStack query key
-  });
+  /**
+   * Only like-related state is owned by the like hook.
+   * Everything else continues to come from the original gist object.
+   */
+  const { likedByMe, likeCount, isLiking, handleLike, canInteract } =
+    useGistLike(
+      {
+        _id: gist._id,
+        likedByMe: gist.likedByMe,
+        likeCount: gist.likeCount,
+        status: gist.status,
+      },
+      fetchGistLike,
+      {
+        getPendingLike,
+        setPendingLike,
+        clearPendingLike,
+        authStatus,
+        setModalContent,
+        isOffline,
+        isUnstableNetwork,
+        setSBMessage,
+        mode,
+        LoginPrompt: <Typography>Login to engage</Typography>,
+        updateStore: updateGistLike,
+        queryKey: [QUERY_KEYS.POST.GISTS],
+      },
+    );
 
-  const {
-    likeCount,
+  // Build the render model by merging the static gist fields with the live like state.
+  const gistData: IGist = {
+    ...gist,
     likedByMe,
-    latestCaption,
-    media,
-    authorId,
-    author,
-    createdAt,
-  } = gistData;
+    likeCount,
+  };
 
-  // Look into the TanStack cache to mark this post as seen when scrolled into view.
-  // const { elementRef } = usePostSeen(gistData as unknown as IPost);
+  const { latestCaption, media, author, createdAt } = gistData;
 
-  // const { elementRef } = usePostSeen<IGist>(gistData, ["gists"]);
   const { elementRef } = usePostSeen<IPost>(gistData as IPost, [
     QUERY_KEYS.POST.GISTS,
   ]);
 
-  const gistMedia: MediaProps[] =
-    media && media.length > 0 ? (media as MediaProps[]) : mediaData;
+  const gistMedia: MediaProps[] = media && media.length > 0 ? media : mediaData;
 
-  // Gist Author logic
-  //const { cachedAuthor } = useCached(authorId);
-  // const cachedAuthor = useCachedData<IPostAuthor>(["author"]);
-  // const gistAuthor = mode === "ONLINE"  ? author : cachedAuthor;
-
-  if (gistData.status === "DELETED")
+  if (gistData.status === "DELETED") {
     return <Feedback tagline="Deleted by author." />;
+  }
 
-  // Prepare Metrics Data
   const postMetrics = [
     { label: "Like", count: likeCount, plural: "Likes" },
     { label: "Reply", count: 1500, plural: "Replies" },
@@ -112,21 +109,18 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
         borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
         ...style,
       }}>
-      {/* 1. Header Molecule */}
       <PostHeader
         authorProps={{
-          author: author,
+          author,
           avatarSize: "36px",
         }}
         actionProps={{
           createdAt,
           useActions: { useAdaptiveTime: () => useAdaptiveTime },
           onMore: () => console.log("Open Menu"),
-          onFollow: () => console.log("Follow User"),
         }}
       />
 
-      {/* 2. Caption/Content Molecule */}
       <WordTrimmer
         text={latestCaption.caption}
         style={{
@@ -139,16 +133,19 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
         }}
       />
 
-      {/* 3. Media Molecule */}
       <GistMedia
         gist={gistData}
         mediaList={gistMedia}
-        isLiking={isLiking}
         mode={mode}
-        handleLike={handleLike}
+        likeState={{
+          likedByMe,
+          likeCount,
+          isLiking,
+          handleLike,
+          canInteract,
+        }}
       />
 
-      {/* 4. Metrics Molecule (replaces the raw Strip) */}
       <Metrics
         metrics={postMetrics}
         sx={{
@@ -156,14 +153,16 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
         }}
       />
 
-      {/* 5. Engagement Molecule */}
       <PostEngagement
-        like={{ likedByMe, isLiking, handleLike, mode }}
+        like={{ likedByMe, isLiking, handleLike, mode, count: likeCount }}
         reply={{ onClick: () => console.log("Reply clicked") }}
         share={{ onClick: () => console.log("Share clicked") }}
         bookmark={{
           bookmarked: false,
           onClick: () => console.log("Bookmark toggled"),
+        }}
+        follow={{
+          onClick: () => console.log("Follow clicked"),
         }}
       />
     </Stack>

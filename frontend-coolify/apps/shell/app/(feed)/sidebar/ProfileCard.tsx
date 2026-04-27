@@ -63,7 +63,11 @@ export const ProfileCard = () => {
         <Typography
           variant="subtitle1"
           noWrap={true}>{`${firstName} ${lastName}`}</Typography>
-        <Typography component="p" variant="body2" noWrap={true}>
+        <Typography
+          component="p"
+          variant="body3"
+          noWrap={true}
+          sx={{ color: theme.palette.gray[200] }}>
           {email}
         </Typography>
         <Divider />
@@ -77,13 +81,17 @@ export const ProfileCard = () => {
             <Typography variant="subtitle1">
               {summarizeNum(followersCount ?? 0)}
             </Typography>
-            <Typography variant="body3">Followers</Typography>
+            <Typography variant="body3" sx={{ color: theme.palette.gray[200] }}>
+              Followers
+            </Typography>
           </Stack>
           <Stack sx={{ width: "inherit" }} spacing={`${theme.gap(-5)}`}>
             <Typography variant="subtitle1">
               {summarizeNum(followingCount ?? 0)}
             </Typography>
-            <Typography variant="body3">Following</Typography>
+            <Typography variant="body3" sx={{ color: theme.palette.gray[200] }}>
+              Following
+            </Typography>
           </Stack>
         </Stack>
         <Divider />

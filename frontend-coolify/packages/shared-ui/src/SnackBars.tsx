@@ -83,12 +83,14 @@ export const SnackBars = ({
                       msg.msgStatus !== "ERROR"
                         ? theme.palette.gray[0]
                         : theme.palette.error.main,
-                    width: "26px",
-                    height: "26px",
+                    width: "24px",
+                    height: "24px",
                   },
                 }}>
                 {!isExpanded && (
-                  <motion.span layout="position">
+                  <motion.span
+                    layout="position"
+                    style={{ width: "24px", height: "24px" }}>
                     {msg.icon ??
                       (msg.msgStatus === "SUCCESS" ? (
                         <CircleCheck />
@@ -106,19 +108,19 @@ export const SnackBars = ({
                     alignItems: "flex-start",
                     width: "100%",
                   }}>
-                  {msg.title && (
+                  {msg.headline && (
                     <Typography
                       component={motion.span}
                       layout="position"
-                      variant="body1"
+                      variant="body2"
                       sx={{ fontWeight: 501 }}>
-                      {msg.title}
+                      {msg.headline}
                     </Typography>
                   )}
 
-                  {msg.content && (
+                  {msg.tagline && (
                     <WordTrimmer
-                      text={msg.content}
+                      text={msg.tagline}
                       wordLimit={8}
                       onToggleClick={() => setIsExpanded(!isExpanded)}
                       style={{
@@ -132,7 +134,20 @@ export const SnackBars = ({
                         },
                       }}>
                       {msg.cta && (
-                        <AppButton variant="text" onClick={msg.cta.action}>
+                        <AppButton
+                          variant="text"
+                          onClick={msg.cta.action}
+                          style={{
+                            fontSize: "14px",
+                            padding: 0,
+                            borderRadius: 0,
+                            minWidth: "unset",
+                            alignSelf: "unset",
+                            "&:hover": {
+                              color: theme.palette.gray[0],
+                              backgroundColor: "transparent",
+                            },
+                          }}>
                           {msg.cta.label}
                         </AppButton>
                       )}
@@ -141,22 +156,28 @@ export const SnackBars = ({
                 </Stack>
 
                 {/* Close element */}
-                <motion.span layout="position">
+                <motion.span
+                  layout="position"
+                  style={{ height: "fit-content", width: "fit-content" }}>
                   {msg.hasClose && msg.id && (
                     <IconButton
                       onClick={() => removeMessage(msg.id!)}
                       sx={{
                         cursor: "pointer",
-                        backgroundColor: theme.fixedColors.pTrans,
+                        backgroundColor:
+                          msg.msgStatus !== "ERROR"
+                            ? theme.fixedColors.pTrans
+                            : theme.palette.error.trans,
                         "&:hover": {
                           backgroundColor: theme.fixedColors.grayTrans,
                         },
                       }}>
                       <X
                         style={{
-                          width: "18px",
-                          height: "18px",
-                          stroke: `${theme.palette.gray[0]}`,
+                          width: "14px",
+                          height: "14px",
+                          stroke: `${msg.msgStatus !== "ERROR" ? theme.palette.gray[0] : theme.palette.error.main}`,
+                          strokeWidth: "2px",
                         }}
                       />
                     </IconButton>
