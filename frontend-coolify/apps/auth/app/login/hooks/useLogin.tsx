@@ -61,7 +61,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     useCallback(() => {
       resetLockStates();
       setSBMessage({
-        msg: { content: "Login Activated", msgStatus: "SUCCESS" },
+        msg: { tagline: "Login Activated", msgStatus: "SUCCESS" },
       });
     }, [resetLockStates, setSBMessage]),
   );
