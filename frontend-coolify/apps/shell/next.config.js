@@ -30,6 +30,10 @@ const nextConfig = {
           source: "/signup",
           destination: `${authUrl}/signup`,
         },
+        {
+          source: "/verify-otp",
+          destination: `${authUrl}/verify-otp`,
+        },
         // Map everything under /gist to the Post Service
         {
           source: "/gist/:path*",

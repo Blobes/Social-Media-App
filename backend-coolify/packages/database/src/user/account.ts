@@ -117,6 +117,7 @@ const UserSchema = new Schema<IUserDocument>(
     coverImage: { type: Schema.Types.ObjectId, ref: "Media", default: null },
 
     // --- 8. ONBOARDING & GEOGRAPHY ---
+    isOnboarded: { type: Boolean, default: false },
     onboardingStep: { type: String, default: null },
     location: { type: String, default: null },
     country: { type: String, default: null },

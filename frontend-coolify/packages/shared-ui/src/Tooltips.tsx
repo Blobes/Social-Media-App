@@ -18,12 +18,12 @@ export const BasicTooltip = ({ className, ...props }: TooltipProps) => {
 
 type AdvancedTooltipProps = {
   children: React.ReactNode;
-  heading: React.ReactNode;
+  headline: React.ReactNode;
   description: React.ReactNode;
 };
 export const AdvancedTooltip = ({
   children,
-  heading,
+  headline: heading,
   description,
 }: AdvancedTooltipProps) => {
   return (

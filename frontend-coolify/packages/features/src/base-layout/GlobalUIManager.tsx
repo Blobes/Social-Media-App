@@ -11,7 +11,12 @@ import {
   SplashUI,
 } from "@repo/shared-ui";
 import { usePathname } from "next/navigation";
-import { registerSW, delay, getFromLocalStorage } from "@repo/helpers";
+import {
+  registerSW,
+  delay,
+  getFromLocalStorage,
+  getOrCreateDeviceId,
+} from "@repo/helpers";
 import {
   useEventListener,
   useGlobalStore,
@@ -83,6 +88,8 @@ export const GlobalUIManager = ({
 
   // Global timer
   useEffect(() => {
+    // Establish device finger print
+    getOrCreateDeviceId();
     const heartbeat = setInterval(() => {
       useGlobalStore.getState().updateNow();
     }, 60000); // The "Pulse"
@@ -114,13 +121,14 @@ export const GlobalUIManager = ({
 
   if (isInitializing) return <PageLoaderUI />;
 
-  const isLastLoggedOut =
-    getFromLocalStorage<AuthStatus>({ key: "last_auth_status" }) ===
-    "UNAUTHENTICATED";
+  const savedLoginStatus = getFromLocalStorage<AuthStatus>({
+    key: "last_auth_status",
+  });
+  const wasLoggedIn = savedLoginStatus === "AUTHENTICATED";
 
-  // Logic for displaying the Offline Prompt
+  // Update the condition
   const shouldShowOffline =
-    showOfflineUI && isOffline && !offlineMode && !isLastLoggedOut;
+    showOfflineUI && isOffline && !offlineMode && wasLoggedIn;
 
   if (shouldShowOffline) {
     return <OfflinePromptUI handleOffline={switchToOfflineMode} />;
@@ -129,7 +137,7 @@ export const GlobalUIManager = ({
   // Logic for displaying Network Glitches or Critical Auth Errors
   const hasNetworkGlitch = isUnstableNetwork && !isOffline;
   const hasAuthError = authStatus === "ERROR";
-  const isGuestOffline = isOffline && isLastLoggedOut;
+  const isGuestOffline = isOffline && wasLoggedIn;
 
   if (
     showNetworkErrorUI &&

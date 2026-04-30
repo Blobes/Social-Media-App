@@ -1,3 +1,5 @@
+import { OtpType } from "../../types/types";
+
 /**
  * Calculates a dynamic threshold based on post popularity.
  * Formula: Base + Log10(Views) * Multiplier
@@ -29,4 +31,16 @@ export const calculateMeritScore = (
   // We use Math.max to avoid division by zero
   const velocity = followerCount / (accountAgeInDays || 1);
   return velocity;
+};
+
+/**
+ * Resolves destination type from the raw identifier string.
+ */
+export const setOtpChannel = (value: string): OtpType | null => {
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const PHONE_REGEX = /^\+?[\d\s-]{10,}$/;
+
+  if (EMAIL_REGEX.test(value)) return "EMAIL";
+  if (PHONE_REGEX.test(value)) return "PHONE";
+  return null;
 };

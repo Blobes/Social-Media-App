@@ -139,7 +139,7 @@ export const changePhoneNumber = async (
 
     // Send code via WhatsApp
     await otpQueue().add(
-      "send-email-otp",
+      "send-phone-otp",
       { phone: formattedPhone, code, type: "WHATSAPP" as OtpType },
       {
         attempts: 3, // Try 3 times total

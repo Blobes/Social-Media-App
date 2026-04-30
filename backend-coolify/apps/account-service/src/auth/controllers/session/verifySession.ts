@@ -4,6 +4,8 @@ import {
   userSensitiveFields,
   CACHE_KEYS,
   upstashClient,
+  validatePrimarySession,
+  clearAuthTokens,
 } from "@repo/shared";
 import { RequestHandler, Response } from "express";
 
@@ -25,10 +27,19 @@ export const verifySession: RequestHandler = async (
   try {
     const user = await UserModel.findById(userId);
 
+    // Check if the primary session is still valid before extending the heartbeat
+    const isWiped = await validatePrimarySession(userId);
+    if (isWiped) {
+      clearAuthTokens(res);
+      return res
+        .status(401)
+        .json({ status: "ERROR", message: "Primary session expired" });
+    }
+
     if (!user) {
       // If user is missing or deactivated (caught by middleware/pre-find),
       // we should also kill the Redis session immediately.
-      await upstashClient.del(`session:${userId}:${sessionId}`);
+      await upstashClient.del(CACHE_KEYS.USER_SESSION(userId, sessionId));
 
       return res.status(401).json({
         status: "ERROR",
@@ -39,16 +50,18 @@ export const verifySession: RequestHandler = async (
 
     // UPDATE HEARTBEAT: Extend session life or just update last active
     const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
+    const deviceId = req.cookies["device_id"] || "unknown";
 
     await upstashClient.set(
       sessionKey,
       {
+        deviceId,
         userAgent: req.get("user-agent") || "unknown",
         ip: req.ip || "unknown",
         lastActive: new Date(),
       },
-      { keepTtl: true },
-    ); // keepTtl ensures we don't reset the 7-day expiration
+      { ex: 20 * 24 * 60 * 60 },
+    ); // keepTtl ensures we don't reset the 20-day expiration
 
     const safePayload = user.toObject();
     userSensitiveFields().forEach((field) => {

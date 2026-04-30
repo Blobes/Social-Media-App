@@ -1,3 +1,4 @@
+import { requireVerification } from "@/auth/helpers/verification";
 import { UserModel } from "@repo/database";
 import { Request, Response } from "express";
 
@@ -21,16 +22,32 @@ export const checkEmail = async (req: Request, res: Response): Promise<any> => {
     }).setOptions({ skipFilter: true });
 
     if (existingUser) {
+      const userId = String(existingUser._id);
+      const deviceId = req.cookies["device_id"] || "unknown";
+      // Pass the deviceId to the verification logic
+      const needsVerification = await requireVerification(userId, deviceId);
+
+      const isVerified =
+        existingUser.isEmailVerified || existingUser.isPhoneVerified;
+      const isOnboarded =
+        existingUser.onboardingStep === null && existingUser.isOnboarded;
+
       return res.status(200).json({
         status: "SUCCESS",
-        isExisting: true,
         message: !existingUser.isDeactivated
           ? "Email is already registered."
           : "This account is deactivated. Please restore it to continue.",
+        isExisting: true,
+        isOnboarded,
+        isVerified,
+        needsVerification,
         payload: {
           accountStatus: !existingUser.isDeactivated ? "ACTIVE" : "DEACTIVATED",
-          _id: existingUser._id,
+          userId: existingUser._id,
           username: existingUser.username,
+          firstName: existingUser.firstName,
+          email: existingUser.email,
+          phone: existingUser.phoneNumber,
         },
       });
     }

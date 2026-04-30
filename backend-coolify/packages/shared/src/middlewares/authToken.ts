@@ -2,11 +2,12 @@ import jwt from "jsonwebtoken";
 import { Response, NextFunction, RequestHandler } from "express";
 import { IAuthRequest, IJwtUser } from "../types/types";
 import { upstashClient } from "../services/upstash";
-import { CACHE_KEYS } from "../utils/redis/cache";
+import { CACHE_KEYS, getOrSetCache } from "../utils/redis/cache";
 import { clearAuthTokens } from "../utils/misc/tokens";
+import { UserModel } from "@repo/database";
+import { enforcePrimarySessionPolicy } from "../utils/misc/session";
 
-/**
- * Authentication Verification Middleware.
+/** * Verifies JWT and validates the session/device fingerprint in Redis.
  */
 export const verifyAuthToken: RequestHandler = async (
   req: IAuthRequest,
@@ -34,16 +35,22 @@ export const verifyAuthToken: RequestHandler = async (
       process.env.JWT_SECRET as string,
     ) as IJwtUser;
 
-    // 2. STATEFUL CHECK: Verify the session exists in Upstash
-    const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
-    const sessionActive = await upstashClient.exists(sessionKey);
-
-    if (!sessionActive) {
-      // Clear the cookies since the session is revoked in Redis
+    // Enforce primary session policy
+    const isWiped = await validatePrimarySession(payload.id);
+    if (isWiped) {
       clearAuthTokens(res);
-      // res.clearCookie("access_token");
-      // res.clearCookie("refresh_token");
+      return res.status(401).json({
+        status: "UNAUTHORIZED",
+        message: "Account-wide logout: Primary session has expired.",
+      });
+    }
 
+    // 2. STATEFUL CHECK: Retrieve session metadata from Redis
+    const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
+    const sessionData: any = await upstashClient.get(sessionKey);
+
+    if (!sessionData) {
+      clearAuthTokens(res);
       return res.status(401).json({
         message: "Session expired or revoked",
         status: "UNAUTHORIZED",
@@ -51,7 +58,18 @@ export const verifyAuthToken: RequestHandler = async (
       });
     }
 
-    // Attach user data (including sessionId) to the request
+    // 3. FINGERPRINT CHECK: Ensure the device matches the session owner
+    const currentDeviceId = req.cookies["device_id"] || "unknown";
+    if (sessionData.deviceId !== currentDeviceId) {
+      // Potential session hijacking or cross-device token leak
+      clearAuthTokens(res);
+      return res.status(401).json({
+        message: "Device mismatch: Session restricted to original device",
+        status: "UNAUTHORIZED",
+        payload: null,
+      });
+    }
+
     req.user = payload;
     next();
   } catch (err) {
@@ -63,9 +81,7 @@ export const verifyAuthToken: RequestHandler = async (
   }
 };
 
-/**
- * Optional Authentication Middleware.
- * If a token exists but the session is revoked in Redis, clear the cookies to keep the client state clean.
+/** * Optional Auth: Attaches user data only if the session and device are valid.
  */
 export const optVerifyToken: RequestHandler = async (
   req: IAuthRequest,
@@ -73,30 +89,46 @@ export const optVerifyToken: RequestHandler = async (
   next: NextFunction,
 ): Promise<void> => {
   const token = req.cookies.access_token;
-
   if (!token) return next();
 
   try {
-    // Verify JWT Signature and expiration
     const payload = jwt.verify(
       token,
       process.env.JWT_SECRET as string,
     ) as IJwtUser;
 
-    // STATEFUL CHECK: Verify the session exists in Upstash (Redis)
     const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
-    const sessionActive = await upstashClient.exists(sessionKey);
+    const sessionData: any = await upstashClient.get(sessionKey);
+    const currentDeviceId = req.cookies["device_id"] || "unknown";
 
-    if (sessionActive) {
-      // Attach user data only if the session is still valid in our store
+    if (sessionData && sessionData.deviceId === currentDeviceId) {
       req.user = payload;
-    } else {
+    } else if (sessionData && sessionData.deviceId !== currentDeviceId) {
+      // Clear tokens if we detect a fingerprint mismatch even in optional routes
       clearAuthTokens(res);
-      // res.clearCookie("access_token");
-      // res.clearCookie("refresh_token");
     }
+
     next();
   } catch (err) {
     next();
   }
+};
+
+/** Validates the primary session status and enforces account-wide cleanup if expired.
+ * Returns true if a wipe occurred, false otherwise.
+ */
+export const validatePrimarySession = async (
+  userId: string,
+): Promise<boolean> => {
+  // FETCH PRIMARY ID: Uses the cache-aside helper to avoid hitting MongoDB on every request.
+  const primarySessionId = await getOrSetCache<string | null>(
+    CACHE_KEYS.USER_PRIMARY_SESSION(userId),
+    async () => {
+      const user = await UserModel.findById(userId).select("primarySessionId");
+      return user?.primarySessionId || null;
+    },
+    3600, // 1-hour cache
+  );
+  if (!primarySessionId) return false;
+  return await enforcePrimarySessionPolicy(userId, primarySessionId);
 };

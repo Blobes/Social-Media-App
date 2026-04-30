@@ -1,10 +1,30 @@
 "use client";
 
-export const setCookie = (name: string, value: string, minutes: number) => {
+/**
+ * Sets a cookie with legacy minute support and an optional configuration object.
+ */
+export const setCookie = (
+  name: string,
+  value: string,
+  minutes: number,
+  options: {
+    domain?: string;
+    secure?: boolean;
+    path?: string;
+    sameSite?: "lax" | "strict" | "none";
+  } = {},
+) => {
   const expires = new Date(Date.now() + minutes * 60000).toUTCString();
-  document.cookie = `${name}=${encodeURIComponent(
-    value,
-  )}; expires=${expires}; path=/`;
+
+  // Use the provided path or default to /
+  const cookiePath = options.path || "/";
+  let cookieString = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=${cookiePath}`;
+
+  if (options.domain) cookieString += `; domain=${options.domain}`;
+  if (options.secure) cookieString += `; secure`;
+  if (options.sameSite) cookieString += `; samesite=${options.sameSite}`;
+
+  document.cookie = cookieString;
 };
 
 export const getCookie = (name: string): string | null => {

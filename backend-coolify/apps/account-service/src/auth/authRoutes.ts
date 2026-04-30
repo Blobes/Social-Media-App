@@ -2,8 +2,8 @@ import express, { Router } from "express";
 import { checkEmail } from "./controllers/check/email";
 import { checkUsername } from "./controllers/check/username";
 import { createAccount } from "./controllers/createAccount";
-import { verifyEmailCode } from "./controllers/otp/verifyEmailCode";
-import { sendEmailCode } from "./controllers/otp/sendEmailCode";
+import { verifyOtp } from "./controllers/otp/verifyOtp";
+import { sendOtp } from "./controllers/otp/sendOtp";
 import loginUser from "./controllers/session/login";
 import { verifyAuthToken } from "@repo/shared";
 import { verifySession } from "./controllers/session/verifySession";
@@ -28,8 +28,8 @@ router.post("/check-username", checkUsername);
 
 // --- ACCOUNT ONBOARDING ---
 router.post("/register", createAccount);
-router.put("/verify-email-code", verifyEmailCode);
-router.post("/resend-email-code", sendEmailCode);
+router.put("/verify-otp", verifyOtp);
+router.post("/send-otp", sendOtp);
 
 // --- SESSION MANAGEMENT ---
 router.post("/login", loginUser);

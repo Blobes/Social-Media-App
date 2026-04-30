@@ -21,6 +21,11 @@ const baseUIStyles = createTheme({
           stroke: theme.palette.gray?.[200],
           flexShrink: "0!important",
         },
+        "input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active":
+          {
+            WebkitBoxShadow: `0 0 0 1000px rgba(1, 14, 24, 0) inset !important`,
+            transition: "background-color 5000s ease-in-out 0s",
+          },
       }),
     },
 
@@ -224,12 +229,14 @@ const baseUIStyles = createTheme({
           "& label": {
             fontSize: "16px",
             transform: "translate(14px, 14px)",
+            color: theme.palette.gray[200],
           },
           "& label.Mui-error": { color: "var(--TextField-error)" },
           "& label.Mui-focused, & label.MuiInputLabel-shrink": {
             transform: "translate(6px, -16px) scale(0.9)",
             padding: theme.boxSpacing(2, 4),
-            backgroundColor: theme.palette.gray[0],
+            borderRadius: theme.radius[2],
+            backgroundColor: theme.palette.gray[50],
           },
           "& .MuiFormHelperText-root": {
             fontSize: "14px",
@@ -244,11 +251,13 @@ const baseUIStyles = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: ({ theme }) => ({
-          borderColor: "var(--TextField-default)",
           borderRadius: theme.radius[3],
           maxWidth: "600px",
           minWidth: "150px",
           padding: theme.boxSpacing(3, 6, 3, 0),
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.gray[200],
+          },
           [`& .Mui-error .${outlinedInputClasses.notchedOutline}`]: {
             borderColor: "var(--TextField-error)",
           },

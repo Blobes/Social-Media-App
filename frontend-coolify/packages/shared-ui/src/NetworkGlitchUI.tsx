@@ -12,7 +12,7 @@ interface Props {
   isUnstableNetwork: boolean;
 }
 
-const AUTO_REFRESH_MS = 3 * 60 * 1000;
+const AUTO_REFRESH_MS = 2 * 60 * 1000;
 
 export const NetworkGlitchUI = ({
   checkingSignal,
@@ -51,7 +51,14 @@ export const NetworkGlitchUI = ({
             action: () => window.location.reload(),
           }}
           style={{
-            container: { padding: theme.boxSpacing(16), background: "none" },
+            container: {
+              padding: theme.boxSpacing(16),
+              background: "none",
+              [theme.breakpoints.up("md")]: {
+                maxWidth: "40%",
+              },
+            },
+            tagline: { color: theme.palette.gray[200] },
             icon: {
               width: "60px",
               height: "60px",

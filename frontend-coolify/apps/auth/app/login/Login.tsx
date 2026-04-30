@@ -61,12 +61,11 @@ export const Login: React.FC<StepperProps> = ({ style = {} }) => {
   return (
     <Stack
       sx={{
-        backgroundColor: theme.palette.gray[0],
-        border: `1px solid ${theme.fixedColors.pTrans}`,
+        backgroundColor: theme.palette.gray[50],
         borderRadius: theme.radius[3],
         justifyContent: "center",
         alignItems: "center",
-        gap: theme.gap(16),
+        gap: theme.gap(10),
         [theme.breakpoints.down("sm")]: {
           width: "100%",
           ...style.container?.mobile,
@@ -76,8 +75,8 @@ export const Login: React.FC<StepperProps> = ({ style = {} }) => {
       <Image
         alt="logo"
         src={img.logo}
-        width={60}
-        height={60}
+        width={50}
+        height={50}
         style={{
           borderRadius: `${theme.radius.full}`,
         }}

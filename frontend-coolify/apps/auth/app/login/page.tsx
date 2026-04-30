@@ -5,17 +5,13 @@ import { useTheme } from "@mui/material/styles";
 import { Login } from "./Login";
 import { Stack } from "@mui/material";
 import { applyBGPattern } from "@repo/helpers";
-import { Feedback } from "@repo/shared-ui";
-import { ShieldCheck } from "lucide-react";
-import { usePage, useMisc, useGlobalStore } from "@repo/shared-hooks";
-import { ComfirmLogout } from "@repo/features";
-import { CLIENT_ROUTES } from "@repo/core";
+import { useMisc, useGlobalStore } from "@repo/shared-hooks";
+import { ComfirmLogout, RestrictedUI } from "@repo/features";
 
 export default function LoginPage() {
   const theme = useTheme();
   const authStatus = useGlobalStore((state) => state.authStatus);
   const { openModal, closeModal } = useMisc();
-  const { navigateTo } = usePage();
 
   return (
     <Stack
@@ -41,31 +37,8 @@ export default function LoginPage() {
           }}
         />
       ) : (
-        <Feedback
-          headline="You are already signed in"
-          tagline="Return to funstakes.com or logout."
-          style={{
-            container: {
-              padding: theme.boxSpacing(18),
-              backgroundColor: theme.palette.gray[0],
-              border: `1px solid ${theme.fixedColors.pTrans}`,
-            },
-            primaryCta: { width: "100%" },
-            icon: {
-              width: "40px",
-              height: "40px",
-            },
-          }}
-          icon={<ShieldCheck />}
-          primaryCta={{
-            label: "Go to Funstakes.com",
-            action: () =>
-              navigateTo(CLIENT_ROUTES.home, {
-                type: "replace",
-                loadPage: true,
-              }),
-            href: CLIENT_ROUTES.home.path,
-          }}
+        <RestrictedUI
+          purpose="ALREADY_LOGGED_IN"
           secondaryCta={{
             label: "Logout",
             action: () =>

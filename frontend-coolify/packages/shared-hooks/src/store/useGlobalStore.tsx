@@ -34,6 +34,7 @@ interface GlobalState {
   networkStatus: NetworkStatus;
   checkingSignal: boolean;
   offlineMode: boolean;
+  transitData: any | null;
 
   // Time
   now: number;
@@ -54,6 +55,7 @@ interface GlobalState {
   setOfflineMode: (mode: boolean) => void;
   setDefaultHeader: (show: boolean) => void;
   updateNow: () => void;
+  setTransitData: <T>(data: T | null) => void;
 }
 
 /** * Hook for accessing the global store.
@@ -79,6 +81,7 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   offlineMode: false,
   defaultHeader: true,
   now: Date.now(),
+  transitData: null,
 
   // Action Implementations
   setAuthStatus: (authStatus) => set({ authStatus }),
@@ -124,4 +127,6 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   setOfflineMode: (offlineMode) => set({ offlineMode }),
   setDefaultHeader: (defaultHeader) => set({ defaultHeader }),
   updateNow: () => set({ now: Date.now() }),
+
+  setTransitData: (data) => set({ transitData: data }),
 }));

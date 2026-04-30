@@ -23,4 +23,6 @@ export const QUERY_KEYS = {
     FOLLOWERS: "followers",
   },
   OFFLINE_CACHE: "offline_cache",
+  LOGIN_TRANSIT_DATA: ["transit_data", "login"],
+  ACCOUNT_UPDATE_TRANSIT_DATA: ["transit_data", "account_update"],
 };

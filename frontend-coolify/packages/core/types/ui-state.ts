@@ -2,7 +2,7 @@
 
 import { SystemStyleObject } from "@mui/system";
 import { Theme } from "@mui/material/styles";
-import { FetchStatus } from "./payloads/modified";
+import { FetchStatus, IUser } from "./payloads/modified";
 import { Direction } from "./ui-props";
 
 // Types
@@ -26,10 +26,6 @@ export type InputType =
   | "NUMBER"
   | "UNKNOWN";
 export type InputStatus = "VALID" | "INVALID";
-
-// export type GenericObject<T> = {
-//   [key: string]: T | GenericObject<T>;
-// };
 
 export type GenericStyle = SystemStyleObject<Theme> & {
   [key: string]: any;
@@ -100,3 +96,28 @@ export interface QueueItem<T = any> {
   retryCount?: number;
 }
 export type GenericQueue = Record<string, QueueItem>;
+
+export interface TransitPayloadMap {
+  LOGIN: IUser;
+  REGISTRATION: { email: string; tempToken: string }; // Example
+  ACCOUNT_UPDATE: { field: string; oldValue: string }; // Example
+}
+
+export type Purpose = keyof TransitPayloadMap;
+
+export interface TransitData<P extends Purpose> {
+  _id: string;
+  purpose: P;
+  payload: TransitPayloadMap[P];
+}
+
+export type OtpTransitData<P extends Purpose = Purpose> = TransitData<P> & {
+  identifier: string;
+  channel: InputType;
+  nextStep?: string;
+};
+
+export interface CachedItem<T> {
+  data: T;
+  lastViewed: Date;
+}

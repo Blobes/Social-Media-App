@@ -1,5 +1,7 @@
 "use client";
 
+import { ROUTES_REGISTRY } from "@repo/core";
+
 // Extract page title from path
 export const extractPageTitle = (path: string) => {
   return path === "/" ? "Home" : path.replace(/\/$/, "").split("/").pop() || "";
@@ -17,22 +19,37 @@ const getPathZone = (p: string) => {
   return segment ? `/${segment.toLowerCase()}` : "/";
 };
 
-/**
- * Determines if a navigation target requires a hard reload (Cross-Zone)
+/** * Checks if two paths belong to the same group in the registry.
+ */
+const isSameRegistryGroup = (pathA: string, pathB: string): boolean => {
+  return Object.values(ROUTES_REGISTRY).some((group) => {
+    const hasPathA = group.some(
+      (route) => route.toLowerCase() === pathA.toLowerCase(),
+    );
+    const hasPathB = group.some(
+      (route) => route.toLowerCase() === pathB.toLowerCase(),
+    );
+    return hasPathA && hasPathB;
+  });
+};
+
+/** * Determines if a navigation target requires a hard reload (Cross-Zone)
  * or if it can be handled by the current app's SPA router.
  */
 export const crossZoneCheck = (path: string): boolean => {
   const targetPath = path.toLowerCase();
   const currentPath = window.location.pathname.toLowerCase();
-
-  if (targetPath === "/") return currentPath !== "/";
-
+  // Exit early if paths are identical
   if (targetPath === currentPath) return false;
-
+  // Handle root navigation specifically
+  if (targetPath === "/") return currentPath !== "/";
+  // Check if both routes coexist in the same registry bucket (e.g., both in 'auth')
+  if (isSameRegistryGroup(targetPath, currentPath)) {
+    return false;
+  }
   const targetZone = getPathZone(targetPath);
   const currentZone = getPathZone(currentPath);
-
-  // Check if target starts with the current zone's prefix
+  // Fallback to segment-based matching for dynamic routes not in registry
   return !matchPaths(targetZone, currentZone);
 };
 

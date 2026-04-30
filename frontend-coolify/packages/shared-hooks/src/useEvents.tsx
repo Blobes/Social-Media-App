@@ -8,6 +8,7 @@ import { usePage } from "./usePage";
 import { removeFromLocalStorage, saveToLocalStorage } from "@repo/helpers";
 import { AuthStatus, CLIENT_ROUTES } from "@repo/core";
 import { useGlobalStore } from "./store/useGlobalStore";
+import { useMisc } from "./useMisc";
 
 /**
  * Manages global window event listeners for network, lifecycle, and transitions.
@@ -17,6 +18,7 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
   const setNetworkStatus = useGlobalStore((state) => state.setNetworkStatus);
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const authStatus = useGlobalStore((state) => state.authStatus);
+  const { isOffline } = useMisc();
 
   const { switchToOnlineMode } = useOffline();
   const { navigateTo } = usePage();
@@ -25,6 +27,8 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
    * Restores online state and verifies session.
    */
   const handleOnline = useCallback(() => {
+    if (!navigator.onLine) return;
+
     console.log("Network: Online");
     removeSBMessage();
     switchToOnlineMode();
@@ -37,6 +41,7 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
    * Notifies user of offline status and saves auth intent.
    */
   const handleOffline = useCallback(() => {
+    if (!navigator.onLine === false) return;
     console.log("Network: Offline");
     setSBMessage({
       msg: {
@@ -57,7 +62,9 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
         icon: <WifiOff />,
       },
     });
-    saveToLocalStorage<AuthStatus>("last_auth_status", authStatus);
+    if (authStatus === "AUTHENTICATED" || authStatus === "UNAUTHENTICATED") {
+      saveToLocalStorage<AuthStatus>("last_auth_status", authStatus);
+    }
   }, [setSBMessage, navigateTo, authStatus]);
 
   /**

@@ -13,6 +13,8 @@ import {
   IAuthRequest,
   otpQueue,
   OtpType,
+  upstashClient,
+  CACHE_KEYS,
 } from "@repo/shared";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
@@ -144,6 +146,13 @@ export const createAccount = async (
     userSensitiveFields().forEach((field) => {
       delete (safeData as any)[field];
     });
+
+    // CACHE SYNC: Update the cached primary ID so verifyAuthToken sees it immediately.
+    await upstashClient.set(
+      CACHE_KEYS.USER_PRIMARY_SESSION(safeData._id.toString()),
+      sessionId,
+      { ex: 3600 },
+    );
 
     return res.status(200).json({
       status: "SUCCESS",

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { useGlobalStore } from "@repo/shared-hooks";
 import {
   AppButton,
@@ -9,10 +9,12 @@ import {
   InlineMsg,
   ProgressIcon,
   DisplayList as CountryList,
+  BasicTooltip,
+  AdvancedTooltip,
 } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 import { ICountryItem, LISTS, ListType } from "@repo/core";
-import { Mail } from "lucide-react";
+import { CircleQuestionMark, Info, UserPen } from "lucide-react";
 import { useIdentifier } from "./hooks/useIdentifier";
 import { StepProps } from "../types";
 
@@ -47,19 +49,19 @@ export const IdentifierStep: React.FC<StepProps> = ({
         <Typography
           component="h3"
           variant="h5"
-          sx={{ textAlign: "center", ...style.headline }}>
-          Blobes Socials, A Place For Nigerians
+          sx={{ fontWeight: 500, textAlign: "center", ...style.headline }}>
+          Predict Events. Stake. Win together.
         </Typography>
         <Typography
           component="p"
           variant="body2"
           sx={{
             color: theme.palette.gray[200],
-            paddingBottom: theme.boxSpacing(8),
+            paddingBottom: theme.boxSpacing(2),
             textAlign: "center",
             ...style.tagline,
           }}>
-          Enter your email address to continue.
+          Enter your credential to login.
         </Typography>
       </Stack>
 
@@ -77,10 +79,21 @@ export const IdentifierStep: React.FC<StepProps> = ({
           helperText={validationMsg}
           error={input !== "" && validity === "INVALID"}
           affix={
-            <Mail
-              size={19}
-              style={{ stroke: theme.palette.gray[200] as string }}
-            />
+            <BasicTooltip title={<CredentialGuide />}>
+              <Stack
+                sx={{
+                  cursor: "pointer",
+                  borderRadius: theme.radius.full,
+                  alignSelf: "center",
+                  flex: "none",
+                  padding: theme.boxSpacing(1),
+                  "&:hover": {
+                    backgroundColor: theme.palette.gray.trans[1],
+                  },
+                }}>
+                <CircleQuestionMark size={20} />
+              </Stack>
+            </BasicTooltip>
           }
           affixPosition="end"
         />
@@ -130,5 +143,58 @@ export const IdentifierStep: React.FC<StepProps> = ({
         </AppButton>
       </Stack>
     </>
+  );
+};
+
+/**
+ * Displays validation requirements for different identifier types.
+ */
+export const CredentialGuide = () => {
+  const theme = useTheme();
+
+  const sectionStyle = {
+    gap: theme.gap(2),
+  };
+  const listStyle = {
+    margin: 0,
+    paddingLeft: theme.boxSpacing(8),
+    color: theme.palette.gray[200],
+    fontSize: "14px",
+  };
+
+  return (
+    <Stack gap={theme.gap(8)} sx={{ padding: theme.boxSpacing(6) }}>
+      <Stack sx={sectionStyle}>
+        <Typography variant="body3" sx={{ fontWeight: 500 }}>
+          Email address
+        </Typography>
+        <ul style={listStyle}>
+          <li>Must follow standard format (e.g., user@example.com)</li>
+          <li>Domain part cannot contain consecutive dots</li>
+        </ul>
+      </Stack>
+
+      <Stack sx={sectionStyle}>
+        <Typography variant="body3" sx={{ fontWeight: 500 }}>
+          Phone number
+        </Typography>
+        <ul style={listStyle}>
+          <li>Must contain between 10 and 15 digits</li>
+          <li>Supports international formats (+, brackets, hyphens)</li>
+          <li>Must contain at least one numeric digit</li>
+        </ul>
+      </Stack>
+
+      <Stack sx={sectionStyle}>
+        <Typography variant="body3" sx={{ fontWeight: 500 }}>
+          Username
+        </Typography>
+        <ul style={listStyle}>
+          <li>Length must be between 3 and 25 characters</li>
+          <li>Must start with a letter (a-z, A-Z)</li>
+          <li>Only letters, numbers, and underscores (_) are allowed</li>
+        </ul>
+      </Stack>
+    </Stack>
   );
 };

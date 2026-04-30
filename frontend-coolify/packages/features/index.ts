@@ -33,3 +33,6 @@ export * from "./src/post/components/header/PostHeader";
 export * from "./src/post/components/Metrics";
 // Hooks
 export * from "./src/post/hooks/usePostLike";
+
+// Stateful components
+export * from "./src/components/RestrictedUI";

@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { Response, RequestHandler } from "express";
 import {
   CACHE_KEYS,
+  clearAuthTokens,
   genAccessTokens,
   IAuthRequest,
   IJwtUser,
@@ -40,8 +41,7 @@ export const refreshSession: RequestHandler = async (
 
     if (!sessionActive) {
       // Clear cookies if the session was killed in the backend
-      res.clearCookie("access_token");
-      res.clearCookie("refresh_token");
+      clearAuthTokens(res);
 
       return res.status(401).json({
         status: "UNAUTHORIZED",
@@ -62,8 +62,7 @@ export const refreshSession: RequestHandler = async (
     });
   } catch (err) {
     // Catch-all for expired or tampered JWTs
-    res.clearCookie("access_token");
-    res.clearCookie("refresh_token");
+    clearAuthTokens(res);
 
     return res.status(401).json({
       status: "UNAUTHORIZED",

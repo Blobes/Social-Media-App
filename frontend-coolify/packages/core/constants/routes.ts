@@ -16,18 +16,27 @@ export const CLIENT_ROUTES: Record<string, IPage> = {
   login: { title: "Login", path: "/login" },
   signup: { title: "Signup", path: "/signup" },
   restoreAccount: { title: "Restore Account", path: "/restore-account" },
+  verifyOtp: { title: "Verify Otp", path: "/verify-otp" },
 
-  // App
+  // Shell
   home: { title: "Home", path: "/" },
+  explore: { title: "Explore", path: "/explore" },
+
+  // Messaging
+  inbox: { title: "Inbox", path: "/inbox" },
+
+  // Wallet
+  wallet: { title: "Wallet", path: "/wallet" },
+
+  // Profile
   profile: { title: "Profile", path: "/profile" },
   bookmarks: { title: "Bookmarks", path: "/bookmarks" },
-  stakes: { title: "Stakes", path: "/stakes" },
-  explore: { title: "Explore", path: "/explore" },
-  inbox: { title: "Inbox", path: "/inbox" },
-  settings: { title: "Settings", path: "/settings" },
-  gist: { title: "Gist", path: "/gist" },
   notifications: { title: "Notifications", path: "/notifications" },
-  wallet: { title: "Wallet", path: "/wallet" },
+  settings: { title: "Settings", path: "/settings" },
+
+  // Post
+  gist: { title: "Gist", path: "/gist" },
+  stakes: { title: "Stakes", path: "/stakes" },
   vibes: { title: "Vibes", path: "/vibes" },
   voices: { title: "Voices", path: "/voices" },
 
@@ -35,8 +44,17 @@ export const CLIENT_ROUTES: Record<string, IPage> = {
   offline: { title: "Offline", path: "/offline" },
 } as const;
 
+/** * Registry mapping logical application zones to their respective route paths.
+ */
+const OFFLINE_ROUTES = [CLIENT_ROUTES.offline.path];
+export const DISALLOWED_ROUTES: string[] = [];
+
 export const ROUTES_REGISTRY = {
-  auth: [CLIENT_ROUTES.login.path, CLIENT_ROUTES.signup.path],
+  auth: [
+    CLIENT_ROUTES.login.path,
+    CLIENT_ROUTES.signup.path,
+    CLIENT_ROUTES.restoreAccount.path,
+  ],
   web: [
     CLIENT_ROUTES.about.path,
     CLIENT_ROUTES.pricing.path,
@@ -46,11 +64,10 @@ export const ROUTES_REGISTRY = {
     CLIENT_ROUTES.terms.path,
     CLIENT_ROUTES.news.path,
   ],
-  app: [CLIENT_ROUTES.home.path, CLIENT_ROUTES.gist.path],
-  offline: [CLIENT_ROUTES.offline.path],
+  shell: [CLIENT_ROUTES.home.path, ...OFFLINE_ROUTES],
+  post: [CLIENT_ROUTES.gist.path, CLIENT_ROUTES.stakes.path],
+  offline: OFFLINE_ROUTES,
 };
-
-export const DISALLOWED_ROUTES: string[] = [];
 
 // Server Apis
 export const API_BASE = {
@@ -76,6 +93,8 @@ export const SERVER_API = {
   checkUsername: `${API_BASE.auth}/check-username`,
   verifyUserSession: `${API_BASE.auth}/verify-session`,
   refreshToken: `${API_BASE.auth}/refresh`,
+  sendOtp: `${API_BASE.auth}/send-otp`,
+  verifyOtp: `${API_BASE.auth}/verify-otp`,
 
   // Media
   mediaUpload: `${API_BASE.media}/get-upload-url`,
@@ -91,4 +110,6 @@ export const SERVER_API = {
   getUser: (id: string) => `${API_BASE.user}/${id}`,
   followers: (id: string) => `${API_BASE.user}/${id}/followers`,
   follow: (id: string) => `${API_BASE.user}/${id}/follow`,
+  verifyEmail: `${API_BASE.user}/verify-email`,
+  verifyPhone: `${API_BASE.user}/verify-phone`,
 };

@@ -16,8 +16,8 @@ let designSystem = createTheme({
         gray: {
           0: "#ffffff",
           50: "#E8ECF5",
-          100: "#B9C7DB",
-          200: "#536077",
+          100: "#A4B0C1",
+          200: "#6F7E99",
           300: "#101926",
           trans: {
             1: "rgba(1, 14, 24, 0.06)",
@@ -49,8 +49,8 @@ let designSystem = createTheme({
         },
         gray: {
           0: "#010516",
-          50: "#171D3A",
-          100: "#324763",
+          50: "#11152C",
+          100: "#476183",
           200: "#8399B4",
           300: "#ffffff",
           trans: {

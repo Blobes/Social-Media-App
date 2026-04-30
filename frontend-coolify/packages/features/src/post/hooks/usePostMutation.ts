@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { QUEUE_KEYS } from "@repo/core";
+import { IPost, QUEUE_KEYS } from "@repo/core";
 import { updateCacheItem } from "@repo/helpers";
 import { SBMessage } from "@repo/shared-hooks";
 
@@ -21,10 +21,11 @@ export const usePostLikeMutation = (
     mutationFn: onLikeApi,
     onSuccess: (payload, id) => {
       if (payload && queryKey) {
-        updateCacheItem(queryClient, queryKey, id, (item) => ({
-          ...item,
+        updateCacheItem<IPost>(queryClient, queryKey, id, (oldItem) => ({
+          ...oldItem,
           likedByMe: payload.likedByMe,
           likeCount: payload.likeCount,
+          lastViewed: new Date(),
         }));
       }
 

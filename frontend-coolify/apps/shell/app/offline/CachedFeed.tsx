@@ -24,6 +24,7 @@ export const CachedFeed = () => {
   // Artificial delay to ensure skeletons are visible and transitions are smooth.
   useEffect(() => {
     const init = async () => {
+      setIsLoading(true);
       await delay();
       setIsLoading(false);
     };

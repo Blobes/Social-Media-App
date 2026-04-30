@@ -2,6 +2,7 @@
 
 import { height, width } from "@mui/system";
 import { AnalyzedImage } from "@repo/core";
+import { getCookie, setCookie } from "./storage";
 
 // Delay function
 export const delay = (ms: number = 1500) =>
@@ -43,4 +44,23 @@ export const analyzeImage = (img: HTMLImageElement): AnalyzedImage | null => {
     width: img.naturalWidth,
     isPortrait: img.naturalHeight > img.naturalWidth,
   };
+};
+
+/** * Ensures a persistent device identifier exists on the client.
+ */
+export const getOrCreateDeviceId = (): string => {
+  let deviceId = getCookie("device_id");
+
+  if (!deviceId) {
+    deviceId = crypto.randomUUID();
+
+    // 525600 minutes = 365 days
+    setCookie("device_id", deviceId, 525600, {
+      domain: ".funstakes.net",
+      secure: true,
+      sameSite: "none",
+    });
+  }
+
+  return deviceId;
 };

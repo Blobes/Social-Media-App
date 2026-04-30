@@ -6,18 +6,19 @@ import { useTheme } from "@mui/material/styles";
 import { AppButton } from "./Buttons";
 import { RefreshCcw } from "lucide-react";
 import { BasicTooltip } from "./Tooltips";
+import { GenericStyle } from "@repo/core";
 
 interface FeedbackProps {
   headline?: string;
   tagline?: string;
   icon?: React.ReactNode;
   style?: {
-    container?: any;
-    headline?: any;
-    tagline?: any;
-    icon?: any;
-    primaryCta?: any;
-    secondaryCta?: any;
+    container?: GenericStyle;
+    headline?: GenericStyle;
+    tagline?: GenericStyle;
+    icon?: GenericStyle;
+    primaryCta?: GenericStyle;
+    secondaryCta?: GenericStyle;
   };
   primaryCta?: {
     type?: "BUTTON" | "ICON";
@@ -110,8 +111,8 @@ export const Feedback: React.FC<FeedbackProps> = ({
             variant={primaryCta.variant || "contained"}
             {...primHref}
             style={{
-              fontSize: "14px",
-              padding: theme.boxSpacing(2, 7),
+              fontSize: "15px",
+              padding: theme.boxSpacing(3, 7),
               margin: theme.boxSpacing(10, 0, 2, 0),
               ...style?.primaryCta,
             }}

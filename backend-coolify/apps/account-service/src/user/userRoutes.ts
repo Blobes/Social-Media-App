@@ -12,6 +12,8 @@ import { cancelEmailChange } from "./controllers/email/cancelChange";
 import { deactivateAccount } from "./controllers/account/deactivateAccount";
 import { getFollowers } from "./controllers/socials/getFollowers";
 import { followUser } from "./controllers/socials/followUser";
+import { verifyEmailUpdate } from "./controllers/email/verifyEmailUpdate";
+import { verifyPhoneUpdate } from "./controllers/phone/verifyPhone";
 
 const router: Router = express.Router();
 
@@ -30,6 +32,8 @@ router.delete("/delete-image", verifyAuthToken, removeUserImage);
 // User Account
 router.patch("/change-email", verifyAuthToken, changeEmail);
 router.patch("/change-username", verifyAuthToken, changeUsername);
+router.put("/verify-email", verifyAuthToken, verifyEmailUpdate);
+router.put("/verify-phone", verifyAuthToken, verifyPhoneUpdate);
 router.patch("/change-password", verifyAuthToken, changePassword);
 router.post("/cancel-email-change", verifyAuthToken, cancelEmailChange);
 router.delete("/", verifyAuthToken, deactivateAccount);

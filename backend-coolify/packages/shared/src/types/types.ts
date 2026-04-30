@@ -26,7 +26,9 @@ export type AppName =
 
 export type PostType = "GIST" | "STAKE";
 
-export type OtpType = "EMAIL" | "SMS" | "WHATSAPP";
+export type OtpType = "EMAIL" | "SMS" | "WHATSAPP" | "PHONE";
+
+export type VerificationPurpose = "LOGIN" | "ACCOUNT_UPDATE";
 
 export interface IJwtUser {
   id: any;

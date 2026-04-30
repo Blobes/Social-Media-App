@@ -17,6 +17,7 @@ import {
   GenericStyle,
   IPost,
   QUERY_KEYS,
+  CachedItem,
 } from "@repo/core";
 import { mediaData } from "@repo/assets";
 import { Feedback, WordTrimmer } from "@repo/shared-ui";
@@ -74,18 +75,18 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
       },
     );
 
-  // Build the render model by merging the static gist fields with the live like state.
-  const gistData: IGist = {
+  const gistData: IPost = {
     ...gist,
+    postType: "GIST",
     likedByMe,
     likeCount,
   };
-
   const { latestCaption, media, author, createdAt } = gistData;
-
-  const { elementRef } = usePostSeen<IPost>(gistData as IPost, [
-    QUERY_KEYS.POST.GISTS,
-  ]);
+  const cacheItem: CachedItem<IPost> = {
+    data: gistData,
+    lastViewed: new Date(),
+  };
+  const { elementRef } = usePostSeen(cacheItem, [QUERY_KEYS.POST.GISTS]);
 
   const gistMedia: MediaProps[] = media && media.length > 0 ? media : mediaData;
 

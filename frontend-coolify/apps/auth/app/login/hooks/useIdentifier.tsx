@@ -1,17 +1,29 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useGlobalStore } from "@repo/shared-hooks";
+import { useGlobalStore, usePage } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { LoginService } from "../service";
 import {
   delay,
   formatPhoneNumber,
   getInputValidity,
+  queryClient,
   sanitizePhoneNumber,
 } from "@repo/helpers";
-import { AccountStatus, InputStatus, MenuRef } from "@repo/core";
+import {
+  AccountStatus,
+  CLIENT_ROUTES,
+  InputStatus,
+  IUser,
+  MenuRef,
+  OtpTransitData,
+  QUERY_KEYS,
+} from "@repo/core";
 import { StepName } from "../../types";
+import { OtpService } from "../../verify-otp/service";
+import { AppButton } from "@repo/shared-ui";
+import { useTheme } from "@mui/material/styles";
 
 interface UseIdentifier {
   existingInput?: string;
@@ -25,10 +37,11 @@ export const useIdentifier = ({
   setIdentifier,
 }: UseIdentifier) => {
   const { checkEmail, checkPhone, checkUsername } = LoginService();
+  const { sendOtp } = OtpService();
+  const { navigateTo } = usePage();
+  const theme = useTheme();
 
-  /**
-   * Syncing with Zustand Store
-   */
+  // Syncing with Zustand Store
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
 
   const countryMenuRef = useRef<MenuRef>(null);
@@ -52,15 +65,16 @@ export const useIdentifier = ({
   const { mutate, isPending: isAuthLoading } = useMutation({
     mutationFn: async (val: string) => {
       await delay();
-      const inputType = inputValidity.type;
+      // `InputValidation.type` is optional in the type system, so guard it.
+      const inputType = inputValidity.type ?? "UNKNOWN";
       const cleaned = inputType === "PHONE" ? sanitizePhoneNumber(val) : val;
 
       if (inputType === "EMAIL") return await checkEmail(cleaned);
       if (inputType === "PHONE") return await checkPhone(cleaned);
       return await checkUsername(cleaned, "LOGIN");
     },
-    onSuccess: (res) => {
-      const inputType = inputValidity.type;
+    onSuccess: async (res) => {
+      const inputType = inputValidity.type ?? "UNKNOWN";
 
       // 1. Handle Deactivated
       if (
@@ -73,15 +87,60 @@ export const useIdentifier = ({
 
       // 2. Handle Existing User
       if (res.status === "SUCCESS" && res.isExisting === true) {
+        if (res.needsVerification && res.isOnboarded) {
+          // setTransitData(payload);
+          queryClient.setQueryData<OtpTransitData<"LOGIN">>(
+            [QUERY_KEYS.LOGIN_TRANSIT_DATA],
+            {
+              _id: "transit:verification",
+              identifier: input,
+              channel: inputType,
+              nextStep: "PASSWORD",
+              purpose: "LOGIN",
+              payload: res.payload as IUser,
+            },
+          );
+
+          try {
+            await sendOtp(input);
+            navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true });
+            return;
+          } catch (error) {
+            setInlineMsg("Failed to send verification code.");
+            return;
+          }
+        }
+
         setIdentifier?.(input);
         setStep?.("PASSWORD");
       }
       // 3. Handle Credential Not Found
       else {
         setInlineMsg(
-          `We couldn't find an account with the ${
-            inputType?.toLowerCase() + (inputType === "PHONE" ? " number" : "")
-          }.`,
+          <span>
+            {`We couldn't find an account with the ${
+              inputType.toLowerCase() + (inputType === "PHONE" ? " number" : "")
+            }.`}
+            {inputType === "EMAIL" && (
+              <AppButton
+                variant="text"
+                href={CLIENT_ROUTES.signup.path}
+                onClick={(e) => {
+                  setInlineMsg(null);
+                  navigateTo(CLIENT_ROUTES.signup, {
+                    event: e,
+                    loadPage: true,
+                    savePage: false,
+                  });
+                }}
+                style={{
+                  color: theme.palette.primary.dark,
+                  "&:hover": { textDecoration: "underline" },
+                }}>
+                Create account
+              </AppButton>
+            )}
+          </span>,
         );
       }
     },
@@ -144,7 +203,7 @@ export const useIdentifier = ({
   /**
    * Submitting via the mutation trigger.
    */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!isValidInput || !input) return;
     mutate(input);

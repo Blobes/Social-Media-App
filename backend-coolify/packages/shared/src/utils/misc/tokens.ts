@@ -4,6 +4,7 @@ import crypto from "crypto";
 import { IAuthRequest } from "../../types/types";
 import { upstashClient } from "../../services/upstash";
 import { CACHE_KEYS } from "../redis/cache";
+import { findUserSessions } from "./session";
 
 export const genAccessTokens = (
   user: any,
@@ -40,6 +41,9 @@ export const genAccessTokens = (
   return accessToken;
 };
 
+/**
+ * Generates tokens and ensures a "Single Session Per Device" policy in Redis.
+ */
 export const genRefreshTokens = async (
   user: any,
   req: IAuthRequest,
@@ -47,26 +51,39 @@ export const genRefreshTokens = async (
   sessionId: string,
 ) => {
   const userId = user._id?.toString() || user.id?.toString();
+  const deviceId = req.cookies["device_id"] || "unknown";
+
+  // PREVENT DUPLICATE SESSIONS ON SAME DEVICE:
+  // Look for any existing sessions for this user that match the current deviceId.
+  const existingDeviceSessions = await findUserSessions(
+    userId,
+    (s) => s.deviceId === deviceId,
+  );
+  if (existingDeviceSessions.length > 0) {
+    const keysToDelete = existingDeviceSessions.map((s) => s.key);
+    // Batch delete old sessions for this device to keep Redis clean
+    await upstashClient.del(...keysToDelete);
+  }
 
   const refreshToken = jwt.sign(
-    { id: userId, sessionId },
+    { id: userId, sessionId, deviceId },
     process.env.REFRESH_TOKEN_SECRET as string,
     { expiresIn: "7d" },
   );
 
-  // REGISTER SESSION IN UPSTASH
-  // We use IAuthRequest to safely access headers and IP
   const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
 
+  // REGISTER THE NEW SESSION: We set the sliding 20-day window here.
   await upstashClient.set(
     sessionKey,
     {
+      deviceId,
       userAgent: req.get("user-agent") || "unknown",
       ip: req.ip || req.headers["x-forwarded-for"] || "unknown",
       lastActive: new Date(),
     },
-    { ex: 7 * 24 * 60 * 60 },
-  ); // 7-day TTL to match the Refresh Token
+    { ex: 20 * 24 * 60 * 60 },
+  );
 
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true,

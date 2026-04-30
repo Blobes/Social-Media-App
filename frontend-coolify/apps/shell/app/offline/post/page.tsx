@@ -4,5 +4,5 @@ import React from "react";
 import { Typography } from "@mui/material";
 
 export default function GistPage() {
-  return <Typography>Single Gist Offline View</Typography>;
+  return <Typography>Single Post Offline View</Typography>;
 }

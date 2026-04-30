@@ -2,33 +2,47 @@
 
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { IPost } from "@repo/core";
+import { CachedItem, IPost } from "@repo/core";
 
 /**
- * Marks a post as viewed by updating its timestamp within a specific, granular query key.
- * This prevents the entire feed from re-rendering by avoiding broad key updates.
+ * Marks a post as viewed with a timestamp.
+ * Guarded against unnecessary cache updates that cause scroll jumping.
  */
-export const usePostSeen = <T extends IPost>(post: T, queryKey: string[]) => {
+export const usePostSeen = (post: CachedItem<IPost>, queryKey: string[]) => {
   const queryClient = useQueryClient();
   const elementRef = useRef<HTMLElement | null>(null);
 
+  // Use a ref to track if we've already handled this specific ID in this mount cycle
+  const hasSeen = useRef(false);
+
   useEffect(() => {
+    // If the post already has a timestamp or we've processed it, don't bother
+    if (post.lastViewed || hasSeen.current) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
-          // Target only the specific post using a unique query key. Format: [...baseKey, postId]
-          const specificKey = [...queryKey, post._id];
+        const [entry] = entries;
 
-          queryClient.setQueryData(specificKey, (oldData: any) => {
-            // Update the existing item or create a new entry with the timestamp
-            const updatedItem = oldData ? { ...oldData } : { ...post };
-            return {
-              ...updatedItem,
-              lastViewed: new Date(),
-            };
-          });
+        if (entry.isIntersecting && !hasSeen.current) {
+          hasSeen.current = true;
+          const specificKey = [...queryKey, post.data._id];
 
-          // Stop observing once the view is recorded to save resources
+          /**
+           * Use an updater function that checks if changes are actually needed.
+           * This prevents triggering a re-render if the data is identical.
+           */
+          queryClient.setQueryData(
+            specificKey,
+            (oldData: CachedItem<IPost> | undefined) => {
+              if (oldData?.lastViewed) return oldData;
+
+              return {
+                ...(oldData || post),
+                lastViewed: new Date(),
+              };
+            },
+          );
+
           if (elementRef.current) {
             observer.unobserve(elementRef.current);
           }
@@ -37,12 +51,17 @@ export const usePostSeen = <T extends IPost>(post: T, queryKey: string[]) => {
       { threshold: 0.5 },
     );
 
-    if (elementRef.current) {
-      observer.observe(elementRef.current);
+    const currentElement = elementRef.current;
+    if (currentElement) {
+      observer.observe(currentElement);
     }
 
-    return () => observer.disconnect();
-  }, [post._id, queryKey, queryClient, post]);
+    return () => {
+      observer.disconnect();
+    };
+    // Removed 'post' from dependencies to prevent observer cycles
+    // Only re-run if the ID or query target changes
+  }, [post.data._id, queryKey, queryClient]);
 
   return { elementRef };
 };

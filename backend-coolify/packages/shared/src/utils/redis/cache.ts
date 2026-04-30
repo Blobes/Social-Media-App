@@ -131,6 +131,7 @@ export const CACHE_KEYS = {
   // --- Session & Security ---
   USER_SESSION: (userId: string, sessionId: string) =>
     `session:${userId}:${sessionId}`,
+  USER_PRIMARY_SESSION: (userId: string) => `user:${userId}:primary_id`,
   WILDCARD_USER_SESSIONS: (userId: string) => `session:${userId}:*`,
 
   // --- Feed Keys (Dynamic/Personalized) ---

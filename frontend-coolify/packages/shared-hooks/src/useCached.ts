@@ -1,11 +1,10 @@
 "use client";
-
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo, useSyncExternalStore, useCallback, useRef } from "react";
 
 /**
  * Retrieves cached data from granular TanStack Query buckets.
- * Uses a version-tracking ref to ensure getSnapshot returns a stable reference.
+ * Memoizes the result array to prevent infinite re-renders.
  */
 export const useCachedData = <
   T extends { _id: string; lastViewed?: Date | string },
@@ -14,9 +13,9 @@ export const useCachedData = <
 ): T[] => {
   const queryClient = useQueryClient();
 
-  // Track the last processed data and cache version to avoid infinite loops
-  const lastSnapshot = useRef<T[]>([]);
-  const lastVersion = useRef<number>(-1);
+  // Stable reference storage — only update when data truly changes
+  const snapshotRef = useRef<T[]>([]);
+  const snapshotKeyRef = useRef<string>("");
 
   const normalizedKeys = useMemo(() => {
     if (queryKeyOrKeys.length === 0) return [];
@@ -26,27 +25,14 @@ export const useCachedData = <
   }, [queryKeyOrKeys]);
 
   /**
-   * getSnapshot implementation with manual memoization.
+   * getSnapshot — returns a stable reference by comparing a
+   * deterministic key derived from the cached data.
    */
   const getSnapshot = useCallback(() => {
-    // Get the current hash/version of the cache
-    const currentVersion = queryClient.getQueryCache().getAll().length;
-
-    // Only re-calculate if the number of queries changed or if this
-    // is the first run. For deeper change detection, you could use
-    // a timestamp from the cache.
-    if (
-      currentVersion === lastVersion.current &&
-      lastSnapshot.current.length > 0
-    ) {
-      return lastSnapshot.current;
-    }
-
     const allData: any[] = [];
 
     normalizedKeys.forEach((key) => {
       const cachedEntries = queryClient.getQueriesData<any>({ queryKey: key });
-
       cachedEntries.forEach(([_, data]) => {
         if (!data) return;
 
@@ -76,11 +62,17 @@ export const useCachedData = <
       return timeB - timeA;
     });
 
-    // Update refs and return the new reference
-    lastSnapshot.current = sortedResult;
-    lastVersion.current = currentVersion;
+    // Create a deterministic key from the sorted IDs
+    // This avoids comparing array references or doing deep equality
+    const snapshotKey = sortedResult.map((item) => item._id).join(",");
 
-    return sortedResult;
+    // Only return a new reference if the key changed
+    if (snapshotKey !== snapshotKeyRef.current) {
+      snapshotRef.current = sortedResult;
+      snapshotKeyRef.current = snapshotKey;
+    }
+
+    return snapshotRef.current;
   }, [queryClient, normalizedKeys]);
 
   return useSyncExternalStore(

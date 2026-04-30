@@ -1,9 +1,7 @@
 "use client";
 
 import { apiClient } from "@repo/helpers";
-import { IUser, ISinglePayload, SERVER_API } from "@repo/core";
-
-type PurposeType = "REGISTRATION" | "LOGIN";
+import { IUser, ISinglePayload, SERVER_API, Purpose } from "@repo/core";
 
 interface LoginCredentials {
   identifier: string;
@@ -12,8 +10,12 @@ interface LoginCredentials {
 interface LoginResponse extends ISinglePayload<IUser> {
   fixedMsg?: string;
 }
-interface checkResponse extends ISinglePayload<IUser> {
+
+export interface checkResponse extends ISinglePayload<IUser> {
   isExisting: boolean;
+  needsVerification: boolean;
+  isOnboarded: boolean;
+  isVerified?: boolean;
 }
 
 export const LoginService = () => {
@@ -33,7 +35,7 @@ export const LoginService = () => {
 
   const checkUsername = async (
     username: string,
-    purpose: PurposeType = "LOGIN",
+    purpose: Purpose = "LOGIN",
   ): Promise<checkResponse> => {
     return await apiClient<checkResponse>(SERVER_API.checkUsername, {
       method: "POST",

@@ -1,5 +1,5 @@
 import { UserModel } from "@repo/database";
-import { IAuthRequest } from "@repo/shared";
+import { CACHE_KEYS, IAuthRequest, upstashClient } from "@repo/shared";
 import { Response } from "express";
 
 export const setPrimarySession = async (
@@ -29,6 +29,13 @@ export const setPrimarySession = async (
         .status(404)
         .json({ status: "ERROR", message: "User not found." });
     }
+
+    // CACHE SYNC: Update the cached primary ID so verifyAuthToken sees it immediately.
+    await upstashClient.set(
+      CACHE_KEYS.USER_PRIMARY_SESSION(userId),
+      targetSessionId,
+      { ex: 3600 },
+    );
 
     return res.status(200).json({
       status: "SUCCESS",
