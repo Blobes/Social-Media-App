@@ -32,7 +32,7 @@ export const setPrimarySession = async (
 
     // CACHE SYNC: Update the cached primary ID so verifyAuthToken sees it immediately.
     await upstashClient.set(
-      CACHE_KEYS.USER_PRIMARY_SESSION(userId),
+      CACHE_KEYS.USER_PRIMARY_DEVICE(userId),
       targetSessionId,
       { ex: 3600 },
     );

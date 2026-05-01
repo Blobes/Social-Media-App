@@ -102,7 +102,7 @@ export const useIdentifier = ({
           );
 
           try {
-            await sendOtp(input);
+            await sendOtp({ identifier: input });
             navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true });
             return;
           } catch (error) {

@@ -1,4 +1,4 @@
-import { requireVerification } from "@/auth/helpers/verification";
+import { requireVerification } from "@repo/shared";
 import { UserModel } from "@repo/database";
 import { Request, Response } from "express";
 
@@ -9,6 +9,9 @@ interface CheckUsernameRequest extends Request {
   };
 }
 
+/**
+ * Checks username availability for registration or trust status for login.
+ */
 export const checkUsername = async (
   req: CheckUsernameRequest,
   res: Response,
@@ -59,10 +62,16 @@ export const checkUsername = async (
         return;
       }
 
-      const userId = String(existingUser._id);
       const deviceId = req.cookies["device_id"] || "unknown";
-      // Pass the deviceId to the verification logic
-      const needsVerification = await requireVerification(userId, deviceId);
+
+      /**
+       * EVALUATE TRUST:
+       * Signals the frontend if an OTP is required before password entry.
+       */
+      const needsVerification = await requireVerification(
+        existingUser,
+        deviceId,
+      );
 
       const isVerified =
         existingUser.isEmailVerified || existingUser.isPhoneVerified;

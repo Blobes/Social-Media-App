@@ -4,23 +4,30 @@ import {
   hashCode,
   invalidatePattern,
   setOtpChannel,
+  VerificationPurpose,
 } from "@repo/shared";
 import { Request, Response } from "express";
+import {
+  handleChannelVerification,
+  handleDeviceTrust,
+  handleAccountUpdate,
+} from "../../helpers/otpHandlers";
 
 /**
- * Verifies a code sent to an email address or phone number.
- * Marks the destination as verified on success and clears the code.
+ * Verifies OTP and delegates post-verification logic to imported handlers.
  */
 export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
-  const { source, code } = req.body as {
+  const { source, code, purpose, deviceId } = req.body as {
     source?: string;
     code?: string;
+    purpose?: VerificationPurpose;
+    deviceId?: string;
   };
 
-  if (!source || !code) {
+  if (!source || !code || !purpose) {
     res.status(400).json({
       status: "ERROR",
-      message: "OTP source and code are required.",
+      message: "Source, code, and purpose are required.",
       payload: null,
     });
     return;
@@ -32,7 +39,7 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
   if (!otpChannel) {
     res.status(400).json({
       status: "ERROR",
-      message: "OTP channel must be a valid email address or phone number.",
+      message: "Invalid OTP channel source.",
       payload: null,
     });
     return;
@@ -48,12 +55,13 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
     if (!user) {
       res.status(404).json({
         status: "ERROR",
-        message: "No account found for this destination.",
+        message: "Account not found.",
         payload: null,
       });
       return;
     }
 
+    // 1. DUMB VALIDATION: Check code and expiry
     if (!user.verificationCode || !user.verificationExpiry) {
       res.status(400).json({
         status: "ERROR",
@@ -81,29 +89,42 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Mark destination as verified and clear code
-    if (otpChannel === "EMAIL") {
-      user.isEmailVerified = true;
-      user.lastEmailCodeSentAt = null;
-    } else {
-      user.isPhoneVerified = true;
-      user.lastPhoneCodeSentAt = null;
+    /**
+     * 2. ACTION DELEGATION: Execute logic based on the 'purpose' flag
+     */
+    switch (purpose) {
+      case "LOGIN":
+        // Reset 15-day window/trust device on login verification
+        if (deviceId) {
+          await handleDeviceTrust(user, deviceId);
+        }
+        await handleChannelVerification(user, otpChannel);
+        break;
+
+      case "ACCOUNT_UPDATE":
+        await handleAccountUpdate(user, otpChannel);
+        break;
+
+      default:
+        // Default to just verifying the channel if purpose is unrecognized
+        await handleChannelVerification(user, otpChannel);
+        break;
     }
 
+    // 3. CLEANUP: Clear code and persist changes
     user.verificationCode = null;
     user.verificationExpiry = null;
 
     await user.save();
-
     await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(String(user._id)));
 
     res.status(200).json({
       status: "SUCCESS",
-      message: `${otpChannel === "EMAIL" ? "Email" : "Phone number"} verified successfully.`,
-      payload: null,
+      message: "Verified successfully.",
+      payload: { purpose, channel: otpChannel },
     });
   } catch (error) {
-    console.error("[verifyCode] Error:", error);
+    console.error("[verifyOtp] Error:", error);
     res.status(500).json({
       status: "ERROR",
       message:

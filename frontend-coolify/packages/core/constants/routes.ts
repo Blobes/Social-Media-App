@@ -96,6 +96,7 @@ export const SERVER_API = {
   refreshToken: `${API_BASE.auth}/refresh`,
   sendOtp: `${API_BASE.auth}/send-otp`,
   verifyOtp: `${API_BASE.auth}/verify-otp`,
+  setPrimarySession: `${API_BASE.auth}/session/set-primary`,
 
   // Media
   mediaUpload: `${API_BASE.media}/get-upload-url`,

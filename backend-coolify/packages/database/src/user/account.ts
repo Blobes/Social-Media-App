@@ -3,7 +3,7 @@ import { IUserModel } from "../model-types/user";
 
 /**
  * Backend-only Document Interface.
- * We include fields that are STRICTLY PRIVATE (passwords, strike counts).
+ * Includes sensitive fields like password and moderation state.
  */
 export interface IUserDocument
   extends Omit<IUserModel, "_id" | "createdAt" | "updatedAt">, Document {
@@ -14,6 +14,9 @@ export interface IUserDocument
   moderationStrikes: number;
   suspensionExpiresAt?: Date | null;
   suspensionReason?: string | null;
+  // Mongoose managed timestamps
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const UserSchema = new Schema<IUserDocument>(
@@ -58,7 +61,6 @@ const UserSchema = new Schema<IUserDocument>(
       ref: "IdVerificationRequest",
       default: null,
     },
-    // The "State" of the verification process
     idVerificationStatus: {
       type: String,
       enum: ["NONE", "PENDING", "APPROVED", "REJECTED"],
@@ -90,7 +92,17 @@ const UserSchema = new Schema<IUserDocument>(
     lastEmailCodeSentAt: { type: Date, default: null },
     primarySessionId: { type: String, default: null },
 
-    // --- 4. IDENTITY UPDATES (PENDING CHANGES) ---
+    // Devices
+    primaryDeviceId: { type: String, default: null, index: true },
+    trustedDevices: [
+      {
+        deviceId: { type: String, required: true },
+        lastVerifiedAt: { type: Date, default: Date.now },
+        name: { type: String, default: "Secondary Device" },
+      },
+    ],
+
+    // --- 4. IDENTITY UPDATES ---
     pendingEmail: { type: String, default: null, lowercase: true },
     lastEmailChangeAt: { type: Date, default: null },
     pendingPhoneNumber: { type: String, default: null },
@@ -112,7 +124,7 @@ const UserSchema = new Schema<IUserDocument>(
     interests: { type: [String], default: [] },
     website: { type: String, default: null },
 
-    // --- 7. ASSETS (MEDIA REFERENCES) ---
+    // --- 7. ASSETS ---
     profileImage: { type: Schema.Types.ObjectId, ref: "Media", default: null },
     coverImage: { type: Schema.Types.ObjectId, ref: "Media", default: null },
 
@@ -127,7 +139,6 @@ const UserSchema = new Schema<IUserDocument>(
     followersCount: { type: Number, default: 0 },
     followingCount: { type: Number, default: 0 },
 
-    // USER PREFERENCES
     preferences: {
       preferredTopics: [
         {
@@ -146,7 +157,7 @@ const UserSchema = new Schema<IUserDocument>(
   },
   {
     timestamps: true,
-    autoIndex: false,
+    autoIndex: true, // Enabled index for primaryDeviceId lookup efficiency
     toJSON: {
       virtuals: true,
       transform: (doc, ret: any) => {
@@ -159,20 +170,7 @@ const UserSchema = new Schema<IUserDocument>(
   },
 );
 
-// Middleware for soft-deactivation filtering
-const autoFilterDeactivated = function (this: any) {
-  // Accessing options to see if we should skip this filter
-  const options = this.getOptions?.();
-  if (options?.skipFilter) {
-    return;
-  }
-  // Applying the filter to exclude deactivated users
-  this.where({ isDeactivated: { $ne: true } });
-};
-UserSchema.pre(/^find/, autoFilterDeactivated);
-
 export const UserModel: Model<IUserDocument> = model<IUserDocument>(
   "User",
   UserSchema,
-  "users",
 );

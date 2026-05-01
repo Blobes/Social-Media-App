@@ -1,7 +1,10 @@
-import { requireVerification } from "@/auth/helpers/verification";
 import { UserModel } from "@repo/database";
+import { requireVerification } from "@repo/shared";
 import { Request, Response } from "express";
 
+/**
+ * Checks email existence and evaluates hardware trust before login.
+ */
 export const checkEmail = async (req: Request, res: Response): Promise<any> => {
   const { email } = req.body as { email?: string };
 
@@ -22,10 +25,16 @@ export const checkEmail = async (req: Request, res: Response): Promise<any> => {
     }).setOptions({ skipFilter: true });
 
     if (existingUser) {
-      const userId = String(existingUser._id);
       const deviceId = req.cookies["device_id"] || "unknown";
-      // Pass the deviceId to the verification logic
-      const needsVerification = await requireVerification(userId, deviceId);
+
+      /**
+       * EVALUATE TRUST:
+       * Uses the holistic helper to check primary and trusted registries.
+       */
+      const needsVerification = await requireVerification(
+        existingUser,
+        deviceId,
+      );
 
       const isVerified =
         existingUser.isEmailVerified || existingUser.isPhoneVerified;
@@ -40,7 +49,7 @@ export const checkEmail = async (req: Request, res: Response): Promise<any> => {
         isExisting: true,
         isOnboarded,
         isVerified,
-        needsVerification,
+        needsVerification, // Frontend uses this to decide whether to prompt OTP
         payload: {
           accountStatus: !existingUser.isDeactivated ? "ACTIVE" : "DEACTIVATED",
           userId: existingUser._id,

@@ -131,8 +131,10 @@ export const CACHE_KEYS = {
   // --- Session & Security ---
   USER_SESSION: (userId: string, sessionId: string) =>
     `session:${userId}:${sessionId}`,
-  USER_PRIMARY_SESSION: (userId: string) => `user:${userId}:primary_id`,
+  USER_PRIMARY_DEVICE: (userId: string) => `user:${userId}:primary_device_id`,
   WILDCARD_USER_SESSIONS: (userId: string) => `session:${userId}:*`,
+  DEVICE_TRUST_STATUS: (userId: string, deviceId: string) =>
+    `trust_check:${userId}:${deviceId}`,
 
   // --- Feed Keys (Dynamic/Personalized) ---
   USER_FOLLOWERS_FEED: (userId: string, page: number, limit: number) =>

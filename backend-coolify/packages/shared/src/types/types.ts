@@ -32,6 +32,7 @@ export type VerificationPurpose = "LOGIN" | "ACCOUNT_UPDATE";
 
 export interface IJwtUser {
   id: any;
+  deviceId: string;
   sessionId: string;
   email?: string;
   username?: string;

@@ -1,3 +1,4 @@
+import { UserModel } from "@repo/database";
 import { upstashClient } from "../../services/upstash";
 import { CACHE_KEYS } from "../redis/cache";
 
@@ -105,27 +106,41 @@ export const findUserSessions = async (
 };
 
 /**
- * Checks if the user's primary session has expired.
- * If the primary is gone, all other sessions are terminated.
+ * Only enforces a wipe if the session being validated IS the primary session
+ * and it has expired, OR if we want to restrict secondary sessions (optional).
  */
 export const enforcePrimarySessionPolicy = async (
   userId: string,
-  primarySessionId: string | null | undefined,
+  primarySessionId: string,
+  currentSessionId: string,
 ): Promise<boolean> => {
-  if (!primarySessionId) return false;
-
-  // Check if the primary session still exists in Redis
   const primaryKey = CACHE_KEYS.USER_SESSION(userId, primarySessionId);
   const primaryExists = await upstashClient.exists(primaryKey);
 
-  // If primary session is expired/deleted, wipe all other sessions
+  // If the primary session record is gone from Redis
   if (!primaryExists) {
-    const allSessions = await findUserSessions(userId);
+    // 1. Clear the primary session ID from MongoDB
+    await UserModel.findByIdAndUpdate(userId, {
+      $unset: { primarySessionId: "" },
+    });
+
+    // 2. Clear the primary session cache
+    await upstashClient.del(CACHE_KEYS.USER_PRIMARY_DEVICE(userId));
+
+    // 3. Trigger account-wide logout for security
+    const allSessions = await upstashClient.keys(
+      CACHE_KEYS.USER_SESSION(userId, "*"),
+    );
     if (allSessions.length > 0) {
-      const keysToDelete = allSessions.map((s) => s.key);
-      await upstashClient.del(...keysToDelete);
+      await upstashClient.del(...allSessions);
     }
-    return true; // Indicates a wipe happened
+
+    return true; // Wipe occurred
+  }
+
+  // If current session is a secondary device, allow it as long as Primary is alive
+  if (currentSessionId !== primarySessionId) {
+    return false;
   }
 
   return false;

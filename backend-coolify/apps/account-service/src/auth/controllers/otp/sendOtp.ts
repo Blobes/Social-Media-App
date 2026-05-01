@@ -16,10 +16,6 @@ const COOLDOWN_SECONDS = 60;
 /**
  * Sends a verification code to an email or phone number.
  * Purpose is validated at send time only — never stored on the user document.
- *
- * Purposes:
- *   - LOGIN          → skips already-verified guard; always dispatches
- *   - ACCOUNT_UPDATE → requires pendingEmail/pendingPhone; skips if already verified
  */
 export const sendOtp = async (req: Request, res: Response): Promise<void> => {
   const { destination, purpose } = req.body as {

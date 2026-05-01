@@ -48,6 +48,7 @@ export * from "./utils/redis/cache";
 export * from "./utils/redis/ratelimit";
 export * from "./utils/pipelines/user/dataLookup";
 export * from "./utils/pipelines/post/dataLookup";
+export * from "./utils/misc/deviceTrust";
 
 // Environment config
 export * from "../env-config/express/config";

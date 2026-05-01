@@ -1,7 +1,7 @@
 import express, { Router } from "express";
 import { checkEmail } from "./controllers/check/email";
 import { checkUsername } from "./controllers/check/username";
-import { createAccount } from "./controllers/createAccount";
+import { createAccount } from "./controllers/new-account/createAccount";
 import { verifyOtp } from "./controllers/otp/verifyOtp";
 import { sendOtp } from "./controllers/otp/sendOtp";
 import loginUser from "./controllers/session/login";
@@ -36,7 +36,7 @@ router.post("/login", loginUser);
 router.post("/refresh", refreshSession);
 router.post("/logout", verifyAuthToken, logoutUser);
 router.get("/sessions", getActiveSessions);
-router.patch("/sessions/primary", setPrimarySession);
+router.patch("/session/set-primary", setPrimarySession);
 
 // --- IDENTITY VERIFICATION ---
 // Used by the client to sync the current user state on app load

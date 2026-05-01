@@ -4,43 +4,50 @@ import {
   userSensitiveFields,
   CACHE_KEYS,
   upstashClient,
-  validatePrimarySession,
   clearAuthTokens,
+  finalizeDeviceTrust,
+  validateHardwareTrust,
 } from "@repo/shared";
 import { RequestHandler, Response } from "express";
 
+/**
+ * Validates the session state, hardware fingerprint, and 15-day trust window.
+ */
 export const verifySession: RequestHandler = async (
   req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
   const userId = req.user?.id;
   const sessionId = req.user?.sessionId;
+  const deviceId = req.cookies["device_id"] || "unknown";
 
   if (!userId || !sessionId) {
     return res.status(401).json({
       status: "ERROR",
-      message: "Invalid or expired session",
+      message: "Invalid or expired session context",
       payload: null,
     });
   }
 
   try {
-    const user = await UserModel.findById(userId);
+    /**
+     * 1. HARDWARE TRUST (Replacement for validatePrimarySession)
+     * This checks if the device is authorized and if the 15-day window is valid.
+     */
+    const needsOtp = await validateHardwareTrust(userId, deviceId);
 
-    // Check if the primary session is still valid before extending the heartbeat
-    const isWiped = await validatePrimarySession(userId);
-    if (isWiped) {
+    if (needsOtp) {
       clearAuthTokens(res);
-      return res
-        .status(401)
-        .json({ status: "ERROR", message: "Primary session expired" });
+      return res.status(401).json({
+        status: "ERROR",
+        message: "Device trust has expired. Verification required.",
+      });
     }
 
+    const user = await UserModel.findById(userId);
     if (!user) {
-      // If user is missing or deactivated (caught by middleware/pre-find),
-      // we should also kill the Redis session immediately.
       await upstashClient.del(CACHE_KEYS.USER_SESSION(userId, sessionId));
-
+      clearAuthTokens(res);
       return res.status(401).json({
         status: "ERROR",
         message: "User account not found",
@@ -48,20 +55,39 @@ export const verifySession: RequestHandler = async (
       });
     }
 
-    // UPDATE HEARTBEAT: Extend session life or just update last active
+    /**
+     * 2. ACTIVE SESSION MAPPING
+     * Verify this specific sessionId is actually mapped to this physical device.
+     */
     const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
-    const deviceId = req.cookies["device_id"] || "unknown";
+    const sessionData: any = await upstashClient.get(sessionKey);
 
+    if (!sessionData || sessionData.deviceId !== deviceId) {
+      clearAuthTokens(res);
+      return res.status(401).json({
+        status: "ERROR",
+        message: "Session hardware mismatch or session revoked.",
+      });
+    }
+
+    /**
+     * 3. DB HEARTBEAT (Update the 15-day sliding window)
+     * Since this is a successful handshake, we refresh the trust in the DB.
+     */
+    await finalizeDeviceTrust(user, deviceId);
+
+    /**
+     * 4. CACHE HEARTBEAT
+     * Update Redis to keep the active session alive.
+     */
     await upstashClient.set(
       sessionKey,
       {
-        deviceId,
-        userAgent: req.get("user-agent") || "unknown",
-        ip: req.ip || "unknown",
+        ...sessionData,
         lastActive: new Date(),
       },
       { ex: 20 * 24 * 60 * 60 },
-    ); // keepTtl ensures we don't reset the 20-day expiration
+    );
 
     const safePayload = user.toObject();
     userSensitiveFields().forEach((field) => {

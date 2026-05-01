@@ -1,7 +1,10 @@
-import { requireVerification } from "@/auth/helpers/verification";
+import { requireVerification } from "@repo/shared";
 import { UserModel } from "@repo/database";
 import { Request, Response } from "express";
 
+/**
+ * Checks phone existence and evaluates hardware trust.
+ */
 export const checkPhone = async (req: Request, res: Response): Promise<any> => {
   const { phone } = req.body as { phone?: string };
 
@@ -13,21 +16,26 @@ export const checkPhone = async (req: Request, res: Response): Promise<any> => {
     });
   }
 
-  // Remove any non-numeric characters if you store plain numbers
-  // Or just trim if you store them as formatted strings
+  // Ensure only numeric characters for lookup
   const normalizedPhone = phone.replace(/\D/g, "");
 
   try {
-    // Check for an existing user (including deactivated ones)
     const existingUser = await UserModel.findOne({
-      phone: normalizedPhone,
+      phoneNumber: normalizedPhone,
     }).setOptions({ skipFilter: true });
 
     if (existingUser) {
-      const userId = String(existingUser._id);
       const deviceId = req.cookies["device_id"] || "unknown";
-      // Pass the deviceId to the verification logic
-      const needsVerification = await requireVerification(userId, deviceId);
+
+      /**
+       * EVALUATE TRUST:
+       * Passing the full document allows the helper to check the 15-day window
+       * against the hardware registry.
+       */
+      const needsVerification = await requireVerification(
+        existingUser,
+        deviceId,
+      );
 
       const isVerified =
         existingUser.isEmailVerified || existingUser.isPhoneVerified;
@@ -54,7 +62,6 @@ export const checkPhone = async (req: Request, res: Response): Promise<any> => {
       });
     }
 
-    // Phone is available
     return res.status(200).json({
       status: "SUCCESS",
       isExisting: false,

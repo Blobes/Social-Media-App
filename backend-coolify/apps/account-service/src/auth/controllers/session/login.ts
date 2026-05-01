@@ -4,6 +4,12 @@ import {
   genRefreshTokens,
   IAuthRequest,
   userSensitiveFields,
+  findUserSessions,
+  upstashClient,
+  CACHE_KEYS,
+  IJwtUser,
+  finalizeDeviceTrust,
+  toJwtUser,
 } from "@repo/shared";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
@@ -13,11 +19,16 @@ interface LoginRequest extends Request {
   body: {
     identifier: string;
     password: string;
+    deviceId?: string;
   };
 }
 
+/**
+ * Maps a unique Session ID to a Trusted Device and cleans up hardware collisions.
+ */
 const loginUser = async (req: LoginRequest, res: Response): Promise<any> => {
-  const { identifier, password } = req.body;
+  const { identifier, password, deviceId: bodyDeviceId } = req.body;
+  const deviceId = req.cookies["device_id"] || bodyDeviceId;
 
   if (!identifier || !password) {
     return res.status(400).json({
@@ -27,23 +38,18 @@ const loginUser = async (req: LoginRequest, res: Response): Promise<any> => {
     });
   }
 
+  if (!deviceId) {
+    return res.status(400).json({
+      status: "ERROR",
+      message: "Device ID required.",
+      payload: null,
+    });
+  }
+
   const normalizedIdentifier = identifier.toLowerCase().trim();
 
-  // Helper to determine the type of identifier for dynamic messaging
-  const getIdentifierType = (val: string): string => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\+?[\d\s-]{10,}$/; // Basic check for digits/length
-
-    if (emailRegex.test(val)) return "Email address";
-    if (phoneRegex.test(val)) return "Phone number";
-    return "Username";
-  };
-
-  const idType = getIdentifierType(normalizedIdentifier);
-
   try {
-    // Find user
-    let user = await UserModel.findOne({
+    const user = await UserModel.findOne({
       $or: [
         { email: normalizedIdentifier },
         { username: { $regex: new RegExp(`^${normalizedIdentifier}$`, "i") } },
@@ -51,54 +57,80 @@ const loginUser = async (req: LoginRequest, res: Response): Promise<any> => {
       ],
     }).setOptions({ skipFilter: true });
 
-    // Handle User Not Found
     if (!user) {
       return res.status(400).json({
         status: "ERROR",
-        message: `${idType} not found. Please check your spelling and try again.`,
+        message: "User not found.",
         payload: null,
       });
     }
 
-    // Handle Deactivated User
     if (user.isDeactivated) {
       return res.status(200).json({
         status: "DEACTIVATED",
-        message: `The account associated with this ${idType.toLowerCase()} is deactivated. Please restore it to log in.`,
-        payload: {
-          userId: user._id,
-          email: user.email,
-          phoneNumber: user.phoneNumber,
-        },
+        message: "Account deactivated.",
+        payload: { userId: user._id, email: user.email },
       });
     }
 
-    // 3. Password Verification
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
         status: "UNAUTHORIZED",
-        message: `Incorrect password for this ${idType.toLowerCase()}.`,
+        message: "Incorrect password.",
         payload: null,
       });
     }
 
-    // Token Generation
+    /**
+     * 1. DB TRUST MAPPING
+     * Update the hardware's trust status in the User Model registry.
+     */
+    await finalizeDeviceTrust(user, deviceId);
+
+    /**
+     * 2. REDIS HARDWARE ENFORCEMENT
+     * Find any existing session keys in Redis that map to this deviceId
+     * and delete them to prevent multiple sessions on one device.
+     */
+    const userId = user._id.toString();
+    const existingDeviceSessions = await findUserSessions(
+      userId,
+      (s) => s.deviceId === deviceId,
+    );
+
+    if (existingDeviceSessions.length > 0) {
+      const keysToDelete = existingDeviceSessions.map((s) => s.key);
+      await upstashClient.del(...keysToDelete);
+    }
+
+    /**
+     * 3. NEW SESSION INITIALIZATION
+     * Generate a new unique sessionId and sync the primary anchor to cache.
+     */
     const sessionId = uuidv4();
+
+    // Sync Primary Device to Redis for middleware 'Owner' level checks
+    await upstashClient.set(
+      CACHE_KEYS.USER_PRIMARY_DEVICE(userId),
+      user.primaryDeviceId,
+    );
+
+    const jwtUser = toJwtUser(user, deviceId, sessionId);
+    // Refresh Tokens will map this sessionId to the deviceId in Redis
     const accessToken = genAccessTokens(
-      user,
+      jwtUser,
       req as IAuthRequest,
       res,
       sessionId,
     );
     const refreshToken = await genRefreshTokens(
-      user,
+      jwtUser,
       req as IAuthRequest,
       res,
       sessionId,
     );
 
-    // Sanitize response
     const safeData = user.toObject();
     userSensitiveFields().forEach((field) => {
       delete (safeData as any)[field];
@@ -115,7 +147,7 @@ const loginUser = async (req: LoginRequest, res: Response): Promise<any> => {
     console.error("Login Error:", error);
     return res.status(500).json({
       status: "ERROR",
-      message: error.message || "Internal server error during login.",
+      message: error.message || "Internal server error.",
       payload: null,
     });
   }

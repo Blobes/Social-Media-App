@@ -1,13 +1,14 @@
 import jwt from "jsonwebtoken";
 import { Response, NextFunction, RequestHandler } from "express";
-import { IAuthRequest, IJwtUser } from "../types/types";
 import { upstashClient } from "../services/upstash";
 import { CACHE_KEYS, getOrSetCache } from "../utils/redis/cache";
 import { clearAuthTokens } from "../utils/misc/tokens";
 import { UserModel } from "@repo/database";
-import { enforcePrimarySessionPolicy } from "../utils/misc/session";
+import { IAuthRequest, IJwtUser } from "../types/types";
+import { requireVerification } from "../utils/misc/deviceTrust";
 
-/** * Verifies JWT and validates the session/device fingerprint in Redis.
+/**
+ * Verifies JWT and validates the hardware mapping against the Trust Registry.
  */
 export const verifyAuthToken: RequestHandler = async (
   req: IAuthRequest,
@@ -22,51 +23,47 @@ export const verifyAuthToken: RequestHandler = async (
 
   if (!token) {
     return res.status(401).json({
-      message: "No token provided",
       status: "UNAUTHORIZED",
+      message: "No token provided",
       payload: null,
     });
   }
 
   try {
-    // 1. Verify JWT Signature and expiration
+    // JWT INTEGRITY
     const payload = jwt.verify(
       token,
       process.env.JWT_SECRET as string,
     ) as IJwtUser;
 
-    // Enforce primary session policy
-    const isWiped = await validatePrimarySession(payload.id);
-    if (isWiped) {
+    /**
+     * HARDWARE TRUST CHECK (The Heartbeat check)
+     * We check if the device ID is still trusted in the DB (within 15 days).
+     * We cache this for 10 minutes to avoid heavy DB hits on every API call.
+     */
+    const needsOtp = await validateHardwareTrust(payload.id, payload.deviceId);
+    if (needsOtp) {
       clearAuthTokens(res);
       return res.status(401).json({
         status: "UNAUTHORIZED",
-        message: "Account-wide logout: Primary session has expired.",
+        message: "Device trust expired. Please re-authenticate via OTP.",
       });
     }
 
-    // 2. STATEFUL CHECK: Retrieve session metadata from Redis
+    /**
+     * STATEFUL SESSION & FINGERPRINT MATCH
+     * Verify Redis mapping: sessionId must exist AND belong to this deviceId.
+     */
     const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
     const sessionData: any = await upstashClient.get(sessionKey);
 
-    if (!sessionData) {
-      clearAuthTokens(res);
-      return res.status(401).json({
-        message: "Session expired or revoked",
-        status: "UNAUTHORIZED",
-        payload: null,
-      });
-    }
-
-    // 3. FINGERPRINT CHECK: Ensure the device matches the session owner
     const currentDeviceId = req.cookies["device_id"] || "unknown";
-    if (sessionData.deviceId !== currentDeviceId) {
-      // Potential session hijacking or cross-device token leak
+
+    if (!sessionData || sessionData.deviceId !== currentDeviceId) {
       clearAuthTokens(res);
       return res.status(401).json({
-        message: "Device mismatch: Session restricted to original device",
         status: "UNAUTHORIZED",
-        payload: null,
+        message: "Session expired, revoked, or hardware mismatch.",
       });
     }
 
@@ -81,7 +78,7 @@ export const verifyAuthToken: RequestHandler = async (
   }
 };
 
-/** * Optional Auth: Attaches user data only if the session and device are valid.
+/** * Optional Auth: Attaches user data only if hardware and session are valid.
  */
 export const optVerifyToken: RequestHandler = async (
   req: IAuthRequest,
@@ -97,15 +94,15 @@ export const optVerifyToken: RequestHandler = async (
       process.env.JWT_SECRET as string,
     ) as IJwtUser;
 
+    const needsOtp = await validateHardwareTrust(payload.id, payload.deviceId);
+    if (needsOtp) return next();
+
     const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
     const sessionData: any = await upstashClient.get(sessionKey);
     const currentDeviceId = req.cookies["device_id"] || "unknown";
 
     if (sessionData && sessionData.deviceId === currentDeviceId) {
       req.user = payload;
-    } else if (sessionData && sessionData.deviceId !== currentDeviceId) {
-      // Clear tokens if we detect a fingerprint mismatch even in optional routes
-      clearAuthTokens(res);
     }
 
     next();
@@ -114,21 +111,27 @@ export const optVerifyToken: RequestHandler = async (
   }
 };
 
-/** Validates the primary session status and enforces account-wide cleanup if expired.
- * Returns true if a wipe occurred, false otherwise.
+/**
+ * Checks the Database (via cache) to see if the device trust is still valid.
  */
-export const validatePrimarySession = async (
+export const validateHardwareTrust = async (
   userId: string,
+  deviceId: string,
 ): Promise<boolean> => {
-  // FETCH PRIMARY ID: Uses the cache-aside helper to avoid hitting MongoDB on every request.
-  const primarySessionId = await getOrSetCache<string | null>(
-    CACHE_KEYS.USER_PRIMARY_SESSION(userId),
+  /**
+   * We cache the user's trust registry for 10 minutes.
+   * If any other session updates 'updatedAt' or 'trustedDevices',
+   * this cache ensures we are reasonably in sync.
+   */
+  return await getOrSetCache<boolean>(
+    CACHE_KEYS.DEVICE_TRUST_STATUS(userId, deviceId),
     async () => {
-      const user = await UserModel.findById(userId).select("primarySessionId");
-      return user?.primarySessionId || null;
+      const user = await UserModel.findById(userId);
+      if (!user) return true; // Force verification if user doesn't exist
+
+      // Logic from our helper: returns true if OTP is required
+      return await requireVerification(user, deviceId);
     },
-    3600, // 1-hour cache
+    600, // 10 minutes cache
   );
-  if (!primarySessionId) return false;
-  return await enforcePrimarySessionPolicy(userId, primarySessionId);
 };

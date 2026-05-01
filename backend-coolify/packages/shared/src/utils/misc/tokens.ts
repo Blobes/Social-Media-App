@@ -1,22 +1,31 @@
 import jwt from "jsonwebtoken";
 import { Response } from "express";
 import crypto from "crypto";
-import { IAuthRequest } from "../../types/types";
+import { IAuthRequest, IJwtUser } from "../../types/types";
 import { upstashClient } from "../../services/upstash";
 import { CACHE_KEYS } from "../redis/cache";
 import { findUserSessions } from "./session";
+import { IUserDocument } from "@repo/database";
 
+/**
+ * Generates an Access Token and embeds session/device mapping.
+ */
 export const genAccessTokens = (
-  user: any,
+  user: IJwtUser,
   req: IAuthRequest,
   res: Response,
   sessionId: string,
 ) => {
-  const userId = user._id?.toString() || user.id?.toString();
-  // We embed the sessionId in the Access Token so the 'protect'
-  // middleware can verify the session state in Redis.
+  const userId = user.id.toString();
+  const deviceId = user.deviceId;
+
+  /**
+   * We embed both sessionId and deviceId.
+   * This allows the 'protect' middleware to verify the mapping in Redis
+   * extremely fast without needing a DB lookup.
+   */
   const accessToken = jwt.sign(
-    { id: userId, sessionId },
+    { id: userId, sessionId, deviceId },
     process.env.JWT_SECRET as string,
     { expiresIn: "15m" },
   );
@@ -30,50 +39,49 @@ export const genAccessTokens = (
     maxAge: 30 * 60 * 1000,
   });
 
-  // Hint access token cookie
+  // Client-side hint for UI logic
   res.cookie("is_logged_in", "true", {
     httpOnly: false,
     secure: true,
     sameSite: "none",
-    maxAge: 30 * 60 * 1000, // Match the expiry of the real token
+    maxAge: 30 * 60 * 1000,
   });
 
   return accessToken;
 };
 
 /**
- * Generates tokens and ensures a "Single Session Per Device" policy in Redis.
+ * Generates a signed Refresh JWT and registers the session metadata in Redis.
+ */
+/**
+ * Generates a signed Refresh JWT and registers the session metadata in Redis.
  */
 export const genRefreshTokens = async (
-  user: any,
+  user: IJwtUser,
   req: IAuthRequest,
   res: Response,
   sessionId: string,
 ) => {
-  const userId = user._id?.toString() || user.id?.toString();
-  const deviceId = req.cookies["device_id"] || "unknown";
+  const userId = user.id.toString();
+  const deviceId =
+    req.cookies["device_id"] || (req.body && req.body.deviceId) || "unknown";
 
-  // PREVENT DUPLICATE SESSIONS ON SAME DEVICE:
-  // Look for any existing sessions for this user that match the current deviceId.
-  const existingDeviceSessions = await findUserSessions(
-    userId,
-    (s) => s.deviceId === deviceId,
-  );
-  if (existingDeviceSessions.length > 0) {
-    const keysToDelete = existingDeviceSessions.map((s) => s.key);
-    // Batch delete old sessions for this device to keep Redis clean
-    await upstashClient.del(...keysToDelete);
-  }
-
+  /**
+   * 1. SIGN THE JWT
+   * Both sessionId and deviceId are bound to the token.
+   */
   const refreshToken = jwt.sign(
     { id: userId, sessionId, deviceId },
     process.env.REFRESH_TOKEN_SECRET as string,
     { expiresIn: "7d" },
   );
 
+  /**
+   * 2. REGISTER THE SESSION DATA
+   * Maps the session ID to the physical device fingerprint.
+   */
   const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
 
-  // REGISTER THE NEW SESSION: We set the sliding 20-day window here.
   await upstashClient.set(
     sessionKey,
     {
@@ -85,6 +93,9 @@ export const genRefreshTokens = async (
     { ex: 20 * 24 * 60 * 60 },
   );
 
+  /**
+   * 3. SET THE SECURE COOKIE
+   */
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true,
     secure: true,

@@ -1,73 +1,84 @@
-import jwt from "jsonwebtoken";
 import { Response, RequestHandler } from "express";
 import {
   CACHE_KEYS,
   clearAuthTokens,
+  finalizeDeviceTrust,
   genAccessTokens,
   IAuthRequest,
   IJwtUser,
   upstashClient,
 } from "@repo/shared";
+import { UserModel } from "@repo/database";
+import jwt from "jsonwebtoken";
 
 /**
- * Validates the refresh token against the stateless JWT check
- * and the stateful Redis session check.
+ * Validates hardware mapping and updates the trust heartbeat.
  */
 export const refreshSession: RequestHandler = async (
   req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
   const refreshToken = req.cookies.refresh_token;
+  const currentDeviceId = req.cookies["device_id"] || req.body.deviceId;
 
   if (!refreshToken) {
-    return res.status(401).json({
-      status: "UNAUTHORIZED",
-      message: "No refresh token provided",
-      payload: null,
-    });
+    return res
+      .status(401)
+      .json({ status: "ERROR", message: "No refresh token" });
   }
 
   try {
-    // 1. Verify the Refresh Token JWT signature
     const payload = jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET as string,
     ) as IJwtUser;
 
-    // 2. STATEFUL CHECK: Verify the session still exists in Redis
-    // Experts use this to allow instant global revokes
-    const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
-    const sessionActive = await upstashClient.exists(sessionKey);
-
-    if (!sessionActive) {
-      // Clear cookies if the session was killed in the backend
+    /**
+     * MAPPING CHECK 1: JWT to Hardware
+     */
+    if (payload.deviceId !== currentDeviceId) {
       clearAuthTokens(res);
-
-      return res.status(401).json({
-        status: "UNAUTHORIZED",
-        message: "Session has been revoked",
-        payload: null,
-      });
+      return res
+        .status(403)
+        .json({ status: "FORBIDDEN", message: "Device mismatch" });
     }
 
-    // 3. Generate a fresh Access Token
-    // We pass the existing sessionId to maintain the link to the Redis entry
-    const user = { id: payload.id };
-    genAccessTokens(user, req, res, payload.sessionId);
+    /**
+     * MAPPING CHECK 2: Redis Session
+     */
+    const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
+    const sessionData = (await upstashClient.get(sessionKey)) as any;
 
-    return res.status(200).json({
-      status: "SUCCESS",
-      message: "Token refreshed successfully",
-      payload: null,
-    });
+    if (!sessionData || sessionData.deviceId !== currentDeviceId) {
+      clearAuthTokens(res);
+      return res
+        .status(401)
+        .json({ status: "UNAUTHORIZED", message: "Invalid session mapping" });
+    }
+
+    /**
+     * DB HEARTBEAT
+     */
+    const user = await UserModel.findById(payload.id);
+    if (user) {
+      await finalizeDeviceTrust(user, currentDeviceId);
+    }
+
+    // Refresh Sliding Window in Redis
+    sessionData.lastActive = new Date();
+    await upstashClient.set(sessionKey, sessionData, { ex: 20 * 24 * 60 * 60 });
+
+    const jwtUser: IJwtUser = {
+      id: payload.id,
+      deviceId: payload.deviceId,
+      sessionId: payload.sessionId,
+    };
+
+    genAccessTokens(jwtUser, req, res, payload.sessionId);
+
+    return res.status(200).json({ status: "SUCCESS", message: "Refreshed" });
   } catch (err) {
-    // Catch-all for expired or tampered JWTs
     clearAuthTokens(res);
-
-    return res.status(401).json({
-      status: "UNAUTHORIZED",
-      message: "Expired or invalid refresh token",
-      payload: null,
-    });
+    return res.status(401).json({ status: "ERROR", message: "Invalid token" });
   }
 };

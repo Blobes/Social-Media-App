@@ -3,7 +3,7 @@
 import { apiClient, checkNetworkError } from "@repo/helpers";
 import { IUser, SERVER_API, ISinglePayload, FetchStatus } from "@repo/core";
 
-export const LoginService = () => {
+export const SharedLoginService = () => {
   // Use ISinglePayload with IUser as the generic type
   const verifyAndFetchUser = async (): Promise<ISinglePayload<IUser>> => {
     try {

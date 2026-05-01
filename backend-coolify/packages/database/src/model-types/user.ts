@@ -2,6 +2,15 @@ export type UserRole = "USER" | "ADMIN" | "MODERATOR";
 export type AccountStatus = "ACTIVE" | "DEACTIVATED" | "SUSPENDED" | "BANNED";
 export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
 
+/**
+ * Interface representing the trusted device registry entry.
+ */
+export interface ITrustedDevice {
+  deviceId: string;
+  lastVerifiedAt: Date;
+  name: string;
+}
+
 export interface IUserModel {
   _id: string;
 
@@ -32,8 +41,10 @@ export interface IUserModel {
   isPhoneVerified: boolean;
   lastEmailCodeSentAt?: Date | null;
   primarySessionId?: string | null;
+  primaryDeviceId?: string | null;
+  trustedDevices?: ITrustedDevice[];
 
-  // --- 4. IDENTITY UPDATES (NEWLY ADDED) ---
+  // --- 4. IDENTITY UPDATES ---
   pendingEmail?: string | null;
   lastEmailChangeAt?: Date | null;
   pendingPhoneNumber?: string | null;
@@ -51,10 +62,10 @@ export interface IUserModel {
   website?: string | null;
 
   // --- 6. ASSETS ---
-  profileImage?: string | null; // Usually returned as a URL string or ID string
+  profileImage?: string | null;
   coverImage?: string | null;
 
-  // --- 7. ONBOARDING & GEOGRAPHY (NEWLY ADDED) ---
+  // --- 7. ONBOARDING & GEOGRAPHY ---
   isOnboarded?: boolean;
   onboardingStep?: string | null;
   location?: string | null;
@@ -76,7 +87,7 @@ export interface IUserModel {
 
   // --- 9. LIFECYCLE ---
   isDeactivated: boolean;
-  deactivatedAt?: string | null; // NEWLY ADDED
+  deactivatedAt?: Date | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 }

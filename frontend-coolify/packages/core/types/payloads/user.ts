@@ -2,6 +2,12 @@ export type UserRole = "USER" | "ADMIN" | "MODERATOR";
 export type AccountStatus = "ACTIVE" | "DEACTIVATED" | "SUSPENDED" | "BANNED";
 export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
 
+export interface ITrustedDevice {
+  deviceId: string;
+  lastVerifiedAt: Date;
+  name: string;
+}
+
 export interface IUserPayload {
   _id?: string;
 
@@ -32,6 +38,8 @@ export interface IUserPayload {
   isPhoneVerified?: boolean;
   lastEmailCodeSentAt?: Date | string | null;
   primarySessionId?: string | null;
+  primaryDeviceId?: string | null;
+  trustedDevices?: ITrustedDevice[];
 
   // --- 4. IDENTITY UPDATES (NEWLY ADDED) ---
   pendingEmail?: string | null;

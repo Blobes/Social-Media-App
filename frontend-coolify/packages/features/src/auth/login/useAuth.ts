@@ -1,7 +1,7 @@
 "use client";
 
 import { usePage, useSnackbar, useGlobalStore } from "@repo/shared-hooks";
-import { LoginService } from "./service";
+import { SharedLoginService } from "./service";
 import { CLIENT_ROUTES, CACHE_KEYS } from "@repo/core";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
@@ -18,7 +18,7 @@ export const useAuth = () => {
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
 
   const { setSBMessage } = useSnackbar();
-  const { verifyAndFetchUser } = LoginService();
+  const { verifyAndFetchUser } = SharedLoginService();
   const { navigateTo } = usePage();
 
   const { refetch, isFetching } = useQuery({
