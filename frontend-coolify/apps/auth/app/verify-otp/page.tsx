@@ -6,12 +6,12 @@ import { Stack } from "@mui/material";
 import { VerifyOtp } from "./VerifyOtp";
 import { RestrictedUI } from "@repo/features";
 import { useCachedData } from "@repo/shared-hooks";
-import { QUERY_KEYS, OtpTransitData } from "@repo/core";
+import { CACHE_KEYS, OtpTransitData } from "@repo/core";
 
 export default function OtpPage() {
   const theme = useTheme();
   const cachedEntries = useCachedData<OtpTransitData>(
-    QUERY_KEYS.LOGIN_TRANSIT_DATA,
+    CACHE_KEYS.LOGIN_TRANSIT_DATA,
   );
   const transitData = cachedEntries[0];
 

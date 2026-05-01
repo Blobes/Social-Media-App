@@ -1,7 +1,7 @@
 "use client";
 
 import { useSnackbar, usePage } from "@repo/shared-hooks";
-import { QUERY_KEYS, CLIENT_ROUTES, IPage } from "@repo/core";
+import { CACHE_KEYS, CLIENT_ROUTES, IPage } from "@repo/core";
 import { queryClient } from "@repo/helpers";
 
 export const useFeedback = () => {
@@ -13,7 +13,7 @@ export const useFeedback = () => {
    */
   const onLoginSuccess = () => {
     // Clear transit cache
-    queryClient.removeQueries({ queryKey: QUERY_KEYS.LOGIN_TRANSIT_DATA });
+    queryClient.removeQueries({ queryKey: CACHE_KEYS.LOGIN_TRANSIT_DATA });
 
     // Notify User
     setSBMessage({
@@ -37,7 +37,7 @@ export const useFeedback = () => {
    */
   const onUpdateSuccess = () => {
     queryClient.removeQueries({
-      queryKey: QUERY_KEYS.ACCOUNT_UPDATE_TRANSIT_DATA,
+      queryKey: CACHE_KEYS.ACCOUNT_UPDATE_TRANSIT_DATA,
     });
     setSBMessage({
       msg: {

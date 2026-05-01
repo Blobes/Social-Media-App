@@ -23,11 +23,6 @@ export const useOtp = <P extends Purpose>(transitData: OtpTransitData<P>) => {
     return data.purpose === "LOGIN";
   };
 
-  // const cachedEntries = useCachedData<TransitData>(
-  //   QUERY_KEYS.LOGIN_TRANSIT_DATA,
-  // );
-  // const transitData = cachedEntries.length > 0 ? cachedEntries[0] : null;
-
   const [code, setCode] = useState("");
   const [timer, setTimer] = useState(60);
 

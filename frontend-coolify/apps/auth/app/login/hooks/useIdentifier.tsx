@@ -18,7 +18,7 @@ import {
   IUser,
   MenuRef,
   OtpTransitData,
-  QUERY_KEYS,
+  CACHE_KEYS,
 } from "@repo/core";
 import { StepName } from "../../types";
 import { OtpService } from "../../verify-otp/service";
@@ -90,7 +90,7 @@ export const useIdentifier = ({
         if (res.needsVerification && res.isOnboarded) {
           // setTransitData(payload);
           queryClient.setQueryData<OtpTransitData<"LOGIN">>(
-            [QUERY_KEYS.LOGIN_TRANSIT_DATA],
+            [CACHE_KEYS.LOGIN_TRANSIT_DATA],
             {
               _id: "transit:verification",
               identifier: input,

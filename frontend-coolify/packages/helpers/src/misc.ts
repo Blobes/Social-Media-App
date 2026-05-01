@@ -54,11 +54,15 @@ export const getOrCreateDeviceId = (): string => {
   if (!deviceId) {
     deviceId = crypto.randomUUID();
 
-    // 525600 minutes = 365 days
+    const isProd = window.location.hostname.includes("funstakes.net");
+
     setCookie("device_id", deviceId, 525600, {
-      domain: ".funstakes.net",
-      secure: true,
-      sameSite: "none",
+      // Only set domain in production to allow localhost to work
+      domain: isProd ? ".funstakes.net" : undefined,
+      // Only force secure/none in production or if using local HTTPS
+      secure: isProd || window.location.protocol === "https:",
+      sameSite: isProd ? "none" : "lax",
+      path: "/",
     });
   }
 
