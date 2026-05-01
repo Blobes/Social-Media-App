@@ -3,8 +3,8 @@
 import { useState, useCallback, useRef } from "react";
 import { vibrate } from "@repo/helpers";
 import { AuthStatus, QUEUE_KEYS, QueueItem, UIMode } from "@repo/core";
-import { usePostLikeSync } from "./usePostSync";
-import { usePostLikeMutation } from "./usePostMutation";
+import { usePostLikeSync } from "./useLikeSync";
+import { usePostLikeMutation } from "./useLikeMutation";
 import { SBMessage } from "@repo/shared-hooks";
 
 // The smallest like-only data shape shared across the hook.
@@ -38,7 +38,7 @@ export interface UsePostLikeContext {
   mode: UIMode;
   LoginPrompt?: React.ReactNode;
   updateStore?: (id: string, likedByMe: boolean, likeCount: number) => void;
-  queryKey?: string[];
+  queryKey?: string[] | string[][];
 }
 
 /**

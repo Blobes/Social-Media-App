@@ -3,13 +3,7 @@
 import React from "react";
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import {
-  CachedItem,
-  GenericStyle,
-  IPost,
-  IStake,
-  QUERY_KEYS,
-} from "@repo/core";
+import { GenericStyle, IStake } from "@repo/core";
 import { usePostSeen } from "../post/hooks/usePostSeen";
 
 interface StakeProps {
@@ -21,15 +15,7 @@ export const StakeCard = ({ stake, style = {} }: StakeProps) => {
   const theme = useTheme();
   const { content, media } = stake;
 
-  const stakeData: IPost = {
-    ...stake,
-    postType: "STAKE",
-  };
-  const cacheItem: CachedItem<IPost> = {
-    data: stakeData,
-    lastViewed: new Date(),
-  };
-  const { elementRef } = usePostSeen(cacheItem, [QUERY_KEYS.POST.STAKES]);
+  const { elementRef } = usePostSeen(stake._id, "STAKE");
 
   return (
     <Stack

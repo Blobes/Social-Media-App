@@ -2,6 +2,7 @@ import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 import gistRoutes from "./gist/gistRoutes";
 import feedRoutes from "./feed/feedRoutes";
+import postRoutes from "./sharedRoutes";
 import { corsConfig, healthRouter } from "@repo/shared";
 
 export default (app: Express) => {
@@ -20,6 +21,7 @@ export default (app: Express) => {
   });
 
   // ====== Routes ======
+  app.use("/post", postRoutes);
   app.use("/feed", feedRoutes);
   app.use("/gists", gistRoutes);
 

@@ -1,67 +1,93 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { CachedItem, IPost } from "@repo/core";
+import { useQueryClient, QueryKey } from "@tanstack/react-query";
+import { useRef, useEffect, useCallback } from "react";
+import { CACHE_KEYS, PostType } from "@repo/core";
+import { useIntersectionObserver } from "@repo/shared-hooks";
+import { PostService } from "../postService";
+import { updateCacheItem } from "@repo/helpers";
 
 /**
- * Marks a post as viewed with a timestamp.
- * Guarded against unnecessary cache updates that cause scroll jumping.
+ * Marks a post as viewed after a deliberate dwell time and updates multiple cache keys.
+ * @param postId - The ID of the post.
+ * @param postType - GIST or STAKE.
+ * @param affectedQueryKeys - Array of QueryKeys that should reflect the updated viewCount.
  */
-export const usePostSeen = (post: CachedItem<IPost>, queryKey: string[]) => {
+export const usePostSeen = (
+  postId: string,
+  postType: PostType,
+  affectedQueryKeys: QueryKey[] = [[CACHE_KEYS.POST.FEED]],
+) => {
   const queryClient = useQueryClient();
-  const elementRef = useRef<HTMLElement | null>(null);
+  const { markAsSeen } = PostService();
+  const viewTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Use a ref to track if we've already handled this specific ID in this mount cycle
-  const hasSeen = useRef(false);
+  const hasBeenSeen = !!queryClient.getQueryData([
+    CACHE_KEYS.POST.SEEN,
+    postId,
+  ]);
 
+  /**
+   * Cleanup timer on unmount.
+   */
   useEffect(() => {
-    // If the post already has a timestamp or we've processed it, don't bother
-    if (post.lastViewed || hasSeen.current) return;
+    return () => {
+      if (viewTimerRef.current) clearTimeout(viewTimerRef.current);
+    };
+  }, []);
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
+  const handleIntersect = useCallback(() => {
+    if (viewTimerRef.current || hasBeenSeen) return;
 
-        if (entry.isIntersecting && !hasSeen.current) {
-          hasSeen.current = true;
-          const specificKey = [...queryKey, post.data._id];
+    // Trigger update after 30 seconds of continuous visibility
+    viewTimerRef.current = setTimeout(async () => {
+      // Prevent further triggers in this session
+      queryClient.setQueryData([CACHE_KEYS.POST.SEEN, postId], new Date());
+
+      try {
+        const response = await markAsSeen(postId, postType);
+
+        if (response?.status === "SUCCESS" && response.payload?.viewCount) {
+          const newCount = response.payload.viewCount;
 
           /**
-           * Use an updater function that checks if changes are actually needed.
-           * This prevents triggering a re-render if the data is identical.
+           * Iterate through all affected keys (Feed, Gists, Stakes, Profile, etc.)
+           * and update the viewCount in each.
            */
-          queryClient.setQueryData(
-            specificKey,
-            (oldData: CachedItem<IPost> | undefined) => {
-              if (oldData?.lastViewed) return oldData;
-
-              return {
-                ...(oldData || post),
-                lastViewed: new Date(),
-              };
-            },
-          );
-
-          if (elementRef.current) {
-            observer.unobserve(elementRef.current);
-          }
+          affectedQueryKeys.forEach((key) => {
+            updateCacheItem(queryClient, key, postId, (oldPost: any) => ({
+              ...oldPost,
+              viewCount: newCount,
+            }));
+          });
         }
-      },
-      { threshold: 0.5 },
-    );
+      } catch (error) {
+        console.error(`[usePostSeen] Sync failed for ${postId}:`, error);
+      }
+    }, 30000);
+  }, [
+    postId,
+    postType,
+    markAsSeen,
+    queryClient,
+    affectedQueryKeys,
+    hasBeenSeen,
+  ]);
 
-    const currentElement = elementRef.current;
-    if (currentElement) {
-      observer.observe(currentElement);
+  const handleLeave = useCallback(() => {
+    if (viewTimerRef.current) {
+      clearTimeout(viewTimerRef.current);
+      viewTimerRef.current = null;
     }
+  }, []);
 
-    return () => {
-      observer.disconnect();
-    };
-    // Removed 'post' from dependencies to prevent observer cycles
-    // Only re-run if the ID or query target changes
-  }, [post.data._id, queryKey, queryClient]);
+  const { elementRef } = useIntersectionObserver({
+    onIntersect: handleIntersect,
+    onLeave: handleLeave,
+    threshold: 0.5,
+    enabled: !hasBeenSeen,
+    once: true,
+  });
 
   return { elementRef };
 };

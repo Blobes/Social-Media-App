@@ -12,6 +12,7 @@ export * from "./src/post/bookmark";
 export * from "./src/post/caption";
 export * from "./src/post/gist";
 export * from "./src/post/stake";
+export * from "./src/post/view";
 // User
 export * from "./src/user/socials";
 export * from "./src/user/idVerification";

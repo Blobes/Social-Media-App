@@ -8,7 +8,7 @@ import { IGist, MediaProps, UIMode } from "@repo/core";
 import { PostEngagement } from "../../post/components/engagement/Engagement";
 import { PostHeader } from "../../post/components/header/PostHeader";
 import { LikeState } from "./GistMedia";
-import { useGistLikeState } from "./hooks/useGistView";
+import { useGistLikeState } from "./hooks/useGistState";
 
 interface ViewProps {
   gist: IGist;

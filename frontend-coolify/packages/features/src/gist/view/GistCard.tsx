@@ -15,9 +15,7 @@ import {
   IGist,
   MediaProps,
   GenericStyle,
-  IPost,
-  QUERY_KEYS,
-  CachedItem,
+  CACHE_KEYS,
 } from "@repo/core";
 import { mediaData } from "@repo/assets";
 import { Feedback, WordTrimmer } from "@repo/shared-ui";
@@ -26,7 +24,7 @@ import { GistMedia } from "./GistMedia";
 import { PostHeader } from "../../post/components/header/PostHeader";
 import { Metrics } from "../../post/components/Metrics";
 import { PostEngagement } from "../../post/components/engagement/Engagement";
-import { usePostLike as useGistLike } from "../../post/hooks/usePostLike";
+import { usePostLike as useGistLike } from "../../post/hooks/like/usePostLike";
 import { usePostSeen } from "../../post/hooks/usePostSeen";
 
 interface GistProps {
@@ -71,22 +69,22 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
         mode,
         LoginPrompt: <Typography>Login to engage</Typography>,
         updateStore: updateGistLike,
-        queryKey: [QUERY_KEYS.POST.GISTS],
+        queryKey: [[CACHE_KEYS.POST.GISTS], [CACHE_KEYS.POST.FEED]],
       },
     );
 
-  const gistData: IPost = {
+  const gistData: IGist = {
     ...gist,
-    postType: "GIST",
     likedByMe,
     likeCount,
   };
-  const { latestCaption, media, author, createdAt } = gistData;
-  const cacheItem: CachedItem<IPost> = {
-    data: gistData,
-    lastViewed: new Date(),
-  };
-  const { elementRef } = usePostSeen(cacheItem, [QUERY_KEYS.POST.GISTS]);
+  const { latestCaption, media, author, createdAt, viewCount, commentCount } =
+    gistData;
+
+  const { elementRef } = usePostSeen(gist._id, "GIST", [
+    [CACHE_KEYS.POST.FEED],
+    [CACHE_KEYS.POST.GISTS],
+  ]);
 
   const gistMedia: MediaProps[] = media && media.length > 0 ? media : mediaData;
 
@@ -94,10 +92,11 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
     return <Feedback tagline="Deleted by author." />;
   }
 
+  // Dynamic metrics updated from gistData
   const postMetrics = [
     { label: "Like", count: likeCount, plural: "Likes" },
-    { label: "Reply", count: 1500, plural: "Replies" },
-    { label: "View", count: 20000, plural: "Views" },
+    { label: "Reply", count: commentCount || 1500, plural: "Replies" },
+    { label: "View", count: viewCount || 20000, plural: "Views" },
   ];
 
   return (

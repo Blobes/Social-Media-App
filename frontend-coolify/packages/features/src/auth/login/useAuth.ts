@@ -2,7 +2,7 @@
 
 import { usePage, useSnackbar, useGlobalStore } from "@repo/shared-hooks";
 import { LoginService } from "./service";
-import { CLIENT_ROUTES, QUERY_KEYS } from "@repo/core";
+import { CLIENT_ROUTES, CACHE_KEYS } from "@repo/core";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
@@ -22,7 +22,7 @@ export const useAuth = () => {
   const { navigateTo } = usePage();
 
   const { refetch, isFetching } = useQuery({
-    queryKey: [QUERY_KEYS.USER.SESSION],
+    queryKey: [CACHE_KEYS.USER.SESSION],
     queryFn: async () => {
       // Checking for the hint cookie before making a network request
       const hasToken = document.cookie

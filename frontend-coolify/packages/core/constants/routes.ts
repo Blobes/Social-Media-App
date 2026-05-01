@@ -74,6 +74,7 @@ export const API_BASE = {
   auth: "/auth",
   user: "/user",
   // Posts
+  post: "/post",
   feed: "/feed",
   gists: "/gists",
   media: "/media",
@@ -102,6 +103,7 @@ export const SERVER_API = {
   // Feed
   userFeed: (id: string) => `${API_BASE.feed}/${id}`,
   followersFeed: `${API_BASE.feed}/followers`,
+  postSeen: (id: string) => `${API_BASE.post}/${id}/seen`,
 
   // Gists
   likeGist: (id: string) => `${API_BASE.gists}/${id}/like`,

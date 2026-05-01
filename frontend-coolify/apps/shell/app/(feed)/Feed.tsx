@@ -1,25 +1,51 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { VibeSlider } from "./vibezSlider/Slider";
-import { Feedback, GistSkeleton, StakeSkeleton } from "@repo/shared-ui";
+import {
+  Feedback,
+  GistSkeleton,
+  ProgressIcon,
+  StakeSkeleton,
+} from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
 import { useFeed } from "./useFeed";
 import { useTheme } from "@mui/material/styles";
 import { GistCard, StakeCard } from "@repo/features";
 import { autoScroll } from "@repo/helpers";
-import { useCachedData } from "@repo/shared-hooks";
-import { IPost, QUERY_KEYS } from "@repo/core";
+import {
+  useCachedData,
+  useInfiniteScroll,
+  usePageCache,
+} from "@repo/shared-hooks";
+import { IPost, CACHE_KEYS } from "@repo/core";
 
 export const Feed = () => {
   const theme = useTheme();
-  const { feed: onlinePosts, message, isLoading, handleRefresh } = useFeed();
+  const {
+    feed: onlinePosts,
+    message,
+    isLoading,
+    handleRefresh,
+    rawData,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useFeed();
 
   const cachedPosts = useCachedData<IPost>([
-    [QUERY_KEYS.POST.GISTS],
-    [QUERY_KEYS.POST.STAKES],
+    [CACHE_KEYS.POST.GISTS],
+    [CACHE_KEYS.POST.STAKES],
   ]);
+
+  usePageCache(rawData, CACHE_KEYS.POST.FEED);
+
+  const { sentinelRef } = useInfiniteScroll({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  });
 
   // Determine which data to display. Priority: Online data > Cached data.
   const feed = onlinePosts.length > 0 ? onlinePosts : cachedPosts;
@@ -59,7 +85,9 @@ export const Feed = () => {
             type: "BUTTON",
             variant: "outlined",
             label: "Refresh",
-            action: handleRefresh,
+            action: () => {
+              handleRefresh();
+            },
           }}
           style={{
             container: {
@@ -84,18 +112,33 @@ export const Feed = () => {
           }}
         />
       ) : (
-        feed.map((post) => {
-          switch (post.postType) {
-            case "GIST":
-              return <GistCard key={post._id} gist={post} mode="ONLINE" />;
+        <>
+          {feed.map((post) => {
+            switch (post.postType) {
+              case "GIST":
+                return <GistCard key={post._id} gist={post} mode="ONLINE" />;
 
-            case "STAKE":
-              return <StakeCard key={post._id} stake={post} />;
+              case "STAKE":
+                return <StakeCard key={post._id} stake={post} />;
 
-            default:
-              <Typography>Post type not found</Typography>;
-          }
-        })
+              default:
+                <Typography>Post type not found</Typography>;
+            }
+          })}
+          {/* Pagination Sentinel */}
+          {hasNextPage && (
+            <Box
+              ref={sentinelRef}
+              sx={{
+                padding: theme.gap(4),
+                display: "flex",
+                justifyContent: "center",
+                minHeight: "40px",
+              }}>
+              {isFetchingNextPage && <ProgressIcon otherProps={{ size: 24 }} />}
+            </Box>
+          )}
+        </>
       )}
     </Stack>
   );

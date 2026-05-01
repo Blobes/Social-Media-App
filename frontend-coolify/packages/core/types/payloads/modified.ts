@@ -20,11 +20,20 @@ export interface ISinglePayload<T> {
   httpStatus?: number;
 }
 
+export interface ListMetaData {
+  totalDocs: number;
+  totalPages: number;
+  currentPage: number;
+  limit: number;
+  hasNextPage: boolean;
+}
+
 export interface IListPayload<T> {
   message: string;
   payload: T[] | null;
   status: FetchStatus;
   httpStatus?: number;
+  metaData?: ListMetaData;
 }
 
 export interface IMedia extends IMediaPayload {

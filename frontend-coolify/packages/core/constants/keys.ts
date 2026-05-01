@@ -11,11 +11,12 @@ export const QUEUE_KEYS = {
   },
 };
 
-export const QUERY_KEYS = {
+export const CACHE_KEYS = {
   [KeyType.POST]: {
     GISTS: "gists",
     STAKES: "stakes",
     FEED: "gists",
+    SEEN: "seen",
   },
   [KeyType.USER]: {
     SESSION: "auth_sessions",
@@ -25,4 +26,5 @@ export const QUERY_KEYS = {
   OFFLINE_CACHE: "offline_cache",
   LOGIN_TRANSIT_DATA: ["transit_data", "login"],
   ACCOUNT_UPDATE_TRANSIT_DATA: ["transit_data", "account_update"],
+  CACHE_PAGE: "cache_page",
 };

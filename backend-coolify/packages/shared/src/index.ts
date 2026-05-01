@@ -10,7 +10,7 @@ export * from "./types/types";
 // Services
 export * from "./services/auth/dispatchEmailCode";
 export * from "./services/auth/dispatchWhatsappCode";
-export * from "./services/topic";
+export * from "./utils/misc/topic";
 export * from "./services/user/publicStatus";
 export * from "./services/moderation/policy";
 export * from "./services/moderation/validateMedia";

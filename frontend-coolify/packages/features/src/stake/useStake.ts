@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { IStake } from "@repo/core";
+import { CACHE_KEYS, IStake } from "@repo/core";
 import { delay } from "@repo/helpers";
 import { stakeTestData } from "@repo/assets";
 
@@ -26,7 +26,7 @@ export const useStake = () => {
     refetch,
     error,
   } = useQuery({
-    queryKey: ["stakes"],
+    queryKey: [CACHE_KEYS.POST.STAKES],
     queryFn: fetchStakes,
     // Adjust staleTime as needed for production data
     staleTime: 1000 * 60 * 5,

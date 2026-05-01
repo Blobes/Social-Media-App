@@ -1,6 +1,13 @@
 "use client";
+import { CachedItem, CACHE_KEYS } from "@repo/core";
 import { useQueryClient } from "@tanstack/react-query";
-import { useMemo, useSyncExternalStore, useCallback, useRef } from "react";
+import {
+  useMemo,
+  useSyncExternalStore,
+  useCallback,
+  useRef,
+  useEffect,
+} from "react";
 
 /**
  * Retrieves cached data from granular TanStack Query buckets.
@@ -82,4 +89,33 @@ export const useCachedData = <
     ),
     getSnapshot,
   );
+};
+
+/**
+ * Progressively persists newly fetched pages into the Cache Page layer.
+ * Operates on flat data to avoid type infection.
+ */
+export const usePageCache = (data: any, baseKey: string) => {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!data?.pages) return;
+
+    /**
+     * Identify the most recently fetched page.
+     */
+    const pageIndex = data.pages.length - 1;
+    const latestPage = data.pages[pageIndex];
+
+    if (latestPage && latestPage.payload) {
+      /**
+       * Store the raw payload array for this page index.
+       * The persister dehydrate filter will catch this "CACHE_PAGE" key.
+       */
+      queryClient.setQueryData([CACHE_KEYS.CACHE_PAGE, baseKey, pageIndex], {
+        payload: latestPage.payload,
+        cachedAt: new Date(),
+      });
+    }
+  }, [data?.pages.length, baseKey, queryClient]);
 };

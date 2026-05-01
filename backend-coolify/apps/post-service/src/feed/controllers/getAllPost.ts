@@ -35,7 +35,7 @@ export const getAllPost = async (
 
         const pipeline = getStaticPostList({
           matchFilter,
-          limit: limit + 15, // Buffer for personalization/blocking filter
+          limit: limit, // Buffer for personalization/blocking filter
           skip,
         });
 
@@ -99,6 +99,9 @@ export const getAllPost = async (
 
     const finalPayload = hydrateSocialState(candidatePosts, socialMap);
 
+    const totalPages = Math.ceil(totalCount / limit);
+    const hasNextPage = page < totalPages;
+
     // --- 4. RESPONSE ---
     return res.status(200).json({
       status: "SUCCESS",
@@ -106,10 +109,10 @@ export const getAllPost = async (
       message: "Global feed fetched successfully",
       meta: {
         totalDocs: totalCount,
-        totalPages: Math.ceil(totalCount / limit),
+        totalPages,
         currentPage: page,
         limit,
-        hasNextPage: skip + finalPayload.length < totalCount,
+        hasNextPage,
       },
     });
   } catch (error: any) {

@@ -11,7 +11,7 @@ import { SBMessage } from "@repo/shared-hooks";
 export const usePostLikeMutation = (
   onLikeApi: (id: string) => Promise<any>,
   setSBMessage: (config: SBMessage) => void,
-  queryKey?: string[],
+  queryKey?: string[] | string[][],
   clearPendingLike?: (key: string, id: string) => void,
   updateStore?: (id: string, likedByMe: boolean, likeCount: number) => void,
 ) => {
@@ -21,12 +21,20 @@ export const usePostLikeMutation = (
     mutationFn: onLikeApi,
     onSuccess: (payload, id) => {
       if (payload && queryKey) {
-        updateCacheItem<IPost>(queryClient, queryKey, id, (oldItem) => ({
-          ...oldItem,
-          likedByMe: payload.likedByMe,
-          likeCount: payload.likeCount,
-          lastViewed: new Date(),
-        }));
+        // If queryKey is an array of arrays, loop through them
+        const keysToUpdate = Array.isArray(queryKey[0]) ? queryKey : [queryKey];
+        keysToUpdate.forEach((key) => {
+          updateCacheItem<IPost>(
+            queryClient,
+            key as string[],
+            id,
+            (oldItem) => ({
+              ...oldItem,
+              likedByMe: payload.likedByMe,
+              likeCount: payload.likeCount,
+            }),
+          );
+        });
       }
 
       // Keep the external store aligned with the final server-confirmed value.

@@ -26,7 +26,7 @@ export const getfollowersPosts = async (
 
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = 20;
+    const limit = 10;
     const skip = (page - 1) * limit;
 
     // --- 1. GET FOLLOWING LIST (Cached in Redis Set) ---

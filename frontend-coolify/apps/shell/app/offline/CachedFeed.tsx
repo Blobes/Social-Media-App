@@ -7,7 +7,7 @@ import { delay, autoScroll } from "@repo/helpers";
 import { Feedback, GistSkeleton, StakeSkeleton } from "@repo/shared-ui";
 import { CircleSlash2 } from "lucide-react";
 import { useCachedData, usePage } from "@repo/shared-hooks";
-import { CLIENT_ROUTES, IPost, QUERY_KEYS } from "@repo/core";
+import { CLIENT_ROUTES, IPost, CACHE_KEYS } from "@repo/core";
 import { GistCard, StakeCard } from "@repo/features";
 
 export const CachedFeed = () => {
@@ -17,8 +17,8 @@ export const CachedFeed = () => {
 
   // Pulling the reactive data from cache.
   const feed = useCachedData<IPost>([
-    [QUERY_KEYS.POST.GISTS],
-    [QUERY_KEYS.POST.STAKES],
+    [CACHE_KEYS.POST.GISTS],
+    [CACHE_KEYS.POST.STAKES],
   ]);
 
   // Artificial delay to ensure skeletons are visible and transitions are smooth.

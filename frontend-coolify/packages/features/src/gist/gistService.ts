@@ -16,26 +16,35 @@ import {
 import { useCallback } from "react";
 
 export const GistService = () => {
-  const fetchGistList = useCallback(async (): Promise<IListPayload<IGist>> => {
-    try {
-      const res = await apiClient<IListPayload<IGist>>(API_BASE.gists, {
-        method: "GET",
-      });
+  /**
+   * Fetches a paginated list of gists.
+   */
+  const fetchGistList = useCallback(
+    async (page = 1, limit = 20): Promise<IListPayload<IGist>> => {
+      try {
+        // Append pagination params to the request URL
+        const url = `${API_BASE.gists}?page=${page}&limit=${limit}`;
+        const res = await apiClient<IListPayload<IGist>>(url, {
+          method: "GET",
+        });
 
-      return {
-        status: res.status,
-        payload: res.payload ?? [],
-        message: res.message,
-      };
-    } catch (error: any) {
-      console.error("Gist Service Error:", error);
-      return {
-        status: error.status,
-        payload: null,
-        message: error.message ?? "Something went wrong while fetching gists",
-      };
-    }
-  }, []);
+        return {
+          status: res.status,
+          payload: res.payload ?? [],
+          message: res.message,
+          metaData: res.metaData, // Ensure meta is returned for hasNextPage logic
+        };
+      } catch (error: any) {
+        console.error("Gist Service Error:", error);
+        return {
+          status: error.status,
+          payload: null,
+          message: error.message ?? "Something went wrong while fetching gists",
+        };
+      }
+    },
+    [],
+  );
 
   interface LikeResponse {
     likedByMe: boolean;

@@ -44,10 +44,10 @@ const GistSchema = new Schema<IGistDocument>(
     editCount: { type: Number, default: 0 },
 
     // Engagement & Metrics
-    likeCount: { type: Number, default: 0 },
-    commentCount: { type: Number, default: 0 },
-    shareCount: { type: Number, default: 0 },
-    viewCount: { type: Number, default: 0 },
+    likeCount: { type: Number, default: 0, min: 0 },
+    commentCount: { type: Number, default: 0, min: 0 },
+    shareCount: { type: Number, default: 0, min: 0 },
+    viewCount: { type: Number, default: 0, min: 0 },
 
     // Discovery & Categorization
     topics: [{ type: String }],

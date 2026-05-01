@@ -1,22 +1,47 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { CreateGist } from "../create/CreateGist";
-import { Feedback, GistSkeleton } from "@repo/shared-ui";
+import { Feedback, GistSkeleton, ProgressIcon } from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { autoScroll } from "@repo/helpers";
 import { GistCard, useGists } from "@repo/features";
-import { useCachedData } from "@repo/shared-hooks";
-import { IGist, QUERY_KEYS } from "@repo/core";
+import {
+  useCachedData,
+  useInfiniteScroll,
+  usePageCache,
+} from "@repo/shared-hooks";
+import { IGist, CACHE_KEYS } from "@repo/core";
 
+/**
+ * Main Gists feed component.
+ */
 export const Gists = () => {
   const theme = useTheme();
-  const { gists: onlineGists, message, isLoading, handleRefresh } = useGists();
-  const cachedGists = useCachedData<IGist>([QUERY_KEYS.POST.GISTS]);
+  const {
+    gists: onlineGists,
+    rawData,
+    message,
+    isLoading,
+    handleRefresh,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useGists();
 
-  // Determine which data to display. Priority: Online data > Cached data.
+  const cachedGists = useCachedData<IGist>([CACHE_KEYS.POST.GISTS]);
+
+  const { sentinelRef } = useInfiniteScroll({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  });
+
+  // Activate progressive caching for the gist domain.
+  usePageCache(rawData, CACHE_KEYS.POST.GISTS);
+
   const gists = onlineGists.length > 0 ? onlineGists : cachedGists;
 
   const containerStyle = useMemo(
@@ -35,7 +60,7 @@ export const Gists = () => {
         ...(!isLoading && autoScroll().mobile),
       },
     }),
-    [theme, gists.length, isLoading, autoScroll],
+    [theme, gists.length, isLoading],
   );
 
   return (
@@ -52,7 +77,9 @@ export const Gists = () => {
             type: "BUTTON",
             variant: "outlined",
             label: "Refresh",
-            action: handleRefresh,
+            action: () => {
+              handleRefresh();
+            },
           }}
           style={{
             container: {
@@ -77,7 +104,25 @@ export const Gists = () => {
           }}
         />
       ) : (
-        gists.map((gist) => <GistCard key={gist._id} gist={gist} />)
+        <>
+          {gists.map((gist) => (
+            <GistCard key={gist._id} gist={gist} />
+          ))}
+
+          {/* Pagination Sentinel */}
+          {hasNextPage && (
+            <Box
+              ref={sentinelRef}
+              sx={{
+                padding: theme.gap(4),
+                display: "flex",
+                justifyContent: "center",
+                minHeight: "40px",
+              }}>
+              {isFetchingNextPage && <ProgressIcon otherProps={{ size: 24 }} />}
+            </Box>
+          )}
+        </>
       )}
     </Stack>
   );

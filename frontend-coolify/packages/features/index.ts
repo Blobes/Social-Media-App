@@ -8,7 +8,7 @@ export * from "./src/auth/restore/RestoreAccount";
 
 // Gist
 export * from "./src/gist/view/hooks/useGists";
-export * from "./src/gist/view/hooks/useGistView";
+export * from "./src/gist/view/hooks/useGistState";
 export * from "./src/gist/view/GistCard";
 export * from "./src/gist/gistService";
 
@@ -32,7 +32,7 @@ export * from "./src/post/components/engagement/Like";
 export * from "./src/post/components/header/PostHeader";
 export * from "./src/post/components/Metrics";
 // Hooks
-export * from "./src/post/hooks/usePostLike";
+export * from "./src/post/hooks/like/usePostLike";
 
 // Stateful components
 export * from "./src/components/RestrictedUI";

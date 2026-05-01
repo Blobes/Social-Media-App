@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useIntersectionObserver } from "./useObserver";
 
 /**
  * Optimized hook for tracking scroll direction.
@@ -61,4 +62,28 @@ export const usePageScroll = () => {
   return {
     handlePageScroll,
   };
+};
+
+interface InfiniteScrollOptions {
+  hasNextPage: boolean | undefined;
+  isFetchingNextPage: boolean;
+  fetchNextPage: () => void;
+}
+/**
+ * Triggers fetchNextPage when the sentinel enters the viewport.
+ */
+export const useInfiniteScroll = ({
+  hasNextPage,
+  isFetchingNextPage,
+  fetchNextPage,
+}: InfiniteScrollOptions) => {
+  const { elementRef } = useIntersectionObserver({
+    onIntersect: fetchNextPage,
+    threshold: 0.1,
+    rootMargin: "200px",
+    enabled: !!hasNextPage && !isFetchingNextPage,
+    once: false, // Keep observing for subsequent pages
+  });
+
+  return { sentinelRef: elementRef };
 };

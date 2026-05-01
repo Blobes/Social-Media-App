@@ -115,6 +115,7 @@ export const getPostSocialData = ({
     ...postDynamicLookup({ userId }),
     {
       $project: {
+        _id: 1,
         likeCount: { $ifNull: ["$likeCount", 0] },
         commentCount: { $ifNull: ["$commentCount", 0] },
         shareCount: { $ifNull: ["$shareCount", 0] },

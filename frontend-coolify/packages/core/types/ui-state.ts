@@ -119,5 +119,5 @@ export type OtpTransitData<P extends Purpose = Purpose> = TransitData<P> & {
 
 export interface CachedItem<T> {
   data: T;
-  lastViewed: Date;
+  lastViewed: Date | null;
 }

@@ -20,7 +20,7 @@ export const getGistList = async (
 
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
+    const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
 
     const globalCacheKey = CACHE_KEYS.POST_FEED_TYPE("GIST", page, limit);
@@ -30,7 +30,7 @@ export const getGistList = async (
       const pipeline = getStaticPostList({
         matchFilter: { status: "PUBLISHED" },
         postType: "GIST",
-        limit: limit + 10,
+        limit: limit + 5,
         skip,
       });
       const data = await GistModel.aggregate(pipeline);
