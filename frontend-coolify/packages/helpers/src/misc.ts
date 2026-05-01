@@ -57,7 +57,7 @@ export const getOrCreateDeviceId = (): string => {
     const isProd = window.location.hostname.includes("funstakes.net");
 
     setCookie("device_id", deviceId, 525600, {
-      // Only set domain in production to allow localhost to work
+      // Only set domain in production to allow localhost to work fine
       domain: isProd ? ".funstakes.net" : undefined,
       // Only force secure/none in production or if using local HTTPS
       secure: isProd || window.location.protocol === "https:",
