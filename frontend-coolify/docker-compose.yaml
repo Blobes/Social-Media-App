@@ -58,6 +58,8 @@ services:
         RUN pnpm install && pnpm --filter @repo/auth build
         FROM node:20-alpine AS runner
         WORKDIR /app
+        ENV NODE_ENV=production
+        ENV PORT=3002
         COPY --from=builder /app/apps/auth/.next/standalone ./
         COPY --from=builder /app/apps/auth/.next/static ./apps/auth/.next/static
         CMD ["node", "apps/auth/server.js"]
@@ -83,6 +85,8 @@ services:
         RUN pnpm install && pnpm --filter @repo/post build
         FROM node:20-alpine AS runner
         WORKDIR /app
+        ENV NODE_ENV=production
+        ENV PORT=3003
         COPY --from=builder /app/apps/post/.next/standalone ./
         COPY --from=builder /app/apps/post/.next/static ./apps/post/.next/static
         CMD ["node", "apps/post/server.js"]
