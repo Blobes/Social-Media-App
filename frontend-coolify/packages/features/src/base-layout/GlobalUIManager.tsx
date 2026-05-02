@@ -11,12 +11,7 @@ import {
   SplashUI,
 } from "@repo/shared-ui";
 import { usePathname } from "next/navigation";
-import {
-  registerSW,
-  delay,
-  getFromLocalStorage,
-  getOrCreateDeviceId,
-} from "@repo/helpers";
+import { registerSW, delay, getFromLocalStorage } from "@repo/helpers";
 import {
   useEventListener,
   useGlobalStore,
@@ -88,8 +83,6 @@ export const GlobalUIManager = ({
 
   // Global timer
   useEffect(() => {
-    // Establish device finger print
-    getOrCreateDeviceId();
     const heartbeat = setInterval(() => {
       useGlobalStore.getState().updateNow();
     }, 60000); // The "Pulse"

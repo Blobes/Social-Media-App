@@ -63,6 +63,7 @@ export interface IUserPayload {
   coverImage?: string | null;
 
   // --- 7. ONBOARDING & GEOGRAPHY (NEWLY ADDED) ---
+  isOnboarded?: boolean;
   onboardingStep?: string | null;
   location?: string | null;
   country?: string | null;

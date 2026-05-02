@@ -1,6 +1,7 @@
-import { UserModel } from "@repo/database";
+import { DeviceModel, UserModel } from "@repo/database";
 import {
   CACHE_KEYS,
+  ensurePrimaryDevice,
   hashCode,
   invalidatePattern,
   setOtpChannel,
@@ -17,11 +18,10 @@ import {
  * Verifies OTP and delegates post-verification logic to imported handlers.
  */
 export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
-  const { source, code, purpose, deviceId } = req.body as {
+  const { source, code, purpose } = req.body as {
     source?: string;
     code?: string;
     purpose?: VerificationPurpose;
-    deviceId?: string;
   };
 
   if (!source || !code || !purpose) {
@@ -32,6 +32,9 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
     });
     return;
   }
+
+  // 1. Identify Identity Hint (The Device Token from Cookie)
+  const deviceToken = req.cookies["device_token"];
 
   const normalized = source.toLowerCase().trim();
   const otpChannel = setOtpChannel(normalized);
@@ -50,7 +53,7 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
       otpChannel === "EMAIL"
         ? { email: normalized }
         : { phoneNumber: normalized },
-    );
+    ).setOptions({ skipFilter: true });
 
     if (!user) {
       res.status(404).json({
@@ -61,7 +64,7 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // 1. DUMB VALIDATION: Check code and expiry
+    // 2. OTP VALIDATION
     if (!user.verificationCode || !user.verificationExpiry) {
       res.status(400).json({
         status: "ERROR",
@@ -90,13 +93,13 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
     }
 
     /**
-     * 2. ACTION DELEGATION: Execute logic based on the 'purpose' flag
+     * 3. ACTION DELEGATION
      */
     switch (purpose) {
       case "LOGIN":
-        // Reset 15-day window/trust device on login verification
-        if (deviceId) {
-          await handleDeviceTrust(user, deviceId);
+        // Reset the 15-day trust window for the specific device linked to this cookie
+        if (deviceToken) {
+          await handleDeviceTrust(user, deviceToken, req);
         }
         await handleChannelVerification(user, otpChannel);
         break;
@@ -106,12 +109,23 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
         break;
 
       default:
-        // Default to just verifying the channel if purpose is unrecognized
         await handleChannelVerification(user, otpChannel);
         break;
     }
 
-    // 3. CLEANUP: Clear code and persist changes
+    // 4. SELF-HEAL PRIMARY
+    // If the user just verified a device but has no primary assigned, fix it now.
+    const currentDeviceId = deviceToken
+      ? (
+          await DeviceModel.findOne({ userId: user._id, deviceToken }).select(
+            "_id",
+          )
+        )?._id
+      : undefined;
+
+    await ensurePrimaryDevice(user, currentDeviceId?.toString());
+
+    // 5. CLEANUP
     user.verificationCode = null;
     user.verificationExpiry = null;
 

@@ -3,12 +3,13 @@ import { Response, NextFunction, RequestHandler } from "express";
 import { upstashClient } from "../services/upstash";
 import { CACHE_KEYS, getOrSetCache } from "../utils/redis/cache";
 import { clearAuthTokens } from "../utils/misc/tokens";
-import { UserModel } from "@repo/database";
+import { DeviceModel } from "@repo/database";
 import { IAuthRequest, IJwtUser } from "../types/types";
-import { requireVerification } from "../utils/misc/deviceTrust";
+import { evaluateDeviceTrust } from "../services/device";
+import { getOrSetDeviceToken } from "../utils/misc/device";
 
 /**
- * Verifies JWT and validates the hardware mapping against the Trust Registry.
+ * Verifies JWT and validates the hardware mapping against the new Device Registry.
  */
 export const verifyAuthToken: RequestHandler = async (
   req: IAuthRequest,
@@ -29,37 +30,38 @@ export const verifyAuthToken: RequestHandler = async (
     });
   }
 
+  // Ensure a hardware identity hint exists for this and future requests
+  const deviceToken = getOrSetDeviceToken(req, res);
+
   try {
-    // JWT INTEGRITY
+    // JWT Integrity check
     const payload = jwt.verify(
       token,
       process.env.JWT_SECRET as string,
     ) as IJwtUser;
 
-    /**
-     * HARDWARE TRUST CHECK (The Heartbeat check)
-     * We check if the device ID is still trusted in the DB (within 15 days).
-     * We cache this for 10 minutes to avoid heavy DB hits on every API call.
-     */
-    const needsOtp = await validateHardwareTrust(payload.id, payload.deviceId);
+    // Verifying the device exists and isn't stale within the trust window
+    const needsOtp = await validateHardwareTrust(
+      payload.id,
+      deviceToken,
+      payload.deviceId,
+    );
+
     if (needsOtp) {
       clearAuthTokens(res);
       return res.status(401).json({
         status: "UNAUTHORIZED",
-        message: "Device trust expired. Please re-authenticate via OTP.",
+        message:
+          "Device trust expired or unknown hardware. Please re-authenticate.",
       });
     }
 
-    /**
-     * STATEFUL SESSION & FINGERPRINT MATCH
-     * Verify Redis mapping: sessionId must exist AND belong to this deviceId.
-     */
+    // Verify Redis mapping: sessionId must exist and belong to the payload Device ID
     const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
     const sessionData: any = await upstashClient.get(sessionKey);
 
-    const currentDeviceId = req.cookies["device_id"] || "unknown";
-
-    if (!sessionData || sessionData.deviceId !== currentDeviceId) {
+    // Comparing the session deviceId against the JWT identity fingerprint
+    if (!sessionData || sessionData.deviceId !== payload.deviceId) {
       clearAuthTokens(res);
       return res.status(401).json({
         status: "UNAUTHORIZED",
@@ -86,7 +88,8 @@ export const optVerifyToken: RequestHandler = async (
   next: NextFunction,
 ): Promise<void> => {
   const token = req.cookies.access_token;
-  if (!token) return next();
+  const deviceToken = req.cookies.device_token;
+  if (!token || !deviceToken) return next();
 
   try {
     const payload = jwt.verify(
@@ -94,14 +97,17 @@ export const optVerifyToken: RequestHandler = async (
       process.env.JWT_SECRET as string,
     ) as IJwtUser;
 
-    const needsOtp = await validateHardwareTrust(payload.id, payload.deviceId);
+    const needsOtp = await validateHardwareTrust(
+      payload.id,
+      deviceToken,
+      payload.deviceId,
+    );
     if (needsOtp) return next();
 
     const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
     const sessionData: any = await upstashClient.get(sessionKey);
-    const currentDeviceId = req.cookies["device_id"] || "unknown";
 
-    if (sessionData && sessionData.deviceId === currentDeviceId) {
+    if (sessionData && sessionData.deviceId === payload.deviceId) {
       req.user = payload;
     }
 
@@ -112,25 +118,27 @@ export const optVerifyToken: RequestHandler = async (
 };
 
 /**
- * Checks the Database (via cache) to see if the device trust is still valid.
+ * Checks the Device Registry (via cache) to see if the device trust is still valid.
  */
 export const validateHardwareTrust = async (
   userId: string,
-  deviceId: string,
+  deviceToken: string | undefined,
+  jwtDeviceId: string,
 ): Promise<boolean> => {
-  /**
-   * We cache the user's trust registry for 10 minutes.
-   * If any other session updates 'updatedAt' or 'trustedDevices',
-   * this cache ensures we are reasonably in sync.
-   */
+  // We cache the result to prevent hitting MongoDB on every single request
   return await getOrSetCache<boolean>(
-    CACHE_KEYS.DEVICE_TRUST_STATUS(userId, deviceId),
+    CACHE_KEYS.DEVICE_TRUST_STATUS(userId, deviceToken || "none"),
     async () => {
-      const user = await UserModel.findById(userId);
-      if (!user) return true; // Force verification if user doesn't exist
+      if (!deviceToken) return true;
+      const device = await DeviceModel.findOne({ userId, deviceToken });
+      // If the device doesn't exist, or it's not the one assigned to this JWT session
+      if (!device || device._id.toString() !== jwtDeviceId) {
+        return true;
+      }
+      const trust = await evaluateDeviceTrust(device);
 
-      // Logic from our helper: returns true if OTP is required
-      return await requireVerification(user, deviceId);
+      // Return true if verification is required (not trusted)
+      return !trust.trusted;
     },
     600, // 10 minutes cache
   );

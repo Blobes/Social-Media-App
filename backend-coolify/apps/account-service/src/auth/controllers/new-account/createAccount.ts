@@ -13,10 +13,9 @@ import {
   IAuthRequest,
   otpQueue,
   OtpType,
-  upstashClient,
-  CACHE_KEYS,
-  finalizeDeviceTrust,
   toJwtUser,
+  getOrSetDeviceToken,
+  upsertDevice,
 } from "@repo/shared";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
@@ -37,7 +36,9 @@ export const createAccount = async (
   res: Response,
 ): Promise<any> => {
   const { email, password, firstName, lastName, phone } = req.body;
-  const deviceId = req.cookies["device_id"] || "unknown";
+
+  // Ensuring identity hint is set for the browser
+  const deviceToken = getOrSetDeviceToken(req, res);
 
   if (!email || !password || !firstName || !lastName) {
     return res.status(400).json({
@@ -79,17 +80,14 @@ export const createAccount = async (
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const code = genVerificationCode();
 
+    const code = genVerificationCode();
+    // const clientIp = getClientIp(req); // Don't remove or touch just leave as is
     const randomIp = generateRandomIp();
     const userLocation = await getLocationFromIp(randomIp);
-
     const sessionId = uuidv4();
 
-    /**
-     * INITIALIZE USER WITH HARDWARE ANCHOR
-     * We set the primaryDeviceId to the current device.
-     */
+    // Initializing user document
     const newUser = new UserModel({
       email: testEmail,
       password: hashedPassword,
@@ -101,10 +99,6 @@ export const createAccount = async (
       verificationCode: hashCode(code),
       verificationExpiry: new Date(Date.now() + 10 * 60 * 1000),
       lastEmailCodeSentAt: new Date(),
-
-      // Updated: Use primaryDeviceId instead of primarySessionId
-      primaryDeviceId: deviceId,
-
       isNotable: notability.isVIPCandidate,
       meritsVerification: notability.isVIPCandidate,
       verificationSignals: {
@@ -114,12 +108,11 @@ export const createAccount = async (
       },
     });
 
-    /**
-     * TRUST FINALIZATION
-     * Add this device to the trustedDevices registry.
-     */
-    await finalizeDeviceTrust(newUser, deviceId);
+    // Explicitly saving user first so the ID exists for the device relation
     await newUser.save();
+
+    // Registering the device and anchoring it as primary
+    const device = await upsertDevice(newUser, deviceToken, req);
 
     await otpQueue().add(
       "send-email-otp",
@@ -131,7 +124,8 @@ export const createAccount = async (
       },
     );
 
-    const jwtUser = toJwtUser(newUser, deviceId, sessionId);
+    // Identity pinning using the registered device record
+    const jwtUser = toJwtUser(newUser, device._id.toString(), sessionId);
 
     const accessToken = genAccessTokens(
       jwtUser,
@@ -139,6 +133,7 @@ export const createAccount = async (
       res,
       sessionId,
     );
+
     const refreshToken = await genRefreshTokens(
       jwtUser,
       req as IAuthRequest,
@@ -146,36 +141,10 @@ export const createAccount = async (
       sessionId,
     );
 
-    // Prepare session metadata for Redis
-    const sessionKey = CACHE_KEYS.USER_SESSION(
-      newUser._id.toString(),
-      sessionId,
-    );
-    await upstashClient.set(
-      sessionKey,
-      {
-        deviceId,
-        userAgent: req.get("user-agent") || "unknown",
-        ip: getClientIp(req),
-        lastActive: new Date(),
-      },
-      { ex: 20 * 24 * 60 * 60 }, // 20 days
-    );
-
     const safeData = newUser.toObject();
     userSensitiveFields().forEach((field) => {
       delete (safeData as any)[field];
     });
-
-    /**
-     * CACHE SYNC:
-     * Map the Primary Device to the user so middlewares can verify trust instantly.
-     */
-    await upstashClient.set(
-      CACHE_KEYS.USER_PRIMARY_DEVICE(safeData._id.toString()),
-      deviceId,
-      { ex: 3600 },
-    );
 
     return res.status(200).json({
       status: "SUCCESS",

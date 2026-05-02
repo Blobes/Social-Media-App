@@ -4,6 +4,7 @@ import "./processors/postModeration";
 import { otpDispatchWorker } from "./processors/codeDispatch";
 import { postModerationWorker } from "./processors/postModeration";
 import appLoader from "./loader";
+import { startDeviceCleanupTask } from "./automations/cleanup/devices";
 
 const startServer = async () => {
   initEnv(); // Load the environment first
@@ -34,6 +35,7 @@ startServer();
 
 otpDispatchWorker();
 postModerationWorker();
+startDeviceCleanupTask();
 
 // Background workers
 // initUserCleanup()

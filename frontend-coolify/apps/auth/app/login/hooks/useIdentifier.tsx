@@ -87,20 +87,21 @@ export const useIdentifier = ({
 
       // 2. Handle Existing User
       if (res.status === "SUCCESS" && res.isExisting === true) {
-        if (res.needsVerification && res.isOnboarded) {
-          // setTransitData(payload);
-          queryClient.setQueryData<OtpTransitData<"LOGIN">>(
-            [CACHE_KEYS.LOGIN_TRANSIT_DATA],
-            {
-              _id: "transit:verification",
-              identifier: input,
-              channel: inputType,
-              nextStep: "PASSWORD",
-              purpose: "LOGIN",
-              payload: res.payload as IUser,
-            },
-          );
+        // Create the transit data object
+        const transitData: OtpTransitData<"LOGIN"> = {
+          _id: "transit:verification",
+          identifier: input,
+          channel: inputType,
+          nextStep: "PASSWORD",
+          purpose: "LOGIN",
+          payload: res.payload as IUser,
+        };
 
+        if (res.needsVerification && res.isOnboarded) {
+          queryClient.setQueryData(
+            [CACHE_KEYS.LOGIN_TRANSIT_DATA],
+            transitData,
+          );
           try {
             await sendOtp({ identifier: input });
             navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true });
@@ -111,6 +112,7 @@ export const useIdentifier = ({
           }
         }
 
+        queryClient.setQueryData([CACHE_KEYS.LOGIN_TRANSIT_DATA], transitData);
         setIdentifier?.(input);
         setStep?.("PASSWORD");
       }

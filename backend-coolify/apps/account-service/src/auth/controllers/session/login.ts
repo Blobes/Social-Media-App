@@ -1,15 +1,14 @@
-import { UserModel } from "@repo/database";
+import { IUserDocument, UserModel } from "@repo/database";
 import {
   genAccessTokens,
   genRefreshTokens,
   IAuthRequest,
   userSensitiveFields,
-  findUserSessions,
   upstashClient,
   CACHE_KEYS,
-  IJwtUser,
-  finalizeDeviceTrust,
   toJwtUser,
+  getOrSetDeviceToken,
+  upsertDevice,
 } from "@repo/shared";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
@@ -19,16 +18,16 @@ interface LoginRequest extends Request {
   body: {
     identifier: string;
     password: string;
-    deviceId?: string;
   };
 }
-
 /**
- * Maps a unique Session ID to a Trusted Device and cleans up hardware collisions.
+ * Executes the login flow using the decoupled Device Registry and Redis session management.
  */
-const loginUser = async (req: LoginRequest, res: Response): Promise<any> => {
-  const { identifier, password, deviceId: bodyDeviceId } = req.body;
-  const deviceId = req.cookies["device_id"] || bodyDeviceId;
+export const loginUser = async (
+  req: LoginRequest,
+  res: Response,
+): Promise<any> => {
+  const { identifier, password } = req.body;
 
   if (!identifier || !password) {
     return res.status(400).json({
@@ -38,14 +37,7 @@ const loginUser = async (req: LoginRequest, res: Response): Promise<any> => {
     });
   }
 
-  if (!deviceId) {
-    return res.status(400).json({
-      status: "ERROR",
-      message: "Device ID required.",
-      payload: null,
-    });
-  }
-
+  const deviceToken = getOrSetDeviceToken(req, res);
   const normalizedIdentifier = identifier.toLowerCase().trim();
 
   try {
@@ -82,54 +74,32 @@ const loginUser = async (req: LoginRequest, res: Response): Promise<any> => {
       });
     }
 
-    /**
-     * 1. DB TRUST MAPPING
-     * Update the hardware's trust status in the User Model registry.
-     */
-    await finalizeDeviceTrust(user, deviceId);
+    // 1. HARDWARE REGISTRY & PRIMARY SELF-HEAL:
+    // upsertDevice internally calls ensurePrimaryDevice(user, device._id).
+    const device = await upsertDevice(user, deviceToken, req);
 
-    /**
-     * 2. REDIS HARDWARE ENFORCEMENT
-     * Find any existing session keys in Redis that map to this deviceId
-     * and delete them to prevent multiple sessions on one device.
-     */
     const userId = user._id.toString();
-    const existingDeviceSessions = await findUserSessions(
-      userId,
-      (s) => s.deviceId === deviceId,
-    );
+    const deviceIdString = device._id.toString();
 
-    if (existingDeviceSessions.length > 0) {
-      const keysToDelete = existingDeviceSessions.map((s) => s.key);
-      await upstashClient.del(...keysToDelete);
-    }
-
-    /**
-     * 3. NEW SESSION INITIALIZATION
-     * Generate a new unique sessionId and sync the primary anchor to cache.
-     */
+    // 2. SESSION INITIALIZATION
     const sessionId = uuidv4();
 
-    // Sync Primary Device to Redis for middleware 'Owner' level checks
+    // Sync the primary device reference for high-speed middleware checks
     await upstashClient.set(
       CACHE_KEYS.USER_PRIMARY_DEVICE(userId),
-      user.primaryDeviceId,
+      user.primaryDeviceId?.toString(),
     );
 
-    const jwtUser = toJwtUser(user, deviceId, sessionId);
-    // Refresh Tokens will map this sessionId to the deviceId in Redis
+    const jwtUser = toJwtUser(user as IUserDocument, deviceIdString, sessionId);
+
     const accessToken = genAccessTokens(
       jwtUser,
       req as IAuthRequest,
       res,
       sessionId,
     );
-    const refreshToken = await genRefreshTokens(
-      jwtUser,
-      req as IAuthRequest,
-      res,
-      sessionId,
-    );
+
+    await genRefreshTokens(jwtUser, req as IAuthRequest, res, sessionId);
 
     const safeData = user.toObject();
     userSensitiveFields().forEach((field) => {
@@ -140,7 +110,6 @@ const loginUser = async (req: LoginRequest, res: Response): Promise<any> => {
       status: "SUCCESS",
       message: "Logged in successfully.",
       accessToken,
-      refreshToken,
       payload: safeData,
     });
   } catch (error: any) {
@@ -152,5 +121,3 @@ const loginUser = async (req: LoginRequest, res: Response): Promise<any> => {
     });
   }
 };
-
-export default loginUser;

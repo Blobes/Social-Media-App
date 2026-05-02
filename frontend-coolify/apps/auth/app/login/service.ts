@@ -1,12 +1,11 @@
 "use client";
 
-import { apiClient, getOrCreateDeviceId } from "@repo/helpers";
+import { apiClient } from "@repo/helpers";
 import { IUser, ISinglePayload, SERVER_API, Purpose } from "@repo/core";
 
 interface LoginCredentials {
   identifier: string;
   password: string;
-  deviceId?: string;
 }
 interface LoginResponse extends ISinglePayload<IUser> {
   fixedMsg?: string;
@@ -27,8 +26,6 @@ export interface checkResponse extends ISinglePayload<IUser> {
 }
 
 export const LoginService = () => {
-  const deviceId = getOrCreateDeviceId();
-
   const checkEmail = async (email: string): Promise<checkResponse> => {
     return await apiClient<checkResponse>(SERVER_API.checkEmail, {
       method: "POST",
@@ -58,7 +55,7 @@ export const LoginService = () => {
   ): Promise<LoginResponse> => {
     return await apiClient<LoginResponse>(SERVER_API.login, {
       method: "POST",
-      body: JSON.stringify({ deviceId, ...credentials }),
+      body: JSON.stringify(credentials),
     });
   };
 

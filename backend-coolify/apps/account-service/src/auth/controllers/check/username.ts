@@ -1,5 +1,5 @@
-import { requireVerification } from "@repo/shared";
 import { UserModel } from "@repo/database";
+import { evaluateDeviceTrust, resolveDevice } from "@repo/shared";
 import { Request, Response } from "express";
 
 interface CheckUsernameRequest extends Request {
@@ -62,16 +62,10 @@ export const checkUsername = async (
         return;
       }
 
-      const deviceId = req.cookies["device_id"] || "unknown";
-
-      /**
-       * EVALUATE TRUST:
-       * Signals the frontend if an OTP is required before password entry.
-       */
-      const needsVerification = await requireVerification(
-        existingUser,
-        deviceId,
-      );
+      // New device trust evaluation
+      const deviceToken = req.cookies["device_token"];
+      const device = await resolveDevice(existingUser._id, deviceToken, req);
+      const trust = await evaluateDeviceTrust(device);
 
       const isVerified =
         existingUser.isEmailVerified || existingUser.isPhoneVerified;
@@ -84,9 +78,10 @@ export const checkUsername = async (
         isExisting: true,
         isOnboarded,
         isVerified,
-        needsVerification,
+        needsVerification: !trust.trusted,
         payload: {
           accountStatus: "ACTIVE",
+          trustReason: trust.reason,
           userId: existingUser._id,
           username: existingUser.username,
           firstName: existingUser.firstName,
@@ -108,7 +103,7 @@ export const checkUsername = async (
       return;
     }
 
-    // Generate suggestions if username is taken
+    // Logic for generating suggestions if username is taken
     const suggestions: string[] = [];
     const regex = new RegExp(`^${formattedUsername}\\d*$`, "i");
 

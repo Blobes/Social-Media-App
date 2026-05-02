@@ -6,6 +6,9 @@ import {
 } from "@repo/shared";
 import { Response } from "express";
 
+/**
+ * Terminates specific or all active sessions for a user and clears client-side tokens.
+ */
 export const logoutUser = async (
   req: IAuthRequest,
   res: Response,
@@ -27,30 +30,19 @@ export const logoutUser = async (
 
   try {
     if (logoutAll) {
-      // --- GLOBAL LOGOUT: Kill every session for this user ---
+      // Wipes all sessions across all devices for this user in Redis
       cleanUserSessions({ userId });
     } else {
-      // --- TARGETED LOGOUT: Kill a specific session ---
-      // If no targetId is provided, we default to the current active session
+      // Default to killing the current session if no specific ID is targeted
       const idToKill = targetSessionId || currentSessionId;
-      if (idToKill) removeSession(userId, idToKill);
+      if (idToKill) {
+        removeSession(userId, idToKill);
+      }
     }
 
-    // Clear cookies on the client side if the user is logging out of their current device
+    // Clear hardware-bound cookies if the current session is the one being terminated
     if (logoutAll || !targetSessionId || targetSessionId === currentSessionId) {
       clearAuthTokens(res);
-      // res.clearCookie("access_token", {
-      //   httpOnly: true,
-      //   secure: true,
-      //   sameSite: "none",
-      //   path: "/",
-      // });
-      // res.clearCookie("refresh_token", {
-      //   httpOnly: true,
-      //   secure: true,
-      //   sameSite: "none",
-      //   path: "/",
-      // });
     }
 
     return res.status(200).json({

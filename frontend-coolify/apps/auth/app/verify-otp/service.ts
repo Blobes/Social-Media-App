@@ -1,6 +1,6 @@
 "use client";
 
-import { apiClient, getOrCreateDeviceId } from "@repo/helpers";
+import { apiClient } from "@repo/helpers";
 import { InputType, ISinglePayload, Purpose, SERVER_API } from "@repo/core";
 
 interface OtpRequest {
@@ -8,12 +8,9 @@ interface OtpRequest {
   identifier: string;
   purpose?: Purpose;
   channel?: InputType;
-  deviceId?: string;
 }
 
 export const OtpService = () => {
-  const deviceId = getOrCreateDeviceId();
-
   const sendOtp = async (request: OtpRequest): Promise<OtpRequest> => {
     const { identifier, purpose = "LOGIN" } = request;
     return await apiClient<OtpRequest>(SERVER_API.sendOtp, {
@@ -28,7 +25,7 @@ export const OtpService = () => {
     const { code, identifier, purpose = "LOGIN" } = request;
     return await apiClient(SERVER_API.verifyOtp, {
       method: "POST",
-      body: JSON.stringify({ code, source: identifier, purpose, deviceId }),
+      body: JSON.stringify({ code, source: identifier, purpose }),
     });
   };
 

@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export type UserRole = "USER" | "ADMIN" | "MODERATOR";
 export type AccountStatus = "ACTIVE" | "DEACTIVATED" | "SUSPENDED" | "BANNED";
 export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
@@ -41,8 +43,7 @@ export interface IUserModel {
   isPhoneVerified: boolean;
   lastEmailCodeSentAt?: Date | null;
   primarySessionId?: string | null;
-  primaryDeviceId?: string | null;
-  trustedDevices?: ITrustedDevice[];
+  primaryDeviceId?: Types.ObjectId | string | null;
 
   // --- 4. IDENTITY UPDATES ---
   pendingEmail?: string | null;

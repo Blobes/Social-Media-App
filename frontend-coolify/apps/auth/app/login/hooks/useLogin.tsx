@@ -2,19 +2,15 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import { useTheme } from "@mui/material/styles";
-import { useSnackbar, usePage, useGlobalStore } from "@repo/shared-hooks";
+import { useSnackbar, useGlobalStore } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { useLockCountdown } from "./useLockCount";
-import {
-  setCookie,
-  getCookie,
-  getFromLocalStorage,
-  delay,
-} from "@repo/helpers";
-import { CLIENT_ROUTES, InputStatus, IPage } from "@repo/core";
+import { setCookie, getCookie, delay } from "@repo/helpers";
+import { InputStatus } from "@repo/core";
 import { LoginService } from "../service";
 import { clearLoginLock, formatRemainingTime } from "@repo/features";
 import { StepName } from "../../types";
+import { useLoginFeedback } from "./useFeedback";
 
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MIN = 2;
@@ -27,16 +23,15 @@ interface UseLogin {
 export const useLogin = ({ identifier, setStep }: UseLogin) => {
   const theme = useTheme();
   const { login } = LoginService();
-  const { isOnWeb, navigateTo } = usePage();
   const { setSBMessage } = useSnackbar();
+  const { handleSuccess, handleError } = useLoginFeedback({
+    identifier,
+    setStep,
+  });
 
   const inlineMsg = useGlobalStore((state) => state.inlineMsg);
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
-  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
-  const setAuthUser = useGlobalStore((state) => state.setAuthUser);
-  const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
 
-  // Form & Lock State
   const [activeLockTime, setActiveLockTime] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [passwordValidity, setPasswordValidity] = useState<InputStatus>();
@@ -66,9 +61,6 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     }, [resetLockStates, setSBMessage]),
   );
 
-  /**
-   * Process failed attempts and set cookies
-   */
   const handleFailedPassword = useCallback(() => {
     const current = parseInt(getCookie("loginAttempts") || "0", 10);
     const nextAttempts = current + 1;
@@ -92,46 +84,13 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     return false;
   }, [setInlineMsg, theme]);
 
-  // TanStack Mutation for Login
   const { mutate, isPending: isAuthLoading } = useMutation({
     mutationFn: async () => {
-      // Simulate network delay if needed
       await delay();
       return await login({ identifier, password });
     },
-    onSuccess: (res) => {
-      if (res.httpStatus === 200) {
-        clearLoginLock();
-
-        if (res.status === "DEACTIVATED") {
-          setAuthStatus("DEACTIVATED");
-          if (setStep) setStep("RESTORE_ACCOUNT");
-        }
-
-        if (res.status === "SUCCESS") {
-          setGlobalLoading(true);
-          setAuthUser(res.payload);
-          setAuthStatus("AUTHENTICATED");
-
-          if (setStep) setStep("IDENTIFIER");
-
-          const savedPage = getFromLocalStorage<IPage>();
-          const page =
-            savedPage && !isOnWeb(savedPage.path)
-              ? savedPage
-              : CLIENT_ROUTES.home;
-          navigateTo(page);
-        }
-      }
-    },
-    onError: (error: any) => {
-      const isPasswordErr = error.status === "UNAUTHORIZED";
-      if (isPasswordErr) {
-        handleFailedPassword();
-      } else {
-        setInlineMsg(error.message || "Login failed");
-      }
-    },
+    onSuccess: handleSuccess,
+    onError: (err) => handleError(err, handleFailedPassword),
   });
 
   useEffect(() => {
@@ -176,7 +135,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     }
   };
 
-  const handleSubmit = (e: React.SubmitEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isLocked) return;
     mutate();

@@ -1,9 +1,10 @@
 import { UserModel } from "@repo/database";
-import { requireVerification } from "@repo/shared";
+import { evaluateDeviceTrust, resolveDevice } from "@repo/shared";
 import { Request, Response } from "express";
 
 /**
  * Checks email existence and evaluates hardware trust before login.
+ * This determines if the frontend should trigger an OTP flow or simple password entry.
  */
 export const checkEmail = async (req: Request, res: Response): Promise<any> => {
   const { email } = req.body as { email?: string };
@@ -19,23 +20,22 @@ export const checkEmail = async (req: Request, res: Response): Promise<any> => {
   const normalizedEmail = email.toLowerCase().trim();
 
   try {
-    // Check for an existing user (including deactivated ones)
+    // Locate the user, including deactivated accounts
     const existingUser = await UserModel.findOne({
       email: normalizedEmail,
     }).setOptions({ skipFilter: true });
 
     if (existingUser) {
-      const deviceId = req.cookies["device_id"] || "unknown";
+      // 1. Extract the device token from the standard cookie key
+      const deviceToken = req.cookies["device_token"];
 
-      /**
-       * EVALUATE TRUST:
-       * Uses the holistic helper to check primary and trusted registries.
-       */
-      const needsVerification = await requireVerification(
-        existingUser,
-        deviceId,
-      );
+      // 2. Locate the device record in the new registry
+      const device = await resolveDevice(existingUser._id, deviceToken, req);
 
+      // 3. Evaluate if the hardware is known and verified within the trust window
+      const trust = await evaluateDeviceTrust(device);
+
+      // Logical flags for frontend routing
       const isVerified =
         existingUser.isEmailVerified || existingUser.isPhoneVerified;
       const isOnboarded =
@@ -49,9 +49,11 @@ export const checkEmail = async (req: Request, res: Response): Promise<any> => {
         isExisting: true,
         isOnboarded,
         isVerified,
-        needsVerification, // Frontend uses this to decide whether to prompt OTP
+        // Frontend uses this to decide whether to prompt OTP gating
+        needsVerification: !trust.trusted,
         payload: {
           accountStatus: !existingUser.isDeactivated ? "ACTIVE" : "DEACTIVATED",
+          trustReason: trust.reason, // Helpful for debugging (NEW_DEVICE vs STALE_DEVICE)
           userId: existingUser._id,
           username: existingUser.username,
           firstName: existingUser.firstName,
@@ -61,7 +63,7 @@ export const checkEmail = async (req: Request, res: Response): Promise<any> => {
       });
     }
 
-    // Email is truly available
+    // New user scenario
     return res.status(200).json({
       status: "SUCCESS",
       isExisting: false,

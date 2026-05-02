@@ -106,6 +106,55 @@ export const findUserSessions = async (
 };
 
 /**
+ * Terminates sessions tied to specific hardware IDs or clears all hardware sessions.
+ */
+export const cleanDeviceSessions = async (
+  userId: string,
+  targetDeviceIds?: string | string[],
+  clearAll: boolean = false,
+): Promise<void> => {
+  try {
+    const allSessions = await findUserSessions(userId);
+    if (allSessions.length === 0) return;
+
+    // Convert single string to array for uniform processing
+    const targetIds = Array.isArray(targetDeviceIds)
+      ? targetDeviceIds
+      : targetDeviceIds
+        ? [targetDeviceIds]
+        : [];
+
+    // Fetch all session data in parallel to avoid N+1 waterfall
+    const sessionDataResults = await Promise.all(
+      allSessions.map(async (s) => ({
+        key: s.key,
+        data: (await upstashClient.get(s.key)) as any,
+      })),
+    );
+
+    const keysToDelete: string[] = [];
+
+    for (const { key, data } of sessionDataResults) {
+      if (!data) continue;
+
+      const shouldDelete =
+        clearAll || (targetIds.length > 0 && targetIds.includes(data.deviceId));
+
+      if (shouldDelete) {
+        keysToDelete.push(key);
+      }
+    }
+
+    if (keysToDelete.length > 0) {
+      await upstashClient.del(...keysToDelete);
+    }
+  } catch (error) {
+    console.error("Device Session Cleanup Error:", error);
+    throw new Error("Failed to process hardware-based session cleanup");
+  }
+};
+
+/**
  * Only enforces a wipe if the session being validated IS the primary session
  * and it has expired, OR if we want to restrict secondary sessions (optional).
  */

@@ -1,5 +1,5 @@
-import { requireVerification } from "@repo/shared";
 import { UserModel } from "@repo/database";
+import { evaluateDeviceTrust, resolveDevice } from "@repo/shared";
 import { Request, Response } from "express";
 
 /**
@@ -25,17 +25,10 @@ export const checkPhone = async (req: Request, res: Response): Promise<any> => {
     }).setOptions({ skipFilter: true });
 
     if (existingUser) {
-      const deviceId = req.cookies["device_id"] || "unknown";
-
-      /**
-       * EVALUATE TRUST:
-       * Passing the full document allows the helper to check the 15-day window
-       * against the hardware registry.
-       */
-      const needsVerification = await requireVerification(
-        existingUser,
-        deviceId,
-      );
+      // Use the new device token strategy
+      const deviceToken = req.cookies["device_token"];
+      const device = await resolveDevice(existingUser._id, deviceToken, req);
+      const trust = await evaluateDeviceTrust(device);
 
       const isVerified =
         existingUser.isEmailVerified || existingUser.isPhoneVerified;
@@ -50,9 +43,11 @@ export const checkPhone = async (req: Request, res: Response): Promise<any> => {
         isExisting: true,
         isOnboarded,
         isVerified,
-        needsVerification,
+        // Signals the frontend if an OTP is required
+        needsVerification: !trust.trusted,
         payload: {
           accountStatus: !existingUser.isDeactivated ? "ACTIVE" : "DEACTIVATED",
+          trustReason: trust.reason,
           userId: existingUser._id,
           username: existingUser.username,
           firstName: existingUser.firstName,

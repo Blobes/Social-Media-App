@@ -4,14 +4,15 @@ import { checkUsername } from "./controllers/check/username";
 import { createAccount } from "./controllers/new-account/createAccount";
 import { verifyOtp } from "./controllers/otp/verifyOtp";
 import { sendOtp } from "./controllers/otp/sendOtp";
-import loginUser from "./controllers/session/login";
+import { loginUser } from "./controllers/session/login";
 import { verifyAuthToken } from "@repo/shared";
 import { verifySession } from "./controllers/session/verifySession";
 import { logoutUser } from "./controllers/session/logout";
-import { getActiveSessions } from "./controllers/session/activeSessions";
-import { setPrimarySession } from "./controllers/session/primarySession";
+import { setPrimaryDevice } from "./controllers/device/primaryDevice";
 import { checkPhone } from "./controllers/check/phone";
 import { refreshSession } from "./controllers/session/refreshSession";
+import { getDevices } from "./controllers/device/getAllDevices";
+import { removeDevice } from "./controllers/device/removeDevice";
 
 const router: Router = express.Router();
 
@@ -28,18 +29,21 @@ router.post("/check-username", checkUsername);
 
 // --- ACCOUNT ONBOARDING ---
 router.post("/register", createAccount);
-router.put("/verify-otp", verifyOtp);
-router.post("/send-otp", sendOtp);
 
 // --- SESSION MANAGEMENT ---
 router.post("/login", loginUser);
 router.post("/refresh", refreshSession);
 router.post("/logout", verifyAuthToken, logoutUser);
-router.get("/sessions", getActiveSessions);
-router.patch("/session/set-primary", setPrimarySession);
+router.get("/verify-session", verifyAuthToken, verifySession);
 
 // --- IDENTITY VERIFICATION ---
 // Used by the client to sync the current user state on app load
-router.get("/verify-session", verifyAuthToken, verifySession);
+router.put("/verify-otp", verifyOtp);
+router.post("/send-otp", sendOtp);
+
+// --- DEVICE MANAGEMENT ---
+router.get("/devices", getDevices);
+router.delete("/devices/:id", removeDevice);
+router.patch("/devices/:id/primary", setPrimaryDevice);
 
 export default router;

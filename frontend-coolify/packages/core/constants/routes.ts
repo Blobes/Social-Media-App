@@ -17,6 +17,11 @@ export const CLIENT_ROUTES: Record<string, IPage> = {
   signup: { title: "Signup", path: "/signup" },
   restoreAccount: { title: "Restore Account", path: "/restore-account" },
   verifyOtp: { title: "Verify Otp", path: "/verify-otp" },
+  onboarding: { title: "Onboarding", path: "/signup/onboarding" },
+  onboardingContinuation: {
+    title: "Onboarding Continuation",
+    path: "/signup/continuation",
+  },
 
   // Shell
   home: { title: "Home", path: "/" },

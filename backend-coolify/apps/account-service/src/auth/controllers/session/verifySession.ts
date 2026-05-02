@@ -5,8 +5,9 @@ import {
   CACHE_KEYS,
   upstashClient,
   clearAuthTokens,
-  finalizeDeviceTrust,
   validateHardwareTrust,
+  upsertDevice,
+  getOrSetDeviceToken,
 } from "@repo/shared";
 import { RequestHandler, Response } from "express";
 
@@ -19,9 +20,12 @@ export const verifySession: RequestHandler = async (
 ): Promise<any> => {
   const userId = req.user?.id;
   const sessionId = req.user?.sessionId;
-  const deviceId = req.cookies["device_id"] || "unknown";
+  const jwtDeviceId = req.user?.deviceId;
 
-  if (!userId || !sessionId) {
+  // Ensure an identity hint exists if the user cleared their cookies
+  const deviceToken = getOrSetDeviceToken(req, res);
+
+  if (!userId || !sessionId || !jwtDeviceId) {
     return res.status(401).json({
       status: "ERROR",
       message: "Invalid or expired session context",
@@ -30,17 +34,19 @@ export const verifySession: RequestHandler = async (
   }
 
   try {
-    /**
-     * 1. HARDWARE TRUST (Replacement for validatePrimarySession)
-     * This checks if the device is authorized and if the 15-day window is valid.
-     */
-    const needsOtp = await validateHardwareTrust(userId, deviceId);
+    // Physical device token validation against the 15-day trust window
+    const needsOtp = await validateHardwareTrust(
+      userId,
+      deviceToken,
+      jwtDeviceId,
+    );
 
     if (needsOtp) {
       clearAuthTokens(res);
       return res.status(401).json({
         status: "ERROR",
-        message: "Device trust has expired. Verification required.",
+        message:
+          "Device trust has expired or hardware unknown. Verification required.",
       });
     }
 
@@ -55,14 +61,11 @@ export const verifySession: RequestHandler = async (
       });
     }
 
-    /**
-     * 2. ACTIVE SESSION MAPPING
-     * Verify this specific sessionId is actually mapped to this physical device.
-     */
     const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
     const sessionData: any = await upstashClient.get(sessionKey);
 
-    if (!sessionData || sessionData.deviceId !== deviceId) {
+    // Verifying Redis session existence and hardware pinning
+    if (!sessionData || sessionData.deviceId !== jwtDeviceId) {
       clearAuthTokens(res);
       return res.status(401).json({
         status: "ERROR",
@@ -70,16 +73,30 @@ export const verifySession: RequestHandler = async (
       });
     }
 
-    /**
-     * 3. DB HEARTBEAT (Update the 15-day sliding window)
-     * Since this is a successful handshake, we refresh the trust in the DB.
-     */
-    await finalizeDeviceTrust(user, deviceId);
+    // Registry heartbeat update which internally calls ensurePrimaryDevice
+    const device = await upsertDevice(user, deviceToken, req);
 
-    /**
-     * 4. CACHE HEARTBEAT
-     * Update Redis to keep the active session alive.
-     */
+    // Identity pinning check against the registry database record
+    if (device._id.toString() !== jwtDeviceId) {
+      clearAuthTokens(res);
+      return res.status(403).json({
+        status: "FORBIDDEN",
+        message: "Hardware identity mismatch.",
+      });
+    }
+
+    // Verifying if session survived the primary rotation cleanup logic
+    const sessionExists = await upstashClient.exists(sessionKey);
+
+    if (!sessionExists) {
+      clearAuthTokens(res);
+      return res.status(401).json({
+        status: "UNAUTHORIZED",
+        message: "Security anchor rotated. Please re-authenticate.",
+      });
+    }
+
+    // Updating the sliding window for the active session in Redis
     await upstashClient.set(
       sessionKey,
       {

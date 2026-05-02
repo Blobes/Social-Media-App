@@ -1,8 +1,9 @@
 import { IUserDocument } from "@repo/database";
-import { finalizeDeviceTrust, OtpType } from "@repo/shared";
+import { OtpType, upsertDevice } from "@repo/shared";
+import { Request } from "express";
 
 /**
- * Handles account verification during onboarding or login.
+ * Handles account verification flags.
  */
 export const handleChannelVerification = async (
   user: IUserDocument,
@@ -18,17 +19,21 @@ export const handleChannelVerification = async (
 };
 
 /**
- * Handles promoting a device to the trust registry.
+ * Promotes a device record to 'trusted' by updating lastVerifiedAt.
+ * This utilizes upsertDevice to handle both new and existing hardware.
  */
 export const handleDeviceTrust = async (
   user: IUserDocument,
-  deviceId: string,
+  deviceToken: string,
+  req: Request,
 ): Promise<void> => {
-  await finalizeDeviceTrust(user, deviceId);
+  // upsertDevice automatically sets lastVerifiedAt = new Date()
+  // and checks for primary device logic internally.
+  await upsertDevice(user, deviceToken, req);
 };
 
 /**
- * Handles account update updates (email/phone changes).
+ * Handles identity changes (email/phone updates).
  */
 export const handleAccountUpdate = async (
   user: IUserDocument,

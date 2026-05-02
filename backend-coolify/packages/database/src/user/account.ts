@@ -93,14 +93,11 @@ const UserSchema = new Schema<IUserDocument>(
     primarySessionId: { type: String, default: null },
 
     // Devices
-    primaryDeviceId: { type: String, default: null, index: true },
-    trustedDevices: [
-      {
-        deviceId: { type: String, required: true },
-        lastVerifiedAt: { type: Date, default: Date.now },
-        name: { type: String, default: "Secondary Device" },
-      },
-    ],
+    primaryDeviceId: {
+      type: Schema.Types.ObjectId,
+      ref: "Device",
+      default: null,
+    },
 
     // --- 4. IDENTITY UPDATES ---
     pendingEmail: { type: String, default: null, lowercase: true },

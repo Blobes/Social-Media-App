@@ -117,6 +117,12 @@ export type OtpTransitData<P extends Purpose = Purpose> = TransitData<P> & {
   nextStep?: string;
 };
 
+export interface OnboardingTransitData {
+  userId: string;
+  step: string;
+  source: "LOGIN_FLOW" | "SIGNUP_FLOW";
+}
+
 export interface CachedItem<T> {
   data: T;
   lastViewed: Date | null;

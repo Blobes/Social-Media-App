@@ -2,6 +2,7 @@
 export * from "./src/model-types/user";
 export * from "./src/model-types/posts";
 export * from "./src/model-types/media";
+export * from "./src/model-types/device";
 
 // User
 export * from "./src/moderation/flaggedPost";
@@ -17,6 +18,7 @@ export * from "./src/post/view";
 export * from "./src/user/socials";
 export * from "./src/user/idVerification";
 export * from "./src/user/account";
+export * from "./src/device";
 
 // Media
 export * from "./src/media";

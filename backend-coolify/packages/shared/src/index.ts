@@ -22,6 +22,7 @@ export * from "./services/upstash";
 export * from "./services/ip";
 export * from "./services/socket";
 export * from "./services/queue";
+export * from "./services/device";
 
 // Routes
 export * from "./routes/topic";
@@ -48,7 +49,8 @@ export * from "./utils/redis/cache";
 export * from "./utils/redis/ratelimit";
 export * from "./utils/pipelines/user/dataLookup";
 export * from "./utils/pipelines/post/dataLookup";
-export * from "./utils/misc/deviceTrust";
+//export * from "./utils/misc/deviceTrust";
+export * from "./utils/misc/device";
 
 // Environment config
 export * from "../env-config/express/config";
