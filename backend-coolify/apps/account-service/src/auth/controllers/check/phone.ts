@@ -1,5 +1,4 @@
 import { UserModel } from "@repo/database";
-import { evaluateDeviceTrust, resolveDevice } from "@repo/shared";
 import { Request, Response } from "express";
 
 /**
@@ -25,29 +24,14 @@ export const checkPhone = async (req: Request, res: Response): Promise<any> => {
     }).setOptions({ skipFilter: true });
 
     if (existingUser) {
-      // Use the new device token strategy
-      const deviceToken = req.cookies["device_token"];
-      const device = await resolveDevice(existingUser._id, deviceToken, req);
-      const trust = await evaluateDeviceTrust(device);
-
-      const isVerified =
-        existingUser.isEmailVerified || existingUser.isPhoneVerified;
-      const isOnboarded =
-        existingUser.onboardingStep === null && existingUser.isOnboarded;
-
       return res.status(200).json({
         status: "SUCCESS",
         message: !existingUser.isDeactivated
           ? "Phone number is already registered."
           : "This account is deactivated. Please restore it to continue.",
         isExisting: true,
-        isOnboarded,
-        isVerified,
-        // Signals the frontend if an OTP is required
-        needsVerification: !trust.trusted,
         payload: {
           accountStatus: !existingUser.isDeactivated ? "ACTIVE" : "DEACTIVATED",
-          trustReason: trust.reason,
           userId: existingUser._id,
           username: existingUser.username,
           firstName: existingUser.firstName,

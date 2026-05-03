@@ -24,12 +24,16 @@ export const useAuth = () => {
   const { refetch, isFetching } = useQuery({
     queryKey: [CACHE_KEYS.USER.SESSION],
     queryFn: async () => {
-      // Checking for the hint cookie before making a network request
+      // If there is NO token, they are definitely unauthenticated.
+      // We return early to avoid unnecessary API calls.
       const hasToken = document.cookie
         .split(";")
         .some((item) => item.trim().startsWith("is_logged_in="));
-
-      if (hasToken) return;
+      if (!hasToken) {
+        setAuthUser(null);
+        setAuthStatus("UNAUTHENTICATED");
+        return null;
+      }
 
       try {
         const res = await verifyAndFetchUser();

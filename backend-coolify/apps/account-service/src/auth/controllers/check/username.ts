@@ -1,5 +1,4 @@
 import { UserModel } from "@repo/database";
-import { evaluateDeviceTrust, resolveDevice } from "@repo/shared";
 import { Request, Response } from "express";
 
 interface CheckUsernameRequest extends Request {
@@ -62,26 +61,12 @@ export const checkUsername = async (
         return;
       }
 
-      // New device trust evaluation
-      const deviceToken = req.cookies["device_token"];
-      const device = await resolveDevice(existingUser._id, deviceToken, req);
-      const trust = await evaluateDeviceTrust(device);
-
-      const isVerified =
-        existingUser.isEmailVerified || existingUser.isPhoneVerified;
-      const isOnboarded =
-        existingUser.onboardingStep === null && existingUser.isOnboarded;
-
       res.status(200).json({
         status: "SUCCESS",
         message: "Username exists and is active.",
         isExisting: true,
-        isOnboarded,
-        isVerified,
-        needsVerification: !trust.trusted,
         payload: {
           accountStatus: "ACTIVE",
-          trustReason: trust.reason,
           userId: existingUser._id,
           username: existingUser.username,
           firstName: existingUser.firstName,

@@ -9,6 +9,7 @@ import {
   toJwtUser,
   getOrSetDeviceToken,
   upsertDevice,
+  evaluateDeviceTrust,
 } from "@repo/shared";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
@@ -106,11 +107,22 @@ export const loginUser = async (
       delete (safeData as any)[field];
     });
 
+    // Evaluate if the hardware is known and verified within the trust window
+    const trust = await evaluateDeviceTrust(device);
+    const isVerified = safeData.isEmailVerified || safeData.isPhoneVerified;
+    const requireOtp = !isVerified || !trust.trusted;
+
     return res.status(200).json({
       status: "SUCCESS",
       message: "Logged in successfully.",
       accessToken,
       payload: safeData,
+      requireOtp,
+      otpReason: requireOtp
+        ? !isVerified
+          ? "UNVERIFIED_ACCOUNT"
+          : "UNTRUSTED_DEVICE"
+        : undefined, // Helpful for debugging (NEW_DEVICE vs STALE_DEVICE)
     });
   } catch (error: any) {
     console.error("Login Error:", error);

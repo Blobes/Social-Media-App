@@ -2,7 +2,7 @@
 
 import { IPage } from "../types/ui-state";
 
-export const CLIENT_ROUTES: Record<string, IPage> = {
+export const CLIENT_ROUTES = {
   // Web
   about: { title: "About", path: "/about" },
   pricing: { title: "Pricing", path: "/pricing" },
@@ -18,10 +18,10 @@ export const CLIENT_ROUTES: Record<string, IPage> = {
   restoreAccount: { title: "Restore Account", path: "/restore-account" },
   verifyOtp: { title: "Verify Otp", path: "/verify-otp" },
   onboarding: { title: "Onboarding", path: "/signup/onboarding" },
-  onboardingContinuation: {
-    title: "Onboarding Continuation",
-    path: "/signup/continuation",
-  },
+  // onboardingContinuation: {
+  //   title: "Onboarding Continuation",
+  //   path: "/signup/onboarding/continuation",
+  // },
 
   // Shell
   home: { title: "Home", path: "/" },
@@ -47,7 +47,7 @@ export const CLIENT_ROUTES: Record<string, IPage> = {
 
   // Offline
   offline: { title: "Offline", path: "/offline" },
-} as const;
+} satisfies Record<string, IPage>;
 
 /** * Registry mapping logical application zones to their respective route paths.
  */

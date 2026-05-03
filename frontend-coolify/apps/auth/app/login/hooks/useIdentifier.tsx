@@ -8,20 +8,10 @@ import {
   delay,
   formatPhoneNumber,
   getInputValidity,
-  queryClient,
   sanitizePhoneNumber,
 } from "@repo/helpers";
-import {
-  AccountStatus,
-  CLIENT_ROUTES,
-  InputStatus,
-  IUser,
-  MenuRef,
-  OtpTransitData,
-  CACHE_KEYS,
-} from "@repo/core";
+import { AccountStatus, CLIENT_ROUTES, InputStatus, MenuRef } from "@repo/core";
 import { StepName } from "../../types";
-import { OtpService } from "../../verify-otp/service";
 import { AppButton } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 
@@ -37,7 +27,6 @@ export const useIdentifier = ({
   setIdentifier,
 }: UseIdentifier) => {
   const { checkEmail, checkPhone, checkUsername } = LoginService();
-  const { sendOtp } = OtpService();
   const { navigateTo } = usePage();
   const theme = useTheme();
 
@@ -87,35 +76,10 @@ export const useIdentifier = ({
 
       // 2. Handle Existing User
       if (res.status === "SUCCESS" && res.isExisting === true) {
-        // Create the transit data object
-        const transitData: OtpTransitData<"LOGIN"> = {
-          _id: "transit:verification",
-          identifier: input,
-          channel: inputType,
-          nextStep: "PASSWORD",
-          purpose: "LOGIN",
-          payload: res.payload as IUser,
-        };
-
-        if (res.needsVerification && res.isOnboarded) {
-          queryClient.setQueryData(
-            [CACHE_KEYS.LOGIN_TRANSIT_DATA],
-            transitData,
-          );
-          try {
-            await sendOtp({ identifier: input });
-            navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true });
-            return;
-          } catch (error) {
-            setInlineMsg("Failed to send verification code.");
-            return;
-          }
-        }
-
-        queryClient.setQueryData([CACHE_KEYS.LOGIN_TRANSIT_DATA], transitData);
         setIdentifier?.(input);
         setStep?.("PASSWORD");
       }
+
       // 3. Handle Credential Not Found
       else {
         setInlineMsg(
@@ -213,6 +177,7 @@ export const useIdentifier = ({
 
   return {
     input,
+    inputType: inputValidity.type,
     setInput,
     validity,
     validationMsg,

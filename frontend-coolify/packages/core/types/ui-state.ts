@@ -18,6 +18,20 @@ export type NetworkStatus = "STABLE" | "UNSTABLE" | "OFFLINE" | "UNKNOWN";
 export type UIMode = "ONLINE" | "OFFLINE";
 export type DateType = "SHORTENED" | "COMPLETE" | "DATE-ONLY";
 
+export type OtpReason =
+  | "NEW_DEVICE"
+  | "STALE_DEVICE"
+  | "UNTRUSTED_DEVICE"
+  | "UNVERIFIED_ACCOUNT"
+  | "NEW_ACCOUNT";
+
+export type OnboardingStep =
+  | "ONBOARDING_INTRO"
+  | "ONBOARDING_CONTINUATION"
+  | "ONBOARDING_BASIC_DETAILS"
+  | "ONBOARDING_DEMOGRAPHICS"
+  | "ONBOARDING_PROFILE_SETUP";
+
 export type InputType =
   | "EMAIL"
   | "PHONE"
@@ -111,17 +125,21 @@ export interface TransitData<P extends Purpose> {
   payload: TransitPayloadMap[P];
 }
 
+export type OtpNextStep = OnboardingStep | "FEED";
+
 export type OtpTransitData<P extends Purpose = Purpose> = TransitData<P> & {
   identifier: string;
   channel: InputType;
-  nextStep?: string;
+  reason: OtpReason;
+  onSuccess?: () => void;
+  nextStep?: OtpNextStep;
 };
 
-export interface OnboardingTransitData {
-  userId: string;
-  step: string;
-  source: "LOGIN_FLOW" | "SIGNUP_FLOW";
-}
+export type OnboardingTransitData<P extends Purpose = Purpose> =
+  TransitData<P> & {
+    currentStep?: OnboardingStep;
+    nextStep: OnboardingStep;
+  };
 
 export interface CachedItem<T> {
   data: T;

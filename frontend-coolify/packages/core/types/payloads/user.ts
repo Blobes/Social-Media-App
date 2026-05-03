@@ -1,3 +1,5 @@
+import { OnboardingStep } from "../ui-state";
+
 export type UserRole = "USER" | "ADMIN" | "MODERATOR";
 export type AccountStatus = "ACTIVE" | "DEACTIVATED" | "SUSPENDED" | "BANNED";
 export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
@@ -64,7 +66,7 @@ export interface IUserPayload {
 
   // --- 7. ONBOARDING & GEOGRAPHY (NEWLY ADDED) ---
   isOnboarded?: boolean;
-  onboardingStep?: string | null;
+  onboardingStep?: OnboardingStep | null;
   location?: string | null;
   country?: string | null;
   state?: string | null;

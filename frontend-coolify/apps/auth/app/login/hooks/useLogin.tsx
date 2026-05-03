@@ -6,7 +6,7 @@ import { useSnackbar, useGlobalStore } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { useLockCountdown } from "./useLockCount";
 import { setCookie, getCookie, delay } from "@repo/helpers";
-import { InputStatus } from "@repo/core";
+import { InputStatus, InputType } from "@repo/core";
 import { LoginService } from "../service";
 import { clearLoginLock, formatRemainingTime } from "@repo/features";
 import { StepName } from "../../types";
@@ -15,7 +15,7 @@ import { useLoginFeedback } from "./useFeedback";
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MIN = 2;
 
-interface UseLogin {
+export interface UseLogin {
   identifier: string;
   setStep?: (step: StepName) => void;
 }
@@ -135,7 +135,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
     if (isLocked) return;
     mutate();

@@ -1,5 +1,4 @@
 import { UserModel } from "@repo/database";
-import { evaluateDeviceTrust, resolveDevice } from "@repo/shared";
 import { Request, Response } from "express";
 
 /**
@@ -26,34 +25,14 @@ export const checkEmail = async (req: Request, res: Response): Promise<any> => {
     }).setOptions({ skipFilter: true });
 
     if (existingUser) {
-      // 1. Extract the device token from the standard cookie key
-      const deviceToken = req.cookies["device_token"];
-
-      // 2. Locate the device record in the new registry
-      const device = await resolveDevice(existingUser._id, deviceToken, req);
-
-      // 3. Evaluate if the hardware is known and verified within the trust window
-      const trust = await evaluateDeviceTrust(device);
-
-      // Logical flags for frontend routing
-      const isVerified =
-        existingUser.isEmailVerified || existingUser.isPhoneVerified;
-      const isOnboarded =
-        existingUser.onboardingStep === null && existingUser.isOnboarded;
-
       return res.status(200).json({
         status: "SUCCESS",
         message: !existingUser.isDeactivated
           ? "Email is already registered."
           : "This account is deactivated. Please restore it to continue.",
         isExisting: true,
-        isOnboarded,
-        isVerified,
-        // Frontend uses this to decide whether to prompt OTP gating
-        needsVerification: !trust.trusted,
         payload: {
           accountStatus: !existingUser.isDeactivated ? "ACTIVE" : "DEACTIVATED",
-          trustReason: trust.reason, // Helpful for debugging (NEW_DEVICE vs STALE_DEVICE)
           userId: existingUser._id,
           username: existingUser.username,
           firstName: existingUser.firstName,

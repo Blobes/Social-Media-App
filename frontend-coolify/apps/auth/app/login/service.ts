@@ -1,28 +1,33 @@
 "use client";
 
 import { apiClient } from "@repo/helpers";
-import { IUser, ISinglePayload, SERVER_API, Purpose } from "@repo/core";
+import {
+  IUser,
+  ISinglePayload,
+  SERVER_API,
+  Purpose,
+  OtpReason,
+} from "@repo/core";
 
 interface LoginCredentials {
   identifier: string;
   password: string;
 }
-interface LoginResponse extends ISinglePayload<IUser> {
+export interface LoginResponse extends ISinglePayload<IUser> {
+  requireOtp?: boolean;
+  otpReason: OtpReason;
   fixedMsg?: string;
 }
 
-interface SetPSessionReq {
+interface SetPrimaryDeviceReq {
   sessionId: string;
 }
-interface SetPSessionRes extends ISinglePayload<SetPSessionReq> {
-  primarySessionId: string;
+interface SetPSessionRes extends ISinglePayload<SetPrimaryDeviceReq> {
+  deviceId: string;
 }
 
 export interface checkResponse extends ISinglePayload<IUser> {
   isExisting: boolean;
-  needsVerification: boolean;
-  isOnboarded: boolean;
-  isVerified?: boolean;
 }
 
 export const LoginService = () => {
@@ -60,7 +65,7 @@ export const LoginService = () => {
   };
 
   const setPrimarySession = async (
-    targetSession: SetPSessionReq,
+    targetSession: SetPrimaryDeviceReq,
   ): Promise<SetPSessionRes> => {
     return await apiClient<SetPSessionRes>(SERVER_API.setPrimarySession, {
       method: "PATCH",
