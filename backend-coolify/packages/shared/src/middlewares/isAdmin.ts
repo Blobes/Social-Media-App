@@ -10,7 +10,6 @@ export const isAdmin = (
   if (req.user && req.user.role === "ADMIN") {
     return next();
   }
-
   res.status(403).json({
     status: "ERROR",
     message: "Access denied. Administrative privileges required.",

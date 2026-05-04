@@ -8,12 +8,13 @@ export class QueueService {
   /**
    * Get or create a Redis connection for BullMQ
    */
-  public static getConnection(): NonNullable<QueueOptions["connection"]> {
+  public static getConnection(
+    redisUrl: string,
+  ): NonNullable<QueueOptions["connection"]> {
     if (!this.redisConnection) {
-      const url = process.env.FUNSTAKES_REDIS_URL;
-      if (!url) throw new Error("FUNSTAKES_REDIS_URL is missing");
+      if (!redisUrl) throw new Error("FUNSTAKES_REDIS_URL is missing");
 
-      const client = new Redis(url, {
+      const client = new Redis(redisUrl, {
         maxRetriesPerRequest: null, // Crucial for BullMQ
         connectTimeout: 10000, // Give it 10s to connect
       });
@@ -32,10 +33,13 @@ export class QueueService {
   /**
    * Get a specific queue by name
    */
-  public static getQueue<T = any>(queueName: string): Queue<T> {
+  public static getQueue<T = any>(
+    queueName: string,
+    redisUrl: string,
+  ): Queue<T> {
     if (!this.instances.has(queueName)) {
       const queue = new Queue(queueName, {
-        connection: this.getConnection(),
+        connection: this.getConnection(redisUrl),
         defaultJobOptions: {
           attempts: 3,
           backoff: { type: "exponential", delay: 1000 },
@@ -50,5 +54,7 @@ export class QueueService {
 }
 
 // Named export for the specific queue you're using now
-export const moderationQueue = () => QueueService.getQueue("moderation-queue");
-export const otpQueue = () => QueueService.getQueue("otp-queue");
+export const moderationQueue = (redisUrl: string) =>
+  QueueService.getQueue("moderation-queue", redisUrl);
+export const otpQueue = (redisUrl: string) =>
+  QueueService.getQueue("otp-queue", redisUrl);

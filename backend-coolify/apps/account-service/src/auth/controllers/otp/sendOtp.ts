@@ -1,3 +1,8 @@
+import {
+  codeDispatchTokens,
+  emailDispatchTokens,
+  phoneDispatchTokens,
+} from "@/envVars";
 import { UserModel } from "@repo/database";
 import {
   dispatchEmailCode,
@@ -130,9 +135,15 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     // Dispatch — fire-and-forget
     try {
       if (channel === "EMAIL") {
-        await dispatchEmailCode({ to: normalized, code: newCode });
+        await dispatchEmailCode(
+          { to: normalized, code: newCode },
+          emailDispatchTokens,
+        );
       } else {
-        await dispatchWhatsAppCode({ to: normalized, code: newCode });
+        await dispatchWhatsAppCode(
+          { to: normalized, code: newCode },
+          phoneDispatchTokens,
+        );
       }
     } catch (dispatchError) {
       console.error(`[sendCode] ${channel} dispatch failed:`, dispatchError);

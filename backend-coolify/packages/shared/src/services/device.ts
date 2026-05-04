@@ -3,6 +3,7 @@ import { UAParser } from "ua-parser-js";
 import { Request } from "express";
 import { Types } from "mongoose";
 import { cleanDeviceSessions } from "../utils/misc/session";
+import { CACHE_KEYS, getOrSetCache } from "../utils/redis/cache";
 
 const TRUST_WINDOW = 15 * 24 * 60 * 60 * 1000;
 
@@ -145,3 +146,30 @@ export async function ensurePrimaryDevice(
     await Promise.all([primaryCandidate.save(), user.save()]);
   }
 }
+
+/**
+ * Checks the Device Registry (via cache) to see if the device trust is still valid.
+ */
+export const validateHardwareTrust = async (
+  userId: string,
+  deviceToken: string | undefined,
+  jwtDeviceId: string,
+): Promise<boolean> => {
+  // We cache the result to prevent hitting MongoDB on every single request
+  return await getOrSetCache<boolean>(
+    CACHE_KEYS.DEVICE_TRUST_STATUS(userId, deviceToken || "none"),
+    async () => {
+      if (!deviceToken) return true;
+      const device = await DeviceModel.findOne({ userId, deviceToken });
+      // If the device doesn't exist, or it's not the one assigned to this JWT session
+      if (!device || device._id.toString() !== jwtDeviceId) {
+        return true;
+      }
+      const trust = await evaluateDeviceTrust(device);
+
+      // Return true if verification is required (not trusted)
+      return !trust.trusted;
+    },
+    600, // 10 minutes cache
+  );
+};

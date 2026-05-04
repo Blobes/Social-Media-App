@@ -1,4 +1,3 @@
-// apps/worker/processors/email.ts
 import { Worker, Job } from "bullmq";
 import {
   dispatchEmailCode,
@@ -6,9 +5,14 @@ import {
   OtpType,
   dispatchWhatsAppCode,
 } from "@repo/shared";
+import {
+  codeDispatchTokens,
+  FUNSTAKES_REDIS_URL,
+  phoneDispatchTokens,
+} from "@/envVars";
 
 export const otpDispatchWorker = () => {
-  const redisConnection = QueueService.getConnection();
+  const redisConnection = QueueService.getConnection(FUNSTAKES_REDIS_URL);
 
   const worker = new Worker(
     "otp-queue",
@@ -19,10 +23,13 @@ export const otpDispatchWorker = () => {
 
       switch (otpType) {
         case "EMAIL":
-          await dispatchEmailCode({ to: receiver, code });
+          await dispatchEmailCode({ to: receiver, code }, codeDispatchTokens);
           break;
         case "WHATSAPP":
-          await dispatchWhatsAppCode({ to: receiver, code });
+          await dispatchWhatsAppCode(
+            { to: receiver, code },
+            phoneDispatchTokens,
+          );
       }
       console.log(`📧 OTP sent to ${receiver}`);
     },

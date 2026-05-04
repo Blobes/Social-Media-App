@@ -1,7 +1,6 @@
 import express, { Router } from "express";
 import getUserProfile from "./controllers/profile/getProfile";
 import { updateBasicInfo } from "./controllers/profile/updateBasic";
-import { verifyAuthToken } from "@repo/shared";
 import { updateDemoInfo } from "./controllers/profile/updateDemo";
 import { changeUserImage } from "./controllers/profile/changeImage";
 import { removeUserImage } from "./controllers/profile/removeImage";
@@ -14,6 +13,7 @@ import { getFollowers } from "./controllers/socials/getFollowers";
 import { followUser } from "./controllers/socials/followUser";
 import { verifyEmailUpdate } from "./controllers/email/verifyEmailUpdate";
 import { verifyPhoneUpdate } from "./controllers/phone/verifyPhone";
+import { verifyAuthToken } from "@/envVars";
 
 const router: Router = express.Router();
 

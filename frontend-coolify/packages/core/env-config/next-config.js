@@ -1,7 +1,7 @@
-export function withBaseConfig(appConfig = {}, backendApi, appName) {
+export function withBaseConfig(appConfig = {}, backendApi, appName, envMode) {
   return {
     ...appConfig,
-    output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
+    output: envMode === "production" ? "standalone" : undefined,
     async headers() {
       return [
         {

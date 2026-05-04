@@ -1,18 +1,16 @@
 import express from "express";
 import { createServer } from "http";
-import { healthRouter, initEnv, initUpstash } from "@repo/shared";
+import { initUpstash } from "@repo/shared";
 import appLoader from "./loader";
 import { initSocket } from "./initSocket";
+import { FUNSTAKES_REDIS_URL, NODE_ENV, PORT, SERVICE_URL } from "./envVars";
 
 const startGateway = async () => {
-  initEnv(); // Load the environment first
+  const app = express();
+
   initUpstash(); // Initialize Upstash Redis configuration
 
-  const app = express();
-  // Essential for getting real User IPs
-  app.set("trust proxy", 1);
-
-  const PORT = process.env.GATEWAY_PORT || 8000;
+  app.set("trust proxy", 1); // Essential for getting real User IPs
 
   // Load Global Middleware (CORS, Parsers, etc.)
   appLoader(app);
@@ -23,11 +21,11 @@ const startGateway = async () => {
   });
 
   const httpServer = createServer(app);
-  initSocket(httpServer);
+  initSocket(httpServer, FUNSTAKES_REDIS_URL);
 
   httpServer.listen(PORT, () => {
-    console.log(`🚀 Gateway [${process.env.NODE_ENV}] running on port ${PORT}`);
-    console.log(`📡 Public API Endpoint: ${process.env.GATEWAY_URL}`);
+    console.log(`🚀 Gateway [${NODE_ENV}] running on port ${PORT}`);
+    console.log(`📡 Public API Endpoint: ${SERVICE_URL}`);
   });
 };
 

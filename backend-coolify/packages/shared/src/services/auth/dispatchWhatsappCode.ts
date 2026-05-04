@@ -1,14 +1,16 @@
+import { IPhoneDispatchTokens } from "../../types/types";
+
 interface WhatsAppPayload {
   to: string;
   code: string;
 }
 
-export const dispatchWhatsAppCode = async ({
-  to,
-  code,
-}: WhatsAppPayload): Promise<void> => {
-  const WHATSAPP_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
-  const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
+export const dispatchWhatsAppCode = async (
+  { to, code }: WhatsAppPayload,
+  dispatchConfig: IPhoneDispatchTokens,
+): Promise<void> => {
+  const WHATSAPP_TOKEN = dispatchConfig.WHATSAPP_ACCESS_KEY;
+  const PHONE_NUMBER_ID = dispatchConfig.WHATSAPP_PHONE_NUMBER_ID;
   const VERSION = "v18.0";
 
   // Meta requires digits only, no '+' prefix

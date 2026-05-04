@@ -13,7 +13,10 @@ export const genAccessTokens = (
   req: IAuthRequest,
   res: Response,
   sessionId: string,
+  accessTokenSecret: string,
 ) => {
+  // if (!accessTokenSecret) throw "Environment variables has not initialized";
+
   const userId = user.id.toString();
   const deviceId = user.deviceId;
 
@@ -25,7 +28,7 @@ export const genAccessTokens = (
       deviceId,
       sessionId,
     },
-    process.env.JWT_SECRET as string,
+    accessTokenSecret,
     { expiresIn: "15m" },
   );
 
@@ -58,6 +61,7 @@ export const genRefreshTokens = async (
   req: IAuthRequest,
   res: Response,
   sessionId: string,
+  refreshSecret: string,
 ) => {
   const userId = user.id.toString();
   const deviceId = user.deviceId;
@@ -65,7 +69,7 @@ export const genRefreshTokens = async (
   // Signing the Refresh JWT with hardware and session binding
   const refreshToken = jwt.sign(
     { id: userId, sessionId, deviceId },
-    process.env.REFRESH_TOKEN_SECRET as string,
+    refreshSecret,
     { expiresIn: "7d" },
   );
 

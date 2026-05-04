@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { GistModel, PostCaptionModel } from "@repo/database";
 import { createMediaBatch } from "@repo/shared";
 import { InternalSocketEmitter } from "@repo/shared";
+import { FUNSTAKES_REDIS_URL } from "@/envVars";
 
 export const finalizeGist = async (params: {
   gistId: string;
@@ -48,6 +49,7 @@ export const finalizeGist = async (params: {
       userId,
       "GIST_STATUS_UPDATE",
       message,
+      FUNSTAKES_REDIS_URL,
     );
     console.log(`📡 Socket update sent to user:${userId}`);
   } catch (err) {

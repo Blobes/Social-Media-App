@@ -1,8 +1,11 @@
 import express, { Express } from "express";
+import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { corsConfig, healthRouter } from "@repo/shared";
 
 export default (app: Express) => {
+  dotenv.config();
+
   // ====== Middlewares ======
   app.use(corsConfig());
   app.use(express.json({ limit: "30mb" }));

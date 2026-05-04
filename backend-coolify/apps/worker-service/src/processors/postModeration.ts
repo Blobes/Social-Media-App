@@ -9,9 +9,10 @@ import {
   QueueService,
 } from "@repo/shared";
 import { POST_STRATEGIES } from "@/helpers/postStrategies";
+import { FUNSTAKES_REDIS_URL, OPENAI_API_KEY } from "@/envVars";
 
 export const postModerationWorker = () => {
-  const redisConnection = QueueService.getConnection();
+  const redisConnection = QueueService.getConnection(FUNSTAKES_REDIS_URL);
 
   const worker = new Worker(
     "moderation-queue",
@@ -37,7 +38,7 @@ export const postModerationWorker = () => {
       }
 
       // 2. Phase 1: Moderation
-      const modResult = await validatePost({
+      const modResult = await validatePost(OPENAI_API_KEY, {
         caption,
         media,
         topics,
@@ -46,11 +47,16 @@ export const postModerationWorker = () => {
 
       if (modResult.status === "BANNED") {
         await model.findByIdAndDelete(postId);
-        await InternalSocketEmitter.notifyUser(userId, "CONTENT_REJECTED", {
-          postId,
-          type,
-          reason: modResult.reason || "Safety violation",
-        });
+        await InternalSocketEmitter.notifyUser(
+          userId,
+          "CONTENT_REJECTED",
+          {
+            postId,
+            type,
+            reason: modResult.reason || "Safety violation",
+          },
+          FUNSTAKES_REDIS_URL,
+        );
         return;
       }
 
@@ -72,12 +78,17 @@ export const postModerationWorker = () => {
 
         // 4. Phase 3: Post-Commit Effects
         await Promise.all([
-          InternalSocketEmitter.notifyUser(userId, "POST_STATUS_UPDATE", {
-            postId,
-            type,
-            status: modResult.status,
-            payload: finalizedData,
-          }),
+          InternalSocketEmitter.notifyUser(
+            userId,
+            "POST_STATUS_UPDATE",
+            {
+              postId,
+              type,
+              status: modResult.status,
+              payload: finalizedData,
+            },
+            FUNSTAKES_REDIS_URL,
+          ),
           modResult.status === "PUBLISHED"
             ? invalidatePattern(CACHE_KEYS.WILDCARD_USER_FEED_ALL(userId))
             : Promise.resolve(),

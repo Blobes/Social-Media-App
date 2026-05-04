@@ -1,8 +1,8 @@
-import { optVerifyToken, verifyAuthToken } from "@repo/shared";
 import express, { Router } from "express";
 import { getAllPost } from "./controllers/getAllPost";
 import { getfollowersPosts } from "./controllers/followersPosts";
 import { getUserPosts } from "./controllers/getUserPosts";
+import { optionalAuth, verifyAuthToken } from "@/envVars";
 
 const router: Router = express.Router();
 
@@ -12,7 +12,7 @@ router.get("/test", (req, res) => {
 });
 
 // Feed Logic
-router.get("/", optVerifyToken, getAllPost);
+router.get("/", optionalAuth, getAllPost);
 router.get("/followers", verifyAuthToken, getfollowersPosts);
 router.get("/:id", verifyAuthToken, getUserPosts);
 

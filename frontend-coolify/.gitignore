@@ -37,7 +37,8 @@ yarn-error.log*
 .env.production
 
 # Others
-/project-plan.md
+project-plan.md
+archive.md
 
 # typescript
 *.tsbuildinfo

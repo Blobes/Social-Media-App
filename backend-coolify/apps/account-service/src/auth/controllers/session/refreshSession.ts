@@ -12,6 +12,7 @@ import {
 } from "@repo/shared";
 import { IUserDocument, UserModel } from "@repo/database";
 import jwt from "jsonwebtoken";
+import { authTokens } from "@/envVars";
 
 /**
  * Validates hardware mapping and updates the trust heartbeat.
@@ -34,7 +35,7 @@ export const refreshSession: RequestHandler = async (
   try {
     const payload = jwt.verify(
       refreshToken,
-      process.env.REFRESH_TOKEN_SECRET as string,
+      authTokens.REFRESH_TOKEN_SECRET,
     ) as IJwtUser;
 
     const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
@@ -89,11 +90,19 @@ export const refreshSession: RequestHandler = async (
       payload.sessionId,
     );
 
-    genAccessTokens(jwtUser, req, res, payload.sessionId);
+    genAccessTokens(
+      jwtUser,
+      req,
+      res,
+      payload.sessionId,
+      authTokens.ACCESS_TOKEN_SECRET,
+    );
 
     return res.status(200).json({ status: "SUCCESS", message: "Refreshed" });
-  } catch (err) {
+  } catch (err: any) {
     clearAuthTokens(res);
-    return res.status(401).json({ status: "ERROR", message: "Invalid token" });
+    return res
+      .status(401)
+      .json({ status: "ERROR", message: err.message || "Invalid token" });
   }
 };

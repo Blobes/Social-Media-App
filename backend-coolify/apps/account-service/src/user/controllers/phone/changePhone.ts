@@ -1,3 +1,4 @@
+import { FUNSTAKES_REDIS_URL } from "@/envVars";
 import { UserModel } from "@repo/database";
 import {
   IAuthRequest,
@@ -138,7 +139,7 @@ export const changePhoneNumber = async (
     await user.save();
 
     // Send code via WhatsApp
-    await otpQueue().add(
+    await otpQueue(FUNSTAKES_REDIS_URL).add(
       "send-phone-otp",
       { phone: formattedPhone, code, type: "WHATSAPP" as OtpType },
       {

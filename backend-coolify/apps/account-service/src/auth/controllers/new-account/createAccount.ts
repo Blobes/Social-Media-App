@@ -1,3 +1,4 @@
+import { authTokens, FUNSTAKES_REDIS_URL } from "@/envVars";
 import { UserModel } from "@repo/database";
 import {
   evaluateNotability,
@@ -114,7 +115,7 @@ export const createAccount = async (
     // Registering the device and anchoring it as primary
     const device = await upsertDevice(newUser, deviceToken, req);
 
-    await otpQueue().add(
+    await otpQueue(FUNSTAKES_REDIS_URL).add(
       "send-email-otp",
       { email: normalizedEmail, code, type: "EMAIL" as OtpType },
       {
@@ -132,6 +133,7 @@ export const createAccount = async (
       req as IAuthRequest,
       res,
       sessionId,
+      authTokens.ACCESS_TOKEN_SECRET,
     );
 
     const refreshToken = await genRefreshTokens(
@@ -139,6 +141,7 @@ export const createAccount = async (
       req as IAuthRequest,
       res,
       sessionId,
+      authTokens.REFRESH_TOKEN_SECRET,
     );
 
     const safeData = newUser.toObject();

@@ -15,6 +15,7 @@ const LIKELIHOOD_WEIGHTS: Record<ILikelihood, number> = {
 };
 
 export const validateMedia = async (
+  openaiKey: string,
   imageUrl: string,
   shouldExtractTopic: boolean = false,
 ): Promise<IModerationRes> => {
@@ -38,6 +39,7 @@ export const validateMedia = async (
     if (shouldExtractTopic && labels.length > 0) {
       const labelString = labels.map((l: any) => l.description).join(", ");
       const textRefinement = await validateText(
+        openaiKey,
         `Visual labels from an image: ${labelString}`,
         [],
         "EXTRACTION_ONLY",

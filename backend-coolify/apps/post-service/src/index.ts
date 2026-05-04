@@ -1,25 +1,19 @@
 import express from "express";
-import { connectDB, initEnv, initUpstash, monitorProcess } from "@repo/shared";
+import { connectDB, initUpstash, monitorProcess } from "@repo/shared";
 import appLoader from "./loader";
+import { MONGO_URI, NODE_ENV, PORT } from "./envVars";
 
 const startServer = async () => {
-  initEnv(); // Load the environment first
-
-  initUpstash(); // Load redis
-
   const app = express();
-  const port = process.env.POST_PORT || 8081;
-  const mongoUri = process.env.MONGO_URI || "";
+  initUpstash(); // Load redis
 
   try {
     monitorProcess();
-    await connectDB(mongoUri);
+    await connectDB(MONGO_URI);
     appLoader(app);
 
-    app.listen(port, () => {
-      console.log(
-        `🚀 Funstakes Server [${process.env.NODE_ENV}] running on port ${port}`,
-      );
+    app.listen(PORT, () => {
+      console.log(`🚀 Funstakes Server [${NODE_ENV}] running on port ${PORT}`);
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error);

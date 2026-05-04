@@ -5,7 +5,6 @@ import { createAccount } from "./controllers/new-account/createAccount";
 import { verifyOtp } from "./controllers/otp/verifyOtp";
 import { sendOtp } from "./controllers/otp/sendOtp";
 import { loginUser } from "./controllers/session/login";
-import { verifyAuthToken } from "@repo/shared";
 import { verifySession } from "./controllers/session/verifySession";
 import { logoutUser } from "./controllers/session/logout";
 import { setPrimaryDevice } from "./controllers/device/primaryDevice";
@@ -13,6 +12,7 @@ import { checkPhone } from "./controllers/check/phone";
 import { refreshSession } from "./controllers/session/refreshSession";
 import { getDevices } from "./controllers/device/getAllDevices";
 import { removeDevice } from "./controllers/device/removeDevice";
+import { verifyAuthToken } from "@/envVars";
 
 const router: Router = express.Router();
 

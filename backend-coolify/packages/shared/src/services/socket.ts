@@ -8,10 +8,9 @@ export class InternalSocketEmitter {
   /**
    * Initializes or returns the existing Redis Emitter
    */
-  public static getEmitter(): Emitter {
+  public static getEmitter(redisUrl: string): Emitter {
     if (!this.instance) {
       // Ensure we have the environment variable
-      const redisUrl = process.env.FUNSTAKES_REDIS_URL;
       if (!redisUrl) {
         throw new Error("FUNSTAKES_REDIS_URL is not defined");
       }
@@ -28,8 +27,13 @@ export class InternalSocketEmitter {
   /**
    * Generic helper to send updates to a specific user
    */
-  public static async notifyUser(userId: string, event: string, payload: any) {
-    const io = this.getEmitter();
+  public static async notifyUser(
+    userId: string,
+    event: string,
+    payload: any,
+    redisUrl: string,
+  ) {
+    const io = this.getEmitter(redisUrl);
     // Socket.io Emitters are fire-and-forget (synchronous call to Redis)
     io.to(`user:${userId}`).emit(event, payload);
   }

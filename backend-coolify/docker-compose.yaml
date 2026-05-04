@@ -1,22 +1,15 @@
+version: "3.9"
+
 services:
-  # --- Gateway Service ---
   gateway-service:
     build:
       context: .
-      dockerfile_inline: |
-        FROM node:20-alpine
-        RUN apk add --no-cache libc6-compat curl
-        WORKDIR /app/backend-coolify
-        RUN corepack enable && corepack prepare pnpm@latest --activate
-        COPY . /app
-        RUN pnpm install && pnpm --filter @repo/gateway build
-        # Using pnpm exec because tsx is a devDependency
-        CMD ["pnpm", "--filter", "@repo/gateway", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "dist/index.js"]
+      dockerfile: ./apps/gateway/Dockerfile
     volumes:
-      # Format: [Host Path]:[Container Path]:[Mode]
-      - /data/funstakes/.env.shared:/app/.env.shared:ro
+      - /data/funstakes/secrets/.env.gateway:/app/.env:ro
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
+      NODE_ENV: production
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
     labels:
       - "coolify.name=funstakes-backend-gateway"
       - "traefik.enable=true"
@@ -24,121 +17,59 @@ services:
       - "traefik.http.routers.gateway-router.entrypoints=https"
       - "traefik.http.routers.gateway-router.tls=true"
       - "traefik.http.services.gateway-service.loadbalancer.server.port=8000"
-      - "coolify.exposed_port=8000"
     networks:
       - coolify
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
 
-  # --- Account Service ---
   account-service:
     build:
       context: .
-      dockerfile_inline: |
-        FROM node:20-alpine
-        RUN apk add --no-cache libc6-compat curl
-        WORKDIR /app/backend-coolify
-        RUN corepack enable && corepack prepare pnpm@latest --activate
-        COPY . /app
-        RUN pnpm install && pnpm --filter @repo/account-service build
-        CMD ["pnpm", "--filter", "@repo/account-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "dist/index.js"]
+      dockerfile: ./apps/account-service/Dockerfile
     volumes:
-      - /data/funstakes/.env.shared:/app/.env.shared:ro
-    labels:
-      - "coolify.name=funstakes-backend-account"
+      - /data/funstakes/secrets/.env.account:/app/.env:ro
+    environment:
+      NODE_ENV: production
     networks:
       - coolify
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
-  # --- Post Service ---
   post-service:
     build:
       context: .
-      dockerfile_inline: |
-        FROM node:20-alpine
-        RUN apk add --no-cache libc6-compat curl
-        WORKDIR /app/backend-coolify
-        RUN corepack enable && corepack prepare pnpm@latest --activate
-        COPY . /app
-        RUN pnpm install && pnpm --filter @repo/post-service build
-        CMD ["pnpm", "--filter", "@repo/post-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "dist/index.js"]
+      dockerfile: ./apps/post-service/Dockerfile
     volumes:
-      - /data/funstakes/.env.shared:/app/.env.shared:ro
+      - /data/funstakes/secrets/.env.post:/app/.env:ro
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
-    labels:
-      - "coolify.name=funstakes-backend-post"
+      NODE_ENV: production
     networks:
       - coolify
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
-  # --- Worker Service ---
   worker-service:
     build:
       context: .
-      dockerfile_inline: |
-        FROM node:20-alpine
-        RUN apk add --no-cache libc6-compat curl
-        WORKDIR /app/backend-coolify
-        RUN corepack enable && corepack prepare pnpm@latest --activate
-        COPY . /app
-        RUN pnpm install && pnpm --filter @repo/worker-service build
-        CMD ["pnpm", "--filter", "@repo/worker-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "dist/index.js"]
+      dockerfile: ./apps/worker-service/Dockerfile
     volumes:
-      - /data/funstakes/.env.shared:/app/.env.shared:ro
+      - /data/funstakes/secrets/.env.worker:/app/.env:ro
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
-    labels:
-      - "coolify.name=funstakes-backend-worker"
+      NODE_ENV: production
     networks:
       - coolify
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
-  # --- Admin Service ---
   admin-service:
     build:
       context: .
-      dockerfile_inline: |
-        FROM node:20-alpine
-        RUN apk add --no-cache libc6-compat curl
-        WORKDIR /app/backend-coolify
-        RUN corepack enable && corepack prepare pnpm@latest --activate
-        COPY . /app
-        RUN pnpm install && pnpm --filter @repo/admin-service build
-        CMD ["pnpm", "--filter", "@repo/admin-service", "exec", "node", "--import", "tsx", "--env-file=/app/.env.shared", "dist/index.js"]
+      dockerfile: ./apps/admin-service/Dockerfile
+    env_file:
+      - /data/funstakes/secrets/.env.gateway
     volumes:
-      - /data/funstakes/.env.shared:/app/.env.shared:ro
+      - /data/funstakes/secrets/.env.admin:/app/.env:ro
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS={{project.GOOGLE_APPLICATION_CREDENTIALS}}
-    labels:
-      - "coolify.name=funstakes-backend-admin"
+      NODE_ENV: production
     networks:
       - coolify
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
 networks:
   coolify:

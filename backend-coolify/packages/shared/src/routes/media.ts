@@ -1,11 +1,13 @@
 import express from "express";
-import { verifyAuthToken } from "../middlewares/authToken";
-import { getUploadUrl } from "../controller/media/getUploadUrl";
+import { MediaUploadHandler } from "../controller/media/getUploadUrl";
+import { IMediaConfig } from "../types/types";
 
-export const mediaRouter = () => {
+export const mediaRouter = (config: IMediaConfig) => {
   const router = express.Router();
 
-  router.post("/get-upload-url", verifyAuthToken, getUploadUrl);
+  const getUploadUrlHandler = MediaUploadHandler(config.uploadConfig);
+
+  router.post("/get-upload-url", config.verifyAuthToken, getUploadUrlHandler);
 
   return router;
 };

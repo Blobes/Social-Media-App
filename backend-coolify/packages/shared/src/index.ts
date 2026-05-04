@@ -16,8 +16,7 @@ export * from "./services/moderation/policy";
 export * from "./services/moderation/validateMedia";
 export * from "./services/moderation/validateText";
 export * from "./services/moderation/validatePost";
-export * from "./services/storage/deleteFromS3";
-export * from "./services/storage/generateS3Url";
+export * from "./services/s3";
 export * from "./services/upstash";
 export * from "./services/ip";
 export * from "./services/socket";
@@ -55,4 +54,4 @@ export * from "./utils/misc/device";
 // Environment config
 export * from "../env-config/express/config";
 export * from "../env-config/express/monitor";
-export * from "../env-config/express/initEnv";
+export * from "../env-config/express/dotenvConfig";

@@ -5,12 +5,9 @@ import { IModerationRes, ISeverity } from "../../types/types";
 let openai: OpenAI;
 
 // Wait for OPENAI_API_KEY env variable
-export const getOpenAIClient = () => {
+export const getOpenAIClient = (openaiKey: string) => {
   if (!openai) {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error("OPENAI_API_KEY is missing. Did you call initEnv()?");
-    }
-    openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    openai = new OpenAI({ apiKey: openaiKey });
   }
   return openai;
 };
@@ -18,11 +15,12 @@ export const getOpenAIClient = () => {
 export type ValidationMode = "EXTRACTION_ONLY" | "MODERATION_ONLY" | "BOTH";
 
 export const validateText = async (
+  openaiKey: string,
   text: string,
   providedTopics: string[],
   mode: ValidationMode = "BOTH",
 ): Promise<IModerationRes> => {
-  const client = getOpenAIClient();
+  const client = getOpenAIClient(openaiKey);
   // Use the new Severity-based structure
   const policyRules = CONTENT_POLICY.text;
   const needsExtraction =

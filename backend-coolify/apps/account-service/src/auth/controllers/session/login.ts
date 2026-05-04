@@ -1,3 +1,4 @@
+import { authTokens } from "@/envVars";
 import { IUserDocument, UserModel } from "@repo/database";
 import {
   genAccessTokens,
@@ -98,9 +99,16 @@ export const loginUser = async (
       req as IAuthRequest,
       res,
       sessionId,
+      authTokens.ACCESS_TOKEN_SECRET,
     );
 
-    await genRefreshTokens(jwtUser, req as IAuthRequest, res, sessionId);
+    await genRefreshTokens(
+      jwtUser,
+      req as IAuthRequest,
+      res,
+      sessionId,
+      authTokens.REFRESH_TOKEN_SECRET,
+    );
 
     const safeData = user.toObject();
     userSensitiveFields().forEach((field) => {

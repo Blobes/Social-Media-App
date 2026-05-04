@@ -1,9 +1,9 @@
-import { optVerifyToken } from "@repo/shared";
 import express, { Router } from "express";
 import { markPostAsSeen } from "./feed/controllers/markAsSeen";
+import { optionalAuth } from "./envVars";
 
 const router: Router = express.Router();
 
-router.patch("/:id/seen", optVerifyToken, markPostAsSeen);
+router.patch("/:id/seen", optionalAuth, markPostAsSeen);
 
 export default router;

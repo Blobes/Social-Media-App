@@ -1,30 +1,37 @@
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
+import { IEmailDispatchTokens } from "../../types/types";
 
 interface EmailOptions {
   to: string;
   code: string;
 }
 
-export async function dispatchEmailCode({ to, code }: EmailOptions) {
+export async function dispatchEmailCode(
+  { to, code }: EmailOptions,
+  dispatchConfig: IEmailDispatchTokens,
+) {
   const html = `
     <h3>Your verification code</h3>
     <p style="font-size: 22px; font-weight: bold;">${code}</p>
     <p>This code expires in 10 minutes.</p>
   `;
 
+  const resendApiKey = dispatchConfig.RESEND_API_KEY;
+  const resendFromEmail = dispatchConfig.RESEND_FROM_EMAIL;
+
   // -----------------------------
   // 1. TRY RESEND FIRST
   // -----------------------------
   try {
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    const resend = new Resend(resendApiKey);
 
-    if (!process.env.RESEND_FROM) {
+    if (!resendFromEmail) {
       throw new Error("RESEND_FROM not set");
     }
 
     const response = await resend.emails.send({
-      from: process.env.RESEND_FROM,
+      from: resendFromEmail,
       to,
       subject: "Verify Your Email",
       html,
@@ -61,10 +68,10 @@ export async function dispatchEmailCode({ to, code }: EmailOptions) {
         service: "gmail",
         auth: {
           type: "OAuth2",
-          user: process.env.GMAIL_USER,
-          clientId: process.env.GMAIL_CLIENT_ID,
-          clientSecret: process.env.GMAIL_CLIENT_SECRET,
-          refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+          user: dispatchConfig.GMAIL_USER,
+          clientId: dispatchConfig.GMAIL_CLIENT_ID,
+          clientSecret: dispatchConfig.GMAIL_CLIENT_SECRET,
+          refreshToken: dispatchConfig.GMAIL_REFRESH_TOKEN,
         },
       };
       break;
@@ -73,8 +80,8 @@ export async function dispatchEmailCode({ to, code }: EmailOptions) {
       transporterConfig = {
         service: "hotmail",
         auth: {
-          user: process.env.HOTMAIL_USER,
-          pass: process.env.HOTMAIL_PASS,
+          user: dispatchConfig.HOTMAIL_USER,
+          pass: dispatchConfig.HOTMAIL_PASSWORD,
         },
       };
       break;
@@ -83,19 +90,19 @@ export async function dispatchEmailCode({ to, code }: EmailOptions) {
       transporterConfig = {
         service: "yahoo",
         auth: {
-          user: process.env.YAHOO_USER,
-          pass: process.env.YAHOO_PASS,
+          user: dispatchConfig.YAHOO_USER,
+          pass: dispatchConfig.YAHOO_PASSWORD,
         },
       };
       break;
 
     default:
       transporterConfig = {
-        host: process.env.SMTP_HOST || "smtp.ethereal.email",
-        port: Number(process.env.SMTP_PORT) || 587,
+        host: dispatchConfig.SMTP_HOST_EMAIL || "smtp.ethereal.email",
+        port: Number(dispatchConfig.SMTP_PORT) || 587,
         auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
+          user: dispatchConfig.SMTP_USER,
+          pass: dispatchConfig.SMTP_PASSWORD,
         },
       };
   }
@@ -107,7 +114,7 @@ export async function dispatchEmailCode({ to, code }: EmailOptions) {
   // -----------------------------
   try {
     const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM || transporterConfig.auth.user,
+      from: dispatchConfig.GMAIL_USER || transporterConfig.auth.user,
       to,
       subject: "Verify Your Email",
       html,

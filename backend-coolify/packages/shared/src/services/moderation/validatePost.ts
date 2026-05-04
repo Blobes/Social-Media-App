@@ -2,12 +2,15 @@ import { IMediaInput, IModerationRes, ISeverity } from "../../types/types";
 import { validateText } from "./validateText";
 import { validateMedia } from "./validateMedia";
 
-export const validatePost = async (data: {
-  caption?: string;
-  media?: IMediaInput[];
-  topics?: string[];
-  skipModeration?: boolean;
-}) => {
+export const validatePost = async (
+  openaiKey: string,
+  data: {
+    caption?: string;
+    media?: IMediaInput[];
+    topics?: string[];
+    skipModeration?: boolean;
+  },
+) => {
   const { caption, media, topics, skipModeration = false } = data;
 
   // 1. Handle User Bypass (Original skipModeration logic)
@@ -29,7 +32,7 @@ export const validatePost = async (data: {
 
     const [textResult, ...mediaResults]: IModerationRes[] = await Promise.all([
       hasText
-        ? validateText(caption!, topics || [])
+        ? validateText(openaiKey, caption!, topics || [])
         : Promise.resolve({
             isFlagged: false,
             isUnsure: false,
@@ -39,7 +42,11 @@ export const validatePost = async (data: {
             extractedTopics: [],
           }),
       ...mediaToValidate.map((item, index) =>
-        validateMedia(item.url, !hasText && !hasUserTopics && index === 0),
+        validateMedia(
+          openaiKey,
+          item.url,
+          !hasText && !hasUserTopics && index === 0,
+        ),
       ),
     ]);
 

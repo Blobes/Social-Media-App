@@ -1,11 +1,11 @@
 import express from "express";
-import { verifyAuthToken } from "../middlewares/authToken";
 import { flagPost } from "../controller/moderation/flagPost";
+import { IVerifyAuth } from "../types/types";
 
-export const reportRouter = () => {
+export const reportRouter = (config: IVerifyAuth) => {
   const router = express.Router();
 
-  router.post("/post", verifyAuthToken, flagPost);
+  router.post("/post", config.verifyAuthToken, flagPost);
 
   return router;
 };

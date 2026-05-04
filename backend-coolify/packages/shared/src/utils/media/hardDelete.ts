@@ -1,12 +1,14 @@
 import { MediaModel } from "@repo/database";
 import { Model } from "mongoose";
-import { deleteFromS3 } from "../../services/storage/deleteFromS3";
+import { IS3Config } from "../../types/types";
+import { createS3Service } from "../../services/s3";
 
 interface HardDeleteOptions {
   mediaId: string | any;
   parentModel?: Model<any>;
   parentId?: string;
   parentField?: string;
+  s3Config: IS3Config;
 }
 
 /**
@@ -20,17 +22,20 @@ export const hardDeleteMedia = async ({
   parentModel,
   parentId,
   parentField,
+  s3Config,
 }: HardDeleteOptions): Promise<void> => {
   if (!mediaId) return;
 
   // 1. Fetch Media Record to get S3 Key
   const mediaRecord = await MediaModel.findById(mediaId);
 
+  const s3Service = createS3Service(s3Config);
+
   if (mediaRecord) {
     // 2. Remove physical file from S3
     if (mediaRecord.fileKey) {
       try {
-        await deleteFromS3(mediaRecord.fileKey);
+        await s3Service.deleteFromS3(mediaRecord.fileKey);
       } catch (s3Error) {
         console.error(
           `S3 Deletion failed for key ${mediaRecord.fileKey}:`,

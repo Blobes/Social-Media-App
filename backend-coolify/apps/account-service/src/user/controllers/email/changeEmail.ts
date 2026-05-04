@@ -1,3 +1,4 @@
+import { FUNSTAKES_REDIS_URL } from "@/envVars";
 import { UserModel } from "@repo/database";
 import {
   IAuthRequest,
@@ -140,7 +141,7 @@ export const changeEmail = async (
     await user.save();
 
     // Dispatch verification code to the new email address
-    await otpQueue().add(
+    await otpQueue(FUNSTAKES_REDIS_URL).add(
       "send-email-otp",
       { email: formattedEmail, code, type: "EMAIL" as OtpType },
       {

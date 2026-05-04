@@ -8,6 +8,7 @@ import {
   moderationQueue,
 } from "@repo/shared";
 import { GistModel } from "@repo/database";
+import { FUNSTAKES_REDIS_URL } from "@/envVars";
 
 interface CreateRequest extends IAuthRequest {
   body: {
@@ -65,7 +66,7 @@ export const createGist = async (req: CreateRequest, res: Response) => {
     });
 
     // 3. Queue the "Heavy" work for the Worker
-    await moderationQueue().add("process-content", {
+    await moderationQueue(FUNSTAKES_REDIS_URL).add("process-content", {
       postId: newGist._id,
       type: "GIST",
       userId,
