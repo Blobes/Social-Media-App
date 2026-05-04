@@ -91,7 +91,7 @@ await Promise.all([
 set("cached-posts", activePosts),
 set("cached-authors", updatedAuthors),
 ]);
-console.log(`Cache Cleanup Sync: Kept ${activePosts.length} posts.`);
+console.log(`Cache Cleanup Sync: Kept ${activePosts.length} posts today.`);
 };
 
 export const getCachedAuthor = async (
