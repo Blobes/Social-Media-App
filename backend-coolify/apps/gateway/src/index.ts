@@ -1,7 +1,7 @@
 import express from "express";
+import appLoader from "./loader";
 import { createServer } from "http";
 import { initUpstash } from "@repo/shared";
-import appLoader from "./loader";
 import { initSocket } from "./initSocket";
 import { FUNSTAKES_REDIS_URL, NODE_ENV, PORT, SERVICE_URL } from "./envVars";
 
