@@ -23,7 +23,7 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm --filter=@repo/${SERVICE_NAME} build
 
 # 🔥 KEY FIX: create isolated production bundle
-RUN pnpm --filter=@repo/${SERVICE_NAME} deploy /app/runtime --prod
+RUN pnpm --filter=@repo/${SERVICE_NAME} deploy /app/runtime --prod --legacy
 
 # =========================
 # 🚀 STAGE 2: RUNTIME (Runner)
