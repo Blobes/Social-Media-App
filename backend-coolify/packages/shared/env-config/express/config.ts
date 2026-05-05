@@ -90,7 +90,16 @@ export const corsConfig = (): any => {
       if (localhostMatch) return callback(null, true);
 
       // Allow any subdomain of your main domain (optional but safer)
-      if (origin.endsWith(".funstakes.net")) return callback(null, true);
+      const allowedDomains = ["funstakes.net"];
+      if (
+        allowedDomains.some(
+          (domain) =>
+            origin === `https://${domain}` ||
+            origin === `https://www.${domain}`,
+        )
+      ) {
+        return callback(null, true);
+      }
 
       return callback(new Error(`CORS Error: Origin ${origin} not allowed`));
     },

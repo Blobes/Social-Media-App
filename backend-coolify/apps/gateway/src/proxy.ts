@@ -37,6 +37,19 @@ const proxyHandler = (
       secure: true,
       xfwd: true,
       on: {
+        proxyRes: (proxyRes, req, res) => {
+          const origin = req.headers.origin;
+
+          if (origin) {
+            proxyRes.headers["Access-Control-Allow-Origin"] = origin;
+            proxyRes.headers["Access-Control-Allow-Credentials"] = "true";
+            proxyRes.headers["Access-Control-Allow-Headers"] =
+              "Content-Type, Authorization, X-Requested-With, Accept";
+            proxyRes.headers["Access-Control-Allow-Methods"] =
+              "GET,POST,PUT,DELETE,PATCH,OPTIONS";
+          }
+        },
+
         error: (err, req, res) => {
           console.error(`[Proxy Error] ${targetEnvVar}:`, err.message);
           (res as Response).status(502).json({ error: "Service unavailable" });
