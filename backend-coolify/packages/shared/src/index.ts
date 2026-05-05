@@ -54,4 +54,5 @@ export * from "./utils/misc/device";
 // Environment config
 export * from "../env-config/config";
 export * from "../env-config/monitor";
-export * from "../env-config/dotenvConfig"; 
+export * from "../env-config/dotenvConfig";
+export * from "../env-config/tsupBase";

@@ -21,6 +21,7 @@
     "@types/jsonwebtoken": "catalog:"
   },
   "devDependencies": {
+    "tsup": "catalog:",
     "@types/bcrypt": "catalog:",
     "@types/cookie-parser": "catalog:",
     "@types/express": "catalog:",

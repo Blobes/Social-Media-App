@@ -17,6 +17,7 @@
     "@repo/shared": "workspace:*"
   },
   "devDependencies": {
+    "tsup": "catalog:",
     "typescript": "catalog:",
     "tsx": "catalog:",
     "@types/express": "catalog:",

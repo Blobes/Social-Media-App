@@ -17,6 +17,7 @@
     "@socket.io/redis-adapter": "catalog:"
   },
   "devDependencies": {
+    "tsup": "catalog:",
     "@types/express": "catalog:",
     "@types/node": "catalog:",
     "tsx": "catalog:",
