@@ -7,8 +7,6 @@ services:
       dockerfile: ./Dockerfile
       args:
         SERVICE_NAME: gateway
-    volumes:
-      - /data/funstakes/secrets/.env.gateway:/app/.env:ro
     environment:
       NODE_ENV: production
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
@@ -33,8 +31,6 @@ services:
       dockerfile: ./Dockerfile
       args:
         SERVICE_NAME: account-service
-    volumes:
-      - /data/funstakes/secrets/.env.account:/app/.env:ro
     environment:
       NODE_ENV: production
     networks:
@@ -46,8 +42,6 @@ services:
       dockerfile: ./Dockerfile
       args:
         SERVICE_NAME: post-service
-    volumes:
-      - /data/funstakes/secrets/.env.post:/app/.env:ro
     environment:
       NODE_ENV: production
     networks:
@@ -59,8 +53,6 @@ services:
       dockerfile: ./Dockerfile
       args:
         SERVICE_NAME: worker-service
-    volumes:
-      - /data/funstakes/secrets/.env.worker:/app/.env:ro
     environment:
       NODE_ENV: production
     networks:
@@ -72,10 +64,6 @@ services:
       dockerfile: ./Dockerfile
       args:
         SERVICE_NAME: admin-service
-    env_file:
-      - /data/funstakes/secrets/.env.gateway
-    volumes:
-      - /data/funstakes/secrets/.env.admin:/app/.env:ro
     environment:
       NODE_ENV: production
     networks:
