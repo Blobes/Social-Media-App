@@ -1,6 +1,7 @@
 import { defineConfig } from "tsup";
 import type { Format } from "tsup";
-import { baseConfig } from "@repo/shared";
+import { baseConfig } from "../../packages/shared/env-config/tsupBase.js";
+
 /**
  * Gateway build config extending the base monorepo config.
  */
