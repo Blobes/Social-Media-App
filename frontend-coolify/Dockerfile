@@ -9,6 +9,9 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 WORKDIR /app
 
+# App name passed from Coolify (e.g., shell-app)
+ARG APP_NAME
+
 # Pin pnpm version to match your local environment (e.g., 10.30.1)
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
@@ -19,8 +22,6 @@ COPY packages ./packages
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# App name passed from Coolify (e.g., shell-app)
-ARG APP_NAME
 RUN pnpm --filter $APP_NAME build
 
 # =========================
@@ -30,13 +31,13 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
+ARG APP_NAME
+
 ENV NODE_ENV=production
-# Next.js standalone mode requires this to find dependencies correctly
+
 ENV PORT=3000
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-ARG APP_NAME
 
 COPY --chown=appuser:appgroup --from=builder /app/apps/${APP_NAME}/.next/standalone ./
 COPY --chown=appuser:appgroup --from=builder /app/apps/${APP_NAME}/.next/static ./apps/${APP_NAME}/.next/static

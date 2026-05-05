@@ -4,6 +4,7 @@
 FROM node:20-alpine AS builder
 
 WORKDIR /app
+ARG SERVICE_NAME
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
@@ -13,7 +14,6 @@ COPY packages ./packages
 
 RUN pnpm install --frozen-lockfile
 
-ARG SERVICE_NAME
 RUN pnpm --filter=@repo/${SERVICE_NAME} build
 
 # =========================
@@ -22,6 +22,7 @@ RUN pnpm --filter=@repo/${SERVICE_NAME} build
 FROM node:20-alpine
 
 WORKDIR /app
+ARG SERVICE_NAME
 ENV NODE_ENV=production
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
