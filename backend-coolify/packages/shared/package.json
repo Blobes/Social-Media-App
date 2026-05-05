@@ -8,7 +8,6 @@
     "./env-config/tsconfig.base.json": "./env-config/tsconfig.base.json"
   },
   "dependencies": {
-    "express": "catalog:",
     "@aws-sdk/client-s3": "catalog:",
     "@aws-sdk/s3-request-presigner": "catalog:",
     "jsonwebtoken": "catalog:",
@@ -26,6 +25,9 @@
     "ua-parser-js": "catalog:",
     "@socket.io/redis-emitter": "catalog:",
     "@repo/database": "workspace:*"
+  },
+  "peerDependencies": {
+    "express": "catalog:"
   },
   "devDependencies": {
     "mongoose": "catalog:",
