@@ -8,17 +8,17 @@ ARG SERVICE_NAME
 
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
-# Workspace config
+# Workspace metadata (needed for install)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 
-# Only required code
+# Source code
 COPY apps/${SERVICE_NAME} ./apps/${SERVICE_NAME}
 COPY packages ./packages
 
-# Install all deps (workspace-aware)
+# Install ALL dependencies (workspace-aware)
 RUN pnpm install --frozen-lockfile
 
-# Build service
+# Build only target service
 RUN pnpm --filter=@repo/${SERVICE_NAME} build
 
 
@@ -32,16 +32,17 @@ ENV NODE_ENV=production
 ARG SERVICE_NAME
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
-# Copy built output
-COPY --chown=appuser:appgroup --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
+# Copy only runtime artifacts
+COPY --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
 
-# 🔥 CRITICAL: copy node_modules from builder
-COPY --chown=appuser:appgroup --from=builder /app/node_modules ./node_modules
+# Copy package metadata (needed for pnpm install)
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# Optional: shared packages (ONLY if you use workspace imports at runtime)
-COPY --chown=appuser:appgroup --from=builder /app/packages ./packages
+# Install ONLY production dependencies (correct for pnpm)
+RUN pnpm install --prod --frozen-lockfile
 
 USER appuser
 

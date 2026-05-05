@@ -52,6 +52,6 @@ export * from "./utils/pipelines/post/dataLookup";
 export * from "./utils/misc/device";
 
 // Environment config
-export * from "../env-config/express/config";
+export * from "../env-config/config";
 export * from "../env-config/express/monitor";
-export * from "../env-config/express/dotenvConfig";
+export * from "../env-config/dotenvConfig";
