@@ -7,27 +7,29 @@ ARG SERVICE_NAME
 
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
-# Explicitly copy only the workspace configuration and lockfile
+# 1. Explicitly copy only necessary metadata for installation
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
-
-# Explicitly copy the package.json for the target app and its internal dependencies
 COPY apps/${SERVICE_NAME}/package.json ./apps/${SERVICE_NAME}/
 COPY packages/shared/package.json ./packages/shared/
 COPY packages/database/package.json ./packages/database/
 
-# Install dependencies (Layered for caching)
+# 2. Install all dependencies (caching layer)
 RUN pnpm install --frozen-lockfile
 
-# Explicitly copy the source code for the target app and packages
+# 3. Explicitly copy source code
 COPY apps/${SERVICE_NAME} ./apps/${SERVICE_NAME}
 COPY packages/shared ./packages/shared
 COPY packages/database ./packages/database
 
-# Build the target service
+# 4. Build artifacts
 RUN pnpm --filter=@repo/${SERVICE_NAME} build
 
+# 5. 🚀 ISOLATE: Create a production-ready standalone directory
+# This command extracts the app and its internal workspace deps into /app/isolated
+RUN pnpm --filter=@repo/${SERVICE_NAME} --prod deploy /app/isolated
+
 # =========================
-# 🚀 STAGE 2: RUNTIME
+# 🚀 STAGE 2: RUNNER
 # =========================
 FROM node:20-alpine AS runner
 WORKDIR /app
@@ -35,27 +37,21 @@ ENV NODE_ENV=production
 ARG SERVICE_NAME
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
-# Explicitly copy workspace metadata for runtime dependency resolution
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/${SERVICE_NAME}/package.json ./apps/${SERVICE_NAME}/
-COPY packages/shared/package.json ./packages/shared/
-COPY packages/database/package.json ./packages/database/
+# 1. Copy the isolated bundle (This contains the production node_modules + package.json)
+COPY --from=builder /app/isolated ./
 
-# Copy the built artifacts from the builder stage
+# 2. Copy the built production JS from the builder stage
 COPY --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
-# We must copy the source of internal packages because @repo/shared main points to .ts
+
+# 3. Copy internal packages (since your imports still point to internal source)
 COPY --from=builder /app/packages ./packages
 
-# Install production dependencies only
-# This resolves the symlinks for @repo/shared and its dependencies (like express)
-RUN pnpm install --prod --frozen-lockfile
-
-# Final permission hardening
+# Permission hardening
 RUN chown -R appuser:appgroup /app
 USER appuser
 
 EXPOSE 8000
 
+# ESM resolution now finds 'express' because 'pnpm deploy' flattened the dependencies correctly
 CMD ["node", "dist/index.js"]
