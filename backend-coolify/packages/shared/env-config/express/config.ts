@@ -66,8 +66,6 @@ export const corsConfig = (): any => {
     // Frontend Production Deployments
     "https://funstakes.net", // Main frontend
     "https://www.funstakes.net", // www version
-    "https://funstakes.vercel.app",
-    "https://funstakes-auth.vercel.app",
 
     // Frontend Local Deployments
     "http://localhost:3000",
@@ -77,9 +75,6 @@ export const corsConfig = (): any => {
     "http://localhost:3004",
     "http://localhost:3005",
     "http://localhost:3006",
-
-    // Legacy/Preview Deployments
-    "https://funstakes.onrender.com",
   ];
 
   return cors({
@@ -93,9 +88,6 @@ export const corsConfig = (): any => {
       // Regex for localhost ports 3000-3006
       const localhostMatch = origin.match(/^http:\/\/localhost:300[0-6]$/);
       if (localhostMatch) return callback(null, true);
-
-      // Allow all Vercel preview deployments
-      if (origin.endsWith(".vercel.app")) return callback(null, true);
 
       // Allow any subdomain of your main domain (optional but safer)
       if (origin.endsWith(".funstakes.net")) return callback(null, true);
