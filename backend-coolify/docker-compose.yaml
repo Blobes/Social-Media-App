@@ -4,7 +4,9 @@ services:
   gateway-service:
     build:
       context: .
-      dockerfile: ./apps/gateway/Dockerfile
+      dockerfile: ./Dockerfile
+      args:
+        SERVICE_NAME: gateway
     volumes:
       - /data/funstakes/secrets/.env.gateway:/app/.env:ro
     environment:
@@ -28,7 +30,9 @@ services:
   account-service:
     build:
       context: .
-      dockerfile: ./apps/account-service/Dockerfile
+      dockerfile: ./Dockerfile
+      args:
+        SERVICE_NAME: account-service
     volumes:
       - /data/funstakes/secrets/.env.account:/app/.env:ro
     environment:
@@ -39,7 +43,9 @@ services:
   post-service:
     build:
       context: .
-      dockerfile: ./apps/post-service/Dockerfile
+      dockerfile: ./Dockerfile
+      args:
+        SERVICE_NAME: post-service
     volumes:
       - /data/funstakes/secrets/.env.post:/app/.env:ro
     environment:
@@ -50,7 +56,9 @@ services:
   worker-service:
     build:
       context: .
-      dockerfile: ./apps/worker-service/Dockerfile
+      dockerfile: ./Dockerfile
+      args:
+        SERVICE_NAME: worker-service
     volumes:
       - /data/funstakes/secrets/.env.worker:/app/.env:ro
     environment:
@@ -61,7 +69,9 @@ services:
   admin-service:
     build:
       context: .
-      dockerfile: ./apps/admin-service/Dockerfile
+      dockerfile: ./Dockerfile
+      args:
+        SERVICE_NAME: admin-service
     env_file:
       - /data/funstakes/secrets/.env.gateway
     volumes:

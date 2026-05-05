@@ -7,8 +7,9 @@ services:
   shell-app:
     build:
       context: .
-      dockerfile: ./apps/shell/Dockerfile
+      dockerfile: ./Dockerfile
       args:
+        APP_NAME: shell
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     environment:
       NODE_ENV: production
@@ -36,8 +37,9 @@ services:
   auth-app:
     build:
       context: .
-      dockerfile: ./apps/auth/Dockerfile
+      dockerfile: ./Dockerfile
       args:
+        APP_NAME: auth
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     environment:
       NODE_ENV: production
@@ -54,8 +56,9 @@ services:
   post-app:
     build:
       context: .
-      dockerfile: ./apps/post/Dockerfile
+      dockerfile: ./Dockerfile
       args:
+        APP_NAME: post
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     environment:
       NODE_ENV: production
