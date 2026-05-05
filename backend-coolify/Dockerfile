@@ -8,20 +8,21 @@ ARG SERVICE_NAME
 
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
-# Workspace metadata
+# Copy workspace configuration
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 
-# We need the package.json files for all internal packages to resolve links
+# Copy all package.json files first (Optimizes layer caching)
 COPY apps/${SERVICE_NAME}/package.json ./apps/${SERVICE_NAME}/
+COPY packages/shared/package.json ./packages/shared/
+COPY packages/database/package.json ./packages/database/
+
+# Copy the actual source code
+COPY apps/${SERVICE_NAME} ./apps/${SERVICE_NAME}
 COPY packages ./packages
 
-# Install ALL dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy the rest of the source for the specific app
-COPY apps/${SERVICE_NAME} ./apps/${SERVICE_NAME}
-
-# Build only target service
+# Build only the target service
 RUN pnpm --filter=@repo/${SERVICE_NAME} build
 
 # =========================
@@ -36,24 +37,22 @@ ARG SERVICE_NAME
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
-# 1. Copy root workspace files
+# 1. Copy workspace metadata
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# 2. Copy the service's package.json (PNPM needs this to know what to install)
-COPY apps/${SERVICE_NAME}/package.json ./apps/${SERVICE_NAME}/
-
-# 3. Copy the shared packages (PNPM needs these to link them)
-COPY packages ./packages
-
-# 4. Copy the actual built code
+# 2. Copy compiled code from builder
 COPY --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
 
-# Install production dependencies
-# This now works because PNPM can see the workspace structure
+# 3. Copy the package.json and packages (PNPM needs these for symlinks)
+COPY apps/${SERVICE_NAME}/package.json ./apps/${SERVICE_NAME}/
+COPY packages ./packages
+
+# 4. Install production dependencies
+# This creates the symlinks from node_modules to your @repo/shared source
 RUN pnpm install --prod --frozen-lockfile
 
 USER appuser
-
 EXPOSE 8000
 
+# Use sh -c if you need to expand variables, but usually node dist works
 CMD ["node", "dist/index.js"]
