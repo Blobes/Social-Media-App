@@ -1,10 +1,7 @@
 export function withBaseConfig(appConfig = {}, backendApi, appName) {
   return {
     ...appConfig,
-    output:
-      process.env.NEXT_PUBLIC_NODE_ENV === "production"
-        ? "standalone"
-        : undefined,
+    output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
     async headers() {
       return [
         {

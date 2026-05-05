@@ -33,6 +33,7 @@ RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 COPY --chown=appuser:appgroup --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
 COPY --chown=appuser:appgroup --from=builder /app/package.json ./
 COPY --chown=appuser:appgroup --from=builder /app/pnpm-lock.yaml ./
+COPY --chown=appuser:appgroup --from=builder /app/pnpm-workspace.yaml ./
 
 # Install production deps only
 RUN pnpm install --prod --frozen-lockfile
