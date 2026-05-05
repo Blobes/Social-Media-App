@@ -394,6 +394,9 @@ importers:
       dotenv:
         specifier: 'catalog:'
         version: 16.6.1
+      express:
+        specifier: 'catalog:'
+        version: 4.22.1
       ioredis:
         specifier: 'catalog:'
         version: 5.10.1
@@ -434,9 +437,6 @@ importers:
       '@types/uuid':
         specifier: 'catalog:'
         version: 9.0.8
-      express:
-        specifier: 'catalog:'
-        version: 4.22.1
       mongoose:
         specifier: 'catalog:'
         version: 9.3.0
