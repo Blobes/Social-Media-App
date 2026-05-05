@@ -7,9 +7,6 @@ services:
       dockerfile: ./Dockerfile
       args:
         SERVICE_NAME: gateway
-    environment:
-      NODE_ENV: production
-      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
     labels:
       - "coolify.name=funstakes-backend-gateway"
       - "traefik.enable=true"
@@ -31,8 +28,6 @@ services:
       dockerfile: ./Dockerfile
       args:
         SERVICE_NAME: account-service
-    environment:
-      NODE_ENV: production
     networks:
       - coolify
 
@@ -42,8 +37,6 @@ services:
       dockerfile: ./Dockerfile
       args:
         SERVICE_NAME: post-service
-    environment:
-      NODE_ENV: production
     networks:
       - coolify
 
@@ -53,8 +46,6 @@ services:
       dockerfile: ./Dockerfile
       args:
         SERVICE_NAME: worker-service
-    environment:
-      NODE_ENV: production
     networks:
       - coolify
 
@@ -64,8 +55,6 @@ services:
       dockerfile: ./Dockerfile
       args:
         SERVICE_NAME: admin-service
-    environment:
-      NODE_ENV: production
     networks:
       - coolify
 
