@@ -1,58 +1,59 @@
 # =========================
-# 🏗️ BUILD STAGE
+# 🏗️ STAGE 1: PRUNER
+# =========================
+FROM node:20-alpine AS pruner
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+# Install turbo globally to slice the monorepo
+RUN pnpm add -g turbo@latest
+
+COPY . .
+# Extract only the target service and its workspace dependencies
+RUN turbo prune @repo/${SERVICE_NAME} --docker
+
+# =========================
+# 🏗️ STAGE 2: BUILDER
 # =========================
 FROM node:20-alpine AS builder
-
 WORKDIR /app
 ARG SERVICE_NAME
 
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
-# Copy workspace configuration
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+# Copy pruned locks and package.json files for maximum layer caching
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 
-# Copy all package.json files first (Optimizes layer caching)
-COPY apps/${SERVICE_NAME}/package.json ./apps/${SERVICE_NAME}/
-COPY packages/shared/package.json ./packages/shared/
-COPY packages/database/package.json ./packages/database/
-
-# Copy the actual source code
-COPY apps/${SERVICE_NAME} ./apps/${SERVICE_NAME}
-COPY packages ./packages
-
+# Install dependencies (only what's needed for this service)
 RUN pnpm install --frozen-lockfile
 
-# Build only the target service
-RUN pnpm --filter=@repo/${SERVICE_NAME} build
+# Copy source code and build
+COPY --from=pruner /app/out/full/ .
+RUN pnpm turbo run build --filter=@repo/${SERVICE_NAME}
 
 # =========================
-# 🚀 RUNTIME STAGE
+# 🚀 STAGE 3: RUNTIME
 # =========================
-FROM node:20-alpine
-
+FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ARG SERVICE_NAME
 
+# Security: Non-root execution
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
-# 1. Copy workspace metadata
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-
-# 2. Copy compiled code from builder
+# Explicitly copy production artifacts
+# We copy the node_modules from the builder because they contain 
+# the correctly linked internal workspace packages (@repo/shared)
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
+COPY --from=builder /app/apps/${SERVICE_NAME}/package.json ./package.json
 
-# 3. Copy the package.json and packages (PNPM needs these for symlinks)
-COPY apps/${SERVICE_NAME}/package.json ./apps/${SERVICE_NAME}/
-COPY packages ./packages
-
-# 4. Install production dependencies
-# This creates the symlinks from node_modules to your @repo/shared source
-RUN pnpm install --prod --frozen-lockfile
+# Copy shared packages if they are referenced at runtime
+COPY --from=builder /app/packages ./packages
 
 USER appuser
 EXPOSE 8000
 
-# Use sh -c if you need to expand variables, but usually node dist works
+# Use the specific dist entry point
 CMD ["node", "dist/index.js"]
