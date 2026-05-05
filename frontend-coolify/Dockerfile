@@ -45,7 +45,7 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 # Next.js Standalone Mode Layout:
 COPY --from=builder --chown=appuser:appgroup /app/apps/${APP_NAME}/.next/standalone ./
 COPY --from=builder --chown=appuser:appgroup /app/apps/${APP_NAME}/.next/static ./apps/${APP_NAME}/.next/static
-COPY --from=builder --chown=appuser:appgroup /app/apps/${APP_NAME}/public ./apps/${APP_NAME}/public
+COPY --from=builder --chown=appuser:appgroup /app/apps/${APP_NAME}/public* ./apps/${APP_NAME}/public/
 
 USER appuser
 
