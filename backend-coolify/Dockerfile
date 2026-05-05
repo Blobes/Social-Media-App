@@ -25,17 +25,18 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
 
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
 # Copy only what is needed
-COPY --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/pnpm-lock.yaml ./
+COPY --chown=appuser:appgroup --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
+COPY --chown=appuser:appgroup --from=builder /app/package.json ./
+COPY --chown=appuser:appgroup --from=builder /app/pnpm-lock.yaml ./
 
 # Install production deps only
 RUN pnpm install --prod --frozen-lockfile
+
+USER appuser
 
 EXPOSE 8000
 

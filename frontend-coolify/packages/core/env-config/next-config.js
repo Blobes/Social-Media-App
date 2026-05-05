@@ -1,7 +1,10 @@
-export function withBaseConfig(appConfig = {}, backendApi, appName, envMode) {
+export function withBaseConfig(appConfig = {}, backendApi, appName) {
   return {
     ...appConfig,
-    output: envMode === "production" ? "standalone" : undefined,
+    output:
+      process.env.NEXT_PUBLIC_NODE_ENV === "production"
+        ? "standalone"
+        : undefined,
     async headers() {
       return [
         {

@@ -35,13 +35,14 @@ ENV NODE_ENV=production
 ENV PORT=3000
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
 
 ARG APP_NAME
 
-COPY --from=builder /app/apps/${APP_NAME}/.next/standalone ./
-COPY --from=builder /app/apps/${APP_NAME}/.next/static ./apps/${APP_NAME}/.next/static
-COPY --from=builder /app/apps/${APP_NAME}/public ./apps/${APP_NAME}/public
+COPY --chown=appuser:appgroup --from=builder /app/apps/${APP_NAME}/.next/standalone ./
+COPY --chown=appuser:appgroup --from=builder /app/apps/${APP_NAME}/.next/static ./apps/${APP_NAME}/.next/static
+COPY --chown=appuser:appgroup --from=builder /app/apps/${APP_NAME}/public ./apps/${APP_NAME}/public
+
+USER appuser
 
 EXPOSE 3000
 
