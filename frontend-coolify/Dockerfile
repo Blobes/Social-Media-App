@@ -13,7 +13,7 @@ WORKDIR /app
 ARG APP_NAME
 
 # Pin pnpm version for consistency
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
 # Copy workspace config
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
@@ -42,11 +42,7 @@ ENV PORT=3000
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-/**
- * Next.js Standalone Mode Layout:
- * .next/standalone/server.js -> becomes ./server.js
- * .next/standalone/apps/[APP_NAME] -> becomes ./apps/[APP_NAME]
- */
+# Next.js Standalone Mode Layout:
 COPY --from=builder --chown=appuser:appgroup /app/apps/${APP_NAME}/.next/standalone ./
 COPY --from=builder --chown=appuser:appgroup /app/apps/${APP_NAME}/.next/static ./apps/${APP_NAME}/.next/static
 COPY --from=builder --chown=appuser:appgroup /app/apps/${APP_NAME}/public ./apps/${APP_NAME}/public
@@ -55,8 +51,4 @@ USER appuser
 
 EXPOSE 3000
 
-/**
- * Fixed CMD: We use sh -c to allow variable expansion.
- * This ensures 'post-app' uses its own server.js.
- */
 CMD ["sh", "-c", "node apps/${APP_NAME}/server.js"]
