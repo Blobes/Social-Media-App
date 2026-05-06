@@ -22,7 +22,7 @@ export const env = {
     return getEnv("MONGO_URI");
   },
   get PORT() {
-    return parseInt(getEnv("POST_PORT", false) || "8000", 10);
+    return parseInt(getEnv("POST_PORT", false) || "8081", 10);
   },
   get SERVICE_URL() {
     return getEnv("POST_URL");

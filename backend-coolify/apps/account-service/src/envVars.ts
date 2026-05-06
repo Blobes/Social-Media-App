@@ -24,7 +24,7 @@ export const env = {
     return getEnv("MONGO_URI");
   },
   get PORT() {
-    return parseInt(getEnv("ACCOUNT_PORT", false) || "8000", 10);
+    return parseInt(getEnv("ACCOUNT_PORT", false) || "8080", 10);
   },
   get FUNSTAKES_REDIS_URL() {
     return getEnv("FUNSTAKES_REDIS_URL");
