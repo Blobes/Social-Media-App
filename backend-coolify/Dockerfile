@@ -44,6 +44,9 @@ COPY --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
 # This allows Node to see "type": "module"
 COPY apps/${SERVICE_NAME}/package.json ./package.json
 
+COPY pnpm-workspace.yaml ./
+COPY apps/${SERVICE_NAME}/package.json ./package.json
+
 # 3. Install only external prod dependencies (like express, mongoose)
 # Note: We don't need /packages anymore because tsup bundled them into dist/
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
