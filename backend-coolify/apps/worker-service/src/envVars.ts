@@ -21,7 +21,7 @@ export const env = {
     return getEnv("MONGO_URI");
   },
   get PORT() {
-    return parseInt(getEnv("WORKER_PORT", false) || "8083", 10);
+    return parseInt(getEnv("WORKER_PORT", false) || "8000", 10);
   },
   get SERVICE_URL() {
     return getEnv("WORKER_URL");

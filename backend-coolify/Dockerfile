@@ -25,7 +25,6 @@ RUN pnpm --filter=@repo/${SERVICE_NAME} build
 FROM node:20-alpine AS runner
 WORKDIR /app
 RUN apk add --no-cache curl
-# RUN apk add --no-cache wget
 ARG SERVICE_NAME
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
@@ -47,7 +46,7 @@ RUN node -e " \
 # 3. Install ALL production dependencies (express, bcrypt, mongoose, etc.)
 RUN pnpm install --prod --no-frozen-lockfile
 
-# Define the Global Default Healthcheck
+# 4. Define the Global Default Healthcheck
 # This will be inherited by gateway, account, post, etc.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD curl -f http://localhost:8000/health || exit 1

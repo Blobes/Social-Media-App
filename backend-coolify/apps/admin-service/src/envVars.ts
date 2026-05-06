@@ -21,7 +21,7 @@ export const env = {
     return getEnv("MONGO_URI");
   },
   get PORT() {
-    return parseInt(getEnv("ADMIN_PORT", false) || "8084", 10);
+    return parseInt(getEnv("ADMIN_PORT", false) || "8000", 10);
   },
   get OPENAI_API_KEY() {
     return getEnv("OPENAI_API_KEY");
