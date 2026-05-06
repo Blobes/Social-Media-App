@@ -2,7 +2,6 @@
   "name": "@repo/shared",
   "version": "0.0.0",
   "main": "./src/index.ts",
-  "type": "module",
   "exports": {
     ".": "./src/index.ts",
     "./env-config/tsconfig.base.json": "./env-config/tsconfig.base.json"

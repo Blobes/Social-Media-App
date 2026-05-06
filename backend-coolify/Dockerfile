@@ -48,4 +48,4 @@ RUN node -e " \
 RUN pnpm install --prod --no-frozen-lockfile
 
 EXPOSE 8000
-CMD ["node", "--experimental-specifier-resolution=node", "dist/index.js"]
+CMD ["node", "dist/index.js"]
