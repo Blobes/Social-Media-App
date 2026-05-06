@@ -7,7 +7,7 @@ import {
 } from "@repo/shared";
 
 if (process.env.NODE_ENV !== "production") {
-  loadEnv("worker");
+  loadEnv();
 }
 
 /**

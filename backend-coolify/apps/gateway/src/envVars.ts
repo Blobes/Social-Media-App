@@ -7,7 +7,7 @@ import {
 import { RequestHandler } from "express";
 
 if (process.env.NODE_ENV !== "production") {
-  loadEnv("gateway");
+  loadEnv();
 }
 
 /**

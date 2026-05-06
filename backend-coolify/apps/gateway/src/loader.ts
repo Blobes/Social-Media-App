@@ -14,7 +14,7 @@ import { s3Config, verifyAuthToken } from "./envVars";
 export default async (app: Express) => {
   // 1. CORS and Rate Limiting
   app.use(corsConfig());
-  app.options("*", corsConfig());
+  // app.options("*", corsConfig());
 
   app.use(rateLimiter(100, 60));
   // 2. Proxy to microservices before body parsers

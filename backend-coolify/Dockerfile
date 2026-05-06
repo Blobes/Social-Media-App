@@ -24,6 +24,7 @@ RUN pnpm --filter=@repo/${SERVICE_NAME} build
 # =========================
 FROM node:20-alpine AS runner
 WORKDIR /app
+RUN apk add --no-cache wget
 ENV NODE_ENV=production
 ARG SERVICE_NAME
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate

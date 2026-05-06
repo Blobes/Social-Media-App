@@ -3,11 +3,10 @@ import cookieParser from "cookie-parser";
 import gistRoutes from "./gist/gistRoutes";
 import feedRoutes from "./feed/feedRoutes";
 import postRoutes from "./sharedRoutes";
-import { corsConfig, healthRouter } from "@repo/shared";
+import { healthRouter } from "@repo/shared";
 
 export default (app: Express) => {
   // ====== Middlewares ======
-  app.use(corsConfig());
   app.use(express.json({ limit: "30mb" }));
   app.use(express.urlencoded({ limit: "30mb", extended: true }));
   app.use(cookieParser());

@@ -1,32 +1,27 @@
 import dotenv from "dotenv";
 import path from "path";
 
-export function loadEnv(serviceName: string) {
-  const rootEnvPath = path.resolve(process.cwd(), "../../.env.development");
-  const serviceEnvPath = path.resolve(process.cwd(), "../../.env.production");
+/**
+ * Loads the environment variables from the project root.
+ */
+export function loadEnv() {
+  const baseEnvPath = path.resolve(process.cwd(), "../../.env.development");
+  const prodEnvPath = path.resolve(process.cwd(), "../../.env.production");
 
-  // 1. Load base env (non-sensitive defaults)
-  const rootResult = dotenv.config({ path: rootEnvPath });
+  // Load development defaults
+  dotenv.config({ path: baseEnvPath });
 
-  if (rootResult.error) {
-    console.warn(`⚠️ Root env not found at ${rootEnvPath} (this may be okay)`);
-  } else {
-    console.log(`✅ Loaded root env: ${rootEnvPath}`);
-  }
-
-  // 2. Load service-specific secrets (OVERRIDES root)
-  const serviceResult = dotenv.config({
-    path: serviceEnvPath,
-    override: false, // 🔥 THIS IS THE KEY
+  // 2. Load production values ONLY if the key doesn't exist yet
+  const result = dotenv.config({
+    path: prodEnvPath,
+    override: false,
   });
 
-  if (serviceResult.error) {
-    throw new Error(
-      `❌ Failed to load env for ${serviceName} at ${serviceEnvPath}`,
-    );
+  if (result.error) {
+    console.warn(`⚠️ Production env file not found at ${prodEnvPath}`);
+  } else {
+    console.log(`✅ Loaded environment configuration (Non-overriding mode)`);
   }
-
-  console.log(`✅ Loaded service env: ${serviceEnvPath}`);
 }
 
 export const getEnv = (key: string, required = true): string => {

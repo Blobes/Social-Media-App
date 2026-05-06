@@ -48,11 +48,9 @@ export * from "./utils/redis/cache";
 export * from "./utils/redis/ratelimit";
 export * from "./utils/pipelines/user/dataLookup";
 export * from "./utils/pipelines/post/dataLookup";
-//export * from "./utils/misc/deviceTrust";
 export * from "./utils/misc/device";
 
 // Environment config
-export * from "../env-config/config";
-export * from "../env-config/monitor";
+export * from "../env-config/corsConfig";
+export * from "../env-config/dbConfig";
 export * from "../env-config/dotenvConfig";
-export * from "../env-config/tsupBase";

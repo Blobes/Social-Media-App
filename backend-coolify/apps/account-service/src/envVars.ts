@@ -10,7 +10,7 @@ import {
 } from "@repo/shared";
 
 if (process.env.NODE_ENV !== "production") {
-  loadEnv("account");
+  loadEnv();
 }
 
 /**
