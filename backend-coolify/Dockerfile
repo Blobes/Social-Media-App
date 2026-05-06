@@ -35,8 +35,13 @@ COPY --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
 
 # 2. Strip workspace deps so pnpm doesn't look for folders
 # Since @repo packages are already bundled into ./dist, we don't need them in node_modules
-RUN sed -i '/"@repo\/shared": "workspace:\*"/d' package.json && \
-    sed -i '/"@repo\/database": "workspace:\*"/d' package.json
+RUN node -e " \
+  const fs = require('fs'); \
+  const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); \
+  delete pkg.dependencies['@repo/shared']; \
+  delete pkg.dependencies['@repo/database']; \
+  fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); \
+"
 
 # 3. Install ALL production dependencies (express, bcrypt, mongoose, etc.)
 # This ensures the 'musl' bcrypt binary is correctly placed in /app/node_modules
