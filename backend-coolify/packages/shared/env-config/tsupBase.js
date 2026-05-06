@@ -7,6 +7,6 @@ export const baseConfig = {
   sourcemap: true,
   minify: true, // keep for production
   shims: false, // important: disable for stability
-  noExternal: ["@repo/shared", "@repo/database"],
+  noExternal: [/(.*)/],
   outDir: "dist",
 };
