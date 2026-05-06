@@ -60,7 +60,7 @@ export const useOtp = <P extends Purpose>(transitData: OtpTransitData<P>) => {
       const { identifier, purpose } = transitData;
 
       if (purpose === "LOGIN") {
-        return await verifyOtp({ identifier, code: otpCode });
+        return await verifyOtp({ recipient: identifier, code: otpCode });
       }
 
       if (purpose === "ACCOUNT_UPDATE") {
@@ -93,7 +93,7 @@ export const useOtp = <P extends Purpose>(transitData: OtpTransitData<P>) => {
       purp: Purpose;
       channel: InputType;
     }) => {
-      return await sendOtp({ identifier: vars.dest, purpose: vars.purp });
+      return await sendOtp({ recipient: vars.dest, purpose: vars.purp });
     },
     onSuccess: (_, vars) => {
       setTimer(60);

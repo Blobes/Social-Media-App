@@ -23,12 +23,12 @@ const COOLDOWN_SECONDS = 60;
  * Purpose is validated at send time only — never stored on the user document.
  */
 export const sendOtp = async (req: Request, res: Response): Promise<void> => {
-  const { destination, purpose } = req.body as {
-    destination?: string;
+  const { recipient, purpose } = req.body as {
+    recipient?: string;
     purpose?: VerificationPurpose;
   };
 
-  if (!destination) {
+  if (!recipient) {
     res.status(400).json({
       status: "ERROR",
       message: "A destination email or phone number is required.",
@@ -46,7 +46,7 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  const normalized = destination.toLowerCase().trim();
+  const normalized = recipient.toLowerCase().trim();
   const channel = setOtpChannel(normalized);
 
   if (!channel) {
@@ -152,7 +152,7 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({
       status: "SUCCESS",
       message: `A verification code has been sent to your ${channel === "EMAIL" ? "email address" : "phone number"}.`,
-      payload: { destination, channel, purpose },
+      payload: { destination: recipient, channel, purpose },
     });
   } catch (error) {
     console.error("[sendCode] Error:", error);

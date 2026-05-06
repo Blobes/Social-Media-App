@@ -1,12 +1,7 @@
 "use client";
 
-const isProd = process.env.NODE_ENV === "production";
-
 export const registerSW = () => {
-  if (
-    (isProd || window.location.hostname === "localhost") &&
-    "serviceWorker" in navigator
-  ) {
+  if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
     navigator.serviceWorker
       .register("/service-worker.js")
       .then(() => console.log("SW registered"))

@@ -16,7 +16,7 @@ export const CLIENT_ROUTES = {
   login: { title: "Login", path: "/login" },
   signup: { title: "Signup", path: "/signup" },
   restoreAccount: { title: "Restore Account", path: "/restore-account" },
-  verifyOtp: { title: "Verify Otp", path: "/verify-otp" },
+  verifyOtp: { title: "Verify Otp", path: "/otp" },
   onboarding: { title: "Onboarding", path: "/signup/onboarding" },
 
   // Shell

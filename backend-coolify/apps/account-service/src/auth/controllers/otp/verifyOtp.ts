@@ -18,13 +18,13 @@ import {
  * Verifies OTP and delegates post-verification logic to imported handlers.
  */
 export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
-  const { source, code, purpose } = req.body as {
-    source?: string;
+  const { recipient, code, purpose } = req.body as {
+    recipient?: string;
     code?: string;
     purpose?: VerificationPurpose;
   };
 
-  if (!source || !code || !purpose) {
+  if (!recipient || !code || !purpose) {
     res.status(400).json({
       status: "ERROR",
       message: "Source, code, and purpose are required.",
@@ -36,7 +36,7 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
   // 1. Identify Identity Hint (The Device Token from Cookie)
   const deviceToken = req.cookies["device_token"];
 
-  const normalized = source.toLowerCase().trim();
+  const normalized = recipient.toLowerCase().trim();
   const otpChannel = setOtpChannel(normalized);
 
   if (!otpChannel) {

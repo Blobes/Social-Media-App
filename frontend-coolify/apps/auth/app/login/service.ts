@@ -19,13 +19,6 @@ export interface LoginResponse extends ISinglePayload<IUser> {
   fixedMsg?: string;
 }
 
-interface SetPrimaryDeviceReq {
-  sessionId: string;
-}
-interface SetPSessionRes extends ISinglePayload<SetPrimaryDeviceReq> {
-  deviceId: string;
-}
-
 export interface checkResponse extends ISinglePayload<IUser> {
   isExisting: boolean;
 }
@@ -64,14 +57,5 @@ export const LoginService = () => {
     });
   };
 
-  const setPrimarySession = async (
-    targetSession: SetPrimaryDeviceReq,
-  ): Promise<SetPSessionRes> => {
-    return await apiClient<SetPSessionRes>(SERVER_API.setPrimarySession, {
-      method: "PATCH",
-      body: JSON.stringify(targetSession),
-    });
-  };
-
-  return { checkEmail, checkPhone, checkUsername, login, setPrimarySession };
+  return { checkEmail, checkPhone, checkUsername, login };
 };

@@ -3,12 +3,10 @@
 import { useSnackbar, usePage } from "@repo/shared-hooks";
 import { CACHE_KEYS, CLIENT_ROUTES, IPage } from "@repo/core";
 import { queryClient } from "@repo/helpers";
-import { LoginService } from "../login/service";
 
 export const useFeedback = () => {
   const { setSBMessage } = useSnackbar();
   const { navigateTo } = usePage();
-  const { setPrimarySession } = LoginService();
 
   /**
    * Success handler for Login flows. Navigates back to login and clears the transit cache.

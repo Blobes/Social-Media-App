@@ -10,7 +10,7 @@ import {
   OnboardingTransitData,
   OtpTransitData,
 } from "@repo/core";
-import { OtpService } from "../../verify-otp/service";
+import { OtpService } from "../../otp/service";
 import { clearLoginLock } from "@repo/features";
 import { UseLogin } from "./useLogin";
 import { LoginResponse } from "../service";
@@ -75,7 +75,10 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
         const otpTransitData: OtpTransitData<"LOGIN"> = {
           _id: "transit:verification",
           identifier,
-          channel: inputType ?? "EMAIL",
+          channel:
+            inputType === "EMAIL" || inputType === "PHONE"
+              ? inputType
+              : "EMAIL",
           purpose: "LOGIN",
           payload: user,
           reason: res.otpReason,
@@ -89,7 +92,7 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
         const targetIdentifier = user.email || user.phoneNumber || identifier;
 
         try {
-          await sendOtp({ identifier: targetIdentifier });
+          await sendOtp({ recipient: targetIdentifier });
           navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true });
           return;
         } catch (error) {

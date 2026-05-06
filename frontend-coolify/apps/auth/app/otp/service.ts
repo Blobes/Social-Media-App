@@ -5,27 +5,27 @@ import { InputType, ISinglePayload, Purpose, SERVER_API } from "@repo/core";
 
 interface OtpRequest {
   code?: string;
-  identifier: string;
+  recipient: string;
   purpose?: Purpose;
   channel?: InputType;
 }
 
 export const OtpService = () => {
   const sendOtp = async (request: OtpRequest): Promise<OtpRequest> => {
-    const { identifier, purpose = "LOGIN" } = request;
+    const { recipient, purpose = "LOGIN" } = request;
     return await apiClient<OtpRequest>(SERVER_API.sendOtp, {
       method: "POST",
-      body: JSON.stringify({ identifier, purpose }),
+      body: JSON.stringify({ recipient, purpose }),
     });
   };
 
   const verifyOtp = async (
     request: OtpRequest,
   ): Promise<ISinglePayload<any>> => {
-    const { code, identifier, purpose = "LOGIN" } = request;
+    const { code, recipient, purpose = "LOGIN" } = request;
     return await apiClient(SERVER_API.verifyOtp, {
       method: "POST",
-      body: JSON.stringify({ code, source: identifier, purpose }),
+      body: JSON.stringify({ code, recipient, purpose }),
     });
   };
 
