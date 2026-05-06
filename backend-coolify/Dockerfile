@@ -28,12 +28,13 @@ ENV NODE_ENV=production
 ARG SERVICE_NAME
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
-# 1. Copy the bundle and metadata
-COPY --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
+# 1. Copy only what's needed for the production install
+COPY pnpm-workspace.yaml ./
 COPY apps/${SERVICE_NAME}/package.json ./package.json
-COPY pnpm-lock.yaml ./
+COPY --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
 
-# 2. Clean package.json so it's a standalone production file
+# 2. Strip workspace deps so pnpm doesn't look for folders
+# Since @repo packages are already bundled into ./dist, we don't need them in node_modules
 RUN node -e " \
   const fs = require('fs'); \
   const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); \
@@ -42,11 +43,9 @@ RUN node -e " \
   fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); \
 "
 
-# 3. Install ALL external production dependencies
+# 3. Install ALL production dependencies (express, bcrypt, mongoose, etc.)
+# This ensures the 'musl' bcrypt binary is correctly placed in /app/node_modules
 RUN pnpm install --prod --no-frozen-lockfile
 
 EXPOSE 8000
-
-# 🚀 THE CRITICAL RUNTIME FLAG: 
-# This fixes ERR_UNSUPPORTED_DIR_IMPORT for ioredis and others.
 CMD ["node", "--experimental-specifier-resolution=node", "dist/index.js"]
