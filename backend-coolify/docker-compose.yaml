@@ -16,17 +16,17 @@ services:
       - "traefik.http.services.gateway-service.loadbalancer.server.port=8000"
     networks:
       - coolify
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-      start_interval: 5s
     # healthcheck:
-    #   test: ["CMD", "wget", "--spider", "-q", "http://localhost:8000/health"]
-    #   interval: 30s
-    #   timeout: 30s
+    #   test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+    #   interval: 1m30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
+    #   start_interval: 5s
+    # # healthcheck:
+    # #   test: ["CMD", "wget", "--spider", "-q", "http://localhost:8000/health"]
+    # #   interval: 30s
+    # #   timeout: 30s
 
   account-service:
     build:
