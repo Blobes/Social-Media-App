@@ -5,7 +5,7 @@ import { MONGO_URI, NODE_ENV, PORT } from "./envVars";
 
 const startServer = async () => {
   const app = express();
-  initUpstash(); // Load redis
+  initUpstash(); // Load upstash
 
   try {
     monitorProcess();

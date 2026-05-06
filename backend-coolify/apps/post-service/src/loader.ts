@@ -1,9 +1,10 @@
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
-import gistRoutes from "./gist/gistRoutes";
 import feedRoutes from "./feed/feedRoutes";
-import postRoutes from "./sharedRoutes";
+import postRoutes from "./shared/routes";
 import { healthRouter } from "@repo/shared";
+import { gistRouter } from "./gist/gistRoutes";
+import sharedRoutes from "./shared/routes";
 
 export default (app: Express) => {
   // ====== Middlewares ======
@@ -22,7 +23,8 @@ export default (app: Express) => {
   // ====== Routes ======
   app.use("/post", postRoutes);
   app.use("/feed", feedRoutes);
-  app.use("/gists", gistRoutes);
+  app.use("/gists", gistRouter());
+  app.use("/", sharedRoutes);
 
   return app;
 };

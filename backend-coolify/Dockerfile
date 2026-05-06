@@ -29,7 +29,7 @@ ENV NODE_ENV=production
 ARG SERVICE_NAME
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
-# 1. Copy only what's needed for the production install
+# 1. Copy only required files and folders for the production install
 COPY pnpm-workspace.yaml ./
 COPY apps/${SERVICE_NAME}/package.json ./package.json
 COPY --from=builder /app/apps/${SERVICE_NAME}/dist ./dist
@@ -45,7 +45,6 @@ RUN node -e " \
 "
 
 # 3. Install ALL production dependencies (express, bcrypt, mongoose, etc.)
-# This ensures the 'musl' bcrypt binary is correctly placed in /app/node_modules
 RUN pnpm install --prod --no-frozen-lockfile
 
 EXPOSE 8000

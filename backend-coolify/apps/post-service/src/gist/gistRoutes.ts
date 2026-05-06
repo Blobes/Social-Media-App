@@ -7,7 +7,7 @@ import { editGist } from "./controllers/editGist";
 import { getGist } from "./controllers/getGist";
 import { OPENAI_API_KEY, optionalAuth, verifyAuthToken } from "@/envVars";
 
-const gistRouter = () => {
+export const gistRouter = () => {
   const router: Router = express.Router();
 
   const moderateContent = ContentModerator(OPENAI_API_KEY);
@@ -25,5 +25,3 @@ const gistRouter = () => {
 
   return router;
 };
-
-export default gistRouter;

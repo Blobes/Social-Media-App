@@ -3,7 +3,7 @@ import { createAdapter } from "@socket.io/redis-adapter";
 import { Redis } from "ioredis";
 import type { Server as HttpServer } from "http";
 
-export function initSocket(httpServer: HttpServer, redisUrl: string) {
+export function initRedisSocket(httpServer: HttpServer, redisUrl: string) {
   // 1. Initialize Redis Clients for the Adapter
   if (!redisUrl) throw new Error("FUNSTAKES_REDIS_URL is missing");
 

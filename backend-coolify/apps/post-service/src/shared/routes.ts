@@ -1,6 +1,6 @@
 import express, { Router } from "express";
-import { markPostAsSeen } from "./feed/controllers/markAsSeen";
-import { optionalAuth } from "./envVars";
+import { markPostAsSeen } from "./markAsSeen";
+import { optionalAuth } from "../envVars";
 
 const router: Router = express.Router();
 
