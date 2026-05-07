@@ -59,14 +59,6 @@ export const loginUser = async (
       });
     }
 
-    // if (user.isDeactivated) {
-    //   return res.status(200).json({
-    //     status: "DEACTIVATED",
-    //     message: "Account deactivated.",
-    //     payload: { userId: user._id, email: user.email },
-    //   });
-    // }
-
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({

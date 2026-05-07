@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   CLIENT_ROUTES,
   DISALLOWED_ROUTES,
@@ -126,65 +126,88 @@ export const usePage = () => {
     ],
   );
 
+  // Synchronous Redirect Detection (The "Anti-Flicker" Guard)
+  const isRedirecting = useMemo(() => {
+    const isLoggedOut = authStatus === "UNAUTHENTICATED";
+    const isDeactivated = accountStatus === "DEACTIVATED";
+    const isHome = pathname === "/";
+
+    const isOnAuthRoute = isOnAuth(pathname);
+    const isOnOWebRoute = isOnWeb(pathname);
+    const isOnOfflineRoute = isOnOffline(pathname);
+
+    // Identify if user is on a route that requires authentication
+    const isInternalRoute =
+      !isHome && !isOnAuthRoute && !isOnOWebRoute && !isOnOfflineRoute;
+
+    const isRestorePath = pathname === CLIENT_ROUTES.restoreAccount.path;
+
+    // Check for Unauthorized access or Deactivated account status
+    const needsAuthRedirect = isLoggedOut && isInternalRoute;
+    const needsDeactivationRedirect = isDeactivated && !isRestorePath;
+
+    return (
+      needsAuthRedirect ||
+      needsDeactivationRedirect ||
+      isOnDisallowedRoutes(pathname)
+    );
+  }, [
+    pathname,
+    authStatus,
+    accountStatus,
+    isOnAuth,
+    isOnWeb,
+    isOnOffline,
+    isOnDisallowedRoutes,
+  ]);
+
   /**
    * Synchronizes route change and enforces access control.
    */
   const handlePageChange = useCallback(() => {
-    const isOnAuthRoute = isOnAuth(pathname);
-    const isOnOfflineRoute = isOnOffline(pathname);
-    const isOnOWebRoute = isOnWeb(pathname);
-
-    // Prevent clearing custom messages if we are just redirecting
+    // Reset transient UI states on every navigation
     setInlineMsg(null);
 
-    // 1. Determine the path for history tracking
+    // Security Guard: Execute redirects if isRedirecting is true
+    if (isRedirecting) {
+      if (authStatus === "UNAUTHENTICATED") {
+        navigateTo(CLIENT_ROUTES.home, { loadPage: true });
+      } else if (accountStatus === "DEACTIVATED") {
+        navigateTo(CLIENT_ROUTES.restoreAccount, { loadPage: true });
+      } else if (isOnDisallowedRoutes(pathname)) {
+        navigateTo(CLIENT_ROUTES.about, { loadPage: true });
+      }
+      return; // Exit to prevent history tracking during redirect
+    }
+
+    // History Tracking: Only track valid internal pages
+    const isOnAuthRoute = isOnAuth(pathname);
+    const isOnOfflineRoute = isOnOffline(pathname);
+
+    // Fallback to last valid page if currently on an auth/offline utility page
     const pagePath =
       !isOnAuthRoute && !isOnOfflineRoute ? pathname : lastPage.path;
-
-    // 2. Update history only if the path is actually a "trackable" page
     const savedPage = getFromLocalStorage<IPage>();
+
+    // Update the lastPage state for breadcrumbs or "back" logic
     setLastPage(
       isOnAuthRoute && savedPage
         ? savedPage
         : { title: extractPageTitle(pagePath), path: pagePath },
     );
-
-    // 3. Access Guard: Logged out users trying to hit restricted internal routes
-    const isLoggedOut = authStatus === "UNAUTHENTICATED";
-    const isHome = pathname === "/";
-    const isInternalRoute =
-      !isHome && !isOnAuthRoute && !isOnOWebRoute && !isOnOfflineRoute;
-
-    if (isLoggedOut && isInternalRoute) {
-      navigateTo(CLIENT_ROUTES.home, { loadPage: true });
-      return; // Exit early to avoid evaluating other guards during redirect
-    }
-
-    // 4. Access Guard: Deactivated accounts
-    const isDeactivated = accountStatus === "DEACTIVATED";
-    const isRestorePath = pathname === CLIENT_ROUTES.restoreAccount.path;
-
-    if (isDeactivated && !isRestorePath) {
-      navigateTo(CLIENT_ROUTES.restoreAccount, { loadPage: true });
-      return;
-    }
-
-    // 5. Access Guard: Prohibited system routes
-    if (isOnDisallowedRoutes(pathname)) {
-      navigateTo(CLIENT_ROUTES.about, { loadPage: true });
-    }
   }, [
+    isRedirecting,
     pathname,
+    authStatus,
+    accountStatus,
     lastPage.path,
-    isOnAuth,
-    isOnOffline,
-    isOnWeb,
-    isOnDisallowedRoutes,
     setLastPage,
     setInlineMsg,
     navigateTo,
-    authStatus,
-    accountStatus,
+    extractPageTitle,
+    isOnAuth,
+    isOnOffline,
+    isOnDisallowedRoutes,
   ]);
 
   return {
@@ -193,6 +216,7 @@ export const usePage = () => {
     isOnAuth,
     navigateTo,
     handlePageChange,
+    isRedirecting,
     isOnDisallowedRoutes,
     isOnOffline,
   };
