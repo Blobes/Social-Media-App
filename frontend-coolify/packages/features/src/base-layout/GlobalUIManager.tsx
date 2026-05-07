@@ -53,7 +53,7 @@ export const GlobalUIManager = ({
   const accountStatus = useGlobalStore((state) => state.accountStatus);
 
   const { verifySignal, isUnstableNetwork, isOffline } = useMisc();
-  const { handlePageChange, isRedirecting } = usePage();
+  const { handlePageChange, isRedirecting, isNavigating } = usePage();
   const pathname = usePathname();
   const { verifyAuth } = useAuthVerification();
   const { setSBTimer, removeSBMessage } = useSnackbar();
@@ -114,7 +114,8 @@ export const GlobalUIManager = ({
     isGlobalLoading ||
     authStatus === "PENDING" ||
     networkStatus === "UNKNOWN" ||
-    isRedirecting;
+    isRedirecting ||
+    isNavigating;
 
   if (isInitializing) return <PageLoaderUI />;
 

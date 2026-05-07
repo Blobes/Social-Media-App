@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   CLIENT_ROUTES,
   DISALLOWED_ROUTES,
@@ -35,6 +35,9 @@ export const usePage = () => {
   const { closeDrawer, closeModal } = useMisc();
   const router = useRouter();
   const pathname = usePathname();
+
+  // Tracks the intended destination during a route transition
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
 
   /**
    * Helper functions for route classification.
@@ -89,6 +92,8 @@ export const usePage = () => {
 
       if (event) event.preventDefault();
 
+      setPendingPath(page.path);
+
       const isCrossZone = crossZoneCheck(page.path);
 
       // UI Cleanup
@@ -113,6 +118,7 @@ export const usePage = () => {
       if (loadPage) {
         await delay(2000);
         setGlobalLoading(false);
+        setPendingPath(null);
       }
     },
     [
@@ -127,7 +133,7 @@ export const usePage = () => {
   );
 
   // Synchronous Redirect Detection (The "Anti-Flicker" Guard)
-  const isRedirecting = useMemo(() => {
+  const { isRedirecting, isNavigating } = useMemo(() => {
     const isLoggedOut = authStatus === "UNAUTHENTICATED";
     const isDeactivated = accountStatus === "DEACTIVATED";
     const isHome = pathname === "/";
@@ -136,21 +142,25 @@ export const usePage = () => {
     const isOnOWebRoute = isOnWeb(pathname);
     const isOnOfflineRoute = isOnOffline(pathname);
 
-    // Identify if user is on a route that requires authentication
     const isInternalRoute =
       !isHome && !isOnAuthRoute && !isOnOWebRoute && !isOnOfflineRoute;
-
     const isRestorePath = pathname === CLIENT_ROUTES.restoreAccount.path;
 
-    // Check for Unauthorized access or Deactivated account status
+    // 1. Detection for security-based redirects
     const needsAuthRedirect = isLoggedOut && isInternalRoute;
     const needsDeactivationRedirect = isDeactivated && !isRestorePath;
-
-    return (
+    const redirectActive =
       needsAuthRedirect ||
       needsDeactivationRedirect ||
-      isOnDisallowedRoutes(pathname)
-    );
+      isOnDisallowedRoutes(pathname);
+
+    // 2. Detection for standard user-initiated navigation
+    const navigatingActive = !!pendingPath && pendingPath !== pathname;
+
+    return {
+      isRedirecting: redirectActive,
+      isNavigating: navigatingActive,
+    };
   }, [
     pathname,
     authStatus,
@@ -159,6 +169,7 @@ export const usePage = () => {
     isOnWeb,
     isOnOffline,
     isOnDisallowedRoutes,
+    pendingPath,
   ]);
 
   /**
@@ -167,6 +178,7 @@ export const usePage = () => {
   const handlePageChange = useCallback(() => {
     // Reset transient UI states on every navigation
     setInlineMsg(null);
+    setPendingPath(null);
 
     // Security Guard: Execute redirects if isRedirecting is true
     if (isRedirecting) {
@@ -219,5 +231,6 @@ export const usePage = () => {
     isRedirecting,
     isOnDisallowedRoutes,
     isOnOffline,
+    isNavigating,
   };
 };
