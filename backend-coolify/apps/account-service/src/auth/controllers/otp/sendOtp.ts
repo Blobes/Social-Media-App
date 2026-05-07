@@ -152,7 +152,7 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({
       status: "SUCCESS",
       message: `A verification code has been sent to your ${channel === "EMAIL" ? "email address" : "phone number"}.`,
-      payload: { destination: recipient, channel, purpose },
+      payload: { recipient, channel, purpose },
     });
   } catch (error) {
     console.error("[sendCode] Error:", error);

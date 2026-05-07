@@ -1,6 +1,6 @@
 "use client";
 
-import { FetchStatus } from "@repo/core";
+import { ApiError, FetchStatus } from "@repo/core";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const DEFAULT_TIMEOUT = 60000; // Default timeout in milliseconds (1 minute)
@@ -45,7 +45,7 @@ export const apiClient = async <T>(
       // Create a robust error object for TanStack's 'onError' to consume
       const error = new Error(
         responseData?.message || response.statusText || "Request failed",
-      ) as any;
+      ) as ApiError;
       error.httpStatus = response.status;
       error.status = responseData?.status || "ERROR";
       error.payload = responseData || null;
@@ -60,34 +60,39 @@ export const apiClient = async <T>(
   } catch (error: any) {
     clearTimeout(timeoutId);
 
+    if (error.httpStatus !== undefined) throw error;
+
+    const apiErr = new Error(error.message) as ApiError;
+
     // Map network or timeout failures to a status 0 for checkNetworkError logic
     if (error.name === "AbortError" || error.message === "timeout") {
-      const timeoutErr = new Error("Connection timed out or failed.");
-      (timeoutErr as any).httpStatus = 0;
-      (timeoutErr as any).status = "TIMEOUT";
-      throw timeoutErr;
+      apiErr.message = "Connection timed out or failed.";
+      apiErr.httpStatus = 0;
+      apiErr.status = "TIMEOUT";
+      apiErr.payload = null;
+    } else if (
+      error.message === "Failed to fetch" ||
+      error instanceof TypeError
+    ) {
+      apiErr.httpStatus = 0;
+      apiErr.status = "NETWORK_ERROR";
+      apiErr.payload = null;
+    } else {
+      apiErr.httpStatus = error.httpStatus || 500;
+      apiErr.status = "ERROR";
+      apiErr.payload = null;
     }
-
-    if (error.message === "Failed to fetch" || error instanceof TypeError) {
-      error.httpStatus = 0;
-      error.status = "NETWORK_ERROR";
-      throw error;
-    }
-    throw error;
+    throw apiErr;
   }
 };
 
 /**
  * Helper to identify if a TanStack error is network-related for UI feedback.
  */
-export const checkNetworkError = (err: any) => {
-  const httpStatus =
-    typeof err?.httpStatus === "number" ? err.httpStatus : undefined;
-
+export const checkNetworkError = (err: ApiError) => {
   const isNetworkError =
-    httpStatus === undefined ||
-    httpStatus === 0 ||
-    httpStatus >= 500 ||
+    err.httpStatus === 0 ||
+    err.httpStatus >= 500 ||
     err.status === "TIMEOUT" ||
     err.status === "NETWORK_ERROR";
 

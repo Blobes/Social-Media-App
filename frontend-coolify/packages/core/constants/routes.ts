@@ -16,8 +16,8 @@ export const CLIENT_ROUTES = {
   login: { title: "Login", path: "/login" },
   signup: { title: "Signup", path: "/signup" },
   restoreAccount: { title: "Restore Account", path: "/restore-account" },
-  verifyOtp: { title: "Verify Otp", path: "/otp" },
-  onboarding: { title: "Onboarding", path: "/signup/onboarding" },
+  verifyOtp: { title: "Verify Otp", path: "/verify-otp" },
+  onboarding: { title: "Onboarding", path: "/onboarding" },
 
   // Shell
   home: { title: "Home", path: "/" },
@@ -55,6 +55,7 @@ export const ROUTES_REGISTRY = {
     CLIENT_ROUTES.login.path,
     CLIENT_ROUTES.signup.path,
     CLIENT_ROUTES.restoreAccount.path,
+    CLIENT_ROUTES.verifyOtp.path,
   ],
   web: [
     CLIENT_ROUTES.about.path,

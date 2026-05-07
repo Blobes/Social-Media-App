@@ -11,7 +11,15 @@ export type FetchStatus =
   | "INFO"
   | "WARNING"
   | "DEACTIVATED"
+  | "TIMEOUT"
+  | "NETWORK_ERROR"
   | null;
+
+export interface ApiError extends Error {
+  httpStatus: number;
+  status: FetchStatus;
+  payload: any | null;
+}
 
 export interface ISinglePayload<T> {
   message: string;

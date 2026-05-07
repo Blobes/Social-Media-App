@@ -72,7 +72,7 @@ export const Feedback: React.FC<FeedbackProps> = ({
             "& svg": {
               width: "100%",
               height: "100%",
-              strokeColor: theme.palette.gray[300],
+              stroke: theme.palette.gray[200],
               strokeWidth: "1.2px",
               fill: "none",
               ...style?.icon?.svg,

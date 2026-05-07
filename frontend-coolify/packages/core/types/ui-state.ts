@@ -9,6 +9,7 @@ import { Direction } from "./ui-props";
 export type AuthStatus =
   | "UNKNOWN"
   | "AUTHENTICATED"
+  | "NOT_ONBOARDED"
   | "UNAUTHENTICATED"
   | "DEACTIVATED"
   | "PENDING"
@@ -32,13 +33,15 @@ export type OnboardingStep =
   | "ONBOARDING_DEMOGRAPHICS"
   | "ONBOARDING_PROFILE_SETUP";
 
+export type OtpChannel = "EMAIL" | "PHONE";
+
 export type InputType =
-  | "EMAIL"
-  | "PHONE"
+  | OtpChannel
   | "PASSWORD"
   | "USERNAME"
   | "NUMBER"
   | "UNKNOWN";
+
 export type InputStatus = "VALID" | "INVALID";
 
 export type GenericStyle = SystemStyleObject<Theme> & {
@@ -129,9 +132,9 @@ export type OtpNextStep = OnboardingStep | "FEED";
 
 export type OtpTransitData<P extends Purpose = Purpose> = TransitData<P> & {
   identifier: string;
-  channel: InputType;
+  channel: OtpChannel;
   reason: OtpReason;
-  onSuccess?: () => void;
+  onVerificationSuccess?: () => void;
   nextStep?: OtpNextStep;
 };
 

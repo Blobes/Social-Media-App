@@ -5,44 +5,45 @@ import { SharedLoginService } from "./service";
 import { CLIENT_ROUTES, CACHE_KEYS } from "@repo/core";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
+import { useAuthNavigation } from "./useAuthNavigation";
 
 /**
  * Manages user authentication state and session verification.
  * Automatically pings the server every 10 minutes or on window focus.
  */
-export const useAuth = () => {
-  /**
-   * Performance: Using individual selectors
-   */
+export const useAuthVerification = () => {
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
 
   const { setSBMessage } = useSnackbar();
   const { verifyAndFetchUser } = SharedLoginService();
   const { navigateTo } = usePage();
+  const { handleNotOnboarded } = useAuthNavigation();
 
   const { refetch, isFetching } = useQuery({
     queryKey: [CACHE_KEYS.USER.SESSION],
     queryFn: async () => {
-      // If there is NO token, they are definitely unauthenticated.
-      // We return early to avoid unnecessary API calls.
-      const hasToken = document.cookie
-        .split(";")
-        .some((item) => item.trim().startsWith("is_logged_in="));
-      if (!hasToken) {
-        setAuthUser(null);
-        setAuthStatus("UNAUTHENTICATED");
-        return null;
-      }
-
       try {
         const res = await verifyAndFetchUser();
-
+        const user = res.payload;
         // SUCCESS: User session is valid
-        if (res.status === "SUCCESS" && res.payload) {
-          setAuthUser(res.payload);
+        if (res.status === "SUCCESS" && user) {
+          setAuthUser(user);
+          if (!user.isOnboarded) {
+            setAuthStatus("NOT_ONBOARDED");
+            handleNotOnboarded(user);
+            return user;
+          }
           setAuthStatus("AUTHENTICATED");
-          return res.payload;
+          return user;
+        }
+
+        // DEACTIVATED: User exists but account is locked
+        if (res.status === "DEACTIVATED" && user) {
+          setAuthUser(user);
+          setAuthStatus("DEACTIVATED");
+          navigateTo(CLIENT_ROUTES.restoreAccount);
+          return user;
         }
 
         // UNAUTHORIZED: Session expired or invalid
@@ -50,14 +51,6 @@ export const useAuth = () => {
           setAuthUser(null);
           setAuthStatus("UNAUTHENTICATED");
           return null;
-        }
-
-        // DEACTIVATED: User exists but account is locked
-        if (res.status === "DEACTIVATED") {
-          setAuthUser(res.payload);
-          setAuthStatus("DEACTIVATED");
-          navigateTo(CLIENT_ROUTES.restoreAccount);
-          return res.payload;
         }
 
         // ERROR: Network or server failure

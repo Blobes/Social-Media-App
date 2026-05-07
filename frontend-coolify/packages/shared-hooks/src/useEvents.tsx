@@ -18,7 +18,6 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
   const setNetworkStatus = useGlobalStore((state) => state.setNetworkStatus);
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const authStatus = useGlobalStore((state) => state.authStatus);
-  const { isOffline } = useMisc();
 
   const { switchToOnlineMode } = useOffline();
   const { navigateTo } = usePage();
@@ -27,14 +26,14 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
    * Restores online state and verifies session.
    */
   const handleOnline = useCallback(() => {
-    if (!navigator.onLine) return;
-
-    console.log("Network: Online");
     removeSBMessage();
+    if (!navigator.onLine) return;
     switchToOnlineMode();
     setNetworkStatus("STABLE");
     removeFromLocalStorage("last_auth_status");
     verifyAuth();
+
+    console.log("Network: Online");
   }, [removeSBMessage, switchToOnlineMode, setNetworkStatus, verifyAuth]);
 
   /**

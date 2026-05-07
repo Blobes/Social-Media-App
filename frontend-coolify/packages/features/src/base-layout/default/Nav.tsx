@@ -14,7 +14,7 @@ import { summarizeNum } from "@repo/helpers";
 import { SlidersHorizontal, WalletMinimal } from "lucide-react";
 import { useGlobalStore, useMisc, usePage } from "@repo/shared-hooks";
 import { LISTS, MenuRef } from "@repo/core";
-import { Logout } from "../../auth/logout/Logout";
+import { Logout } from "../../apps/auth/logout/Logout";
 
 export const DesktopNav = ({
   menuRef,

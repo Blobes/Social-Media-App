@@ -21,7 +21,7 @@ import {
   useSnackbar,
 } from "@repo/shared-hooks";
 import { AuthStatus, DrawerRef, ModalRef } from "@repo/core";
-import { useAuth } from "../auth/login/useAuth";
+import { useAuthVerification } from "../apps/auth/login/useAuthVerification";
 
 export interface UIManagerProps {
   children: React.ReactNode;
@@ -52,9 +52,9 @@ export const GlobalUIManager = ({
   const checkingSignal = useGlobalStore((state) => state.checkingSignal);
 
   const { verifySignal, isUnstableNetwork, isOffline } = useMisc();
-  const { handleCurrentPage } = usePage();
+  const { handlePageChange } = usePage();
   const pathname = usePathname();
-  const { verifyAuth } = useAuth();
+  const { verifyAuth } = useAuthVerification();
   const { setSBTimer, removeSBMessage } = useSnackbar();
   const { switchToOfflineMode } = useOffline();
   const isMounted = useRef(false);
@@ -102,8 +102,8 @@ export const GlobalUIManager = ({
 
   // Responds to route changes to update internal page tracking.
   useEffect(() => {
-    handleCurrentPage();
-  }, [pathname]);
+    handlePageChange();
+  }, [pathname, authStatus]);
 
   // Showing Splash UI during hydration
   if (!isMounted.current) return <SplashUI />;

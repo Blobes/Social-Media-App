@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { CLIENT_ROUTES, GenericStyle, IPage } from "@repo/core";
-import { ShieldCheck, Lock, Construction, Ban } from "lucide-react";
+import { ShieldCheck, Lock, Construction, Ban, ShieldX } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { Feedback } from "@repo/shared-ui";
 import { usePage } from "@repo/shared-hooks";
@@ -25,7 +25,7 @@ export const RESTRICTED_CONFIG: Record<RestrictedPurpose, any> = {
   UNAUTHORIZED: {
     headline: "Access Denied",
     tagline: "You don't have the permissions required to view this page.",
-    icon: <Lock />,
+    icon: <ShieldX />,
     primaryLabel: "Go Home",
     primaryPath: CLIENT_ROUTES.home,
     secondaryLabel: "Contact Support",
@@ -105,8 +105,15 @@ export const RestrictedUI = ({
           border: `1px solid ${theme.fixedColors.pTrans}`,
         },
         tagline: { color: theme.palette.gray[200] },
-        primaryCta: { width: "100%", paddingY: 4 },
-        icon: { width: "40px", height: "40px" },
+        primaryCta: { paddingY: theme.boxSpacing(2) },
+        icon: {
+          width: "50px",
+          height: "50px",
+          svg: {
+            stroke: theme.palette.primary.dark,
+            strokeWidth: "1.5px",
+          },
+        },
       }}
       primaryCta={handlePrimaryCta}
       secondaryCta={handleSecondaryCta}

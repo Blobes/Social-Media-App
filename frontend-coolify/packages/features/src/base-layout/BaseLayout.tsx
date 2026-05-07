@@ -1,8 +1,8 @@
 "use server";
 
 import React from "react";
-import { SharedProviders } from "./Providers";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "@repo/helpers";
 import { GlobalThemeProvider } from "@repo/core";
 
@@ -24,6 +24,7 @@ export async function BaseLayout({ children }: { children: React.ReactNode }) {
       <body>
         <QueryClientProvider client={queryClient}>
           <GlobalThemeProvider>{children}</GlobalThemeProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
         <noscript>You need to enable JavaScript to run this app!</noscript>
       </body>

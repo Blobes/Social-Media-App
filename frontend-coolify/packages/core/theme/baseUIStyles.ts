@@ -54,6 +54,10 @@ const baseUIStyles = createTheme({
           alignSelf: "flex-start",
           height: "40px",
           fontWeight: "500",
+          "&:disabled": {
+            cursor: "not-allowed",
+            pointerEvents: "auto",
+          },
         }),
         contained: ({ theme }) => ({
           backgroundColor: theme.palette.primary.main,
@@ -63,8 +67,6 @@ const baseUIStyles = createTheme({
             backgroundColor: theme.palette.primary.main,
             color: theme.fixedColors.gray50,
             opacity: 0.8,
-            pointerEvents: "auto",
-            cursor: "not-allowed",
           },
         }),
         outlined: ({ theme }) => ({
@@ -73,6 +75,11 @@ const baseUIStyles = createTheme({
           "&:hover": {
             backgroundColor: theme.fixedColors.pTrans,
             borderColor: theme.fixedColors.pTrans,
+          },
+        }),
+        text: () => ({
+          "&:disabled": {
+            opacity: 0.6,
           },
         }),
       },

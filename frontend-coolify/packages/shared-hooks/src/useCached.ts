@@ -1,5 +1,5 @@
 "use client";
-import { CachedItem, CACHE_KEYS } from "@repo/core";
+import { CACHE_KEYS } from "@repo/core";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useMemo,

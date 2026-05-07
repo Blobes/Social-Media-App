@@ -1,12 +1,31 @@
 "use client";
 
 import { apiClient, checkNetworkError } from "@repo/helpers";
-import { IUser, SERVER_API, ISinglePayload, FetchStatus } from "@repo/core";
+import {
+  IUser,
+  SERVER_API,
+  ISinglePayload,
+  FetchStatus,
+  ApiError,
+} from "@repo/core";
 
 export const SharedLoginService = () => {
   // Use ISinglePayload with IUser as the generic type
   const verifyAndFetchUser = async (): Promise<ISinglePayload<IUser>> => {
     try {
+      // If there is NO token, they are definitely unauthenticated.
+      // We return early to avoid unnecessary API calls.
+      const hasToken = document.cookie
+        .split(";")
+        .some((item) => item.trim().startsWith("is_logged_in="));
+      if (!hasToken) {
+        const error = new Error("You are not logged in") as ApiError;
+        error.httpStatus = 401;
+        error.status = "UNAUTHORIZED";
+        error.payload = null;
+        throw error;
+      }
+
       const res = await apiClient<ISinglePayload<IUser>>(
         SERVER_API.verifyUserSession,
       );
@@ -23,9 +42,10 @@ export const SharedLoginService = () => {
       return {
         payload: null,
         status: res.status || "ERROR",
-        message: res.message || "Verification failed",
+        message: res.message || "Auth verification failed",
       };
     } catch (err: any) {
+      const apiErr = err as ApiError;
       // Check for Unauthorized using both custom status string and numeric code
       const isAuthIssue =
         err.status === ("UNAUTHORIZED" as FetchStatus) ||
@@ -43,28 +63,33 @@ export const SharedLoginService = () => {
             return {
               payload: retryRes.payload,
               status: "SUCCESS",
-              message: "Session restored",
+              message: "Session restored via refresh",
             };
-          } catch {
-            return { payload: null, status: "ERROR", message: "Retry failed" };
+          } catch (retryErr) {
+            return {
+              payload: null,
+              status: "UNAUTHORIZED",
+              message: "Re-authentication failed",
+            };
           }
         }
         return {
           payload: null,
           status: "UNAUTHORIZED",
           message: "Session expired",
+          httpStatus: 401,
         };
       }
 
       // Fallback to network error check
-      const networkError = checkNetworkError(err);
+      const networkError = checkNetworkError(apiErr);
       if (networkError) return networkError as ISinglePayload<IUser>;
 
       return {
         payload: null,
-        status: "ERROR",
-        message: err.message || "An unexpected error occurred",
-        httpStatus: err.httpStatus,
+        status: apiErr.status || "ERROR",
+        message: apiErr.message || "An unexpected error occurred",
+        httpStatus: apiErr.httpStatus,
       };
     }
   };
@@ -80,14 +105,15 @@ export const SharedLoginService = () => {
       );
       return res.status === "SUCCESS";
     } catch (err: any) {
+      const apiErr = err as ApiError;
       const isExpired =
-        err.httpStatus === 401 ||
-        err.httpStatus === 400 ||
-        err.status === "UNAUTHORIZED";
+        apiErr.httpStatus === 401 ||
+        apiErr.httpStatus === 400 ||
+        apiErr.status === "UNAUTHORIZED";
 
       if (isExpired) return false;
 
-      console.error("Auth Refresh Failed unexpectedly:", err.message);
+      console.error("Auth Refresh Failed unexpectedly:", apiErr.message);
       return false;
     }
   };

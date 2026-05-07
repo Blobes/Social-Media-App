@@ -20,10 +20,10 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
     timer,
     isVerifying,
     handleVerify,
-    handleResend,
+    handleSendOtp,
     channel,
     switchChannel,
-    destination,
+    recipient,
     inlineMsg,
     isSending,
   } = useOtp(transitData);
@@ -41,12 +41,16 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
       <Stack
         spacing={theme.gap(2)}
         sx={{ textAlign: "center", alignItems: "center" }}>
-        <SquareAsterisk size={50} strokeWidth="1.5px" />
+        <SquareAsterisk
+          size={60}
+          strokeWidth="1.5px"
+          style={{ stroke: theme.palette.primary.main }}
+        />
         <Typography variant="h5" fontWeight={500}>
           Verify your {isEmail ? "Email" : "Phone"}
         </Typography>
         <Typography variant="body2" color="gray.200">
-          We sent a 6-digit code to <b>{destination}</b>
+          We sent a 6-digit code to <b>{recipient}</b>
         </Typography>
       </Stack>
 
@@ -72,7 +76,7 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
         />
         <AppButton
           variant="contained"
-          onClick={() => handleVerify(code)}
+          onClick={() => handleVerify()}
           style={{ width: "100%", paddingY: theme.boxSpacing(4) }}
           options={{ disabled: code.length < 6 || isVerifying }}>
           {isVerifying ? (
@@ -89,8 +93,13 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
           <Typography variant="body2">Didn't receive a code?</Typography>
           <AppButton
             variant="text"
-            onClick={handleResend}
-            style={{ color: theme.palette.primary.dark }}
+            onClick={() => handleSendOtp()}
+            style={{
+              color: theme.palette.primary.dark,
+              "&:disabled": {
+                color: theme.palette.primary.dark,
+              },
+            }}
             options={{ disabled: timer > 0 }}>
             {isSending ? (
               <ProgressIcon otherProps={{ size: 14 }} />
@@ -113,7 +122,7 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
           {isSending ? (
             <ProgressIcon otherProps={{ size: 14 }} />
           ) : (
-            `Send to ${isEmail ? "phone number" : "email"} instead`
+            `Send code via ${isEmail ? "SMS" : "email"}`
           )}
         </AppButton>
       </Stack>

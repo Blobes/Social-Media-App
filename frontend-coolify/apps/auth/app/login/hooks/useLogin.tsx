@@ -6,7 +6,7 @@ import { useSnackbar, useGlobalStore } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { useLockCountdown } from "./useLockCount";
 import { setCookie, getCookie, delay } from "@repo/helpers";
-import { InputStatus, InputType } from "@repo/core";
+import { InputStatus } from "@repo/core";
 import { LoginService } from "../service";
 import { clearLoginLock, formatRemainingTime } from "@repo/features";
 import { StepName } from "../../types";
@@ -36,6 +36,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
   const [password, setPassword] = useState("");
   const [passwordValidity, setPasswordValidity] = useState<InputStatus>();
   const [errorMsg, setErrorMsg] = useState("");
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const inlineMsgStyle = {
     color: theme.palette.gray[0],
@@ -84,13 +85,19 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     return false;
   }, [setInlineMsg, theme]);
 
-  const { mutate, isPending: isAuthLoading } = useMutation({
+  const { mutate, isPending: isMutationLoading } = useMutation({
     mutationFn: async () => {
       await delay();
       return await login({ identifier, password });
     },
-    onSuccess: handleSuccess,
-    onError: (err) => handleError(err, handleFailedPassword),
+    onSuccess: (res) => {
+      setIsRedirecting(true);
+      handleSuccess(res);
+    },
+    onError: (err) => {
+      setIsRedirecting(false);
+      handleError(err, handleFailedPassword);
+    },
   });
 
   useEffect(() => {
@@ -148,7 +155,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     handleSubmit,
     isLocked,
     remainingSec,
-    isAuthLoading,
+    isAuthLoading: isMutationLoading || isRedirecting,
     inlineMsg,
     errorMsg,
   };

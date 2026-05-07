@@ -1,38 +1,40 @@
 // Auth
-export * from "./src/auth/login/useAuth";
-export * from "./src/auth/logout/useLogout";
-export * from "./src/auth/logout/Logout";
-export * from "./src/auth/login/service";
-export * from "./src/auth/login/timer";
-export * from "./src/auth/restore/RestoreAccount";
+export * from "./src/apps/auth/login/useAuthVerification";
+export * from "./src/apps/auth/logout/useLogout";
+export * from "./src/apps/auth/logout/Logout";
+export * from "./src/apps/auth/login/service";
+export * from "./src/apps/auth/login/timer";
+export * from "./src/apps/auth/restore/RestoreAccount";
+export * from "./src/apps/auth/login/useAuthNavigation";
 
 // Gist
-export * from "./src/gist/view/hooks/useGists";
-export * from "./src/gist/view/hooks/useGistState";
-export * from "./src/gist/view/GistCard";
-export * from "./src/gist/gistService";
+export * from "./src/apps/gist/view/hooks/useGists";
+export * from "./src/apps/gist/view/hooks/useGistState";
+export * from "./src/apps/gist/view/GistCard";
+export * from "./src/apps/gist/gistService";
 
 // Profile
-export * from "./src/profile/useUser";
+export * from "./src/apps/profile/useUser";
 
 // Stake
-export * from "./src/stake/useStake";
-export * from "./src/stake/StakeCard";
+export * from "./src/apps/stake/useStake";
+export * from "./src/apps/stake/StakeCard";
 
 // Base layout
 export * from "./src/base-layout/GlobalUIManager";
 export * from "./src/base-layout/default/AppWrapper";
 export * from "./src/base-layout/BaseLayout";
+export * from "./src/base-layout/AuthManager";
 
 //Post
 // Components
-export * from "./src/post/components/engagement/Bookmark";
-export * from "./src/post/components/engagement/Engagement";
-export * from "./src/post/components/engagement/Like";
-export * from "./src/post/components/header/PostHeader";
-export * from "./src/post/components/Metrics";
+export * from "./src/apps/post/components/engagement/Bookmark";
+export * from "./src/apps/post/components/engagement/Engagement";
+export * from "./src/apps/post/components/engagement/Like";
+export * from "./src/apps/post/components/header/PostHeader";
+export * from "./src/apps/post/components/Metrics";
 // Hooks
-export * from "./src/post/hooks/like/usePostLike";
+export * from "./src/apps/post/hooks/like/usePostLike";
 
 // Stateful components
 export * from "./src/components/RestrictedUI";

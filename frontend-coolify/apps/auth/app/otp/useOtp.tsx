@@ -1,48 +1,49 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useGlobalStore, useSnackbar } from "@repo/shared-hooks";
-import { InputType, Purpose, OtpTransitData } from "@repo/core";
-import { OtpService } from "./service";
+import { Purpose, OtpTransitData, OtpChannel, IUser } from "@repo/core";
+import { OtpRequest, OtpService } from "./service";
 import { useMutation } from "@tanstack/react-query";
 import { useFeedback } from "./useFeedback";
 
-/**
- * Manages OTP verification logic and transit data hydration.
- */
-export const useOtp = <P extends Purpose>(transitData: OtpTransitData<P>) => {
-  const { verifyOtp, verifyEmailOtp, verifyPhoneOtp, sendOtp } = OtpService();
-  const inlineMsg = useGlobalStore((state) => state.inlineMsg);
-  const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
-  const { setSBMessage } = useSnackbar();
-  const { onLoginSuccess, onUpdateSuccess } = useFeedback();
+interface UseOtpOptions {
+  dispatchOnload?: boolean;
+}
 
-  const isLoginTransit = (
-    data: OtpTransitData,
-  ): data is OtpTransitData<"LOGIN"> => {
-    return data.purpose === "LOGIN";
-  };
+/**
+ * Manages OTP logic by decoupling the "Dumb" API calls from the "Smart" orchestration.
+ */
+export const useOtp = <P extends Purpose>(
+  transitData?: OtpTransitData<P>,
+  options: UseOtpOptions = { dispatchOnload: false },
+) => {
+  const { verifyOtp, verifyEmailOtp, verifyPhoneOtp, dispatchOtp } =
+    OtpService();
+  const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
+  const inlineMsg = useGlobalStore((state) => state.inlineMsg);
+  const { setSBMessage } = useSnackbar();
+  const { handleLoginOtpSuccess, onUpdateSuccess } = useFeedback();
 
   const [code, setCode] = useState("");
-  const [timer, setTimer] = useState(60);
+  const [timer, setTimer] = useState(0);
 
-  // Initialize state based on transitData once it rehydrates
-  const [channel, setChannel] = useState<InputType | undefined>(
+  // Cast transitData.channel to OtpChannel or fallback to EMAIL
+  const [channel, setChannel] = useState<OtpChannel>(
     transitData?.channel || "EMAIL",
   );
-  const [destination, setDestination] = useState(
-    transitData?.identifier || "nick@gmail.co",
-  );
+  const [recipient, setRecipient] = useState(transitData?.identifier);
+  const hasDispatchedOnLoad = useRef(false);
 
   /**
-   * Sync local state when transitData is rehydrated from cache.
+   * Hydrates state from transitData when available.
    */
   useEffect(() => {
-    if (transitData && !channel) {
+    if (transitData) {
       setChannel(transitData.channel);
-      setDestination(transitData.identifier);
+      setRecipient(transitData.identifier);
     }
-  }, [transitData, channel]);
+  }, [transitData]);
 
   useEffect(() => {
     if (timer > 0) {
@@ -51,104 +52,137 @@ export const useOtp = <P extends Purpose>(transitData: OtpTransitData<P>) => {
     }
   }, [timer]);
 
+  // Auto-dispatch logic on load
+  useEffect(() => {
+    const canDispatch =
+      options.dispatchOnload && transitData && !hasDispatchedOnLoad.current;
+    if (canDispatch) {
+      hasDispatchedOnLoad.current = true;
+      queueMicrotask(() => {
+        handleSendOtp();
+      });
+    }
+  }, [transitData?.identifier, options.dispatchOnload]);
+
   /**
-   * Core verification mutation.
+   * Execution Layer: Dumb Verification Mutation
    */
-  const { mutate: handleVerify, isPending: isVerifying } = useMutation({
-    mutationFn: async (otpCode: string) => {
-      if (!transitData) throw new Error("Missing session data.");
-      const { identifier, purpose } = transitData;
-
-      if (purpose === "LOGIN") {
-        return await verifyOtp({ recipient: identifier, code: otpCode });
-      }
-
-      if (purpose === "ACCOUNT_UPDATE") {
-        if (channel === "EMAIL") return await verifyEmailOtp(otpCode);
-        if (channel === "PHONE") return await verifyPhoneOtp(otpCode);
-      }
-      throw new Error("Unsupported verification purpose.");
+  const { mutateAsync: executeVerify, isPending: isVerifying } = useMutation({
+    mutationFn: async (params: {
+      purpose: Purpose;
+      method: () => Promise<any>;
+    }) => {
+      return await params.method();
     },
-    onSuccess: (res) => {
-      const purpose = transitData?.purpose;
-
-      //Branching logic based on the intent of the verification
-      if (purpose === "LOGIN") {
-        onLoginSuccess();
-      } else if (purpose === "ACCOUNT_UPDATE") {
-        onUpdateSuccess();
-      }
+    onSuccess: (_, vars) => {
+      if (vars.purpose === "LOGIN")
+        handleLoginOtpSuccess(
+          transitData?.payload as IUser,
+          transitData?.onVerificationSuccess,
+        );
+      if (vars.purpose === "ACCOUNT_UPDATE") onUpdateSuccess();
     },
-    onError: (err: any) => {
-      setInlineMsg(err.message || "Invalid verification code.");
-    },
+    onError: (err: any) => setInlineMsg(err.message || "Invalid code."),
   });
 
   /**
-   * Mutation to handle OTP resending.
+   * Execution Layer: Dumb Dispatch Mutation
    */
-  const { mutate: resendOtp, isPending: isSending } = useMutation({
-    mutationFn: async (vars: {
-      dest: string;
-      purp: Purpose;
-      channel: InputType;
-    }) => {
-      return await sendOtp({ recipient: vars.dest, purpose: vars.purp });
-    },
+  const { mutate: executeDispatch, isPending: isSending } = useMutation({
+    mutationFn: async (request: OtpRequest) => dispatchOtp(request),
     onSuccess: (_, vars) => {
       setTimer(60);
+      setCode("");
       setSBMessage({
         msg: {
-          tagline: `A new code has been sent to your ${vars.channel === "EMAIL" ? "email" : "phone"}.`,
+          tagline: `A new code has been sent to your ${vars.channel?.toLowerCase()}.`,
           msgStatus: "SUCCESS",
+          duration: 10,
         },
       });
     },
-    onError: (error: any) => {
-      setInlineMsg(error.message || "Failed to send code. Please try again.");
-    },
+    onError: (error: any) =>
+      setInlineMsg(error.message || "Failed to send code."),
   });
 
   /**
-   * Triggers the OTP resend logic. Orchestrates local state updates and triggers the mutation.
+   * Orchestration Layer: Verification
    */
-  const handleResend = useCallback(
-    (targetDest?: string, targetChannel?: InputType) => {
-      const dest = targetDest ?? destination;
-      const activeChannel = targetChannel ?? channel;
-      const purp = transitData?.purpose ?? "LOGIN";
+  const handleVerify = useCallback(
+    async (validationCode?: string) => {
+      setInlineMsg(null);
 
-      // 1. Validation
-      if (!dest || !activeChannel || timer > 0) return;
+      const finalCode = validationCode || code;
 
-      // 2. Immediate state sync for channel switching
-      if (targetDest) setDestination(targetDest);
-      if (targetChannel) setChannel(targetChannel);
+      if (!transitData) return setInlineMsg("Missing session data.");
+      if (finalCode.length < 6) return;
 
-      // 3. Execute mutation
-      resendOtp({ dest, purp, channel: activeChannel });
+      const { purpose, identifier } = transitData;
+
+      const method = (() => {
+        if (purpose === "LOGIN")
+          return () => verifyOtp({ recipient: identifier, code: finalCode });
+        if (purpose === "ACCOUNT_UPDATE") {
+          return channel === "EMAIL"
+            ? () => verifyEmailOtp(finalCode)
+            : () => verifyPhoneOtp(finalCode);
+        }
+        return null;
+      })();
+
+      if (!method) return setInlineMsg("Unsupported verification method.");
+      await executeVerify({ purpose, method });
     },
-    [destination, channel, timer, transitData, resendOtp],
+    [
+      transitData,
+      code,
+      channel,
+      executeVerify,
+      verifyOtp,
+      verifyEmailOtp,
+      verifyPhoneOtp,
+    ],
   );
 
   /**
-   * Switches the active communication channel and triggers a new OTP.
+   * Orchestration Layer: Resend/Send
    */
-  const switchChannel = () => {
-    if (!transitData?.payload) return;
-    const nextChannel = channel === "EMAIL" ? "PHONE" : "EMAIL";
-
-    const nextDest = (() => {
-      // Check if we are in the LOGIN flow where payload is IUser
-      if (isLoginTransit(transitData)) {
-        return nextChannel === "PHONE"
-          ? transitData.payload.phoneNumber
-          : transitData.payload.email;
+  const handleSendOtp = useCallback(
+    (customRequest?: OtpRequest) => {
+      setInlineMsg(null);
+      // Manual override (Highest flexibility)
+      if (customRequest) {
+        return executeDispatch(customRequest);
       }
-      // Fallback for other purposes that might store the user differently
+      // State-based fallback (Strict check)
+      if (!recipient || !channel || timer > 0) return;
+      executeDispatch({
+        recipient,
+        purpose: transitData?.purpose ?? "LOGIN",
+        channel,
+      });
+    },
+    [recipient, channel, timer, transitData, executeDispatch],
+  );
+
+  /**
+   * Switches the active channel and immediately triggers a new OTP.
+   * This bypasses the 60s timer to allow immediate switching.
+   */
+  const switchChannel = useCallback(() => {
+    if (!transitData?.payload) return;
+    const nextChannel: OtpChannel = channel === "EMAIL" ? "PHONE" : "EMAIL";
+    // Resolve the new destination based on the purpose
+    const nextDest = (() => {
+      if (transitData.purpose === "LOGIN") {
+        // We know payload is IUser in LOGIN purpose
+        const user = transitData.payload as any;
+        return nextChannel === "PHONE" ? user.phoneNumber : user.email;
+      }
       return undefined;
     })();
 
+    // Error handling if the destination doesn't exist on the profile
     if (!nextDest) {
       setSBMessage({
         msg: {
@@ -159,24 +193,31 @@ export const useOtp = <P extends Purpose>(transitData: OtpTransitData<P>) => {
       return;
     }
 
-    // Clear timer so the user doesn't have to wait 60s just because they switched channels
+    // Reset timer and sync local state
     setTimer(0);
-    // Hand off to resend with the new targets
-    handleResend(nextDest, nextChannel);
-  };
+    setChannel(nextChannel);
+    setRecipient(nextDest);
+
+    // Trigger the decoupled resend logic with the new targets
+    handleSendOtp({
+      recipient: nextDest,
+      purpose: transitData.purpose,
+      channel: nextChannel,
+    });
+  }, [channel, transitData, handleSendOtp, setSBMessage]);
 
   return {
-    transitData,
     code,
     setCode,
     timer,
     isVerifying,
-    handleVerify,
-    handleResend: () => handleResend(),
-    switchChannel,
-    channel,
-    destination,
-    inlineMsg,
     isSending,
+    handleVerify,
+    handleSendOtp,
+    channel,
+    switchChannel,
+    recipient,
+    setRecipient,
+    inlineMsg,
   };
 };

@@ -1,35 +1,49 @@
 "use client";
 
-import { useSnackbar, usePage } from "@repo/shared-hooks";
-import { CACHE_KEYS, CLIENT_ROUTES, IPage } from "@repo/core";
+import { useSnackbar, usePage, useGlobalStore } from "@repo/shared-hooks";
+import { CACHE_KEYS, CLIENT_ROUTES, IPage, IUser } from "@repo/core";
 import { queryClient } from "@repo/helpers";
 
 export const useFeedback = () => {
   const { setSBMessage } = useSnackbar();
   const { navigateTo } = usePage();
+  const setAuthUser = useGlobalStore((state) => state.setAuthUser);
+  const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
 
   /**
-   * Success handler for Login flows. Navigates back to login and clears the transit cache.
+   * Success handler for Login flows. clears the transit cache.
    */
-  const onLoginSuccess = () => {
-    // Clear transit cache
+  const handleLoginOtpSuccess = (
+    user?: IUser,
+    onSuccessCallback?: () => void,
+  ) => {
+    // Commit user to global state while the reference is still valid
+    if (user) {
+      const userClone = { ...user };
+      setAuthUser(userClone);
+      setAuthStatus("AUTHENTICATED");
+    }
+
+    // Clear the transit cache now that the data is safely in Zustand
     queryClient.removeQueries({ queryKey: CACHE_KEYS.LOGIN_TRANSIT_DATA });
 
     // Notify User
     setSBMessage({
       msg: {
-        tagline:
-          "Verification successful! Please enter your password to login.",
+        tagline: "Verification successful!",
         msgStatus: "SUCCESS",
       },
     });
 
-    // Navigate to Password Step
-    const loginPath = `${CLIENT_ROUTES.login.path}?step=PASSWORD`;
-    navigateTo({ title: CLIENT_ROUTES.login.title, path: loginPath } as IPage, {
-      loadPage: true,
-      type: "replace",
-    });
+    // Handle Routing
+    if (onSuccessCallback) {
+      onSuccessCallback();
+    } else {
+      navigateTo(CLIENT_ROUTES.home, {
+        loadPage: true,
+        type: "replace",
+      });
+    }
   };
 
   /**
@@ -48,5 +62,5 @@ export const useFeedback = () => {
     navigateTo(CLIENT_ROUTES.settings, { loadPage: true, type: "replace" });
   };
 
-  return { onLoginSuccess, onUpdateSuccess };
+  return { handleLoginOtpSuccess, onUpdateSuccess };
 };

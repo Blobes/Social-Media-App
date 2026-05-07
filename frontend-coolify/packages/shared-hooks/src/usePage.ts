@@ -28,6 +28,8 @@ export const usePage = () => {
   const modalContent = useGlobalStore((state) => state.modalContent);
   const setPage = useGlobalStore((state) => state.setPage);
   const lastPage = useGlobalStore((state) => state.lastPage);
+  const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
+  const authStatus = useGlobalStore((state) => state.authStatus);
 
   const { closeDrawer, closeModal } = useMisc();
   const router = useRouter();
@@ -126,9 +128,10 @@ export const usePage = () => {
   /**
    * Synchronizes current route state with persistence layers.
    */
-  const handleCurrentPage = useCallback(() => {
+  const handlePageChange = useCallback(() => {
     const isOnAuthRoute = isOnAuth(pathname);
     const isOnOfflineRoute = isOnOffline(pathname);
+    const isOnOWebRoute = isOnWeb(pathname);
     const savedPage = getFromLocalStorage<IPage>();
 
     const pagePath =
@@ -140,17 +143,36 @@ export const usePage = () => {
         : { title: extractPageTitle(pagePath), path: pagePath },
     );
 
+    setInlineMsg(null);
+
+    // Accessing restricted pages while logged out
+    const isLoggedOut = authStatus === "UNAUTHENTICATED";
+    const isHome = pathname === "/";
+    if (
+      isLoggedOut &&
+      !isHome &&
+      !isOnAuthRoute &&
+      !isOnOWebRoute &&
+      !isOnOfflineRoute
+    ) {
+      navigateTo(CLIENT_ROUTES.home, { loadPage: true });
+    }
+
     if (isOnDisallowedRoutes(pathname)) {
-      router.replace(CLIENT_ROUTES.about.path);
+      navigateTo(CLIENT_ROUTES.about, { loadPage: true });
     }
   }, [
     pathname,
     lastPage.path,
     isOnAuth,
     isOnOffline,
+    isOnWeb,
     isOnDisallowedRoutes,
     setLastPage,
     router,
+    setInlineMsg,
+    navigateTo,
+    authStatus,
   ]);
 
   return {
@@ -158,7 +180,7 @@ export const usePage = () => {
     isOnWeb,
     isOnAuth,
     navigateTo,
-    handleCurrentPage,
+    handlePageChange,
     isOnDisallowedRoutes,
     isOnOffline,
   };
