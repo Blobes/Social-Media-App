@@ -82,6 +82,7 @@ export const verifySession: RequestHandler = async (
       return res.status(403).json({
         status: "FORBIDDEN",
         message: "Hardware identity mismatch.",
+        payload: null,
       });
     }
 
@@ -93,6 +94,7 @@ export const verifySession: RequestHandler = async (
       return res.status(401).json({
         status: "UNAUTHORIZED",
         message: "Security anchor rotated. Please re-authenticate.",
+        payload: null,
       });
     }
 

@@ -1,7 +1,13 @@
 import { OnboardingStep } from "../ui-state";
 
 export type UserRole = "USER" | "ADMIN" | "MODERATOR";
-export type AccountStatus = "ACTIVE" | "DEACTIVATED" | "SUSPENDED" | "BANNED";
+export type AccountStatus =
+  | "PENDING"
+  | "ACTIVE"
+  | "DEACTIVATED"
+  | "SUSPENDED"
+  | "BANNED"
+  | "NOT_ONBOARDED";
 export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
 
 export interface ITrustedDevice {

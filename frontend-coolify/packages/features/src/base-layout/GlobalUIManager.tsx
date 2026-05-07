@@ -50,6 +50,7 @@ export const GlobalUIManager = ({
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const offlineMode = useGlobalStore((state) => state.offlineMode);
   const checkingSignal = useGlobalStore((state) => state.checkingSignal);
+  const accountStatus = useGlobalStore((state) => state.accountStatus);
 
   const { verifySignal, isUnstableNetwork, isOffline } = useMisc();
   const { handlePageChange } = usePage();
@@ -103,7 +104,7 @@ export const GlobalUIManager = ({
   // Responds to route changes to update internal page tracking.
   useEffect(() => {
     handlePageChange();
-  }, [pathname, authStatus]);
+  }, [pathname, authStatus, accountStatus]);
 
   // Showing Splash UI during hydration
   if (!isMounted.current) return <SplashUI />;

@@ -1,7 +1,12 @@
 import { Types } from "mongoose";
 
 export type UserRole = "USER" | "ADMIN" | "MODERATOR";
-export type AccountStatus = "ACTIVE" | "DEACTIVATED" | "SUSPENDED" | "BANNED";
+export type AccountStatus =
+  | "ACTIVE"
+  | "DEACTIVATED"
+  | "SUSPENDED"
+  | "BANNED"
+  | "NOT_ONBOARDED";
 export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
 
 /**

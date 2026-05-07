@@ -9,9 +9,7 @@ import { Direction } from "./ui-props";
 export type AuthStatus =
   | "UNKNOWN"
   | "AUTHENTICATED"
-  | "NOT_ONBOARDED"
   | "UNAUTHENTICATED"
-  | "DEACTIVATED"
   | "PENDING"
   | "ERROR";
 

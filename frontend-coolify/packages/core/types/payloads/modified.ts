@@ -10,7 +10,7 @@ export type FetchStatus =
   | "ERROR"
   | "INFO"
   | "WARNING"
-  | "DEACTIVATED"
+  | "FORBIDDEN"
   | "TIMEOUT"
   | "NETWORK_ERROR"
   | null;

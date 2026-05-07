@@ -14,6 +14,7 @@ import { useAuthNavigation } from "./useAuthNavigation";
 export const useAuthVerification = () => {
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
+  const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
 
   const { setSBMessage } = useSnackbar();
   const { verifyAndFetchUser } = SharedLoginService();
@@ -29,20 +30,20 @@ export const useAuthVerification = () => {
         // SUCCESS: User session is valid
         if (res.status === "SUCCESS" && user) {
           setAuthUser(user);
-          if (!user.isOnboarded) {
-            setAuthStatus("NOT_ONBOARDED");
-            handleNotOnboarded(user);
-            return user;
-          }
           setAuthStatus("AUTHENTICATED");
-          return user;
-        }
 
-        // DEACTIVATED: User exists but account is locked
-        if (res.status === "DEACTIVATED" && user) {
-          setAuthUser(user);
-          setAuthStatus("DEACTIVATED");
-          navigateTo(CLIENT_ROUTES.restoreAccount);
+          // NOT ONBOARDED: User exists but is not on boarded
+          if (!user.isOnboarded) {
+            setAccountStatus("NOT_ONBOARDED");
+            handleNotOnboarded(user);
+          }
+
+          // DEACTIVATED: User exists but account is locked
+          if (user.accountStatus === "DEACTIVATED") {
+            setAuthUser(user);
+            setAccountStatus("DEACTIVATED");
+            navigateTo(CLIENT_ROUTES.restoreAccount);
+          }
           return user;
         }
 

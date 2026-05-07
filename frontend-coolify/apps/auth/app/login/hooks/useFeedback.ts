@@ -19,26 +19,17 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
+  const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
 
   /**
    * Processes successful login and routes based on account state.
    */
   const handleSuccess = async (res: LoginResponse) => {
     if (res.httpStatus !== 200) return;
-
+    clearLoginLock();
     setGlobalLoading(true);
 
     const user = res.payload as IUser;
-    clearLoginLock();
-
-    // Handling deactivated accounts immediately
-    if (res.status === "DEACTIVATED") {
-      setAuthStatus("DEACTIVATED");
-      if (setStep) setStep("RESTORE_ACCOUNT");
-      setGlobalLoading(false);
-      return;
-    }
-
     if (res.status === "SUCCESS" && user) {
       // OTP Verification Flow for logging in after a while or untrusted hardware
       if (res.requireOtp) {
@@ -56,18 +47,26 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
         return;
       }
 
+      setAuthUser(user);
+      setAuthStatus("AUTHENTICATED");
+
+      // Handling deactivated accounts immediately
+      if (user.isDeactivated) {
+        setAccountStatus("DEACTIVATED");
+        if (setStep) setStep("RESTORE_ACCOUNT");
+        setGlobalLoading(false);
+        return;
+      }
+
       // Handling users who haven't completed onboarding steps
       if (!user.isOnboarded) {
-        setAuthStatus("NOT_ONBOARDED");
+        setAccountStatus("NOT_ONBOARDED");
         handleNotOnboarded(user);
         return;
       }
 
       // Finalizing redirect for fully verified and onboarded users
-      setAuthUser(user);
-      setAuthStatus("AUTHENTICATED");
       // if (setStep) setStep("IDENTIFIER");
-
       const savedPage = getFromLocalStorage<IPage>();
       const destination =
         savedPage && !isOnWeb(savedPage.path) ? savedPage : CLIENT_ROUTES.home;

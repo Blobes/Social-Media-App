@@ -11,6 +11,7 @@ import {
   ModalProps,
   CLIENT_ROUTES,
   IMessage,
+  AccountStatus,
 } from "@repo/core";
 
 /** * Defines the shape and actions of the global application store.
@@ -20,6 +21,9 @@ interface GlobalState {
   authStatus: AuthStatus;
   authUser: IUser | null;
   isAuthLoading: boolean;
+
+  // User Account State
+  accountStatus: AccountStatus;
 
   // UI State
   snackBarMsg: ISnackBarMsg;
@@ -43,6 +47,7 @@ interface GlobalState {
   setAuthStatus: (status: AuthStatus) => void;
   setAuthUser: (user: IUser | null) => void;
   setAuthLoading: (loading: boolean) => void;
+  setAccountStatus: (status: AccountStatus) => void;
   setSnackBarMsg: (msg: IMessage, override: boolean) => void;
   removeSnackBarMsg: (id?: string) => void;
   setInlineMsg: (node: React.ReactNode | null) => void;
@@ -66,6 +71,7 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   authStatus: "PENDING",
   authUser: null,
   isAuthLoading: false,
+  accountStatus: "PENDING",
   snackBarMsg: {
     messages: [],
     defaultDur: 5,
@@ -86,6 +92,7 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   // Action Implementations
   setAuthStatus: (authStatus) => set({ authStatus }),
   setAuthUser: (authUser) => set({ authUser }),
+  setAccountStatus: (accountStatus) => set({ accountStatus }),
   setAuthLoading: (isAuthLoading) => set({ isAuthLoading }),
 
   setSnackBarMsg: (newMsg, override = false) =>
