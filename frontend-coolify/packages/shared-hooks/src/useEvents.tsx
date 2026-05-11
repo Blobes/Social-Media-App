@@ -5,16 +5,19 @@ import { WifiOff } from "lucide-react";
 import { useSnackbar } from "./useSnackbar";
 import { useOffline } from "./useOffline";
 import { usePage } from "./usePage";
-import { removeFromLocalStorage, saveToLocalStorage } from "@repo/helpers";
+import {
+  getFromLocalStorage,
+  removeFromLocalStorage,
+  saveToLocalStorage,
+} from "@repo/helpers";
 import { AuthStatus, CLIENT_ROUTES } from "@repo/core";
 import { useGlobalStore } from "./store/useGlobalStore";
-import { useMisc } from "./useMisc";
 
 /**
  * Manages global window event listeners for network, lifecycle, and transitions.
  */
 export const useEventListener = (verifyAuth: () => Promise<void>) => {
-  const { setSBMessage, removeSBMessage } = useSnackbar();
+  const { setSBMessage, removeSBMessages: removeSBMessages } = useSnackbar();
   const setNetworkStatus = useGlobalStore((state) => state.setNetworkStatus);
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const authStatus = useGlobalStore((state) => state.authStatus);
@@ -26,21 +29,32 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
    * Restores online state and verifies session.
    */
   const handleOnline = useCallback(() => {
-    removeSBMessage();
+    removeSBMessages();
     if (!navigator.onLine) return;
     switchToOnlineMode();
     setNetworkStatus("STABLE");
     removeFromLocalStorage("last_auth_status");
     verifyAuth();
-
     console.log("Network: Online");
-  }, [removeSBMessage, switchToOnlineMode, setNetworkStatus, verifyAuth]);
+  }, [
+    removeSBMessages,
+    setSBMessage,
+    switchToOnlineMode,
+    setNetworkStatus,
+    verifyAuth,
+  ]);
 
   /**
    * Notifies user of offline status and saves auth intent.
    */
   const handleOffline = useCallback(() => {
     if (!navigator.onLine === false) return;
+
+    const savedLoginStatus = getFromLocalStorage<AuthStatus>({
+      key: "last_auth_status",
+    });
+    const wasLoggedIn = savedLoginStatus === "AUTHENTICATED";
+
     console.log("Network: Offline");
     setSBMessage({
       msg: {
@@ -49,15 +63,18 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
         msgStatus: "INFO",
         behavior: "FIXED",
         hasClose: true,
-        cta: {
-          label: "Go Offline",
-          action: () =>
-            navigateTo(CLIENT_ROUTES.offline, {
-              type: "push",
-              savePage: false,
-              loadPage: true,
-            }),
-        },
+        ...(wasLoggedIn
+          ? {
+              cta: {
+                label: "Go Offline",
+                action: () =>
+                  navigateTo(CLIENT_ROUTES.offline, {
+                    savePage: false,
+                    loadPage: true,
+                  }),
+              },
+            }
+          : {}),
         icon: <WifiOff />,
       },
     });

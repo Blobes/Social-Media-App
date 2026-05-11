@@ -12,7 +12,6 @@ interface DemoRequest extends IAuthRequest {
     gender?: string;
     dateOfBirth?: string;
     location?: string;
-    occupation?: string;
     relationship?: string;
   };
 }
@@ -21,8 +20,8 @@ export const updateDemoInfo = async (
   req: DemoRequest,
   res: Response,
 ): Promise<any> => {
-  // Use the ID from the token for security
   const authUserId = req.user?.id;
+  const { gender, dateOfBirth, location, relationship } = req.body;
 
   if (!authUserId) {
     return res.status(401).json({
@@ -32,9 +31,6 @@ export const updateDemoInfo = async (
     });
   }
 
-  // Extract only the allowed demographic fields
-  const { gender, dateOfBirth, location, occupation, relationship } = req.body;
-
   try {
     const updatedUser = await UserModel.findByIdAndUpdate(
       authUserId,
@@ -43,7 +39,6 @@ export const updateDemoInfo = async (
           gender,
           dateOfBirth,
           location,
-          occupation,
           relationship,
         },
       },

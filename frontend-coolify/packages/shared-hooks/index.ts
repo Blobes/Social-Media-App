@@ -12,3 +12,4 @@ export * from "./src/store/useGlobalStore";
 export * from "./src/store/useGistStore";
 export * from "./src/useCached";
 export * from "./src/useObserver";
+export * from "./src/useDebounce";

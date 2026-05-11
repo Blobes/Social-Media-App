@@ -1,6 +1,8 @@
 import { Response } from "express";
 import {
   CACHE_KEYS,
+  ensurePrimaryDevice,
+  getOrSetDeviceToken,
   IAuthRequest,
   invalidateCache,
   upstashClient,
@@ -8,66 +10,87 @@ import {
 import { UserModel } from "@repo/database";
 
 /**
- * Updates onboarding progress.
+ * Updates onboarding progress and ensures the current authenticated device
+ * is anchored as the Primary Device if none exists.
  */
+
+export type OnboardingStep =
+  | "INTRO"
+  | "WELCOME_BACK"
+  | "IDENTITY"
+  | "DEMOGRAPHICS"
+  | "VISUALS"
+  | "PROFESSIONAL";
+
 export const updateOnboarding = async (req: IAuthRequest, res: Response) => {
   const userId = req.user?.id;
   const sessionId = req.user?.sessionId;
-  const currentDeviceId = req.cookies["device_id"] || "unknown";
+  const jwtDeviceId = req.user?.deviceId; // Extracted from verified JWT via middleware
 
-  if (!userId || !sessionId) {
-    return res.status(401).json({ status: "ERROR", message: "Unauthorized" });
+  if (!userId || !sessionId || !jwtDeviceId) {
+    return res.status(401).json({
+      status: "ERROR",
+      message: "Unauthorized: Missing session or device context",
+    });
   }
 
-  const { onboardingStep, isOnboarded } = req.body;
+  const { onboardingStep, isOnboarded } = req.body as {
+    onboardingStep: OnboardingStep;
+    isOnboarded: boolean;
+  };
 
   try {
-    const user = await UserModel.findById(userId).select("primarySessionId");
-    const updateFields: any = {
-      onboardingStep,
-      isOnboarded: isOnboarded || false,
-    };
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ status: "ERROR", message: "User account not found" });
+    }
 
-    // If no primary session exists, claim this one
-    if (!user?.primarySessionId) {
-      updateFields.primarySessionId = sessionId;
+    // --- PRIMARY ANCHOR LOGIC ---
+    // If the user doesn't have a primary device, we use the one they are currently authenticated with.
+    if (!user.primaryDeviceId) {
+      // ensurePrimaryDevice handles the DB updates and session rotations
+      await ensurePrimaryDevice(user, jwtDeviceId);
 
-      // Permanently set in cache (no expiry or long expiry) to match DB
+      // Update the fast-lookup cache for middleware
       await upstashClient.set(
         CACHE_KEYS.USER_PRIMARY_DEVICE(userId),
-        sessionId,
+        jwtDeviceId,
       );
     }
 
-    const updatedUser = await UserModel.findByIdAndUpdate(
-      userId,
-      { $set: updateFields },
-      { new: true },
-    );
+    // --- PROGRESS UPDATE ---
+    user.onboardingStep = onboardingStep;
+    user.isOnboarded = isOnboarded || false;
+    await user.save();
 
-    // Refresh Session Heartbeat
+    // --- SESSION HEARTBEAT ---
     const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
+    const sessionData: any = await upstashClient.get(sessionKey);
+
     await upstashClient.set(
       sessionKey,
       {
-        deviceId: currentDeviceId,
-        userAgent: req.get("user-agent") || "unknown",
-        ip: req.ip || "unknown",
+        ...sessionData,
         lastActive: new Date(),
       },
       { ex: 20 * 24 * 60 * 60 },
     );
 
+    // Surgical cache invalidation
     await invalidateCache(CACHE_KEYS.USER_PROFILE(userId));
 
     return res.status(200).json({
       status: "SUCCESS",
-      message: "Onboarding updated",
-      payload: updatedUser,
+      message: "Onboarding progress synchronized",
+      payload: user,
     });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ status: "ERROR", message: "Internal server error" });
+  } catch (error: any) {
+    console.error("Onboarding Sync Error:", error);
+    return res.status(500).json({
+      status: "ERROR",
+      message: "Server error while updating onboarding state",
+    });
   }
 };

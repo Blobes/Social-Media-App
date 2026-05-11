@@ -13,7 +13,7 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
   const { navigateTo, isOnWeb } = usePage();
   const { handleSendOtp } = useOtp();
   const { inputType } = useIdentifier({ existingInput: identifier });
-  const { handleNotOnboarded, handleOtpRequired } = useAuthNavigation();
+  const { handleOtpRequired } = useAuthNavigation();
 
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
@@ -35,7 +35,7 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
       if (res.requireOtp) {
         handleSendOtp({
           recipient: user.email || user.phoneNumber || identifier,
-          purpose: "LOGIN",
+          purpose: "LOGIN_VERIFICATION",
           channel: (inputType as OtpChannel) || "EMAIL",
         });
         handleOtpRequired(
@@ -61,12 +61,11 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
       // Handling users who haven't completed onboarding steps
       if (!user.isOnboarded) {
         setAccountStatus("NOT_ONBOARDED");
-        handleNotOnboarded(user);
+        navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
         return;
       }
 
       // Finalizing redirect for fully verified and onboarded users
-      // if (setStep) setStep("IDENTIFIER");
       const savedPage = getFromLocalStorage<IPage>();
       const destination =
         savedPage && !isOnWeb(savedPage.path) ? savedPage : CLIENT_ROUTES.home;

@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 interface CheckUsernameRequest extends Request {
   body: {
     username?: string;
-    usedFor?: "REGISTRATION" | "LOGIN";
+    purpose?: "REGISTRATION" | "LOGIN";
   };
 }
 
@@ -15,7 +15,7 @@ export const checkUsername = async (
   req: CheckUsernameRequest,
   res: Response,
 ): Promise<void> => {
-  const { username, usedFor = "REGISTRATION" } = req.body;
+  const { username, purpose = "REGISTRATION" } = req.body;
 
   if (!username) {
     res.status(400).json({
@@ -34,7 +34,7 @@ export const checkUsername = async (
     }).setOptions({ skipFilter: true });
 
     // ── LOGIN flow ──────────────────────────────────────────────────────────
-    if (usedFor === "LOGIN") {
+    if (purpose === "LOGIN") {
       if (!existingUser) {
         res.status(404).json({
           status: "ERROR",

@@ -19,7 +19,6 @@ export const useAuthVerification = () => {
   const { setSBMessage } = useSnackbar();
   const { verifyAndFetchUser } = SharedLoginService();
   const { navigateTo } = usePage();
-  const { handleNotOnboarded } = useAuthNavigation();
 
   const { refetch, isFetching } = useQuery({
     queryKey: [CACHE_KEYS.USER.SESSION],
@@ -35,7 +34,7 @@ export const useAuthVerification = () => {
           // NOT ONBOARDED: User exists but is not on boarded
           if (!user.isOnboarded) {
             setAccountStatus("NOT_ONBOARDED");
-            handleNotOnboarded(user);
+            navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
           }
 
           // DEACTIVATED: User exists but account is locked

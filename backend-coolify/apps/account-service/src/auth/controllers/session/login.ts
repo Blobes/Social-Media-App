@@ -102,6 +102,10 @@ export const loginUser = async (
       authTokens.REFRESH_TOKEN_SECRET,
     );
 
+    // Update last password verification
+    user.lastPasswordVerifiedAt = new Date();
+    await user.save();
+
     const safeData = user.toObject();
     userSensitiveFields().forEach((field) => {
       delete (safeData as any)[field];

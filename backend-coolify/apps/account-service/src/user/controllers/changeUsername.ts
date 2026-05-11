@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import { UserModel } from "@repo/database";
 import {
   IAuthRequest,
@@ -7,110 +8,111 @@ import {
 } from "@repo/shared";
 import { Response } from "express";
 
+/**
+ * Updates username with a 5-minute password grace period tracked on the model.
+ */
 export const changeUsername = async (
   req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
-  const { newUsername } = req.body as { newUsername?: string };
+  const { newUsername, password } = req.body as {
+    newUsername?: string;
+    password?: string;
+  };
+
   const userId = req.user?.id;
-
-  // Define 90-day cooldown period in milliseconds
   const COOLDOWN_PERIOD = 90 * 24 * 60 * 60 * 1000;
+  const GRACE_PERIOD_MS = 15 * 60 * 1000; // 15 minutes
 
-  // Validate authentication state
   if (!userId) {
-    return res.status(401).json({
-      status: "ERROR",
-      message: "Unauthorized access.",
-      payload: null,
-    });
-  }
-
-  // Ensure username meets minimum length requirements
-  if (!newUsername || newUsername.trim().length < 3) {
-    return res.status(400).json({
-      status: "ERROR",
-      message: "Username is required and must be at least 3 characters long.",
-      payload: null,
-    });
+    return res
+      .status(401)
+      .json({
+        status: "ERROR",
+        message: "Unauthorized access.",
+        payload: null,
+      });
   }
 
   try {
-    const formattedUsername = newUsername.trim();
-
-    // Retrieve current user document to verify existence and cooldown status
-    const currentUser = await UserModel.findById(userId);
-    if (!currentUser) {
-      return res.status(404).json({
-        status: "ERROR",
-        message: "User account not found.",
-        payload: null,
-      });
+    const formattedUsername = newUsername?.trim();
+    if (!formattedUsername || formattedUsername.length < 3) {
+      return res
+        .status(400)
+        .json({ status: "ERROR", message: "Invalid username.", payload: null });
     }
 
-    // Enforce the 90-day username change cooldown
-    if (currentUser.lastUsernameChangeAt) {
-      const lastChange = new Date(currentUser.lastUsernameChangeAt).getTime();
-      const nextAllowedDate = lastChange + COOLDOWN_PERIOD;
-      const now = Date.now();
+    const user = await UserModel.findById(userId).select("+password");
+    if (!user)
+      return res
+        .status(404)
+        .json({ status: "ERROR", message: "User not found.", payload: null });
 
-      if (now < nextAllowedDate) {
+    // --- GRACE PERIOD CHECK ---
+    const lastVerified = user.lastPasswordVerifiedAt
+      ? new Date(user.lastPasswordVerifiedAt).getTime()
+      : 0;
+    const isGracePeriodActive = Date.now() - lastVerified < GRACE_PERIOD_MS;
+
+    if (!isGracePeriodActive) {
+      if (!password) {
+        return res.status(400).json({
+          status: "ERROR",
+          message: "Please provide your password to confirm identity.",
+          payload: null,
+        });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({
+          status: "ERROR",
+          message: "Incorrect password.",
+          payload: null,
+        });
+      }
+
+      // Update the password verification timestamp
+      user.lastPasswordVerifiedAt = new Date();
+    }
+
+    // --- COOLDOWN CHECK ---
+    if (user.lastUsernameChangeAt) {
+      const nextAllowedDate =
+        new Date(user.lastUsernameChangeAt).getTime() + COOLDOWN_PERIOD;
+      if (Date.now() < nextAllowedDate) {
         const daysLeft = Math.ceil(
-          (nextAllowedDate - now) / (24 * 60 * 60 * 1000),
+          (nextAllowedDate - Date.now()) / (24 * 60 * 60 * 1000),
         );
         return res.status(403).json({
           status: "ERROR",
-          message: `You can only change your username once every 90 days. Please wait ${daysLeft} more days.`,
-          payload: null,
+          message: `Cooldown active. Wait ${daysLeft} days.`,
         });
       }
     }
 
-    // Check for username conflicts across all accounts (including deactivated ones)
+    // --- AVAILABILITY CHECK ---
     const conflict = await UserModel.findOne({
       username: { $regex: new RegExp(`^${formattedUsername}$`, "i") },
       _id: { $ne: userId },
     }).setOptions({ skipFilter: true });
 
     if (conflict) {
-      return res.status(409).json({
-        status: "ERROR",
-        message:
-          "This username is already taken or reserved by a deactivated account.",
-        payload: null,
-      });
+      return res
+        .status(409)
+        .json({ status: "ERROR", message: "Username already taken." });
     }
 
-    // Update the username and timestamp in the database
-    const updatedUser = await UserModel.findByIdAndUpdate(
-      userId,
-      {
-        $set: {
-          username: formattedUsername,
-          lastUsernameChangeAt: new Date(),
-        },
-      },
-      { new: true, runValidators: true },
-    );
+    user.username = formattedUsername;
+    user.lastUsernameChangeAt = new Date();
+    await user.save();
 
-    if (!updatedUser) {
-      return res.status(404).json({
-        status: "ERROR",
-        message: "Failed to update username. Account might be inactive.",
-        payload: null,
-      });
-    }
-
-    // This clears the profile, any list data, and metadata associated with that ID
     await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
 
-    // Convert document to plain object for sanitization
-    const safePayload = updatedUser.toObject();
-
-    // Remove sensitive internal fields before returning the payload
-    userSensitiveFields().forEach((field) => {
-      delete (safePayload as any)[field];
-    });
+    const safePayload = user.toObject();
+    userSensitiveFields().forEach(
+      (field) => delete (safePayload as any)[field],
+    );
 
     return res.status(200).json({
       status: "SUCCESS",
@@ -118,20 +120,9 @@ export const changeUsername = async (
       payload: safePayload,
     });
   } catch (error: any) {
-    // Handle database-level unique constraint violations
     console.error("Change Username Error:", error);
-    if (error.code === 11000) {
-      return res.status(409).json({
-        status: "ERROR",
-        message: "Username already in use.",
-        payload: null,
-      });
-    }
-    // General server error handling
-    return res.status(500).json({
-      status: "ERROR",
-      message: error.message || "Internal server error.",
-      payload: null,
-    });
+    return res
+      .status(500)
+      .json({ status: "ERROR", message: "Internal server error." });
   }
 };

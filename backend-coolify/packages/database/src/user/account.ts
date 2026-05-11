@@ -37,12 +37,10 @@ const UserSchema = new Schema<IUserDocument>(
     },
     firstName: {
       type: String,
-      required: true,
       trim: true,
     },
     lastName: {
       type: String,
-      required: true,
       trim: true,
     },
     phoneNumber: {
@@ -90,7 +88,7 @@ const UserSchema = new Schema<IUserDocument>(
     verificationCode: { type: String, default: null },
     verificationExpiry: { type: Date, default: null },
     lastEmailCodeSentAt: { type: Date, default: null },
-    primarySessionId: { type: String, default: null },
+    lastPasswordVerifiedAt: { type: Date, default: null },
 
     // Devices
     primaryDeviceId: {

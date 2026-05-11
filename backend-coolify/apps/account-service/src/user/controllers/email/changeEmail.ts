@@ -1,5 +1,6 @@
 import { FUNSTAKES_REDIS_URL } from "@/envVars";
 import { UserModel } from "@repo/database";
+import bcrypt from "bcrypt";
 import {
   IAuthRequest,
   OtpType,
@@ -7,23 +8,30 @@ import {
   genVerificationCode,
   hashCode,
   otpQueue,
+  CACHE_KEYS,
+  invalidatePattern,
 } from "@repo/shared";
 import { Response } from "express";
 
 interface UserEmailRequest extends IAuthRequest {
   body: {
     newEmail: string;
+    password?: string; // Optional due to grace period
   };
 }
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/**
+ * Initiates email change with a 15-minute password grace period.
+ */
 export const changeEmail = async (
   req: UserEmailRequest,
   res: Response,
 ): Promise<any> => {
   const userId = req.user?.id;
-  const { newEmail } = req.body;
+  const { newEmail, password } = req.body;
+  const GRACE_PERIOD_MS = 15 * 60 * 1000;
 
   // Validate identity and authentication status
   if (!userId) {
@@ -44,8 +52,8 @@ export const changeEmail = async (
   }
 
   try {
-    // Fetch user document from database
-    const user = await UserModel.findById(userId);
+    // Fetch user document with password for verification
+    const user = await UserModel.findById(userId).select("+password");
     if (!user) {
       return res.status(404).json({
         message: "User not found",
@@ -54,7 +62,35 @@ export const changeEmail = async (
       });
     }
 
-    // Enforce 30-day cooldown between email changes
+    // --- GRACE PERIOD / PASSWORD CHECK ---
+    const lastVerified = user.lastPasswordVerifiedAt
+      ? new Date(user.lastPasswordVerifiedAt).getTime()
+      : 0;
+    const isGracePeriodActive = Date.now() - lastVerified < GRACE_PERIOD_MS;
+
+    if (!isGracePeriodActive) {
+      if (!password) {
+        return res.status(400).json({
+          status: "ERROR",
+          message: "Please provide your password to confirm identity.",
+          payload: null,
+        });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({
+          status: "ERROR",
+          message: "Incorrect password.",
+          payload: null,
+        });
+      }
+
+      // Update the password verification timestamp
+      user.lastPasswordVerifiedAt = new Date();
+    }
+
+    // --- 30-DAY COOLDOWN CHECK ---
     const ALLOWED_NO_OF_DAYS = 30 * 24 * 60 * 60 * 1000;
     if (user.lastEmailChangeAt) {
       const timeSinceLastChange = Date.now() - user.lastEmailChangeAt.getTime();
@@ -70,7 +106,7 @@ export const changeEmail = async (
       }
     }
 
-    // Apply rate limiting for verification code requests
+    // --- RATE LIMITING FOR OTP ---
     const EMAIL_COOLDOWN = 60 * 1000;
     if (user.lastEmailCodeSentAt) {
       const timeSinceLastSent = Date.now() - user.lastEmailCodeSentAt.getTime();
@@ -97,11 +133,11 @@ export const changeEmail = async (
       });
     }
 
-    // Check email availability across all accounts, including deactivated/soft-deleted records
+    // --- AVAILABILITY CHECK (Including deactivated accounts) ---
     const existingEmailUser = await UserModel.findOne({
       email: formattedEmail,
       _id: { $ne: userId },
-    }).setOptions({ skipFilter: true }); // Bypasses global deactivation filters
+    }).setOptions({ skipFilter: true });
 
     if (existingEmailUser) {
       return res.status(409).json({
@@ -128,7 +164,7 @@ export const changeEmail = async (
     user.verificationExpiry = new Date(Date.now() + 15 * 60 * 1000);
     user.lastEmailCodeSentAt = now;
 
-    // Update notability and verification signals in the document
+    // Update notability and verification signals
     user.meritsVerification = notability.isVIPCandidate;
     user.isNotable = notability.isVIPCandidate;
     user.verificationSignals = {
@@ -137,20 +173,20 @@ export const changeEmail = async (
       isVipPhone: notability.signals.validPhone,
     };
 
-    // Persist changes to database
+    // Persist changes
     await user.save();
 
-    // Dispatch verification code to the new email address
+    // Invalidate user cache since profile signals changed
+    await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
+
+    // Dispatch verification code
     await otpQueue(FUNSTAKES_REDIS_URL).add(
       "send-email-otp",
       { email: formattedEmail, code, type: "EMAIL" as OtpType },
       {
-        attempts: 3, // Try 3 times total
-        backoff: {
-          type: "exponential",
-          delay: 2000, // Wait 2s, then 4s, then 8s...
-        },
-        removeOnComplete: true, // Keep Redis clean
+        attempts: 3,
+        backoff: { type: "exponential", delay: 2000 },
+        removeOnComplete: true,
       },
     );
 
@@ -165,7 +201,6 @@ export const changeEmail = async (
       },
     });
   } catch (error: any) {
-    // Log server error and return failure response
     console.error("Change Email Error:", error);
     return res.status(500).json({
       message: error.message || "Server error",

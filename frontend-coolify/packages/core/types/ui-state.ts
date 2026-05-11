@@ -25,11 +25,13 @@ export type OtpReason =
   | "NEW_ACCOUNT";
 
 export type OnboardingStep =
-  | "ONBOARDING_INTRO"
-  | "ONBOARDING_CONTINUATION"
-  | "ONBOARDING_BASIC_DETAILS"
-  | "ONBOARDING_DEMOGRAPHICS"
-  | "ONBOARDING_PROFILE_SETUP";
+  | "INTRO"
+  | "WELCOME_BACK"
+  | "IDENTITY"
+  | "DEMOGRAPHICS"
+  | "VISUALS"
+  | "PROFESSIONAL"
+  | "COMPLETED";
 
 export type OtpChannel = "EMAIL" | "PHONE";
 
@@ -38,7 +40,10 @@ export type InputType =
   | "PASSWORD"
   | "USERNAME"
   | "NUMBER"
-  | "UNKNOWN";
+  | "UNKNOWN"
+  | "NAME";
+
+export type Action = "LOGIN" | "REGISTRATION" | "ACCOUNT_UPDATE";
 
 export type InputStatus = "VALID" | "INVALID";
 
@@ -80,7 +85,7 @@ export interface IMessage {
   icon?: React.ReactNode;
 }
 
-export interface ISnackBarMsg {
+export interface ISnackBarMsgs {
   messages?: IMessage[];
   defaultDur: number;
   dir?: Direction;
@@ -113,14 +118,15 @@ export interface QueueItem<T = any> {
 export type GenericQueue = Record<string, QueueItem>;
 
 export interface TransitPayloadMap {
-  LOGIN: IUser;
+  LOGIN_VERIFICATION: IUser;
   REGISTRATION: { email: string; tempToken: string }; // Example
   ACCOUNT_UPDATE: { field: string; oldValue: string }; // Example
+  IDENTIFIER_UPDATE: { field: string; oldValue: string };
 }
 
-export type Purpose = keyof TransitPayloadMap;
+export type TransitPurpose = keyof TransitPayloadMap;
 
-export interface TransitData<P extends Purpose> {
+export interface TransitData<P extends TransitPurpose = TransitPurpose> {
   _id: string;
   purpose: P;
   payload: TransitPayloadMap[P];
@@ -128,15 +134,16 @@ export interface TransitData<P extends Purpose> {
 
 export type OtpNextStep = OnboardingStep | "FEED";
 
-export type OtpTransitData<P extends Purpose = Purpose> = TransitData<P> & {
-  identifier: string;
-  channel: OtpChannel;
-  reason: OtpReason;
-  onVerificationSuccess?: () => void;
-  nextStep?: OtpNextStep;
-};
+export type OtpTransitData<P extends TransitPurpose = TransitPurpose> =
+  TransitData<P> & {
+    identifier: string;
+    channel: OtpChannel;
+    reason: OtpReason;
+    onVerificationSuccess?: () => void;
+    nextStep?: OtpNextStep;
+  };
 
-export type OnboardingTransitData<P extends Purpose = Purpose> =
+export type OnboardingTransitData<P extends TransitPurpose = TransitPurpose> =
   TransitData<P> & {
     currentStep?: OnboardingStep;
     nextStep: OnboardingStep;

@@ -19,7 +19,7 @@ export const useLogout = () => {
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
 
   const { navigateTo } = usePage();
-  const { setSBMessage, clearSBMessages } = useSnackbar();
+  const { setSBMessage, removeSBMessages } = useSnackbar();
   const { closeModal } = useMisc();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -55,7 +55,7 @@ export const useLogout = () => {
     },
     onSettled: () => {
       // Reset feedback state regardless of outcome
-      clearSBMessages();
+      removeSBMessages();
     },
   });
 

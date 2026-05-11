@@ -1,22 +1,16 @@
+import { otpWorkflowRegistry } from "@/auth/helpers/otpActions";
 import { DeviceModel, UserModel } from "@repo/database";
 import {
   CACHE_KEYS,
   ensurePrimaryDevice,
+  getOrSetDeviceToken,
   hashCode,
   invalidatePattern,
   setOtpChannel,
   VerificationPurpose,
 } from "@repo/shared";
 import { Request, Response } from "express";
-import {
-  handleChannelVerification,
-  handleDeviceTrust,
-  handleAccountUpdate,
-} from "../../helpers/otpHandlers";
 
-/**
- * Verifies OTP and delegates post-verification logic to imported handlers.
- */
 export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
   const { recipient, code, purpose } = req.body as {
     recipient?: string;
@@ -27,26 +21,15 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
   if (!recipient || !code || !purpose) {
     res.status(400).json({
       status: "ERROR",
-      message: "Source, code, and purpose are required.",
+      message: "Missing required fields.",
       payload: null,
     });
     return;
   }
 
-  // 1. Identify Identity Hint (The Device Token from Cookie)
-  const deviceToken = req.cookies["device_token"];
-
+  const deviceToken = getOrSetDeviceToken(req, res);
   const normalized = recipient.toLowerCase().trim();
   const otpChannel = setOtpChannel(normalized);
-
-  if (!otpChannel) {
-    res.status(400).json({
-      status: "ERROR",
-      message: "Invalid OTP channel source.",
-      payload: null,
-    });
-    return;
-  }
 
   try {
     const user = await UserModel.findOne(
@@ -64,85 +47,62 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // 2. OTP VALIDATION
-    if (!user.verificationCode || !user.verificationExpiry) {
+    // OTP Logic Check
+    if (
+      !user.verificationCode ||
+      !user.verificationExpiry ||
+      Date.now() > user.verificationExpiry.getTime()
+    ) {
       res.status(400).json({
         status: "ERROR",
-        message: "No active verification process found.",
-        payload: null,
-      });
-      return;
-    }
-
-    if (Date.now() > user.verificationExpiry.getTime()) {
-      res.status(400).json({
-        status: "ERROR",
-        message: "Verification code has expired.",
+        message: "Code expired or not found.",
         payload: null,
       });
       return;
     }
 
     if (hashCode(code) !== user.verificationCode) {
-      res.status(400).json({
-        status: "ERROR",
-        message: "Invalid verification code.",
-        payload: null,
-      });
+      res
+        .status(400)
+        .json({ status: "ERROR", message: "Invalid code.", payload: null });
       return;
     }
 
-    /**
-     * 3. ACTION DELEGATION
-     */
-    switch (purpose) {
-      case "LOGIN":
-        // Reset the 15-day trust window for the specific device linked to this cookie
-        if (deviceToken) {
-          await handleDeviceTrust(user, deviceToken, req);
-        }
-        await handleChannelVerification(user, otpChannel);
-        break;
+    // Trace execution for trackability
+    console.log(
+      `[OTP_TRACE] Purpose: ${purpose} | User: ${user._id} | Channel: ${otpChannel}`,
+    );
 
-      case "ACCOUNT_UPDATE":
-        await handleAccountUpdate(user, otpChannel);
-        break;
+    // Execute strategy
+    let actionPayload = null;
+    const workflow = otpWorkflowRegistry[purpose];
+    if (workflow) actionPayload = await workflow(user, req, res);
 
-      default:
-        await handleChannelVerification(user, otpChannel);
-        break;
-    }
+    // Self-Heal Primary Device
+    const currentDevice = deviceToken
+      ? await DeviceModel.findOne({ userId: user._id, deviceToken }).select(
+          "_id",
+        )
+      : null;
+    await ensurePrimaryDevice(user, currentDevice?._id?.toString());
 
-    // 4. SELF-HEAL PRIMARY
-    // If the user just verified a device but has no primary assigned, fix it now.
-    const currentDeviceId = deviceToken
-      ? (
-          await DeviceModel.findOne({ userId: user._id, deviceToken }).select(
-            "_id",
-          )
-        )?._id
-      : undefined;
-
-    await ensurePrimaryDevice(user, currentDeviceId?.toString());
-
-    // 5. CLEANUP
+    // Finalize state
     user.verificationCode = null;
     user.verificationExpiry = null;
-
     await user.save();
+
     await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(String(user._id)));
 
     res.status(200).json({
       status: "SUCCESS",
       message: "Verified successfully.",
-      payload: { purpose, channel: otpChannel },
+      payload: { ...actionPayload, purpose, channel: otpChannel },
     });
-  } catch (error) {
-    console.error("[verifyOtp] Error:", error);
-    res.status(500).json({
+  } catch (error: any) {
+    console.error(`[OTP_ERROR] ${purpose}:`, error);
+    res.status(error.status || 500).json({
       status: "ERROR",
-      message:
-        error instanceof Error ? error.message : "Internal server error.",
+      message: error.message || "Verification failed.",
       payload: null,
     });
   }

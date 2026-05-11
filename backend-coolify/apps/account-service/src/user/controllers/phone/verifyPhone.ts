@@ -4,18 +4,23 @@ import {
   IAuthRequest,
   hashCode,
   invalidateCache,
+  cleanDeviceSessions,
+  clearAuthTokens,
 } from "@repo/shared";
 import { Response } from "express";
 
+/**
+ * Finalizes phone number update and rotates sessions for security.
+ */
 export const verifyPhoneUpdate = async (
   req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
   const { code } = req.body;
   const userId = req.user?.id;
+  const currentDeviceId = req.user?.deviceId;
 
   try {
-    // Retrieve user document and check for a pending update
     const user = await UserModel.findById(userId);
 
     if (!user || !user.pendingPhoneNumber) {
@@ -26,11 +31,11 @@ export const verifyPhoneUpdate = async (
       });
     }
 
-    // Hash the incoming code and compare with the stored hash
     const isCodeValid = hashCode(code) === user.verificationCode;
-    const isExpired = new Date() > user.verificationExpiry!;
+    const isExpired = user.verificationExpiry
+      ? new Date() > user.verificationExpiry
+      : true;
 
-    // Validate code integrity and expiration
     if (!isCodeValid || isExpired) {
       return res.status(400).json({
         status: "ERROR",
@@ -41,24 +46,40 @@ export const verifyPhoneUpdate = async (
       });
     }
 
-    // Persist the verified phone number and clear temporary verification fields
     user.phoneNumber = user.pendingPhoneNumber;
     user.pendingPhoneNumber = null;
     user.verificationCode = null;
+    user.verificationExpiry = null;
     user.lastPhoneChangeAt = new Date();
 
     await user.save();
 
-    // Invalidate the profile cache to ensure the new phone number is reflected immediately
-    await invalidateCache(CACHE_KEYS.USER_PROFILE(userId));
+    // Security: Preserve primary device but clear others after sensitive identity change
+    await cleanDeviceSessions(String(userId), undefined, {
+      clearAll: true,
+      preservePrimary: true,
+      primaryDeviceId: user.primaryDeviceId?.toString(),
+    });
+
+    const isCurrentDevicePrimary =
+      currentDeviceId === user.primaryDeviceId?.toString();
+
+    // Logout secondary devices to force re-authentication with new identity state
+    if (!isCurrentDevicePrimary) {
+      clearAuthTokens(res);
+    }
+
+    await invalidateCache(CACHE_KEYS.USER_PROFILE(userId as string));
 
     return res.status(200).json({
       status: "SUCCESS",
-      message: "Phone number verified and updated successfully.",
-      payload: { phoneNumber: user.phoneNumber },
+      message: "Phone number verified. Other sessions have been terminated.",
+      payload: {
+        phoneNumber: user.phoneNumber,
+        loggedOut: !isCurrentDevicePrimary,
+      },
     });
   } catch (error: any) {
-    // Log server-side errors and return generic failure response
     console.error("Verify Phone Error:", error);
     return res.status(500).json({
       status: "ERROR",

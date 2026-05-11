@@ -18,6 +18,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { useMisc } from "./useMisc";
 import { useGlobalStore } from "./store/useGlobalStore";
 
+interface NavigateOptions {
+  type?: "push" | "replace";
+  savePage?: boolean;
+  loadPage?: boolean;
+  event?: React.MouseEvent;
+}
+
 /**
  * Manages page transitions, routing logic, and navigation state.
  */
@@ -31,6 +38,7 @@ export const usePage = () => {
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
   const authStatus = useGlobalStore((state) => state.authStatus);
   const accountStatus = useGlobalStore((state) => state.accountStatus);
+  const authUser = useGlobalStore((state) => state.authUser);
 
   const { closeDrawer, closeModal } = useMisc();
   const router = useRouter();
@@ -54,8 +62,12 @@ export const usePage = () => {
     (path: string) => ROUTES_REGISTRY.offline.includes(path),
     [],
   );
-  const isOnDisallowedRoutes = useCallback(
+  const isOnDisallowed = useCallback(
     (path: string) => DISALLOWED_ROUTES.includes(path),
+    [],
+  );
+  const isOnExternal = useCallback(
+    (path: string) => ROUTES_REGISTRY.external.includes(path),
     [],
   );
 
@@ -71,12 +83,50 @@ export const usePage = () => {
     [setPage],
   );
 
-  interface NavigateOptions {
-    type?: "push" | "replace";
-    savePage?: boolean;
-    loadPage?: boolean;
-    event?: React.MouseEvent;
-  }
+  const isCurrentRoute = pathname === pendingPath;
+  const isAuthRoute = isOnAuth(pathname);
+  const isOfflineRoute = isOnOffline(pathname);
+  const isExternalRoute = isOnExternal(pathname);
+  const isInternalRoute = !isCurrentRoute && !isExternalRoute;
+
+  // Synchronous Defensive Guards & Redirect Logic
+  const guards = useMemo(() => {
+    // Direct Security Violations
+    const needsLogin = authStatus === "UNAUTHENTICATED" && isInternalRoute;
+    const needsOnboarding =
+      authStatus === "AUTHENTICATED" &&
+      authUser &&
+      !authUser.isOnboarded &&
+      isInternalRoute;
+    const needsRestoreAccount =
+      authStatus === "AUTHENTICATED" &&
+      accountStatus === "DEACTIVATED" &&
+      isInternalRoute;
+    const isDisallowed = isOnDisallowed(pathname);
+
+    // Navigation State
+    const isNavigating = !!pendingPath && pendingPath !== pathname;
+    const isRedirecting =
+      needsLogin || needsOnboarding || needsRestoreAccount || isDisallowed;
+
+    return {
+      needsLogin,
+      needsOnboarding,
+      needsRestoreAccount,
+      isNavigating,
+      isRedirecting,
+    };
+  }, [
+    pathname,
+    authStatus,
+    accountStatus,
+    authUser,
+    pendingPath,
+    isOnAuth,
+    isOnWeb,
+    isOnOffline,
+    isOnDisallowed,
+  ]);
 
   /**
    * Core navigation handler managing SPA transitions and cross-zone jumps.
@@ -89,37 +139,33 @@ export const usePage = () => {
         loadPage = false,
         event,
       } = options;
+      const isCrossZone = crossZoneCheck(page.path);
+      setPendingPath(page.path);
 
       if (event) event.preventDefault();
 
-      setPendingPath(page.path);
-
-      const isCrossZone = crossZoneCheck(page.path);
+      if (loadPage || isCrossZone) setGlobalLoading(true);
 
       // UI Cleanup
       if (drawerContent) closeDrawer();
       if (modalContent) closeModal();
+
       if (savePage) setLastPage(page);
 
       // EXTERNAL: Cross-zone or Root dynamic navigation
-      if (isCrossZone || page.path === "/") {
-        if (loadPage) setGlobalLoading(true);
+      if (isCrossZone) {
         window.location.assign(page.path);
         return;
       }
 
       // INTERNAL: Standard Next.js SPA navigation
-      if (loadPage) setGlobalLoading(true);
-
       if (type === "push") router.push(page.path);
       if (type === "replace") router.replace(page.path);
 
       // Ensure loading is reset after navigation triggers
-      if (loadPage) {
-        await delay(2000);
-        setGlobalLoading(false);
-        setPendingPath(null);
-      }
+      if (loadPage) await delay(400);
+      setPendingPath(null);
+      setGlobalLoading(false);
     },
     [
       drawerContent,
@@ -132,46 +178,6 @@ export const usePage = () => {
     ],
   );
 
-  // Synchronous Redirect Detection (The "Anti-Flicker" Guard)
-  const { isRedirecting, isNavigating } = useMemo(() => {
-    const isLoggedOut = authStatus === "UNAUTHENTICATED";
-    const isDeactivated = accountStatus === "DEACTIVATED";
-    const isHome = pathname === "/";
-
-    const isOnAuthRoute = isOnAuth(pathname);
-    const isOnOWebRoute = isOnWeb(pathname);
-    const isOnOfflineRoute = isOnOffline(pathname);
-
-    const isInternalRoute =
-      !isHome && !isOnAuthRoute && !isOnOWebRoute && !isOnOfflineRoute;
-    const isRestorePath = pathname === CLIENT_ROUTES.restoreAccount.path;
-
-    // 1. Detection for security-based redirects
-    const needsAuthRedirect = isLoggedOut && isInternalRoute;
-    const needsDeactivationRedirect = isDeactivated && !isRestorePath;
-    const redirectActive =
-      needsAuthRedirect ||
-      needsDeactivationRedirect ||
-      isOnDisallowedRoutes(pathname);
-
-    // 2. Detection for standard user-initiated navigation
-    const navigatingActive = !!pendingPath && pendingPath !== pathname;
-
-    return {
-      isRedirecting: redirectActive,
-      isNavigating: navigatingActive,
-    };
-  }, [
-    pathname,
-    authStatus,
-    accountStatus,
-    isOnAuth,
-    isOnWeb,
-    isOnOffline,
-    isOnDisallowedRoutes,
-    pendingPath,
-  ]);
-
   /**
    * Synchronizes route change and enforces access control.
    */
@@ -179,39 +185,36 @@ export const usePage = () => {
     // Reset transient UI states on every navigation
     setInlineMsg(null);
     setPendingPath(null);
+    setGlobalLoading(false);
 
     // Security Guard: Execute redirects if isRedirecting is true
-    if (isRedirecting) {
-      if (authStatus === "UNAUTHENTICATED") {
+    if (guards.isRedirecting) {
+      if (guards.needsLogin) {
         navigateTo(CLIENT_ROUTES.home, { loadPage: true });
-      } else if (accountStatus === "DEACTIVATED") {
+      } else if (guards.needsOnboarding) {
+        // SharedLoginService logic usually handles this, but here for safety
+        navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
+      } else if (guards.needsRestoreAccount) {
         navigateTo(CLIENT_ROUTES.restoreAccount, { loadPage: true });
-      } else if (isOnDisallowedRoutes(pathname)) {
+      } else if (isOnDisallowed(pathname)) {
         navigateTo(CLIENT_ROUTES.about, { loadPage: true });
       }
-      return; // Exit to prevent history tracking during redirect
+      return;
     }
 
-    // History Tracking: Only track valid internal pages
-    const isOnAuthRoute = isOnAuth(pathname);
-    const isOnOfflineRoute = isOnOffline(pathname);
-
     // Fallback to last valid page if currently on an auth/offline utility page
-    const pagePath =
-      !isOnAuthRoute && !isOnOfflineRoute ? pathname : lastPage.path;
+    const pagePath = !isAuthRoute && !isOfflineRoute ? pathname : lastPage.path;
     const savedPage = getFromLocalStorage<IPage>();
 
     // Update the lastPage state for breadcrumbs or "back" logic
     setLastPage(
-      isOnAuthRoute && savedPage
+      isAuthRoute && savedPage
         ? savedPage
         : { title: extractPageTitle(pagePath), path: pagePath },
     );
   }, [
-    isRedirecting,
+    guards,
     pathname,
-    authStatus,
-    accountStatus,
     lastPage.path,
     setLastPage,
     setInlineMsg,
@@ -219,18 +222,14 @@ export const usePage = () => {
     extractPageTitle,
     isOnAuth,
     isOnOffline,
-    isOnDisallowedRoutes,
+    isOnDisallowed,
   ]);
 
   return {
     setLastPage,
     isOnWeb,
-    isOnAuth,
     navigateTo,
     handlePageChange,
-    isRedirecting,
-    isOnDisallowedRoutes,
-    isOnOffline,
-    isNavigating,
+    ...guards,
   };
 };

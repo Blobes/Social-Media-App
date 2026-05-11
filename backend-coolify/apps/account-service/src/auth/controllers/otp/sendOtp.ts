@@ -1,8 +1,5 @@
-import {
-  codeDispatchTokens,
-  emailDispatchTokens,
-  phoneDispatchTokens,
-} from "@/envVars";
+import { otpWorkflowRegistry } from "@/auth/helpers/otpActions";
+import { emailDispatchTokens, phoneDispatchTokens } from "@/envVars";
 import { UserModel } from "@repo/database";
 import {
   dispatchEmailCode,
@@ -14,7 +11,11 @@ import {
 } from "@repo/shared";
 import { Request, Response } from "express";
 
-const VALID_PURPOSES: VerificationPurpose[] = ["LOGIN", "ACCOUNT_UPDATE"];
+const VALID_PURPOSES: VerificationPurpose[] = [
+  "LOGIN_VERIFICATION",
+  "IDENTIFIER_UPDATE",
+  "PASSWORD_RESET",
+];
 
 const COOLDOWN_SECONDS = 60;
 
@@ -72,35 +73,16 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    if (purpose === "ACCOUNT_UPDATE") {
-      // Pending change must be queued before a code can be sent
-      const hasPending =
-        channel === "EMAIL" ? !!user.pendingEmail : !!user.pendingPhoneNumber;
+    // Trace execution for trackability
+    console.log(
+      `[OTP_TRACE] Purpose: ${purpose} | User: ${user._id} | Channel: ${channel}`,
+    );
 
-      if (!hasPending) {
-        res.status(400).json({
-          status: "ERROR",
-          message: `No pending ${channel} change found. Initiate a ${channel} update request first.`,
-          payload: null,
-        });
-        return;
-      }
-
-      // Already verified with no pending change in flight — nothing to do
-      const isAlreadyVerified =
-        channel === "EMAIL"
-          ? !user.pendingEmail && user.isEmailVerified
-          : !user.pendingPhoneNumber && user.isPhoneVerified;
-
-      if (isAlreadyVerified) {
-        res.status(400).json({
-          status: "ERROR",
-          message: `This ${channel === "EMAIL" ? "email address" : "phone number"} is already verified.`,
-          payload: null,
-        });
-        return;
-      }
-    }
+    // Delegate purpose-specific validation to handlers
+    let actionPayload = null;
+    const workflow = otpWorkflowRegistry[purpose];
+    if (workflow)
+      actionPayload = await workflow(user, req, res, "DISPATCH_REQUEST");
 
     // Rate limit
     const lastSentAt =
@@ -152,16 +134,13 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({
       status: "SUCCESS",
       message: `A verification code has been sent to your ${channel === "EMAIL" ? "email address" : "phone number"}.`,
-      payload: { recipient, channel, purpose },
+      payload: { ...actionPayload, recipient, channel, purpose },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[sendCode] Error:", error);
-    res.status(500).json({
+    res.status(error.status || 500).json({
       status: "ERROR",
-      message:
-        error instanceof Error
-          ? error.message
-          : "Failed to send verification code.",
+      message: error.message || "Failed to send verification code.",
       payload: null,
     });
   }

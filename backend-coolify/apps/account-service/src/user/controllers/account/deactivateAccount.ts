@@ -1,7 +1,16 @@
-import { UserModel } from "@repo/database";
-import { CACHE_KEYS, IAuthRequest, invalidatePattern } from "@repo/shared";
+import { UserModel, DeviceModel } from "@repo/database";
+import {
+  CACHE_KEYS,
+  clearAuthTokens,
+  IAuthRequest,
+  invalidatePattern,
+  cleanDeviceSessions,
+} from "@repo/shared";
 import { Response } from "express";
 
+/**
+ * Handles account deactivation and clears all hardware-linked sessions and primary status.
+ */
 export const deactivateAccount = async (
   req: IAuthRequest,
   res: Response,
@@ -10,7 +19,6 @@ export const deactivateAccount = async (
   const authUserId = req.user?.id;
   const userRole = req.user?.role;
 
-  // Validate authentication state
   if (!authUserId) {
     return res.status(401).json({
       status: "ERROR",
@@ -20,11 +28,11 @@ export const deactivateAccount = async (
   }
 
   try {
-    // Determine if the user is deactivating themselves or if an admin is intervening
     const isDeactivatingSelf = !targetId || targetId === authUserId;
-    const finalIdToProcess = isDeactivatingSelf ? authUserId : targetId;
+    const finalIdToProcess = isDeactivatingSelf
+      ? authUserId
+      : (targetId as string);
 
-    // Permissions check: Only admins can deactivate other users
     if (!isDeactivatingSelf && userRole !== "ADMIN") {
       return res.status(403).json({
         status: "ERROR",
@@ -33,7 +41,6 @@ export const deactivateAccount = async (
       });
     }
 
-    // Verify user existence before attempting update
     const userToExclude = await UserModel.findById(finalIdToProcess);
 
     if (!userToExclude) {
@@ -44,7 +51,6 @@ export const deactivateAccount = async (
       });
     }
 
-    // Prevent redundant deactivation calls
     if (userToExclude.isDeactivated) {
       return res.status(400).json({
         status: "ERROR",
@@ -53,7 +59,7 @@ export const deactivateAccount = async (
       });
     }
 
-    // Perform soft-delete by updating status and obfuscating the email
+    // 1. Update User Record
     await UserModel.findByIdAndUpdate(
       finalIdToProcess,
       {
@@ -63,42 +69,37 @@ export const deactivateAccount = async (
           accountStatus: "DEACTIVATED",
           verificationCode: null,
           pendingEmail: null,
+          primaryDeviceId: null, // Clear primary device anchor
         },
       },
       { new: true },
     );
 
-    // This clears the profile, any list data, and metadata associated with that ID
+    // 2. Clear Hardware Registry Status
+    await DeviceModel.updateMany(
+      { userId: finalIdToProcess },
+      { $set: { isPrimary: false, isStale: true } },
+    );
+
+    // 3. Wipe sessions and cache
     await Promise.all([
+      cleanDeviceSessions(finalIdToProcess, undefined, { clearAll: true }),
       invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(finalIdToProcess)),
       invalidatePattern(CACHE_KEYS.WILDCARD_USER_SESSIONS(finalIdToProcess)),
     ]);
 
-    // Remove authentication cookies if the user deactivated their own account
     if (isDeactivatingSelf) {
-      res.clearCookie("access_token", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        path: "/",
-      });
-      res.clearCookie("refresh_token", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        path: "/",
-      });
+      clearAuthTokens(res);
     }
 
     return res.status(200).json({
       status: "SUCCESS",
       message: isDeactivatingSelf
-        ? "Your account has been deactivated. You have 30 days to restore it before permanent removal."
+        ? "Your account has been deactivated."
         : "User account deactivated by administrator.",
       payload: null,
     });
   } catch (error: any) {
-    // Log error for internal monitoring and return generic failure message
     console.error("Soft Delete Error:", error);
     return res.status(500).json({
       status: "ERROR",

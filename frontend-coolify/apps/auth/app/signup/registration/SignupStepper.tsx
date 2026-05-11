@@ -4,12 +4,12 @@ import React from "react";
 import { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { Stepper } from "@repo/shared-ui";
-import { PasswordStep } from "../login/PasswordStep";
+import { PasswordStep } from "../../login/PasswordStep";
 import { IStep } from "@repo/core";
 import { Stack } from "@mui/material";
 import Image from "next/image";
 import { img } from "@repo/assets";
-import { StepName, StepperProps } from "../types";
+import { StepName, StepperProps } from "../../types";
 
 export const SignUpStepper: React.FC<StepperProps> = ({
   modalRef,

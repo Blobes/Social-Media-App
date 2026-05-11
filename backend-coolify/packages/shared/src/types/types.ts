@@ -28,7 +28,12 @@ export type PostType = "GIST" | "STAKE";
 
 export type OtpType = "EMAIL" | "SMS" | "WHATSAPP" | "PHONE";
 
-export type VerificationPurpose = "LOGIN" | "ACCOUNT_UPDATE";
+export type VerificationPurpose =
+  | "LOGIN_VERIFICATION"
+  | "IDENTIFIER_UPDATE"
+  | "PASSWORD_RESET";
+
+export type Role = "USER" | "ADMIN" | "MODERATOR";
 
 export interface IJwtUser {
   id: any;
@@ -40,7 +45,7 @@ export interface IJwtUser {
   password?: string;
   firstName?: string;
   lastName?: string;
-  role?: "USER" | "ADMIN" | "MODERATOR";
+  role?: Role;
 }
 
 export interface IModerationReq {

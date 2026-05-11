@@ -1,12 +1,23 @@
 import { UserModel } from "@repo/database";
-import { IAuthRequest } from "@repo/shared";
+import {
+  IAuthRequest,
+  userSensitiveFields,
+  CACHE_KEYS,
+  invalidateCache,
+  upsertDevice,
+  getOrSetDeviceToken,
+} from "@repo/shared";
 import { Response } from "express";
 
+/**
+ * Restores account status and re-establishes hardware trust.
+ */
 export const restoreAccount = async (
   req: IAuthRequest,
   res: Response,
 ): Promise<any> => {
   const authUserId = req.user?.id;
+  const deviceToken = getOrSetDeviceToken(req, res);
 
   try {
     const user = await UserModel.findOne({
@@ -22,37 +33,28 @@ export const restoreAccount = async (
       });
     }
 
-    // --- EMAIL CONFLICT RESOLUTION ---
-    const originalEmail = user.email.split("_deleted_")[0];
-    const emailInUse = await UserModel.findOne({
-      email: originalEmail,
-      isDeactivated: false,
-    });
-
-    if (emailInUse) {
-      return res.status(409).json({
-        status: "ERROR",
-        message: "Your original email is already in use by another account.",
-        payload: { conflictEmail: originalEmail },
-      });
-    }
-
-    // --- PERFORM RESTORATION ---
+    // Restore identity status
     user.isDeactivated = false;
     user.deactivatedAt = null as any;
-    user.email = originalEmail;
-    // Username is already correct as it was never obfuscated
-
+    user.accountStatus = "ACTIVE";
     await user.save();
+
+    // Re-register the current hardware as an active/primary device
+    if (deviceToken) {
+      await upsertDevice(user, deviceToken, req);
+    }
+
+    await invalidateCache(CACHE_KEYS.USER_PROFILE(authUserId as string));
+
+    const safeData = user.toObject();
+    userSensitiveFields().forEach((field) => {
+      delete (safeData as any)[field];
+    });
 
     return res.status(200).json({
       status: "SUCCESS",
       message: "Welcome back! Your account has been fully restored.",
-      payload: {
-        id: user._id,
-        email: user.email,
-        username: user.username,
-      },
+      payload: safeData,
     });
   } catch (error: any) {
     return res.status(500).json({

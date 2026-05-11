@@ -1,12 +1,17 @@
 "use client";
 
 import { apiClient } from "@repo/helpers";
-import { ISinglePayload, OtpChannel, Purpose, SERVER_API } from "@repo/core";
+import {
+  ISinglePayload,
+  OtpChannel,
+  TransitPurpose,
+  SERVER_API,
+} from "@repo/core";
 
 export interface OtpRequest {
   code?: string;
   recipient: string;
-  purpose?: Purpose;
+  purpose?: TransitPurpose;
   channel?: OtpChannel;
 }
 
@@ -14,7 +19,7 @@ export const OtpService = () => {
   const dispatchOtp = async (
     request: OtpRequest,
   ): Promise<ISinglePayload<OtpRequest>> => {
-    const { recipient, purpose = "LOGIN" } = request;
+    const { recipient, purpose = "LOGIN_VERIFICATION" } = request;
     return await apiClient<ISinglePayload<OtpRequest>>(SERVER_API.sendOtp, {
       method: "POST",
       body: JSON.stringify({ recipient, purpose }),
@@ -24,7 +29,7 @@ export const OtpService = () => {
   const verifyOtp = async (
     request: OtpRequest,
   ): Promise<ISinglePayload<any>> => {
-    const { code, recipient, purpose = "LOGIN" } = request;
+    const { code, recipient, purpose = "LOGIN_VERIFICATION" } = request;
     return await apiClient(SERVER_API.verifyOtp, {
       method: "PUT",
       body: JSON.stringify({ code, recipient, purpose }),

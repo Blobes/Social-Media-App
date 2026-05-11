@@ -14,6 +14,7 @@ interface InfoRequest extends IAuthRequest {
   about?: string;
   interests?: string[];
   website?: string;
+  occupation?: string;
 }
 
 export const updateBasicInfo = async (
@@ -21,6 +22,8 @@ export const updateBasicInfo = async (
   res: Response,
 ): Promise<any> => {
   const authUserId = req.user?.id;
+  const { firstName, lastName, about, interests, website, occupation } =
+    req.body as InfoRequest;
 
   // Fail fast if unauthorized
   if (!authUserId) {
@@ -30,8 +33,6 @@ export const updateBasicInfo = async (
       payload: null,
     });
   }
-
-  const { firstName, lastName, about, interests, website } = req.body;
 
   try {
     const user = await UserModel.findById(authUserId);
@@ -45,6 +46,7 @@ export const updateBasicInfo = async (
     }
 
     // --- RE-EVALUATE NOTABILITY IF NAME CHANGES ---
+    let isVIPCandidate = false;
     if (firstName || lastName) {
       const updatedFirstName = firstName || user.firstName;
       const updatedLastName = lastName || user.lastName;
@@ -55,6 +57,7 @@ export const updateBasicInfo = async (
         user.email,
         user.phoneNumber || undefined,
       );
+      isVIPCandidate = notability.isVIPCandidate;
 
       // Update flags based on new name identity signals
       user.meritsVerification = notability.isVIPCandidate;
@@ -72,6 +75,7 @@ export const updateBasicInfo = async (
     if (about !== undefined) user.about = about;
     if (interests !== undefined) user.interests = interests;
     if (website !== undefined) user.website = website;
+    if (occupation !== undefined) user.occupation = occupation;
 
     await user.save();
 
@@ -89,6 +93,7 @@ export const updateBasicInfo = async (
       message: "User basic details updated successfully",
       status: "SUCCESS",
       payload: safePayload,
+      requiresIdVerification: isVIPCandidate,
     });
   } catch (error: any) {
     console.error("Update Info Error:", error);

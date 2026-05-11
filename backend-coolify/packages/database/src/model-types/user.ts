@@ -24,8 +24,8 @@ export interface IUserModel {
   // --- 1. CORE IDENTITY ---
   email: string;
   username?: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   phoneNumber?: string;
 
   // --- 2. VERIFICATION & NOTABILITY ---
@@ -47,8 +47,8 @@ export interface IUserModel {
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
   lastEmailCodeSentAt?: Date | null;
-  primarySessionId?: string | null;
   primaryDeviceId?: Types.ObjectId | string | null;
+  lastPasswordVerifiedAt?: Date | null;
 
   // --- 4. IDENTITY UPDATES ---
   pendingEmail?: string | null;

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { autoScroll, scrollBarStyle } from "@repo/helpers";
@@ -18,12 +18,20 @@ export const RootUIContainer = ({
 }: UIProps) => {
   const theme = useTheme();
 
+  useEffect(() => {
+    document.documentElement.classList.add("hydrated");
+    document.documentElement.style.removeProperty("background-color");
+  }, []);
+
   const combinedStyle: GenericStyle = {
     position: "fixed",
     height: "100svh",
     width: "100%",
     gap: 0,
-    backgroundColor: theme.palette.gray?.[0],
+    backgroundColor: "var(--app-bg)",
+    ".hydrated &": {
+      backgroundColor: `${theme.palette.gray[0]} !important`,
+    },
     ...(shouldScroll && {
       ...autoScroll().base,
       ...scrollBarStyle(theme),

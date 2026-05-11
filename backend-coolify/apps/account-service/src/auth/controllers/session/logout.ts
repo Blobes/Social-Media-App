@@ -1,13 +1,13 @@
+import { Response } from "express";
 import {
-  cleanUserSessions,
+  cleanDeviceSessions,
   clearAuthTokens,
   IAuthRequest,
   removeSession,
 } from "@repo/shared";
-import { Response } from "express";
 
 /**
- * Terminates specific or all active sessions for a user and clears client-side tokens.
+ * Terminates sessions based on hardware identity or global wipe.
  */
 export const logoutUser = async (
   req: IAuthRequest,
@@ -15,48 +15,55 @@ export const logoutUser = async (
 ): Promise<any> => {
   const userId = req.user?.id;
   const currentSessionId = req.user?.sessionId;
-  const { targetSessionId, logoutAll } = req.body as {
-    targetSessionId?: string;
+  const jwtDeviceId = req.user?.deviceId;
+
+  const { targetDeviceId, logoutAll } = req.body as {
+    targetDeviceId?: string;
     logoutAll?: boolean;
   };
 
   if (!userId) {
     return res.status(401).json({
       status: "UNAUTHORIZED",
-      message: "Unauthorized",
+      message: "Authentication context missing",
       payload: null,
     });
   }
 
   try {
     if (logoutAll) {
-      // Wipes all sessions across all devices for this user in Redis
-      cleanUserSessions({ userId });
-    } else {
-      // Default to killing the current session if no specific ID is targeted
-      const idToKill = targetSessionId || currentSessionId;
-      if (idToKill) {
-        removeSession(userId, idToKill);
-      }
+      // Wipes all sessions across every piece of hardware for this user
+      await cleanDeviceSessions(userId, undefined, { clearAll: true });
+    } else if (targetDeviceId) {
+      // Terminates all sessions associated with a specific hardware ID
+      await cleanDeviceSessions(userId, targetDeviceId);
+    } else if (currentSessionId) {
+      // Fallback: Terminate only the specific current session if no target device is provided
+      await removeSession(userId, currentSessionId);
     }
 
-    // Clear hardware-bound cookies if the current session is the one being terminated
-    if (logoutAll || !targetSessionId || targetSessionId === currentSessionId) {
+    // Determine if we need to clear client-side cookies.
+    const isCurrentDeviceTargeted = targetDeviceId === jwtDeviceId;
+    const shouldClearCookies =
+      logoutAll || isCurrentDeviceTargeted || !targetDeviceId;
+    if (shouldClearCookies) {
       clearAuthTokens(res);
     }
 
     return res.status(200).json({
       status: "SUCCESS",
       message: logoutAll
-        ? "Logged out from all devices successfully."
-        : "Session terminated successfully.",
-      payload: null,
+        ? "Successfully logged out of all devices."
+        : "Device session(s) terminated successfully.",
+      payload: {
+        loggedOutLocally: shouldClearCookies,
+      },
     });
   } catch (error: any) {
-    console.error("Logout Error:", error);
+    console.error("Logout Processing Error:", error);
     return res.status(500).json({
       status: "ERROR",
-      message: "Failed to process logout request.",
+      message: "An internal error occurred during logout.",
       payload: null,
     });
   }

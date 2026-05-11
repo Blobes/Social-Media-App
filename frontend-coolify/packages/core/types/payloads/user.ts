@@ -10,10 +10,26 @@ export type AccountStatus =
   | "NOT_ONBOARDED";
 export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
 
+/**
+ * Interface representing the Device document in MongoDB.
+ */
 export interface ITrustedDevice {
-  deviceId: string;
+  _id?: string;
+  userId: string;
+  deviceToken: string;
+  name: string | null;
+  deviceType?: string;
+  os?: string;
+  browser?: string;
+  userAgent?: string;
+  ipHash?: string;
+  lastCountry?: string;
+  isPrimary: boolean;
+  isStale: boolean;
+  lastSeenAt: Date;
   lastVerifiedAt: Date;
-  name: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IUserPayload {
@@ -45,7 +61,6 @@ export interface IUserPayload {
   isEmailVerified?: boolean;
   isPhoneVerified?: boolean;
   lastEmailCodeSentAt?: Date | string | null;
-  primarySessionId?: string | null;
   primaryDeviceId?: string | null;
   trustedDevices?: ITrustedDevice[];
 

@@ -20,18 +20,16 @@ export const useAuthNavigation = () => {
    * Prepares and routes user to the onboarding flow.
    */
   const handleNotOnboarded = (user: IUser) => {
-    const onboardingTransitData: OnboardingTransitData<"LOGIN"> = {
-      _id: "transit:onboarding-login",
-      purpose: "LOGIN",
-      payload: user,
-      nextStep: user.onboardingStep
-        ? "ONBOARDING_CONTINUATION"
-        : "ONBOARDING_INTRO",
-    };
-    queryClient.setQueryData(
-      CACHE_KEYS.ONBOARDING_TRANSIT_DATA,
-      onboardingTransitData,
-    );
+    // const onboardingTransitData: OnboardingTransitData<"LOGIN_VERIFICATION"> = {
+    //   _id: "transit:onboarding-login",
+    //   purpose: "LOGIN_VERIFICATION",
+    //   payload: user,
+    //   nextStep: user.onboardingStep ? "WELCOME_BACK" : "INTRO",
+    // };
+    // queryClient.setQueryData(
+    //   CACHE_KEYS.ONBOARDING_TRANSIT_DATA,
+    //   onboardingTransitData,
+    // );
     navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
   };
 
@@ -47,16 +45,16 @@ export const useAuthNavigation = () => {
     const activeChannel: OtpChannel =
       inputType === "EMAIL" || inputType === "PHONE" ? inputType : "EMAIL";
 
-    const otpTransitData: OtpTransitData<"LOGIN"> = {
+    const otpTransitData: OtpTransitData<"LOGIN_VERIFICATION"> = {
       _id: "transit:otp-login",
       identifier,
       channel: activeChannel,
-      purpose: "LOGIN",
+      purpose: "LOGIN_VERIFICATION",
       payload: user,
       reason: reason,
       onVerificationSuccess: () => {
         if (!user.isOnboarded) {
-          handleNotOnboarded(user);
+          navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
         } else {
           navigateTo(CLIENT_ROUTES.home, { loadPage: true });
         }

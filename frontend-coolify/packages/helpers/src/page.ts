@@ -14,43 +14,78 @@ export const matchPaths = (pathA: string, pageB: string) => {
   );
 };
 
-const getPathZone = (p: string) => {
-  const segment = p.split("/").filter(Boolean)[0];
-  return segment ? `/${segment.toLowerCase()}` : "/";
+// const getPathZone = (p: string) => {
+//   const segment = p.split("/").filter(Boolean)[0];
+//   return segment ? `/${segment.toLowerCase()}` : "/";
+// };
+
+const normalize = (p: string) => {
+  const low = p.toLowerCase().trim();
+  if (low === "/" || !low) return "/";
+  return low.replace(/\/+$/, "");
+};
+/**
+ * Determines the primary application zone for a given path based on the registry.
+ */
+const getZoneFromRegistry = (path: string): string | null => {
+  const target = normalize(path);
+  const entry = Object.entries(ROUTES_REGISTRY).find(([key, routes]) => {
+    // Skip utility/grouping keys to find the actual hosting app
+    if (key === "external" || key === "offline") return false;
+
+    return routes.some((r) => normalize(r) === target);
+  });
+  return entry ? entry[0] : null;
 };
 
-/** * Checks if two paths belong to the same group in the registry.
- */
-const isSameRegistryGroup = (pathA: string, pathB: string): boolean => {
-  return Object.values(ROUTES_REGISTRY).some((group) => {
-    const hasPathA = group.some(
-      (route) => route.toLowerCase() === pathA.toLowerCase(),
-    );
-    const hasPathB = group.some(
-      (route) => route.toLowerCase() === pathB.toLowerCase(),
-    );
-    return hasPathA && hasPathB;
-  });
-};
+// /** * Checks if two paths belong to the same group in the registry.
+//  */
+// const isSameRegistryGroup = (pathA: string, pathB: string): boolean => {
+//   return Object.values(ROUTES_REGISTRY).some((group) => {
+//     const hasPathA = group.some(
+//       (route) => route.toLowerCase() === pathA.toLowerCase(),
+//     );
+//     const hasPathB = group.some(
+//       (route) => route.toLowerCase() === pathB.toLowerCase(),
+//     );
+//     return hasPathA && hasPathB;
+//   });
+// };
 
 /** * Determines if a navigation target requires a hard reload (Cross-Zone)
  * or if it can be handled by the current app's SPA router.
  */
 export const crossZoneCheck = (path: string): boolean => {
-  const targetPath = path.toLowerCase();
-  const currentPath = window.location.pathname.toLowerCase();
-  // Exit early if paths are identical
+  const targetPath = normalize(path);
+  const currentPath = normalize(window.location.pathname);
+
+  // Exit early if paths are effectively identical
   if (targetPath === currentPath) return false;
-  // Handle root navigation specifically
-  if (targetPath === "/") return currentPath !== "/";
-  // Check if both routes coexist in the same registry bucket (e.g., both in 'auth')
-  if (isSameRegistryGroup(targetPath, currentPath)) {
-    return false;
-  }
-  const targetZone = getPathZone(targetPath);
-  const currentZone = getPathZone(currentPath);
-  // Fallback to segment-based matching for dynamic routes not in registry
-  return !matchPaths(targetZone, currentZone);
+
+  // Explicit Shell-to-Shell check for the Root
+  const isTargetShell = ROUTES_REGISTRY.shell.some(
+    (r) => normalize(r) === targetPath,
+  );
+  const isCurrentShell = ROUTES_REGISTRY.shell.some(
+    (r) => normalize(r) === currentPath,
+  );
+  if (isTargetShell && isCurrentShell) return false;
+
+  // Registry-based Zone Matching
+  const targetZone = getZoneFromRegistry(targetPath);
+  const currentZone = getZoneFromRegistry(currentPath);
+  if (targetZone && currentZone && targetZone === currentZone) return false;
+
+  // Segment Fallback for dynamic routes not explicitly in registry
+  // Extracts the first segment: "/gist/123" -> "gist"
+  const getFirstSegment = (p: string) =>
+    p.split("/").filter(Boolean)[0] || "home";
+
+  const targetSegment = getFirstSegment(targetPath);
+  const currentSegment = getFirstSegment(currentPath);
+
+  // If the first segments match, we treat them as being in the same zone/app.
+  return targetSegment !== currentSegment;
 };
 
 let prefetchTimeout: NodeJS.Timeout;

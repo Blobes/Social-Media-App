@@ -4,12 +4,13 @@ import {
   hashCode,
   invalidatePattern,
   IAuthRequest,
+  cleanDeviceSessions,
+  clearAuthTokens,
 } from "@repo/shared";
 import { Response } from "express";
 
 /**
- * Finalizes a pending email change for an authenticated user.
- * Swaps pendingEmail into the active email field and clears verification state.
+ * Finalizes a pending email change and secures the account by rotating sessions.
  */
 export const verifyEmailUpdate = async (
   req: IAuthRequest,
@@ -17,6 +18,7 @@ export const verifyEmailUpdate = async (
 ): Promise<void> => {
   const { code } = req.body as { code?: string };
   const userId = req.user?.id;
+  const currentDeviceId = req.user?.deviceId;
 
   if (!code) {
     res.status(400).json({
@@ -75,7 +77,7 @@ export const verifyEmailUpdate = async (
       return;
     }
 
-    // Swap pending into active and clear all verification state
+    // Update identity and clear verification state
     user.email = user.pendingEmail;
     user.pendingEmail = null;
     user.isEmailVerified = true;
@@ -86,12 +88,28 @@ export const verifyEmailUpdate = async (
 
     await user.save();
 
+    // Security: Preserve primary device but clear others after sensitive identity change
+    await cleanDeviceSessions(String(userId), undefined, {
+      clearAll: true,
+      preservePrimary: true,
+      primaryDeviceId: user.primaryDeviceId?.toString(),
+    });
+
+    const isCurrentDevicePrimary =
+      currentDeviceId === user.primaryDeviceId?.toString();
+
+    // If user updated email from a secondary device, nuke local tokens for re-auth
+    if (!isCurrentDevicePrimary) {
+      clearAuthTokens(res);
+    }
+
     await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(String(user._id)));
 
     res.status(200).json({
       status: "SUCCESS",
-      message: "Your email has been successfully updated and verified.",
-      payload: null,
+      message:
+        "Email updated successfully. Other devices have been logged out.",
+      payload: { loggedOut: !isCurrentDevicePrimary },
     });
   } catch (error) {
     console.error("[verifyEmailUpdate] Error:", error);

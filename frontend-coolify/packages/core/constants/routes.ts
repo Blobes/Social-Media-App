@@ -48,6 +48,15 @@ export const CLIENT_ROUTES = {
 /** * Registry mapping logical application zones to their respective route paths.
  */
 const OFFLINE_ROUTES = [CLIENT_ROUTES.offline.path];
+const WEB_ROUTES = [
+  CLIENT_ROUTES.about.path,
+  CLIENT_ROUTES.pricing.path,
+  CLIENT_ROUTES.blogs.path,
+  CLIENT_ROUTES.support.path,
+  CLIENT_ROUTES.privacy.path,
+  CLIENT_ROUTES.terms.path,
+  CLIENT_ROUTES.news.path,
+];
 export const DISALLOWED_ROUTES: string[] = [];
 
 export const ROUTES_REGISTRY = {
@@ -56,19 +65,18 @@ export const ROUTES_REGISTRY = {
     CLIENT_ROUTES.signup.path,
     CLIENT_ROUTES.restoreAccount.path,
     CLIENT_ROUTES.verifyOtp.path,
+    CLIENT_ROUTES.onboarding.path,
   ],
-  web: [
-    CLIENT_ROUTES.about.path,
-    CLIENT_ROUTES.pricing.path,
-    CLIENT_ROUTES.blogs.path,
-    CLIENT_ROUTES.support.path,
-    CLIENT_ROUTES.privacy.path,
-    CLIENT_ROUTES.terms.path,
-    CLIENT_ROUTES.news.path,
-  ],
+  web: WEB_ROUTES,
   shell: [CLIENT_ROUTES.home.path, ...OFFLINE_ROUTES],
   post: [CLIENT_ROUTES.gist.path, CLIENT_ROUTES.stakes.path],
   offline: OFFLINE_ROUTES,
+  external: [
+    CLIENT_ROUTES.login.path,
+    CLIENT_ROUTES.signup.path,
+    ...OFFLINE_ROUTES,
+    ...WEB_ROUTES,
+  ],
 };
 
 // Server Apis
@@ -99,6 +107,7 @@ export const SERVER_API = {
   sendOtp: `${API_BASE.auth}/send-otp`,
   verifyOtp: `${API_BASE.auth}/verify-otp`,
   setPrimarySession: `${API_BASE.auth}/session/set-primary`,
+  updateOnboarding: `${API_BASE.auth}/onboarding`,
 
   // Media
   mediaUpload: `${API_BASE.media}/get-upload-url`,
@@ -117,4 +126,5 @@ export const SERVER_API = {
   follow: (id: string) => `${API_BASE.user}/${id}/follow`,
   verifyEmail: `${API_BASE.user}/verify-email`,
   verifyPhone: `${API_BASE.user}/verify-phone`,
+  updateBasicInfo: `${API_BASE.user}/update-basic`,
 };

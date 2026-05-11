@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useTheme } from "@mui/material/styles";
-import { SignUpStepper } from "./SignupStepper";
+import { SignUpStepper } from "./registration/SignupStepper";
 import { Stack } from "@mui/material";
 
 export default function SignupPage() {

@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import {
   IUser,
-  ISnackBarMsg,
+  ISnackBarMsgs,
   AuthStatus,
   IPage,
   NetworkStatus,
@@ -26,7 +26,7 @@ interface GlobalState {
   accountStatus: AccountStatus;
 
   // UI State
-  snackBarMsg: ISnackBarMsg;
+  snackBarMsgs: ISnackBarMsgs;
   inlineMsg: React.ReactNode | null;
   isGlobalLoading: boolean;
   lastPage: IPage;
@@ -49,7 +49,7 @@ interface GlobalState {
   setAuthLoading: (loading: boolean) => void;
   setAccountStatus: (status: AccountStatus) => void;
   setSnackBarMsg: (msg: IMessage, override: boolean) => void;
-  removeSnackBarMsg: (id?: string) => void;
+  removeSnackBarMsg: (id?: string, clearAll?: boolean) => void;
   setInlineMsg: (node: React.ReactNode | null) => void;
   setGlobalLoading: (loading: boolean) => void;
   setPage: (page: IPage) => void;
@@ -72,7 +72,7 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   authUser: null,
   isAuthLoading: false,
   accountStatus: "PENDING",
-  snackBarMsg: {
+  snackBarMsgs: {
     messages: [],
     defaultDur: 5,
     dir: "up",
@@ -97,18 +97,20 @@ export const useGlobalStore = create<GlobalState>((set) => ({
 
   setSnackBarMsg: (newMsg, override = false) =>
     set((state) => ({
-      snackBarMsg: {
-        ...state.snackBarMsg,
+      snackBarMsgs: {
+        ...state.snackBarMsgs,
         messages: override
           ? [newMsg]
-          : [...(state.snackBarMsg.messages || []), newMsg],
+          : [...(state.snackBarMsgs.messages || []), newMsg],
       },
     })),
-  removeSnackBarMsg: (id) =>
+  removeSnackBarMsg: (id?: string, clearAll: boolean = false) =>
     set((state) => ({
-      snackBarMsg: {
-        ...state.snackBarMsg,
-        messages: state.snackBarMsg.messages?.filter((m) => m.id !== id),
+      snackBarMsgs: {
+        ...state.snackBarMsgs,
+        messages: clearAll
+          ? []
+          : state.snackBarMsgs.messages?.filter((m) => m.id !== id),
       },
     })),
 

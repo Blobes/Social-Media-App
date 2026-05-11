@@ -29,9 +29,9 @@ export default function OtpPage() {
         <VerifyOtp transitData={transitData} />
       ) : (
         <RestrictedUI
-          purpose="UNAUTHORIZED"
-          customHeadline="No OTP verification session found"
-          customTagline="Please return to the home page or the previous page"
+          type="UNAUTHORIZED"
+          headline="No OTP verification session found"
+          tagline="Please return to the home page or the previous page"
         />
       )}
     </Stack>

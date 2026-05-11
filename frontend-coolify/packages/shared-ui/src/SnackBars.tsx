@@ -4,14 +4,14 @@ import React, { useEffect, useState } from "react";
 import { IconButton, Paper, Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { motion } from "framer-motion";
-import { ISnackBarMsg } from "@repo/core";
+import { ISnackBarMsgs } from "@repo/core";
 import { AppButton } from "./Buttons";
 import { Info, CircleCheck, CircleAlert, X } from "lucide-react";
 import { GroupTransition, Transition } from "./Transition";
 import { WordTrimmer } from "./WordTrimmer";
 
 interface SnackbarProps {
-  snackBarMsg: ISnackBarMsg;
+  snackBarMsg: ISnackBarMsgs;
   removeMessage: (id: string) => void;
   setSBTimer: () => void;
 }

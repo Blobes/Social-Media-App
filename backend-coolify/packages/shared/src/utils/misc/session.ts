@@ -1,4 +1,3 @@
-import { UserModel } from "@repo/database";
 import { upstashClient } from "../../services/upstash";
 import { CACHE_KEYS } from "../redis/cache";
 
@@ -107,35 +106,56 @@ export const findUserSessions = async (
 
 /**
  * Terminates sessions tied to specific hardware IDs or clears all hardware sessions.
+ * Optionally preserves the primary device session even during a global clear.
  */
 export const cleanDeviceSessions = async (
   userId: string,
   targetDeviceIds?: string | string[],
-  clearAll: boolean = false,
-): Promise<void> => {
+  options: {
+    clearAll?: boolean;
+    preservePrimary?: boolean;
+    primaryDeviceId?: string | null;
+  } = {},
+): Promise<boolean> => {
+  const {
+    clearAll = false,
+    preservePrimary = false,
+    primaryDeviceId = null,
+  } = options;
+
   try {
     const allSessions = await findUserSessions(userId);
-    if (allSessions.length === 0) return;
+    if (allSessions.length === 0) return false;
 
-    // Convert single string to array for uniform processing
     const targetIds = Array.isArray(targetDeviceIds)
       ? targetDeviceIds
       : targetDeviceIds
         ? [targetDeviceIds]
         : [];
 
-    // Fetch all session data in parallel to avoid N+1 waterfall
     const sessionDataResults = await Promise.all(
       allSessions.map(async (s) => ({
         key: s.key,
+        sessionId: s.sessionId,
         data: (await upstashClient.get(s.key)) as any,
       })),
     );
 
     const keysToDelete: string[] = [];
+    let wasPrimaryPreserved = false;
 
     for (const { key, data } of sessionDataResults) {
       if (!data) continue;
+
+      // Check if this specific session belongs to the primary device
+      const isPrimaryDevice =
+        primaryDeviceId && data.deviceId === primaryDeviceId;
+
+      // Preservation Logic: Skip deletion if it's the primary device and we flagged it for preservation
+      if (preservePrimary && isPrimaryDevice) {
+        wasPrimaryPreserved = true;
+        continue;
+      }
 
       const shouldDelete =
         clearAll || (targetIds.length > 0 && targetIds.includes(data.deviceId));
@@ -148,49 +168,10 @@ export const cleanDeviceSessions = async (
     if (keysToDelete.length > 0) {
       await upstashClient.del(...keysToDelete);
     }
+
+    return wasPrimaryPreserved;
   } catch (error) {
     console.error("Device Session Cleanup Error:", error);
     throw new Error("Failed to process hardware-based session cleanup");
   }
-};
-
-/**
- * Only enforces a wipe if the session being validated IS the primary session
- * and it has expired, OR if we want to restrict secondary sessions (optional).
- */
-export const enforcePrimarySessionPolicy = async (
-  userId: string,
-  primarySessionId: string,
-  currentSessionId: string,
-): Promise<boolean> => {
-  const primaryKey = CACHE_KEYS.USER_SESSION(userId, primarySessionId);
-  const primaryExists = await upstashClient.exists(primaryKey);
-
-  // If the primary session record is gone from Redis
-  if (!primaryExists) {
-    // 1. Clear the primary session ID from MongoDB
-    await UserModel.findByIdAndUpdate(userId, {
-      $unset: { primarySessionId: "" },
-    });
-
-    // 2. Clear the primary session cache
-    await upstashClient.del(CACHE_KEYS.USER_PRIMARY_DEVICE(userId));
-
-    // 3. Trigger account-wide logout for security
-    const allSessions = await upstashClient.keys(
-      CACHE_KEYS.USER_SESSION(userId, "*"),
-    );
-    if (allSessions.length > 0) {
-      await upstashClient.del(...allSessions);
-    }
-
-    return true; // Wipe occurred
-  }
-
-  // If current session is a secondary device, allow it as long as Primary is alive
-  if (currentSessionId !== primarySessionId) {
-    return false;
-  }
-
-  return false;
 };

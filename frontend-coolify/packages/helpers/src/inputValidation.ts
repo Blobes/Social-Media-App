@@ -240,6 +240,26 @@ export const getInputValidity = (input: string): InputValidation => {
 };
 
 /**
+ * Validates names based on length and content (cannot be numeric only).
+ */
+export const validateName = (name: string, label: string): InputValidation => {
+  const value = name.trim();
+  if (value.length < 2 || value.length > 40) {
+    return {
+      status: "INVALID",
+      message: `${label} must be between 2 and 40 characters.`,
+    };
+  }
+  if (/^\d+$/.test(value)) {
+    return {
+      status: "INVALID",
+      message: `${label} cannot consist of numbers only.`,
+    };
+  }
+  return { status: "VALID", message: "" };
+};
+
+/**
  * Bulk validation helper that iterates through an array of inputs and
  * returns true if any single input fails its respective validation type.
  */
@@ -261,6 +281,9 @@ export const validateInputs = (inputs: Input[]): boolean => {
         break;
       case "USERNAME":
         result = validateUsername(input.value);
+        break;
+      case "NAME":
+        result = validateName(input.value, "Field");
         break;
       default:
         result = { status: "VALID", message: "" };

@@ -5,8 +5,8 @@ import {
   IUser,
   ISinglePayload,
   SERVER_API,
-  Purpose,
   OtpReason,
+  Action,
 } from "@repo/core";
 
 interface LoginRequest {
@@ -21,6 +21,7 @@ export interface LoginResponse extends ISinglePayload<IUser> {
 
 export interface CheckResponse extends ISinglePayload<IUser> {
   isExisting: boolean;
+  suggestions?: string[];
 }
 
 export const LoginService = () => {
@@ -40,11 +41,11 @@ export const LoginService = () => {
 
   const checkUsername = async (
     username: string,
-    purpose: Purpose = "LOGIN",
+    purpose: Action = "LOGIN",
   ): Promise<CheckResponse> => {
     return await apiClient<CheckResponse>(SERVER_API.checkUsername, {
       method: "POST",
-      body: JSON.stringify({ username, usedFor: purpose }),
+      body: JSON.stringify({ username, purpose }),
     });
   };
 

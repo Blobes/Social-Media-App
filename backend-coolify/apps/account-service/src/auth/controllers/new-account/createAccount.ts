@@ -26,8 +26,8 @@ interface CreateRequest extends Request {
   body: {
     email: string;
     password: string;
-    firstName: string;
-    lastName: string;
+    // firstName: string;
+    // lastName: string;
     phone?: string;
   };
 }
@@ -36,15 +36,15 @@ export const createAccount = async (
   req: CreateRequest,
   res: Response,
 ): Promise<any> => {
-  const { email, password, firstName, lastName, phone } = req.body;
+  const { email, password, phone } = req.body;
 
   // Ensuring identity hint is set for the browser
   const deviceToken = getOrSetDeviceToken(req, res);
 
-  if (!email || !password || !firstName || !lastName) {
+  if (!email || !password) {
     return res.status(400).json({
       status: "ERROR",
-      message: "All fields are required.",
+      message: "Email and password fields are required.",
       payload: null,
     });
   }
@@ -72,12 +72,12 @@ export const createAccount = async (
       });
     }
 
-    const fullName = `${firstName} ${lastName}`;
-    const notability = await evaluateNotability(
-      fullName,
-      normalizedEmail,
-      phone,
-    );
+    // const fullName = `${firstName} ${lastName}`;
+    // const notability = await evaluateNotability(
+    //   fullName,
+    //   normalizedEmail,
+    //   phone,
+    // );
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -92,21 +92,21 @@ export const createAccount = async (
     const newUser = new UserModel({
       email: testEmail,
       password: hashedPassword,
-      firstName,
-      lastName,
+      // firstName,
+      // lastName,
       phoneNumber: phone,
       country: userLocation?.country,
       state: userLocation?.state,
       verificationCode: hashCode(code),
       verificationExpiry: new Date(Date.now() + 10 * 60 * 1000),
       lastEmailCodeSentAt: new Date(),
-      isNotable: notability.isVIPCandidate,
-      meritsVerification: notability.isVIPCandidate,
-      verificationSignals: {
-        hasWikipedia: notability.signals.notableName,
-        isVipEmail: notability.signals.proEmail,
-        isVipPhone: notability.signals.validPhone,
-      },
+      // isNotable: notability.isVIPCandidate,
+      // meritsVerification: notability.isVIPCandidate,
+      // verificationSignals: {
+      //   hasWikipedia: notability.signals.notableName,
+      //   isVipEmail: notability.signals.proEmail,
+      //   isVipPhone: notability.signals.validPhone,
+      // },
     });
 
     // Explicitly saving user first so the ID exists for the device relation
@@ -154,7 +154,7 @@ export const createAccount = async (
       message: "Registration successful. Verification code sent to email.",
       payload: {
         ...safeData,
-        requiresIdVerification: notability.isVIPCandidate,
+        // requiresIdVerification: notability.isVIPCandidate,
       },
       accessToken,
       refreshToken,

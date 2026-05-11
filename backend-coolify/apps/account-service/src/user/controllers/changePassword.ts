@@ -3,7 +3,8 @@ import {
   CACHE_KEYS,
   IAuthRequest,
   invalidateCache,
-  cleanUserSessions,
+  cleanDeviceSessions,
+  clearAuthTokens,
 } from "@repo/shared";
 import bcrypt from "bcrypt";
 import { Response } from "express";
@@ -20,10 +21,10 @@ export const changePassword = async (
   res: Response,
 ): Promise<any> => {
   const userId = req.user?.id;
-  const currentSessionId = req.user?.sessionId;
+  const jwtDeviceId = req.user?.deviceId; // Extracted from auth middleware
   const { currentPassword, newPassword } = req.body;
 
-  if (!userId || !currentSessionId) {
+  if (!userId || !jwtDeviceId) {
     return res.status(401).json({
       message: "Unauthorized access",
       status: "ERROR",
@@ -82,26 +83,26 @@ export const changePassword = async (
     user.password = await bcrypt.hash(newPassword, salt);
     await user.save();
 
-    // --- REUSABLE SESSION CLEANUP ---
-    // This utility handles the scanning and conditional deletion
-    const wasSessionPreserved = await cleanUserSessions({
-      userId,
-      currentSessionId,
-      keepCurrentIfPrimary: true,
-      primarySessionId: user.primarySessionId,
+    // --- HARDWARE-BASED SESSION CLEANUP ---
+    // We clear all sessions except for the primary device.
+    const wasSessionPreserved = await cleanDeviceSessions(userId, undefined, {
+      clearAll: true,
+      preservePrimary: true,
+      primaryDeviceId: user.primaryDeviceId?.toString(),
     });
 
-    // Surgical cache invalidation for the user's profile
     await invalidateCache(CACHE_KEYS.USER_PROFILE(userId));
 
-    // If session wasn't preserved (not primary), nuke cookies
-    if (!wasSessionPreserved) {
-      res.clearCookie("access_token", { path: "/" });
-      res.clearCookie("refresh_token", { path: "/" });
+    // Determine if the current user was on a secondary device and got logged out
+    const isCurrentDevicePrimary =
+      jwtDeviceId === user.primaryDeviceId?.toString();
+    const shouldLogout = !isCurrentDevicePrimary || !wasSessionPreserved;
 
+    if (shouldLogout) {
+      clearAuthTokens(res);
       return res.status(200).json({
         message:
-          "Password changed. Since this is not your primary device, you have been logged out for security.",
+          "Password changed. Secondary device sessions ended for security.",
         status: "SUCCESS",
         payload: { loggedOut: true },
       });

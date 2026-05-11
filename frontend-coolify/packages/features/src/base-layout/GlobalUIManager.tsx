@@ -20,8 +20,9 @@ import {
   usePage,
   useSnackbar,
 } from "@repo/shared-hooks";
-import { AuthStatus, DrawerRef, ModalRef } from "@repo/core";
+import { AuthStatus, CLIENT_ROUTES, DrawerRef, ModalRef } from "@repo/core";
 import { useAuthVerification } from "../apps/auth/login/useAuthVerification";
+import { RestrictedUI } from "../components/RestrictedUI";
 
 export interface UIManagerProps {
   children: React.ReactNode;
@@ -41,7 +42,7 @@ export const GlobalUIManager = ({
   const modalRef = useRef<ModalRef>(null);
 
   // Destructuring state and actions from the Zustand store
-  const snackBarMsg = useGlobalStore((state) => state.snackBarMsg);
+  const snackBarMsg = useGlobalStore((state) => state.snackBarMsgs);
   const drawerContent = useGlobalStore((state) => state.drawerContent);
   const modalContent = useGlobalStore((state) => state.modalContent);
   const isGlobalLoading = useGlobalStore((state) => state.isGlobalLoading);
@@ -53,10 +54,17 @@ export const GlobalUIManager = ({
   const accountStatus = useGlobalStore((state) => state.accountStatus);
 
   const { verifySignal, isUnstableNetwork, isOffline } = useMisc();
-  const { handlePageChange, isRedirecting, isNavigating } = usePage();
+  const {
+    handlePageChange,
+    isRedirecting,
+    isNavigating,
+    needsLogin,
+    needsOnboarding,
+    needsRestoreAccount,
+  } = usePage();
   const pathname = usePathname();
   const { verifyAuth } = useAuthVerification();
-  const { setSBTimer, removeSBMessage } = useSnackbar();
+  const { setSBTimer, removeSBMessages } = useSnackbar();
   const { switchToOfflineMode } = useOffline();
   const isMounted = useRef(false);
 
@@ -68,11 +76,10 @@ export const GlobalUIManager = ({
     const init = async () => {
       if (isMounted.current) return;
       isMounted.current = true;
-
       try {
         setGlobalLoading(true);
         registerSW();
-        await delay();
+        //  await delay();
         await verifySignal();
         await verifyAuth();
       } finally {
@@ -107,17 +114,29 @@ export const GlobalUIManager = ({
   }, [pathname, authStatus, accountStatus]);
 
   // Showing Splash UI during hydration
-  if (!isMounted.current) return <SplashUI />;
+
+  // if (
+  //   !isMounted.current ||
+  //   authStatus === "PENDING" ||
+  //   networkStatus === "UNKNOWN"
+  // ) {
+  //   return <PageLoaderUI />;
+  // }
 
   // Determining if the app is still in its initial boot state
-  const isInitializing =
-    isGlobalLoading ||
+  const showLoaderUI =
+    !isMounted.current ||
     authStatus === "PENDING" ||
     networkStatus === "UNKNOWN" ||
-    isRedirecting ||
-    isNavigating;
+    isGlobalLoading;
 
-  if (isInitializing) return <PageLoaderUI />;
+  if (showLoaderUI) return <PageLoaderUI />;
+
+  if (!isRedirecting) {
+    if (needsLogin) return <RestrictedUI type="NEEDS_LOGIN" />;
+    if (needsOnboarding) return <RestrictedUI type="NEEDS_ONBOARDING" />;
+    if (needsRestoreAccount) return <RestrictedUI type="NEEDS_RESTORE" />;
+  }
 
   const savedLoginStatus = getFromLocalStorage<AuthStatus>({
     key: "last_auth_status",
@@ -135,7 +154,7 @@ export const GlobalUIManager = ({
   // Logic for displaying Network Glitches or Critical Auth Errors
   const hasNetworkGlitch = isUnstableNetwork && !isOffline;
   const hasAuthError = authStatus === "ERROR";
-  const isGuestOffline = isOffline && wasLoggedIn;
+  const isGuestOffline = isOffline && !wasLoggedIn;
 
   if (
     showNetworkErrorUI &&
@@ -156,7 +175,7 @@ export const GlobalUIManager = ({
       {snackBarMsg.messages && snackBarMsg.messages.length > 0 && (
         <SnackBars
           snackBarMsg={snackBarMsg}
-          removeMessage={removeSBMessage}
+          removeMessage={removeSBMessages}
           setSBTimer={setSBTimer}
         />
       )}

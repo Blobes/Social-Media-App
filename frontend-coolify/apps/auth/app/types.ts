@@ -14,6 +14,7 @@ export interface StepperProps {
   modalRef?: React.RefObject<DrawerRef>;
   redirectTo?: string;
   style?: StyleProps;
+  onNext?: () => void;
 }
 
 export interface StepProps {

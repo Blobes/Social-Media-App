@@ -16,12 +16,10 @@ export interface SBMessage {
  */
 export const useSnackbar = () => {
   // Atomic selectors: only subscribe to what is absolutely necessary
-  const messages = useGlobalStore((state) => state.snackBarMsg.messages);
-  const defaultDur = useGlobalStore((state) => state.snackBarMsg.defaultDur);
+  const messages = useGlobalStore((state) => state.snackBarMsgs.messages);
+  const defaultDur = useGlobalStore((state) => state.snackBarMsgs.defaultDur);
   const setSnackBarMsg = useGlobalStore((state) => state.setSnackBarMsg);
-  const removeSnackBarAction = useGlobalStore(
-    (state) => state.removeSnackBarMsg,
-  );
+  const removeSnackBarMsg = useGlobalStore((state) => state.removeSnackBarMsg);
 
   /**
    * Sets a snackbar message with optional delay and override behavior.
@@ -66,7 +64,7 @@ export const useSnackbar = () => {
         const intervalId = setInterval(() => {
           remaining--;
           if (remaining <= 0 && msg.id) {
-            removeSnackBarAction(msg.id);
+            removeSnackBarMsg(msg.id);
             clearInterval(intervalId);
           }
         }, 1000);
@@ -76,28 +74,27 @@ export const useSnackbar = () => {
       .filter((id): id is NodeJS.Timeout => id !== null);
 
     return () => timers.forEach((id) => clearInterval(id));
-  }, [messages, defaultDur, removeSnackBarAction]);
+  }, [messages, defaultDur, removeSnackBarMsg]);
 
   /**
    * Removes a specific message or clears all if no ID is provided.
    */
-  const removeSBMessage = useCallback(
-    async (id?: string) => {
-      if (id) {
-        removeSnackBarAction(id);
-      } else {
-        setSnackBarMsg([] as unknown as IMessage, true);
-      }
-    },
-    [removeSnackBarAction, setSnackBarMsg],
-  );
-
   /**
-   * Clears the snackbar queue.
+   * Removes snackbar messages by ID, an array of IDs, or clears all if no ID is provided.
    */
-  const clearSBMessages = useCallback(() => {
-    setSnackBarMsg([] as unknown as IMessage, true);
-  }, [setSnackBarMsg]);
-
-  return { setSBMessage, setSBTimer, removeSBMessage, clearSBMessages };
+  const removeSBMessages = useCallback(
+    async (ids?: string | string[]) => {
+      // If no IDs are provided, clear the entire tray
+      if (!ids) {
+        removeSnackBarMsg(undefined, true);
+        return;
+      }
+      // Handle multiple IDs (Array)
+      if (Array.isArray(ids)) ids.forEach((id) => removeSnackBarMsg(id));
+      // Handle a single ID (String)
+      else removeSnackBarMsg(ids);
+    },
+    [removeSnackBarMsg],
+  );
+  return { setSBMessage, setSBTimer, removeSBMessages };
 };

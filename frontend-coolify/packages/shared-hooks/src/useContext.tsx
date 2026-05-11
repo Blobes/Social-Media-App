@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState } from "react";
 import {
   IUser,
-  ISnackBarMsg,
+  ISnackBarMsgs,
   AuthStatus,
   IPage,
   NetworkStatus,
@@ -17,8 +17,8 @@ interface Context {
   setAuthStatus: React.Dispatch<React.SetStateAction<AuthStatus>>;
   authUser: IUser | null;
   setAuthUser: React.Dispatch<React.SetStateAction<IUser | null>>;
-  snackBarMsg: ISnackBarMsg;
-  setSnackBarMsg: React.Dispatch<React.SetStateAction<ISnackBarMsg>>;
+  snackBarMsg: ISnackBarMsgs;
+  setSnackBarMsg: React.Dispatch<React.SetStateAction<ISnackBarMsgs>>;
   inlineMsg: React.ReactNode | null;
   setInlineMsg: React.Dispatch<React.SetStateAction<React.ReactNode | null>>;
   isGlobalLoading: boolean;
@@ -50,7 +50,7 @@ export const ContextProvider = ({
 }) => {
   const [authStatus, setAuthStatus] = useState<AuthStatus>("PENDING");
   const [authUser, setAuthUser] = useState<IUser | null>(null);
-  const [snackBarMsg, setSnackBarMsg] = useState<ISnackBarMsg>({
+  const [snackBarMsg, setSnackBarMsg] = useState<ISnackBarMsgs>({
     messages: [],
     defaultDur: 5,
     dir: "up",

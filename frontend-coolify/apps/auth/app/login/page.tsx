@@ -38,7 +38,7 @@ export default function LoginPage() {
         />
       ) : (
         <RestrictedUI
-          purpose="ALREADY_LOGGED_IN"
+          type="ALREADY_LOGGED_IN"
           secondaryCta={{
             label: "Logout",
             action: () =>

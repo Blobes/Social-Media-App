@@ -1,7 +1,7 @@
 "use client";
 
 import { useSnackbar, usePage, useGlobalStore } from "@repo/shared-hooks";
-import { CACHE_KEYS, CLIENT_ROUTES, IPage, IUser } from "@repo/core";
+import { CACHE_KEYS, CLIENT_ROUTES, IUser } from "@repo/core";
 import { queryClient } from "@repo/helpers";
 
 export const useFeedback = () => {

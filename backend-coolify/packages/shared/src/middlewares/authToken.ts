@@ -104,9 +104,7 @@ export const createOptionalVerifyToken = (
         payload.deviceId,
       );
 
-      if (needsOtp) {
-        return next(); // silent fail
-      }
+      if (needsOtp) return next(); // silent fail
 
       const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
 
