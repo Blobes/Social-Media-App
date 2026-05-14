@@ -43,7 +43,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
   } = useIdentifier({ existingInput, setStep, setIdentifier });
 
   return (
-    <Stack>
+    <Stack gap={theme.gap(18)}>
       <Stack>
         <Typography
           component="h3"
