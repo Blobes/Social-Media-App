@@ -108,7 +108,7 @@ export const GlobalUIManager = ({
     });
   }, [drawerContent, modalContent]);
 
-  // Responds to route changes to update internal page tracking.
+  // Responds to route changes to update internal page tracking and act as route guard.
   useEffect(() => {
     handlePageChange();
   }, [pathname, authStatus, accountStatus]);

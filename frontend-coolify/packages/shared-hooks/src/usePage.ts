@@ -192,6 +192,7 @@ export const usePage = () => {
       if (guards.needsLogin) {
         navigateTo(CLIENT_ROUTES.home, { loadPage: true });
       } else if (guards.needsOnboarding) {
+        console.log(pendingPath, "Hello");
         // SharedLoginService logic usually handles this, but here for safety
         navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
       } else if (guards.needsRestoreAccount) {

@@ -22,7 +22,8 @@
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-transition-group": "catalog:"
+    "react-transition-group": "catalog:",
+    "@lottiefiles/dotlottie-react": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",

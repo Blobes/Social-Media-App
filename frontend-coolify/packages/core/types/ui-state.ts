@@ -24,14 +24,17 @@ export type OtpReason =
   | "UNVERIFIED_ACCOUNT"
   | "NEW_ACCOUNT";
 
-export type OnboardingStep =
+export type StepName =
   | "INTRO"
   | "WELCOME_BACK"
   | "IDENTITY"
   | "DEMOGRAPHICS"
   | "VISUALS"
   | "PROFESSIONAL"
-  | "COMPLETED";
+  | "COMPLETED"
+  | "IDENTIFIER"
+  | "RESTORE_ACCOUNT"
+  | "PASSWORD";
 
 export type OtpChannel = "EMAIL" | "PHONE";
 
@@ -99,9 +102,11 @@ export interface InputValidation {
 
 export interface IStep<T> {
   name: T;
+  label?: string; // Human-readable label (e.g., "Personal")
   element: React.ReactNode;
   action?: () => void;
   allowPrevious?: boolean;
+  revisitable?: boolean; // Controls if a completed step can be clicked
 }
 
 export interface IPage {
@@ -132,7 +137,7 @@ export interface TransitData<P extends TransitPurpose = TransitPurpose> {
   payload: TransitPayloadMap[P];
 }
 
-export type OtpNextStep = OnboardingStep | "FEED";
+export type OtpNextStep = StepName | "FEED";
 
 export type OtpTransitData<P extends TransitPurpose = TransitPurpose> =
   TransitData<P> & {
@@ -145,8 +150,8 @@ export type OtpTransitData<P extends TransitPurpose = TransitPurpose> =
 
 export type OnboardingTransitData<P extends TransitPurpose = TransitPurpose> =
   TransitData<P> & {
-    currentStep?: OnboardingStep;
-    nextStep: OnboardingStep;
+    currentStep?: StepName;
+    nextStep: StepName;
   };
 
 export interface CachedItem<T> {

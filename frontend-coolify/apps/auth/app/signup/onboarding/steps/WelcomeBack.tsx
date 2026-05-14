@@ -3,7 +3,7 @@
 import React, { useCallback } from "react";
 import { Stack, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
-import { img } from "@repo/assets";
+import { asset } from "@repo/assets";
 import { AppButton } from "@repo/shared-ui";
 import { useGlobalStore } from "@repo/shared-hooks";
 
@@ -31,7 +31,7 @@ export const WelcomeBack: React.FC<{ onNext: () => void }> = ({ onNext }) => {
       <Stack sx={{ alignItems: "center", gap: theme.gap(12) }}>
         <Image
           alt="Welcome Back"
-          src={img.logo}
+          src={asset.logo}
           width={120}
           height={120}
           style={{ borderRadius: theme.radius.full }}

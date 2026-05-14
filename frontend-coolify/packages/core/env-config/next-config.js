@@ -2,6 +2,18 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
   return {
     ...appConfig,
     output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
+    webpack(config) {
+      // Add .lottie support
+      config.module.rules.push({
+        test: /\.lottie$/,
+        type: "asset/resource",
+      });
+      // Preserve existing webpack config if provided
+      if (typeof appConfig.webpack === "function") {
+        return appConfig.webpack(config);
+      }
+      return config;
+    },
     async headers() {
       return [
         {

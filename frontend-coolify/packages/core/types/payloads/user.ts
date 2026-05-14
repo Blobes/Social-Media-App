@@ -1,4 +1,4 @@
-import { OnboardingStep } from "../ui-state";
+import { StepName } from "../ui-state";
 
 export type UserRole = "USER" | "ADMIN" | "MODERATOR";
 export type AccountStatus =
@@ -87,7 +87,7 @@ export interface IUserPayload {
 
   // --- 7. ONBOARDING & GEOGRAPHY (NEWLY ADDED) ---
   isOnboarded?: boolean;
-  onboardingStep?: OnboardingStep | null;
+  onboardingStep?: StepName | null;
   location?: string | null;
   country?: string | null;
   state?: string | null;

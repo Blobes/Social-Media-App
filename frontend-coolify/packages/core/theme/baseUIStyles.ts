@@ -237,13 +237,23 @@ const baseUIStyles = createTheme({
             fontSize: "16px",
             transform: "translate(14px, 14px)",
             color: theme.palette.gray[200],
+            border: "none",
           },
-          "& label.Mui-error": { color: "var(--TextField-error)" },
           "& label.Mui-focused, & label.MuiInputLabel-shrink": {
-            transform: "translate(6px, -16px) scale(0.9)",
-            padding: theme.boxSpacing(2, 4),
-            borderRadius: theme.radius[2],
+            transform: "translate(6px, -20px) scale(0.9)",
+            padding: theme.boxSpacing(2, 5),
+            borderRadius: theme.radius.full,
             backgroundColor: theme.palette.gray[50],
+          },
+          "& label.MuiInputLabel-shrink": {
+            border: `1px solid ${theme.palette.gray[200]}`,
+          },
+          "& label.Mui-focused": {
+            border: `2px solid ${theme.palette.primary.main}`,
+          },
+          "& label.MuiInputLabel-root.Mui-error.Mui-focused": {
+            color: "var(--TextField-error)",
+            border: "2px solid var(--TextField-error)",
           },
           "& .MuiFormHelperText-root": {
             fontSize: "14px",

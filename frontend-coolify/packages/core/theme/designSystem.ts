@@ -11,18 +11,19 @@ let designSystem = createTheme({
         primary: {
           light: "#8395FF",
           main: "#506AFF",
-          dark: "#3D59D4",
+          dark: "#162770",
         },
         gray: {
           0: "#ffffff",
           50: "#E8ECF5",
-          100: "#A4B0C1",
+          100: "#BCC8DA",
           200: "#6F7E99",
           300: "#101926",
           trans: {
-            1: "rgba(1, 14, 24, 0.06)",
+            1: "rgba(1, 7, 30, 0.06)",
             2: "rgba(1, 14, 24, 0.12)",
-            overlay: (trans?: number) => `rgba(1, 6, 19, ${trans ?? 0.5})`,
+            overlay: (opacity?: number, adaptive: boolean = false) =>
+              `rgba(${adaptive ? "8, 27, 95" : "1, 6, 19"}, ${opacity ?? 0.5})`,
           },
         },
         info: {
@@ -56,7 +57,8 @@ let designSystem = createTheme({
           trans: {
             1: "rgba(173, 218, 255, 0.08)",
             2: "rgba(173, 218, 255, 0.2)",
-            overlay: (trans?: number) => `rgba(1, 6, 19, ${trans ?? 0.5})`,
+            overlay: (opacity?: number, adaptive: boolean = false) =>
+              `rgba(${adaptive ? "40, 57, 217" : "1, 6, 19"}, ${opacity ?? 0.5})`,
           },
         },
         info: {

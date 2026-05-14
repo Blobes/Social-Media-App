@@ -8,7 +8,7 @@ import { LoginService } from "../../../login/service";
 /**
  * Manages Identity logic using the updated bulk validator.
  */
-export const useIdentity = (onSuccess: () => void) => {
+export const useIdentity = (onSuccess?: () => void) => {
   const { checkUsername } = LoginService();
   const { syncIdentity, updateProgress } = OnboardingService();
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
@@ -70,12 +70,12 @@ export const useIdentity = (onSuccess: () => void) => {
     mutationFn: async () => {
       // Persist identity data to DB
       await syncIdentity(formData);
-      // Advance user state to demographics step
+      // Advance user state to demographics step in
       return await updateProgress("DEMOGRAPHICS", false);
     },
     onSuccess: () => {
       setInlineMsg(null);
-      onSuccess();
+      if (onSuccess) onSuccess();
     },
     onError: (err: any) => {
       setInlineMsg(err.message || "An error occurred during sync");

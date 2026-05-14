@@ -10,8 +10,13 @@ import {
   getInputValidity,
   sanitizePhoneNumber,
 } from "@repo/helpers";
-import { AccountStatus, CLIENT_ROUTES, InputStatus, MenuRef } from "@repo/core";
-import { StepName } from "../../types";
+import {
+  AccountStatus,
+  CLIENT_ROUTES,
+  InputStatus,
+  MenuRef,
+  StepName,
+} from "@repo/core";
 import { AppButton } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 

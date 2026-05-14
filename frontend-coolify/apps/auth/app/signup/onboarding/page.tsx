@@ -18,8 +18,11 @@ export default function OnboardingPage() {
         height: "100%",
         alignItems: "center",
         justifyContent: "center",
-        padding: theme.boxSpacing(6),
-        minHeight: "100vh",
+        padding: theme.boxSpacing(14),
+        [theme.breakpoints.down("sm")]: {
+          padding: theme.boxSpacing(2),
+        },
+        minHeight: "fit-content",
         ...applyBGPattern(),
       }}>
       {authUser?.isOnboarded ? (
@@ -29,20 +32,7 @@ export default function OnboardingPage() {
           tagline="You have already completed the onboarding step."
         />
       ) : (
-        <Onboarding
-          style={{
-            container: {
-              width: "450px",
-              padding: theme.boxSpacing(18, 16),
-              backgroundColor: theme.palette.gray[0],
-              boxShadow: theme.shadows[1],
-              [theme.breakpoints.down("sm")]: {
-                width: "100%",
-                padding: theme.boxSpacing(16, 10),
-              },
-            },
-          }}
-        />
+        <Onboarding />
       )}
     </Stack>
   );

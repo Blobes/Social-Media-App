@@ -34,14 +34,14 @@ export const useAuthVerification = () => {
           // NOT ONBOARDED: User exists but is not on boarded
           if (!user.isOnboarded) {
             setAccountStatus("NOT_ONBOARDED");
-            navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
+            // navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
           }
 
           // DEACTIVATED: User exists but account is locked
           if (user.accountStatus === "DEACTIVATED") {
-            setAuthUser(user);
+            // setAuthUser(user);
             setAccountStatus("DEACTIVATED");
-            navigateTo(CLIENT_ROUTES.restoreAccount);
+            // navigateTo(CLIENT_ROUTES.restoreAccount);
           }
           return user;
         }

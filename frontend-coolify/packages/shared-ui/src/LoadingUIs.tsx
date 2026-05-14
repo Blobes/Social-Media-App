@@ -3,12 +3,10 @@
 import React from "react";
 import { CircularProgress, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { img } from "@repo/assets";
-import Image from "next/image";
-import { rotate } from "@repo/helpers";
-import { AnimatedWrapper } from "./AnimatedWrapper";
 import { RootUIContainer } from "./Containers";
 import { GenericStyle } from "@repo/core";
+import { asset } from "@repo/assets";
+import { SVGWrapper } from "./SvgWrapper";
 
 interface ProgressProps {
   style?: GenericStyle;
@@ -43,20 +41,13 @@ export const ProgressIcon = ({ style, otherProps, info }: ProgressProps) => {
 };
 
 export const PageLoaderUI = () => {
-  const theme = useTheme();
   return (
     <RootUIContainer
       style={{
         alignItems: "center",
         justifyContent: "center",
       }}>
-      <AnimatedWrapper
-        sx={{
-          borderRadius: theme.radius.full,
-          animation: `${rotate} 1s linear infinite forwards`,
-        }}>
-        <Image src={img.logo} alt="Loading icon" width={54} height={54} />
-      </AnimatedWrapper>
+      <SVGWrapper src={asset.LoadingAnimation} size={64} preserveColor={true} />
     </RootUIContainer>
   );
 };

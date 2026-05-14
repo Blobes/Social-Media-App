@@ -16,6 +16,9 @@ interface SnackbarProps {
   setSBTimer: () => void;
 }
 
+/**
+ * Handles snackbar display with a stable initial width and smooth expansion.
+ */
 export const SnackBars = ({
   snackBarMsg,
   removeMessage,
@@ -33,19 +36,15 @@ export const SnackBars = ({
 
   return (
     <Stack
-      component={motion.div}
-      layout
-      transition={{ type: "tween" }}
       sx={{
         position: "fixed",
+        width: "fit-content",
         ...(snackBarMsg.dir === "up" ? { bottom: "10px" } : { top: "10px" }),
         right: "10px",
         zIndex: 2000,
-        width: "94%",
-        [theme.breakpoints.up("sm")]: {
-          maxWidth: isExpanded ? "400px" : "350px",
-        },
         gap: theme.gap(2),
+        pointerEvents: "none",
+        alignItems: "flex-end",
       }}>
       <GroupTransition>
         {snackBarMsg.messages.map((msg) => {
@@ -57,11 +56,16 @@ export const SnackBars = ({
               timeout={300}>
               <Paper
                 variant="elevation"
+                component={motion.div}
                 sx={{
-                  width: "100%",
+                  maxWidth: isExpanded ? "450px" : "400px",
+                  [theme.breakpoints.down("sm")]: {
+                    maxWidth: "98%",
+                  },
+                  pointerEvents: "auto",
                   padding: theme.boxSpacing(6, 8),
                   display: "flex",
-                  alignItems: "center",
+                  alignItems: isExpanded ? "flex-start" : "center",
                   flexDirection: "row",
                   color:
                     msg.msgStatus !== "ERROR"
@@ -88,9 +92,9 @@ export const SnackBars = ({
                   },
                 }}>
                 {!isExpanded && (
-                  <motion.span
-                    layout="position"
-                    style={{ width: "24px", height: "24px" }}>
+                  <Stack
+                    component={motion.span}
+                    sx={{ width: "24px", height: "24px", flexShrink: 0 }}>
                     {msg.icon ??
                       (msg.msgStatus === "SUCCESS" ? (
                         <CircleCheck />
@@ -99,7 +103,7 @@ export const SnackBars = ({
                       ) : (
                         <CircleAlert />
                       ))}
-                  </motion.span>
+                  </Stack>
                 )}
 
                 <Stack
@@ -109,11 +113,7 @@ export const SnackBars = ({
                     width: "100%",
                   }}>
                   {msg.headline && (
-                    <Typography
-                      component={motion.span}
-                      layout="position"
-                      variant="body2"
-                      sx={{ fontWeight: 501 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 501 }}>
                       {msg.headline}
                     </Typography>
                   )}
@@ -155,10 +155,12 @@ export const SnackBars = ({
                   )}
                 </Stack>
 
-                {/* Close element */}
-                <motion.span
-                  layout="position"
-                  style={{ height: "fit-content", width: "fit-content" }}>
+                <Stack
+                  sx={{
+                    height: "fit-content",
+                    width: "fit-content",
+                    flexShrink: 0,
+                  }}>
                   {msg.hasClose && msg.id && (
                     <IconButton
                       onClick={() => removeMessage(msg.id!)}
@@ -174,15 +176,15 @@ export const SnackBars = ({
                       }}>
                       <X
                         style={{
-                          width: "14px",
-                          height: "14px",
+                          width: "16px",
+                          height: "16px",
                           stroke: `${msg.msgStatus !== "ERROR" ? theme.palette.gray[0] : theme.palette.error.main}`,
                           strokeWidth: "2px",
                         }}
                       />
                     </IconButton>
                   )}
-                </motion.span>
+                </Stack>
               </Paper>
             </Transition>
           );

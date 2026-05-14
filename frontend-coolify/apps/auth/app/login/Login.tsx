@@ -2,17 +2,17 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { IStep } from "@repo/core";
+import { IStep, StepName } from "@repo/core";
 import { Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
 import Image from "next/image";
-import { img } from "@repo/assets";
+import { asset } from "@repo/assets";
 import { PasswordStep } from "./PasswordStep";
 import { IdentifierStep } from "./IdentifierStep";
-import { StepName, StepperProps } from "../types";
 import { RestoreAccount } from "@repo/features";
+import { LoginStepProps, StepperProps } from "../types";
 
-export const Login: React.FC<StepperProps> = ({ style = {} }) => {
+export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
   const theme = useTheme();
   const [input, setInput] = useState("");
   const [currStep, setCurrStep] = useState<StepName>("IDENTIFIER");
@@ -62,7 +62,7 @@ export const Login: React.FC<StepperProps> = ({ style = {} }) => {
     <Stack
       sx={{
         backgroundColor: theme.palette.gray[50],
-        borderRadius: theme.radius[3],
+        borderRadius: theme.radius[5],
         justifyContent: "center",
         alignItems: "center",
         gap: theme.gap(10),
@@ -74,7 +74,7 @@ export const Login: React.FC<StepperProps> = ({ style = {} }) => {
       }}>
       <Image
         alt="logo"
-        src={img.logo}
+        src={asset.logo}
         width={50}
         height={50}
         style={{

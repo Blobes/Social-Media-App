@@ -1,4 +1,4 @@
-export const img = {
+export const asset = {
   logo: "/logo.png",
   defaultCover: "/images/cover.jpg",
   pic1: "/images/img1.png",
@@ -10,5 +10,10 @@ export const img = {
   pic7: "/images/img7.jpg",
   video: "/videotest.mp4",
   doodle: "/svgs/doodle.svg",
+  zebraPattern: "/svgs/zebra-pattern.svg",
   OfflineAvatar: "/svgs/offline-avatar.svg",
+  Illustration1: "/svgs/illustration1.svg",
+  Illustration2: "/svgs/illustration2.svg",
+  LoadingAnimation: "/lottie/loading.lottie",
+  SignupAnimation: "/lottie/signup-animation.lottie",
 };

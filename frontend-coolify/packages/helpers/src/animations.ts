@@ -1,6 +1,7 @@
 "use client";
 
 import { keyframes } from "@mui/system";
+import { Easing, HTMLMotionProps } from "framer-motion";
 
 export const fadeIn = keyframes`
   from {
@@ -151,3 +152,47 @@ export const heartPop = keyframes`
   80% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
   100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
 `;
+
+/**
+ * Generates reusable framer animation variants for most transitions.
+ * Supports custom directional offsets and timing.
+ */
+export const getFramerVariants = (
+  type: "FADE" | "SLIDE_FADE" | "POP" = "FADE", // Added 'pop'
+  customConfig: {
+    duration?: number;
+    xOffset?: number;
+    scaleOffset?: number; // Added scaleOffset
+    ease?: Easing;
+  } = {},
+): HTMLMotionProps<any> => {
+  const {
+    duration = type === "FADE" ? 0.2 : 0.3,
+    xOffset = 10,
+    scaleOffset = 0.95,
+    ease = type === "FADE" ? "linear" : "easeOut",
+  } = customConfig;
+
+  const variants = {
+    FADE: {
+      initial: { opacity: 0 },
+      animate: { opacity: 1 },
+      exit: { opacity: 0 },
+      transition: { duration, ease },
+    },
+    SLIDE_FADE: {
+      initial: { opacity: 0, x: xOffset },
+      animate: { opacity: 1, x: 0 },
+      exit: { opacity: 0, x: -xOffset },
+      transition: { duration, ease },
+    },
+    POP: {
+      initial: { opacity: 0, scale: scaleOffset },
+      animate: { opacity: 1, scale: 1 },
+      exit: { opacity: 0, scale: scaleOffset },
+      transition: { duration, ease },
+    },
+  };
+
+  return variants[type];
+};

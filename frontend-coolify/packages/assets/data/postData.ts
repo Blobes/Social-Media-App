@@ -1,7 +1,7 @@
 "use client";
 
 import { IStake, MediaProps } from "@repo/core";
-import { img } from "..";
+import { asset } from "..";
 
 export const stakeTestData: IStake[] = [
   {
@@ -20,7 +20,7 @@ export const stakeTestData: IStake[] = [
       {
         _id: "media1",
         ownerId: "1",
-        url: img.pic3,
+        url: asset.pic3,
         status: "READY",
       },
     ],
@@ -42,7 +42,7 @@ export const stakeTestData: IStake[] = [
       {
         _id: "media2",
         ownerId: "2",
-        url: img.pic4,
+        url: asset.pic4,
         status: "READY",
       },
     ],
@@ -64,7 +64,7 @@ export const stakeTestData: IStake[] = [
       {
         _id: "media3",
         ownerId: "3",
-        url: img.pic1,
+        url: asset.pic1,
         status: "READY",
       },
     ],
@@ -76,44 +76,44 @@ export const mediaData: MediaProps[] = [
   {
     _id: "media1",
     ownerId: "3",
-    url: img.pic1,
+    url: asset.pic1,
     status: "READY",
   },
   {
     _id: "media2",
     ownerId: "2",
-    url: img.pic2,
+    url: asset.pic2,
     status: "READY",
   },
   {
     _id: "media3",
     ownerId: "2",
-    url: img.video,
+    url: asset.video,
     type: "VIDEO",
     status: "READY",
   },
   {
     _id: "media4",
     ownerId: "2",
-    url: img.pic3,
+    url: asset.pic3,
     status: "READY",
   },
   {
     _id: "media5",
     ownerId: "1",
-    url: img.pic4,
+    url: asset.pic4,
     status: "READY",
   },
   {
     _id: "media6",
     ownerId: "4",
-    url: img.pic5,
+    url: asset.pic5,
     status: "READY",
   },
   {
     _id: "media7",
     ownerId: "2",
-    url: img.pic5,
+    url: asset.pic5,
     status: "READY",
   },
 ];

@@ -36,6 +36,7 @@ catalog:
   "@tanstack/react-query-devtools": "5.99.1"
   "@types/react-transition-group": ^4.4.10
   "@vercel/microfrontends": ^2.3.1
+  "@lottiefiles/dotlottie-react": 0.19.2
 
 onlyBuiltDependencies:
   - sharp

@@ -4,9 +4,9 @@ import React from "react";
 import { AppBar } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useMisc, usePageScroll } from "@repo/shared-hooks";
-import { img } from "@repo/assets";
+import { asset } from "@repo/assets";
 import Image from "next/image";
-import { SVGIcon } from "@repo/shared-ui";
+import { SVGWrapper } from "@repo/shared-ui";
 
 interface AppHeaderProps {
   scrollRef?: React.RefObject<HTMLElement | null>;
@@ -16,7 +16,6 @@ export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
   const { handlePageScroll } = usePageScroll();
   const theme = useTheme();
   const scrollDir = handlePageScroll(scrollRef);
-  const { OfflineAvatar } = img;
 
   /* ---------------------------------- render ---------------------------------- */
   return (
@@ -41,7 +40,7 @@ export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
       }}>
       {/* Logo */}
       <Image
-        src={img.logo}
+        src={asset.logo}
         alt="logo"
         width={34}
         height={34}
@@ -51,8 +50,8 @@ export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
       />
 
       {/* Right side elements */}
-      <SVGIcon
-        src={OfflineAvatar}
+      <SVGWrapper
+        src={asset.OfflineAvatar}
         size={34}
         preserveColor={true}
         sx={{

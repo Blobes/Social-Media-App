@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useTheme } from "@mui/material/styles";
-import { img } from "@repo/assets";
+import { asset } from "@repo/assets";
 import Image from "next/image";
 import { RootUIContainer } from "./Containers";
 
@@ -16,7 +16,7 @@ export const SplashUI = () => {
         justifyContent: "center",
       }}>
       <Image
-        src={img.logo}
+        src={asset.logo}
         alt="Splash icon"
         width={56}
         height={56}

@@ -6,7 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
 import { UserAvatar, AppButton } from "@repo/shared-ui";
 import { summarizeNum } from "@repo/helpers";
-import { img } from "@repo/assets";
+import { asset } from "@repo/assets";
 import { useGlobalStore } from "@repo/shared-hooks";
 
 export const ProfileCard = () => {
@@ -35,7 +35,7 @@ export const ProfileCard = () => {
         flexGrow: 0,
       }}>
       <Image
-        src={coverImage || img.defaultCover}
+        src={coverImage || asset.defaultCover}
         width={400}
         height={130}
         alt="Image cover"

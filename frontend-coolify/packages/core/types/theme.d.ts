@@ -17,7 +17,7 @@ declare module "@mui/material/styles" {
       trans: {
         1: string;
         2: string;
-        overlay: (trans?: number) => string;
+        overlay: (opacity?: number, adaptive?: boolean) => string;
       };
     };
     error: {

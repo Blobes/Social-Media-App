@@ -12,18 +12,10 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { Pencil } from "lucide-react";
 import { useLogin } from "./hooks/useLogin";
-import { GenericStyle } from "@repo/core";
-import { StepName } from "../types";
+import { LoginStepProps } from "../types";
 
-interface StepProps {
+interface StepProps extends LoginStepProps {
   credential: string;
-  step?: StepName;
-  setStep?: (step: StepName) => void;
-  redirectTo?: string;
-  style?: {
-    headline?: GenericStyle;
-    tagline?: GenericStyle;
-  };
 }
 
 export const PasswordStep: React.FC<StepProps> = ({
@@ -46,7 +38,7 @@ export const PasswordStep: React.FC<StepProps> = ({
   } = useLogin({ identifier, setStep });
 
   return (
-    <>
+    <Stack>
       <Stack>
         <Typography
           component="h4"
@@ -97,8 +89,8 @@ export const PasswordStep: React.FC<StepProps> = ({
               <IconButton
                 sx={{
                   padding: theme.boxSpacing(3, 4),
-                  color: theme.palette.gray[200],
-                  border: `1px solid ${theme.palette.gray.trans[1]}`,
+                  color: theme.palette.gray[300],
+                  //  border: `1px solid ${theme.palette.gray.trans[1]}`,
                   borderRadius: theme.radius[3],
                   width: "48px",
                   backgroundColor: theme.fixedColors.pTrans,
@@ -137,6 +129,6 @@ export const PasswordStep: React.FC<StepProps> = ({
           {isAuthLoading ? <ProgressIcon otherProps={{ size: 25 }} /> : "Login"}
         </AppButton>
       </Stack>
-    </>
+    </Stack>
   );
 };

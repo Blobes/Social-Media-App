@@ -7,7 +7,7 @@ import { Bell } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { DesktopNav, MobileNav } from "./Nav";
 import { UserAvatar, AnchorLink, AppButton, SearchBar } from "@repo/shared-ui";
-import { img } from "@repo/assets";
+import { asset } from "@repo/assets";
 import { useHeader } from "./useHeader";
 import { CLIENT_ROUTES } from "@repo/core";
 
@@ -54,7 +54,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
         onClick={handleLogo}
         style={{ display: "inline-flex" }}>
         <Image
-          src={img.logo}
+          src={asset.logo}
           alt="logo"
           width={34}
           height={34}

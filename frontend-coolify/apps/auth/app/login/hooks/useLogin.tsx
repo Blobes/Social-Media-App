@@ -6,10 +6,9 @@ import { useSnackbar, useGlobalStore } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { useLockCountdown } from "./useLockCount";
 import { setCookie, getCookie, delay } from "@repo/helpers";
-import { InputStatus } from "@repo/core";
+import { InputStatus, StepName } from "@repo/core";
 import { LoginService } from "../service";
 import { clearLoginLock, formatRemainingTime } from "@repo/features";
-import { StepName } from "../../types";
 import { useLoginFeedback } from "./useFeedback";
 
 const MAX_ATTEMPTS = 3;

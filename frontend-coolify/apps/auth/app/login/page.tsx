@@ -22,6 +22,9 @@ export default function LoginPage() {
         justifyContent: "center",
         padding: theme.boxSpacing(6),
         minHeight: "fit-content",
+        [theme.breakpoints.down("sm")]: {
+          padding: theme.boxSpacing(2),
+        },
         ...applyBGPattern(),
       }}>
       {authStatus === "UNAUTHENTICATED" ? (
@@ -31,7 +34,7 @@ export default function LoginPage() {
               width: "400px",
               padding: theme.boxSpacing(18, 16),
               mobile: {
-                padding: theme.boxSpacing(16, 10),
+                padding: theme.boxSpacing(6, 6),
               },
             },
           }}

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Stack, Typography } from "@mui/material";
-import { useGlobalStore, usePage } from "@repo/shared-hooks";
+import { useGlobalStore } from "@repo/shared-hooks";
 import {
   AppButton,
   TextInput,
@@ -15,9 +15,9 @@ import { useTheme } from "@mui/material/styles";
 import { ICountryItem, LISTS, ListType } from "@repo/core";
 import { CircleQuestionMark } from "lucide-react";
 import { useIdentifier } from "./hooks/useIdentifier";
-import { StepProps } from "../types";
+import { LoginStepProps } from "../types";
 
-export const IdentifierStep: React.FC<StepProps> = ({
+export const IdentifierStep: React.FC<LoginStepProps> = ({
   setStep,
   existingInput,
   setIdentifier,
@@ -27,7 +27,6 @@ export const IdentifierStep: React.FC<StepProps> = ({
   const inlineMsg = useGlobalStore((state) => state.inlineMsg);
 
   const { COUNTRY_LIST } = LISTS();
-  const { navigateTo } = usePage();
 
   // Use the controller
   const {

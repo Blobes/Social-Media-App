@@ -1,6 +1,6 @@
 "use client";
 
-import { img } from "@repo/assets";
+import { asset } from "@repo/assets";
 import { rotate } from "./animations";
 
 export const scrollBarStyle = (theme: any) => {
@@ -43,20 +43,37 @@ export const autoScroll = () => ({
   },
 });
 
-export const applyBGPattern = () => ({
-  "& > *": { zIndex: 5 }, // Keep the parent container at the top
+interface BgConfig {
+  url?: string;
+  opacity?: number;
+  zIndex?: number;
+  contain?: boolean;
+}
+/**
+ * Applies a background pattern to an element.
+ * The 'contain' flag determines if the pattern stays within the parent or fills the viewport.
+ */
+export const applyBGPattern = (config: BgConfig = {}) => ({
+  // Ensure the parent container can trap absolute children if contain is true
+  position: config.contain ? "relative" : "initial",
+  overflow: config.contain ? "hidden" : "initial",
+
+  "& > *": { zIndex: 5 },
+
   "&::before": {
     content: '""',
-    position: "fixed",
+
+    position: config.contain ? "absolute" : "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundImage: `url(${img.doodle})`,
+    backgroundImage: `url(${config.url || asset.doodle})`,
     backgroundRepeat: "repeat",
     backgroundSize: "800px",
-    opacity: 0.3,
-    zIndex: 0,
+    opacity: config.opacity || 0.3,
+    zIndex: config.zIndex || 0,
+    pointerEvents: "none",
   },
 });
 

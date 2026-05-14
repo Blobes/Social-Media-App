@@ -1,8 +1,12 @@
 "use client";
 
-import { DrawerRef, GenericStyle } from "@repo/core";
+import { DrawerRef, GenericStyle, StepName } from "@repo/core";
 
-export type StepName = "IDENTIFIER" | "RESTORE_ACCOUNT" | "PASSWORD";
+export interface NavigationProps {
+  onNext?: () => void;
+  onPrev?: () => void;
+  jumpTo?: () => void;
+}
 
 export interface StyleProps {
   container?: GenericStyle;
@@ -10,18 +14,15 @@ export interface StyleProps {
   tagline?: GenericStyle;
 }
 
-export interface StepperProps {
+export interface StepperProps extends NavigationProps {
   modalRef?: React.RefObject<DrawerRef>;
   redirectTo?: string;
   style?: StyleProps;
-  onNext?: () => void;
+  setStep?: (step: StepName) => void;
+  step?: StepName;
 }
 
-export interface StepProps {
-  modalRef?: React.RefObject<DrawerRef>;
-  step?: StepName;
-  setStep?: (step: StepName) => void;
+export interface LoginStepProps extends StepperProps {
   existingInput?: string;
   setIdentifier?: (credential: string) => void;
-  style?: StyleProps;
 }

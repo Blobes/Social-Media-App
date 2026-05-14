@@ -2,8 +2,7 @@
 
 import React, { useState } from "react";
 import { Typography, Box, TypographyProps, Stack } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import { motion, LayoutGroup } from "framer-motion";
+import { motion } from "framer-motion";
 import { GenericStyle } from "@repo/core";
 import { AppButton } from "./Buttons";
 
@@ -19,6 +18,9 @@ interface WordTrimmerProps {
   onToggleClick?: () => void;
 }
 
+/**
+ * Trims text based on word count with a smooth fade transition on toggle.
+ */
 export const WordTrimmer = ({
   children,
   text,
@@ -30,7 +32,6 @@ export const WordTrimmer = ({
   showLessLabel = "Show less",
   onToggleClick,
 }: WordTrimmerProps) => {
-  const theme = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (!text) return null;
@@ -44,7 +45,6 @@ export const WordTrimmer = ({
     setIsExpanded(!isExpanded);
   };
 
-  // Logic to get the trimmed string
   const displayText =
     !isExpanded && isTrimmable
       ? words.slice(0, wordLimit).join(" ") + "..."
@@ -52,44 +52,39 @@ export const WordTrimmer = ({
 
   return (
     <Stack sx={{ width: "100%", ...style?.container }}>
-      <LayoutGroup>
-        <Typography
-          variant={variant}
-          component={motion[component as keyof typeof motion] || motion.p}
-          layout
-          transition={{ type: "tween" }}
-          sx={{
-            color: "inherit",
-            wordBreak: "break-word",
-            whiteSpace: "pre-wrap",
-            display: "inline",
-          }}>
-          <motion.span layout transition={{ duration: 0.2 }}>
-            {displayText}
-          </motion.span>{" "}
-          {isTrimmable && (
-            <AppButton
-              variant="text"
-              onClick={handleToggle}
-              style={{
-                p: 0,
-                color: "inherit",
-                borderRadius: 0,
+      <Typography
+        variant={variant}
+        component={motion[component as keyof typeof motion] || motion.p}
+        sx={{
+          color: "inherit",
+          wordBreak: "break-word",
+          whiteSpace: "pre-wrap",
+          display: "inline",
+        }}>
+        {displayText}
+
+        {isTrimmable && (
+          <AppButton
+            variant="text"
+            onClick={handleToggle}
+            style={{
+              p: 0,
+              color: "inherit",
+              borderRadius: 0,
+              textDecoration: "underline",
+              verticalAlign: "baseline",
+              ...style?.btn,
+              "&:hover": {
+                bgcolor: "transparent",
                 textDecoration: "underline",
-                verticalAlign: "baseline",
-                ...style?.btn,
-                "&:hover": {
-                  bgcolor: "transparent",
-                  textDecoration: "underline",
-                  ...style?.btn?.["&:hover"],
-                },
-              }}>
-              {isExpanded ? showLessLabel : showMoreLabel}
-            </AppButton>
-          )}
-          {children}
-        </Typography>
-      </LayoutGroup>
+                ...style?.btn?.["&:hover"],
+              },
+            }}>
+            {isExpanded ? showLessLabel : showMoreLabel}
+          </AppButton>
+        )}
+        {children}
+      </Typography>
     </Stack>
   );
 };

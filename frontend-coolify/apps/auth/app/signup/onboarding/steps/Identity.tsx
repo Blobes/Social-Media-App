@@ -1,15 +1,22 @@
 "use client";
 
 import React from "react";
-import { Stack, Typography } from "@mui/material";
-import { AppButton, TextInput, ProgressIcon } from "@repo/shared-ui";
+import { IconButton, Stack, Typography } from "@mui/material";
+import {
+  AppButton,
+  TextInput,
+  ProgressIcon,
+  BasicTooltip,
+} from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 import { useIdentity } from "../hooks/useIdentity";
+import { StepperProps } from "../../../types";
+import { ChevronLeft } from "lucide-react";
 
 /**
  * Step 1: Identity UI utilizing the bulk-validated hook.
  */
-export const Identity: React.FC<{ onNext: () => void }> = ({ onNext }) => {
+export const Identity: React.FC<StepperProps> = ({ onNext, onPrev }) => {
   const theme = useTheme();
   const {
     formData,
@@ -41,14 +48,14 @@ export const Identity: React.FC<{ onNext: () => void }> = ({ onNext }) => {
         }}>
         <TextInput
           placeholder="Enter first name"
-          label="First Name"
+          label="First name"
           value={formData.firstName}
           onChange={handleChange}
         />
 
         <TextInput
           placeholder="Enter last name"
-          label="Last Name"
+          label="Last name"
           value={formData.lastName}
           onChange={handleChange}
         />
@@ -77,13 +84,40 @@ export const Identity: React.FC<{ onNext: () => void }> = ({ onNext }) => {
             ))}
           </Stack>
         )}
+        <Stack direction="row">
+          {/* Navigate backward */}
+          {/* <BasicTooltip title={"Previous"}>
+            <IconButton
+              sx={{
+                padding: theme.boxSpacing(3, 4),
+                color: theme.palette.gray[200],
+                border: `1px solid ${theme.palette.gray.trans[1]}`,
+                borderRadius: theme.radius[3],
+                width: "48px",
+                backgroundColor: theme.fixedColors.pTrans,
+              }}
+              onClick={() => {
+                if (onPrev) onPrev();
+              }}>
+              <ChevronLeft
+                style={{ width: "20px", stroke: theme.palette.gray[200] }}
+              />
+            </IconButton>
+          </BasicTooltip> */}
 
-        <AppButton
-          variant="contained"
-          submit
-          options={{ disabled: !isFormValid || isPending }}>
-          {isPending ? <ProgressIcon otherProps={{ size: 24 }} /> : "Proceed"}
-        </AppButton>
+          {/* Proceed to next */}
+          <AppButton
+            variant="contained"
+            style={{
+              fontSize: "16px",
+              padding: theme.boxSpacing(5.5, 9),
+              width: "100%",
+            }}
+            submit
+            options={{ disabled: !isFormValid || isPending }}>
+            {isPending ? <ProgressIcon otherProps={{ size: 24 }} /> : "Proceed"}
+          </AppButton>
+        </Stack>
       </Stack>
     </Stack>
   );

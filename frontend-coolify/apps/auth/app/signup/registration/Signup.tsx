@@ -5,13 +5,13 @@ import { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { Stepper } from "@repo/shared-ui";
 import { PasswordStep } from "../../login/PasswordStep";
-import { IStep } from "@repo/core";
+import { IStep, StepName } from "@repo/core";
 import { Stack } from "@mui/material";
 import Image from "next/image";
-import { img } from "@repo/assets";
-import { StepName, StepperProps } from "../../types";
+import { asset } from "@repo/assets";
+import { StepperProps } from "../../types";
 
-export const SignUpStepper: React.FC<StepperProps> = ({
+export const Signup: React.FC<StepperProps> = ({
   modalRef,
   redirectTo,
   style = {},
@@ -45,17 +45,15 @@ export const SignUpStepper: React.FC<StepperProps> = ({
         borderRadius: "12px",
         justifyContent: "center",
         alignItems: "center",
-        gap: theme.gap(16),
-        [theme.breakpoints.down("sm")]: {
-          width: "100%",
-        },
+        gap: theme.gap(12),
+        flexShrink: 0,
         ...style.container,
       }}>
       <Image
         alt="logo"
-        src={img.logo}
-        width={70}
-        height={70}
+        src={asset.logo}
+        width={50}
+        height={50}
         style={{ borderRadius: "500px" }}
       />
       <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />
