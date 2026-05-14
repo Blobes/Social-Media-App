@@ -43,7 +43,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
   } = useIdentifier({ existingInput, setStep, setIdentifier });
 
   return (
-    <>
+    <Stack>
       <Stack>
         <Typography
           component="h3"
@@ -141,7 +141,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
           )}
         </AppButton>
       </Stack>
-    </>
+    </Stack>
   );
 };
 
