@@ -3,6 +3,12 @@ export type MediaType = "IMAGE" | "VIDEO" | "GIF";
 export type MediaStatus = "UPLOADING" | "READY" | "ERROR";
 export type MediaSourceType = "GIST" | "STAKE" | "USER" | "VERIFICATION";
 
+export interface Dimensions {
+  width: number;
+  height: number;
+  aspectRatio: number;
+}
+
 export interface IMediaPayload {
   _id: string;
   ownerId?: string;
@@ -22,11 +28,7 @@ export interface IMediaPayload {
   type?: MediaType;
   mimeType?: string | null;
   size?: number | null;
-  dimensions?: {
-    width?: number;
-    height?: number;
-    aspectRatio?: number;
-  };
+  dimensions?: Dimensions;
 
   // UI/Performance
   blurHash?: string | null;

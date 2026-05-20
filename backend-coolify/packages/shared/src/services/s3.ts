@@ -11,7 +11,6 @@ import { IS3Config } from "../types/types";
 export const createS3Service = (config: IS3Config) => {
   /**
    * Single S3 client instance per service instance
-   * No process.env usage here — fully injected config
    */
   const s3 = new S3Client({
     region: config.REGION,

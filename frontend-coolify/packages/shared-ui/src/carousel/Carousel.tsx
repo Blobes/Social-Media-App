@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Box, SxProps, Theme } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCarousel } from "./useCarousel";
 import { CarouselArrows, CarouselDots } from "./Controls";
 import { useEffect } from "react";
+import { useTheme } from "@mui/material/styles";
 
 export interface CarouselStyle {
   container?: SxProps<Theme>;
@@ -17,6 +18,7 @@ interface CarouselProps {
   style?: CarouselStyle;
   showArrows?: boolean;
   autoPlay?: boolean;
+  pauseOnHover?: boolean; // New prop
   interval?: number;
   setCurrentIndex?: (index: number) => void;
   initialIndex?: number;
@@ -27,21 +29,20 @@ export const Carousel = ({
   style,
   showArrows = true,
   autoPlay = false,
-  interval,
+  pauseOnHover = true,
+  interval = 5000,
   setCurrentIndex,
   initialIndex = 0,
 }: CarouselProps) => {
+  const [isPaused, setIsPaused] = useState(false);
+  const theme = useTheme();
+
   const { variants, index, direction, next, prev, goTo } = useCarousel(
     items.length,
     interval,
-    autoPlay,
+    autoPlay && !isPaused, // Inject pause logic into hook
     initialIndex,
   );
-
-  // Wrapper for callback
-  const handleAction = (action: () => void) => {
-    action();
-  };
 
   useEffect(() => {
     setCurrentIndex?.(index);
@@ -51,11 +52,16 @@ export const Carousel = ({
 
   return (
     <Box
+      onMouseEnter={() => pauseOnHover && setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
       sx={{
         position: "relative",
+        display: "flex",
+        flexDirection: "column",
         width: "100%",
         height: "100%",
         overflow: "hidden",
+        gap: theme.gap(8),
         ...style?.container,
       }}>
       <Box
@@ -90,10 +96,7 @@ export const Carousel = ({
         </AnimatePresence>
 
         {showArrows && items.length > 1 && (
-          <CarouselArrows
-            onPrev={() => handleAction(prev)}
-            onNext={() => handleAction(next)}
-          />
+          <CarouselArrows onPrev={prev} onNext={next} />
         )}
       </Box>
 
@@ -101,7 +104,9 @@ export const Carousel = ({
         <CarouselDots
           length={items.length}
           current={index}
-          onGoTo={(i) => handleAction(() => goTo(i))}
+          onGoTo={goTo}
+          interval={interval}
+          autoPlay={autoPlay && !isPaused}
         />
       )}
     </Box>

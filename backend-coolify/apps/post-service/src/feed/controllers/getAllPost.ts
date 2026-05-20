@@ -1,4 +1,4 @@
-import { GistModel } from "@repo/database";
+import { GistModel, IPostStatus } from "@repo/database";
 import {
   IAuthRequest,
   getStaticPostList,
@@ -30,7 +30,7 @@ export const getAllPost = async (
     const { staticPosts, totalCount } = await getOrSetCache(
       globalCacheKey,
       async () => {
-        const matchFilter = { status: "PUBLISHED" }; // Aligned with your GistSchema status
+        const matchFilter = { status: "PUBLISHED" as IPostStatus }; // Aligned with your GistSchema status
         const total = await GistModel.countDocuments(matchFilter);
 
         const pipeline = getStaticPostList({

@@ -1,19 +1,18 @@
 import { Response } from "express";
 import {
   IAuthRequest,
-  IMediaInput,
   getClientIp,
   generateRandomIp,
   getLocationFromIp,
-  moderationQueue,
+  enqueueModerationTask,
 } from "@repo/shared";
-import { GistModel } from "@repo/database";
+import { GistModel, IMedia } from "@repo/database";
 import { FUNSTAKES_REDIS_URL } from "@/envVars";
 
-interface CreateRequest extends IAuthRequest {
+export interface CreateRequest extends IAuthRequest {
   body: {
     caption?: string;
-    media?: IMediaInput[];
+    media?: IMedia[];
     topics?: string[];
     hasSensitiveGraphic?: boolean;
     skipModeration?: boolean;
@@ -39,7 +38,7 @@ export const createGist = async (req: CreateRequest, res: Response) => {
   if (!hasCaption && !hasMedia) {
     res.status(400).json({
       status: "ERROR",
-      message: "Post must contain either text content or media.",
+      message: "Gist must contain either text content or media.",
     });
     return;
   }
@@ -65,17 +64,21 @@ export const createGist = async (req: CreateRequest, res: Response) => {
       latestCaption: { caption: caption?.trim() || "Processing..." },
     });
 
-    // 3. Queue the "Heavy" work for the Worker
-    await moderationQueue(FUNSTAKES_REDIS_URL).add("process-content", {
-      postId: newGist._id,
-      type: "GIST",
-      userId,
-      caption,
-      media,
-      topics,
-      skipModeration,
-      ip: userIp,
-    });
+    // 3. Queue the "Heavy" work for the Worker using the Go protocol bridge
+    await enqueueModerationTask(
+      FUNSTAKES_REDIS_URL,
+      "moderate:post", // Maps exactly to mux.HandleFunc("moderate:post", ...) in main.go
+      {
+        postId: newGist._id.toString(),
+        type: "GIST",
+        userId: userId.toString(),
+        caption,
+        media,
+        topics,
+        event: "POST_CREATION",
+        skipModeration,
+      },
+    );
 
     res.status(202).json({
       status: "SUCCESS",

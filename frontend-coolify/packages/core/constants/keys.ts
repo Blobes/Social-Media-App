@@ -1,3 +1,6 @@
+"use client";
+
+import { PostType } from "../types/payloads/post";
 import { KeyType } from "../types/ui-props";
 
 export const QUEUE_KEYS = {
@@ -9,6 +12,11 @@ export const QUEUE_KEYS = {
   [KeyType.USER]: {
     USER_FOLLOW: "pending_follows",
   },
+};
+
+export const STORAGE_KEYS = {
+  POST_DRAFT: (postId: string, type: PostType) =>
+    `draft:${type.toLowerCase()}:${postId}`,
 };
 
 export const CACHE_KEYS = {

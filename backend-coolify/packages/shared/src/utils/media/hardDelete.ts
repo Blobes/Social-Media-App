@@ -4,7 +4,8 @@ import { IS3Config } from "../../types/types";
 import { createS3Service } from "../../services/s3";
 
 interface HardDeleteOptions {
-  mediaId: string | any;
+  mediaId?: string | any;
+  rawFileKeys?: string[]; // New fallback flag for S3-only deletion paths
   parentModel?: Model<any>;
   parentId?: string;
   parentField?: string;
@@ -13,43 +14,56 @@ interface HardDeleteOptions {
 
 /**
  * Utility to perform a hard delete:
- * 1. Deletes from AWS S3
+ * 1. Deletes from AWS S3 (via DB record lookup or explicit raw keys)
  * 2. Deletes from Media Collection
  * 3. Nullifies reference in Parent Collection (Optional)
  */
 export const hardDeleteMedia = async ({
   mediaId,
+  rawFileKeys,
   parentModel,
   parentId,
   parentField,
   s3Config,
 }: HardDeleteOptions): Promise<void> => {
-  if (!mediaId) return;
-
-  // 1. Fetch Media Record to get S3 Key
-  const mediaRecord = await MediaModel.findById(mediaId);
-
   const s3Service = createS3Service(s3Config);
 
-  if (mediaRecord) {
-    // 2. Remove physical file from S3
-    if (mediaRecord.fileKey) {
-      try {
-        await s3Service.deleteFromS3(mediaRecord.fileKey);
-      } catch (s3Error) {
-        console.error(
-          `S3 Deletion failed for key ${mediaRecord.fileKey}:`,
-          s3Error,
-        );
-        // We continue to ensure DB cleanup happens even if S3 fails
-      }
-    }
-
-    // 3. Remove metadata from Media Collection
-    await MediaModel.findByIdAndDelete(mediaId);
+  // Path A: S3-Only Clean up (Useful during early finalizer rejections)
+  if (rawFileKeys && rawFileKeys.length > 0) {
+    await Promise.all(
+      rawFileKeys.map(async (key) => {
+        try {
+          if (key) await s3Service.deleteFromS3(key);
+        } catch (s3Error) {
+          console.error(
+            `Direct S3 Deletion failed for raw key ${key}:`,
+            s3Error,
+          );
+        }
+      }),
+    );
   }
 
-  // 4. Nullify the reference in the parent document if provided
+  // Path B: Full Record Lifecycle Cleanup
+  if (mediaId) {
+    const mediaRecord = await MediaModel.findById(mediaId);
+
+    if (mediaRecord) {
+      if (mediaRecord.fileKey) {
+        try {
+          await s3Service.deleteFromS3(mediaRecord.fileKey);
+        } catch (s3Error) {
+          console.error(
+            `S3 Deletion failed for key ${mediaRecord.fileKey}:`,
+            s3Error,
+          );
+        }
+      }
+      await MediaModel.findByIdAndDelete(mediaId);
+    }
+  }
+
+  // Path C: Relationship Nullification
   if (parentModel && parentId && parentField) {
     await parentModel.findByIdAndUpdate(parentId, {
       $set: { [parentField]: null },

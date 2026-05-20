@@ -66,8 +66,6 @@ export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
         justifyContent: "center",
         alignItems: "center",
         gap: theme.gap(10),
-        boxShadow: `-12px -12px 30px 6px ${theme.palette.gray.trans.overlay(0.06, true)}, 
-        18px 18px 30px 6px ${theme.palette.gray.trans.overlay(0.06, true)}`,
         [theme.breakpoints.down("sm")]: {
           width: "100%",
           ...style.container?.mobile,

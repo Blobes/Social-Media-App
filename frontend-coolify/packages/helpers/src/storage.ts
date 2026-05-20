@@ -1,5 +1,70 @@
 "use client";
 
+import { del, get, set } from "idb-keyval";
+import { IIdbData } from "packages/core";
+
+/**
+ * Safe wrapper for indexedDB operations to prevent SSR crashes.
+ */
+export const idbStorage = {
+  getItem: async (key: string) => {
+    if (typeof window === "undefined") return null;
+    return await get(key);
+  },
+  setItem: async (key: string, value: any) => {
+    if (typeof window === "undefined") return;
+    await set(key, value);
+  },
+  removeItem: async (key: string) => {
+    if (typeof window === "undefined") return;
+    await del(key);
+  },
+};
+
+/**
+ * Saves raw binary handles or structured payloads encapsulated inside the structural metadata interface contract.
+ */
+export const saveDataToIdb = async <T = File[]>(
+  key: string,
+  data: T,
+): Promise<void> => {
+  if (!data) return;
+  if (Array.isArray(data) && !data.length) return;
+
+  const payload: IIdbData<T> = {
+    data,
+    savedAt: new Date(),
+    lastViewed: null,
+  };
+
+  await idbStorage.setItem(key, payload);
+};
+
+/**
+ * Recovers the structural wrapper from storage, automatically appending reactive timestamp states.
+ */
+export const getDataFromIdb = async <T = File[]>(
+  key: string,
+): Promise<IIdbData<T> | null> => {
+  const cachedRecord = await idbStorage.getItem(key);
+  if (!cachedRecord) return null;
+
+  const parsedRecord = cachedRecord as IIdbData<T>;
+
+  // Track access tracking history automatically on ingestion
+  parsedRecord.lastViewed = new Date();
+  await idbStorage.setItem(key, parsedRecord);
+
+  return parsedRecord;
+};
+
+/**
+ * Purges specified structural asset tracking blocks completely from database records.
+ */
+export const purgeDataFromIdb = async (key: string): Promise<void> => {
+  await idbStorage.removeItem(key);
+};
+
 /**
  * Sets a cookie with legacy minute support and an optional configuration object.
  */
@@ -38,7 +103,6 @@ export const deleteCookie = (name: string) => {
 
 export const saveToLocalStorage = <T>(key: string, value: T): void => {
   try {
-    // This ensures strings are stored as ""STRING"" and objects as "{...}"
     const valueToStore = JSON.stringify(value);
     localStorage.setItem(key, valueToStore);
   } catch (error) {
@@ -59,11 +123,8 @@ export const getFromLocalStorage = <T = unknown | any>({
   const savedItem = localStorage.getItem(key);
   if (savedItem) {
     try {
-      // Try to parse as JSON (handles objects, arrays, and quoted strings)
       return JSON.parse(savedItem) as T;
     } catch (e) {
-      // If parsing fails, the item was likely stored as a raw string
-      // Return the raw string as T
       return savedItem as unknown as T;
     }
   }

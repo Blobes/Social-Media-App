@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PostModerationContract",
+  "type": "object",
+  "properties": {
+    "postId": { "type": "string" },
+    "postType": { "type": "string", "enum": ["GIST", "STAKE"] },
+    "userId": { "type": "string" },
+    "caption": { "type": "string" },
+    "media": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": true }
+    },
+    "event": {
+      "type": "string",
+      "enum": ["POST_CREATION", "POST_UPDATE"]
+    },
+    "topics": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "skipModeration": { "type": "boolean" }
+  },
+  "required": ["postId", "type", "userId", "caption"]
+}

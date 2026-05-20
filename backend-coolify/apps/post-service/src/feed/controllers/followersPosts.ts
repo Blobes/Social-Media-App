@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Response } from "express";
-import { FollowModel, GistModel } from "@repo/database";
+import { FollowModel, GistModel, IPostStatus } from "@repo/database";
 import {
   IAuthRequest,
   getStaticPostList,
@@ -64,7 +64,7 @@ export const getfollowersPosts = async (
           authorId: {
             $in: followingIds.map((id) => new mongoose.Types.ObjectId(id)),
           },
-          status: "PUBLISHED", // Use the correct status from your schema
+          status: "PUBLISHED" as IPostStatus, // Use the correct status from your schema
         };
 
         const total = await GistModel.countDocuments(matchFilter);

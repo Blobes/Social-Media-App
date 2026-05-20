@@ -2,8 +2,9 @@
 
 import { SystemStyleObject } from "@mui/system";
 import { Theme } from "@mui/material/styles";
-import { FetchStatus, IUser } from "./payloads/modified";
+import { FetchStatus, IMedia, IUser } from "./payloads/modified";
 import { Direction } from "./ui-props";
+import { CSSProperties } from "react";
 
 // Types
 export type AuthStatus =
@@ -51,7 +52,7 @@ export type Action = "LOGIN" | "REGISTRATION" | "ACCOUNT_UPDATE";
 export type InputStatus = "VALID" | "INVALID";
 
 export type GenericStyle = SystemStyleObject<Theme> & {
-  [key: string]: any;
+  [key: string]: SystemStyleObject<Theme> | CSSProperties | any;
 };
 
 export interface IMenuItem {
@@ -95,6 +96,7 @@ export interface ISnackBarMsgs {
 }
 
 export interface InputValidation {
+  id?: string;
   status: InputStatus;
   message?: string;
   type?: InputType;
@@ -154,7 +156,28 @@ export type OnboardingTransitData<P extends TransitPurpose = TransitPurpose> =
     nextStep: StepName;
   };
 
-export interface CachedItem<T> {
+export interface IIdbData<T> {
   data: T;
-  lastViewed: Date | null;
+  savedAt: Date | null;
+  lastViewed?: Date | null;
+}
+
+export interface GuideDetail {
+  id?: string;
+  detail: React.ReactNode;
+}
+export interface Guide {
+  id?: string;
+  title?: string;
+  guideDetails: GuideDetail[];
+  icon?: React.ReactElement;
+  displayAsList?: boolean;
+}
+
+type TourStepName = "BEGIN" | "POST";
+export interface TourGuide extends Omit<IStep<TourStepName>, "element"> {
+  media?: IMedia;
+  xPosition: number;
+  yPosition: number;
+  desc?: React.ReactNode;
 }

@@ -1,12 +1,13 @@
-import { IMediaInput, IModerationRes, ISeverity } from "../../types/types";
+import { IModerationRes, ISeverity } from "../../types/types";
 import { validateText } from "./validateText";
 import { validateMedia } from "./validateMedia";
+import { IMedia } from "@repo/database";
 
 export const validatePost = async (
   openaiKey: string,
   data: {
     caption?: string;
-    media?: IMediaInput[];
+    media?: IMedia[];
     topics?: string[];
     skipModeration?: boolean;
   },

@@ -7,6 +7,7 @@ import { Stack } from "@mui/material";
 import { applyBGPattern } from "@repo/helpers";
 import { useMisc, useGlobalStore } from "@repo/shared-hooks";
 import { ComfirmLogout, RestrictedUI } from "@repo/features";
+import { TrendingPosts } from "./TrendingPosts";
 
 export default function LoginPage() {
   const theme = useTheme();
@@ -20,25 +21,61 @@ export default function LoginPage() {
         height: "100%",
         alignItems: "center",
         justifyContent: "center",
-        padding: theme.boxSpacing(6),
+        padding: theme.boxSpacing(30),
         minHeight: "fit-content",
-        [theme.breakpoints.down("sm")]: {
-          padding: theme.boxSpacing(2),
-        },
         ...applyBGPattern(),
+        [theme.breakpoints.down("sm")]: {
+          padding: theme.boxSpacing(0),
+          minHeight: "unset",
+        },
       }}>
       {authStatus === "UNAUTHENTICATED" ? (
-        <Login
-          style={{
-            container: {
-              width: "400px",
-              padding: theme.boxSpacing(18, 16),
-              mobile: {
-                padding: theme.boxSpacing(6, 6),
-              },
+        <Stack
+          sx={{
+            width: "70%",
+            flexDirection: "row",
+            gap: theme.gap(0),
+            justifyContent: "space-between",
+            background: theme.palette.gray[0],
+            borderRadius: theme.radius[5],
+            overflow: "hidden",
+            boxShadow: `-12px -12px 30px 6px ${theme.palette.gray.trans.overlay(0.06, true)}, 
+           18px 18px 30px 6px ${theme.palette.gray.trans.overlay(0.06, true)}`,
+            [theme.breakpoints.down(1180)]: {
+              width: "80%",
             },
-          }}
-        />
+            [theme.breakpoints.down("md")]: {
+              width: "100%",
+              height: "100%",
+              overflow: "auto",
+              boxShadow: "none",
+              flexDirection: "column",
+              padding: theme.boxSpacing(0),
+              borderRadius: 0,
+              scrollSnapType: "y mandatory",
+              scrollbarWidth: "none",
+              "&::-webkit-scrollbar": { display: "none" },
+            },
+          }}>
+          <Login
+            style={{
+              container: {
+                width: "50%",
+                borderRadius: 0,
+                padding: theme.boxSpacing(16, 10),
+
+                mobile: {
+                  width: "100%",
+                  height: "98vh",
+                  minHeight: "98vh",
+                  scrollSnapAlign: "start",
+                  padding: theme.boxSpacing(6, 6),
+                },
+              },
+            }}
+          />
+          <TrendingPosts style={{ width: "50%" }} />
+        </Stack>
       ) : (
         <RestrictedUI
           type="ALREADY_LOGGED_IN"

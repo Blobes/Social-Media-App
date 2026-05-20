@@ -18,6 +18,7 @@ catalog:
   framer-motion: ^12.35.1
   react-blurhash: ^0.3.0
   zustand: "^5.0.12"
+  blurhash: "^2.0.5"
   "@types/node": ^22.15.3
   "@types/react": ^19.2.2
   "@types/react-dom": ^19.2.2

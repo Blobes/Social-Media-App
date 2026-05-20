@@ -7,8 +7,7 @@
   "private": true,
   "exports": {
     ".": "./index.ts",
-    "./next-config": "./env-config/next-config.js",
-    "./tsconfig.base.json": "./env-config/tsconfig.base.json"
+    "./next-config": "./env-config/next-config.js"
   },
   "peerDependencies": {
     "next": "catalog:",

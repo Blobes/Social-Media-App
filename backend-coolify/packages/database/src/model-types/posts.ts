@@ -9,7 +9,8 @@ export type IPostStatus =
   | "SHADOWBANNED"
   | "ARCHIVED"
   | "UNDER_REVIEW"
-  | "BANNED";
+  | "BANNED"
+  | "DRAFT";
 
 export interface IGistModel {
   _id: string;

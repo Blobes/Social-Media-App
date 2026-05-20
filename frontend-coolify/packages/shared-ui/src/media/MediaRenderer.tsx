@@ -61,7 +61,7 @@ export const MediaRenderer = ({ media, style, useRender }: RendererProps) => {
       height: isPortrait ? "auto" : "unset",
       maxHeight: isPortrait ? "none" : "60svh",
     }),
-    ...style?.content,
+    ...(style?.content as React.CSSProperties),
   };
 
   return (

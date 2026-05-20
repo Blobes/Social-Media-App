@@ -3,7 +3,19 @@ export type IMediaType = "IMAGE" | "VIDEO" | "GIF";
 export type IMediaStatus = "UPLOADING" | "READY" | "ERROR";
 export type MediaSourceType = "GIST" | "STAKE" | "USER" | "VERIFICATION";
 
-export interface IMediaModel {
+export interface IMedia {
+  url: string;
+  fileKey: string;
+  type: IMediaType;
+  thumbnailUrl?: string | null;
+  mimeType?: string | null;
+  size?: number | null;
+  dimensions?: { width: number; height: number; aspectRatio: number };
+  blurHash?: string | null;
+  storageProvider: StorageProvider;
+}
+
+export interface IMediaModel extends IMedia {
   _id: string;
   ownerId: string;
 
@@ -11,26 +23,9 @@ export interface IMediaModel {
   sourceId?: string | null;
   sourceType?: MediaSourceType | null;
 
-  // Storage
-  url: string;
-  thumbnailUrl?: string | null;
-  storageProvider: StorageProvider;
-  fileKey: string;
-
-  // Metadata
-  type: IMediaType;
-  mimeType?: string | null;
-  size?: number | null;
-  dimensions?: {
-    width?: number;
-    height?: number;
-    aspectRatio?: number;
-  };
-
   // UI/Performance
-  blurHash?: string | null;
-  order: number;
-  status: IMediaStatus;
+  order?: number;
+  status?: IMediaStatus;
 
   createdAt?: string | Date;
   updatedAt?: string | Date;

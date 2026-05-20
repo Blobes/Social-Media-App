@@ -1,5 +1,7 @@
 "use client";
 
+import { SxProps, Theme } from "@mui/material";
+
 import { asset } from "@repo/assets";
 import { rotate } from "./animations";
 
@@ -41,6 +43,16 @@ export const autoScroll = () => ({
     width: "100%",
     overflowY: "unset",
   },
+});
+
+/**
+ * Truncates text to a specified number of lines using webkit box properties.
+ */
+export const lineClamp = (lines: number = 2): SxProps<Theme> => ({
+  overflow: "hidden",
+  display: "-webkit-box",
+  WebkitLineClamp: lines,
+  WebkitBoxOrient: "vertical",
 });
 
 interface BgConfig {

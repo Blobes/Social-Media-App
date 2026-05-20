@@ -7,9 +7,9 @@ import {
   evaluateNotability,
   genVerificationCode,
   hashCode,
-  otpQueue,
   CACHE_KEYS,
   invalidatePattern,
+  enqueueOtpTask,
 } from "@repo/shared";
 import { Response } from "express";
 
@@ -179,16 +179,12 @@ export const changeEmail = async (
     // Invalidate user cache since profile signals changed
     await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
 
-    // Dispatch verification code
-    await otpQueue(FUNSTAKES_REDIS_URL).add(
-      "send-email-otp",
-      { email: formattedEmail, code, type: "EMAIL" as OtpType },
-      {
-        attempts: 3,
-        backoff: { type: "exponential", delay: 2000 },
-        removeOnComplete: true,
-      },
-    );
+    // Enqueue OTP task
+    await enqueueOtpTask(FUNSTAKES_REDIS_URL, {
+      email: formattedEmail,
+      code,
+      type: "EMAIL",
+    });
 
     return res.status(200).json({
       message:

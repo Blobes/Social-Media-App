@@ -1,7 +1,6 @@
 import { authTokens, FUNSTAKES_REDIS_URL } from "@/envVars";
 import { UserModel } from "@repo/database";
 import {
-  evaluateNotability,
   genAccessTokens,
   generateRandomIp,
   generateTestEmail,
@@ -12,11 +11,10 @@ import {
   hashCode,
   userSensitiveFields,
   IAuthRequest,
-  otpQueue,
-  OtpType,
   toJwtUser,
   getOrSetDeviceToken,
   upsertDevice,
+  enqueueOtpTask,
 } from "@repo/shared";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
@@ -26,8 +24,6 @@ interface CreateRequest extends Request {
   body: {
     email: string;
     password: string;
-    // firstName: string;
-    // lastName: string;
     phone?: string;
   };
 }
@@ -72,13 +68,6 @@ export const createAccount = async (
       });
     }
 
-    // const fullName = `${firstName} ${lastName}`;
-    // const notability = await evaluateNotability(
-    //   fullName,
-    //   normalizedEmail,
-    //   phone,
-    // );
-
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -92,21 +81,12 @@ export const createAccount = async (
     const newUser = new UserModel({
       email: testEmail,
       password: hashedPassword,
-      // firstName,
-      // lastName,
       phoneNumber: phone,
       country: userLocation?.country,
       state: userLocation?.state,
       verificationCode: hashCode(code),
       verificationExpiry: new Date(Date.now() + 10 * 60 * 1000),
       lastEmailCodeSentAt: new Date(),
-      // isNotable: notability.isVIPCandidate,
-      // meritsVerification: notability.isVIPCandidate,
-      // verificationSignals: {
-      //   hasWikipedia: notability.signals.notableName,
-      //   isVipEmail: notability.signals.proEmail,
-      //   isVipPhone: notability.signals.validPhone,
-      // },
     });
 
     // Explicitly saving user first so the ID exists for the device relation
@@ -115,15 +95,12 @@ export const createAccount = async (
     // Registering the device and anchoring it as primary
     const device = await upsertDevice(newUser, deviceToken, req);
 
-    await otpQueue(FUNSTAKES_REDIS_URL).add(
-      "send-email-otp",
-      { email: normalizedEmail, code, type: "EMAIL" as OtpType },
-      {
-        attempts: 3,
-        backoff: { type: "exponential", delay: 2000 },
-        removeOnComplete: true,
-      },
-    );
+    // Enqueue OTP task
+    await enqueueOtpTask(FUNSTAKES_REDIS_URL, {
+      email: normalizedEmail,
+      code,
+      type: "EMAIL",
+    });
 
     // Identity pinning using the registered device record
     const jwtUser = toJwtUser(newUser, device._id.toString(), sessionId);
@@ -152,10 +129,7 @@ export const createAccount = async (
     return res.status(200).json({
       status: "SUCCESS",
       message: "Registration successful. Verification code sent to email.",
-      payload: {
-        ...safeData,
-        // requiresIdVerification: notability.isVIPCandidate,
-      },
+      payload: safeData,
       accessToken,
       refreshToken,
     });

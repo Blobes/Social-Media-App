@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { IMedia } from "./payloads/modified";
 import { GenericStyle, IMenuItem } from "./ui-state";
 
@@ -101,8 +102,8 @@ export interface UseMedia {
   useMisc: () => { isDesktop: boolean };
 }
 export interface MediaStyle {
-  container?: { base?: any; smallScreen?: any };
-  content?: any;
+  container?: { base?: GenericStyle; smallScreen?: GenericStyle };
+  content?: GenericStyle;
 }
 export interface MediaProps extends IMedia {
   style?: MediaStyle;

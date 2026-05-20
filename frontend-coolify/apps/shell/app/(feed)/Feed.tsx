@@ -10,9 +10,8 @@ import {
   StakeSkeleton,
 } from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
-import { useFeed } from "./useFeed";
 import { useTheme } from "@mui/material/styles";
-import { GistCard, StakeCard } from "@repo/features";
+import { GistCard, StakeCard, useFeed } from "@repo/features";
 import { autoScroll } from "@repo/helpers";
 import {
   useCachedData,

@@ -1,8 +1,7 @@
-import { UserModel } from "@repo/database";
+import { UserModel, IMedia } from "@repo/database";
 import {
   IAuthRequest,
   createMediaBatch,
-  IMediaInput,
   userSensitiveFields,
   invalidateCache,
   CACHE_KEYS,
@@ -49,7 +48,7 @@ export const changeUserImage = async (
   session.startTransaction();
 
   try {
-    const mediaInput: IMediaInput[] = [
+    const mediaInput: IMedia[] = [
       {
         url,
         fileKey,

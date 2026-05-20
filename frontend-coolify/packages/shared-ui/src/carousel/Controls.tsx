@@ -4,6 +4,7 @@ import React from "react";
 import { Box, IconButton } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
+import { motion } from "framer-motion";
 
 interface ArrowProps {
   onPrev: () => void;
@@ -11,6 +12,20 @@ interface ArrowProps {
 }
 export const CarouselArrows = ({ onPrev, onNext }: ArrowProps) => {
   const theme = useTheme();
+
+  const sharedStyle = {
+    position: "absolute",
+    zIndex: 10,
+    bgcolor: theme.palette.gray.trans[1],
+    transition: "stroke 0.3s ease, background-color 0.3s ease",
+    "&:hover": {
+      opacity: 0.8,
+      bgcolor: theme.fixedColors.gray50,
+      "& svg": {
+        stroke: theme.fixedColors.gray800,
+      },
+    },
+  };
 
   return (
     <>
@@ -20,10 +35,8 @@ export const CarouselArrows = ({ onPrev, onNext }: ArrowProps) => {
           onPrev();
         }}
         sx={{
-          position: "absolute",
           left: 8,
-          zIndex: 10,
-          bgcolor: "rgba(255,255,255,0.3)",
+          ...sharedStyle,
         }}>
         <ChevronLeft />
       </IconButton>
@@ -31,10 +44,8 @@ export const CarouselArrows = ({ onPrev, onNext }: ArrowProps) => {
         data-no-doubletap
         onClick={onNext}
         sx={{
-          position: "absolute",
           right: 8,
-          zIndex: 10,
-          bgcolor: "rgba(255,255,255,0.3)",
+          ...sharedStyle,
         }}>
         <ChevronRight />
       </IconButton>
@@ -46,31 +57,106 @@ interface DotProps {
   length: number;
   current: number;
   onGoTo: (i: number) => void;
+  interval: number;
+  autoPlay: boolean;
 }
 
-export const CarouselDots = ({ length, current, onGoTo }: DotProps) => {
+/**
+ * Pagination tracking indicators with a sliding window layout for high slide counts.
+ */
+export const CarouselDots = ({
+  length,
+  current,
+  onGoTo,
+  interval,
+  autoPlay,
+}: DotProps) => {
   const theme = useTheme();
+  const MAX_VISIBLE = 5;
+
+  // Calculate sliding window boundaries
+  let startIdx = 0;
+  let endIdx = length - 1;
+
+  if (length > MAX_VISIBLE) {
+    const half = Math.floor(MAX_VISIBLE / 2);
+    startIdx = current - half;
+    endIdx = current + half;
+
+    // Adjust if window overflows the left boundary
+    if (startIdx < 0) {
+      startIdx = 0;
+      endIdx = MAX_VISIBLE - 1;
+    }
+
+    // Adjust if window overflows the right boundary
+    if (endIdx >= length) {
+      endIdx = length - 1;
+      startIdx = length - MAX_VISIBLE;
+    }
+  }
+
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", gap: 1, py: 1.5 }}>
-      {Array.from({ length }).map((_, i) => (
-        <Box
-          key={i}
-          data-no-doubletap
-          onClick={(e) => onGoTo(i)}
-          sx={{
-            width: 8,
-            height: 8,
-            borderRadius: "50%",
-            cursor: "pointer",
-            bgcolor:
-              i === current
-                ? theme.palette.primary.main
-                : theme.palette.grey[400],
-            transform: i === current ? "scale(1.2)" : "scale(1)",
-            transition: "all 0.3s ease",
-          }}
-        />
-      ))}
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: theme.gap(2),
+        py: theme.boxSpacing(2),
+        overflow: "hidden",
+      }}>
+      {Array.from({ length }).map((_, i) => {
+        const isActive = i === current;
+        const isVisible = i >= startIdx && i <= endIdx;
+
+        // Render nothing if item falls outside the extended boundary rules
+        if (!isVisible) return null;
+
+        // Determine edge indicators for mini scaling effects
+        const isLeftEdge = i === startIdx && startIdx > 0;
+        const isRightEdge = i === endIdx && endIdx < length - 1;
+
+        let dotScale = 1;
+        if (isLeftEdge || isRightEdge) {
+          dotScale = 0.6; // Scale down edge indicators to match design
+        }
+
+        return (
+          <Box
+            key={i}
+            onClick={() => onGoTo(i)}
+            sx={{
+              position: "relative",
+              width: isActive ? 24 : 8,
+              height: 8,
+              borderRadius: theme.radius.full,
+              cursor: "pointer",
+              bgcolor: theme.palette.gray.trans[2],
+              overflow: "hidden",
+              transform: `scale(${dotScale})`,
+              transition:
+                "width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease",
+            }}>
+            {isActive && (
+              <Box
+                component={motion.div}
+                initial={{ width: "0%" }}
+                animate={{ width: autoPlay ? "100%" : "inherit" }}
+                transition={{
+                  duration: interval / 1000,
+                  ease: "linear",
+                }}
+                sx={{
+                  position: "absolute",
+                  height: "100%",
+                  bgcolor: theme.palette.primary.main,
+                }}
+              />
+            )}
+          </Box>
+        );
+      })}
     </Box>
   );
 };

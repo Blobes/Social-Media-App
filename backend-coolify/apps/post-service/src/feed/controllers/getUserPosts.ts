@@ -1,4 +1,4 @@
-import { GistModel } from "@repo/database";
+import { GistModel, IPostStatus } from "@repo/database";
 import {
   IAuthRequest,
   getStaticPostList,
@@ -44,7 +44,7 @@ export const getUserPosts = async (
       async () => {
         const matchFilter = {
           authorId: new mongoose.Types.ObjectId(String(targetUserId)),
-          status: "PUBLISHED", // Aligned with your GistSchema
+          status: "PUBLISHED" as IPostStatus,
         };
 
         const total = await GistModel.countDocuments(matchFilter);

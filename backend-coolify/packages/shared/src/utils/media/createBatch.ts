@@ -1,13 +1,12 @@
 import mongoose, { ClientSession } from "mongoose";
-import { IMediaInput } from "../../types/types";
-import { MediaModel } from "@repo/database";
+import { MediaModel, IMedia } from "@repo/database";
 
 /**
  * Service to handle batch creation of media records linked to any source.
  * Following SRP (Single Responsibility Principle) and Polymorphic design.
  */
 export const createMediaBatch = async (
-  mediaItems: IMediaInput[],
+  mediaItems: IMedia[],
   ownerId: string,
   session: ClientSession,
   context?: {

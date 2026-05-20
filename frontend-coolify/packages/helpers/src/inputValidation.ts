@@ -113,6 +113,7 @@ export const validatePassword = (password: string): InputValidation => {
 
   if (input.length < 8) {
     return {
+      id: "pass-rule-1",
       status: "INVALID",
       message: `Password must be at least 8 characters long. (example: Abcd1234#)`,
     };
@@ -120,6 +121,7 @@ export const validatePassword = (password: string): InputValidation => {
 
   if (!/[a-z]/.test(input)) {
     return {
+      id: "pass-rule-2",
       status: "INVALID",
       message: `Password must include at least one lowercase letter. (example: Abcd1234#)`,
     };
@@ -127,6 +129,7 @@ export const validatePassword = (password: string): InputValidation => {
 
   if (!/[A-Z]/.test(input)) {
     return {
+      id: "pass-rule-3",
       status: "INVALID",
       message: `Password must include at least one uppercase letter. (example: Abcd1234#)`,
     };
@@ -134,6 +137,7 @@ export const validatePassword = (password: string): InputValidation => {
 
   if (!/[0-9]/.test(input)) {
     return {
+      id: "pass-rule-4",
       status: "INVALID",
       message: `Password must include at least one number. (example: Abcd1234#)`,
     };
@@ -141,6 +145,7 @@ export const validatePassword = (password: string): InputValidation => {
 
   if (!/[^A-Za-z0-9]/.test(input)) {
     return {
+      id: "pass-rule-5",
       status: "INVALID",
       message: `Password must include at least one special character (!@#$%^&*). (example: Abcd1234#)`,
     };

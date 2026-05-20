@@ -34,18 +34,6 @@ export const vibrate = (ms: number = 100) => {
   }
 };
 
-/**
- * Determines orientation based on natural image dimensions.
- */
-export const analyzeImage = (img: HTMLImageElement): AnalyzedImage | null => {
-  if (!img) return null;
-  return {
-    height: img.naturalHeight,
-    width: img.naturalWidth,
-    isPortrait: img.naturalHeight > img.naturalWidth,
-  };
-};
-
 /** * Ensures a persistent device identifier exists on the client.
  */
 export const getOrCreateDeviceId = (): string => {

@@ -24,7 +24,8 @@
     "@mui/system": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-persist-client": "catalog:",
-    "@tanstack/query-async-storage-persister": "catalog:"
+    "@tanstack/query-async-storage-persister": "catalog:",
+    "blurhash": "catalog:"
   },
   "devDependencies": {
     "next": "catalog:",

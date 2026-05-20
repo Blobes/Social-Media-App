@@ -38,3 +38,4 @@ export * from "./src/carousel/Controls";
 export * from "./src/media/isolated/IsolatedMedia";
 export * from "./src/WordTrimmer";
 export * from "./src/StepperProgress";
+export * from "./src/UIGuide";

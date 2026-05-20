@@ -10,10 +10,11 @@ export * from "./src/sync";
 export * from "./src/textColorExtractor";
 export * from "./src/apiClient";
 
-export * from "./src/cache";
+export * from "./src/queryClient";
 export * from "./src/styles";
 export * from "./src/metadata";
 export * from "./src/dragConfig";
-export * from "./src/upload";
+export * from "./src/cloudUpload";
 export * from "./src/textFormatter";
 export * from "./src/page";
+export * from "./src/media";

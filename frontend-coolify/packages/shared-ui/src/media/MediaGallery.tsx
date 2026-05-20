@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { CSSProperties, useMemo } from "react";
 import { Box, ImageList, ImageListItem, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { DoubleTap } from "../DoubleTap";
@@ -131,7 +131,7 @@ export const MediaGallery = ({ mediaList, style, bgEffects }: GalleryProps) => {
                   sizes="100vw"
                   loading="lazy"
                   alt={alt || "Post image"}
-                  style={{ ...style?.content }}
+                  style={{ ...(style?.content as CSSProperties) }}
                 />
               )}
               {isLastItem && (

@@ -35,6 +35,7 @@ export * from "./src/apps/post/components/header/PostHeader";
 export * from "./src/apps/post/components/Metrics";
 // Hooks
 export * from "./src/apps/post/hooks/like/usePostLike";
+export * from "./src/apps/post/hooks/useFeed";
 
 // Stateful components
 export * from "./src/components/RestrictedUI";

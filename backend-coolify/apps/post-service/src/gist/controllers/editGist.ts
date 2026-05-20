@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 import { Response } from "express";
-import { IAuthRequest } from "@repo/shared";
-import { GistModel, PostCaptionModel } from "@repo/database";
+import { IAuthRequest, enqueueModerationTask } from "@repo/shared";
+import { GistModel } from "@repo/database";
+import { FUNSTAKES_REDIS_URL } from "@/envVars";
 
 interface EditRequest extends IAuthRequest {
   body: {
@@ -10,6 +11,9 @@ interface EditRequest extends IAuthRequest {
   };
 }
 
+/**
+ * Validates post ownership, limits edit frequencies, and enqueues the modified text to the Go moderation pipeline.
+ */
 export const editGist = async (
   req: EditRequest,
   res: Response,
@@ -17,7 +21,6 @@ export const editGist = async (
   const userId = req.user?.id;
   const { content, gistId } = req.body;
 
-  // 1. Basic Validations
   if (!content?.trim()) {
     res.status(400).json({
       message: "Content cannot be empty during an edit.",
@@ -36,12 +39,10 @@ export const editGist = async (
     return;
   }
 
-  // Start Transaction to ensure Versioning and Container stay in sync
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    // 2. Fetch Gist & Ownership Check
     const gist = await GistModel.findById(gistId).session(session);
 
     if (!gist) {
@@ -58,7 +59,7 @@ export const editGist = async (
       return;
     }
 
-    // 3. ENFORCE 3-EDIT LIMIT
+    // Verify user has not already used up their maximum edit modification allowances
     if (gist.editCount >= 3) {
       res.status(400).json({
         status: "ERROR",
@@ -68,46 +69,27 @@ export const editGist = async (
       return;
     }
 
-    // 4. Content Versioning (Decoupled Strategy)
-    // Mark all existing versions for this post as not latest
-    await PostCaptionModel.updateMany(
-      { postId: gistId, isLatest: true },
-      { $set: { isLatest: false } },
-      { session },
-    );
-
-    // Create the new version (Next version = current editCount + 2)
-    const nextVersion = (gist.editCount || 0) + 2;
-    const [newContentDoc] = await PostCaptionModel.create(
-      [
-        {
-          postId: gistId,
-          postType: "GIST",
-          caption: content.trim(),
-          version: nextVersion,
-          isLatest: true,
-        },
-      ],
-      { session },
-    );
-
-    // 5. Update Gist Container (Denormalization)
-    // Increment the edit count and update the fast-access text snippet
-    gist.editCount += 1;
-    gist.latestCaption = {
-      captionId: newContentDoc._id,
-      caption: newContentDoc.caption,
-    };
-
+    // Lock visibility during execution. Notice editCount does NOT increment here anymore
+    gist.status = "UNDER_REVIEW";
     await gist.save({ session });
 
-    // Finalize changes
+    await enqueueModerationTask(FUNSTAKES_REDIS_URL, "moderate:post", {
+      postId: gist._id.toString(),
+      type: "GIST",
+      userId: userId.toString(),
+      caption: content.trim(),
+      media: [],
+      topics: gist.topics || [],
+      skipModeration: false,
+      event: "POST_UPDATE",
+    });
+
     await session.commitTransaction();
 
-    res.status(200).json({
+    res.status(202).json({
       status: "SUCCESS",
-      payload: gist,
-      message: "Gist edited successfully",
+      payload: { gistId: gist._id },
+      message: "Gist update is undergoing moderation review.",
     });
   } catch (error: any) {
     await session.abortTransaction();
@@ -115,7 +97,7 @@ export const editGist = async (
     res.status(500).json({
       status: "ERROR",
       payload: null,
-      message: error.message || "Failed to update gist",
+      message: error.message || "Failed to initiate update moderation stream",
     });
   } finally {
     session.endSession();

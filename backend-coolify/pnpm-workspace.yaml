@@ -1,5 +1,6 @@
 packages:
   - "apps/*"
+  - "apps/worker-service/node-worker"
   - "packages/*"
 
 # This is the "Main" catalog for your logic

@@ -1,7 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
+/**
+ * Manages carousel state with support for external pausing and dynamic navigation.
+ */
 export const useCarousel = (
   length: number,
   interval = 5000,
@@ -28,30 +31,34 @@ export const useCarousel = (
       zIndex: 0,
       x: direction < 0 ? "100%" : "-100%",
       opacity: 0,
-      // Optional: scale: 0.9 (adds a slight zoom-out feel)
     }),
   };
 
-  const next = () => {
+  const next = useCallback(() => {
     setDirection(1);
     setIndex((prev) => (prev + 1 === length ? 0 : prev + 1));
-  };
+  }, [length]);
 
-  const prev = () => {
+  const prev = useCallback(() => {
     setDirection(-1);
     setIndex((prev) => (prev === 0 ? length - 1 : prev - 1));
-  };
+  }, [length]);
 
   const goTo = (i: number) => {
+    if (i === index) return;
     setDirection(i > index ? 1 : -1);
     setIndex(i);
   };
 
   useEffect(() => {
-    if (!autoPlay) return;
-    const timer = setInterval(next, interval);
+    if (!autoPlay || length <= 1) return;
+
+    const timer = setInterval(() => {
+      next();
+    }, interval);
+
     return () => clearInterval(timer);
-  }, [autoPlay, interval, index]);
+  }, [autoPlay, interval, next, length]);
 
   return { variants, index, direction, next, prev, goTo };
 };

@@ -5,6 +5,7 @@ import {
 } from "../../utils/misc/constants";
 import { IAuthRequest, IS3Config } from "../../types/types";
 import { createS3Service } from "../../services/s3";
+import { IMedia } from "@repo/database";
 
 export const MediaUploadHandler = (s3Config: IS3Config) => {
   const s3Service = createS3Service(s3Config);

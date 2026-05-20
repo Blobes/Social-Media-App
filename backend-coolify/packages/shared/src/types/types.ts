@@ -1,4 +1,4 @@
-import { GistModel } from "@repo/database";
+import { GistModel, IMediaType } from "@repo/database";
 import { Request, RequestHandler } from "express";
 import { InferSchemaType } from "mongoose";
 
@@ -60,18 +60,6 @@ export interface IModerationReq {
 export interface IAuthRequest extends Request {
   user?: IJwtUser;
   moderation?: IModerationReq;
-}
-
-export interface IMediaInput {
-  url: string;
-  fileKey: string;
-  type: "IMAGE" | "VIDEO" | "GIF";
-  thumbnailUrl?: string;
-  mimeType?: string;
-  size?: number;
-  dimensions?: { width: number; height: number; aspectRatio: number };
-  blurHash?: string;
-  storageProvider?: "S3" | "CLOUDINARY" | "GCP";
 }
 
 export interface IModerationRes {
@@ -167,3 +155,10 @@ export interface IPhoneDispatchTokens {
 
 export interface ICodeDispatchTokens
   extends IEmailDispatchTokens, IPhoneDispatchTokens {}
+
+export interface OtpJobPayload {
+  type: OtpType;
+  code: string;
+  email?: string;
+  phone?: string;
+}

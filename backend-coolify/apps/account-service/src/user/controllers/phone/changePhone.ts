@@ -2,11 +2,10 @@ import { FUNSTAKES_REDIS_URL } from "@/envVars";
 import { UserModel } from "@repo/database";
 import {
   IAuthRequest,
-  OtpType,
+  enqueueOtpTask,
   evaluateNotability,
   genVerificationCode,
   hashCode,
-  otpQueue,
 } from "@repo/shared";
 import { Response } from "express";
 
@@ -138,19 +137,12 @@ export const changePhoneNumber = async (
 
     await user.save();
 
-    // Send code via WhatsApp
-    await otpQueue(FUNSTAKES_REDIS_URL).add(
-      "send-phone-otp",
-      { phone: formattedPhone, code, type: "WHATSAPP" as OtpType },
-      {
-        attempts: 3, // Try 3 times total
-        backoff: {
-          type: "exponential",
-          delay: 2000, // Wait 2s, then 4s, then 8s...
-        },
-        removeOnComplete: true, // Keep Redis clean
-      },
-    );
+    // Enqueue OTP task
+    await enqueueOtpTask(FUNSTAKES_REDIS_URL, {
+      phone: formattedPhone,
+      code,
+      type: "WHATSAPP",
+    });
 
     return res.status(200).json({
       status: "SUCCESS",

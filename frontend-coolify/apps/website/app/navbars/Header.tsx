@@ -8,7 +8,7 @@ import { DesktopNav, MobileNav } from "./Nav";
 import { AnchorLink, AppButton } from "@repo/shared-ui";
 import Image from "next/image";
 import { Menu } from "lucide-react";
-import { img } from "@repo/assets";
+import { asset } from "@repo/assets";
 import { CLIENT_ROUTES } from "@repo/core";
 
 export const Header: React.FC = () => {
@@ -68,7 +68,7 @@ export const Header: React.FC = () => {
         url={CLIENT_ROUTES.about.path}
         onClick={() => navigateTo(CLIENT_ROUTES.about)}>
         <Image
-          src={img.logo}
+          src={asset.logo}
           alt="logo"
           style={{
             width: 34,

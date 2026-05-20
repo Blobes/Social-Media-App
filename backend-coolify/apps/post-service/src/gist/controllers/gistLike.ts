@@ -1,11 +1,6 @@
 import mongoose from "mongoose";
 import { Response } from "express";
-import {
-  CACHE_KEYS,
-  IAuthRequest,
-  invalidateCache,
-  invalidatePattern,
-} from "@repo/shared";
+import { CACHE_KEYS, IAuthRequest, invalidateCache } from "@repo/shared";
 import { GistLikeModel, GistModel } from "@repo/database";
 
 export const gistLike = async (

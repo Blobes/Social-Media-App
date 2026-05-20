@@ -1,4 +1,5 @@
 export const asset = {
+  // Images
   logo: "/logo.png",
   defaultCover: "/images/cover.jpg",
   pic1: "/images/img1.png",
@@ -9,11 +10,21 @@ export const asset = {
   pic6: "/images/img6.jpg",
   pic7: "/images/img7.jpg",
   video: "/videotest.mp4",
+
+  // Lottie Animations
+  LoadingAnimation: "/lottie/loading.lottie",
+  SignupAnimation: "/lottie/signup-animation.lottie",
+
+  // SVGs
   doodle: "/svgs/doodle.svg",
   zebraPattern: "/svgs/zebra-pattern.svg",
   OfflineAvatar: "/svgs/offline-avatar.svg",
   Illustration1: "/svgs/illustration1.svg",
   Illustration2: "/svgs/illustration2.svg",
-  LoadingAnimation: "/lottie/loading.lottie",
-  SignupAnimation: "/lottie/signup-animation.lottie",
+  avatar1: "/svgs/avatar-illustration1.svg",
+  avatar2: "/svgs/avatar-illustration2.svg",
+  avatar3: "/svgs/avatar-illustration3.svg",
+  avatar4: "/svgs/avatar-illustration4.svg",
+  avatar5: "/svgs/avatar-illustration5.svg",
+  avatar6: "/svgs/avatar-illustration6.svg",
 };
