@@ -50,7 +50,7 @@ RUN node -e " \
 RUN pnpm install --prod --no-frozen-lockfile
 
 # 4. Define the Global Default Healthcheck
-# This will be inherited by gateway, account, post, etc.
+# This will be inherited by gateway, account, post, worker, etc.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD curl -f http://localhost:8000/health || exit 1
 
