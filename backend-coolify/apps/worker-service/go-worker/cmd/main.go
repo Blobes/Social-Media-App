@@ -13,12 +13,11 @@ import (
 func main() {
 	ctx := context.Background()
 
-	// Extract bootstrapping tasks onto our modular initialization companion file layer
-	config, err := LoadEnvVars(ctx)
+	config, err := LoadEnv(ctx)
 	if err != nil {
 		log.Fatalf("Critical system bootstrap routine failure: %v", err)
 	}
-	defer config.VisionClient.Close()
+	//	defer config.VisionClient.Close()
 
 	srv := asynq.NewServer(
 		config.AsynqOpts,
@@ -35,7 +34,7 @@ func main() {
 	mux := asynq.NewServeMux()
 
 	// Register structural closures safely out of the extracted dependency container context references
-	mux.HandleFunc("moderate:post", config.TaskDeps.HandlePostModerationTask)
+	mux.HandleFunc("moderate:post", config.TaskDeps.HandlePostModeration)
 
 	log.Println("⚡ Go Worker Execution Engine active and waiting for tasks...")
 	if err := srv.Run(mux); err != nil {

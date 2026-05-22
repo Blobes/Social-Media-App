@@ -4,18 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-
-	vision "cloud.google.com/go/vision/v2/apiv1"
 	"github.com/hibiken/asynq"
-	"github.com/sashabaranov/go-openai"
+	"log"
 )
-
-type DependencyContext struct {
-	VisionClient *vision.ImageAnnotatorClient
-	OpenAIClient *openai.Client
-	NodeClient   *NodeClient
-}
 
 /**
  * Ingests asymmetric post payloads, evaluates native content safety,
@@ -26,6 +17,15 @@ func (deps *DependencyContext) HandlePostModerationTask(ctx context.Context, t *
 	if err := json.Unmarshal(t.Payload(), &payload); err != nil {
 		return fmt.Errorf("contract ingestion failure: %w", err)
 	}
+
+	// Validate baseline presence rules safely before calling cloud services
+	if payload.Caption == "" && len(payload.Media) == 0 {
+		log.Printf("⚠️ Aborting task %s: caption and media channels cannot both be empty", payload.PostID)
+		return nil
+	}
+
+	log.Printf("📥 Processing validation task for post: %s (Has Caption: %t, Media Count: %d)",
+		payload.PostID, payload.Caption != "", len(payload.Media))
 
 	var report ModerationReport
 

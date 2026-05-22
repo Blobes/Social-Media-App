@@ -1,5 +1,5 @@
-import { GistModel, IMediaType } from "@repo/database";
-import { Request, RequestHandler } from "express";
+import { GistModel, IMedia } from "@repo/database";
+import { MediaType, Request, RequestHandler } from "express";
 import { InferSchemaType } from "mongoose";
 
 export type ILikelihood =
@@ -161,4 +161,15 @@ export interface OtpJobPayload {
   code: string;
   email?: string;
   phone?: string;
+}
+
+export interface IPostModData {
+  postId: string;
+  postType: PostType;
+  userId: string;
+  caption?: string;
+  media?: IMedia[];
+  topics?: string[];
+  skipModeration?: boolean;
+  event: "POST_CREATION" | "POST_UPDATE";
 }

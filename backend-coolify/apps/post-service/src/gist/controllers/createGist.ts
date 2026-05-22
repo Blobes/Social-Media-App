@@ -5,6 +5,7 @@ import {
   generateRandomIp,
   getLocationFromIp,
   enqueueModerationTask,
+  IPostModData,
 } from "@repo/shared";
 import { GistModel, IMedia } from "@repo/database";
 import { FUNSTAKES_REDIS_URL } from "@/envVars";
@@ -65,19 +66,20 @@ export const createGist = async (req: CreateRequest, res: Response) => {
     });
 
     // 3. Queue the "Heavy" work for the Worker using the Go protocol bridge
+    const moderationData: IPostModData = {
+      postId: newGist._id.toString(),
+      postType: "GIST",
+      userId: userId.toString(),
+      caption,
+      media,
+      topics,
+      event: "POST_CREATION",
+      skipModeration,
+    };
     await enqueueModerationTask(
       FUNSTAKES_REDIS_URL,
       "moderate:post", // Maps exactly to mux.HandleFunc("moderate:post", ...) in main.go
-      {
-        postId: newGist._id.toString(),
-        type: "GIST",
-        userId: userId.toString(),
-        caption,
-        media,
-        topics,
-        event: "POST_CREATION",
-        skipModeration,
-      },
+      moderationData,
     );
 
     res.status(202).json({

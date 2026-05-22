@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
-import { FinalizePostParams, POST_STRATEGIES } from "../helpers/postStrategies";
+import { FinalizePostReq, POST_STRATEGIES } from "../helpers/postStrategies";
 import { CACHE_KEYS, invalidatePattern } from "@repo/shared";
 
 /**
@@ -11,18 +11,16 @@ export const handlePostFinalizer = async (
   res: Response,
 ): Promise<void> => {
   const { postId, postType, userId, caption, media, modResult, event } =
-    req.body as FinalizePostParams;
+    req.body as FinalizePostReq;
 
   // Dynamically compound the strategies matching mapping variants safely
   const strategyKey = `${postType}_${event}`;
   const strategy = POST_STRATEGIES[strategyKey as keyof typeof POST_STRATEGIES];
 
   if (!strategy) {
-    res
-      .status(400)
-      .json({
-        error: `Unsupported type boundary variant match: ${strategyKey}`,
-      });
+    res.status(400).json({
+      error: `Unsupported type boundary variant match: ${strategyKey}`,
+    });
     return;
   }
 

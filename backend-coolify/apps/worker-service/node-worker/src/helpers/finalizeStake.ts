@@ -1,4 +1,4 @@
 import mongoose from "mongoose";
-import { FinalizePostParams } from "./postStrategies";
+import { FinalizePostReq } from "./postStrategies";
 
-export const finalizeStake = async (params: FinalizePostParams) => {};
+export const finalizeStake = async (params: FinalizePostReq) => {};

@@ -3,13 +3,63 @@
   "title": "PostModerationContract",
   "type": "object",
   "properties": {
-    "postId": { "type": "string" },
-    "postType": { "type": "string", "enum": ["GIST", "STAKE"] },
-    "userId": { "type": "string" },
-    "caption": { "type": "string" },
+    "postId": {
+      "type": "string"
+    },
+    "postType": {
+      "type": "string",
+      "enum": ["GIST", "STAKE"]
+    },
+    "userId": {
+      "type": "string"
+    },
+    "caption": {
+      "type": "string"
+    },
     "media": {
       "type": "array",
-      "items": { "type": "object", "additionalProperties": true }
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "fileKey": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["IMAGE", "VIDEO"]
+          },
+          "thumbnailUrl": {
+            "type": ["string", "null"],
+            "format": "uri"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "dimensions": {
+            "type": "object",
+            "properties": {
+              "width": { "type": "number" },
+              "height": { "type": "number" },
+              "aspectRatio": { "type": "number" }
+            },
+            "required": ["width", "height", "aspectRatio"]
+          },
+          "blurHash": {
+            "type": ["string", "null"]
+          },
+          "storageProvider": {
+            "type": "string"
+          }
+        },
+        "required": ["url", "fileKey", "type", "storageProvider"]
+      }
     },
     "event": {
       "type": "string",
@@ -19,7 +69,21 @@
       "type": "array",
       "items": { "type": "string" }
     },
-    "skipModeration": { "type": "boolean" }
+    "skipModeration": {
+      "type": "boolean",
+      "default": false
+    }
   },
-  "required": ["postId", "type", "userId", "caption"]
+  "required": ["postId", "postType", "userId", "event"],
+  "anyOf": [
+    {
+      "required": ["caption"]
+    },
+    {
+      "required": ["media"],
+      "properties": {
+        "media": { "minItems": 1 }
+      }
+    }
+  ]
 }

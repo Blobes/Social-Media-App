@@ -28,23 +28,6 @@ var LikelihoodWeights = map[Likelihood]int{
 	LikelihoodVeryLikely:   5,
 }
 
-type MediaThreshold map[string]Likelihood
-
-type TextPolicy struct {
-	Rules             map[Severity][]string
-	AIConfidenceLimit float64
-}
-
-type MediaPolicy struct {
-	Thresholds map[Severity][]MediaThreshold
-}
-
-type ContentPolicy struct {
-	Version string
-	Text    TextPolicy
-	Media   MediaPolicy
-}
-
 /**
  * Initializes the unified severity-based safety rules.
  */

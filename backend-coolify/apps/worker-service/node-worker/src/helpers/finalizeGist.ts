@@ -6,12 +6,12 @@ import {
   InternalSocketEmitter,
 } from "@repo/shared";
 import { FUNSTAKES_REDIS_URL, s3Config } from "@/envVars";
-import { FinalizePostParams } from "./postStrategies";
+import { FinalizePostReq } from "./postStrategies";
 
 /**
  * Commits the finalized state from Go processing into MongoDB for initial post creation.
  */
-export const finalizeGistCreation = async (params: FinalizePostParams) => {
+export const finalizeGistCreation = async (params: FinalizePostReq) => {
   const { postId, userId, caption, media, modResult, session } = params;
 
   // 1. Creation Ban Flow: Drop temporary shell record and clean S3 staging buckets
@@ -115,7 +115,7 @@ export const finalizeGistCreation = async (params: FinalizePostParams) => {
 /**
  * Commits updated text content versions to MongoDB after validation checks pass.
  */
-export const finalizeGistUpdate = async (params: FinalizePostParams) => {
+export const finalizeGistUpdate = async (params: FinalizePostReq) => {
   const { postId, userId, caption, modResult, session } = params;
 
   // 1. Update Ban Flow: Notify user and reset post status back to active without saving the new text

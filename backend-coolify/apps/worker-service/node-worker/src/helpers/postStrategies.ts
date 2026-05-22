@@ -1,15 +1,15 @@
 import mongoose, { Model } from "mongoose";
-import { GistModel, IMediaModel, StakeModel } from "@repo/database";
+import { GistModel, IMedia, StakeModel } from "@repo/database";
 import { PostType } from "@repo/shared";
 import { finalizeGistCreation, finalizeGistUpdate } from "./finalizeGist";
 import { finalizeStake } from "./finalizeStake";
 
-export interface FinalizePostParams {
+export interface FinalizePostReq {
   postId: string;
   userId: string;
   postType: PostType;
   caption: string;
-  media: IMediaModel[];
+  media: IMedia[];
   event: "POST_CREATION" | "POST_UPDATE";
   modResult: {
     status: string;
@@ -22,7 +22,7 @@ export interface FinalizePostParams {
 
 interface PostStrategy {
   model: Model<any>;
-  finalizer: (params: FinalizePostParams) => Promise<any>;
+  finalizer: (params: FinalizePostReq) => Promise<any>;
   displayName: string;
 }
 

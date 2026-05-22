@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 import { Response } from "express";
-import { IAuthRequest, enqueueModerationTask } from "@repo/shared";
+import {
+  IAuthRequest,
+  IPostModData,
+  enqueueModerationTask,
+} from "@repo/shared";
 import { GistModel } from "@repo/database";
 import { FUNSTAKES_REDIS_URL } from "@/envVars";
 
@@ -73,16 +77,22 @@ export const editGist = async (
     gist.status = "UNDER_REVIEW";
     await gist.save({ session });
 
-    await enqueueModerationTask(FUNSTAKES_REDIS_URL, "moderate:post", {
+    // 3. Queue the caption moderation
+    const moderationData: IPostModData = {
       postId: gist._id.toString(),
-      type: "GIST",
+      postType: "GIST",
       userId: userId.toString(),
       caption: content.trim(),
       media: [],
       topics: gist.topics || [],
       skipModeration: false,
       event: "POST_UPDATE",
-    });
+    };
+    await enqueueModerationTask(
+      FUNSTAKES_REDIS_URL,
+      "moderate:post",
+      moderationData,
+    );
 
     await session.commitTransaction();
 
