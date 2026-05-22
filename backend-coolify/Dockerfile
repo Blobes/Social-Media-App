@@ -7,7 +7,7 @@ RUN apk add --no-cache git ca-certificates
 COPY apps/worker-service/go-worker/go.mod apps/worker-service/go-worker/go.sum ./
 RUN go mod download
 COPY apps/worker-service/go-worker/ ./
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o go-worker-bin ./cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o go-worker-bin ./cmd
 
 # =========================
 # 🏗️ STAGE 2: NODE BUILDER
