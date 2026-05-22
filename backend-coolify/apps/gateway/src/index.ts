@@ -3,7 +3,7 @@ import appLoader from "./loader";
 import { createServer } from "http";
 import { initUpstash } from "@repo/shared";
 import { initRedisSocket } from "./initSocket";
-import { FUNSTAKES_REDIS_URL, NODE_ENV, PORT, SERVICE_URL } from "./envVars";
+import { FUNSTAKES_REDIS_URL, NODE_ENV, PORT, GATEWAY_URL } from "./envVars";
 
 const startGateway = async () => {
   const app = express();
@@ -25,7 +25,7 @@ const startGateway = async () => {
 
   httpServer.listen(PORT, () => {
     console.log(`🚀 Gateway [${NODE_ENV}] running on port ${PORT}`);
-    console.log(`📡 Public API Endpoint: ${SERVICE_URL}`);
+    console.log(`📡 Public API Endpoint: ${GATEWAY_URL}`);
   });
 };
 

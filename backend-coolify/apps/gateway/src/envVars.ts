@@ -23,9 +23,22 @@ export const env = {
   get PORT() {
     return parseInt(getEnv("GATEWAY_PORT", false) || "8000", 10);
   },
-  get SERVICE_URL() {
+  get GATEWAY_URL() {
     return getEnv("GATEWAY_URL");
   },
+  get ACCOUNT_URL() {
+    return getEnv("ACCOUNT_URL");
+  },
+  get POST_URL() {
+    return getEnv("POST_URL");
+  },
+  get ADMIN_URL() {
+    return getEnv("ADMIN_URL");
+  },
+  get WORKER_URL() {
+    return getEnv("WORKER_URL");
+  },
+
   get FUNSTAKES_REDIS_URL() {
     return getEnv("FUNSTAKES_REDIS_URL");
   },
@@ -68,5 +81,9 @@ export const verifyAuthToken: RequestHandler =
 export const NODE_ENV = env.NODE_ENV;
 export const PORT = env.PORT;
 export const MONGO_URI = env.MONGO_URI;
-export const SERVICE_URL = env.SERVICE_URL;
+export const GATEWAY_URL = env.GATEWAY_URL;
+export const ACCOUNT_URL = env.ACCOUNT_URL;
+export const POST_URL = env.POST_URL;
+export const ADMIN_URL = env.ADMIN_URL;
+export const WORKER_URL = env.WORKER_URL;
 export const FUNSTAKES_REDIS_URL = env.FUNSTAKES_REDIS_URL;

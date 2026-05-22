@@ -5,6 +5,7 @@ go 1.26.2
 require (
 	cloud.google.com/go/vision/v2 v2.14.0
 	github.com/hibiken/asynq v0.26.0
+	github.com/joho/godotenv v1.5.1
 	github.com/sashabaranov/go-openai v1.41.2
 )
 

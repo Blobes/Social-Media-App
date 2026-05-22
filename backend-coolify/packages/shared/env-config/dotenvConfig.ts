@@ -4,9 +4,16 @@ import path from "path";
 /**
  * Loads the environment variables from the project root.
  */
-export function loadEnv() {
-  const baseEnvPath = path.resolve(process.cwd(), "../../.env.development");
-  const prodEnvPath = path.resolve(process.cwd(), "../../.env.production");
+export function loadEnv(is3LevelDeep: boolean = false) {
+  const pathDepth = is3LevelDeep ? "../../../" : "../../";
+  const baseEnvPath = path.resolve(
+    process.cwd(),
+    `${pathDepth}.env.development`,
+  );
+  const prodEnvPath = path.resolve(
+    process.cwd(),
+    `${pathDepth}.env.production`,
+  );
 
   // Load development defaults
   dotenv.config({ path: baseEnvPath });

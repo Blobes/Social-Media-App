@@ -4,62 +4,76 @@ import {
   type Response,
   type NextFunction,
 } from "express";
-import { createProxyMiddleware } from "http-proxy-middleware";
+import { createProxyMiddleware, type Options } from "http-proxy-middleware";
+import { ACCOUNT_URL, ADMIN_URL, POST_URL, WORKER_URL } from "./envVars";
 
 const router: Router = Router();
 
 /**
- * Clean Proxy Factory
- * Just forwards the request and handles 502/504 errors gracefully.
- * * @param targetEnvVar - The target service URL from process.env
+ * Factory that initializes http-proxy-middleware instances statically.
+ * This guarantees event listeners are registered exactly once during app initialization.
  */
-const proxyHandler = (
+const createStaticProxy = (
   prefixes: string[],
   targetEnvVar: string,
   shouldStrip: boolean = false,
 ) => {
+  if (!targetEnvVar) {
+    console.error(
+      `❌ [Proxy Initialization Error] ${targetEnvVar} is undefined!`,
+    );
+    // Fallback handler for missing environmental configurations
+    return (req: Request, res: Response, next: NextFunction) => {
+      const matchedPrefix = prefixes.find((p) => req.path.startsWith(p));
+      if (!matchedPrefix) return next();
+      res.status(502).json({ error: `Config missing: ${targetEnvVar}` });
+    };
+  }
+
+  const proxyOptions: Options = {
+    target: targetEnvVar,
+    changeOrigin: true,
+    secure: true,
+    xfwd: true,
+    pathRewrite: shouldStrip
+      ? (path, req) => {
+          const matchedPrefix = prefixes.find((p) => path.startsWith(p));
+          return matchedPrefix ? path.replace(matchedPrefix, "") : path;
+        }
+      : undefined,
+    on: {
+      error: (err, req, res) => {
+        console.error(`[Proxy Error] ${targetEnvVar}:`, err.message);
+        (res as Response).status(502).json({ error: "Service unavailable" });
+      },
+    },
+  };
+
+  const middlewareInstance = createProxyMiddleware(proxyOptions);
+
   return (req: Request, res: Response, next: NextFunction) => {
-    const target = process.env[targetEnvVar];
-
-    if (!target) {
-      console.error(`❌ [Proxy Error] ${targetEnvVar} is undefined!`);
-      return res.status(502).json({ error: `Config missing: ${targetEnvVar}` });
-    }
-
     const matchedPrefix = prefixes.find((p) => req.path.startsWith(p));
     if (!matchedPrefix) return next();
 
-    // Create and execute the middleware on the fly
-    return createProxyMiddleware({
-      target,
-      changeOrigin: true,
-      pathRewrite: shouldStrip ? { [`^${matchedPrefix}`]: "" } : undefined,
-      secure: true,
-      xfwd: true,
-      on: {
-        error: (err, req, res) => {
-          console.error(`[Proxy Error] ${targetEnvVar}:`, err.message);
-          (res as Response).status(502).json({ error: "Service unavailable" });
-        },
-      },
-    })(req, res, next);
+    // Forward execution context to the pre-allocated static proxy middleware
+    return middlewareInstance(req, res, next);
   };
 };
 
-// --- Route Mapping ---
+// ====== Static Route Mappings ======
 
-// ACCOUNT SERVICE: (Strip '/account', keep '/auth' and '/user')
-router.use(proxyHandler(["/account"], "ACCOUNT_URL", true));
-router.use(proxyHandler(["/auth", "/user"], "ACCOUNT_URL"));
+// ACCOUNT SERVICE
+router.use(createStaticProxy(["/account"], ACCOUNT_URL, true));
+router.use(createStaticProxy(["/auth", "/user"], ACCOUNT_URL));
 
-// POST SERVICE: (Strip '/post', keep '/feed' and '/gists')
-router.use(proxyHandler(["/post"], "POST_URL", true));
-router.use(proxyHandler(["/feed", "/gists"], "POST_URL"));
+// POST SERVICE
+router.use(createStaticProxy(["/post"], POST_URL, true));
+router.use(createStaticProxy(["/feed", "/gists"], POST_URL));
 
 // ADMIN SERVICE
-router.use(proxyHandler(["/admin"], "ADMIN_URL", true));
+router.use(createStaticProxy(["/admin"], ADMIN_URL, true));
 
 // WORKER SERVICE
-router.use(proxyHandler(["/worker"], "WORKER_URL", true));
+router.use(createStaticProxy(["/worker"], WORKER_URL, true));
 
 export default router;
