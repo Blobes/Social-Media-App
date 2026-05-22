@@ -3,14 +3,10 @@ import { Redis } from "ioredis";
 import { v4 as uuidv4 } from "uuid";
 import { OtpJobPayload } from "../types/types";
 
-/**
- * Enqueues a payload into Redis using the exact structural binary protocol
- * that the Go Asynq library evaluates.
- */
-
-interface AsynqTaskOptions {
+export interface AsynqTaskOptions {
   queue?: string;
   maxRetry?: number;
+  processAt?: number;
 }
 
 export class QueueService {
@@ -24,9 +20,8 @@ export class QueueService {
     if (!this.redisConnection) {
       if (!redisUrl) throw new Error("FUNSTAKES_REDIS_URL is missing");
 
-      // Shared pool for both custom Asynq inserts and native BullMQ engines
       this.redisConnection = new Redis(redisUrl, {
-        maxRetriesPerRequest: null, // Crucial requirement for BullMQ safety stability
+        maxRetriesPerRequest: null,
         connectTimeout: 10000,
       });
 
@@ -72,7 +67,8 @@ export class QueueService {
   }
 
   /**
-   * Enqueues a payload using the exact structural binary protocol the Go Asynq engine evaluates.
+   * Enqueues a payload using the exact structural protocol the Go Asynq engine evaluates,
+   * supporting both immediate and scheduled runtime operations.
    */
   public static async enqueueAsynqTask(
     redisUrl: string,
@@ -80,31 +76,50 @@ export class QueueService {
     payload: Record<string, any>,
     options: AsynqTaskOptions = {},
   ): Promise<void> {
-    const queue = options.queue;
+    const queue = options.queue || "default";
     const maxRetry = options.maxRetry ?? 3;
+    const processAt = options.processAt;
 
     const client = this.getConnection(redisUrl);
     const taskId = uuidv4();
 
     const asynqPayload = {
-      typename,
-      payload: Buffer.from(JSON.stringify(payload)).toString("base64"),
-      queue,
+      Type: typename,
+      Payload: Buffer.from(JSON.stringify(payload)).toString("base64"),
+    };
+
+    const taskMessage = {
       id: taskId,
-      max_retry: maxRetry,
-      retried: 0,
+      type: asynqPayload.Type,
+      payload: asynqPayload.Payload,
+      queue: queue,
+      retry: maxRetry,
+      completed_at: 0,
       timeout: 1800000000000,
       deadline: 0,
     };
 
-    const redisKey = `asynq:{${queue}}`;
-    const taskMessage = JSON.stringify(asynqPayload);
-    const processAt = Math.floor(Date.now() / 1000);
+    const messagePayloadString = JSON.stringify(taskMessage);
+    const pipeline = client.pipeline();
 
-    await client.zadd(redisKey, processAt.toString(), taskMessage);
+    // Register queue name within global tracker map
+    pipeline.sadd("asynq:queues", queue);
+
+    if (processAt && processAt > Math.floor(Date.now() / 1000)) {
+      // Target scheduled tracking keys using sorted sets sorted by execution timestamp
+      const scheduledKey = `asynq:{queue:${queue}}:scheduled`;
+      const schedulerNotificationKey = `asynq:{queue:${queue}}:sched`;
+
+      pipeline.zadd(scheduledKey, processAt.toString(), messagePayloadString);
+      pipeline.zadd(schedulerNotificationKey, processAt.toString(), taskId);
+    } else {
+      // Fallback immediately to standard execution list layer
+      const immediateListKey = `asynq:{queue:${queue}}`;
+      pipeline.lpush(immediateListKey, messagePayloadString);
+    }
+    await pipeline.exec();
   }
 }
-
 /**
  * Pushes heavy media assets directly into the Go Asynq protocol matrix.
  */
