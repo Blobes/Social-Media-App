@@ -1,7 +1,7 @@
 # =========================
 # 🏗️ STAGE 1: GO BUILDER
 # =========================
-FROM golang:1.22-alpine AS go-builder
+FROM golang:1.26-alpine AS go-builder
 WORKDIR /app
 RUN apk add --no-cache git ca-certificates
 COPY apps/worker-service/go-worker/go.mod apps/worker-service/go-worker/go.sum ./
