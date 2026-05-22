@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+      target: node-runner
       args:
         SERVICE_NAME: gateway
     labels:
@@ -21,6 +22,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+      target: node-runner
       args:
         SERVICE_NAME: account-service
     networks:
@@ -30,18 +32,30 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+      target: node-runner
       args:
         SERVICE_NAME: post-service
     networks:
       - coolify
 
-  worker-service:
+  # Node JS Worker Instance
+  node-worker-service:
     build:
       context: .
       dockerfile: ./Dockerfile
+      target: node-runner
       args:
         SERVICE_NAME: worker-service
         APP_PATH: apps/worker-service/node-worker
+    networks:
+      - coolify
+
+  # Go Worker Instance
+  go-worker-service:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: go-runner
     networks:
       - coolify
 
@@ -49,6 +63,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+      target: node-runner
       args:
         SERVICE_NAME: admin-service
     networks:

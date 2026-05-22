@@ -1,24 +1,30 @@
 # =========================
-# 🏗️ STAGE 1: BUILDER
+# 🏗️ STAGE 1: GO BUILDER
 # =========================
-FROM node:20-alpine AS builder
+FROM golang:1.22-alpine AS go-builder
+WORKDIR /app
+RUN apk add --no-cache git ca-certificates
+COPY apps/worker-service/go-worker/go.mod apps/worker-service/go-worker/go.sum ./
+RUN go mod download
+COPY apps/worker-service/go-worker/ ./
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o go-worker-bin ./cmd/main.go
+
+# =========================
+# 🏗️ STAGE 2: NODE BUILDER
+# =========================
+FROM node:20-alpine AS node-builder
 WORKDIR /app
 ARG SERVICE_NAME
 ARG APP_PATH=apps/${SERVICE_NAME}
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
-# Copy workspace structural configurations
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-
-# COPY to ${APP_PATH}/ instead of forcing it into apps/${SERVICE_NAME}/
 COPY ${APP_PATH}/package.json ./${APP_PATH}/
 COPY packages/shared/package.json ./packages/shared/
 COPY packages/database/package.json ./packages/database/
 
-# This will now validate cleanly against the lockfile rules
 RUN pnpm install --frozen-lockfile
 
-# Maintain identical source paths
 COPY ${APP_PATH} ./${APP_PATH}
 COPY packages/shared ./packages/shared
 COPY packages/database ./packages/database
@@ -26,19 +32,34 @@ COPY packages/database ./packages/database
 RUN pnpm --filter=@repo/${SERVICE_NAME} build
 
 # =========================
-# 🚀 STAGE 2: RUNNER
+# 🚀 TARGET: GO RUNNER
 # =========================
-FROM node:20-alpine AS runner
+FROM alpine:3.19 AS go-runner
+WORKDIR /app
+RUN apk add --no-cache curl ca-certificates
+
+# Copy ONLY the compiled Go binary from Stage 1
+COPY --from=go-builder /app/go-worker-bin ./go-worker-bin
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
+CMD ["./go-worker-bin"]
+
+# =========================
+# 🚀 TARGET: NODE RUNNER
+# =========================
+FROM node:20-alpine AS node-runner
 WORKDIR /app
 RUN apk add --no-cache curl
+
 ARG SERVICE_NAME
 ARG APP_PATH=apps/${SERVICE_NAME}
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
-# Copy required deployment files
 COPY pnpm-workspace.yaml ./
 COPY ${APP_PATH}/package.json ./package.json
-COPY --from=builder /app/${APP_PATH}/dist ./dist
+COPY --from=node-builder /app/${APP_PATH}/dist ./dist
 
 # Strip workspace references out before production execution
 RUN node -e " \
