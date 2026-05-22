@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"strings"
 
 	"go-worker/tasks"
 
@@ -45,16 +46,23 @@ func LoadEnvVars(ctx context.Context) (*AppConfig, error) {
 	// Cast the underlying core option model configurations
 	clientOpts := parsedOpts.(asynq.RedisClientOpt)
 
-	// Determine credential loading method based on runtime environment context
 	var visionClient *vision.ImageAnnotatorClient
 	var errVision error
 
 	rawJSONKey := os.Getenv("GOOGLE_CREDENTIALS_JSON")
-	if rawJSONKey != "" {
-		// Initialize the client directly from memory using raw environment string data
-		visionClient, errVision = vision.NewImageAnnotatorClient(ctx, option.WithCredentialsJSON([]byte(rawJSONKey)))
+
+	// Check if the variable is populated and contains actual raw JSON text structure
+	if rawJSONKey != "" && strings.HasPrefix(strings.TrimSpace(rawJSONKey), "{") {
+		// Uses the modern, secure client initialization API passing explicit verification configurations
+		visionClient, errVision = vision.NewImageAnnotatorClient(
+			ctx,
+			option.WithAuthCredentialsJSON(option.ServiceAccount, []byte(rawJSONKey)),
+		)
+	} else if rawJSONKey != "" {
+		// If it's populated but not a raw JSON object, handle it explicitly as a physical local file path pointer
+		visionClient, errVision = vision.NewImageAnnotatorClient(ctx, option.WithCredentialsFile(rawJSONKey))
 	} else {
-		// Fall back to standard file path validation loops (useful for local development workflows)
+		// Ultimate fallback pattern relying on system wide GOOGLE_APPLICATION_CREDENTIALS mappings
 		visionClient, errVision = vision.NewImageAnnotatorClient(ctx)
 	}
 
