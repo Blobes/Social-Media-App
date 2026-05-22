@@ -1,6 +1,7 @@
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 import { healthRouter } from "@repo/shared";
+import { internalRouter } from "./internal-api/routes";
 
 export default (app: Express) => {
   // ====== Middlewares ======
@@ -15,6 +16,8 @@ export default (app: Express) => {
   app.get("/", (req, res) => {
     res.json({ message: "Welcome to Funstakes Worker Service API" });
   });
+
+  app.use("/internal", internalRouter);
 
   return app;
 };

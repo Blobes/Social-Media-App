@@ -82,11 +82,21 @@ func LoadEnvVars(ctx context.Context) (*AppConfig, error) {
 	}
 	openaiClient := openai.NewClient(openAIKey)
 
-	// Instantiate structural dependency contexts safely
+	nodeWorkerURL := os.Getenv("WORKER_URL")
+	if nodeWorkerURL == "" {
+		// Uses docker-compose DNS alias routing for container communication, falls back to localhost for local dev
+		if os.Getenv("NODE_ENV") == "production" {
+			nodeWorkerURL = "http://node-worker-service:8083"
+		} else {
+			nodeWorkerURL = "http://localhost:8083"
+		}
+	}
+
+	// Instantiate structural dependency contexts safely, passing only the base service URL
 	taskDeps := &tasks.DependencyContext{
 		VisionClient: visionClient,
 		OpenAIClient: openaiClient,
-		NodeClient:   tasks.NewNodeClient("http://localhost:8083/internal/finalize-post"),
+		NodeClient:   tasks.NewNodeClient(nodeWorkerURL + "/internal"),
 	}
 
 	return &AppConfig{

@@ -6,18 +6,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 )
 
 type NodeClient struct {
-	Endpoint   string
+	BaseURL    string
 	HTTPClient *http.Client
 }
 
-// NewNodeClient builds a reusable HTTP client for post-finalization callbacks.
-func NewNodeClient(endpoint string) *NodeClient {
+/**
+ * Builds a reusable HTTP client for post-finalization callbacks.
+ */
+func NewNodeClient(baseURL string) *NodeClient {
 	return &NodeClient{
-		Endpoint: endpoint,
+		BaseURL: strings.TrimRight(baseURL, "/"),
 		HTTPClient: &http.Client{
 			Timeout: 15 * time.Second,
 			Transport: &http.Transport{
@@ -29,14 +32,19 @@ func NewNodeClient(endpoint string) *NodeClient {
 	}
 }
 
-// DispatchFinalization sends the final moderation payload to the Node service.
-func (nc *NodeClient) DispatchFinalization(ctx context.Context, payload *NodeCallbackPayload) error {
+/**
+ * Sends the final moderation payload to a specific routing path on the Node service.
+ */
+func (nc *NodeClient) DispatchFinalization(ctx context.Context, path string, payload *NodeCallbackPayload) error {
 	callbackBytes, err := json.Marshal(payload)
 	if err != nil {
 		return fmt.Errorf("failed to marshal finalization payload: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, nc.Endpoint, bytes.NewBuffer(callbackBytes))
+	// Build the destination endpoint dynamically per call slice context
+	targetEndpoint := fmt.Sprintf("%s/%s", nc.BaseURL, strings.TrimLeft(path, "/"))
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetEndpoint, bytes.NewBuffer(callbackBytes))
 	if err != nil {
 		return fmt.Errorf("failed to construct HTTP request context: %w", err)
 	}

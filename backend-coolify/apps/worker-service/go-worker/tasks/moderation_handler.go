@@ -65,7 +65,7 @@ func (deps *DependencyContext) HandlePostModerationTask(ctx context.Context, t *
 	}
 
 	// Dispatches the compiled moderation state directly through the clean client interface
-	if err := deps.NodeClient.DispatchFinalization(ctx, &callbackBody); err != nil {
+	if err := deps.NodeClient.DispatchFinalization(ctx, "/finalize-post", &callbackBody); err != nil {
 		return fmt.Errorf("state persistence phase across execution bridge failed: %w", err)
 	}
 
