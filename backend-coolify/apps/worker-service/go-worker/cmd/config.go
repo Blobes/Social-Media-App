@@ -11,6 +11,7 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/joho/godotenv"
 	"github.com/sashabaranov/go-openai"
+	"google.golang.org/api/option"
 )
 
 type AppConfig struct {
@@ -44,11 +45,22 @@ func LoadEnvVars(ctx context.Context) (*AppConfig, error) {
 	// Cast the underlying core option model configurations
 	clientOpts := parsedOpts.(asynq.RedisClientOpt)
 
-	// Build vision annotator channels with persistent connection pools
-	visionClient, err := vision.NewImageAnnotatorClient(ctx)
-	if err != nil {
-		log.Printf("❌ Failed to initialize system-wide Google Vision SDK: %v", err)
-		return nil, err
+	// Determine credential loading method based on runtime environment context
+	var visionClient *vision.ImageAnnotatorClient
+	var errVision error
+
+	rawJSONKey := os.Getenv("GOOGLE_CREDENTIALS_JSON")
+	if rawJSONKey != "" {
+		// Initialize the client directly from memory using raw environment string data
+		visionClient, errVision = vision.NewImageAnnotatorClient(ctx, option.WithCredentialsJSON([]byte(rawJSONKey)))
+	} else {
+		// Fall back to standard file path validation loops (useful for local development workflows)
+		visionClient, errVision = vision.NewImageAnnotatorClient(ctx)
+	}
+
+	if errVision != nil {
+		log.Printf("❌ Failed to initialize system-wide Google Vision SDK: %v", errVision)
+		return nil, errVision
 	}
 
 	openAIKey := os.Getenv("OPENAI_API_KEY")
