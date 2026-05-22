@@ -90,7 +90,7 @@ export const refreshSession: RequestHandler = async (
       payload.sessionId,
     );
 
-    genAccessTokens(
+    const accessToken = genAccessTokens(
       jwtUser,
       req,
       res,
@@ -98,7 +98,9 @@ export const refreshSession: RequestHandler = async (
       authTokens.ACCESS_TOKEN_SECRET,
     );
 
-    return res.status(200).json({ status: "SUCCESS", message: "Refreshed" });
+    return res
+      .status(200)
+      .json({ status: "SUCCESS", message: "Refreshed", accessToken });
   } catch (err: any) {
     clearAuthTokens(res);
     return res

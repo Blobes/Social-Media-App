@@ -13,6 +13,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/sashabaranov/go-openai"
 	"google.golang.org/api/option"
+	"google.golang.org/api/transport"
 )
 
 type AppConfig struct {
@@ -51,21 +52,25 @@ func LoadEnvVars(ctx context.Context) (*AppConfig, error) {
 
 	rawJSONKey := os.Getenv("GOOGLE_CREDENTIALS_JSON")
 
-	// Check if the variable is populated and contains actual raw JSON text structure
+	// Create a slice to house verified, specific client option parameters safely
+	var clientOptsList []option.ClientOption
+
 	if rawJSONKey != "" && strings.HasPrefix(strings.TrimSpace(rawJSONKey), "{") {
-		// Uses the modern, secure client initialization API passing explicit verification configurations
-		visionClient, errVision = vision.NewImageAnnotatorClient(
-			ctx,
-			option.WithAuthCredentialsJSON(option.ServiceAccount, []byte(rawJSONKey)),
-		)
+		// Leverage transport connection parameters directly to generate credential-type-specific option functions cleanly
+		creds, errCreds := transport.Creds(ctx, option.WithCredentialsJSON([]byte(rawJSONKey)))
+		if errCreds != nil {
+			log.Printf("❌ Failed to parse memory credential configurations securely: %v", errCreds)
+			return nil, errCreds
+		}
+		// Bind the validated configuration to your options slice context
+		clientOptsList = append(clientOptsList, option.WithCredentials(creds))
 	} else if rawJSONKey != "" {
-		// If it's populated but not a raw JSON object, handle it explicitly as a physical local file path pointer
-		visionClient, errVision = vision.NewImageAnnotatorClient(ctx, option.WithCredentialsFile(rawJSONKey))
-	} else {
-		// Ultimate fallback pattern relying on system wide GOOGLE_APPLICATION_CREDENTIALS mappings
-		visionClient, errVision = vision.NewImageAnnotatorClient(ctx)
+		// Explicit path pointer execution setup for local verification routines
+		clientOptsList = append(clientOptsList, option.WithCredentialsFile(rawJSONKey))
 	}
 
+	// Initialize the structural image client using the safe option definitions populated above
+	visionClient, errVision = vision.NewImageAnnotatorClient(ctx, clientOptsList...)
 	if errVision != nil {
 		log.Printf("❌ Failed to initialize system-wide Google Vision SDK: %v", errVision)
 		return nil, errVision
