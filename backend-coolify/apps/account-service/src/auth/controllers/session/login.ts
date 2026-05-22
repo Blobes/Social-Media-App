@@ -94,7 +94,7 @@ export const loginUser = async (
       authTokens.ACCESS_TOKEN_SECRET,
     );
 
-    await genRefreshTokens(
+    const refreshToken = await genRefreshTokens(
       jwtUser,
       req as IAuthRequest,
       res,
@@ -120,6 +120,7 @@ export const loginUser = async (
       status: "SUCCESS",
       message: "Logged in successfully.",
       accessToken,
+      refreshToken,
       payload: safeData,
       requireOtp,
       otpReason: requireOtp
