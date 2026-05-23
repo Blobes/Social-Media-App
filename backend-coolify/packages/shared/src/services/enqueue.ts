@@ -80,6 +80,8 @@ export class QueueService {
     const maxRetry = options.maxRetry ?? 3;
     const processAt = options.processAt;
 
+    console.log("[enqueueAsynqTask] Enqueueing to queue:", queue); // ← ADD THIS
+
     const client = this.getConnection(redisUrl);
     const taskId = uuidv4();
 
@@ -99,24 +101,33 @@ export class QueueService {
       deadline: 0,
     };
 
+    console.log("[enqueueAsynqTask] Task message:", taskMessage); // ← ADD THIS
+
     const messagePayloadString = JSON.stringify(taskMessage);
     const pipeline = client.pipeline();
 
-    // Register queue name within global tracker map
+    // Register queue name
     pipeline.sadd("asynq:queues", queue);
 
     if (processAt && processAt > Math.floor(Date.now() / 1000)) {
-      // Target scheduled tracking keys using sorted sets sorted by execution timestamp
-      const scheduledKey = `asynq:${queue}:scheduled`;
-      const schedulerNotificationKey = `asynq:${queue}:sched`;
-
-      pipeline.zadd(scheduledKey, processAt.toString(), messagePayloadString);
-      pipeline.zadd(schedulerNotificationKey, processAt.toString(), taskId);
+      const scheduledKey = `asynq:scheduled:${queue}`;
+      pipeline.zadd(scheduledKey, processAt.toString(), taskId);
     } else {
-      // Fallback immediately to standard execution list layer
-      const immediateListKey = `asynq:${queue}`;
-      pipeline.lpush(immediateListKey, messagePayloadString);
+      // Use Asynq's hash structure, not a list
+      const hashKey = `asynq:h:${queue}`;
+      const setKey = `asynq:t:${queue}`;
+
+      console.log(
+        "[enqueueAsynqTask] Using hashKey:",
+        hashKey,
+        "setKey:",
+        setKey,
+      ); // ← ADD THIS
+
+      pipeline.hset(hashKey, taskId, messagePayloadString);
+      pipeline.sadd(setKey, taskId);
     }
+
     await pipeline.exec();
   }
 }

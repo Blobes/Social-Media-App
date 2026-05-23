@@ -22,6 +22,7 @@
     "bullmq": "catalog:",
     "ua-parser-js": "catalog:",
     "@socket.io/redis-emitter": "catalog:",
+    "asynq": "catalog:",
     "@repo/database": "workspace:*"
   },
   "peerDependencies": {

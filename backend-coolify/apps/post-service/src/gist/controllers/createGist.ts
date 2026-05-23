@@ -89,9 +89,12 @@ export const createGist = async (req: CreateRequest, res: Response) => {
       payload: { gistId: newGist._id },
       message: "Gist is being processed.",
     });
-  } catch (error) {
+  } catch (error: any) {
     res
       .status(500)
-      .json({ status: "ERROR", message: "Failed to initiate gist" });
+      .json({
+        status: "ERROR",
+        message: error.message || "Failed to initiate gist",
+      });
   }
 };
