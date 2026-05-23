@@ -14,6 +14,7 @@ import (
 type GeminiModerator struct {
 	client    *genai.Client
 	cacheName string
+	modelName string
 }
 
 /**
@@ -24,6 +25,8 @@ func NewGeminiModerator(ctx context.Context, apiKey string) (*GeminiModerator, e
 	if err != nil {
 		return nil, fmt.Errorf("failed initializing gemini client: %w", err)
 	}
+
+	activeModel := "gemini-2.5-flash"
 
 	criticalJSON, _ := json.Marshal(GlobalContentPolicy.Text.Rules[SeverityCritical])
 	moderateJSON, _ := json.Marshal(GlobalContentPolicy.Text.Rules[SeverityModerate])
@@ -47,7 +50,7 @@ func NewGeminiModerator(ctx context.Context, apiKey string) (*GeminiModerator, e
 		TTL: time.Hour * 3,
 	}
 	cachedContent, err := client.CreateCachedContent(ctx, &genai.CachedContent{
-		Model:      "gemini-2.5-flash-lite",
+		Model:      activeModel,
 		Expiration: cacheExpiryConfig,
 		Contents: []*genai.Content{
 			{
@@ -66,6 +69,7 @@ func NewGeminiModerator(ctx context.Context, apiKey string) (*GeminiModerator, e
 	return &GeminiModerator{
 		client:    client,
 		cacheName: cachedContent.Name,
+		modelName: activeModel,
 	}, nil
 }
 
@@ -82,7 +86,7 @@ func (gm *GeminiModerator) Close() {
  * Evaluates full post content packages using a single, cost-optimized multimodal pass.
  */
 func (gm *GeminiModerator) EvaluatePost(ctx context.Context, payload *PostModerationPayload, mediaTarget []MediaInput, mode string) (ValidationResult, error) {
-	model := gm.client.GenerativeModel("gemini-2.5-flash-lite")
+	model := gm.client.GenerativeModel(gm.modelName)
 
 	maxTokens := int32(150)
 	temp := float32(0.0)

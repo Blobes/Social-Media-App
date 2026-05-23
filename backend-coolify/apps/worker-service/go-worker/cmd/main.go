@@ -22,7 +22,7 @@ func main() {
 	srv := asynq.NewServer(
 		config.AsynqOpts,
 		asynq.Config{
-			Concurrency: 10,
+			Concurrency: 2,
 			Queues: map[string]int{
 				"critical":   6,
 				"moderation": 3,
