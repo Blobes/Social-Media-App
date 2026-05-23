@@ -107,14 +107,14 @@ export class QueueService {
 
     if (processAt && processAt > Math.floor(Date.now() / 1000)) {
       // Target scheduled tracking keys using sorted sets sorted by execution timestamp
-      const scheduledKey = `asynq:{queue:${queue}}:scheduled`;
-      const schedulerNotificationKey = `asynq:{queue:${queue}}:sched`;
+      const scheduledKey = `asynq:${queue}:scheduled`;
+      const schedulerNotificationKey = `asynq:${queue}:sched`;
 
       pipeline.zadd(scheduledKey, processAt.toString(), messagePayloadString);
       pipeline.zadd(schedulerNotificationKey, processAt.toString(), taskId);
     } else {
       // Fallback immediately to standard execution list layer
-      const immediateListKey = `asynq:{queue:${queue}}`;
+      const immediateListKey = `asynq:${queue}`;
       pipeline.lpush(immediateListKey, messagePayloadString);
     }
     await pipeline.exec();

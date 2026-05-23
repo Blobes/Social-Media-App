@@ -24,8 +24,8 @@ func main() {
 		asynq.Config{
 			Concurrency: 2,
 			Queues: map[string]int{
-				"critical":   6,
-				"moderation": 3,
+				"critical":   3,
+				"moderation": 2,
 				"low":        1,
 			},
 		},

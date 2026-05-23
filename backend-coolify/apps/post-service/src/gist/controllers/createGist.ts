@@ -6,6 +6,7 @@ import {
   getLocationFromIp,
   enqueueModerationTask,
   IPostModData,
+  trimVideoAsset,
 } from "@repo/shared";
 import { GistModel, IMedia } from "@repo/database";
 import { FUNSTAKES_REDIS_URL } from "@/envVars";
@@ -66,6 +67,7 @@ export const createGist = async (req: CreateRequest, res: Response) => {
     });
 
     // 3. Queue the "Heavy" work for the Worker using the Go protocol bridge
+    // trimVideoAsset
     const moderationData: IPostModData = {
       postId: newGist._id.toString(),
       postType: "GIST",
