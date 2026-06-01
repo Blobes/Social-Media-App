@@ -10,4 +10,5 @@ export const baseConfig = {
   noExternal: ["@repo/shared", "@repo/database"],
   external: [],
   outDir: "dist",
+  publicDir: "proto",
 };

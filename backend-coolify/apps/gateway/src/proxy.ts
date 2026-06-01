@@ -68,7 +68,7 @@ router.use(createStaticProxy(["/auth", "/user"], ACCOUNT_URL));
 
 // POST SERVICE
 router.use(createStaticProxy(["/post"], POST_URL, true));
-router.use(createStaticProxy(["/feed", "/gists"], POST_URL));
+router.use(createStaticProxy(["/feed", "/gist"], POST_URL));
 
 // ADMIN SERVICE
 router.use(createStaticProxy(["/admin"], ADMIN_URL, true));
