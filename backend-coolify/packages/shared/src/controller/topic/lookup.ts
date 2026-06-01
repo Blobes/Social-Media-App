@@ -1,16 +1,23 @@
-// When called without a keyword, by default it returns a few list of most recent starting from topics with highest post count. When it finally receives a keyword it then returns a list of topics matching the keyword. Please note that it will receive 2 arguments from the request body: 1 the keyword argument and 2 a list of the already selected topics from the frontend. The second argument is need to help the lookup logic filter only topics that the user has not selected yet.
-
 import { TopicModel } from "@repo/database";
 import { Response } from "express";
-import { IAuthRequest } from "../../types/types";
+import crypto from "crypto";
+import { CACHE_KEYS, getOrSetCache } from "../../utils/redis/cache";
+import { IAuthRequest } from "../../types";
 
 interface LookupRequest extends IAuthRequest {
   body: {
     keyword?: string;
-    alreadySelected?: string[]; // Array of IDs already picked by the user
+    alreadySelected?: string[]; // Array of topic titles or stringified identifiers picked by the user
+  };
+  query: {
+    page?: string;
+    limit?: string;
   };
 }
 
+/**
+ * Executes paginated remote database or Upstash Redis vector lookup scans for topic categories.
+ */
 export const lookupTopics = async (
   req: LookupRequest,
   res: Response,
@@ -18,36 +25,81 @@ export const lookupTopics = async (
   const { keyword, alreadySelected = [] } = req.body;
 
   try {
-    // 1. Base Filter: Exclude topics the user has already selected
-    // I am using the $nin (Not In) operator to filter out existing IDs
-    const filter: any = {
-      _id: { $nin: alreadySelected },
-    };
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const skip = (page - 1) * limit;
 
-    let topics;
+    const cleanKeyword = keyword ? keyword.trim() : "";
 
-    if (keyword && keyword.trim() !== "") {
-      // 2. Search Mode: Filter by keyword (case-insensitive)
-      filter.title = { $regex: keyword.trim(), $options: "i" };
+    // Generate a deterministic hash string from sorted exclusion elements to guarantee cache key safety
+    const exclusionHash = crypto
+      .createHash("md5")
+      .update([...alreadySelected].sort().join(","))
+      .digest("hex");
 
-      topics = await TopicModel.find(filter).limit(20).sort({ postCount: -1 }); // Prioritize popular matches
-    } else {
-      // 3. Default Mode: Return most recent popular topics
-      // We sort by createdAt for "recent" and postCount for "highest engagement"
-      topics = await TopicModel.find(filter)
-        .sort({ postCount: -1, createdAt: -1 })
-        .limit(10);
-    }
+    const cacheKey = CACHE_KEYS.TOPICS_LOOKUP(
+      cleanKeyword,
+      exclusionHash,
+      page,
+      limit,
+    );
+
+    // Load payload vectors from Upstash memory or fall back to database index computation runs
+    const { topics, totalCount } = await getOrSetCache(
+      cacheKey,
+      async () => {
+        const filter: any = {
+          title: { $nin: alreadySelected },
+        };
+
+        if (cleanKeyword !== "") {
+          filter.title = {
+            ...filter.title,
+            $regex: cleanKeyword,
+            $options: "i",
+          };
+        }
+
+        const total = await TopicModel.countDocuments(filter);
+
+        let databaseQuery = TopicModel.find(filter);
+
+        if (cleanKeyword !== "") {
+          // Prioritize high post tracking activity matches for specific matching inputs
+          databaseQuery = databaseQuery.sort({ postCount: -1 });
+        } else {
+          // Default fallbacks prioritize structural creation points as secondary fallback constraints
+          databaseQuery = databaseQuery.sort({ postCount: -1, createdAt: -1 });
+        }
+
+        const data = await databaseQuery.skip(skip).limit(limit);
+
+        return { topics: data, totalCount: total };
+      },
+      300, // 5-minute time-to-live parameter duration boundary
+    );
+
+    const totalPages = Math.ceil(totalCount / limit);
+    const hasNextPage = page < totalPages;
 
     return res.status(200).json({
       status: "SUCCESS",
-      data: topics,
+      message: "Fetched topics successfully",
+      payload: topics ?? [],
+      metaData: {
+        totalDocs: totalCount,
+        totalPages,
+        currentPage: page,
+        limit,
+        hasNextPage,
+      },
     });
   } catch (error: any) {
+    console.error("Taxonomy Lookup Failure Instance:", error);
     return res.status(500).json({
       status: "ERROR",
-      message: "Error fetching topics",
-      error: error.message,
+      message: error.message || "Error processing taxonomy lookup directory",
+      payload: null,
     });
   }
 };

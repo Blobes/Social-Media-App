@@ -9,11 +9,10 @@ import (
 	"github.com/hibiken/asynq"
 )
 
-/**
- * Worker node process to ingest payloads and run the optimized Gemini pipeline.
+/* Worker node process to ingest payloads and run the optimized OpenRouter pipeline.
  */
 func (deps *DependencyContext) HandlePostModeration(ctx context.Context, t *asynq.Task) error {
-	var payload PostModerationPayload
+	var payload PostModData
 	if err := json.Unmarshal(t.Payload(), &payload); err != nil {
 		return fmt.Errorf("contract ingestion failure: %w", err)
 	}
@@ -23,45 +22,44 @@ func (deps *DependencyContext) HandlePostModeration(ctx context.Context, t *asyn
 		return nil
 	}
 
-	log.Printf("📥 Processing validation task for post: %s (Has Caption: %t, Media Count: %d)",
-		payload.PostID, payload.Caption != "", len(payload.Media))
+	log.Printf("📥 Processing validation task for post: %s (Mode: %s, Media Count: %d)",
+		payload.PostID, payload.ModerationTaskMode, len(payload.Media))
 
 	var report ModerationReport
 	var err error
 
-	// Run the safety pipeline logic (internally checks for payload.SkipModeration)
-	report, err = deps.executeGeminiSafetyPipeline(ctx, &payload)
+	report, err = deps.ExecuteModerationPipeline(ctx, &payload)
 	if err != nil {
-		log.Printf("Gemini moderation pipeline encountered operational faults: %v", err)
+		log.Printf("OpenRouter moderation pipeline encountered operational faults: %v", err)
 
-		// Fallback configuration to prevent task hanging or un-notified states on structural failures
 		report = ModerationReport{
-			Status:       "UNDER_REVIEW",
-			Topics:       payload.Topics,
-			NeedsReview:  true,
-			RuleViolated: "AI_ERROR",
-			Reason:       err.Error(),
-			Severity:     SeverityModerate,
+			Status:              StatusShadowbanned,
+			ExtractedTopics:     payload.Topics,
+			NeedsReview:         true,
+			RuleViolated:        "AI_ERROR",
+			Reason:              err.Error(),
+			Severity:            SeverityUnknown,
+			HasSensitiveGraphic: false,
 		}
 	}
 
-	// Format callback layout wrapper matching Node server ingestion expectations
-	callbackBody := NodeCallbackPayload{
-		PostID:    payload.PostID,
-		PostType:  payload.PostType,
-		UserID:    payload.UserID,
-		Caption:   payload.Caption,
-		Media:     payload.Media,
+	callbackBody := PostModCallbackPayload{
+		BasePostMetadata: BasePostMetadata{
+			PostID:   payload.PostID,
+			PostType: payload.PostType,
+			UserID:   payload.UserID,
+			Caption:  payload.Caption,
+			Media:    payload.Media,
+		},
 		Event:     payload.Event,
 		ModResult: report,
 	}
 
-	// Dispatch results across the bridge to finalize state mutation on the main database
 	log.Printf("📤 Dispatching finalization status (%s) over HTTP bridge to Node for post: %s", report.Status, payload.PostID)
 	if err := deps.NodeClient.DispatchFinalization(ctx, "/finalize-post", &callbackBody); err != nil {
 		return fmt.Errorf("state persistence phase across execution bridge failed: %w", err)
 	}
 
-	log.Printf("✅ Successfully completed Gemini layout moderation workflow for post: %s", payload.PostID)
+	log.Printf("✅ Successfully completed OpenRouter layout moderation workflow for post: %s", payload.PostID)
 	return nil
 }

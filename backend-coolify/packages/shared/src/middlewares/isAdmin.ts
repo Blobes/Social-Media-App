@@ -1,5 +1,5 @@
 import { Response, NextFunction } from "express";
-import { IAuthRequest } from "../types/types";
+import { IAuthRequest } from "../types";
 
 export const isAdmin = (
   req: IAuthRequest,

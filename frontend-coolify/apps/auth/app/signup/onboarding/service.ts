@@ -1,4 +1,4 @@
-import { ISinglePayload, IUser, StepName, SERVER_API } from "@repo/core";
+import { ISinglePayload, IUser, AuthStepName, SERVER_API } from "@repo/core";
 import { apiClient } from "@repo/helpers";
 
 /**
@@ -16,7 +16,10 @@ export const OnboardingService = () => {
     });
   };
 
-  const updateProgress = async (step: StepName, isDone: boolean = false) => {
+  const updateProgress = async (
+    step: AuthStepName,
+    isDone: boolean = false,
+  ) => {
     return await apiClient(SERVER_API.updateOnboarding, {
       method: "POST",
       body: JSON.stringify({ onboardingStep: step, isOnboarded: isDone }),

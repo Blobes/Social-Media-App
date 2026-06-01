@@ -27,9 +27,7 @@ export const ComfirmLogout = () => {
         <AppButton variant="outlined" onClick={closeModal}>
           Not really
         </AppButton>
-        <AppButton onClick={async () => await handleLogout()}>
-          Sure I do
-        </AppButton>
+        <AppButton onClick={async () => handleLogout()}>Sure I do</AppButton>
       </Stack>
     </Stack>
   );

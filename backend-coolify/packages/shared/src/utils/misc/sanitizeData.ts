@@ -1,5 +1,5 @@
 import { IUserDocument } from "@repo/database";
-import { IJwtUser } from "../../types/types";
+import { IJwtUser } from "../../types";
 
 export const userSensitiveFields = (): string[] => {
   return [

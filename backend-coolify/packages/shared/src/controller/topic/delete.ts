@@ -2,7 +2,7 @@
 
 import { Response } from "express";
 import { pruneDeadTopics } from "../../utils/misc/topic";
-import { IAuthRequest } from "../../types/types";
+import { IAuthRequest } from "../../types";
 
 interface DeleteRequest extends IAuthRequest {
   body: {

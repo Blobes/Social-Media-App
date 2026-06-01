@@ -9,9 +9,16 @@ import {
   ApiError,
 } from "@repo/core";
 
-export const SharedLoginService = () => {
+interface RefreshRes {
+  isRefreshed?: boolean;
+  accessToken?: string | null;
+}
+
+export const AuthService = () => {
   // Use ISinglePayload with IUser as the generic type
-  const verifyAndFetchUser = async (): Promise<ISinglePayload<IUser>> => {
+  const verifyAndFetchUser = async (): Promise<
+    ISinglePayload<IUser> & RefreshRes
+  > => {
     try {
       // If there is NO token, they are definitely unauthenticated.
       // We return early to avoid unnecessary API calls.
@@ -54,14 +61,15 @@ export const SharedLoginService = () => {
 
       if (isAuthIssue) {
         const refreshed = await refreshAccessToken();
-        if (refreshed) {
+        if (refreshed.isRefreshed) {
           try {
             // Retry the call
-            const retryRes = await apiClient<ISinglePayload<IUser>>(
-              SERVER_API.verifyUserSession,
-            );
+            const retryRes = await apiClient<
+              ISinglePayload<IUser> & RefreshRes
+            >(SERVER_API.verifyUserSession);
             return {
               payload: retryRes.payload,
+              accessToken: refreshed.accessToken,
               status: "SUCCESS",
               message: "Session restored via refresh",
             };
@@ -94,16 +102,19 @@ export const SharedLoginService = () => {
     }
   };
 
-  const refreshAccessToken = async (): Promise<boolean> => {
+  const refreshAccessToken = async (): Promise<RefreshRes> => {
     try {
       // Typing the refresh call as well
-      const res = await apiClient<ISinglePayload<any>>(
+      const res = await apiClient<ISinglePayload<RefreshRes>>(
         SERVER_API.refreshToken,
         {
           method: "POST",
         },
       );
-      return res.status === "SUCCESS";
+      return {
+        isRefreshed: res.status === "SUCCESS",
+        accessToken: res.payload?.accessToken,
+      };
     } catch (err: any) {
       const apiErr = err as ApiError;
       const isExpired =
@@ -111,10 +122,10 @@ export const SharedLoginService = () => {
         apiErr.httpStatus === 400 ||
         apiErr.status === "UNAUTHORIZED";
 
-      if (isExpired) return false;
+      if (isExpired) return { isRefreshed: false };
 
       console.error("Auth Refresh Failed unexpectedly:", apiErr.message);
-      return false;
+      return { isRefreshed: false };
     }
   };
 

@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
-import { IEmailDispatchTokens } from "../../types/types";
+import { IEmailDispatchTokens } from "../../types";
 
 interface EmailOptions {
   to: string;

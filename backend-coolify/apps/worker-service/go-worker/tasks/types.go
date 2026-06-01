@@ -1,14 +1,102 @@
 package tasks
 
-type PostModerationPayload struct {
-	PostID         string       `json:"postId"`
-	PostType       string       `json:"postType"`
-	UserID         string       `json:"userId"`
-	Caption        string       `json:"caption,omitempty"`
-	Media          []MediaInput `json:"media,omitempty"`
-	Topics         []string     `json:"topics,omitempty"`
-	SkipModeration bool         `json:"skipModeration,omitempty"`
-	Event          string       `json:"event"`
+type Severity string
+type PostStatus string
+type ModerationTaskMode string
+
+const (
+	SeverityCritical Severity = "CRITICAL"
+	SeverityModerate Severity = "MODERATE"
+	SeverityLow      Severity = "LOW"
+	SeverityNone     Severity = "NONE"
+	SeverityUnknown  Severity = "UNKNOWN"
+)
+
+const (
+	ModerateOnly               ModerationTaskMode = "MODERATE_ONLY"
+	ModerateAndExtractKeywords ModerationTaskMode = "MODERATE_AND_EXTRACT_KEYWORDS"
+	ExtractedKeywordsOnly      ModerationTaskMode = "EXTRACT_KEYWORDS_ONLY"
+)
+
+type TextPolicy struct {
+	AIConfidenceLimit float64
+	Rules             map[Severity][]string
+}
+
+type MediaPolicy struct {
+	Rules map[Severity][]string
+}
+
+type ContentPolicy struct {
+	Version string
+	Text    TextPolicy
+	Media   MediaPolicy
+}
+
+type DependencyContext struct {
+	GeminiAPIKey     string
+	OpenRouterAPIKey string
+	PrimaryModels    []string
+	FallbackModels   []string
+	NodeClient       *NodeClient
+	StorageClient    *StorageClient
+}
+
+type ModerationReport struct {
+	Status              PostStatus `json:"status"`
+	Severity            Severity   `json:"severity"`
+	RuleViolated        string     `json:"ruleViolated"`
+	ExtractedTopics     []string   `json:"extractedTopics"`
+	Reason              string     `json:"reason"`
+	NeedsReview         bool       `json:"needsReview"`
+	HasSensitiveGraphic bool       `json:"hasSensitiveGraphic"`
+}
+
+type ValidationResult struct {
+	IsFlagged           bool
+	IsUnsure            bool
+	RuleViolated        string
+	Severity            Severity
+	ViolationSource     string
+	HasSensitiveGraphic bool
+	Reason              string
+	ExtractedTopics     []string
+	WasSampled          bool
+}
+
+type AIResponseFormat struct {
+	IsFlagged         bool     `json:"isFlagged"`
+	RuleViolated      string   `json:"ruleViolated"`
+	Severity          string   `json:"severity"`
+	ViolationSource   string   `json:"violationSource"`
+	Reason            string   `json:"reason"`
+	Confidence        float64  `json:"confidence"`
+	ExtractedKeywords []string `json:"extractedKeywords"`
+}
+
+const (
+	StatusPublished    PostStatus = "PUBLISHED"
+	StatusDeleted      PostStatus = "DELETED"
+	StatusShadowbanned PostStatus = "SHADOWBANNED"
+	StatusArchived     PostStatus = "ARCHIVED"
+	StatusUnderReview  PostStatus = "UNDER_REVIEW"
+	StatusBanned       PostStatus = "BANNED"
+	StatusDraft        PostStatus = "DRAFT"
+)
+
+type BasePostMetadata struct {
+	PostID   string       `json:"postId"`
+	PostType string       `json:"postType"`
+	UserID   string       `json:"userId"`
+	Caption  string       `json:"caption"`
+	Media    []MediaInput `json:"media,omitempty"`
+}
+
+type PostModData struct {
+	BasePostMetadata
+	Topics             []string           `json:"topics,omitempty"`
+	ModerationTaskMode ModerationTaskMode `json:"moderationTaskMode"`
+	Event              string             `json:"event"`
 }
 
 type MediaDimensions struct {
@@ -29,73 +117,8 @@ type MediaInput struct {
 	StorageProvider string           `json:"storageProvider"`
 }
 
-type ModerationReport struct {
-	Status       string   `json:"status"`
-	Severity     Severity `json:"severity"`
-	RuleViolated string   `json:"ruleViolated"`
-	Topics       []string `json:"topics"`
-	Reason       string   `json:"reason,omitempty"`
-	NeedsReview  bool     `json:"needsReview"`
-}
-
-type NodeCallbackPayload struct {
-	PostID    string           `json:"postId"`
-	PostType  string           `json:"postType"`
-	UserID    string           `json:"userId"`
-	Caption   string           `json:"caption"`
-	Media     []MediaInput     `json:"media"`
+type PostModCallbackPayload struct {
+	BasePostMetadata
 	ModResult ModerationReport `json:"modResult"`
 	Event     string           `json:"event"`
-}
-
-type ValidationResult struct {
-	IsFlagged       bool
-	IsUnsure        bool
-	RuleViolated    string
-	Severity        Severity
-	Reason          string
-	ExtractedTopics []string
-	WasSampled      bool // Indicates if the media payload underwent partitioning
-}
-
-type OpenAIResponseFormat struct {
-	IsFlagged         bool     `json:"isFlagged"`
-	RuleViolated      string   `json:"ruleViolated"`
-	Severity          string   `json:"severity"`
-	Reason            string   `json:"reason"`
-	Confidence        float64  `json:"confidence"`
-	ExtractedKeywords []string `json:"extractedKeywords"`
-}
-
-type GeminiResponseFormat struct {
-	IsFlagged         bool     `json:"isFlagged"`
-	RuleViolated      string   `json:"ruleViolated"`
-	Severity          string   `json:"severity"`
-	Reason            string   `json:"reason"`
-	Confidence        float64  `json:"confidence"`
-	ExtractedKeywords []string `json:"extractedKeywords"`
-}
-
-type MediaThreshold map[string]Likelihood
-
-type TextPolicy struct {
-	Rules             map[Severity][]string
-	AIConfidenceLimit float64
-}
-
-type MediaPolicy struct {
-	Thresholds map[Severity][]MediaThreshold
-}
-
-type ContentPolicy struct {
-	Version string
-	Text    TextPolicy
-	Media   MediaPolicy
-}
-
-type DependencyContext struct {
-	// VisionClient *vision.ImageAnnotatorClient
-	// OpenAIClient *openai.Client
-	GeminiAPIKey string
-	NodeClient   *NodeClient
 }

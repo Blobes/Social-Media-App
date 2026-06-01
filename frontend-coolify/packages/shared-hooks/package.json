@@ -23,6 +23,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "zustand": "catalog:",
+    "socket.io-client": "4.8.3",
     "@tanstack/react-query": "catalog:"
   },
   "devDependencies": {

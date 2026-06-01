@@ -1,7 +1,7 @@
 import { Queue, QueueOptions } from "bullmq";
 import { Redis } from "ioredis";
-import { v4 as uuidv4 } from "uuid";
-import { OtpJobPayload } from "../types/types";
+import { Client as AsynqClient, Task as AsynqTask } from "node-asynq";
+import { OtpJobPayload } from "../types";
 
 export interface AsynqTaskOptions {
   queue?: string;
@@ -11,6 +11,7 @@ export interface AsynqTaskOptions {
 
 export class QueueService {
   private static redisConnection: Redis | null = null;
+  private static asynqClientInstance: AsynqClient | null = null;
   private static bullInstances: Map<string, Queue> = new Map();
 
   /**
@@ -32,6 +33,42 @@ export class QueueService {
       console.log("🛠️ Unified Queue Service Redis Pool Connected");
     }
     return this.redisConnection;
+  }
+
+  /**
+   * Get or create a unified Asynq client instance wrapper.
+   */
+  public static getAsynqClient(redisUrl: string): AsynqClient {
+    if (!this.asynqClientInstance) {
+      if (!redisUrl) throw new Error("FUNSTAKES_REDIS_URL is missing");
+
+      try {
+        // Parse the redis:// connection string into explicit ioredis fields to satisfy the client initialization mapping rules
+        const parsedUrl = new URL(redisUrl);
+        const redisOptions: any = {
+          host: parsedUrl.hostname,
+          port: parseInt(parsedUrl.port || "6379", 10),
+          db: parseInt(parsedUrl.pathname.replace("/", "") || "0", 10),
+        };
+
+        // Inject password safely if explicitly provided inside the authorization segments
+        if (parsedUrl.password) {
+          redisOptions.password = decodeURIComponent(parsedUrl.password);
+        } else if (parsedUrl.username && !parsedUrl.password) {
+          redisOptions.password = decodeURIComponent(parsedUrl.username);
+        }
+
+        this.asynqClientInstance = new AsynqClient(redisOptions);
+        console.log("🛠️ Native Asynq Client Engine Instance Connected");
+      } catch (err: any) {
+        console.error(
+          "❌ Failed to initialize standard Asynq parser layout:",
+          err.message,
+        );
+        throw err;
+      }
+    }
+    return this.asynqClientInstance;
   }
 
   /**
@@ -80,57 +117,39 @@ export class QueueService {
     const maxRetry = options.maxRetry ?? 3;
     const processAt = options.processAt;
 
-    console.log("[enqueueAsynqTask] Enqueueing to queue:", queue); // ← ADD THIS
+    console.log(
+      "[enqueueAsynqTask] Dispatching payload task using node-asynq to queue:",
+      queue,
+    );
 
-    const client = this.getConnection(redisUrl);
-    const taskId = uuidv4();
+    try {
+      const client = this.getAsynqClient(redisUrl);
 
-    const asynqPayload = {
-      Type: typename,
-      Payload: Buffer.from(JSON.stringify(payload)).toString("base64"),
-    };
+      // Define the payload contract directly within the native task factory structure
+      const task = new AsynqTask(typename, payload);
 
-    const taskMessage = {
-      id: taskId,
-      type: asynqPayload.Type,
-      payload: asynqPayload.Payload,
-      queue: queue,
-      retry: maxRetry,
-      completed_at: 0,
-      timeout: 1800000000000,
-      deadline: 0,
-    };
+      const taskOptions: any = {
+        queue: queue,
+        retry: maxRetry,
+      };
 
-    console.log("[enqueueAsynqTask] Task message:", taskMessage); // ← ADD THIS
+      if (processAt && processAt > Math.floor(Date.now() / 1000)) {
+        // Enqueue using strict millisecond timestamp formatting offsets matching library expectations
+        taskOptions.processAt = processAt * 1000;
+      }
 
-    const messagePayloadString = JSON.stringify(taskMessage);
-    const pipeline = client.pipeline();
-
-    // Register queue name
-    pipeline.sadd("asynq:queues", queue);
-
-    if (processAt && processAt > Math.floor(Date.now() / 1000)) {
-      const scheduledKey = `asynq:scheduled:${queue}`;
-      pipeline.zadd(scheduledKey, processAt.toString(), taskId);
-    } else {
-      // Use Asynq's hash structure, not a list
-      const hashKey = `asynq:h:${queue}`;
-      const setKey = `asynq:t:${queue}`;
-
-      console.log(
-        "[enqueueAsynqTask] Using hashKey:",
-        hashKey,
-        "setKey:",
-        setKey,
-      ); // ← ADD THIS
-
-      pipeline.hset(hashKey, taskId, messagePayloadString);
-      pipeline.sadd(setKey, taskId);
+      await client.enqueue(task, taskOptions);
+      console.log("✅ Asynq task registered into broker states seamlessly");
+    } catch (err: any) {
+      console.error(
+        "❌ Failed enqueueing task via node-asynq library configuration:",
+        err.message,
+      );
+      throw err;
     }
-
-    await pipeline.exec();
   }
 }
+
 /**
  * Pushes heavy media assets directly into the Go Asynq protocol matrix.
  */

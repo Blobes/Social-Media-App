@@ -3,14 +3,15 @@
 import React, { Fragment } from "react";
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { GenericStyle, ICountryItem, IMenuItem, IPage } from "@repo/core";
-import { matchPaths } from "@repo/helpers";
+import { GenericStyle, IMenuItem, IPage, ITopic, ListType } from "@repo/core";
+import { matchPaths, summarizeNum } from "@repo/helpers";
 import { usePathname } from "next/navigation";
 import { AnchorLink } from "./Buttons";
 
 // Props for the reusable nav renderer
 export interface RenderListProps<T extends IMenuItem> {
   list: T[];
+  listType?: ListType;
   onItemClick?: (item?: IMenuItem & T) => void;
   style?: GenericStyle;
   showActiveItem?: boolean;
@@ -20,6 +21,7 @@ export interface RenderListProps<T extends IMenuItem> {
 
 export const RenderItemList = <T extends IMenuItem>({
   list,
+  listType = ListType.DEFAULT,
   onItemClick,
   style = {},
   showActiveItem = true,
@@ -29,7 +31,7 @@ export const RenderItemList = <T extends IMenuItem>({
   const theme = useTheme();
   const pathname = usePathname();
   const hook = usePage ? usePage() : { navigateTo: () => {} };
-  const { navigateTo } = hook; // Call hook at top level to avoid conditional hook calls
+  const { navigateTo } = hook;
 
   const { fontSize, fontWeight, color, ...restStyle } = style;
 
@@ -54,6 +56,28 @@ export const RenderItemList = <T extends IMenuItem>({
       "&:hover": { textDecoration: "none", ...restStyle["&:hover"] },
     },
     ...restStyle,
+  };
+
+  const renderItem = (item: T) => {
+    switch (listType) {
+      case "TOPICS":
+        return (
+          <TopicItem
+            title={item.title}
+            postCount={(item as T & ITopic).postCount}
+            element={item.element}
+            style={itemStyle.title}
+          />
+        );
+      default:
+        return (
+          <DefaultItem
+            title={item.title}
+            element={item.element}
+            style={itemStyle.title}
+          />
+        );
+    }
   };
 
   return (
@@ -101,15 +125,39 @@ export const RenderItemList = <T extends IMenuItem>({
                   : "transparent",
               ...itemStyle,
             }}>
-            {/* Render Flag/Icon element if it exists */}
-            {item.element && item.element}
-
-            {item.title && (
-              <Typography sx={{ ...itemStyle.title }}>{item.title}</Typography>
-            )}
+            {renderItem(item)}
           </Wrapper>
         );
       })}
+    </>
+  );
+};
+
+interface Default extends IMenuItem {
+  style?: GenericStyle;
+}
+const DefaultItem = ({ title, element, style }: Default) => {
+  return (
+    <>
+      {element && element}
+      {title && <Typography sx={{ ...style }}>{title}</Typography>}
+    </>
+  );
+};
+
+const TopicItem = ({ title, element, style, postCount }: Default & ITopic) => {
+  return (
+    <>
+      <DefaultItem
+        title={title}
+        element={element}
+        style={{ width: "100%", ...style }}
+      />
+      {postCount && (
+        <Typography variant="caption" sx={{ fontWeight: 500 }}>
+          {summarizeNum(postCount)}
+        </Typography>
+      )}
     </>
   );
 };

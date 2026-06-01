@@ -1,27 +1,29 @@
 // Data types
-export * from "./src/model-types/user";
-export * from "./src/model-types/posts";
-export * from "./src/model-types/media";
-export * from "./src/model-types/device";
+export * from "./src/types/user";
+export * from "./src/types/posts";
+export * from "./src/types/media";
+export * from "./src/types/device";
+export * from "./src/types/moderation";
+export * from "./src/types/topic";
 
 // User
-export * from "./src/moderation/flaggedPost";
-export * from "./src/moderation/postReport";
+export * from "./src/models/moderation/flaggedPost";
+export * from "./src/models/moderation/postReport";
 
 // Post
-export * from "./src/post/bookmark";
-export * from "./src/post/caption";
-export * from "./src/post/gist";
-export * from "./src/post/stake";
-export * from "./src/post/view";
+export * from "./src/models/post/bookmark";
+export * from "./src/models/post/caption";
+export * from "./src/models/post/gist";
+export * from "./src/models/post/stake";
+export * from "./src/models/post/view";
 // User
-export * from "./src/user/socials";
-export * from "./src/user/idVerification";
-export * from "./src/user/account";
-export * from "./src/device";
+export * from "./src/models/user/socials";
+export * from "./src/models/user/idVerification";
+export * from "./src/models/user/account";
+export * from "./src/models/device";
 
 // Media
-export * from "./src/media";
+export * from "./src/models/media";
 
 // Topic
-export * from "./src/topic";
+export * from "./src/models/topic";

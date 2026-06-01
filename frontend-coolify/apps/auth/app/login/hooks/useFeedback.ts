@@ -20,6 +20,7 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
+  const setAccessToken = useGlobalStore((state) => state.setAccessToken);
 
   /**
    * Processes successful login and routes based on account state.
@@ -49,6 +50,7 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
 
       setAuthUser(user);
       setAuthStatus("AUTHENTICATED");
+      setAccessToken(res.accessToken);
 
       // Handling deactivated accounts immediately
       if (user.isDeactivated) {

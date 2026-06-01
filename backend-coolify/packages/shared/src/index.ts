@@ -4,23 +4,20 @@ export * from "./middlewares/isAdmin";
 export * from "./middlewares/authToken";
 
 // Types
-export * from "./types/types";
+export * from "./types";
 
 // Services
 export * from "./services/auth/dispatchEmailCode";
 export * from "./services/auth/dispatchWhatsappCode";
 export * from "./utils/misc/topic";
 export * from "./services/user/publicStatus";
-export * from "./services/moderation/policy";
-// export * from "./services/moderation/validateMedia";
-// export * from "./services/moderation/validateText";
-// export * from "./services/moderation/validatePost";
 export * from "./services/s3";
 export * from "./services/upstash";
 export * from "./services/ip";
 export * from "./services/socket";
 export * from "./services/enqueue";
 export * from "./services/device";
+export * from "./services/post/gistFinalizers";
 
 // Routes
 export * from "./routes/topic";
@@ -36,7 +33,6 @@ export * from "./utils/pipelines/user/userList";
 export * from "./utils/media/createBatch";
 export * from "./utils/media/hardDelete";
 export * from "./utils/media/softDelete";
-export * from "./utils/media/trimVideo";
 export * from "./utils/misc/calculations";
 export * from "./utils/misc/checkNotability";
 export * from "./utils/misc/constants";

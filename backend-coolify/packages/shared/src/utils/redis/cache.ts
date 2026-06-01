@@ -1,5 +1,5 @@
 import { upstashClient } from "../../services/upstash"; // Adjusted path to your new init file
-import { PostType } from "../../types/types";
+import { PostType } from "../../types";
 
 /**
  * getOrSetCache: High-performance wrapper for Upstash REST
@@ -151,6 +151,15 @@ export const CACHE_KEYS = {
   // --- Entity Keys ---
   POST: (postType: PostType, postId: string) =>
     `post:${postType.toLowerCase()}:${postId}`,
+
+  // --- Taxonomy & Search Discovery ---
+  TOPICS_LOOKUP: (
+    keyword: string,
+    excludedHash: string,
+    page: number,
+    limit: number,
+  ) =>
+    `topics:lookup:k:${keyword || "none"}:ex:${excludedHash || "none"}:p${page}:l${limit}`,
 
   // --- Social & Identity (O(1) lookups) ---
   USER_BASE: (userId: string) => `user:${userId}`,

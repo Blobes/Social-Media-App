@@ -3,7 +3,7 @@
 import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { useMisc } from "@repo/shared-hooks";
-import { GalleryProps, MediaGallery, Media } from "@repo/shared-ui";
+import { GalleryProps, MediaGrid, Media } from "@repo/shared-ui";
 import { useCallback, useMemo } from "react";
 import { applyBGEffects } from "@repo/helpers";
 import { IGist, UIMode } from "@repo/core";
@@ -94,7 +94,7 @@ export const GistMedia = ({
       useMedia={{ useMisc }}
     />
   ) : (
-    <MediaGallery
+    <MediaGrid
       mediaList={mappedList}
       style={{ ...mediaStyle }}
       bgEffects={applyBGEffects}

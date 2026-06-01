@@ -1,5 +1,37 @@
-import { AnalyzedImage } from "@repo/core";
+import {
+  AnalyzedImage,
+  MediaUploadStatus,
+  MediaUploadProgress,
+} from "@repo/core";
 import { encode } from "blurhash";
+
+interface WorkerProgressEventData {
+  action: "PROGRESS";
+  id: string;
+  status: MediaUploadStatus;
+  progress: number;
+  error?: string;
+}
+
+interface WorkerSuccessEventData {
+  action: "SUCCESS";
+  id: string;
+  status: "SUCCESS";
+  blob: Blob;
+  originalSize: number;
+  compressedSize: number;
+}
+
+interface WorkerErrorEventData {
+  action: "ERROR";
+  id: string;
+  status: "ERROR";
+  error: string;
+}
+
+type WorkerMessageEvent = MessageEvent<
+  WorkerProgressEventData | WorkerSuccessEventData | WorkerErrorEventData
+>;
 
 /**
  * Determines orientation based on natural image dimensions.
@@ -138,5 +170,57 @@ export const generateBlurHash = (file: File | Blob): Promise<string> => {
       reject(new Error("Failed to process asset matrix blurhash"));
       URL.revokeObjectURL(img.src);
     };
+  });
+};
+
+/**
+ * Dispatches a raw video file to an background worker thread for fast local WebAssembly compression.
+ */
+export const compressVideoAsync = (file: File, id: string): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(new URL("./video-worker.js"));
+
+    worker.onmessage = (event: WorkerMessageEvent) => {
+      const { action, id: responseId, status } = event.data;
+
+      if (responseId !== id) return;
+
+      if (action === "PROGRESS") {
+        const detail: MediaUploadProgress = {
+          status,
+          progress: event.data.progress,
+        };
+        const progressEvent = new CustomEvent(`media-progress-${id}`, {
+          detail,
+        });
+        window.dispatchEvent(progressEvent);
+      } else if (action === "SUCCESS") {
+        const detail: MediaUploadProgress = {
+          status: "SUCCESS",
+          progress: 100,
+        };
+        const successEvent = new CustomEvent(`media-progress-${id}`, {
+          detail,
+        });
+        window.dispatchEvent(successEvent);
+
+        worker.terminate();
+        resolve(event.data.blob);
+      } else if (action === "ERROR") {
+        const { error } = event.data;
+        const detail: MediaUploadProgress = {
+          status: "ERROR",
+          progress: 0,
+          error,
+        };
+        const errorEvent = new CustomEvent(`media-progress-${id}`, { detail });
+        window.dispatchEvent(errorEvent);
+
+        worker.terminate();
+        reject(new Error(error || "Video processing error"));
+      }
+    };
+
+    worker.postMessage({ action: "COMPRESS_VIDEO", file, id });
   });
 };

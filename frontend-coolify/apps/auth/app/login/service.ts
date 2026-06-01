@@ -17,6 +17,7 @@ export interface LoginResponse extends ISinglePayload<IUser> {
   requireOtp?: boolean;
   otpReason: OtpReason;
   fixedMsg?: string;
+  accessToken: string | null; // Keep short-lived token in volatile memory only
 }
 
 export interface CheckResponse extends ISinglePayload<IUser> {

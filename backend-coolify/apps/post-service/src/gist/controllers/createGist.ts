@@ -1,15 +1,17 @@
 import { Response } from "express";
 import {
-  IAuthRequest,
   getClientIp,
   generateRandomIp,
   getLocationFromIp,
   enqueueModerationTask,
+  IAuthRequest,
   IPostModData,
-  trimVideoAsset,
+  finalizeGistCreation,
+  FinalizePostReq,
+  ModerationTaskMode,
 } from "@repo/shared";
-import { GistModel, IMedia } from "@repo/database";
-import { FUNSTAKES_REDIS_URL } from "@/envVars";
+import { GistModel, IMedia, IPostStatus } from "@repo/database";
+import { FUNSTAKES_REDIS_URL, s3Config } from "@/envVars";
 
 export interface CreateRequest extends IAuthRequest {
   body: {
@@ -23,7 +25,13 @@ export interface CreateRequest extends IAuthRequest {
 
 export const createGist = async (req: CreateRequest, res: Response) => {
   const userId = req.user?.id;
-  const { caption, media, topics, skipModeration } = req.body;
+  const {
+    caption,
+    media,
+    topics,
+    skipModeration = false,
+    hasSensitiveGraphic = false,
+  } = req.body;
 
   if (!userId) {
     res.status(400).json({
@@ -45,7 +53,6 @@ export const createGist = async (req: CreateRequest, res: Response) => {
     return;
   }
 
-  // 1. Immediate Geo-lookup (Fast)
   const userIp = getClientIp(req);
   const geoData = await getLocationFromIp(generateRandomIp());
   const location = geoData
@@ -57,44 +64,91 @@ export const createGist = async (req: CreateRequest, res: Response) => {
     : undefined;
 
   try {
-    // 2. Create the "Shell" Gist so the user has an ID to track
-    // We set status to UNDER_REVIEW so it doesn't show up in feeds yet
+    const hasUserTopics = topics && topics.length > 0;
+
+    // Determine the baseline status based on whether full safety screening is bypassed
+    const initialStatus: IPostStatus = skipModeration
+      ? "PUBLISHED"
+      : "UNDER_REVIEW";
+
     const newGist = await GistModel.create({
       authorId: userId,
-      status: "UNDER_REVIEW",
+      status: initialStatus,
       location,
       latestCaption: { caption: caption?.trim() || "Processing..." },
+      hasSensitiveGraphic,
     });
 
-    // 3. Queue the "Heavy" work for the Worker using the Go protocol bridge
-    // trimVideoAsset
+    // Path 1: Skip moderation entirely AND user provided their own structural topics
+    if (skipModeration && hasUserTopics) {
+      await finalizeGistCreation(
+        {
+          postId: newGist._id.toString(),
+          userId: userId.toString(),
+          postType: "GIST",
+          caption,
+          media: media || [],
+          event: "POST_CREATION",
+          modResult: {
+            status: "PUBLISHED",
+            hasSensitiveGraphic,
+            ruleViolated: "",
+            severity: "NONE",
+            reason:
+              "Moderation skipped by administrative directive bypass constraints.",
+            extractedTopics: topics,
+            needsReview: false,
+          },
+        } as FinalizePostReq,
+        { s3Config, redisKey: FUNSTAKES_REDIS_URL },
+      );
+
+      res.status(201).json({
+        status: "SUCCESS",
+        payload: { gistId: newGist._id },
+        message: "Gist created successfully via skip bypass pathing.",
+      });
+      return;
+    }
+
+    // Path 2: Enqueue worker tasks for asynchronous evaluation pipelines
+    let modTaskMode: ModerationTaskMode;
+    if (skipModeration) modTaskMode = "EXTRACT_KEYWORDS_ONLY";
+    else
+      modTaskMode = hasUserTopics
+        ? "MODERATE_ONLY"
+        : "MODERATE_AND_EXTRACT_KEYWORDS";
+
     const moderationData: IPostModData = {
       postId: newGist._id.toString(),
       postType: "GIST",
       userId: userId.toString(),
       caption,
       media,
-      topics,
+      topics: topics || [],
       event: "POST_CREATION",
-      skipModeration,
+      moderationTaskMode: modTaskMode,
     };
+
     await enqueueModerationTask(
       FUNSTAKES_REDIS_URL,
-      "moderate:post", // Maps exactly to mux.HandleFunc("moderate:post", ...) in main.go
+      "moderate:post",
       moderationData,
     );
+
+    const msg = skipModeration
+      ? "Gist data initiated. Extracting contextual taxonomy descriptors."
+      : "Gist is being processed.";
 
     res.status(202).json({
       status: "SUCCESS",
       payload: { gistId: newGist._id },
-      message: "Gist is being processed.",
+      message: msg,
     });
   } catch (error: any) {
-    res
-      .status(500)
-      .json({
-        status: "ERROR",
-        message: error.message || "Failed to initiate gist",
-      });
+    res.status(500).json({
+      status: "ERROR",
+      message: error.message || "Failed to initiate gist",
+    });
   }
 };

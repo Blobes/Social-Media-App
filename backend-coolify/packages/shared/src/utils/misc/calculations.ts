@@ -1,4 +1,4 @@
-import { OtpType } from "../../types/types";
+import { OtpType } from "../../types";
 
 /**
  * Calculates a dynamic threshold based on post popularity.

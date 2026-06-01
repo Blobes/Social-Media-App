@@ -9,6 +9,7 @@ export type TransitionType = "fade" | "grow" | "slide" | "zoom" | "collapse";
 
 export enum ListType {
   COUNTRY = "COUNTRY",
+  TOPICS = "TOPICS",
   NAVIGATION = "NAVIGATION",
   DEFAULT = "ITEM",
 }
@@ -128,4 +129,33 @@ export interface AnalyzedImage {
   height: number;
   width: number;
   isPortrait: boolean;
+}
+
+export interface IStep<T> {
+  name: T;
+  label?: string; // Human-readable label (e.g., "Personal")
+  element: React.ReactNode;
+  action?: () => void;
+  allowPrevious?: boolean;
+  revisitable?: boolean; // Controls if a completed step can be clicked
+}
+
+export interface NavigationProps {
+  onNext?: () => void;
+  onPrev?: () => void;
+  jumpTo?: () => void;
+}
+
+export interface StepperStyle {
+  container?: GenericStyle;
+  headline?: GenericStyle;
+  tagline?: GenericStyle;
+}
+
+export interface StepperProps<T> extends NavigationProps {
+  modalRef?: React.RefObject<DrawerRef>;
+  redirectTo?: string;
+  style?: StepperStyle;
+  setStep?: (step: T) => void;
+  step?: T;
 }

@@ -1,28 +1,20 @@
-import mongoose, { Model } from "mongoose";
-import { GistModel, IMedia, StakeModel } from "@repo/database";
-import { PostType } from "@repo/shared";
-import { finalizeGistCreation, finalizeGistUpdate } from "./finalizeGist";
-import { finalizeStake } from "./finalizeStake";
+import { Model } from "mongoose";
+import { GistModel, StakeModel } from "@repo/database";
+import {
+  finalizeGistCreation,
+  finalizeGistUpdate,
+  FinalizePostReq,
+  IS3Config,
+} from "@repo/shared";
 
-export interface FinalizePostReq {
-  postId: string;
-  userId: string;
-  postType: PostType;
-  caption: string;
-  media: IMedia[];
-  event: "POST_CREATION" | "POST_UPDATE";
-  modResult: {
-    status: string;
-    severity: string;
-    topics: string[];
-    reason?: string;
-  };
-  session: mongoose.ClientSession;
-}
+import { finalizeStake } from "../processors/finalizeStake";
 
 interface PostStrategy {
   model: Model<any>;
-  finalizer: (params: FinalizePostReq) => Promise<any>;
+  finalizer: (
+    params: FinalizePostReq,
+    config: { s3Config: IS3Config; redisKey: string },
+  ) => Promise<any>;
   displayName: string;
 }
 

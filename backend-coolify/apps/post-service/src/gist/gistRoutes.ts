@@ -15,7 +15,7 @@ export const gistRouter = () => {
     res.json({ message: "Welcome to Funstakes Gist API" });
   });
 
-  router.get("/", optionalAuth, getGistList);
+  router.get("/feed", optionalAuth, getGistList);
   router.post("/create", verifyAuthToken, createGist);
   router.post("/draft", verifyAuthToken, draftGist);
   router.get("/:id", optionalAuth, getGist);

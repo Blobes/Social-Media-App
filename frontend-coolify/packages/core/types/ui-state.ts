@@ -2,9 +2,10 @@
 
 import { SystemStyleObject } from "@mui/system";
 import { Theme } from "@mui/material/styles";
-import { FetchStatus, IMedia, IUser } from "./payloads/modified";
-import { Direction } from "./ui-props";
+import { FetchStatus, IMedia, ITopicPayload, IUser } from "./payloads/modified";
+import { Direction, IStep } from "./ui-props";
 import { CSSProperties } from "react";
+import { Dimensions, MediaType, StorageProvider } from "./payloads/media";
 
 // Types
 export type AuthStatus =
@@ -25,7 +26,9 @@ export type OtpReason =
   | "UNVERIFIED_ACCOUNT"
   | "NEW_ACCOUNT";
 
-export type StepName =
+export type PostStepName = "CONTENT" | "SETTINGS";
+
+export type AuthStepName =
   | "INTRO"
   | "WELCOME_BACK"
   | "IDENTITY"
@@ -36,6 +39,8 @@ export type StepName =
   | "IDENTIFIER"
   | "RESTORE_ACCOUNT"
   | "PASSWORD";
+
+export type StepName = "FEED" | AuthStepName | PostStepName;
 
 export type OtpChannel = "EMAIL" | "PHONE";
 
@@ -78,6 +83,7 @@ export interface IMessage {
   id?: string;
   headline?: string | null;
   tagline?: string | null;
+  customContent?: React.ReactNode;
   msgStatus?: FetchStatus;
   behavior?: "FIXED" | "TIMED";
   duration?: number;
@@ -100,15 +106,6 @@ export interface InputValidation {
   status: InputStatus;
   message?: string;
   type?: InputType;
-}
-
-export interface IStep<T> {
-  name: T;
-  label?: string; // Human-readable label (e.g., "Personal")
-  element: React.ReactNode;
-  action?: () => void;
-  allowPrevious?: boolean;
-  revisitable?: boolean; // Controls if a completed step can be clicked
 }
 
 export interface IPage {
@@ -139,15 +136,13 @@ export interface TransitData<P extends TransitPurpose = TransitPurpose> {
   payload: TransitPayloadMap[P];
 }
 
-export type OtpNextStep = StepName | "FEED";
-
 export type OtpTransitData<P extends TransitPurpose = TransitPurpose> =
   TransitData<P> & {
     identifier: string;
     channel: OtpChannel;
     reason: OtpReason;
     onVerificationSuccess?: () => void;
-    nextStep?: OtpNextStep;
+    nextStep?: StepName;
   };
 
 export type OnboardingTransitData<P extends TransitPurpose = TransitPurpose> =
@@ -181,3 +176,37 @@ export interface TourGuide extends Omit<IStep<TourStepName>, "element"> {
   yPosition: number;
   desc?: React.ReactNode;
 }
+
+export type MediaUploadStatus =
+  | "IDLE"
+  | "LOADING_ENGINE"
+  | "OPTIMIZING"
+  | "SUCCESS"
+  | "ERROR"
+  | "UPLOADING"
+  | "FAILED";
+
+export interface MediaUploadProgress {
+  fileName?: string;
+  status: MediaUploadStatus;
+  progress: number;
+  error?: string;
+}
+
+export interface TrackedFile extends File {
+  trackingId: string;
+}
+
+export interface MediaUploadPayload {
+  url: string;
+  fileKey: string;
+  type: MediaType;
+  thumbnailUrl: string | null;
+  mimeType: string;
+  size: number;
+  dimensions: Dimensions;
+  blurHash: string;
+  storageProvider: StorageProvider;
+}
+
+export type ITopic = IMenuItem & ITopicPayload;

@@ -22,7 +22,7 @@ interface ButtonProps {
   children?: React.ReactNode | string;
   style?: GenericStyle;
   overrideStyle?: "full" | "partial";
-  onClick?: (event: React.MouseEvent) => void;
+  onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   href?: string;
   options?: any;
   submit?: boolean;
@@ -73,7 +73,9 @@ export const AppButton = ({
   const buttonProps = {
     variant,
     sx: mergedStyle,
-    ...(onClick && { onClick: (e: React.MouseEvent) => onClick(e) }),
+    ...(onClick && {
+      onClick: (e: React.MouseEvent<HTMLElement>) => onClick(e),
+    }),
     ...options,
   };
 

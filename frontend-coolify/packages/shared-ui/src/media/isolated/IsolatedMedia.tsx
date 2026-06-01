@@ -5,7 +5,7 @@ import { Box, Stack, Typography, Fade } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { GenericStyle, IMedia, MediaSourceType } from "@repo/core";
 import { MediaRenderer } from "../MediaRenderer";
-import { DoubleTap } from "../../DoubleTap";
+import { ElementTap } from "../../ElementTap";
 import { Carousel } from "../../carousel/Carousel";
 import { IsolatedHeader } from "./Header";
 import { IsolatedFooter } from "./Footer";
@@ -107,9 +107,9 @@ export const IsolatedMedia = ({
         />
 
         {/* Media Area */}
-        <DoubleTap onSingleTap={handleSingleTap} onDoubleTap={handleDoubleTap}>
+        <ElementTap onSingleTap={handleSingleTap} onDoubleTap={handleDoubleTap}>
           {MediaContent()}
-        </DoubleTap>
+        </ElementTap>
 
         {/* Footer */}
         <IsolatedFooter

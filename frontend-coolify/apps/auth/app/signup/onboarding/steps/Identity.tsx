@@ -10,13 +10,16 @@ import {
 } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 import { useIdentity } from "../hooks/useIdentity";
-import { StepperProps } from "../../../types";
 import { ChevronLeft } from "lucide-react";
+import { AuthStepName, StepperProps } from "@repo/core";
 
 /**
  * Step 1: Identity UI utilizing the bulk-validated hook.
  */
-export const Identity: React.FC<StepperProps> = ({ onNext, onPrev }) => {
+export const Identity: React.FC<StepperProps<AuthStepName>> = ({
+  onNext,
+  onPrev,
+}) => {
   const theme = useTheme();
   const {
     formData,

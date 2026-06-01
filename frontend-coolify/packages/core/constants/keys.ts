@@ -25,6 +25,7 @@ export const CACHE_KEYS = {
     STAKES: "stakes",
     FEED: "gists",
     SEEN: "seen",
+    LOOKUP_TOPICS: "lookup_topics",
   },
   [KeyType.USER]: {
     SESSION: "auth_sessions",

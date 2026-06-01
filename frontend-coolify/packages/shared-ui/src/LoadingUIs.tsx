@@ -12,14 +12,27 @@ interface ProgressProps {
   style?: GenericStyle;
   otherProps?: any;
   info?: string;
+  value?: number;
+  variant?: "determinate" | "indeterminate";
 }
 
-export const ProgressIcon = ({ style, otherProps, info }: ProgressProps) => {
+/**
+ * Renders a standardized circular loading indicator with dynamic typography support.
+ */
+export const ProgressIcon = ({
+  style,
+  otherProps,
+  info,
+  value,
+  variant,
+}: ProgressProps) => {
   const theme = useTheme();
   return (
     <>
       <CircularProgress
         enableTrackSlot
+        variant={variant}
+        value={value}
         sx={{ color: theme.fixedColors.primary, ...style }}
         {...otherProps}
         thickness={2.5}

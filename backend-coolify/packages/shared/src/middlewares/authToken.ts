@@ -3,7 +3,7 @@ import { Response, NextFunction, RequestHandler } from "express";
 import { upstashClient } from "../services/upstash";
 import { CACHE_KEYS } from "../utils/redis/cache";
 import { clearAuthTokens } from "../utils/misc/tokens";
-import { IAuthConfig, IAuthRequest, IJwtUser } from "../types/types";
+import { IAuthConfig, IAuthRequest, IJwtUser } from "../types";
 import { validateHardwareTrust } from "../services/device";
 import { getOrSetDeviceToken } from "../utils/misc/device";
 

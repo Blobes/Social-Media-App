@@ -21,6 +21,7 @@ interface GlobalState {
   authStatus: AuthStatus;
   authUser: IUser | null;
   isAuthLoading: boolean;
+  accessToken: string | null; // Keep short-lived token in volatile memory only
 
   // User Account State
   accountStatus: AccountStatus;
@@ -46,8 +47,10 @@ interface GlobalState {
   // Actions
   setAuthStatus: (status: AuthStatus) => void;
   setAuthUser: (user: IUser | null) => void;
+  setAccessToken: (token: string | null) => void;
   setAuthLoading: (loading: boolean) => void;
   setAccountStatus: (status: AccountStatus) => void;
+  logout: () => void;
   setSnackBarMsg: (msg: IMessage, override: boolean) => void;
   removeSnackBarMsg: (id?: string, clearAll?: boolean) => void;
   setInlineMsg: (node: React.ReactNode | null) => void;
@@ -72,6 +75,7 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   authUser: null,
   isAuthLoading: false,
   accountStatus: "PENDING",
+  accessToken: null,
   snackBarMsgs: {
     messages: [],
     defaultDur: 5,
@@ -94,6 +98,9 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   setAuthUser: (authUser) => set({ authUser }),
   setAccountStatus: (accountStatus) => set({ accountStatus }),
   setAuthLoading: (isAuthLoading) => set({ isAuthLoading }),
+  setAccessToken: (accessToken) => set({ accessToken }),
+  logout: () =>
+    set({ authUser: null, accessToken: null, authStatus: "UNAUTHENTICATED" }),
 
   setSnackBarMsg: (newMsg, override = false) =>
     set((state) => ({

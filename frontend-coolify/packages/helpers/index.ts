@@ -3,7 +3,7 @@ export * from "./src/dateTime";
 export * from "./src/misc";
 export * from "./src/inputValidation";
 export * from "./src/numberSum";
-export * from "./src/serviceWorker";
+export * from "./src/worker";
 export * from "./src/signal";
 export * from "./src/storage";
 export * from "./src/sync";

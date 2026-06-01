@@ -14,9 +14,7 @@ import {
 
 /** * Handles the user logout flow, clearing state, cache, and redirecting. */
 export const useLogout = () => {
-  // Using selectors for stable references and optimized re-renders
-  const setAuthUser = useGlobalStore((state) => state.setAuthUser);
-  const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
+  const logout = useGlobalStore((state) => state.logout);
 
   const { navigateTo } = usePage();
   const { setSBMessage, removeSBMessages } = useSnackbar();
@@ -34,8 +32,7 @@ export const useLogout = () => {
       // Clear all cached queries to prevent data leaking between sessions
       queryClient.clear();
 
-      setAuthUser(null);
-      setAuthStatus("UNAUTHENTICATED");
+      logout();
       closeModal();
 
       // Handle navigation logic
@@ -53,10 +50,7 @@ export const useLogout = () => {
       });
       console.error("Logout failed:", error);
     },
-    onSettled: () => {
-      // Reset feedback state regardless of outcome
-      removeSBMessages();
-    },
+    onSettled: () => removeSBMessages(),
   });
 
   /** * Memoized logout handler to be used in UI components. */

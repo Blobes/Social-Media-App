@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback } from "react";
 import { CACHE_KEYS, IGist, IListPayload } from "@repo/core";
 import { GistService } from "../../gistService";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";

@@ -4,6 +4,7 @@ import {
   createVerifyAuthToken,
   getEnv,
   IAuthConfig,
+  IS3Config,
   loadEnv,
 } from "@repo/shared";
 
@@ -44,6 +45,30 @@ export const authConfig: IAuthConfig = {
   },
   get REFRESH_TOKEN_SECRET() {
     return getEnv("REFRESH_TOKEN_SECRET");
+  },
+};
+
+/**
+ * Cloud Storage Configuration
+ */
+export const s3Config: IS3Config = {
+  get REGION() {
+    return getEnv("CLOUDFLARE_REGION");
+  },
+  get ACCESS_KEY_ID() {
+    return getEnv("CLOUDFLARE_ACCESS_KEY");
+  },
+  get SECRET_ACCESS_KEY() {
+    return getEnv("CLOUDFLARE_SECRET_KEY");
+  },
+  get BUCKET_NAME() {
+    return getEnv("CLOUDFLARE_BUCKET_NAME");
+  },
+  get ENDPOINT_URL() {
+    return getEnv("CLOUDFLARE_ENDPOINT_URL");
+  },
+  get PUBLIC_URL() {
+    return getEnv("CLOUDFLARE_PUBLIC_MEDIA_URL");
   },
 };
 

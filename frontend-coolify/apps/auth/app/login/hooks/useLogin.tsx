@@ -6,7 +6,7 @@ import { useSnackbar, useGlobalStore } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { useLockCountdown } from "./useLockCount";
 import { setCookie, getCookie, delay } from "@repo/helpers";
-import { InputStatus, StepName } from "@repo/core";
+import { InputStatus, AuthStepName } from "@repo/core";
 import { LoginService } from "../service";
 import { clearLoginLock, formatRemainingTime } from "@repo/features";
 import { useLoginFeedback } from "./useFeedback";
@@ -16,7 +16,7 @@ const LOCKOUT_MIN = 2;
 
 export interface UseLogin {
   identifier: string;
-  setStep?: (step: StepName) => void;
+  setStep?: (step: AuthStepName) => void;
 }
 
 export const useLogin = ({ identifier, setStep }: UseLogin) => {

@@ -1,4 +1,4 @@
-import { StepName } from "../ui-state";
+import { AuthStepName } from "../ui-state";
 
 export type UserRole = "USER" | "ADMIN" | "MODERATOR";
 export type AccountStatus =
@@ -87,7 +87,7 @@ export interface IUserPayload {
 
   // --- 7. ONBOARDING & GEOGRAPHY (NEWLY ADDED) ---
   isOnboarded?: boolean;
-  onboardingStep?: StepName | null;
+  onboardingStep?: AuthStepName | null;
   location?: string | null;
   country?: string | null;
   state?: string | null;
@@ -105,7 +105,11 @@ export interface IUserPayload {
     }>;
   };
 
-  // --- 9. LIFECYCLE ---
+  // --- 9. AUTOMATED AI MODERATION BYPASS FIELDS ---
+  hasFlaggedPost?: boolean;
+  postCountWindow?: number;
+
+  // --- 10. LIFECYCLE ---
   isDeactivated?: boolean;
   deactivatedAt?: string | null; // NEWLY ADDED
   createdAt?: Date | string | null;

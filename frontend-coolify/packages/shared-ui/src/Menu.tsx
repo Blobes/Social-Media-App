@@ -14,6 +14,7 @@ import { MenuRef, GenericStyle, IMenuItem, ListType, LISTS } from "@repo/core";
 import { RenderItemList, RenderListProps } from "./RenderItems";
 import { SearchBar } from "./Search";
 import { scrollBarStyle } from "@repo/helpers";
+import { ProgressIcon } from "./LoadingUIs";
 
 interface MenuProps {
   children?: ReactNode;
@@ -84,12 +85,27 @@ interface MenuListProps<T extends IMenuItem> extends RenderListProps<T> {
   listName?: ListType;
   menuRef: React.RefObject<MenuRef | null>;
   showSearchBar?: boolean;
+  externalSearchQuery?: string;
+  onExternalSearchChange?: (val: string) => void;
+  isLoading?: boolean;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  fetchNextPage?: () => void;
+  infiniteScrollHook?: (args: {
+    hasNextPage: boolean;
+    isFetchingNextPage: boolean;
+    fetchNextPage?: () => void;
+  }) => { sentinelRef: React.RefObject<any> };
   style?: {
     container?: GenericStyle;
     item?: GenericStyle;
     searchBar?: GenericStyle;
   };
 }
+
+/**
+ * Handles searchable list container interactions using dropdown menu wrappers.
+ */
 export const DisplayList = <T extends IMenuItem>({
   list,
   listName = ListType.DEFAULT,
@@ -100,6 +116,13 @@ export const DisplayList = <T extends IMenuItem>({
   menuRef,
   activeItem,
   showSearchBar = false,
+  externalSearchQuery,
+  onExternalSearchChange,
+  isLoading = false,
+  hasNextPage = false,
+  isFetchingNextPage = false,
+  fetchNextPage,
+  infiniteScrollHook,
   stickToScreen,
   heightThreshold,
 }: MenuListProps<T> & MenuProps) => {
@@ -107,14 +130,32 @@ export const DisplayList = <T extends IMenuItem>({
   const [filteredList, setFilteredList] = useState<T[]>(list);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Invoke injected dependency hook when supplied by the calling feature context
+  const scrollMetrics = infiniteScrollHook?.({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  });
+
+  const sentinelRef = scrollMetrics?.sentinelRef;
+
   // Sync state when props change
   useEffect(() => {
     setFilteredList(list);
   }, [list]);
 
+  /**
+   * Tracks filter queries locally or bubbles modifications to the parent component.
+   */
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const query = e.target.value.toLowerCase();
+
+      if (onExternalSearchChange) {
+        onExternalSearchChange(e.target.value);
+        return;
+      }
+
       setSearchQuery(query);
       if (!query) {
         setFilteredList(list);
@@ -127,17 +168,24 @@ export const DisplayList = <T extends IMenuItem>({
       );
       setFilteredList(filtered);
     },
-    [list],
+    [list, onExternalSearchChange],
   );
 
-  // Derived States
-  const isSourceEmpty = list.length === 0;
-  const isSearchEmpty = searchQuery.length > 0 && filteredList.length === 0;
+  const currentQuery =
+    externalSearchQuery !== undefined ? externalSearchQuery : searchQuery;
 
-  // Get the correct message based on state
+  // Derived States
+  const isSourceEmpty = list.length === 0 && !isLoading;
+  const isSearchEmpty =
+    currentQuery.length > 0 && list.length === 0 && !isLoading;
+
+  /**
+   * Returns localized fallback messaging contextual parameters.
+   */
   const feedback = () => {
     if (isSourceEmpty) return LISTS().MESSAGES[listName].empty;
     if (isSearchEmpty) return LISTS().MESSAGES[listName].noMatch;
+    if (isLoading) return "Fetching list entries...";
     return null;
   };
 
@@ -161,9 +209,10 @@ export const DisplayList = <T extends IMenuItem>({
       stickToScreen={stickToScreen}
       heightThreshold={heightThreshold}
       style={style?.container}>
-      {showSearchBar && !isSourceEmpty && (
+      {showSearchBar && (!isSourceEmpty || currentQuery.length > 0) && (
         <SearchBar
           onChange={handleChange}
+          value={currentQuery}
           placeholder="Search"
           style={{
             width: "100%",
@@ -180,9 +229,6 @@ export const DisplayList = <T extends IMenuItem>({
               border: "inherit",
               borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
             },
-            // "&:focus": {
-            //   borderBottom: `1px solid ${theme.palette.gray[100]}`,
-            // },
             "& svg": { width: "16px", height: "16px" },
             ...style?.searchBar,
           }}
@@ -195,23 +241,39 @@ export const DisplayList = <T extends IMenuItem>({
             {feedback()}
             {isSearchEmpty && (
               <span style={{ display: "block", opacity: 0.7 }}>
-                "{searchQuery}"
+                "{currentQuery}"
               </span>
             )}
           </Typography>
         </Box>
       ) : (
-        <RenderItemList
-          list={filteredList}
-          onItemClick={(item) => {
-            menuRef.current?.closeMenu();
-            if (onItemClick) onItemClick(item);
-          }}
-          usePage={hook}
-          style={itemStyle}
-          showActiveItem={showActiveItem}
-          activeItem={activeItem}
-        />
+        <>
+          <RenderItemList
+            list={filteredList}
+            listType={listName}
+            onItemClick={(item) => {
+              menuRef.current?.closeMenu();
+              if (onItemClick) onItemClick(item as any);
+            }}
+            usePage={hook}
+            style={itemStyle}
+            showActiveItem={showActiveItem}
+            activeItem={activeItem}
+          />
+          {/* Layout DOM Sentinel tracking intersections inside the menu wrapper viewport */}
+          {hasNextPage && (
+            <Box
+              ref={sentinelRef}
+              sx={{
+                padding: theme.gap(4),
+                display: "flex",
+                justifyContent: "center",
+                minHeight: "40px",
+              }}>
+              {isFetchingNextPage && <ProgressIcon otherProps={{ size: 24 }} />}
+            </Box>
+          )}
+        </>
       )}
     </MenuPopup>
   );

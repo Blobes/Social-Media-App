@@ -4,6 +4,7 @@ import { otpDispatchWorker } from "./processors/otpDispatcher";
 import appLoader from "./loader";
 import { startDeviceCleanupTask } from "./automations/deviceCleanup";
 import { MONGO_URI, NODE_ENV, PORT } from "./envVars";
+import { startUserMetricsReset } from "./automations/resetUseMetrics";
 
 const startServer = async () => {
   const app = express();
@@ -28,6 +29,7 @@ startServer();
 
 otpDispatchWorker();
 startDeviceCleanupTask();
+startUserMetricsReset();
 
 // Background workers
 // initUserCleanup()

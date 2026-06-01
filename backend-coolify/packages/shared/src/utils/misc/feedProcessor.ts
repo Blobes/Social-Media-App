@@ -1,4 +1,4 @@
-import { IBasePost, IUserPreferences } from "../../types/types";
+import { IBasePost, IUserPreferences } from "../../types";
 import { UserModel, BlockedModel } from "@repo/database";
 import { CACHE_KEYS, getOrSetCacheSet } from "../redis/cache";
 

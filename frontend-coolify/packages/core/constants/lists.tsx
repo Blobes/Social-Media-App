@@ -154,11 +154,30 @@ export const LISTS = () => {
       empty: "Navigation menu is empty.",
       noMatch: "No menu items found.",
     },
+    [ListType.TOPICS]: {
+      empty: "Add topics to this post.",
+      noMatch: "No matching topics.",
+    },
     [ListType.DEFAULT]: {
       empty: "No items found.",
       noMatch: "No results match your search.",
     },
   };
+
+  const CREATE_POST_LIST: IMenuItem[] = [
+    {
+      title: "Gist",
+      element: <BadgeQuestionMark />,
+    },
+    {
+      title: "Stake",
+      element: <Gem />,
+    },
+    {
+      title: "Vibez",
+      element: <Gem />,
+    },
+  ];
 
   return {
     USER_NAV_LIST,
@@ -167,5 +186,6 @@ export const LISTS = () => {
     FOOTER_NAV_LIST,
     COUNTRY_LIST,
     MESSAGES,
+    CREATE_POST_LIST,
   };
 };

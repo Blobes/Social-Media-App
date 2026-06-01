@@ -5,6 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "@repo/helpers";
 import { GlobalThemeProvider } from "@repo/core";
+import { SocketProvider } from "./SocketProvider";
 
 export async function BaseLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -36,7 +37,9 @@ export async function BaseLayout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <QueryClientProvider client={queryClient}>
-          <GlobalThemeProvider>{children}</GlobalThemeProvider>
+          <SocketProvider>
+            <GlobalThemeProvider>{children}</GlobalThemeProvider>
+          </SocketProvider>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
         <noscript>You need to enable JavaScript to run this app!</noscript>

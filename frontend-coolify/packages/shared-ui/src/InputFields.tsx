@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import { useTheme } from "@mui/material/styles";
 import {
+  Box,
   FormHelperText,
   IconButton,
   InputAdornment,
@@ -17,7 +18,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Eye, EyeClosed } from "lucide-react";
+import { Eye, EyeClosed, FileUp } from "lucide-react";
 import { GenericStyle } from "@repo/core";
 
 export interface InputProps {
@@ -372,5 +373,69 @@ export const OtpInput = ({
         </FormHelperText>
       )}
     </Stack>
+  );
+};
+
+export interface FileInputProps {
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  multiple?: boolean;
+  accept?: string;
+  disabled?: boolean;
+  selectedCount?: number;
+  placeholder?: string;
+}
+
+/**
+ * Reusable layout boundary wrapper managing system file selection triggers.
+ */
+export const FileInput = ({
+  onChange,
+  multiple = true,
+  accept = "image/*,video/*",
+  disabled = false,
+  selectedCount = 0,
+  placeholder = "Choose media file dependencies...",
+}: FileInputProps) => {
+  const theme = useTheme();
+  return (
+    <Box
+      sx={{
+        border: `1px dashed ${theme.palette.gray[100]}`,
+        padding: theme.boxSpacing(8, 8),
+        borderRadius: theme.radius[3],
+        backgroundColor: theme.palette.gray[50],
+        display: "flex",
+        flexDirection: "column",
+        gap: theme.gap(4),
+        alignItems: "center",
+        width: "100%",
+      }}>
+      <Box
+        component="label"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          cursor: disabled ? "not-allowed" : "pointer",
+          width: "100%",
+        }}>
+        <FileUp
+          size={20}
+          style={{ marginRight: "8px", stroke: theme.palette.gray[200] }}
+        />
+        <Typography
+          variant="body2"
+          sx={{ color: theme.palette.gray[200], flexGrow: 1 }}>
+          {selectedCount > 0 ? `${selectedCount} files targeted` : placeholder}
+        </Typography>
+        <input
+          type="file"
+          multiple={multiple}
+          accept={accept}
+          onChange={onChange}
+          disabled={disabled}
+          style={{ display: "none" }}
+        />
+      </Box>
+    </Box>
   );
 };

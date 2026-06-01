@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { IStep, StepName } from "@repo/core";
+import { IStep, AuthStepName } from "@repo/core";
 import { Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
 import Image from "next/image";
@@ -10,14 +10,14 @@ import { asset } from "@repo/assets";
 import { PasswordStep } from "./PasswordStep";
 import { IdentifierStep } from "./IdentifierStep";
 import { RestoreAccount } from "@repo/features";
-import { LoginStepProps, StepperProps } from "../types";
+import { LoginStepProps } from "../types";
 
 export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
   const theme = useTheme();
   const [input, setInput] = useState("");
-  const [currStep, setCurrStep] = useState<StepName>("IDENTIFIER");
+  const [currStep, setCurrStep] = useState<AuthStepName>("IDENTIFIER");
 
-  const steps: IStep<StepName>[] = [
+  const steps: IStep<AuthStepName>[] = [
     {
       name: "IDENTIFIER",
       element: (

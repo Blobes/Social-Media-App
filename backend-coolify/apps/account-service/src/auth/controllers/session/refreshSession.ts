@@ -100,7 +100,7 @@ export const refreshSession: RequestHandler = async (
 
     return res
       .status(200)
-      .json({ status: "SUCCESS", message: "Refreshed", accessToken });
+      .json({ status: "SUCCESS", message: "Session refreshed", accessToken });
   } catch (err: any) {
     clearAuthTokens(res);
     return res

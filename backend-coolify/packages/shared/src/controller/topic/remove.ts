@@ -4,7 +4,7 @@
 
 import { Response } from "express";
 import { removeTopicsFromUser } from "../../utils/misc/topic";
-import { IAuthRequest } from "../../types/types";
+import { IAuthRequest } from "../../types";
 
 interface RemovalRequest extends IAuthRequest {
   body: {

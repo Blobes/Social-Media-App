@@ -1,7 +1,7 @@
 "use client";
 
 import { usePage, useSnackbar, useGlobalStore } from "@repo/shared-hooks";
-import { SharedLoginService } from "./service";
+import { AuthService } from "./service";
 import { CLIENT_ROUTES, CACHE_KEYS } from "@repo/core";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
@@ -15,9 +15,10 @@ export const useAuthVerification = () => {
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
+  const setAccessToken = useGlobalStore((state) => state.setAccessToken);
 
   const { setSBMessage } = useSnackbar();
-  const { verifyAndFetchUser } = SharedLoginService();
+  const { verifyAndFetchUser } = AuthService();
   const { navigateTo } = usePage();
 
   const { refetch, isFetching } = useQuery({
@@ -30,6 +31,7 @@ export const useAuthVerification = () => {
         if (res.status === "SUCCESS" && user) {
           setAuthUser(user);
           setAuthStatus("AUTHENTICATED");
+          setAccessToken(res.accessToken || null);
 
           // NOT ONBOARDED: User exists but is not on boarded
           if (!user.isOnboarded) {

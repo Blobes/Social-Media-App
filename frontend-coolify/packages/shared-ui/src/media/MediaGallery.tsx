@@ -3,7 +3,7 @@
 import React, { CSSProperties, useMemo } from "react";
 import { Box, ImageList, ImageListItem, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { DoubleTap } from "../DoubleTap";
+import { ElementTap } from "../ElementTap";
 import Image from "next/image";
 import { VideoMedia } from "./VideoMedia";
 import { MediaProps, MediaStyle } from "@repo/core";
@@ -14,7 +14,7 @@ export interface GalleryProps {
   bgEffects?: any;
 }
 
-export const MediaGallery = ({ mediaList, style, bgEffects }: GalleryProps) => {
+export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
   const theme = useTheme();
 
   // 1. Define patterns to ensure the 4-column grid is always full
@@ -112,7 +112,7 @@ export const MediaGallery = ({ mediaList, style, bgEffects }: GalleryProps) => {
               cursor: "pointer",
               ...bgEffects(theme).zoom("& video, & img"),
             }}>
-            <DoubleTap
+            <ElementTap
               onSingleTap={() => onSingleTap && onSingleTap()}
               onDoubleTap={() => onDoubleTap && onDoubleTap()}
               style={{ ...(!isLastItem && bgEffects(theme).overlay) }}>
@@ -156,10 +156,98 @@ export const MediaGallery = ({ mediaList, style, bgEffects }: GalleryProps) => {
                   </Typography>
                 </Box>
               )}
-            </DoubleTap>
+            </ElementTap>
           </ImageListItem>
         );
       })}
     </ImageList>
+  );
+};
+
+/**
+ * Standardized horizontal scrolling strip for multi-media rendering on small viewports.
+ */
+export const MediaScroll = ({ mediaList, style, bgEffects }: GalleryProps) => {
+  const theme = useTheme();
+
+  // Guard against missing files or unexpected single items since they are processed separately
+  if (!mediaList || mediaList.length <= 1) return null;
+
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        gap: theme.gap(3),
+        overflowX: "auto",
+        overflowY: "hidden",
+        WebkitOverflowScrolling: "touch",
+        paddingBottom: theme.gap(1), // Prevents scrollbar from clipping item bounds
+        scrollbarWidth: "none", // Keeps viewport clean on Firefox
+        "&::-webkit-scrollbar": {
+          display: "none", // Keeps viewport clean on Chrome/Safari
+        },
+        ...style?.container?.base,
+        [theme.breakpoints.down("md")]: {
+          ...style?.container?.smallScreen,
+        },
+      }}>
+      {mediaList.map((media) => {
+        const { _id, ownerId, url, type, alt, onSingleTap, onDoubleTap } =
+          media;
+        const mediaType = type ?? "IMAGE";
+
+        return (
+          <Box
+            key={_id || url}
+            sx={{
+              position: "relative",
+              flex: "0 0 auto",
+              width: "calc(85% - 12px)",
+              maxWidth: "340px",
+              height: "280px",
+              borderRadius: theme.radius[2],
+              overflow: "hidden",
+              backgroundColor: theme.palette.gray.trans[1],
+              ...bgEffects?.(theme)?.zoom?.("& video, & img"),
+            }}>
+            <ElementTap
+              onSingleTap={() => onSingleTap && onSingleTap()}
+              onDoubleTap={() => onDoubleTap && onDoubleTap()}
+              style={{ ...bgEffects?.(theme)?.overlay }}>
+              {mediaType === "VIDEO" ? (
+                <VideoMedia
+                  _id={_id}
+                  ownerId={ownerId}
+                  url={url}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    ...style?.content,
+                  }}
+                />
+              ) : (
+                <Image
+                  src={url}
+                  width={0}
+                  height={0}
+                  sizes="(max-width: 768px) 100vw, 340px"
+                  loading="lazy"
+                  alt={alt || "Post image"}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    ...(style?.content as CSSProperties),
+                  }}
+                />
+              )}
+            </ElementTap>
+          </Box>
+        );
+      })}
+    </Box>
   );
 };

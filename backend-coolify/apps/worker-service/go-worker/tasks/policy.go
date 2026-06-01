@@ -1,38 +1,10 @@
 package tasks
 
-type Severity string
-type Likelihood string
-
-const (
-	SeverityCritical Severity = "CRITICAL"
-	SeverityModerate Severity = "MODERATE"
-	SeverityLow      Severity = "LOW"
-	SeverityNone     Severity = "NONE"
-)
-
-const (
-	LikelihoodUnknown      Likelihood = "UNKNOWN"
-	LikelihoodVeryUnlikely Likelihood = "VERY_UNLIKELY"
-	LikelihoodUnlikely     Likelihood = "UNLIKELY"
-	LikelihoodPossible     Likelihood = "POSSIBLE"
-	LikelihoodLikely       Likelihood = "LIKELY"
-	LikelihoodVeryLikely   Likelihood = "VERY_LIKELY"
-)
-
-var LikelihoodWeights = map[Likelihood]int{
-	LikelihoodUnknown:      0,
-	LikelihoodVeryUnlikely: 1,
-	LikelihoodUnlikely:     2,
-	LikelihoodPossible:     3,
-	LikelihoodLikely:       4,
-	LikelihoodVeryLikely:   5,
-}
-
 /**
  * Initializes the unified severity-based safety rules.
  */
 var GlobalContentPolicy = ContentPolicy{
-	Version: "2026.1",
+	Version: "2026.4",
 	Text: TextPolicy{
 		AIConfidenceLimit: 0.85,
 		Rules: map[Severity][]string{
@@ -67,17 +39,22 @@ var GlobalContentPolicy = ContentPolicy{
 		},
 	},
 	Media: MediaPolicy{
-		Thresholds: map[Severity][]MediaThreshold{
+		Rules: map[Severity][]string{
 			SeverityCritical: {
-				{"adult": LikelihoodPossible},
-				{"violence": LikelihoodLikely},
+				"Underage individuals depicted in suggestive or dangerous situations",
+				"Depictions of active weapons deployment, non-medical violence, terrorism, or active criminal operations",
 			},
 			SeverityModerate: {
-				{"medical": LikelihoodPossible},
+				"Hate symbols, discriminatory imagery, or promotional extremist material",
+				"Visual harassment, mocking individuals, or shaming assets",
+				"Dangerous stunts or actions likely to lead to severe self-injury",
+				"Altered/Manipulated media mimicking real events for disinformation",
 			},
 			SeverityLow: {
-				{"racy": LikelihoodVeryLikely},
-				{"spoof": LikelihoodVeryLikely},
+				"Explicit sexual acts, pornography, or display of genitalia (Adult Content)",
+				"Graphic medical procedures, intense surgical gore, open wounds, or clinical operations (Medical Gory Content)",
+				"Racy imagery, suggestive posing, or partial nudity without explicit acts",
+				"Spam layouts, QR codes, or low-quality clickbait promotional banners",
 			},
 		},
 	},

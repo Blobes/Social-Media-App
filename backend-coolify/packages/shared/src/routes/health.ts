@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { AppName } from "../types/types";
+import { AppName } from "../types";
 
 // I wrap this in a function so each service can tell us who it is
 export const healthRouter = (serviceName: AppName) => {

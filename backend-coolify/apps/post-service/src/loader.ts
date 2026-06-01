@@ -23,7 +23,7 @@ export default (app: Express) => {
   // ====== Routes ======
   app.use("/post", postRoutes);
   app.use("/feed", feedRoutes);
-  app.use("/gists", gistRouter());
+  app.use("/gist", gistRouter());
   app.use("/", sharedRoutes);
 
   return app;

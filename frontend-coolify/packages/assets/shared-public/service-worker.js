@@ -11,11 +11,11 @@ const ESSENTIAL_ASSETS = [
   "/support",
 ];
 
-// 1. Install: Pre-cache with error resilience
+// Install: Pre-cache with error resilience
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => {
-      // We use map + add to ensure one missing page doesn't break everything
+      // Map + add ensures one missing page doesn't break everything
       return Promise.allSettled(
         ESSENTIAL_ASSETS.map((url) =>
           cache
@@ -28,7 +28,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// 2. Activate: Clean up old versions
+// Activate: Clean up old versions
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
@@ -42,7 +42,7 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// 3. Fetch: The Traffic Controller
+// Fetch: The Traffic Controller
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -63,11 +63,10 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 1. Ignore non-GET and API calls
+  // Ignore non-GET and API calls
   if (request.method !== "GET" || url.pathname.startsWith("/api")) return;
 
-  // 2. STRATEGY: Network-First for Navigations (Pages)
-  // This ensures marketing pages stay fresh but work offline.
+  // STRATEGY: Network-First for Navigations (Pages)
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
@@ -81,11 +80,11 @@ self.addEventListener("fetch", (event) => {
         .catch(async () => {
           const cache = await caches.open(STATIC_CACHE);
 
-          // 1. Check for the specific page
+          // Check for the specific page
           const exactMatch = await cache.match(request);
           if (exactMatch) return exactMatch;
 
-          // 2. Fallback to /offline
+          // Fallback to /offline
           const offlineShell = await cache.match("/offline");
           return offlineShell || cache.match("/");
         }),
@@ -93,7 +92,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 3. STRATEGY: Cache-First for Assets
+  // STRATEGY: Cache-First for Assets
   const isStatic =
     url.pathname.startsWith("/_next/static") ||
     url.pathname.startsWith("/_next/image") ||
@@ -106,6 +105,85 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(cacheFirst(request, STATIC_CACHE));
     return;
   }
+});
+
+// Background Fetch: Intercept successful persistent media transfers
+self.addEventListener("backgroundfetchsuccess", (event) => {
+  const bgFetch = event.registration;
+
+  event.waitUntil(
+    (async () => {
+      console.log(
+        `Background upload task successfully complete: ${bgFetch.id}`,
+      );
+
+      // Extract records to verify the pipeline status codes
+      const records = await bgFetch.matchAll();
+      for (const record of records) {
+        const response = await record.responseReady;
+        if (!response.ok) {
+          console.error(
+            `Background upload validation failure for task: ${bgFetch.id}`,
+          );
+        }
+      }
+
+      // Notify active frontend runtime window clients of successful upload state completion
+      const clientsList = await self.clients.matchAll({ type: "window" });
+      for (const client of clientsList) {
+        client.postMessage({
+          type: "BACKGROUND_UPLOAD_COMPLETE",
+          id: bgFetch.id,
+        });
+      }
+
+      // Update native operating system layout UI notification badge toast
+      await event.updateUI({
+        title: "Media uploaded successfully to Funstakes!",
+      });
+    })(),
+  );
+});
+
+// Background Fetch: Handle persistent media transfer failures or network drops
+self.addEventListener("backgroundfetchfail", (event) => {
+  const bgFetch = event.registration;
+  console.error(
+    `Background upload sync failed or aborted for task: ${bgFetch.id}`,
+  );
+
+  event.waitUntil(
+    (async () => {
+      // Notify active frontend runtime window clients of terminal execution error tracking frames
+      const clientsList = await self.clients.matchAll({ type: "window" });
+      for (const client of clientsList) {
+        client.postMessage({
+          type: "BACKGROUND_UPLOAD_FAILED",
+          id: bgFetch.id,
+        });
+      }
+
+      await event.updateUI({
+        title: "Upload failed. We will retry once connection re-establishes.",
+      });
+    })(),
+  );
+});
+
+// Background Fetch: Handle interactions when the user clicks on the notification item
+self.addEventListener("backgroundfetchclick", (event) => {
+  event.waitUntil(
+    (async () => {
+      const clientsList = await self.clients.matchAll({ type: "window" });
+
+      // Focus existing tab window if active, else create a fresh foreground interface stack viewport
+      if (clientsList.length > 0) {
+        await clientsList[0].focus();
+      } else {
+        await self.clients.openWindow("/");
+      }
+    })(),
+  );
 });
 
 /* ---------- STRATEGIES ---------- */

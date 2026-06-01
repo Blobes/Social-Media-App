@@ -59,3 +59,11 @@ export interface IStake extends IStakePayload {}
 export type IPost =
   | (IGist & { postType: "GIST" })
   | (IStake & { postType: "STAKE" });
+
+export interface ITopicPayload {
+  title?: string;
+  userCount?: number;
+  postCount?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

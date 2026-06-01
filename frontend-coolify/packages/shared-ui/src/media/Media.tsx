@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { DoubleTap } from "../DoubleTap";
+import { ElementTap } from "../ElementTap";
 import { MediaRenderer } from "./MediaRenderer";
 import { MediaProps } from "@repo/core";
 
@@ -10,7 +10,7 @@ export const Media = (props: MediaProps) => {
     props;
 
   return (
-    <DoubleTap
+    <ElementTap
       onSingleTap={() => onSingleTap && onSingleTap(props)}
       onDoubleTap={() => onDoubleTap && onDoubleTap(props)}>
       <MediaRenderer
@@ -18,6 +18,6 @@ export const Media = (props: MediaProps) => {
         style={style}
         useRender={useMedia}
       />
-    </DoubleTap>
+    </ElementTap>
   );
 };

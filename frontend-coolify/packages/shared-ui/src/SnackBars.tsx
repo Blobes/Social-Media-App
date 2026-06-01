@@ -99,7 +99,11 @@ export const SnackBars = ({
                       (msg.msgStatus === "SUCCESS" ? (
                         <CircleCheck />
                       ) : msg.msgStatus === "INFO" ? (
-                        <Info />
+                        !msg.icon ? (
+                          <Info />
+                        ) : (
+                          msg.icon
+                        )
                       ) : (
                         <CircleAlert />
                       ))}
@@ -153,6 +157,8 @@ export const SnackBars = ({
                       )}
                     </WordTrimmer>
                   )}
+
+                  {msg.customContent && msg.headline}
                 </Stack>
 
                 <Stack

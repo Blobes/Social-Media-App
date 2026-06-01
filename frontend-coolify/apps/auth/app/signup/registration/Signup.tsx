@@ -5,22 +5,21 @@ import { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { Stepper } from "@repo/shared-ui";
 import { PasswordStep } from "../../login/PasswordStep";
-import { IStep, StepName } from "@repo/core";
+import { IStep, AuthStepName, StepperProps } from "@repo/core";
 import { Stack } from "@mui/material";
 import Image from "next/image";
 import { asset } from "@repo/assets";
-import { StepperProps } from "../../types";
 
-export const Signup: React.FC<StepperProps> = ({
+export const Signup: React.FC<StepperProps<AuthStepName>> = ({
   modalRef,
   redirectTo,
   style = {},
 }) => {
   const theme = useTheme();
   const [credential, setCredential] = useState("");
-  const [currStep, setCurrStep] = useState<StepName>("PASSWORD");
+  const [currStep, setCurrStep] = useState<AuthStepName>("PASSWORD");
 
-  const steps: IStep<StepName>[] = [
+  const steps: IStep<AuthStepName>[] = [
     {
       name: "PASSWORD",
       element: (

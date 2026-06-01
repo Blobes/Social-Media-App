@@ -15,14 +15,14 @@ import {
   CLIENT_ROUTES,
   InputStatus,
   MenuRef,
-  StepName,
+  AuthStepName,
 } from "@repo/core";
 import { AppButton } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 
 interface UseIdentifier {
   existingInput?: string;
-  setStep?: (step: StepName) => void;
+  setStep?: (step: AuthStepName) => void;
   setIdentifier?: (credential: string) => void;
 }
 

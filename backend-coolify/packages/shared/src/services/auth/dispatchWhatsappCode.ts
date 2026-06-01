@@ -1,4 +1,4 @@
-import { IPhoneDispatchTokens } from "../../types/types";
+import { IPhoneDispatchTokens } from "../../types";
 
 interface WhatsAppPayload {
   to: string;

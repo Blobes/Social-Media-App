@@ -16,7 +16,7 @@ type NodeClient struct {
 }
 
 /**
- * Builds a reusable HTTP client for post-finalization callbacks.
+ * Builds a reusable HTTP client for internal callbacks.
  */
 func NewNodeClient(baseURL string) *NodeClient {
 	return &NodeClient{
@@ -32,10 +32,9 @@ func NewNodeClient(baseURL string) *NodeClient {
 	}
 }
 
-/**
- * Sends the final moderation payload to a specific routing path on the Node service.
+/* Sends the final moderation payload to a specific routing path on the Node service.
  */
-func (nc *NodeClient) DispatchFinalization(ctx context.Context, path string, payload *NodeCallbackPayload) error {
+func (nc *NodeClient) DispatchFinalization(ctx context.Context, path string, payload *PostModCallbackPayload) error {
 	callbackBytes, err := json.Marshal(payload)
 	if err != nil {
 		return fmt.Errorf("failed to marshal finalization payload: %w", err)

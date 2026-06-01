@@ -79,19 +79,22 @@ export const ROUTES_REGISTRY = {
   ],
 };
 
-// Server Apis
+/// Server Apis
 export const API_BASE = {
   auth: "/auth",
   user: "/user",
   // Posts
   post: "/post",
   feed: "/feed",
-  gists: "/gists",
+  gist: "/gist",
   media: "/media",
   // Report
   report: "/report",
   // Admin
   admin: "/admin",
+
+  // Topic
+  topic: "/topic",
 };
 
 export const SERVER_API = {
@@ -109,8 +112,14 @@ export const SERVER_API = {
   setPrimarySession: `${API_BASE.auth}/session/set-primary`,
   updateOnboarding: `${API_BASE.auth}/onboarding`,
 
-  // Media
-  mediaUpload: `${API_BASE.media}/get-upload-url`,
+  // Media Standard Operations
+  mediaUpload: `${API_BASE.media}/get-upload-policy`,
+  getMediaUrl: `${API_BASE.media}/get-upload-url`,
+
+  // Media Chunked Multipart Operations
+  initMultipart: `${API_BASE.media}/multipart/init`,
+  signPart: `${API_BASE.media}/multipart/sign-part`,
+  completeMultipart: `${API_BASE.media}/multipart/complete`,
 
   // Feed
   userFeed: (id: string) => `${API_BASE.feed}/${id}`,
@@ -118,7 +127,9 @@ export const SERVER_API = {
   postSeen: (id: string) => `${API_BASE.post}/${id}/seen`,
 
   // Gists
-  likeGist: (id: string) => `${API_BASE.gists}/${id}/like`,
+  likeGist: (id: string) => `${API_BASE.gist}/${id}/like`,
+  gists: `${API_BASE.gist}/feed`,
+  createGist: `${API_BASE.gist}/create`,
 
   // Users
   getUser: (id: string) => `${API_BASE.user}/${id}`,
@@ -127,4 +138,7 @@ export const SERVER_API = {
   verifyEmail: `${API_BASE.user}/verify-email`,
   verifyPhone: `${API_BASE.user}/verify-phone`,
   updateBasicInfo: `${API_BASE.user}/update-basic`,
+
+  // Topics
+  lookupTopics: `${API_BASE.topic}/search`,
 };

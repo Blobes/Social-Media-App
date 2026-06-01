@@ -5,11 +5,16 @@ import { AppBar, Stack, IconButton } from "@mui/material";
 import Image from "next/image";
 import { Bell } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
-import { DesktopNav, MobileNav } from "./Nav";
+import {
+  CreatePostMenuDesktop,
+  HeaderDesktopNav,
+  HeaderMobileNav,
+} from "./NavMenu";
 import { UserAvatar, AnchorLink, AppButton, SearchBar } from "@repo/shared-ui";
 import { asset } from "@repo/assets";
 import { useHeader } from "./useHeader";
 import { CLIENT_ROUTES } from "@repo/core";
+import { useCreatePost } from "../../apps/post/hooks/useCreatePost";
 
 interface HeaderProps {
   scrollRef?: React.RefObject<HTMLElement | null>;
@@ -28,6 +33,8 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
     handleAvatar,
     navigateTo,
     authUser,
+    createPostRef,
+    handleCreatePost,
   } = useHeader(scrollRef);
 
   return (
@@ -88,7 +95,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
             </IconButton>
 
             {/* User Avatar  */}
-            {isDesktop && <DesktopNav menuRef={menuRef} />}
+            {isDesktop && <HeaderDesktopNav menuRef={menuRef} />}
             <UserAvatar
               userInfo={authUser}
               toolTipValue="Open menu"
@@ -111,11 +118,24 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
                         style={{ width: "35px", height: "35px" }}
                       />
                     ),
-                    content: <MobileNav />,
+                    content: <HeaderMobileNav />,
                   },
                 })
               }
             />
+          </>
+        )}
+
+        {/* Create post  */}
+        {isDesktop && (
+          <>
+            <CreatePostMenuDesktop postRef={createPostRef} />
+            <AppButton
+              variant="outlined"
+              style={{ fontSize: "14px" }}
+              onClick={handleCreatePost}>
+              Create
+            </AppButton>
           </>
         )}
 

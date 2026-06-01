@@ -45,20 +45,26 @@ export const env = {
 };
 
 /**
- * AWS S3 Configuration
+ * Cloud Storage Configuration
  */
 export const s3Config: IS3Config = {
   get REGION() {
-    return getEnv("AWS_REGION");
+    return getEnv("CLOUDFLARE_REGION");
   },
   get ACCESS_KEY_ID() {
-    return getEnv("AWS_ACCESS_KEY");
+    return getEnv("CLOUDFLARE_ACCESS_KEY");
   },
   get SECRET_ACCESS_KEY() {
-    return getEnv("AWS_SECRET_KEY");
+    return getEnv("CLOUDFLARE_SECRET_KEY");
   },
   get BUCKET_NAME() {
-    return getEnv("AWS_BUCKET_NAME");
+    return getEnv("CLOUDFLARE_BUCKET_NAME");
+  },
+  get ENDPOINT_URL() {
+    return getEnv("CLOUDFLARE_ENDPOINT_URL");
+  },
+  get PUBLIC_URL() {
+    return getEnv("CLOUDFLARE_PUBLIC_MEDIA_URL");
   },
 };
 

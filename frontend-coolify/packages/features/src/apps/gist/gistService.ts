@@ -12,8 +12,23 @@ import {
   IListPayload,
   API_BASE,
   SERVER_API,
+  MediaUploadPayload,
+  ITopic,
 } from "@repo/core";
 import { useCallback } from "react";
+
+export interface CreateGistReq {
+  caption?: string;
+  media?: MediaUploadPayload[];
+  topics?: string[];
+  hasSensitiveGraphic?: boolean;
+  skipModeration?: boolean;
+}
+
+interface LikeResponse {
+  likedByMe: boolean;
+  likeCount: number;
+}
 
 export const GistService = () => {
   /**
@@ -22,8 +37,7 @@ export const GistService = () => {
   const fetchGistList = useCallback(
     async (page = 1, limit = 20): Promise<IListPayload<IGist>> => {
       try {
-        // Append pagination params to the request URL
-        const url = `${API_BASE.gists}?page=${page}&limit=${limit}`;
+        const url = `${SERVER_API.gists}?page=${page}&limit=${limit}`;
         const res = await apiClient<IListPayload<IGist>>(url, {
           method: "GET",
         });
@@ -32,7 +46,7 @@ export const GistService = () => {
           status: res.status,
           payload: res.payload ?? [],
           message: res.message,
-          metaData: res.metaData, // Ensure meta is returned for hasNextPage logic
+          metaData: res.metaData,
         };
       } catch (error: any) {
         console.error("Gist Service Error:", error);
@@ -46,11 +60,9 @@ export const GistService = () => {
     [],
   );
 
-  interface LikeResponse {
-    likedByMe: boolean;
-    likeCount: number;
-  }
-  // Handle like
+  /**
+   * Dispatches a post like interaction event.
+   */
   const fetchGistLike = useCallback(
     async (gistId: string): Promise<LikeResponse | null> => {
       try {
@@ -66,11 +78,44 @@ export const GistService = () => {
     [],
   );
 
+  /**
+   * Submits pre-uploaded cloud storage structural assets to finalize creating a new post entry.
+   */
+  const createGist = useCallback(
+    async (data: CreateGistReq): Promise<IGist | null> => {
+      try {
+        const res = await apiClient<ISinglePayload<IGist>>(
+          SERVER_API.createGist,
+          {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (res.status !== "SUCCESS" || !res.payload) {
+          throw new Error(
+            res.message || "Failed to commit gist post data record",
+          );
+        }
+
+        return res.payload;
+      } catch (error) {
+        console.error("Gist Post Serialization Error:", error);
+        throw error;
+      }
+    },
+    [],
+  );
+
   return {
     fetchGistLike,
     getPendingLike: getQueueItem,
     setPendingLike: queueItem,
     clearPendingLike: removeQueueItem,
     fetchGistList,
+    createGist,
   };
 };

@@ -1,3 +1,6 @@
+/**
+ * Generates the foundational configuration block shared across the application architecture.
+ */
 export function withBaseConfig(appConfig = {}, backendApi, appName) {
   return {
     ...appConfig,
@@ -15,7 +18,27 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
       return config;
     },
     async headers() {
-      return [
+      // Execute and read any headers defined inside the passed appConfig
+      const userHeaders =
+        typeof appConfig.headers === "function"
+          ? await appConfig.headers()
+          : [];
+
+      // Define internal global cross-origin isolation parameters
+      const baseHeaders = [
+        {
+          source: "/(.*)",
+          headers: [
+            {
+              key: "Cross-Origin-Opener-Policy",
+              value: "same-origin",
+            },
+            {
+              key: "Cross-Origin-Embedder-Policy",
+              value: "require-corp",
+            },
+          ],
+        },
         {
           source: "/_next/:path*",
           headers: [
@@ -28,6 +51,8 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
           ],
         },
       ];
+
+      return [...baseHeaders, ...userHeaders];
     },
     async rewrites() {
       const baseRewrites = appConfig.rewrites
@@ -57,6 +82,9 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
   };
 }
 
+/**
+ * Maps asset routes to their corresponding multi-zone application targets.
+ */
 export function mapAppAssets(apps) {
   return Object.entries(apps)
     .filter(([_, url]) => !!url)

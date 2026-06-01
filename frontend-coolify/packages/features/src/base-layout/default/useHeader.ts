@@ -35,6 +35,7 @@ export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
   const theme = useTheme();
   const router = useRouter();
   const menuRef = useRef<MenuRef>(null);
+  const createPostRef = useRef<MenuRef>(null);
 
   const scrollDir = handlePageScroll(scrollRef);
   const isLoggedIn = authStatus === "AUTHENTICATED";
@@ -97,6 +98,10 @@ export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
     [openDrawer, closeDrawer, theme],
   );
 
+  const handleCreatePost = (e: React.MouseEvent<HTMLElement>) => {
+    if (isDesktop) createPostRef.current?.openMenu(e.currentTarget);
+  };
+
   return {
     isLoggedIn,
     isDesktop,
@@ -109,5 +114,7 @@ export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
     openMobileNav,
     navigateTo,
     authUser,
+    handleCreatePost,
+    createPostRef,
   };
 };

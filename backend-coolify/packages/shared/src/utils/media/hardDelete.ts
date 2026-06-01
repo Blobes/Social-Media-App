@@ -1,6 +1,6 @@
 import { MediaModel } from "@repo/database";
 import { Model } from "mongoose";
-import { IS3Config } from "../../types/types";
+import { IS3Config } from "../../types";
 import { createS3Service } from "../../services/s3";
 
 interface HardDeleteOptions {
@@ -14,7 +14,7 @@ interface HardDeleteOptions {
 
 /**
  * Utility to perform a hard delete:
- * 1. Deletes from AWS S3 (via DB record lookup or explicit raw keys)
+ * 1. Deletes from Cloud S3 bucket (via DB record lookup or explicit raw keys)
  * 2. Deletes from Media Collection
  * 3. Nullifies reference in Parent Collection (Optional)
  */

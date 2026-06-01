@@ -25,6 +25,7 @@ export * from "./src/base-layout/GlobalUIManager";
 export * from "./src/base-layout/default/AppWrapper";
 export * from "./src/base-layout/BaseLayout";
 export * from "./src/base-layout/AuthManager";
+export * from "./src/base-layout/SocketProvider";
 
 //Post
 // Components
@@ -33,9 +34,14 @@ export * from "./src/apps/post/components/engagement/Engagement";
 export * from "./src/apps/post/components/engagement/Like";
 export * from "./src/apps/post/components/header/PostHeader";
 export * from "./src/apps/post/components/Metrics";
+
 // Hooks
 export * from "./src/apps/post/hooks/like/usePostLike";
 export * from "./src/apps/post/hooks/useFeed";
+export * from "./src/apps/post/hooks/useCreatePost";
 
 // Stateful components
 export * from "./src/components/RestrictedUI";
+
+// Constant
+export * from "./src/apps/post/costants";

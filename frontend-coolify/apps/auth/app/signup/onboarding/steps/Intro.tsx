@@ -2,15 +2,17 @@
 
 import React, { useCallback } from "react";
 import { Stack, Typography, useTheme } from "@mui/material";
-import { StepperProps } from "../../../types";
 import Image from "next/image";
 import { asset } from "@repo/assets";
 import { AppButton, SVGWrapper } from "@repo/shared-ui";
+import { AuthStepName, StepperProps } from "@repo/core";
 
 /**
  * First step of onboarding providing context and a way to start the process.
  */
-export const OnboardingIntro: React.FC<StepperProps> = ({ onNext }) => {
+export const OnboardingIntro: React.FC<StepperProps<AuthStepName>> = ({
+  onNext,
+}) => {
   const theme = useTheme();
 
   // Memoize navigation to next step

@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Response } from "express";
 import crypto from "crypto";
-import { IAuthRequest, IJwtUser } from "../../types/types";
+import { IAuthRequest, IJwtUser } from "../../types";
 import { upstashClient } from "../../services/upstash";
 import { CACHE_KEYS } from "../redis/cache";
 

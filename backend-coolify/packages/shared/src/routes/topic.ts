@@ -1,11 +1,11 @@
-import express from "express";
+import express, { Router } from "express";
 import { lookupTopics } from "../controller/topic/lookup";
 import { deleteUnusedTopics } from "../controller/topic/delete";
 import { manageTopics } from "../controller/topic/manage";
 import { handleUserTopicRemoval } from "../controller/topic/remove";
-import { IVerifyAuth } from "../types/types";
+import { IVerifyAuth } from "../types";
 
-export const topicRouter = (config: IVerifyAuth) => {
+export const topicRouter = (config: IVerifyAuth): Router => {
   const router = express.Router();
 
   const verifyAuthToken = config.verifyAuthToken;

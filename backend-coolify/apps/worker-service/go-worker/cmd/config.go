@@ -16,12 +16,33 @@ type AppConfig struct {
 	TaskDeps  *tasks.DependencyContext
 }
 
-/**
- * Loads environment configurations and initializes connection-pooled cloud SDK clients.
+/* Loads environment configurations and initializes connection-pooled cloud SDK clients.
  */
-func LoadEnv(ctx context.Context) (*AppConfig, error) {
-	if err := godotenv.Load("../../../.env.production"); err != nil {
-		log.Println("ℹ️ No .env.production file found, processing system level context maps")
+func LoadConfig(ctx context.Context) (*AppConfig, error) {
+	// Check the current environment flag, default to development if empty
+	appEnv := os.Getenv("NODE_ENV")
+	if appEnv == "" {
+		appEnv = "development"
+	}
+
+	// Dynamic file path selection layer based on active target environment
+	var envFile string
+	if appEnv == "production" {
+		envFile = "../../../.env.production"
+	} else {
+		envFile = "../../../.env.development"
+	}
+
+	// Attempt to load the selected configuration file, falling back to system environment variables if missing
+	if err := godotenv.Load(envFile); err != nil {
+		log.Printf("ℹ️ Local %s environment profile file not found, evaluating system context environment maps", envFile)
+
+		// Fallback guard: if development file is missing, try loading production configurations as a safety layer
+		if appEnv == "development" {
+			if err := godotenv.Load("../../../.env.production"); err == nil {
+				log.Println("ℹ️ Loaded production fallback configuration map layers for development runtime context")
+			}
+		}
 	}
 
 	redisURL := os.Getenv("FUNSTAKES_REDIS_URL")
@@ -37,25 +58,58 @@ func LoadEnv(ctx context.Context) (*AppConfig, error) {
 
 	clientOpts := parsedOpts.(asynq.RedisClientOpt)
 
-	// Fetch API key for Gemini multimodal pipeline operations
-	geminiAPIKey := os.Getenv("GEMINI_API_KEY")
-	if geminiAPIKey == "" {
-		log.Println("⚠️ GEMINI_API_KEY is not configured in the active environment variables")
+	log.Printf("🔍 Redis connection initialized: %+v", clientOpts.Addr)
+
+	openRouterAPIKey := os.Getenv("OPENROUTER_API_KEY")
+	if openRouterAPIKey == "" {
+		log.Println("⚠️ OPENROUTER_API_KEY is not configured in the active environment variables")
 	}
+	log.Printf("🔍 Open router api initialized")
 
 	nodeWorkerURL := os.Getenv("WORKER_URL")
 	if nodeWorkerURL == "" {
-		if os.Getenv("NODE_ENV") == "production" {
+		if appEnv == "production" {
 			nodeWorkerURL = "http://node-worker-service:8083"
 		} else {
 			nodeWorkerURL = "http://localhost:8083"
 		}
 	}
 
-	// Instantiate dependency context carrying only the Gemini key and HTTP callback client
+	primaryVisionModels := []string{
+		"x-ai/grok-4.3",
+		"google/gemini-3.5-flash",
+		"anthropic/claude-sonnet-4.6",
+	}
+	fallbackVisionModels := []string{
+		"anthropic/claude-opus-4.8",
+		"x-ai/grok-4.20",
+		"meta-llama/llama-3.2-11b-vision-instruct",
+		"google/gemma-4-31b-it:free",
+		"nvidia/nemotron-3-nano-omni:free",
+	}
+
+	awsRegion := os.Getenv("AWS_REGION")
+	awsAccessKey := os.Getenv("AWS_ACCESS_KEY")
+	awsSecretKey := os.Getenv("AWS_SECRET_KEY")
+	awsBucketName := os.Getenv("AWS_BUCKET_NAME")
+	storageClient, err := tasks.NewStorageClient(
+		ctx,
+		awsBucketName,
+		awsRegion,
+		awsAccessKey,
+		awsSecretKey,
+	)
+	if err != nil {
+		log.Printf("❌ Failed to initialize asset bucket cloud storage connection context: %v", err)
+		return nil, err
+	}
+
 	taskDeps := &tasks.DependencyContext{
-		GeminiAPIKey: geminiAPIKey,
-		NodeClient:   tasks.NewNodeClient(nodeWorkerURL + "/internal"),
+		OpenRouterAPIKey: openRouterAPIKey,
+		PrimaryModels:    primaryVisionModels,
+		FallbackModels:   fallbackVisionModels,
+		NodeClient:       tasks.NewNodeClient(nodeWorkerURL + "/internal"),
+		StorageClient:    storageClient,
 	}
 
 	return &AppConfig{

@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
-import { FinalizePostReq, POST_STRATEGIES } from "../helpers/postStrategies";
-import { CACHE_KEYS, invalidatePattern } from "@repo/shared";
+import { POST_STRATEGIES } from "../helpers/postStrategies";
+import { CACHE_KEYS, FinalizePostReq, invalidatePattern } from "@repo/shared";
+import { FUNSTAKES_REDIS_URL, s3Config } from "@/envVars";
 
 /**
  * Handles incoming transactional write payloads from the Go execution layer.
@@ -28,26 +29,30 @@ export const handlePostFinalizer = async (
   try {
     session.startTransaction();
 
-    const updatedData = await strategy.finalizer({
-      postId,
-      userId,
-      postType,
-      caption,
-      media,
-      modResult,
-      event,
-      session,
-    });
+    const updatedData = await strategy.finalizer(
+      {
+        postId,
+        userId,
+        postType,
+        caption,
+        media,
+        modResult,
+        event,
+        session,
+      },
+      { s3Config, redisKey: FUNSTAKES_REDIS_URL },
+    );
 
     await session.commitTransaction();
 
-    if (modResult.status === "PUBLISHED" || modResult.status === "ACTIVE") {
+    if (modResult.status === "PUBLISHED") {
       Promise.all([
         invalidatePattern(CACHE_KEYS.WILDCARD_USER_FEED_ALL(userId)),
       ]).catch((err) => {
         console.error(`Post-commit cache invalidation failure: ${err.message}`);
       });
     }
+    console.log(modResult);
 
     res.status(200).json({ success: true, data: updatedData });
   } catch (error: any) {

@@ -9,6 +9,7 @@
     "express": "catalog:",
     "@aws-sdk/client-s3": "catalog:",
     "@aws-sdk/s3-request-presigner": "catalog:",
+    "@aws-sdk/s3-presigned-post": "catalog:",
     "jsonwebtoken": "catalog:",
     "nodemailer": "catalog:",
     "resend": "catalog:",
@@ -16,13 +17,12 @@
     "cookie-parser": "catalog:",
     "cors": "catalog:",
     "dotenv": "catalog:",
-    "fluent-ffmpeg": "catalog:",
     "@upstash/redis": "catalog:",
     "ioredis": "catalog:",
     "bullmq": "catalog:",
     "ua-parser-js": "catalog:",
     "@socket.io/redis-emitter": "catalog:",
-    "asynq": "catalog:",
+    "node-asynq": "catalog:",
     "@repo/database": "workspace:*"
   },
   "peerDependencies": {
