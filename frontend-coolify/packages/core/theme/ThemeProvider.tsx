@@ -3,7 +3,7 @@
 import React from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import theme from "./designSystem";
+import globalTheme from "./globalTheme";
 
 export function GlobalThemeProvider({
   children,
@@ -11,7 +11,7 @@ export function GlobalThemeProvider({
   children: React.ReactNode;
 }) {
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={globalTheme}>
       <CssBaseline />
       {children}
     </ThemeProvider>

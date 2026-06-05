@@ -3,11 +3,12 @@
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { IStep, PostStepName, StepperProps } from "@repo/core";
-import { Stepper } from "@repo/shared-ui";
+import { IsolatedMedia, Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
 import { GistContentStep } from "./GistContentStep";
 import { GistSettingsStep } from "./GistSettingsStep";
 import { useGistContent } from "./useGistContent";
+import { CreatePostMediaPreview } from "../../post/components/MediaPreview";
 
 export type GistContext = ReturnType<typeof useGistContent>;
 /**
@@ -71,6 +72,10 @@ export const CreateGist: React.FC<StepperProps<PostStepName>> = ({
           handleGistPublish={gistContentContext.handleGistPublish}
         />
       ),
+    },
+    {
+      name: "MEDIA_PREVIEW",
+      element: <CreatePostMediaPreview stagedFiles={stagedFiles} />,
     },
   ];
 

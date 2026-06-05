@@ -34,6 +34,7 @@ export * from "./src/apps/post/components/engagement/Engagement";
 export * from "./src/apps/post/components/engagement/Like";
 export * from "./src/apps/post/components/header/PostHeader";
 export * from "./src/apps/post/components/Metrics";
+export * from "./src/apps/post/components/MediaPreview";
 
 // Hooks
 export * from "./src/apps/post/hooks/like/usePostLike";

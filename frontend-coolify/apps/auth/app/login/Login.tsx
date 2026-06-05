@@ -2,7 +2,12 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { IStep, AuthStepName } from "@repo/core";
+import {
+  IStep,
+  AuthStepName,
+  useLightModeTheme,
+  useDarkModeTheme,
+} from "@repo/core";
 import { Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
 import Image from "next/image";
@@ -61,16 +66,18 @@ export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
   return (
     <Stack
       sx={{
-        backgroundColor: theme.palette.gray[50],
+        backgroundColor: theme.palette.gray[0],
         borderRadius: theme.radius[5],
         justifyContent: "center",
         alignItems: "center",
         gap: theme.gap(10),
-        [theme.breakpoints.down("sm")]: {
-          width: "100%",
-          ...style.container?.mobile,
-        },
         ...style.container,
+        [theme.breakpoints.down("md")]: {
+          ...style.container?.mdScreen,
+        },
+        [theme.breakpoints.down("sm")]: {
+          width: style.container?.smScreen,
+        },
       }}>
       <Image
         alt="logo"
@@ -79,6 +86,7 @@ export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
         height={50}
         style={{
           borderRadius: `${theme.radius.full}`,
+          flex: "none",
         }}
       />
       <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />

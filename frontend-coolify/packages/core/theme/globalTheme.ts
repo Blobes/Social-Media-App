@@ -11,7 +11,7 @@ let designSystem = createTheme({
         primary: {
           light: "#8395FF",
           main: "#506AFF",
-          dark: "#162770",
+          dark: "#3D4CD1",
         },
         gray: {
           0: "#ffffff",
@@ -35,7 +35,7 @@ let designSystem = createTheme({
           light: "#FFF2F4",
           main: "#EF5350",
           dark: "#DF3848",
-          trans: "rgba(24, 1, 1, 0.06)",
+          trans: "rgba(183, 14, 14, 0.06)",
         },
         tonalOffset: 0.6,
         contrastThreshold: 4.5,
@@ -46,11 +46,11 @@ let designSystem = createTheme({
         primary: {
           light: "#485BC6",
           main: "#5D71EC",
-          dark: "#8497FF",
+          dark: "#8396FF",
         },
         gray: {
-          0: "#020A28",
-          50: "#11152C",
+          0: "#171A29",
+          50: "#272D4F",
           100: "#476183",
           200: "#8399B4",
           300: "#ffffff",
@@ -80,23 +80,23 @@ let designSystem = createTheme({
   fixedColors: {
     gray50: grey[50],
     gray800: "#06122B",
-    grayTrans: "rgba(103, 126, 145, 0.18)",
+    grayTrans: (opacity?: number) => `rgba(103, 126, 145, ${opacity ?? 0.18})`,
     primary: "#9FAEFF",
     pTrans: "rgba(72, 107, 246, 0.12)",
-  },
+  } as const,
   typography: {
     fontFamily: "'Satoshi','Manrope','Cabinet Grotesk', Arial, sans-serif",
     h1: { fontWeight: 600 },
     h2: { fontWeight: 600 },
     h4: { fontWeight: 700 },
     h5: { fontWeight: 700, fontSize: "32px" },
-    h6: { fontWeight: 600, fontSize: "28px" },
+    h6: { fontWeight: 700, fontSize: "26px" },
     subtitle1: {
-      fontSize: "20px",
-      fontWeight: 600,
+      fontSize: "22px",
+      fontWeight: 700,
     },
-    body1: { fontSize: "18px", fontWeight: 401 },
-    body2: { fontSize: "16px", fontWeight: 401 },
+    body1: { fontSize: "18px", fontWeight: 600 },
+    body2: { fontSize: "16px", fontWeight: 500 },
     body3: { fontSize: "15px", fontWeight: 500 },
     caption: {},
     overline: {},
@@ -122,11 +122,11 @@ let designSystem = createTheme({
 
 designSystem = responsiveFontSizes(designSystem);
 
-const theme = createTheme({
+const globalTheme = createTheme({
   ...designSystem,
   components: {
     ...baseUIStyles.components,
   },
 });
 
-export default theme;
+export default globalTheme;

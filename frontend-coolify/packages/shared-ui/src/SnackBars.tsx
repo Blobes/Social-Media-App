@@ -45,6 +45,9 @@ export const SnackBars = ({
         gap: theme.gap(2),
         pointerEvents: "none",
         alignItems: "flex-end",
+        [theme.breakpoints.down("sm")]: {
+          width: "94%",
+        },
       }}>
       <GroupTransition>
         {snackBarMsg.messages.map((msg) => {
@@ -60,7 +63,7 @@ export const SnackBars = ({
                 sx={{
                   maxWidth: isExpanded ? "450px" : "400px",
                   [theme.breakpoints.down("sm")]: {
-                    maxWidth: "98%",
+                    width: "100%",
                   },
                   pointerEvents: "auto",
                   padding: theme.boxSpacing(6, 8),
@@ -177,7 +180,7 @@ export const SnackBars = ({
                             ? theme.fixedColors.pTrans
                             : theme.palette.error.trans,
                         "&:hover": {
-                          backgroundColor: theme.fixedColors.grayTrans,
+                          backgroundColor: theme.fixedColors.grayTrans(),
                         },
                       }}>
                       <X

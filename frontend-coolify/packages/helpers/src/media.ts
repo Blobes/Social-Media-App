@@ -1,14 +1,14 @@
 import {
   AnalyzedImage,
-  MediaUploadStatus,
-  MediaUploadProgress,
+  MediaProcessingStatus,
+  MediaProcessingProgress,
 } from "@repo/core";
 import { encode } from "blurhash";
 
 interface WorkerProgressEventData {
   action: "PROGRESS";
   id: string;
-  status: MediaUploadStatus;
+  status: MediaProcessingStatus;
   progress: number;
   error?: string;
 }
@@ -174,7 +174,7 @@ export const generateBlurHash = (file: File | Blob): Promise<string> => {
 };
 
 /**
- * Dispatches a raw video file to an background worker thread for fast local WebAssembly compression.
+ * Dispatches a raw video file to a background worker thread for local WebAssembly compression using custom progress events.
  */
 export const compressVideoAsync = (file: File, id: string): Promise<Blob> => {
   return new Promise((resolve, reject) => {
@@ -186,34 +186,42 @@ export const compressVideoAsync = (file: File, id: string): Promise<Blob> => {
       if (responseId !== id) return;
 
       if (action === "PROGRESS") {
-        const detail: MediaUploadProgress = {
+        const detail: MediaProcessingProgress = {
           status,
           progress: event.data.progress,
         };
-        const progressEvent = new CustomEvent(`media-progress-${id}`, {
-          detail,
-        });
+        const progressEvent = new CustomEvent(
+          `media-compression-progress-${id}`,
+          {
+            detail,
+          },
+        );
         window.dispatchEvent(progressEvent);
       } else if (action === "SUCCESS") {
-        const detail: MediaUploadProgress = {
+        const detail: MediaProcessingProgress = {
           status: "SUCCESS",
           progress: 100,
         };
-        const successEvent = new CustomEvent(`media-progress-${id}`, {
-          detail,
-        });
+        const successEvent = new CustomEvent(
+          `media-compression-progress-${id}`,
+          {
+            detail,
+          },
+        );
         window.dispatchEvent(successEvent);
 
         worker.terminate();
         resolve(event.data.blob);
       } else if (action === "ERROR") {
         const { error } = event.data;
-        const detail: MediaUploadProgress = {
+        const detail: MediaProcessingProgress = {
           status: "ERROR",
           progress: 0,
           error,
         };
-        const errorEvent = new CustomEvent(`media-progress-${id}`, { detail });
+        const errorEvent = new CustomEvent(`media-compression-progress-${id}`, {
+          detail,
+        });
         window.dispatchEvent(errorEvent);
 
         worker.terminate();

@@ -7,12 +7,14 @@ interface UseIsolatedProps {
   mediaList: IMedia[];
   onDoubleTap?: () => void;
   initialIndex?: number;
+  onBackClick?: () => void;
 }
 
 export const useIsolatedMedia = ({
   mediaList,
   onDoubleTap,
   initialIndex = 0,
+  onBackClick,
 }: UseIsolatedProps) => {
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const [activeMedia, setActiveMedia] = useState<IMedia | null>(
@@ -41,6 +43,7 @@ export const useIsolatedMedia = ({
   );
 
   const handleBackClick = () => {
+    if (onBackClick) onBackClick();
     /* Navigation logic */
   };
   const handleMoreClick = () => {

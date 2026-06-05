@@ -14,5 +14,5 @@ export * from "./src/store/useSocketStore";
 export * from "./src/useCached";
 export * from "./src/useObserver";
 export * from "./src/useDebounce";
-export * from "./src/useMedia";
+export * from "./src/useFile";
 export * from "./src/useSocketListener";

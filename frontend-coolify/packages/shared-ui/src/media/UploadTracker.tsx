@@ -1,9 +1,9 @@
 import { Stack, Typography } from "@mui/material";
-import { MediaUploadProgress } from "@repo/core";
+import { MediaProcessingProgress } from "@repo/core";
 import { ProgressIcon } from "../LoadingUIs";
 
 interface UploadTrackerProps {
-  uploadStates: Record<string, MediaUploadProgress>;
+  uploadStates: Record<string, MediaProcessingProgress>;
 }
 /**
  * Renders real-time media upload metrics directly inside the shared snackbar container.

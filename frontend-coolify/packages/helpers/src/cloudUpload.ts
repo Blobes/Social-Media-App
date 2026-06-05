@@ -4,14 +4,13 @@ import {
   AllowedMimeType,
   Dimensions,
   ISinglePayload,
-  MediaUploadStatus,
+  MediaProcessingStatus,
   SERVER_API,
   TrackedFile,
   MediaUploadPayload,
 } from "@repo/core";
 import { apiClient } from "./apiClient";
 import {
-  compressVideoAsync,
   generateBlurHash,
   getImageDimensions,
   getVideoMetadata,
@@ -53,7 +52,7 @@ const CHUNK_SIZE = 15 * 1024 * 1024;
  */
 const emitUploadProgress = (
   trackingId: string,
-  status: MediaUploadStatus,
+  status: MediaProcessingStatus,
   progress: number,
   error?: string,
 ): void => {
@@ -217,7 +216,6 @@ export const executeMultipartUpload = async (
   const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
   const uploadPartsPromises: Promise<MultipartPartSignature>[] = [];
 
-  // Track byte metrics natively across all parallel segments
   const chunkProgressTracker: Record<number, number> = {};
 
   const calculateTotalProgress = () => {
@@ -255,36 +253,37 @@ export const executeMultipartUpload = async (
 
         const { partUploadUrl } = signResponse.payload;
 
-        await new Promise<string>((resolvePart, rejectPart) => {
-          const xhr = new XMLHttpRequest();
-          xhr.open("PUT", partUploadUrl);
-          xhr.setRequestHeader("Content-Type", mimeType);
+        const etagValue = await new Promise<string>(
+          (resolvePart, rejectPart) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("PUT", partUploadUrl);
+            xhr.setRequestHeader("Content-Type", mimeType);
 
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              chunkProgressTracker[partNumber] = event.loaded;
-              calculateTotalProgress();
-            }
-          };
+            xhr.upload.onprogress = (event) => {
+              if (event.lengthComputable) {
+                chunkProgressTracker[partNumber] = event.loaded;
+                calculateTotalProgress();
+              }
+            };
 
-          xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
-              const etag = xhr.getResponseHeader("ETag");
-              if (!etag)
-                rejectPart(
-                  new Error(`Missing validation tag on track ${partNumber}`),
-                );
-              else resolvePart(etag.replace(/"/g, ""));
-            } else {
-              rejectPart(new Error(`Chunk upload failed: ${xhr.status}`));
-            }
-          };
+            xhr.onload = () => {
+              if (xhr.status >= 200 && xhr.status < 300) {
+                const etag = xhr.getResponseHeader("ETag");
+                if (!etag)
+                  rejectPart(
+                    new Error(`Missing validation tag on track ${partNumber}`),
+                  );
+                else resolvePart(etag.replace(/"/g, ""));
+              } else {
+                rejectPart(new Error(`Chunk upload failed: ${xhr.status}`));
+              }
+            };
 
-          xhr.onerror = () => rejectPart(new Error("Chunk network failure"));
-          xhr.send(chunkBlob);
-        });
+            xhr.onerror = () => rejectPart(new Error("Chunk network failure"));
+            xhr.send(chunkBlob);
+          },
+        );
 
-        const etagValue = ""; // Value resolved inside operational promise scopes above natively
         return { ETag: etagValue, PartNumber: partNumber };
       } catch (err) {
         if (retryCount < 3) {
@@ -338,33 +337,16 @@ const processSingleFile = async (file: File): Promise<MediaUploadPayload> => {
 
   try {
     if (isVideo) {
-      emitUploadProgress(trackingId, "IDLE", 0);
       const videoData = await getVideoMetadata(file);
       dimensions = videoData.dimensions;
-
-      let videoPayloadToUpload: File | Blob = file;
-      const highPerformanceAvailable = checkDeviceCapability();
-
-      if (highPerformanceAvailable) {
-        try {
-          emitUploadProgress(trackingId, "LOADING_ENGINE", 0);
-          videoPayloadToUpload = await compressVideoAsync(file, trackingId);
-        } catch (compressionError) {
-          console.warn(
-            "Local optimization aborting, reverting to uncompressed stream:",
-            compressionError,
-          );
-          videoPayloadToUpload = file;
-        }
-      }
 
       let finalFileKey: string;
       let targetUrl: string;
       const videoMimeType: AllowedMimeType = "video/mp4";
 
-      if (videoPayloadToUpload.size > 16 * 1024 * 1024) {
+      if (file.size > 16 * 1024 * 1024) {
         finalFileKey = await executeMultipartUpload(
-          videoPayloadToUpload,
+          file,
           videoMimeType,
           trackingId,
         );
@@ -387,7 +369,7 @@ const processSingleFile = async (file: File): Promise<MediaUploadPayload> => {
         targetUrl = configResponse.payload.publicUrl;
       } else {
         const directUpload = await fetchUploadUrl(
-          videoPayloadToUpload,
+          file,
           videoMimeType,
           trackingId,
         );
@@ -416,14 +398,13 @@ const processSingleFile = async (file: File): Promise<MediaUploadPayload> => {
         type: "VIDEO",
         thumbnailUrl,
         mimeType: videoMimeType,
-        size: videoPayloadToUpload.size,
+        size: file.size,
         dimensions,
         blurHash,
         storageProvider: "S3",
       };
     }
 
-    // Process image and GIF files directly
     emitUploadProgress(trackingId, "UPLOADING", 0);
     const [imgDimensions, imgBlurHash, mainImageUpload] = await Promise.all([
       getImageDimensions(file),

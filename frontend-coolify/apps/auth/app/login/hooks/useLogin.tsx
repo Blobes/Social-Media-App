@@ -39,10 +39,11 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
 
   const inlineMsgStyle = {
     color: theme.palette.gray[0],
-    background: theme.palette.primary.main,
+    background: theme.palette.error.main,
     padding: theme.boxSpacing(0, 3),
     margin: theme.boxSpacing(0, 3, 1, 3),
     borderRadius: theme.radius[1],
+    fontSize: "14px",
   };
 
   const resetLockStates = useCallback(() => {
@@ -61,6 +62,31 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     }, [resetLockStates, setSBMessage]),
   );
 
+  useEffect(() => {
+    const lockTime = getCookie("loginLockTime");
+    const attempts = getCookie("loginAttempts");
+    if (lockTime) {
+      setActiveLockTime(lockTime);
+    } else if (attempts) {
+      clearLoginLock();
+      resetLockStates();
+    }
+  }, [resetLockStates]);
+
+  useEffect(() => {
+    if (isLocked) {
+      setInlineMsg(
+        <span>
+          You've exceeded the maximum login attempts. Try again in{" "}
+          <strong style={inlineMsgStyle}>
+            {formatRemainingTime(remainingSec)}
+          </strong>
+          . Or reset your password.
+        </span>,
+      );
+    }
+  }, [remainingSec, isLocked, setInlineMsg]);
+
   const handleFailedPassword = useCallback(() => {
     const current = parseInt(getCookie("loginAttempts") || "0", 10);
     const nextAttempts = current + 1;
@@ -72,7 +98,6 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
       setActiveLockTime(lockTime);
       return true;
     }
-
     setInlineMsg(
       <span>
         <strong>Incorrect password. </strong>You have{" "}
@@ -99,37 +124,13 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     },
   });
 
-  useEffect(() => {
-    const lockTime = getCookie("loginLockTime");
-    const attempts = getCookie("loginAttempts");
-
-    if (lockTime) {
-      setActiveLockTime(lockTime);
-    } else if (attempts) {
-      clearLoginLock();
-      resetLockStates();
-    }
-  }, [resetLockStates]);
-
-  useEffect(() => {
-    if (isLocked) {
-      setInlineMsg(
-        <span>
-          You've exceeded the maximum login attempts. Try again in{" "}
-          <strong style={inlineMsgStyle}>
-            {formatRemainingTime(remainingSec)}
-          </strong>
-          . Or reset your password.
-        </span>,
-      );
-    }
-  }, [remainingSec, isLocked, setInlineMsg]);
-
   const onPasswordChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const value = e.target.value;
+    setInlineMsg(null);
     setPassword(value);
+
     if (value.length >= 6) {
       setPasswordValidity("VALID");
       setErrorMsg("");

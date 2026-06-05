@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, SxProps, Theme } from "@mui/material";
+import { Box } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCarousel } from "./useCarousel";
 import { CarouselArrows, CarouselDots } from "./Controls";
 import { useEffect } from "react";
 import { useTheme } from "@mui/material/styles";
+import { GenericStyle } from "@repo/core";
 
 export interface CarouselStyle {
-  container?: SxProps<Theme>;
+  container?: GenericStyle;
   item?: React.CSSProperties;
 }
 
@@ -62,14 +63,17 @@ export const Carousel = ({
         height: "100%",
         overflow: "hidden",
         gap: theme.gap(8),
+        flex: "none",
         ...style?.container,
       }}>
       <Box
         sx={{
           position: "relative",
-          flex: 1,
           display: "flex",
           alignItems: "center",
+          width: "100%",
+          flex: "1 1 0%",
+          minHeight: 0,
         }}>
         <AnimatePresence initial={false} custom={direction} mode="popLayout">
           <motion.div

@@ -96,19 +96,13 @@ export const useIdentifier = ({
               <AppButton
                 variant="text"
                 href={CLIENT_ROUTES.signup.path}
-                onClick={(e) => {
-                  setInlineMsg(null);
-                  navigateTo(CLIENT_ROUTES.signup, {
-                    event: e,
-                    loadPage: true,
-                    savePage: false,
-                  });
-                }}
+                onClick={handleSignupClick}
                 style={{
-                  color: theme.palette.primary.dark,
+                  color: theme.palette.primary.main,
+                  fontSize: "14px",
                   "&:hover": { textDecoration: "underline" },
                 }}>
-                Create account
+                Create one
               </AppButton>
             )}
           </span>,
@@ -148,6 +142,7 @@ export const useIdentifier = ({
         }
       }
 
+      setInlineMsg(null);
       setInput(inputValue);
 
       window.requestAnimationFrame(() => {
@@ -180,6 +175,15 @@ export const useIdentifier = ({
     mutate(input);
   };
 
+  const handleSignupClick = useCallback((e: React.MouseEvent) => {
+    setInlineMsg(null);
+    navigateTo(CLIENT_ROUTES.signup, {
+      event: e,
+      loadPage: true,
+      savePage: false,
+    });
+  }, []);
+
   return {
     input,
     inputType: inputValidity.type,
@@ -192,5 +196,6 @@ export const useIdentifier = ({
     isSubmitDisabled: validity === "INVALID" || input === "" || isAuthLoading,
     countryMenuRef,
     validateAndSet,
+    handleSignupClick,
   };
 };

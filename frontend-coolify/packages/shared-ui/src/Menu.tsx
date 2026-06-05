@@ -22,6 +22,10 @@ interface MenuProps {
   heightThreshold?: number;
   style?: GenericStyle;
 }
+
+/**
+ * Low-level menu popover surface mapping anchor element positioning configurations.
+ */
 export const MenuPopup = forwardRef<MenuRef, MenuProps>(
   ({ children, stickToScreen = true, heightThreshold, style }, ref) => {
     const theme = useTheme();
@@ -34,6 +38,10 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
         setAnchorEl(null);
       },
     }));
+
+    // Convert potential Fragments or conditional arrays into clean flat lists for MUI
+    const cleanChildren = React.Children.toArray(children).filter(Boolean);
+
     return (
       <Menu
         anchorEl={anchorElNav}
@@ -75,7 +83,7 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
           alignItems: "center",
           padding: theme.boxSpacing(2, 0),
         }}>
-        {children}
+        {cleanChildren}
       </Menu>
     );
   },
@@ -175,9 +183,9 @@ export const DisplayList = <T extends IMenuItem>({
     externalSearchQuery !== undefined ? externalSearchQuery : searchQuery;
 
   // Derived States
-  const isSourceEmpty = list.length === 0 && !isLoading;
+  const isSourceEmpty = filteredList.length === 0 && !isLoading;
   const isSearchEmpty =
-    currentQuery.length > 0 && list.length === 0 && !isLoading;
+    currentQuery.length > 0 && filteredList.length === 0 && !isLoading;
 
   /**
    * Returns localized fallback messaging contextual parameters.
@@ -237,18 +245,18 @@ export const DisplayList = <T extends IMenuItem>({
       {feedback() ? (
         <Box
           sx={{ width: "100%", p: theme.boxSpacing(4), textAlign: "center" }}>
-          <Typography variant="body2" sx={{ color: "inherit" }}>
+          <Typography variant="body3" sx={{ color: theme.palette.gray[200] }}>
             {feedback()}
             {isSearchEmpty && (
-              <span style={{ display: "block", opacity: 0.7 }}>
-                "{currentQuery}"
-              </span>
+              <b style={{ display: "block" }}>"{currentQuery}"</b>
             )}
           </Typography>
         </Box>
       ) : (
-        <>
+        // Extracted children from fragment layout into transparent inline elements array block
+        [
           <RenderItemList
+            key="render-item-list"
             list={filteredList}
             listType={listName}
             onItemClick={(item) => {
@@ -259,10 +267,10 @@ export const DisplayList = <T extends IMenuItem>({
             style={itemStyle}
             showActiveItem={showActiveItem}
             activeItem={activeItem}
-          />
-          {/* Layout DOM Sentinel tracking intersections inside the menu wrapper viewport */}
-          {hasNextPage && (
+          />,
+          hasNextPage && (
             <Box
+              key="infinite-scroll-sentinel"
               ref={sentinelRef}
               sx={{
                 padding: theme.gap(4),
@@ -272,8 +280,8 @@ export const DisplayList = <T extends IMenuItem>({
               }}>
               {isFetchingNextPage && <ProgressIcon otherProps={{ size: 24 }} />}
             </Box>
-          )}
-        </>
+          ),
+        ]
       )}
     </MenuPopup>
   );

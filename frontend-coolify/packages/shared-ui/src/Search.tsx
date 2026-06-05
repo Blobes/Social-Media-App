@@ -4,7 +4,7 @@ import React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import { InputBase, Stack, Typography } from "@mui/material";
 import { Search as SearchIcon } from "lucide-react";
-import { InputProps } from "./InputFields";
+import { InputProps, sharedStyle } from "./InputFields";
 
 const InputWrapper = styled(Stack)(({ theme }) => ({
   flexDirection: "row",
@@ -32,6 +32,8 @@ export const SearchBar = ({
   style,
   placeholder,
 }: InputProps) => {
+  const theme = useTheme();
+
   return (
     <InputWrapper
       sx={{

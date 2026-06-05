@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { AppButton, InlineMsg, ProgressIcon } from "@repo/shared-ui";
+import { AppButton, InlineMsgUI, ProgressIcon } from "@repo/shared-ui";
 import { PostStepName, StepperProps } from "@repo/core";
 
 export interface SettingsStepProps extends StepperProps<PostStepName> {
@@ -50,7 +50,7 @@ export const GistSettingsStep: React.FC<SettingsStepProps> = ({
         </Typography>
 
         {!isProcessing && inlineErrMsg && (
-          <InlineMsg msg={inlineErrMsg} type="ERROR" />
+          <InlineMsgUI msg={inlineErrMsg} type="ERROR" />
         )}
       </Stack>
 

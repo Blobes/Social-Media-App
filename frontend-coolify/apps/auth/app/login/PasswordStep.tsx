@@ -5,7 +5,7 @@ import { IconButton, Stack, Typography } from "@mui/material";
 import {
   AppButton,
   PasswordInput,
-  InlineMsg,
+  InlineMsgUI,
   BasicTooltip,
   ProgressIcon,
 } from "@repo/shared-ui";
@@ -13,6 +13,7 @@ import { useTheme } from "@mui/material/styles";
 import { Pencil } from "lucide-react";
 import { useLogin } from "./hooks/useLogin";
 import { LoginStepProps } from "../types";
+import { useGlobalStore } from "@repo/shared-hooks";
 
 interface StepProps extends LoginStepProps {
   credential: string;
@@ -24,6 +25,7 @@ export const PasswordStep: React.FC<StepProps> = ({
   style = {},
 }) => {
   const theme = useTheme();
+  const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
 
   // Consuming the controller
   const {
@@ -38,13 +40,13 @@ export const PasswordStep: React.FC<StepProps> = ({
   } = useLogin({ identifier, setStep });
 
   return (
-    <Stack>
+    <Stack sx={{ width: "100%" }}>
       <Stack>
         <Typography
-          component="h4"
+          component="h3"
           variant="h5"
           sx={{ textAlign: "center", ...style.headline }}>
-          Welcome back buzzer!
+          Welcome back
         </Typography>
         <Typography
           component="p"
@@ -60,7 +62,7 @@ export const PasswordStep: React.FC<StepProps> = ({
       </Stack>
 
       {!isAuthLoading && inlineMsg && (
-        <InlineMsg msg={inlineMsg} type="ERROR" />
+        <InlineMsgUI msg={inlineMsg} type="ERROR" />
       )}
 
       <Stack
@@ -68,36 +70,36 @@ export const PasswordStep: React.FC<StepProps> = ({
         component="form"
         onSubmit={handleSubmit}>
         <Stack gap={theme.gap(8)}>
-          <Stack direction="row">
+          <Stack direction="row" gap={theme.gap(2)}>
             <Typography
               component="p"
-              variant="body2"
+              variant="body3"
               sx={{
                 textAlign: "left",
-                padding: theme.boxSpacing(6, 8),
+                padding: theme.boxSpacing(4, 6),
                 borderRadius: theme.radius[3],
                 color: theme.palette.primary.dark,
-                border: `1px solid ${theme.fixedColors.pTrans}`,
                 backgroundColor: theme.fixedColors.pTrans,
                 width: "100%",
                 fontWeight: "500",
-                fontSize: "16px",
               }}>
               {identifier}
             </Typography>
             <BasicTooltip title={"Change credential"}>
               <IconButton
                 sx={{
-                  padding: theme.boxSpacing(3, 4),
+                  padding: theme.boxSpacing(4, 4),
                   color: theme.palette.gray[300],
-                  //  border: `1px solid ${theme.palette.gray.trans[1]}`,
                   borderRadius: theme.radius[3],
-                  width: "48px",
+                  width: "44px",
                   backgroundColor: theme.fixedColors.pTrans,
                 }}
-                onClick={() => setStep?.("IDENTIFIER")}>
+                onClick={() => {
+                  setInlineMsg(null);
+                  setStep?.("IDENTIFIER");
+                }}>
                 <Pencil
-                  style={{ width: "20px", stroke: theme.palette.gray[200] }}
+                  style={{ width: "18px", stroke: theme.palette.gray[300] }}
                 />
               </IconButton>
             </BasicTooltip>
@@ -107,6 +109,7 @@ export const PasswordStep: React.FC<StepProps> = ({
             placeholder="Password"
             onChange={onPasswordChange}
             helperText={errorMsg}
+            value={password}
             error={password === "" && passwordValidity === "INVALID"}
           />
         </Stack>

@@ -127,7 +127,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
         )}
 
         {/* Create post  */}
-        {isDesktop && (
+        {isLoggedIn && isDesktop && (
           <>
             <CreatePostMenuDesktop postRef={createPostRef} />
             <AppButton

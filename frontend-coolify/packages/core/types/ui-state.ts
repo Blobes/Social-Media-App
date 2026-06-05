@@ -26,7 +26,7 @@ export type OtpReason =
   | "UNVERIFIED_ACCOUNT"
   | "NEW_ACCOUNT";
 
-export type PostStepName = "CONTENT" | "SETTINGS";
+export type PostStepName = "CONTENT" | "SETTINGS" | "MEDIA_PREVIEW";
 
 export type AuthStepName =
   | "INTRO"
@@ -177,7 +177,7 @@ export interface TourGuide extends Omit<IStep<TourStepName>, "element"> {
   desc?: React.ReactNode;
 }
 
-export type MediaUploadStatus =
+export type MediaProcessingStatus =
   | "IDLE"
   | "LOADING_ENGINE"
   | "OPTIMIZING"
@@ -186,9 +186,9 @@ export type MediaUploadStatus =
   | "UPLOADING"
   | "FAILED";
 
-export interface MediaUploadProgress {
+export interface MediaProcessingProgress {
   fileName?: string;
-  status: MediaUploadStatus;
+  status: MediaProcessingStatus;
   progress: number;
   error?: string;
 }

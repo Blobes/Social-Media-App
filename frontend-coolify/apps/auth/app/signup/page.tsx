@@ -75,7 +75,7 @@ export default function SignupPage() {
             height: "100%",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: "#1F2895",
+            backgroundColor: "#1F2876",
             [theme.breakpoints.down("md")]: {
               width: "100%",
               height: "100vh",

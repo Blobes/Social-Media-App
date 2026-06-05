@@ -24,7 +24,7 @@ export default function LoginPage() {
         padding: theme.boxSpacing(30),
         minHeight: "fit-content",
         ...applyBGPattern(),
-        [theme.breakpoints.down("sm")]: {
+        [theme.breakpoints.down("md")]: {
           padding: theme.boxSpacing(0),
           minHeight: "unset",
         },
@@ -47,6 +47,7 @@ export default function LoginPage() {
             [theme.breakpoints.down("md")]: {
               width: "100%",
               height: "100%",
+              alignItems: "center",
               overflow: "auto",
               boxShadow: "none",
               flexDirection: "column",
@@ -62,19 +63,24 @@ export default function LoginPage() {
               container: {
                 width: "50%",
                 borderRadius: 0,
-                padding: theme.boxSpacing(16, 10),
-
-                mobile: {
-                  width: "100%",
+                padding: theme.boxSpacing(18, 20),
+                mdScreen: {
                   height: "98vh",
-                  minHeight: "98vh",
+                  minHeight: "fit-content",
                   scrollSnapAlign: "start",
-                  padding: theme.boxSpacing(6, 6),
+                  padding: theme.boxSpacing(20, 10),
+                },
+                smScreen: {
+                  width: "100%",
                 },
               },
             }}
           />
-          <TrendingPosts style={{ width: "50%" }} />
+          <TrendingPosts
+            style={{
+              width: "50%",
+            }}
+          />
         </Stack>
       ) : (
         <RestrictedUI

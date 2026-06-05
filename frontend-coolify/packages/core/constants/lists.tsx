@@ -147,7 +147,7 @@ export const LISTS = () => {
 
   const MESSAGES = {
     [ListType.COUNTRY]: {
-      empty: "No countries available.",
+      empty: "No country found.",
       noMatch: "No country matches your search.",
     },
     [ListType.NAVIGATION]: {

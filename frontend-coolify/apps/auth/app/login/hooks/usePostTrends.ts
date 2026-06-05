@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import { asset } from "packages/assets";
-import { CACHE_KEYS, IPost, IGistPayload } from "packages/core";
+import { asset } from "@repo/assets";
+import { CACHE_KEYS, IPost, IGistPayload } from "@repo/core";
 import { useFeed } from "@repo/features";
-import { useCachedData, usePageCache } from "packages/shared-hooks";
+import { useCachedData, usePageCache } from "@repo/shared-hooks";
 
 /**
  * Filter and compute the top trending posts based on engagement heuristics.
@@ -28,12 +28,14 @@ export const useTrendingData = () => {
     asset.avatar6,
   ];
 
+  const gradLocation = "30%";
+  const gradDegree = "180deg";
   const bgColors = [
-    "linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)",
-    "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)",
-    "linear-gradient(135deg, #373b44 0%, #4286f4 100%)",
-    "linear-gradient(135deg, #232526 0%, #414345 100%)",
-    "linear-gradient(135deg, #0f0c20 0%, #17123a 100%)",
+    `linear-gradient(${gradDegree},rgb(19, 29, 97) 0%,rgb(50, 73, 200) ${gradLocation})`,
+    `linear-gradient(${gradDegree},rgb(13, 65, 82) 0%,rgb(29, 157, 169) ${gradLocation})`,
+    `linear-gradient(${gradDegree},rgb(11, 71, 32) 0%,rgb(29, 141, 96) ${gradLocation})`,
+    `linear-gradient(${gradDegree},rgb(63, 66, 12) 0%,rgb(111, 129, 30) ${gradLocation})`,
+    `linear-gradient(${gradDegree},rgb(81, 46, 22) 0%,rgb(145, 105, 26) ${gradLocation})`,
   ];
 
   const processedPosts = useMemo(() => {

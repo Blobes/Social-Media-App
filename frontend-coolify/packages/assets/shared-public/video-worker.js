@@ -41,7 +41,7 @@ self.onmessage = async (event) => {
         self.postMessage({
           action: "PROGRESS",
           id,
-          status: "PROCESSING",
+          status: "OPTIMIZING",
           progress: Math.round(progress * 100),
         });
       });

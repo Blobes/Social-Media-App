@@ -3,6 +3,7 @@
 
 // Theme
 export * from "./theme/ThemeProvider";
+export * from "./theme/invertedTheme";
 
 // Types
 export * from "./types/payloads/user";

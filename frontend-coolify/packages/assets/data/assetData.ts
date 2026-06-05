@@ -27,4 +27,7 @@ export const asset = {
   avatar4: "/svgs/avatar-illustration4.svg",
   avatar5: "/svgs/avatar-illustration5.svg",
   avatar6: "/svgs/avatar-illustration6.svg",
+  googleLogo: "/svgs/google-logo.svg",
+  appleLogo: "/svgs/apple-logo.svg",
+  bgNoise: "/svgs/bg-noise.svg",
 };

@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useRef, useCallback } from "react";
+import React, { useCallback } from "react";
 import { useTheme } from "@mui/material/styles";
-import { MenuRef } from "@repo/core";
 import { useMisc } from "@repo/shared-hooks";
 
 export const useCreatePost = () => {

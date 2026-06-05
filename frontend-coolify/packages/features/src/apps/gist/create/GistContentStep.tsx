@@ -6,7 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import {
   AppButton,
   FileInput,
-  InlineMsg,
+  InlineMsgUI,
   TextInput,
   DisplayList as TopicList,
 } from "@repo/shared-ui";
@@ -47,11 +47,9 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
     handleTopics,
     handleRemoveTopic,
     handleRemoveFile,
+    processingStates, // Extracted processing states containing live metrics
   } = gistContext;
 
-  /**
-   * Slices out item vectors from state indexes when triggered by overlay remove elements.
-   */
   return (
     <Box
       sx={{
@@ -66,7 +64,7 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
         </Typography>
 
         {!isProcessing && inlineErrMsg && (
-          <InlineMsg msg={inlineErrMsg} type="ERROR" />
+          <InlineMsgUI msg={inlineErrMsg} type="ERROR" />
         )}
 
         <TextInput
@@ -103,6 +101,7 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
 
           <GistMediaUpload
             stagedFiles={stagedFiles}
+            processingStates={processingStates || {}}
             onRemoveFile={handleRemoveFile}
           />
         </Stack>
@@ -150,7 +149,7 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
                   borderRadius: theme.radius[1],
                   "& .MuiChip-deleteIcon": {
                     color: theme.palette.error.light,
-                    "&:hover": { color: theme.palette.error.main },
+                    "&hover": { color: theme.palette.error.main },
                   },
                 }}
               />

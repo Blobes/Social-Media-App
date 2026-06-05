@@ -34,6 +34,7 @@ export const SVGWrapper = ({
   const [svgContent, setSvgContent] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [isLottie, setIsLottie] = useState(false);
+  const [isAnimationSettled, setIsAnimationSettled] = useState(false);
   const theme = useTheme();
 
   const url = typeof src === "object" ? src.src : src;
@@ -71,6 +72,12 @@ export const SVGWrapper = ({
       });
   }, [url, preserveColor, color, isLottie]);
 
+  useEffect(() => {
+    if (loading) {
+      setIsAnimationSettled(false);
+    }
+  }, [loading]);
+
   const boxStyles = {
     display: "inline-flex",
     alignItems: "center",
@@ -82,6 +89,11 @@ export const SVGWrapper = ({
       height: "100%",
       display: "block",
       stroke: "none",
+    },
+    "& canvas": {
+      width: "100% !important",
+      height: "100% !important",
+      display: "block",
     },
   };
 
@@ -115,6 +127,7 @@ export const SVGWrapper = ({
           component={motion.div}
           key="content"
           {...getFramerVariants("POP")}
+          onAnimationComplete={() => setIsAnimationSettled(true)}
           {...props}
           sx={{
             width: size,
@@ -123,12 +136,25 @@ export const SVGWrapper = ({
             ...sx,
           }}>
           {isLottie ? (
-            <DotLottieReact
-              src={url}
-              loop={loop}
-              autoplay={autoplay}
-              style={{ width: "100%", height: "100%" }}
-            />
+            isAnimationSettled ? (
+              <DotLottieReact
+                src={url}
+                loop={loop}
+                autoplay={autoplay}
+                style={{ width: "100%", height: "100%", display: "block" }}
+              />
+            ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "100%",
+                  height: "100%",
+                }}>
+                <ProgressIcon style={{ width: "50%", height: "50%" }} />
+              </Box>
+            )
           ) : (
             <Box
               component="span"

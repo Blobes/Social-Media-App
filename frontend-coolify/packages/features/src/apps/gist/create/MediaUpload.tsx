@@ -1,24 +1,35 @@
 "use client";
 
 import React, { useMemo, useEffect, useRef } from "react";
-import { Box, IconButton, useMediaQuery } from "@mui/material";
+import { Box, IconButton, useMediaQuery, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { X } from "lucide-react";
-import { MediaGrid, MediaScroll, Media } from "@repo/shared-ui";
+import { MediaGrid, MediaScroll, Media, ProgressIcon } from "@repo/shared-ui";
 import { applyBGEffects } from "@repo/helpers";
-import { MediaProps } from "@repo/core";
+import {
+  MediaProps,
+  MediaProcessingProgress,
+  PostStepName,
+  StepperProps,
+} from "@repo/core";
 import { useMisc } from "@repo/shared-hooks";
 
-interface GistMediaUploadProps {
+interface GistMediaUploadProps extends StepperProps<PostStepName> {
   stagedFiles: File[];
+  processingStates: Record<
+    string,
+    { upload?: MediaProcessingProgress; compression?: MediaProcessingProgress }
+  >;
   onRemoveFile: (index: number) => void;
 }
 
 /**
- * Maps raw staged browser files into media preview nodes with individual remove overlays.
+ * Maps raw staged browser files into media preview nodes with individual remove overlays and optimization feedback.
  */
 export const GistMediaUpload: React.FC<GistMediaUploadProps> = ({
+  setStep,
   stagedFiles,
+  processingStates,
   onRemoveFile,
 }) => {
   const theme = useTheme();
@@ -27,7 +38,6 @@ export const GistMediaUpload: React.FC<GistMediaUploadProps> = ({
 
   // Map files to local URLs while tracking references to prevent memory bloat
   const formattedMediaList = useMemo(() => {
-    // Revoke previous URLs before generating new ones to prevent continuous accumulation
     previousUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
 
     const newUrls: string[] = [];
@@ -43,6 +53,7 @@ export const GistMediaUpload: React.FC<GistMediaUploadProps> = ({
         type: isVideo ? "VIDEO" : "IMAGE",
         alt: file.name,
         onSingleTap: () => {
+          setStep?.("MEDIA_PREVIEW");
           console.log("Reveal media modal projection for path:", objectUrl);
         },
       } as MediaProps;
@@ -52,7 +63,6 @@ export const GistMediaUpload: React.FC<GistMediaUploadProps> = ({
     return mediaMapped;
   }, [stagedFiles]);
 
-  // Clean up remaining blob references on unmount
   useEffect(() => {
     return () => {
       previousUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
@@ -75,38 +85,94 @@ export const GistMediaUpload: React.FC<GistMediaUploadProps> = ({
   );
 
   /**
-   * Helper utility rendering a floating delete choice directly above layout slots.
+   * Evaluates if a file compression loop is active and returns the percentage markup overlay.
    */
-  const renderWithDeleteAction = (node: React.ReactNode, index: number) => (
-    <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
-      {node}
-      <IconButton
-        onClick={(e) => {
-          e.stopPropagation();
-          onRemoveFile(index);
-        }}
+  const renderCompressionOverlay = (file: File) => {
+    const trackingId = (file as any).trackingId;
+    if (!trackingId) return null;
+
+    const compressionState = processingStates[trackingId]?.compression;
+    if (!compressionState || compressionState.status === "SUCCESS") return null;
+
+    const isIdle =
+      compressionState.status === "IDLE" ||
+      compressionState.status === "LOADING_ENGINE";
+    const currentProgress = compressionState.progress || 0;
+
+    return (
+      <Box
         sx={{
           position: "absolute",
-          top: "8px",
-          right: "8px",
-          zIndex: 10,
-          backgroundColor: theme.palette.gray.trans.overlay(0.6),
-          color: theme.fixedColors.gray50,
-          backdropFilter: "blur(4px)",
-          padding: "6px",
-          "&:hover": {
-            backgroundColor: theme.palette.gray.trans.overlay(0.8),
-            color: theme.palette.error.main,
-          },
+          inset: 0,
+          zIndex: 5,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "8px",
+          backgroundColor: theme.palette.gray.trans.overlay(0.75),
+          backdropFilter: "blur(6px)",
+          borderRadius: "inherit",
         }}>
-        <X size={16} />
-      </IconButton>
-    </Box>
-  );
+        <ProgressIcon
+          variant={isIdle ? "indeterminate" : "determinate"}
+          value={isIdle ? undefined : currentProgress}
+          style={{ width: "24px", height: "24px", flexShrink: 0 }}
+        />
+        <Typography
+          variant="body3"
+          sx={{ color: theme.fixedColors.gray50, fontWeight: 500 }}>
+          {isIdle ? "Optimizing video..." : `Optimizing ${currentProgress}%`}
+        </Typography>
+      </Box>
+    );
+  };
+
+  /**
+   * Helper utility rendering a floating delete choice and processing metrics directly above layout slots.
+   */
+  const renderWithDeleteAction = (node: React.ReactNode, index: number) => {
+    const file = stagedFiles[index];
+    if (!file) return null;
+
+    return (
+      <Box
+        sx={{
+          position: "relative",
+          width: "100%",
+          height: "100%",
+          borderRadius: theme.radius[3],
+          overflow: "hidden",
+        }}>
+        {node}
+        {renderCompressionOverlay(file)}
+        <IconButton
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemoveFile(index);
+          }}
+          sx={{
+            position: "absolute",
+            top: "8px",
+            right: "8px",
+            zIndex: 10,
+            backgroundColor: theme.palette.gray.trans.overlay(0.6),
+            color: theme.fixedColors.gray50,
+            backdropFilter: "blur(4px)",
+            padding: "6px",
+            "&:hover": {
+              backgroundColor: theme.palette.gray.trans.overlay(0.8),
+              color: theme.palette.error.main,
+            },
+          }}>
+          <X size={16} />
+        </IconButton>
+      </Box>
+    );
+  };
 
   if (stagedFiles.length === 0) return null;
 
-  // Single file viewport assignment
   if (stagedFiles.length === 1) {
     return renderWithDeleteAction(
       <Media
@@ -118,18 +184,16 @@ export const GistMediaUpload: React.FC<GistMediaUploadProps> = ({
     );
   }
 
-  // Multi-file grid or scroll container viewports
   return (
     <Box sx={{ width: "100%" }}>
       {isSmallScreen ? (
         <MediaScroll
           mediaList={formattedMediaList.map((media, idx) => ({
             ...media,
-            onSingleTap: () => {},
           }))}
           style={mediaStyle}
-          bgEffects={(t: any) => ({
-            ...applyBGEffects(t),
+          bgEffects={() => ({
+            ...applyBGEffects(theme),
             overlay: {
               children: formattedMediaList.map((_, index) =>
                 renderWithDeleteAction(null, index),
@@ -139,12 +203,17 @@ export const GistMediaUpload: React.FC<GistMediaUploadProps> = ({
         />
       ) : (
         <MediaGrid
-          mediaList={formattedMediaList}
+          mediaList={formattedMediaList.map((media, index) => ({
+            ...media,
+            // Inject individual item card updates within layout generation
+            customContainerWrapper: (node: React.ReactNode) =>
+              renderWithDeleteAction(node, index),
+          }))}
           style={mediaStyle}
-          bgEffects={(t: any) => ({
-            ...applyBGEffects(t),
+          bgEffects={() => ({
+            ...applyBGEffects(theme),
             zoom: (selector: string) => ({
-              ...applyBGEffects(t).zoom(selector),
+              ...applyBGEffects(theme).zoom(selector),
               "& .MuiImageListItem-item": {
                 position: "relative",
               },

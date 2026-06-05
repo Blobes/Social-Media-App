@@ -1,7 +1,6 @@
 "use client";
 
 import { createTheme } from "@mui/material/styles";
-import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 
 const baseUIStyles = createTheme({
   components: {
@@ -229,36 +228,40 @@ const baseUIStyles = createTheme({
     MuiTextField: {
       styleOverrides: {
         root: ({ theme }) => ({
-          "--TextField-default": theme.palette.gray[50],
+          "--TextField-main": theme.palette.primary.main,
+          "--TextField-default": theme.palette.gray[200],
           "--TextField-success": theme.palette.info.main,
           "--TextField-error": theme.palette.error.main,
-          "& .MuiInputBase-input": { fontSize: "16px" },
-          "& label": {
-            fontSize: "16px",
-            transform: "translate(14px, 14px)",
-            color: theme.palette.gray[200],
-            border: "none",
+          "--TextField-gray0": theme.palette.gray[0],
+          "--TextField-gray50": theme.palette.gray[50],
+          "--TextField-fontSize": "16px",
+
+          "& .MuiInputBase-input": {
+            fontSize: "var(--TextField-fontSize)",
+            fontWeight: "501",
+          },
+
+          "& .MuiInputLabel-root": {
+            maxWidth: "calc(90% - 24px)",
+            fontSize: "var(--TextField-fontSize)",
+            transform: "translate(16px, 17px)",
+            fontWeight: "500",
+            color: "var(--TextField-default)",
           },
           "& label.Mui-focused, & label.MuiInputLabel-shrink": {
-            transform: "translate(6px, -20px) scale(0.9)",
-            padding: theme.boxSpacing(2, 5),
-            borderRadius: theme.radius.full,
-            backgroundColor: theme.palette.gray[50],
+            color: "var(--TextField-default)",
+            transform: "translate(15px, 7px) scale(0.83)",
+            borderRadius: theme.radius[1],
           },
-          "& label.MuiInputLabel-shrink": {
-            border: `1px solid ${theme.palette.gray[200]}`,
-          },
-          "& label.Mui-focused": {
-            border: `2px solid ${theme.palette.primary.main}`,
-          },
-          "& label.MuiInputLabel-root.Mui-error.Mui-focused": {
-            color: "var(--TextField-error)",
-            border: "2px solid var(--TextField-error)",
-          },
+          "& label.MuiInputLabel-root.Mui-error.Mui-focused, & label.MuiInputLabel-root.Mui-error":
+            {
+              color: "var(--TextField-error)",
+            },
           "& .MuiFormHelperText-root": {
             fontSize: "14px",
             lineHeight: "1.2em",
             fontWeight: "500",
+            color: "var(--TextField-default)",
             margin: theme.boxSpacing(4, 0, 0, 0),
           },
         }),
@@ -268,20 +271,35 @@ const baseUIStyles = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: ({ theme }) => ({
-          borderRadius: theme.radius[3],
           maxWidth: "600px",
           minWidth: "150px",
-          padding: theme.boxSpacing(3, 6, 3, 0),
-          "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.palette.gray[200],
-          },
-          [`& .Mui-error .${outlinedInputClasses.notchedOutline}`]: {
-            borderColor: "var(--TextField-error)",
+          borderRadius: theme.radius[4],
+          border: "1px solid var(--TextField-gray50)",
+          backgroundColor: "var(--TextField-gray50)",
+          padding: theme.boxSpacing(4.5, 5, 4.5, 0),
+          transition: "all 0.2s ease-in-out",
+          "&:hover": {
+            backgroundColor: "transparent",
+            borderColor: "var(--TextField-main)",
           },
           "&.Mui-focused": {
+            backgroundColor: "transparent",
+            borderColor: "var(--TextField-main)",
             outline: `2px solid ${theme.fixedColors.pTrans}`,
-            outlineOffset: "2px",
-            boxShadow: `0 0 0 6px var(--TextField-default)`,
+            boxShadow: `0 0 0 4px ${theme.fixedColors.pTrans}`,
+            outlineOffset: "1px",
+            padding: theme.boxSpacing(8.5, 5, 0.5, 0),
+          },
+          "&.Mui-error, &.Mui-error:hover": {
+            borderColor: "var(--TextField-error)",
+            backgroundColor: theme.palette.error.trans,
+          },
+          "&.Mui-error.Mui-focused": {
+            boxShadow: `0 0 0 4px ${theme.palette.error.trans}`,
+            backgroundColor: "transparent",
+          },
+          "& .MuiOutlinedInput-notchedOutline": {
+            display: "none",
           },
         }),
       },

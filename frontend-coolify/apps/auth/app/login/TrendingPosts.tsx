@@ -1,18 +1,15 @@
 "use client";
 
 import React from "react";
-import { IPost, GenericStyle } from "packages/core";
-import { useAdaptiveTime } from "packages/shared-hooks";
+import { IPost, GenericStyle } from "@repo/core";
+import { useAdaptiveTime } from "@repo/shared-hooks";
 import { useTheme } from "@mui/material/styles";
-import {
-  Carousel,
-  GistSkeleton,
-  SmartDate,
-  SVGWrapper,
-} from "packages/shared-ui";
+import { Carousel, GistSkeleton, SmartDate, SVGWrapper } from "@repo/shared-ui";
 import { useTrendingData } from "./hooks/usePostTrends";
 import { Box, Stack, Typography } from "@mui/material";
-import { lineClamp, summarizeNum } from "packages/helpers";
+import { applyBGPattern, lineClamp, summarizeNum } from "@repo/helpers";
+import { Quote } from "lucide-react";
+import { asset } from "@repo/assets";
 
 interface TrendingPost {
   post: IPost;
@@ -38,14 +35,15 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
         position: "relative",
         width: "100%",
         height: "100%",
-        minHeight: 350,
+        minHeight: 300,
         alignItems: "flex-start",
         justifyContent: "flex-end",
         borderRadius: theme.radius[5] || "24px",
         overflow: "hidden",
         background: data.bgColor,
+        ...(!hasMedia && applyBGPattern({ url: asset.bgNoise, contain: true })),
         gap: theme.gap(18),
-        p: theme.boxSpacing(22, 18, 18, 18),
+        padding: theme.boxSpacing(22, 18, 18, 18),
       }}>
       {/* Background Visual Rendering Block */}
       {hasMedia && targetMedia && (
@@ -82,14 +80,15 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
 
       {/* Main Content Fields */}
       <Typography
-        variant="h6"
+        component="h5"
+        variant="subtitle1"
         sx={{
           zIndex: 2,
           position: "relative",
           color: "#FFFFFF",
           lineHeight: 1.4,
-          ...lineClamp(4),
-          textShadow: "0px 2px 8px rgba(0,0,0,0.2)",
+          ...lineClamp(5),
+          textShadow: hasMedia ? "0px 2px 8px rgba(0,0,0,0.2)" : "none",
         }}>
         {data.caption}
       </Typography>
@@ -98,6 +97,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
       <Box
         sx={{
           zIndex: 2,
+          color: "#FFFFFF",
           position: "relative",
           display: "flex",
           alignItems: "flex-start",
@@ -108,7 +108,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
           size={50}
           preserveColor={true}
           sx={{
-            flex: 1,
+            flex: "none",
             border: "2px solid #FFFFFF",
             borderRadius: theme.radius.full,
             overflow: "hidden",
@@ -120,14 +120,13 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
         />
         <Box>
           <Typography
-            variant="body2"
+            variant="body1"
             sx={{
-              fontSize: theme.typography.body2,
-              color: "#FFFFFF",
-              fontWeight: 500,
+              color: "inherit",
             }}>
             {data.post.postType === "GIST"
-              ? `${summarizeNum(data.post.likeCount) || 0} likes`
+              ? `${summarizeNum(data.post.likeCount) || 0} 
+              ${data.post.likeCount > 1 ? "likes" : "like"}`
               : "Active stake"}
           </Typography>
           {data.post.postType === "GIST" ? (
@@ -136,35 +135,38 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
                 display: "flex",
                 alignItems: "center",
                 flexWrap: "wrap",
-                color: "rgba(255,255,255,0.7)",
               }}>
               <Typography
                 component="span"
-                sx={{ ...theme.typography.caption, color: "inherit" }}>
+                variant="body3"
+                sx={{
+                  color: "inherit",
+                }}>
                 Shared
               </Typography>
               <SmartDate
-                variant="caption"
+                variant="body3"
                 timestamp={data.post.createdAt}
                 adaptiveTime={useAdaptiveTime}
                 sx={{
-                  padding: theme.boxSpacing(0, 4),
+                  padding: theme.boxSpacing(0, 2),
                   width: "fit-content",
                   flex: "none",
                   color: "inherit",
                 }}
               />
               <Typography
+                variant="body3"
                 component="span"
-                sx={{ ...theme.typography.caption, color: "inherit" }}>
-                with {summarizeNum(data.post.viewCount) || 0} views
+                sx={{ color: "inherit" }}>
+                ago with {summarizeNum(data.post.viewCount) || 0} views
               </Typography>
             </Box>
           ) : (
             <Typography
+              variant="body3"
               sx={{
-                ...theme.typography.caption,
-                color: "rgba(255,255,255,0.7)",
+                color: "inherit",
                 display: "block",
               }}>
               Shared trending post
@@ -191,44 +193,74 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
     <Box
       sx={{
         width: style?.width || "100%",
-        maxWidth: 480,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: theme.gap(20),
-        padding: theme.boxSpacing(24),
+        justifyContent: "center",
+        gap: theme.gap(16),
+        padding: theme.boxSpacing(18, 20),
         margin: "0 auto",
+        backgroundColor: theme.palette.gray[300],
+        ...style?.container,
+
+        [theme.breakpoints.down("md")]: {
+          width: "100%",
+          height: "100vh",
+          minHeight: "fit-content",
+          scrollSnapAlign: "start",
+          padding: theme.boxSpacing(20, 10),
+          flex: "none",
+          ...style?.container?.smallScreen,
+        },
       }}>
       {isLoading ? (
         <GistSkeleton quantity={1} />
-      ) : carouselItems.length < 0 ? (
+      ) : carouselItems.length > 0 ? (
         <>
           <Typography
             component="h5"
             variant="h6"
             sx={{
               width: "100%",
-              color: theme.palette.primary.main,
+              color: theme.palette.primary.light,
               textAlign: "center",
             }}>
-            Trends you might have missed while away!
+            Trends you might have missed while away.
           </Typography>
           <Carousel
             items={carouselItems}
-            // autoPlay={true}
+            autoPlay={true}
             pauseOnHover={true}
-            interval={10000}
+            interval={7000}
+            style={{ container: { height: "70%" } }}
           />
         </>
       ) : (
-        <Typography
-          variant="h4"
-          sx={{
-            width: "100%",
-            color: theme.palette.gray[300],
-          }}>
-          "Something Must Be Unique About You!" ~ Funstakes
-        </Typography>
+        <>
+          <Quote size={50} />
+          <Stack gap={theme.gap(8)} alignItems="center">
+            <Typography
+              variant="h6"
+              sx={{
+                textAlign: "center",
+                width: "80%",
+                color: theme.palette.gray[0],
+                lineHeight: "1.4em",
+              }}>
+              Something Must Be Unique About You
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                width: "100%",
+                textAlign: "center",
+                color: theme.palette.primary.light,
+                fontWeight: "600",
+              }}>
+              ~ Funstakes
+            </Typography>
+          </Stack>
+        </>
       )}
     </Box>
   );

@@ -19,6 +19,7 @@ export interface IsolatedProps {
   sourceType?: MediaSourceType;
   isDesktop?: boolean;
   onDoubleTap?: () => void;
+  onBackClick?: () => void;
   style?: GenericStyle;
   hideInfo?: boolean;
   initialIndex?: number;
@@ -32,6 +33,7 @@ export const IsolatedMedia = ({
   sourceType = "GIST",
   isDesktop,
   onDoubleTap,
+  onBackClick,
   style,
   initialIndex,
 }: IsolatedProps) => {
@@ -45,7 +47,7 @@ export const IsolatedMedia = ({
     handleSetCurrentIndex,
     handleBackClick,
     handleMoreClick,
-  } = useIsolatedMedia({ mediaList, onDoubleTap, initialIndex });
+  } = useIsolatedMedia({ mediaList, onDoubleTap, initialIndex, onBackClick });
 
   const carouselItems = mediaList.map((media) => (
     <MediaRenderer

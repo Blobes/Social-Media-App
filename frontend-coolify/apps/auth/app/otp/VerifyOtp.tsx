@@ -3,7 +3,12 @@
 import React from "react";
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { AppButton, InlineMsg, OtpInput, ProgressIcon } from "@repo/shared-ui";
+import {
+  AppButton,
+  InlineMsgUI,
+  OtpInput,
+  ProgressIcon,
+} from "@repo/shared-ui";
 import { useOtp } from "./useOtp";
 import { SquareAsterisk } from "lucide-react";
 import { OtpTransitData } from "@repo/core";
@@ -64,7 +69,7 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
         }}>
         {/* Feedback */}
         {(!isVerifying || !isSending) && inlineMsg && (
-          <InlineMsg msg={inlineMsg} type="ERROR" />
+          <InlineMsgUI msg={inlineMsg} type="ERROR" />
         )}
 
         <OtpInput

@@ -16,8 +16,11 @@ export const CarouselArrows = ({ onPrev, onNext }: ArrowProps) => {
   const sharedStyle = {
     position: "absolute",
     zIndex: 10,
-    bgcolor: theme.palette.gray.trans[1],
+    bgcolor: theme.palette.gray.trans.overlay(0.3),
     transition: "stroke 0.3s ease, background-color 0.3s ease",
+    "& svg": {
+      stroke: "#ffffff",
+    },
     "&:hover": {
       opacity: 0.8,
       bgcolor: theme.fixedColors.gray50,
@@ -105,6 +108,7 @@ export const CarouselDots = ({
         gap: theme.gap(2),
         py: theme.boxSpacing(2),
         overflow: "hidden",
+        flex: "none",
       }}>
       {Array.from({ length }).map((_, i) => {
         const isActive = i === current;
@@ -132,7 +136,10 @@ export const CarouselDots = ({
               height: 8,
               borderRadius: theme.radius.full,
               cursor: "pointer",
-              bgcolor: theme.palette.gray.trans[2],
+              bgcolor: theme.fixedColors.grayTrans(0.6),
+              "&:hover": {
+                bgcolor: theme.fixedColors.grayTrans(1),
+              },
               overflow: "hidden",
               transform: `scale(${dotScale})`,
               transition:
@@ -141,16 +148,16 @@ export const CarouselDots = ({
             {isActive && (
               <Box
                 component={motion.div}
-                initial={{ width: "0%" }}
-                animate={{ width: autoPlay ? "100%" : "inherit" }}
+                initial={{ width: autoPlay ? "0%" : "100%" }}
+                animate={{ width: "100%" }}
                 transition={{
-                  duration: interval / 1000,
+                  duration: autoPlay ? interval / 1000 : 0,
                   ease: "linear",
                 }}
                 sx={{
                   position: "absolute",
                   height: "100%",
-                  bgcolor: theme.palette.primary.main,
+                  bgcolor: theme.palette.primary.light,
                 }}
               />
             )}

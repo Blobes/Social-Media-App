@@ -14,12 +14,33 @@ import {
   FormHelperText,
   IconButton,
   InputAdornment,
+  inputLabelClasses,
+  outlinedInputClasses,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { Eye, EyeClosed, FileUp } from "lucide-react";
 import { GenericStyle } from "@repo/core";
+
+export const sharedStyle = (theme: any, style: any, value: any) => {
+  return {
+    [`& .${inputLabelClasses.root}.${inputLabelClasses.focused}, 
+      & .${inputLabelClasses.shrink}`]: {
+      ...style?.label,
+    },
+    [`& .${outlinedInputClasses.input}`]: {
+      color: `${theme?.palette.gray[300]}`,
+      ...style?.input,
+    },
+    [`& .${outlinedInputClasses.root}`]: {
+      ...(value?.length > 0 && {
+        padding: theme?.boxSpacing(8.5, 5, 0.5, 0),
+      }),
+      ...style?.outline,
+    },
+  };
+};
 
 export interface InputProps {
   variant?: "outlined" | "filled";
@@ -62,7 +83,10 @@ export const TextInput = ({
   onChange,
   onFocus,
   onBlur,
+  style,
 }: InputProps) => {
+  const theme = useTheme();
+
   return (
     <TextField
       variant={variant}
@@ -86,6 +110,10 @@ export const TextInput = ({
           },
         },
       })}
+      sx={{
+        ...sharedStyle(theme, style, value),
+        ...style,
+      }}
       onChange={(e) => {
         onChange && onChange(e);
       }}
@@ -114,6 +142,7 @@ export const PasswordInput = ({
   onBlur,
   onChange,
   onFocus,
+  style,
 }: InputProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const toggleShowPassword = () => setShowPassword((show) => !show);
@@ -124,6 +153,7 @@ export const PasswordInput = ({
     event.preventDefault();
   };
   const theme = useTheme();
+
   return (
     <TextField
       variant={variant}
@@ -138,6 +168,10 @@ export const PasswordInput = ({
       error={error}
       size="small"
       fullWidth
+      sx={{
+        ...sharedStyle(theme, style, value),
+        ...style,
+      }}
       slotProps={{
         input: {
           [affixPosition === "start" ? "startAdornment" : "endAdornment"]: (

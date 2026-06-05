@@ -1,30 +1,23 @@
 "use client";
 
-import React, {
-  useState,
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useRef,
-} from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   MediaUploadPayload,
   MenuRef,
   PostStepName,
   StepperProps,
-  TrackedFile,
 } from "@repo/core";
 import { uploadMediaToCloud } from "@repo/helpers";
 import {
+  useFileProcessing,
   useGlobalStore,
-  useMediaUploadProgress,
   useSnackbar,
 } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { GistService } from "../gistService";
 import { useTopics } from "../../post/hooks/useTopics";
 import { MediaUploadTracker, ProgressIcon } from "@repo/shared-ui";
-import { useSocketListener } from "@repo/shared-hooks"; // Assumed path for your real-time socket hook
+import { useSocketListener } from "@repo/shared-hooks";
 
 export interface Content extends StepperProps<PostStepName> {
   caption: string;
@@ -55,26 +48,33 @@ export const useGistContent = ({
   setHasSensitiveGraphic,
 }: Content & FilesProps) => {
   const { createGist } = GistService();
-  const { setSBMessage, removeSBMessages } = useSnackbar();
+  const { setSBMessage } = useSnackbar();
 
   const topicsMenuRef = useRef<MenuRef>(null);
 
-  // Extract the authorization user block from the global state container
   const authUser = useGlobalStore((state) => state.authUser);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [inlineErrMsg, setInlineErrMsg] = useState<string | null>(null);
 
-  // Tracks the ID of the gist currently undergoing background async moderation processing
   const [moderationTrackingId, setModerationTrackingId] = useState<
     string | null
   >(null);
 
-  // Monitors the finalized staged files via native window listeners
-  const { uploadStates } = useMediaUploadProgress(stagedFiles);
-
-  // Integrate the isolated topic domain hook
   const topicOperations = useTopics({ topics, setTopics });
+
+  // Hook handles compression tracking, file mapping selection, and unified pipeline metrics internally
+  const {
+    compressingIds,
+    processingStates,
+    handleFileSelection,
+    handleRemoveFile,
+  } = useFileProcessing({
+    stagedFiles,
+    setStagedFiles,
+    setErrorMessage,
+    shouldCompress: true,
+  });
 
   /**
    * Listens for real-time moderation processing updates broadcasted by the backend worker architecture.
@@ -83,7 +83,7 @@ export const useGistContent = ({
     if (!moderationTrackingId || data.payload?.gistId !== moderationTrackingId)
       return;
 
-    const { status, hasSensitiveGraphic: sensitive } = data.payload;
+    const { status } = data.payload;
 
     if (status === "PUBLISHED" || status === "SHADOWBANNED") {
       setSBMessage({
@@ -99,7 +99,6 @@ export const useGistContent = ({
           hasClose: true,
         },
       });
-      // Clear tracking state to close the background lifecycle session
       setModerationTrackingId(null);
     }
   });
@@ -146,25 +145,35 @@ export const useGistContent = ({
    * Evaluates background upload stream ticks to provide real-time UI metrics via progress indicator inline injection.
    */
   useEffect(() => {
-    // Shunt asset progress overlays if the hook has transitioned into background safety verification mode
     if (moderationTrackingId) return;
 
-    const stateEntries = Object.entries(uploadStates);
+    const stateEntries = Object.entries(processingStates);
     if (stateEntries.length === 0) return;
-    const hasActiveUploads = stateEntries.some(
-      ([_, state]) => state.status === "UPLOADING",
+
+    // Isolate uploading states out of the nested progression maps
+    const uploadStatesOnly = Object.fromEntries(
+      stateEntries
+        .filter(([_, data]) => data.upload)
+        .map(([id, data]) => [id, data.upload!]),
     );
+
+    const hasActiveUploads = Object.values(uploadStatesOnly).some(
+      (state) => state.status === "UPLOADING",
+    );
+
+    if (Object.keys(uploadStatesOnly).length === 0) return;
+
     setSBMessage({
       msg: {
         id: "media-upload",
         msgStatus: "INFO",
         headline: "Transfer in Progress",
-        customContent: <MediaUploadTracker uploadStates={uploadStates} />,
+        customContent: <MediaUploadTracker uploadStates={uploadStatesOnly} />,
         behavior: hasActiveUploads ? "FIXED" : "TIMED",
         duration: hasActiveUploads ? undefined : 4,
       },
     });
-  }, [uploadStates, moderationTrackingId, setSBMessage]);
+  }, [processingStates, moderationTrackingId, setSBMessage]);
 
   /**
    * Manages the persistent visibility contract for posts routed to asynchronous backend analysis workers.
@@ -191,37 +200,6 @@ export const useGistContent = ({
     });
   }, [moderationTrackingId, setSBMessage]);
 
-  /**
-   * Automatically array maps selected files with tracking IDs directly into state vectors.
-   */
-  const handleFileSelection = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      if (!e.target.files) return;
-
-      const filesArray = Array.from(e.target.files).map((file) => {
-        const trackedFile = file as TrackedFile;
-        if (!trackedFile.trackingId) {
-          trackedFile.trackingId = Math.random().toString(36).substring(2, 9);
-        }
-        return trackedFile;
-      }) as File[];
-
-      setStagedFiles?.((prev) => [...prev, ...filesArray]);
-      setErrorMessage(null);
-    },
-    [setStagedFiles],
-  );
-
-  /**
-   * Slices out item vectors from state indexes when triggered by overlay remove elements.
-   */
-  const handleRemoveFile = (targetIndex: number) => {
-    setStagedFiles((prev) => prev.filter((_, index) => index !== targetIndex));
-  };
-
-  /**
-   * TanStack Query mutation configuration handling asset extraction and remote record entry.
-   */
   const userHasFlags = authUser?.hasFlaggedPost ?? false;
   const userWindowCount = authUser?.postCountWindow ?? 0;
   const skipModeration = !userHasFlags && userWindowCount >= 6;
@@ -264,7 +242,6 @@ export const useGistContent = ({
           },
         });
       } else {
-        // Enqueue tracking sequence using the assigned database record identifier for socket stream mapping
         if (result?._id) {
           setModerationTrackingId(result._id);
         }
@@ -290,6 +267,14 @@ export const useGistContent = ({
   const handleGistPublish = useCallback(
     (e: React.SubmitEvent) => {
       e.preventDefault();
+
+      if (compressingIds.length > 0) {
+        setErrorMessage(
+          "Please wait for video optimization processing to complete.",
+        );
+        return;
+      }
+
       const hasCaption = caption.trim().length > 0;
       const hasMedia = stagedFiles.length > 0;
 
@@ -300,13 +285,20 @@ export const useGistContent = ({
       setErrorMessage(null);
       mutate();
     },
-    [caption, stagedFiles, mutate],
+    [caption, stagedFiles, compressingIds, mutate],
   );
 
   /**
    * Advances form state mapping step forward into setting fields.
    */
   const handleNext = useCallback(() => {
+    if (compressingIds.length > 0) {
+      setErrorMessage(
+        "Please wait for video optimization processing to complete.",
+      );
+      return;
+    }
+
     const hasCaption = caption.trim().length > 0;
     const hasMedia = stagedFiles.length > 0;
 
@@ -316,7 +308,7 @@ export const useGistContent = ({
     }
     setErrorMessage(null);
     setStep?.("SETTINGS");
-  }, [caption, stagedFiles, setStep]);
+  }, [caption, stagedFiles, compressingIds, setStep]);
 
   return {
     caption,
@@ -326,9 +318,10 @@ export const useGistContent = ({
     setTopics,
     hasSensitiveGraphic,
     setHasSensitiveGraphic,
-    isProcessing: isMutationLoading || !!moderationTrackingId,
+    isProcessing:
+      isMutationLoading || !!moderationTrackingId || compressingIds.length > 0,
     inlineErrMsg,
-    uploadStates,
+    processingStates,
     handleFileSelection,
     handleRemoveFile,
     handleGistPublish,

@@ -1,22 +1,31 @@
 "use client";
 
 import React from "react";
-import { Stack, Typography } from "@mui/material";
+import { Divider, Stack, Typography } from "@mui/material";
 import { useGlobalStore } from "@repo/shared-hooks";
 import {
   AppButton,
   TextInput,
-  InlineMsg,
+  InlineMsgUI,
   ProgressIcon,
   DisplayList as CountryList,
   BasicTooltip,
   UIGuide as CredentialGuide,
+  SVGWrapper,
+  AnchorLink,
 } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
-import { ICountryItem, INPUT_GUIDES, LISTS, ListType } from "@repo/core";
+import {
+  CLIENT_ROUTES,
+  ICountryItem,
+  INPUT_GUIDES,
+  LISTS,
+  ListType,
+} from "@repo/core";
 import { CircleQuestionMark } from "lucide-react";
 import { useIdentifier } from "./hooks/useIdentifier";
 import { LoginStepProps } from "../types";
+import { asset } from "@repo/assets";
 
 export const IdentifierStep: React.FC<LoginStepProps> = ({
   setStep,
@@ -28,6 +37,11 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
   const inlineMsg = useGlobalStore((state) => state.inlineMsg);
 
   const { COUNTRY_LIST } = LISTS();
+
+  const inlineTxtStye = {
+    color: theme.palette.primary.main,
+    "&:hover": { textDecoration: "underline", fontWeight: 600 },
+  };
 
   // Use the controller
   const {
@@ -41,34 +55,90 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
     isSubmitDisabled,
     countryMenuRef,
     validateAndSet,
+    handleSignupClick,
   } = useIdentifier({ existingInput, setStep, setIdentifier });
 
   return (
-    <Stack gap={theme.gap(18)}>
-      <Stack>
+    <Stack gap={theme.gap(8)}>
+      <Stack gap={theme.gap(8)} sx={{ paddingBottom: theme.boxSpacing(6) }}>
         <Typography
           component="h3"
           variant="h5"
-          sx={{ fontWeight: 500, textAlign: "center", ...style.headline }}>
+          sx={{
+            color: theme.palette.gray[300],
+            textAlign: "center",
+            ...style.headline,
+          }}>
           Predict Events. Stake. Win together.
         </Typography>
         <Typography
           component="p"
-          variant="body2"
+          variant="body3"
           sx={{
+            fontSize: 14,
             color: theme.palette.gray[200],
             paddingBottom: theme.boxSpacing(2),
             textAlign: "center",
             ...style.tagline,
           }}>
-          Enter your credential to login.
+          By continuing, you agree to our{" "}
+          <AnchorLink url="#" style={inlineTxtStye}>
+            User Agreement
+          </AnchorLink>{" "}
+          and acknowledge that you understand the{" "}
+          <AnchorLink url="#" style={inlineTxtStye}>
+            Privacy Policy
+          </AnchorLink>
+          .
         </Typography>
       </Stack>
 
-      {inlineMsg && <InlineMsg msg={inlineMsg} type="ERROR" />}
+      {inlineMsg && <InlineMsgUI msg={inlineMsg} type="ERROR" />}
 
+      {/* 3rd party sign in */}
+      <Stack direction="row">
+        <AppButton
+          variant="outlined"
+          style={{
+            fontSize: "16px",
+            padding: theme.boxSpacing(4.5, 9),
+            gap: theme.gap(4),
+            width: "100%",
+          }}
+          options={{ disabled: isAuthLoading }}>
+          <SVGWrapper
+            src={asset.googleLogo}
+            size={20}
+            sx={{ opacity: (isAuthLoading ? 0.5 : "unset") + "!important" }}
+          />
+          Google
+        </AppButton>
+        <AppButton
+          variant="outlined"
+          style={{
+            fontSize: "16px",
+            gap: theme.gap(4),
+            padding: theme.boxSpacing(4.5, 9),
+            width: "100%",
+          }}
+          options={{ disabled: isAuthLoading }}>
+          <SVGWrapper
+            src={asset.appleLogo}
+            size={20}
+            color={theme.palette.gray[300]}
+            sx={{ opacity: (isAuthLoading ? 0.5 : "unset") + "!important" }}
+          />
+          Apple
+        </AppButton>
+      </Stack>
+
+      <Divider sx={{ fontSize: 14, color: theme.palette.gray[200], margin: 0 }}>
+        Or sign in with
+      </Divider>
+
+      {/* In app sign in */}
       <Stack
-        sx={{ gap: theme.gap(18) }}
+        sx={{ gap: theme.gap(10) }}
         component="form"
         onSubmit={handleSubmit}>
         <TextInput
@@ -100,13 +170,12 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
                     backgroundColor: theme.palette.gray.trans[1],
                   },
                 }}>
-                <CircleQuestionMark size={20} />
+                <CircleQuestionMark size={18} />
               </Stack>
             </BasicTooltip>
           }
           affixPosition="end"
         />
-
         {/* Country list popup */}
         <CountryList<ICountryItem>
           menuRef={countryMenuRef}
@@ -134,7 +203,6 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
             }
           }}
         />
-
         <AppButton
           variant="contained"
           submit
@@ -151,6 +219,28 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
           )}
         </AppButton>
       </Stack>
+
+      {/* Footer */}
+      <Typography
+        component="p"
+        variant="body3"
+        sx={{
+          paddingBottom: theme.boxSpacing(2),
+          textAlign: "center",
+          ...style.tagline,
+        }}>
+        New to Funstakes?
+        <AnchorLink
+          variant="text"
+          url={CLIENT_ROUTES.signup.path}
+          onClick={handleSignupClick}
+          style={{
+            ...inlineTxtStye,
+            marginLeft: theme.boxSpacing(2),
+          }}>
+          Sign up
+        </AnchorLink>
+      </Typography>
     </Stack>
   );
 };

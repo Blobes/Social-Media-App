@@ -10,7 +10,7 @@ interface MsgProps {
   type?: "SUCCESS" | "ERROR";
 }
 
-export const InlineMsg: React.FC<MsgProps> = ({ msg, type = "ERROR" }) => {
+export const InlineMsgUI: React.FC<MsgProps> = ({ msg, type = "ERROR" }) => {
   const theme = useTheme();
 
   if (!msg) return null;
@@ -27,6 +27,10 @@ export const InlineMsg: React.FC<MsgProps> = ({ msg, type = "ERROR" }) => {
         flexDirection: "row",
         alignItems: "center",
         gap: theme.gap(6),
+        color:
+          type === "SUCCESS"
+            ? theme.palette.gray[300]
+            : theme.palette.error.main,
         backgroundColor:
           type === "SUCCESS"
             ? theme.palette.info.main

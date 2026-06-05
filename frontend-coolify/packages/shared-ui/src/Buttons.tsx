@@ -122,7 +122,6 @@ export const AnchorLink = ({
     display: "inline-flex",
     textAlign: "center",
     textDecoration: "none",
-    fontSize: "16px",
     color: theme.palette.gray[300],
     width: "fit-content",
     transition:
@@ -135,6 +134,7 @@ export const AnchorLink = ({
 
   return (
     <Link
+      variant="body3"
       component={isCrossZone ? "a" : NextLink}
       href={url}
       sx={{
