@@ -45,7 +45,7 @@ export const sharedStyle = (theme: any, style: any, value: any) => {
 export interface InputProps {
   variant?: "outlined" | "filled";
   id?: string;
-  type?: "text" | "number" | "email" | "search" | "password";
+  type?: "text" | "number" | "email" | "search" | "password" | "tel";
   value?: string;
   placeholder?: string;
   label?: string;

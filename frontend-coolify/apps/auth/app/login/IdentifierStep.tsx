@@ -38,7 +38,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
 
   const { COUNTRY_LIST } = LISTS();
 
-  const inlineTxtStye = {
+  const inlineTxtStlye = {
     color: theme.palette.primary.main,
     "&:hover": { textDecoration: "underline", fontWeight: 600 },
   };
@@ -82,11 +82,11 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
             ...style.tagline,
           }}>
           By continuing, you agree to our{" "}
-          <AnchorLink url="#" style={inlineTxtStye}>
+          <AnchorLink url="#" style={inlineTxtStlye}>
             User Agreement
           </AnchorLink>{" "}
           and acknowledge that you understand the{" "}
-          <AnchorLink url="#" style={inlineTxtStye}>
+          <AnchorLink url="#" style={inlineTxtStlye}>
             Privacy Policy
           </AnchorLink>
           .
@@ -235,7 +235,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
           url={CLIENT_ROUTES.signup.path}
           onClick={handleSignupClick}
           style={{
-            ...inlineTxtStye,
+            ...inlineTxtStlye,
             marginLeft: theme.boxSpacing(2),
           }}>
           Sign up

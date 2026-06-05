@@ -143,7 +143,7 @@ export const useIdentifier = ({
       }
 
       setInlineMsg(null);
-      setInput(inputValue);
+      //  setInput(inputValue);
 
       window.requestAnimationFrame(() => {
         target.setSelectionRange(start, start);

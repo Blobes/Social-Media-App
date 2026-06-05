@@ -6,7 +6,7 @@ import { Signup } from "./registration/Signup";
 import { Stack } from "@mui/material";
 import { asset } from "@repo/assets";
 import { SVGWrapper } from "@repo/shared-ui";
-import { applyBGPattern } from "@repo/helpers";
+import { applyBGPattern, autoScroll } from "@repo/helpers";
 
 export default function SignupPage() {
   const theme = useTheme();
@@ -16,7 +16,7 @@ export default function SignupPage() {
       sx={{
         height: "100%",
         width: "100%",
-        padding: theme.boxSpacing(30),
+        padding: theme.boxSpacing(12),
         alignItems: "center",
         justifyContent: "center",
         minHeight: "fit-content",
@@ -28,7 +28,8 @@ export default function SignupPage() {
       }}>
       <Stack
         sx={{
-          width: "60%",
+          width: "70%",
+          height: "90vh",
           flexDirection: "row",
           gap: theme.gap(0),
           justifyContent: "space-between",
@@ -57,12 +58,18 @@ export default function SignupPage() {
           style={{
             container: {
               width: "50%",
-              padding: theme.boxSpacing(16, 10),
-              [theme.breakpoints.down("md")]: {
-                width: "100%",
+              ...autoScroll().base,
+              justifyContent: "flex-start",
+              padding: theme.boxSpacing(18, 20),
+              mdScreen: {
                 height: "98vh",
-                minHeight: "98vh",
+                minHeight: "fit-content",
                 scrollSnapAlign: "start",
+                padding: theme.boxSpacing(20, 10),
+                overflow: "unset",
+              },
+              smScreen: {
+                width: "100%",
               },
             },
           }}

@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useDebounce, useGlobalStore } from "@repo/shared-hooks";
 import { useCallback, useEffect, useState } from "react";
 import { validateInputs, validateUsername } from "@repo/helpers";
-import { OnboardingService } from "../service";
+import { OnboardingService } from "../../service";
 import { LoginService } from "../../../login/service";
 
 /**

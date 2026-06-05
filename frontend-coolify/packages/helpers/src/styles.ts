@@ -8,8 +8,8 @@ import { rotate } from "./animations";
 export const scrollBarStyle = (theme: any) => {
   return {
     "&::-webkit-scrollbar": {
-      height: "6px",
-      width: "6px",
+      height: "4px",
+      width: "4px",
       [theme.breakpoints.down("md")]: {
         height: "2px",
         width: "2px",
