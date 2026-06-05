@@ -29,7 +29,7 @@ export default function SignupPage() {
       <Stack
         sx={{
           width: "70%",
-          height: "90vh",
+          height: "85vh",
           flexDirection: "row",
           gap: theme.gap(0),
           justifyContent: "space-between",
