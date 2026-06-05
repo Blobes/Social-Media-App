@@ -20,6 +20,7 @@ export const InlineMsgUI: React.FC<MsgProps> = ({ msg, type = "ERROR" }) => {
       variant="body3"
       component="div" // Ensures we don't nest <div> inside <p>
       sx={{
+        width: "100%",
         p: theme.boxSpacing(4, 5),
         borderRadius: theme.radius[3],
         border: `1px solid ${type === "SUCCESS" ? theme.palette.gray.trans[1] : theme.palette.error.trans}`,

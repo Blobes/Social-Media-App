@@ -145,11 +145,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             width: "100%",
           }}
           options={{ disabled: isAuthLoading }}>
-          <SVGWrapper
-            src={asset.googleLogo}
-            size={20}
-            sx={{ opacity: isAuthLoading ? 0.5 : "unset" }}
-          />
+          <SVGWrapper src={asset.googleLogo} size={20} />
           Google
         </AppButton>
         <AppButton
@@ -165,7 +161,6 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             src={asset.appleLogo}
             size={20}
             color={theme.palette.gray[300]}
-            sx={{ opacity: isAuthLoading ? 0.5 : "unset" }}
           />
           Apple
         </AppButton>

@@ -29,7 +29,7 @@ router.post("/check-phone", checkPhone);
 router.post("/check-username", checkUsername);
 
 // --- ACCOUNT ONBOARDING ---
-router.post("/register", createAccount);
+router.post("/signup", createAccount);
 router.post("/onboarding", verifyAuthToken, updateOnboarding);
 
 // --- SESSION MANAGEMENT ---

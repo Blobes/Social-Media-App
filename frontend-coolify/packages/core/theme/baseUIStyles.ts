@@ -65,7 +65,7 @@ const baseUIStyles = createTheme({
           "&:disabled": {
             backgroundColor: theme.palette.primary.main,
             color: theme.fixedColors.gray50,
-            opacity: 0.8,
+            opacity: 0.6,
           },
         }),
         outlined: ({ theme }) => ({
@@ -74,6 +74,9 @@ const baseUIStyles = createTheme({
           "&:hover": {
             backgroundColor: theme.fixedColors.pTrans,
             borderColor: theme.fixedColors.pTrans,
+          },
+          "&:disabled": {
+            opacity: 0.7,
           },
         }),
         text: () => ({
