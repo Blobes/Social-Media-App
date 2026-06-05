@@ -8,6 +8,7 @@ import {
   SERVER_API,
   TrackedFile,
   MediaUploadPayload,
+  QUEUE_KEYS,
 } from "@repo/core";
 import { apiClient } from "./apiClient";
 import {
@@ -56,7 +57,7 @@ const emitUploadProgress = (
   progress: number,
   error?: string,
 ): void => {
-  const event = new CustomEvent(`media-progress-${trackingId}`, {
+  const event = new CustomEvent(`${QUEUE_KEYS.MEDIA_UPLOAD}-${trackingId}`, {
     detail: { status, progress, error },
   });
   window.dispatchEvent(event);

@@ -2,6 +2,7 @@ import {
   AnalyzedImage,
   MediaProcessingStatus,
   MediaProcessingProgress,
+  QUEUE_KEYS,
 } from "@repo/core";
 import { encode } from "blurhash";
 
@@ -191,7 +192,7 @@ export const compressVideoAsync = (file: File, id: string): Promise<Blob> => {
           progress: event.data.progress,
         };
         const progressEvent = new CustomEvent(
-          `media-compression-progress-${id}`,
+          `${QUEUE_KEYS.MEDIA_COMPRESSION}-${id}`,
           {
             detail,
           },
@@ -203,7 +204,7 @@ export const compressVideoAsync = (file: File, id: string): Promise<Blob> => {
           progress: 100,
         };
         const successEvent = new CustomEvent(
-          `media-compression-progress-${id}`,
+          `${QUEUE_KEYS.MEDIA_COMPRESSION}-${id}`,
           {
             detail,
           },
@@ -219,9 +220,12 @@ export const compressVideoAsync = (file: File, id: string): Promise<Blob> => {
           progress: 0,
           error,
         };
-        const errorEvent = new CustomEvent(`media-compression-progress-${id}`, {
-          detail,
-        });
+        const errorEvent = new CustomEvent(
+          `${QUEUE_KEYS.MEDIA_COMPRESSION}-${id}`,
+          {
+            detail,
+          },
+        );
         window.dispatchEvent(errorEvent);
 
         worker.terminate();

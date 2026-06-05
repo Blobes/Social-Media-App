@@ -1,6 +1,6 @@
 "use client";
 
-import { AllowedMimeType } from "@repo/core";
+import { AllowedMimeType, QUEUE_KEYS } from "@repo/core";
 
 export const registerSW = () => {
   if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
@@ -38,7 +38,7 @@ export const queueBgUpload = async (
   }
 
   const registration = await navigator.serviceWorker.ready;
-  const uniqueJobId = `media-upload-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`;
+  const uniqueJobId = `${QUEUE_KEYS.MEDIA_UPLOAD}-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`;
 
   const uploadRequest = new Request(uploadUrl, {
     method: "PUT",

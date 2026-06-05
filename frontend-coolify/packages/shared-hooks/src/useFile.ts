@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, ChangeEvent } from "react";
-import { MediaProcessingProgress, TrackedFile } from "@repo/core";
+import { MediaProcessingProgress, QUEUE_KEYS, TrackedFile } from "@repo/core";
 import { checkDeviceCapability, compressVideoAsync } from "@repo/helpers";
 
 export interface UseFileProcessingProps {
@@ -59,7 +59,7 @@ export const useFileProcessing = ({
           setCompressingIds((prev) => [...prev, tId]);
 
           const initEvent = new CustomEvent(
-            `media-compression-progress-${tId}`,
+            `${QUEUE_KEYS.MEDIA_COMPRESSION}-${tId}`,
             {
               detail: { status: "LOADING_ENGINE", progress: 0 },
             },
@@ -163,10 +163,13 @@ export const useFileProcessingProgress = (files: File[]) => {
 
       const channels = [
         {
-          name: `media-compression-progress-${trackingId}`,
+          name: `${QUEUE_KEYS.MEDIA_COMPRESSION}-${trackingId}`,
           key: "compression" as const,
         },
-        { name: `media-upload-progress-${trackingId}`, key: "upload" as const },
+        {
+          name: `${QUEUE_KEYS.MEDIA_UPLOAD}-${trackingId}`,
+          key: "upload" as const,
+        },
       ];
 
       channels.forEach(({ name, key }) => {

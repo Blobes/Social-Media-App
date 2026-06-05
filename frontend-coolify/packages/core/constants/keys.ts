@@ -12,6 +12,8 @@ export const QUEUE_KEYS = {
   [KeyType.USER]: {
     USER_FOLLOW: "pending_follows",
   },
+  MEDIA_UPLOAD: "media-upload-progress",
+  MEDIA_COMPRESSION: "media-compression-progress",
 };
 
 export const STORAGE_KEYS = {
