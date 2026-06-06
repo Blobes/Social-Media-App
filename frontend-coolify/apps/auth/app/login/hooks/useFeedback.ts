@@ -32,6 +32,7 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
 
     const user = res.payload as IUser;
     if (res.status === "SUCCESS" && user) {
+      setAccessToken(res.accessToken);
       // OTP Verification Flow for logging in after a while or untrusted hardware
       if (res.requireOtp) {
         handleSendOtp({
@@ -50,7 +51,6 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
 
       setAuthUser(user);
       setAuthStatus("AUTHENTICATED");
-      setAccessToken(res.accessToken);
 
       // Handling deactivated accounts immediately
       if (user.isDeactivated) {

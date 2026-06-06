@@ -2,7 +2,13 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useGlobalStore, useSnackbar } from "@repo/shared-hooks";
-import { TransitPurpose, OtpTransitData, OtpChannel, IUser } from "@repo/core";
+import {
+  TransitPurpose,
+  OtpTransitData,
+  OtpChannel,
+  IUser,
+  CACHE_KEYS,
+} from "@repo/core";
 import { OtpRequest, OtpService } from "./service";
 import { useMutation } from "@tanstack/react-query";
 import { useFeedback } from "./useFeedback";
@@ -23,7 +29,7 @@ export const useOtp = <P extends TransitPurpose>(
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
   const inlineMsg = useGlobalStore((state) => state.inlineMsg);
   const { setSBMessage } = useSnackbar();
-  const { handleLoginOtpSuccess, onUpdateSuccess } = useFeedback();
+  const { handleAuthOtpSuccess, onUpdateSuccess } = useFeedback();
 
   const [code, setCode] = useState("");
   const [timer, setTimer] = useState(0);
@@ -34,6 +40,10 @@ export const useOtp = <P extends TransitPurpose>(
   );
   const [recipient, setRecipient] = useState(transitData?.identifier);
   const hasDispatchedOnLoad = useRef(false);
+
+  let isAuthPurpose =
+    transitData?.purpose === "LOGIN_VERIFICATION" ||
+    transitData?.purpose === "SIGNUP_VERIFICATION";
 
   /**
    * Hydrates state from transitData when available.
@@ -75,10 +85,15 @@ export const useOtp = <P extends TransitPurpose>(
       return await params.method();
     },
     onSuccess: (_, vars) => {
-      if (vars.purpose === "LOGIN_VERIFICATION")
-        handleLoginOtpSuccess(
+      isAuthPurpose =
+        vars.purpose === "LOGIN_VERIFICATION" ||
+        vars.purpose === "SIGNUP_VERIFICATION";
+      const isSignup = vars.purpose === "SIGNUP_VERIFICATION";
+      if (isAuthPurpose)
+        handleAuthOtpSuccess(
           transitData?.payload as IUser,
           transitData?.onVerificationSuccess,
+          isSignup ? CACHE_KEYS.SIGNUP_TRANSIT_DATA : undefined,
         );
       if (vars.purpose === "ACCOUNT_UPDATE") onUpdateSuccess();
     },
@@ -120,7 +135,7 @@ export const useOtp = <P extends TransitPurpose>(
       const { purpose, identifier } = transitData;
 
       const method = (() => {
-        if (purpose === "LOGIN_VERIFICATION")
+        if (isAuthPurpose)
           return () => verifyOtp({ recipient: identifier, code: finalCode });
         if (purpose === "IDENTIFIER_UPDATE") {
           return channel === "EMAIL"
@@ -174,7 +189,7 @@ export const useOtp = <P extends TransitPurpose>(
     const nextChannel: OtpChannel = channel === "EMAIL" ? "PHONE" : "EMAIL";
     // Resolve the new destination based on the purpose
     const nextDest = (() => {
-      if (transitData.purpose === "LOGIN_VERIFICATION") {
+      if (isAuthPurpose) {
         // We know payload is IUser in LOGIN purpose
         const user = transitData.payload as any;
         return nextChannel === "PHONE" ? user.phoneNumber : user.email;

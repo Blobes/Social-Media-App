@@ -1,7 +1,7 @@
 "use client";
 
 import { usePage, useGlobalStore } from "@repo/shared-hooks";
-import { CLIENT_ROUTES, IUser } from "@repo/core";
+import { CACHE_KEYS, CLIENT_ROUTES, IUser } from "@repo/core";
 import { SignupResponse } from "../service";
 import { useOtp } from "../../otp/useOtp";
 import { useAuthNavigation } from "@repo/features";
@@ -14,12 +14,8 @@ interface UseSignupFeedbackProps {
  * Handles post-registration state logic, global store state allocation, and navigation routing.
  */
 export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
-  const { navigateTo } = usePage();
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
-  const setAuthUser = useGlobalStore((state) => state.setAuthUser);
-  const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
-  const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
   const setAccessToken = useGlobalStore((state) => state.setAccessToken);
   const { handleSendOtp } = useOtp();
   const { handleVerifyOtp } = useAuthNavigation();
@@ -33,14 +29,11 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
 
     const user = res.payload as IUser;
     if (res.status === "SUCCESS" && user) {
-      // Committing credentials into state to prevent subsequent re-authentication demands
-      setAuthUser(user);
-      setAuthStatus("AUTHENTICATED");
       setAccessToken(res.accessToken);
 
       handleSendOtp({
         recipient: user.email || email,
-        purpose: "REGISTRATION",
+        purpose: "SIGNUP_VERIFICATION",
         channel: "EMAIL",
       });
       handleVerifyOtp(
@@ -48,10 +41,10 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
         user.email || email,
         "EMAIL",
         "NEW_ACCOUNT",
-        "REGISTRATION",
+        "SIGNUP_VERIFICATION",
+        CACHE_KEYS.SIGNUP_TRANSIT_DATA,
       );
-
-      setGlobalLoading(false);
+      return;
     }
   };
 

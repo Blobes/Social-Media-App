@@ -25,6 +25,7 @@ export const useAuthNavigation = () => {
     inputType: InputType,
     reason: OtpReason,
     purpose: TransitPurpose = "LOGIN_VERIFICATION",
+    transitKey = CACHE_KEYS.LOGIN_TRANSIT_DATA,
   ) => {
     const activeChannel: OtpChannel =
       inputType === "EMAIL" || inputType === "PHONE" ? inputType : "EMAIL";
@@ -44,7 +45,7 @@ export const useAuthNavigation = () => {
         }
       },
     };
-    queryClient.setQueryData(CACHE_KEYS.LOGIN_TRANSIT_DATA, otpTransitData);
+    queryClient.setQueryData(transitKey, otpTransitData);
     navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true });
   };
 

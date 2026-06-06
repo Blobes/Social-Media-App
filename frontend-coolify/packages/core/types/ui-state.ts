@@ -52,7 +52,7 @@ export type InputType =
   | "UNKNOWN"
   | "NAME";
 
-export type Action = "LOGIN" | "REGISTRATION" | "ACCOUNT_UPDATE";
+export type Action = "LOGIN" | "SIGNUP" | "ACCOUNT_UPDATE";
 
 export type InputStatus = "VALID" | "INVALID";
 
@@ -123,7 +123,7 @@ export type GenericQueue = Record<string, QueueItem>;
 
 export interface TransitPayloadMap {
   LOGIN_VERIFICATION: IUser;
-  REGISTRATION: IUser;
+  SIGNUP_VERIFICATION: IUser;
   ACCOUNT_UPDATE: { field: string; oldValue: string }; // Example
   IDENTIFIER_UPDATE: { field: string; oldValue: string };
 }

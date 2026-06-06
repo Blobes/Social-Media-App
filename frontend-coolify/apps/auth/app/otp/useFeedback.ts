@@ -13,9 +13,10 @@ export const useFeedback = () => {
   /**
    * Success handler for Login flows. clears the transit cache.
    */
-  const handleLoginOtpSuccess = (
+  const handleAuthOtpSuccess = (
     user?: IUser,
     onSuccessCallback?: () => void,
+    transitKey = CACHE_KEYS.LOGIN_TRANSIT_DATA,
   ) => {
     // Commit user to global state while the reference is still valid
     if (user) {
@@ -23,10 +24,8 @@ export const useFeedback = () => {
       setAuthUser(userClone);
       setAuthStatus("AUTHENTICATED");
     }
-
     // Clear the transit cache now that the data is safely in Zustand
-    queryClient.removeQueries({ queryKey: CACHE_KEYS.LOGIN_TRANSIT_DATA });
-
+    queryClient.removeQueries({ queryKey: transitKey });
     // Notify User
     setSBMessage({
       msg: {
@@ -62,5 +61,5 @@ export const useFeedback = () => {
     navigateTo(CLIENT_ROUTES.settings, { loadPage: true, type: "replace" });
   };
 
-  return { handleLoginOtpSuccess, onUpdateSuccess };
+  return { handleAuthOtpSuccess, onUpdateSuccess };
 };
