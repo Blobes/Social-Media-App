@@ -3,9 +3,9 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalStore } from "@repo/shared-hooks";
+import { useGlobalStore, usePage } from "@repo/shared-hooks";
 import { Check, Dot } from "lucide-react";
-import { INPUT_GUIDES, MenuRef, InputStatus } from "@repo/core";
+import { INPUT_GUIDES, MenuRef, InputStatus, CLIENT_ROUTES } from "@repo/core";
 import {
   delay,
   formatPhoneNumber,
@@ -23,21 +23,21 @@ import { useSignupFeedback } from "./useFeedback";
 export const useSignup = () => {
   const theme = useTheme();
   const { createAccount } = SignupService();
-  const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
+  const { navigateTo } = usePage();
 
+  const [inlineMsg, setInlineMsg] = useState<React.ReactNode | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-
-  // Input states tracking live error messages and validation statuses
   const [emailValidity, setEmailValidity] = useState<InputStatus>();
   const [emailValidationMsg, setEmailValidationMsg] = useState("");
-
   const [phoneValidity, setPhoneValidity] = useState<InputStatus>();
   const [phoneValidationMsg, setPhoneValidationMsg] = useState("");
 
+  // Track if a user explicitly selected a code from the country selection menu list
+  const isCountrySelectedRef = useRef<boolean>(false);
   const countryMenuRef = useRef<MenuRef>(null);
-
   const { handleSuccess, handleError } = useSignupFeedback({ email });
 
   const passwordCriteria = useMemo(() => {
@@ -123,10 +123,12 @@ export const useSignup = () => {
       });
     },
     onSuccess: (res) => {
+      setIsRedirecting(true);
       handleSuccess(res);
     },
     onError: (err) => {
-      handleError(err);
+      setIsRedirecting(false);
+      handleError(err, setInlineMsg);
     },
   });
 
@@ -143,38 +145,6 @@ export const useSignup = () => {
       );
     },
     [setInlineMsg],
-  );
-
-  const onPhoneChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const target = e.target as HTMLInputElement;
-      const isDeleting =
-        (e.nativeEvent as any).inputType === "deleteContentBackward";
-
-      let start = target.selectionStart || 0;
-      let inputValue = target.value;
-
-      if (!isDeleting && inputValue.length < 3) {
-        countryMenuRef.current?.openMenu(target);
-      }
-
-      const oldLen = inputValue.length;
-      inputValue = formatPhoneNumber(inputValue);
-      const newLen = inputValue.length;
-
-      if (!isDeleting) {
-        start = start + (newLen - oldLen);
-      }
-
-      setInlineMsg(null);
-
-      window.requestAnimationFrame(() => {
-        target.setSelectionRange(start, start);
-      });
-
-      validateAndSetPhone(inputValue);
-    },
-    [setInlineMsg, setPhone],
   );
 
   const validateAndSetPhone = useCallback(
@@ -194,6 +164,75 @@ export const useSignup = () => {
     [setPhone],
   );
 
+  const onPhoneChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const target = e.target as HTMLInputElement;
+      const isDeleting =
+        (e.nativeEvent as any).inputType === "deleteContentBackward";
+
+      let start = target.selectionStart || 0;
+      let inputValue = target.value;
+
+      // Clear the whole input if the user backspaces into or out of the country dial code bracket boundaries
+      if (isDeleting && inputValue.length <= 6) {
+        setInlineMsg(null);
+        setPhone("");
+        setPhoneValidity(undefined);
+        setPhoneValidationMsg("");
+        isCountrySelectedRef.current = false;
+        return;
+      }
+
+      // Force dropdown list open immediately on typing the first character structure
+      if (
+        !isDeleting &&
+        inputValue.length > 0 &&
+        !isCountrySelectedRef.current
+      ) {
+        countryMenuRef.current?.openMenu(target);
+      }
+
+      const oldLen = inputValue.length;
+      inputValue = formatPhoneNumber(inputValue);
+      const newLen = inputValue.length;
+
+      if (!isDeleting) {
+        start = start + (newLen - oldLen);
+      }
+
+      setInlineMsg(null);
+
+      window.requestAnimationFrame(() => {
+        target.setSelectionRange(start, start);
+      });
+
+      validateAndSetPhone(inputValue);
+    },
+    [setInlineMsg, validateAndSetPhone],
+  );
+
+  /**
+   * Clears out input text if the search overlay loses focus without selecting an option.
+   */
+  const handleMenuClose = useCallback(() => {
+    if (!isCountrySelectedRef.current) {
+      setPhone("");
+      setPhoneValidity(undefined);
+      setPhoneValidationMsg("");
+    }
+  }, []);
+
+  /**
+   * Sets explicitly confirmed country dial structures picked up directly from list interactions.
+   */
+  const handleCountrySelect = useCallback(
+    (dialCode: string) => {
+      isCountrySelectedRef.current = true;
+      validateAndSetPhone(dialCode);
+    },
+    [validateAndSetPhone],
+  );
+
   const onPasswordChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setInlineMsg(null);
@@ -202,7 +241,17 @@ export const useSignup = () => {
     [setInlineMsg],
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleLoginClick = useCallback((e: React.MouseEvent) => {
+    setInlineMsg(null);
+    navigateTo(CLIENT_ROUTES.signup, {
+      event: e,
+      loadPage: true,
+      savePage: false,
+    });
+  }, []);
+
+  const handleSubmit = (e: React.SubmitEvent) => {
+    setInlineMsg(null);
     e.preventDefault();
     if (!isFormValid) return;
     mutate();
@@ -224,13 +273,17 @@ export const useSignup = () => {
     onPhoneChange,
     onPasswordChange,
     handleSubmit,
+    handleMenuClose,
+    handleCountrySelect,
     validateAndSetPhone,
-    isAuthLoading: isPending,
+    isSubmitLoading: isPending || isRedirecting,
     isSubmitDisabled:
       !isFormValid ||
       isPending ||
       emailValidity === "INVALID" ||
       phoneValidity === "INVALID",
     countryMenuRef,
+    inlineMsg,
+    handleLoginClick,
   };
 };

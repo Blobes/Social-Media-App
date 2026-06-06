@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useGlobalStore, usePage } from "@repo/shared-hooks";
+import { usePage } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { LoginService } from "../service";
 import {
@@ -10,13 +10,7 @@ import {
   getInputValidity,
   sanitizePhoneNumber,
 } from "@repo/helpers";
-import {
-  AccountStatus,
-  CLIENT_ROUTES,
-  InputStatus,
-  MenuRef,
-  AuthStepName,
-} from "@repo/core";
+import { CLIENT_ROUTES, InputStatus, MenuRef, AuthStepName } from "@repo/core";
 import { AppButton } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 
@@ -34,16 +28,13 @@ export const useIdentifier = ({
   const { checkEmail, checkPhone, checkUsername } = LoginService();
   const { navigateTo } = usePage();
   const theme = useTheme();
-
-  // Syncing with Zustand Store
-  const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
-
   const countryMenuRef = useRef<MenuRef>(null);
 
   // Local UI State
   const [input, setInput] = useState(existingInput ?? "");
   const [validity, setValidity] = useState<InputStatus>();
   const [validationMsg, setValidationMsg] = useState("");
+  const [inlineMsg, setInlineMsg] = useState<React.ReactNode>(null);
 
   const inputValidity = getInputValidity(input);
   const isValidInput = inputValidity.status === "VALID";
@@ -197,5 +188,6 @@ export const useIdentifier = ({
     countryMenuRef,
     validateAndSet,
     handleSignupClick,
+    inlineMsg,
   };
 };

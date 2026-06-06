@@ -28,9 +28,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     setStep,
   });
 
-  const inlineMsg = useGlobalStore((state) => state.inlineMsg);
-  const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
-
+  const [inlineMsg, setInlineMsg] = useState<React.ReactNode>(null);
   const [activeLockTime, setActiveLockTime] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [passwordValidity, setPasswordValidity] = useState<InputStatus>();
@@ -120,27 +118,28 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     },
     onError: (err) => {
       setIsRedirecting(false);
-      handleError(err, handleFailedPassword);
+      handleError(err, handleFailedPassword, setInlineMsg);
     },
   });
 
-  const onPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const value = e.target.value;
-    setInlineMsg(null);
-    setPassword(value);
+  const onPasswordChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const value = e.target.value;
+      setInlineMsg(null);
+      setPassword(value);
 
-    if (value.length >= 6) {
-      setPasswordValidity("VALID");
-      setErrorMsg("");
-    } else if (value.length === 0) {
-      setPasswordValidity("INVALID");
-      setErrorMsg("Password is required.");
-    } else {
-      setPasswordValidity(undefined);
-    }
-  };
+      if (value.length >= 6) {
+        setPasswordValidity("VALID");
+        setErrorMsg("");
+      } else if (value.length === 0) {
+        setPasswordValidity("INVALID");
+        setErrorMsg("Password is required.");
+      } else {
+        setPasswordValidity(undefined);
+      }
+    },
+    [setInlineMsg, setPassword],
+  );
 
   const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
@@ -157,6 +156,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     remainingSec,
     isAuthLoading: isMutationLoading || isRedirecting,
     inlineMsg,
+    setInlineMsg,
     errorMsg,
   };
 };

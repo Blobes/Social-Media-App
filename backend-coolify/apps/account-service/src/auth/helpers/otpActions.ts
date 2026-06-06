@@ -28,7 +28,13 @@ export const otpWorkflowRegistry: Record<
   LOGIN_VERIFICATION: async (user, req, res, lifecycle = "VERIFICATION") => {
     // Standard verification only; no specific pre-send validation required
     if (lifecycle === "DISPATCH_REQUEST") return null;
-
+    const deviceToken = getOrSetDeviceToken(req, res);
+    if (deviceToken) await authorizeDeviceTrust(user, deviceToken, req);
+    return await syncIdentifierStatus(user, setOtpChannel(req.body.recipient)!);
+  },
+  SIGNUP_VERIFICATION: async (user, req, res, lifecycle = "VERIFICATION") => {
+    // Standard verification only; no specific pre-send validation required
+    if (lifecycle === "DISPATCH_REQUEST") return null;
     const deviceToken = getOrSetDeviceToken(req, res);
     if (deviceToken) await authorizeDeviceTrust(user, deviceToken, req);
     return await syncIdentifierStatus(user, setOtpChannel(req.body.recipient)!);

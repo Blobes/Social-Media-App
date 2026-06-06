@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AlertCircle } from "lucide-react";
@@ -8,22 +8,39 @@ import { AlertCircle } from "lucide-react";
 interface MsgProps {
   msg: React.ReactNode;
   type?: "SUCCESS" | "ERROR";
+  scrollIntoView?: boolean;
 }
 
-export const InlineMsgUI: React.FC<MsgProps> = ({ msg, type = "ERROR" }) => {
-  const theme = useTheme();
-
+export const InlineMsgUI: React.FC<MsgProps> = ({
+  msg,
+  type = "ERROR",
+  scrollIntoView = false,
+}) => {
   if (!msg) return null;
+  const theme = useTheme();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Monitor store messages to trigger viewport positioning recalculations
+  useEffect(() => {
+    if (scrollIntoView) {
+      scrollRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [scrollIntoView]);
 
   return (
     <Typography
       variant="body3"
-      component="div" // Ensures we don't nest <div> inside <p>
+      component="div"
+      ref={scrollRef}
       sx={{
         width: "100%",
-        p: theme.boxSpacing(4, 5),
+        padding: theme.boxSpacing(4, 5),
         borderRadius: theme.radius[3],
         border: `1px solid ${type === "SUCCESS" ? theme.palette.gray.trans[1] : theme.palette.error.trans}`,
+        scrollMarginTop: theme.gap(70),
         display: "flex",
         flexDirection: "row",
         alignItems: "center",

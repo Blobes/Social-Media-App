@@ -16,7 +16,6 @@ export const useFeedback = () => {
   const handleAuthOtpSuccess = (
     user?: IUser,
     onSuccessCallback?: () => void,
-    transitKey = CACHE_KEYS.LOGIN_TRANSIT_DATA,
   ) => {
     // Commit user to global state while the reference is still valid
     if (user) {
@@ -25,7 +24,7 @@ export const useFeedback = () => {
       setAuthStatus("AUTHENTICATED");
     }
     // Clear the transit cache now that the data is safely in Zustand
-    queryClient.removeQueries({ queryKey: transitKey });
+    queryClient.removeQueries({ queryKey: CACHE_KEYS.AUTH_TRANSIT_DATA });
     // Notify User
     setSBMessage({
       msg: {
@@ -35,14 +34,12 @@ export const useFeedback = () => {
     });
 
     // Handle Routing
-    if (onSuccessCallback) {
-      onSuccessCallback();
-    } else {
+    if (onSuccessCallback) onSuccessCallback();
+    else
       navigateTo(CLIENT_ROUTES.home, {
         loadPage: true,
         type: "replace",
       });
-    }
   };
 
   /**

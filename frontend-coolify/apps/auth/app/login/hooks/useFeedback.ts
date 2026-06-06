@@ -15,7 +15,6 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
   const { inputType } = useIdentifier({ existingInput: identifier });
   const { handleVerifyOtp: handleOtpRequired } = useAuthNavigation();
 
-  const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
@@ -35,6 +34,7 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
       setAccessToken(res.accessToken);
       // OTP Verification Flow for logging in after a while or untrusted hardware
       if (res.requireOtp) {
+        setAccountStatus("NOT_VERIFIED");
         handleSendOtp({
           recipient: user.email || user.phoneNumber || identifier,
           purpose: "LOGIN_VERIFICATION",
@@ -78,12 +78,18 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
   /**
    * Processes authentication failures and manages lockout messaging.
    */
-  const handleError = (error: any, handleFailedPassword: () => void) => {
+  const handleError = (
+    error: any,
+    handleFailedPassword: () => void,
+    setMsg: React.Dispatch<React.SetStateAction<React.ReactNode | null>>,
+  ) => {
     const isPasswordErr = error.status === "UNAUTHORIZED";
     if (isPasswordErr) {
       handleFailedPassword();
     } else {
-      setInlineMsg(error.message || "Login failed");
+      setMsg(
+        error.message || "Registration failed. Please verify your entries.",
+      );
     }
   };
 

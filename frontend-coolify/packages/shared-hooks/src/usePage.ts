@@ -93,26 +93,39 @@ export const usePage = () => {
   const guards = useMemo(() => {
     // Direct Security Violations
     const needsLogin = authStatus === "UNAUTHENTICATED" && isInternalRoute;
+
+    const needsOtpVerification =
+      (accountStatus === "NOT_VERIFIED" ||
+        (authUser && !authUser.isEmailVerified && !authUser.isPhoneVerified)) &&
+      isInternalRoute;
+
     const needsOnboarding =
       authStatus === "AUTHENTICATED" &&
-      authUser &&
-      !authUser.isOnboarded &&
+      (accountStatus === "NOT_ONBOARDED" ||
+        (authUser && !authUser.isOnboarded)) &&
       isInternalRoute;
+
     const needsRestoreAccount =
       authStatus === "AUTHENTICATED" &&
       accountStatus === "DEACTIVATED" &&
       isInternalRoute;
+
     const isDisallowed = isOnDisallowed(pathname);
 
     // Navigation State
     const isNavigating = !!pendingPath && pendingPath !== pathname;
     const isRedirecting =
-      needsLogin || needsOnboarding || needsRestoreAccount || isDisallowed;
+      needsLogin ||
+      needsOtpVerification ||
+      needsOnboarding ||
+      needsRestoreAccount ||
+      isDisallowed;
 
     return {
       needsLogin,
       needsOnboarding,
       needsRestoreAccount,
+      needsOtpVerification,
       isNavigating,
       isRedirecting,
     };
@@ -189,17 +202,15 @@ export const usePage = () => {
 
     // Security Guard: Execute redirects if isRedirecting is true
     if (guards.isRedirecting) {
-      if (guards.needsLogin) {
-        navigateTo(CLIENT_ROUTES.home, { loadPage: true });
-      } else if (guards.needsOnboarding) {
-        console.log(pendingPath, "Hello");
-        // SharedLoginService logic usually handles this, but here for safety
+      if (guards.needsLogin) navigateTo(CLIENT_ROUTES.home, { loadPage: true });
+      if (guards.needsOtpVerification)
+        navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true });
+      else if (guards.needsOnboarding)
         navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
-      } else if (guards.needsRestoreAccount) {
+      else if (guards.needsRestoreAccount)
         navigateTo(CLIENT_ROUTES.restoreAccount, { loadPage: true });
-      } else if (isOnDisallowed(pathname)) {
+      else if (isOnDisallowed(pathname))
         navigateTo(CLIENT_ROUTES.about, { loadPage: true });
-      }
       return;
     }
 

@@ -11,10 +11,11 @@ import {
   InputType,
   TransitPurpose,
 } from "@repo/core";
-import { usePage } from "@repo/shared-hooks";
+import { useGlobalStore, usePage } from "@repo/shared-hooks";
 
 export const useAuthNavigation = () => {
   const { navigateTo } = usePage();
+  const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
 
   /**
    * Prepares and routes user to the OTP verification flow.
@@ -25,7 +26,7 @@ export const useAuthNavigation = () => {
     inputType: InputType,
     reason: OtpReason,
     purpose: TransitPurpose = "LOGIN_VERIFICATION",
-    transitKey = CACHE_KEYS.LOGIN_TRANSIT_DATA,
+    transitKey = CACHE_KEYS.AUTH_TRANSIT_DATA,
   ) => {
     const activeChannel: OtpChannel =
       inputType === "EMAIL" || inputType === "PHONE" ? inputType : "EMAIL";
@@ -39,8 +40,10 @@ export const useAuthNavigation = () => {
       reason: reason,
       onVerificationSuccess: () => {
         if (!user.isOnboarded) {
+          setAccountStatus("NOT_ONBOARDED");
           navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
         } else {
+          setAccountStatus("ACTIVE");
           navigateTo(CLIENT_ROUTES.home, { loadPage: true });
         }
       },

@@ -1,7 +1,7 @@
 "use client";
 
-import { usePage, useGlobalStore } from "@repo/shared-hooks";
-import { CACHE_KEYS, CLIENT_ROUTES, IUser } from "@repo/core";
+import { useGlobalStore } from "@repo/shared-hooks";
+import { CACHE_KEYS, IUser } from "@repo/core";
 import { SignupResponse } from "../service";
 import { useOtp } from "../../otp/useOtp";
 import { useAuthNavigation } from "@repo/features";
@@ -14,9 +14,9 @@ interface UseSignupFeedbackProps {
  * Handles post-registration state logic, global store state allocation, and navigation routing.
  */
 export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
-  const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const setAccessToken = useGlobalStore((state) => state.setAccessToken);
+  const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
   const { handleSendOtp } = useOtp();
   const { handleVerifyOtp } = useAuthNavigation();
 
@@ -30,7 +30,7 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
     const user = res.payload as IUser;
     if (res.status === "SUCCESS" && user) {
       setAccessToken(res.accessToken);
-
+      setAccountStatus("NOT_VERIFIED");
       handleSendOtp({
         recipient: user.email || email,
         purpose: "SIGNUP_VERIFICATION",
@@ -42,7 +42,7 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
         "EMAIL",
         "NEW_ACCOUNT",
         "SIGNUP_VERIFICATION",
-        CACHE_KEYS.SIGNUP_TRANSIT_DATA,
+        CACHE_KEYS.AUTH_TRANSIT_DATA,
       );
       return;
     }
@@ -51,10 +51,11 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
   /**
    * Catches errors during registration and surfaces the rejection messages within the view container.
    */
-  const handleError = (error: any) => {
-    setInlineMsg(
-      error.message || "Registration failed. Please verify your entries.",
-    );
+  const handleError = (
+    error: any,
+    setMsg: React.Dispatch<React.SetStateAction<React.ReactNode | null>>,
+  ) => {
+    setMsg(error.message || "Registration failed. Please verify your entries.");
   };
 
   return { handleSuccess, handleError };

@@ -39,7 +39,6 @@ interface SignupProps {
  */
 export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
   const theme = useTheme();
-  const inlineMsg = useGlobalStore((state) => state.inlineMsg);
   const { COUNTRY_LIST } = LISTS();
 
   const {
@@ -56,10 +55,13 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
     onPhoneChange,
     onPasswordChange,
     handleSubmit,
-    validateAndSetPhone,
-    isAuthLoading,
+    handleMenuClose,
+    handleCountrySelect,
+    isSubmitLoading,
     isSubmitDisabled,
     countryMenuRef,
+    inlineMsg,
+    handleLoginClick,
   } = useSignup();
 
   const inlineLinkStyle = {
@@ -132,8 +134,6 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         </Typography>
       </Stack>
 
-      {inlineMsg && <InlineMsgUI msg={inlineMsg} type="ERROR" />}
-
       {/* Third Party Providers */}
       <Stack direction="row" gap={theme.gap(4)} sx={{ width: "100%" }}>
         <AppButton
@@ -144,7 +144,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             gap: theme.gap(4),
             width: "100%",
           }}
-          options={{ disabled: isAuthLoading }}>
+          options={{ disabled: isSubmitLoading }}>
           <SVGWrapper src={asset.googleLogo} size={20} />
           Google
         </AppButton>
@@ -156,7 +156,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             padding: theme.boxSpacing(4.5, 9),
             width: "100%",
           }}
-          options={{ disabled: isAuthLoading }}>
+          options={{ disabled: isSubmitLoading }}>
           <SVGWrapper
             src={asset.appleLogo}
             size={20}
@@ -175,6 +175,10 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         }}>
         Or sign up with
       </Divider>
+
+      {inlineMsg && (
+        <InlineMsgUI scrollIntoView={true} msg={inlineMsg} type="ERROR" />
+      )}
 
       {/* Input Fields Form Container */}
       <Stack
@@ -219,10 +223,11 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
               padding: 0,
             },
           }}
+          onMenuClose={handleMenuClose}
           onItemClick={(item) => {
             if (item?.code) {
               const formattedPrefix = `(+${item.code.replace(/\+/g, "")}) `;
-              validateAndSetPhone(formattedPrefix);
+              handleCountrySelect(formattedPrefix);
             }
           }}
         />
@@ -267,7 +272,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             marginTop: theme.gap(4),
           }}
           options={{ disabled: isSubmitDisabled }}>
-          {isAuthLoading ? (
+          {isSubmitLoading ? (
             <ProgressIcon otherProps={{ size: 25 }} />
           ) : (
             "Sign up"
@@ -286,6 +291,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         Already have an account?
         <AnchorLink
           variant="text"
+          onClick={handleLoginClick}
           url={CLIENT_ROUTES.login.path}
           style={{
             ...inlineLinkStyle,

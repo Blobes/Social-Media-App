@@ -25,7 +25,6 @@ export const PasswordStep: React.FC<StepProps> = ({
   style = {},
 }) => {
   const theme = useTheme();
-  const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
 
   // Consuming the controller
   const {
@@ -36,6 +35,7 @@ export const PasswordStep: React.FC<StepProps> = ({
     handleSubmit,
     isAuthLoading,
     inlineMsg,
+    setInlineMsg,
     isLocked,
   } = useLogin({ identifier, setStep });
 

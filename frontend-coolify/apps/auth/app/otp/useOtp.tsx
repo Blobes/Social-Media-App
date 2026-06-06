@@ -2,13 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useGlobalStore, useSnackbar } from "@repo/shared-hooks";
-import {
-  TransitPurpose,
-  OtpTransitData,
-  OtpChannel,
-  IUser,
-  CACHE_KEYS,
-} from "@repo/core";
+import { TransitPurpose, OtpTransitData, OtpChannel, IUser } from "@repo/core";
 import { OtpRequest, OtpService } from "./service";
 import { useMutation } from "@tanstack/react-query";
 import { useFeedback } from "./useFeedback";
@@ -21,7 +15,7 @@ interface UseOtpOptions {
  * Manages OTP logic by decoupling the "Dumb" API calls from the "Smart" orchestration.
  */
 export const useOtp = <P extends TransitPurpose>(
-  transitData?: OtpTransitData<P>,
+  transitData?: OtpTransitData<P>[],
   options: UseOtpOptions = { dispatchOnload: false },
 ) => {
   const { verifyOtp, verifyEmailOtp, verifyPhoneOtp, dispatchOtp } =
@@ -34,26 +28,43 @@ export const useOtp = <P extends TransitPurpose>(
   const [code, setCode] = useState("");
   const [timer, setTimer] = useState(0);
 
-  // Cast transitData.channel to OtpChannel or fallback to EMAIL
-  const [channel, setChannel] = useState<OtpChannel>(
-    transitData?.channel || "EMAIL",
+  // if (!transitData) return;
+
+  // Extract separate operations by filtering against their specific flow types
+  const authTransitData = transitData?.find(
+    (item) =>
+      item.purpose === "LOGIN_VERIFICATION" ||
+      item.purpose === "SIGNUP_VERIFICATION",
   );
-  const [recipient, setRecipient] = useState(transitData?.identifier);
+
+  const updateTransitData = transitData?.find(
+    (item) =>
+      item.purpose === "ACCOUNT_UPDATE" || item.purpose === "IDENTIFIER_UPDATE",
+  );
+
+  // Primary operational fallback values prioritized by active flow instance
+  const activeTransit =
+    authTransitData || updateTransitData || transitData?.[0];
+
+  const [channel, setChannel] = useState<OtpChannel>(
+    activeTransit?.channel || "EMAIL",
+  );
+  const [recipient, setRecipient] = useState(activeTransit?.identifier);
   const hasDispatchedOnLoad = useRef(false);
 
   let isAuthPurpose =
-    transitData?.purpose === "LOGIN_VERIFICATION" ||
-    transitData?.purpose === "SIGNUP_VERIFICATION";
+    activeTransit?.purpose === "LOGIN_VERIFICATION" ||
+    activeTransit?.purpose === "SIGNUP_VERIFICATION";
 
   /**
    * Hydrates state from transitData when available.
    */
   useEffect(() => {
-    if (transitData) {
-      setChannel(transitData.channel);
-      setRecipient(transitData.identifier);
+    if (activeTransit) {
+      setChannel(activeTransit.channel);
+      setRecipient(activeTransit.identifier);
     }
-  }, [transitData]);
+  }, [activeTransit]);
 
   useEffect(() => {
     if (timer > 0) {
@@ -65,14 +76,14 @@ export const useOtp = <P extends TransitPurpose>(
   // Auto-dispatch logic on load
   useEffect(() => {
     const canDispatch =
-      options.dispatchOnload && transitData && !hasDispatchedOnLoad.current;
+      options.dispatchOnload && activeTransit && !hasDispatchedOnLoad.current;
     if (canDispatch) {
       hasDispatchedOnLoad.current = true;
       queueMicrotask(() => {
         handleSendOtp();
       });
     }
-  }, [transitData?.identifier, options.dispatchOnload]);
+  }, [activeTransit?.identifier, options.dispatchOnload]);
 
   /**
    * Execution Layer: Dumb Verification Mutation
@@ -88,12 +99,10 @@ export const useOtp = <P extends TransitPurpose>(
       isAuthPurpose =
         vars.purpose === "LOGIN_VERIFICATION" ||
         vars.purpose === "SIGNUP_VERIFICATION";
-      const isSignup = vars.purpose === "SIGNUP_VERIFICATION";
       if (isAuthPurpose)
         handleAuthOtpSuccess(
-          transitData?.payload as IUser,
-          transitData?.onVerificationSuccess,
-          isSignup ? CACHE_KEYS.SIGNUP_TRANSIT_DATA : undefined,
+          authTransitData?.payload as IUser,
+          authTransitData?.onVerificationSuccess,
         );
       if (vars.purpose === "ACCOUNT_UPDATE") onUpdateSuccess();
     },
@@ -129,10 +138,10 @@ export const useOtp = <P extends TransitPurpose>(
 
       const finalCode = validationCode || code;
 
-      if (!transitData) return setInlineMsg("Missing session data.");
+      if (!activeTransit) return setInlineMsg("Missing session data.");
       if (finalCode.length < 6) return;
 
-      const { purpose, identifier } = transitData;
+      const { purpose, identifier } = activeTransit;
 
       const method = (() => {
         if (isAuthPurpose)
@@ -149,9 +158,10 @@ export const useOtp = <P extends TransitPurpose>(
       await executeVerify({ purpose, method });
     },
     [
-      transitData,
+      activeTransit,
       code,
       channel,
+      isAuthPurpose,
       executeVerify,
       verifyOtp,
       verifyEmailOtp,
@@ -165,19 +175,17 @@ export const useOtp = <P extends TransitPurpose>(
   const handleSendOtp = useCallback(
     (customRequest?: OtpRequest) => {
       setInlineMsg(null);
-      // Manual override (Highest flexibility)
       if (customRequest) {
         return executeDispatch(customRequest);
       }
-      // State-based fallback (Strict check)
       if (!recipient || !channel || timer > 0) return;
       executeDispatch({
         recipient,
-        purpose: transitData?.purpose ?? "LOGIN_VERIFICATION",
+        purpose: activeTransit?.purpose ?? "LOGIN_VERIFICATION",
         channel,
       });
     },
-    [recipient, channel, timer, transitData, executeDispatch],
+    [recipient, channel, timer, activeTransit, executeDispatch],
   );
 
   /**
@@ -185,19 +193,17 @@ export const useOtp = <P extends TransitPurpose>(
    * This bypasses the 60s timer to allow immediate switching.
    */
   const switchChannel = useCallback(() => {
-    if (!transitData?.payload) return;
+    if (!activeTransit?.payload) return;
     const nextChannel: OtpChannel = channel === "EMAIL" ? "PHONE" : "EMAIL";
-    // Resolve the new destination based on the purpose
+
     const nextDest = (() => {
       if (isAuthPurpose) {
-        // We know payload is IUser in LOGIN purpose
-        const user = transitData.payload as any;
+        const user = activeTransit.payload as any;
         return nextChannel === "PHONE" ? user.phoneNumber : user.email;
       }
       return undefined;
     })();
 
-    // Error handling if the destination doesn't exist on the profile
     if (!nextDest) {
       setSBMessage({
         msg: {
@@ -208,18 +214,16 @@ export const useOtp = <P extends TransitPurpose>(
       return;
     }
 
-    // Reset timer and sync local state
     setTimer(0);
     setChannel(nextChannel);
     setRecipient(nextDest);
 
-    // Trigger the decoupled resend logic with the new targets
     handleSendOtp({
       recipient: nextDest,
-      purpose: transitData.purpose,
+      purpose: activeTransit.purpose,
       channel: nextChannel,
     });
-  }, [channel, transitData, handleSendOtp, setSBMessage]);
+  }, [channel, activeTransit, isAuthPurpose, handleSendOtp, setSBMessage]);
 
   return {
     code,

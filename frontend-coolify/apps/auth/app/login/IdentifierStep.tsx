@@ -34,8 +34,6 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
   style = {},
 }) => {
   const theme = useTheme();
-  const inlineMsg = useGlobalStore((state) => state.inlineMsg);
-
   const { COUNTRY_LIST } = LISTS();
 
   const inlineTxtStlye = {
@@ -56,6 +54,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
     countryMenuRef,
     validateAndSet,
     handleSignupClick,
+    inlineMsg,
   } = useIdentifier({ existingInput, setStep, setIdentifier });
 
   return (
@@ -93,8 +92,6 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         </Typography>
       </Stack>
 
-      {inlineMsg && <InlineMsgUI msg={inlineMsg} type="ERROR" />}
-
       {/* 3rd party sign in */}
       <Stack direction="row">
         <AppButton
@@ -130,6 +127,9 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
       <Divider sx={{ fontSize: 14, color: theme.palette.gray[200], margin: 0 }}>
         Or sign in with
       </Divider>
+
+      {/* Feedback */}
+      {inlineMsg && <InlineMsgUI msg={inlineMsg} type="ERROR" />}
 
       {/* In app sign in */}
       <Stack

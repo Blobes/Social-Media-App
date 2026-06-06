@@ -86,7 +86,7 @@ export default function SignupPage() {
             [theme.breakpoints.down("md")]: {
               width: "100%",
               height: "100vh",
-              scrollSnapAlign: "start",
+              scrollSnapAlign: "center",
             },
           }}
         />

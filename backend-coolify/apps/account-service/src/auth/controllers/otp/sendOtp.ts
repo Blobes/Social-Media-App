@@ -11,12 +11,6 @@ import {
 } from "@repo/shared";
 import { Request, Response } from "express";
 
-const VALID_PURPOSES: VerificationPurpose[] = [
-  "LOGIN_VERIFICATION",
-  "IDENTIFIER_UPDATE",
-  "PASSWORD_RESET",
-];
-
 const COOLDOWN_SECONDS = 60;
 
 /**
@@ -28,6 +22,9 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     recipient?: string;
     purpose?: VerificationPurpose;
   };
+
+  const VALID_PURPOSES: VerificationPurpose[] =
+    Object.values(VerificationPurpose);
 
   if (!recipient) {
     res.status(400).json({

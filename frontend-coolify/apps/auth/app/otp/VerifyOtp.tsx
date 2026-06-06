@@ -14,11 +14,12 @@ import { SquareAsterisk } from "lucide-react";
 import { OtpTransitData } from "@repo/core";
 
 interface VerifyOtpProps {
-  transitData: OtpTransitData;
+  transitData: OtpTransitData[];
 }
 
 export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
   const theme = useTheme();
+
   const {
     code,
     setCode,

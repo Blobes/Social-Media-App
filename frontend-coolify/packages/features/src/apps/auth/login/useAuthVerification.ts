@@ -1,11 +1,10 @@
 "use client";
 
-import { usePage, useSnackbar, useGlobalStore } from "@repo/shared-hooks";
+import { useSnackbar, useGlobalStore } from "@repo/shared-hooks";
 import { AuthService } from "./service";
-import { CLIENT_ROUTES, CACHE_KEYS } from "@repo/core";
+import { CACHE_KEYS } from "@repo/core";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
-import { useAuthNavigation } from "./useAuthNavigation";
 
 /**
  * Manages user authentication state and session verification.
@@ -19,7 +18,6 @@ export const useAuthVerification = () => {
 
   const { setSBMessage } = useSnackbar();
   const { verifyAndFetchUser } = AuthService();
-  const { navigateTo } = usePage();
 
   const { refetch, isFetching } = useQuery({
     queryKey: [CACHE_KEYS.USER.SESSION],
@@ -33,10 +31,14 @@ export const useAuthVerification = () => {
           setAuthStatus("AUTHENTICATED");
           setAccessToken(res.accessToken || null);
 
+          // NOT VERIFIED: User exists but is needs email/phone otp verification
+          if (!user.isEmailVerified && !user.isPhoneVerified) {
+            setAccountStatus("NOT_VERIFIED");
+          }
+
           // NOT ONBOARDED: User exists but is not on boarded
           if (!user.isOnboarded) {
             setAccountStatus("NOT_ONBOARDED");
-            // navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
           }
 
           // DEACTIVATED: User exists but account is locked

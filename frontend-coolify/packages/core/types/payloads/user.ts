@@ -7,7 +7,8 @@ export type AccountStatus =
   | "DEACTIVATED"
   | "SUSPENDED"
   | "BANNED"
-  | "NOT_ONBOARDED";
+  | "NOT_ONBOARDED"
+  | "NOT_VERIFIED";
 export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
 
 /**

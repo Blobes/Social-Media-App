@@ -20,6 +20,7 @@ interface MenuProps {
   children?: ReactNode;
   stickToScreen?: boolean;
   heightThreshold?: number;
+  onMenuClose?: () => void;
   style?: GenericStyle;
 }
 
@@ -27,15 +28,24 @@ interface MenuProps {
  * Low-level menu popover surface mapping anchor element positioning configurations.
  */
 export const MenuPopup = forwardRef<MenuRef, MenuProps>(
-  ({ children, stickToScreen = true, heightThreshold, style }, ref) => {
+  (
+    { children, stickToScreen = true, heightThreshold, onMenuClose, style },
+    ref,
+  ) => {
     const theme = useTheme();
     const [anchorElNav, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    const handleClose = () => {
+      if (onMenuClose) onMenuClose();
+      setAnchorEl(null);
+    };
+
     useImperativeHandle(ref, () => ({
       openMenu: (anchor: HTMLElement) => {
         setAnchorEl(anchor);
       },
       closeMenu: () => {
-        setAnchorEl(null);
+        handleClose();
       },
     }));
 
@@ -46,7 +56,7 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
       <Menu
         anchorEl={anchorElNav}
         open={Boolean(anchorElNav)}
-        onClose={() => setAnchorEl(null)}
+        onClose={handleClose}
         keepMounted
         disableScrollLock
         marginThreshold={stickToScreen ? 16 : null}
@@ -119,6 +129,7 @@ export const DisplayList = <T extends IMenuItem>({
   listName = ListType.DEFAULT,
   usePage: hook,
   onItemClick,
+  onMenuClose,
   style,
   showActiveItem,
   menuRef,
@@ -216,6 +227,7 @@ export const DisplayList = <T extends IMenuItem>({
       ref={menuRef}
       stickToScreen={stickToScreen}
       heightThreshold={heightThreshold}
+      onMenuClose={onMenuClose}
       style={style?.container}>
       {showSearchBar && (!isSourceEmpty || currentQuery.length > 0) && (
         <SearchBar

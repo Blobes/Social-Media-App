@@ -34,10 +34,12 @@ export type ModerationTaskMode =
 
 export type OtpType = "EMAIL" | "SMS" | "WHATSAPP" | "PHONE";
 
-export type VerificationPurpose =
-  | "LOGIN_VERIFICATION"
-  | "IDENTIFIER_UPDATE"
-  | "PASSWORD_RESET";
+export enum VerificationPurpose {
+  LOGIN = "LOGIN_VERIFICATION",
+  SIGNUP = "SIGNUP_VERIFICATION",
+  IDENTIFIER_UPDATE = "IDENTIFIER_UPDATE",
+  PASSWORD_RESET = "PASSWORD_RESET",
+}
 
 export type Role = "USER" | "ADMIN" | "MODERATOR";
 
