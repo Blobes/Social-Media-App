@@ -66,6 +66,7 @@ export default function LoginPage() {
                 padding: theme.boxSpacing(18, 20),
                 mdScreen: {
                   height: "98vh",
+                  width: "70%",
                   minHeight: "fit-content",
                   scrollSnapAlign: "start",
                   padding: theme.boxSpacing(20, 10),

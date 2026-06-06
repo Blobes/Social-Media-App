@@ -13,7 +13,7 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
   const { navigateTo, isOnWeb } = usePage();
   const { handleSendOtp } = useOtp();
   const { inputType } = useIdentifier({ existingInput: identifier });
-  const { handleOtpRequired } = useAuthNavigation();
+  const { handleVerifyOtp: handleOtpRequired } = useAuthNavigation();
 
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);

@@ -202,7 +202,6 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
         margin: "0 auto",
         backgroundColor: theme.palette.gray[300],
         ...style?.container,
-
         [theme.breakpoints.down("md")]: {
           width: "100%",
           height: "100vh",
@@ -232,7 +231,15 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
             autoPlay={true}
             pauseOnHover={true}
             interval={7000}
-            style={{ container: { height: "70%" } }}
+            style={{
+              container: {
+                height: "70%",
+                [theme.breakpoints.down("md")]: { height: "fit-content" },
+                [theme.breakpoints.only("sm")]: {
+                  width: "70%",
+                },
+              },
+            }}
           />
         </>
       ) : (

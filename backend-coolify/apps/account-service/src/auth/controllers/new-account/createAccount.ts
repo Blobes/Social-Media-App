@@ -47,10 +47,10 @@ export const createAccount = async (
 
   try {
     const normalizedEmail = email.toLowerCase().trim();
-    const testEmail = generateTestEmail(normalizedEmail);
+    // const testEmail = generateTestEmail(normalizedEmail);
 
     const existingUser = await UserModel.findOne({
-      email: testEmail,
+      email: normalizedEmail,
     }).setOptions({ skipFilter: true });
 
     if (existingUser) {
@@ -79,7 +79,7 @@ export const createAccount = async (
 
     // Initializing user document
     const newUser = new UserModel({
-      email: testEmail,
+      email: normalizedEmail,
       password: hashedPassword,
       phoneNumber: phone,
       country: userLocation?.country,

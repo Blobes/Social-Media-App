@@ -22,7 +22,7 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
   const setAccessToken = useGlobalStore((state) => state.setAccessToken);
   const { handleSendOtp } = useOtp();
-  const { handleOtpRequired } = useAuthNavigation();
+  const { handleVerifyOtp } = useAuthNavigation();
 
   /**
    * Caches credentials and routes user to validation views upon successful container generation.
@@ -38,18 +38,18 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
       setAuthStatus("AUTHENTICATED");
       setAccessToken(res.accessToken);
 
-      if (user.isDeactivated) {
-        setAccountStatus("DEACTIVATED");
-        navigateTo(CLIENT_ROUTES.login);
-        setGlobalLoading(false);
-        return;
-      }
       handleSendOtp({
         recipient: user.email || email,
-        purpose: "LOGIN_VERIFICATION",
+        purpose: "REGISTRATION",
         channel: "EMAIL",
       });
-      handleOtpRequired(user, user.email || email, "EMAIL", "NEW_ACCOUNT");
+      handleVerifyOtp(
+        user,
+        user.email || email,
+        "EMAIL",
+        "NEW_ACCOUNT",
+        "REGISTRATION",
+      );
 
       setGlobalLoading(false);
     }

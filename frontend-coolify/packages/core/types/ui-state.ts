@@ -123,7 +123,7 @@ export type GenericQueue = Record<string, QueueItem>;
 
 export interface TransitPayloadMap {
   LOGIN_VERIFICATION: IUser;
-  REGISTRATION: { email: string; tempToken: string }; // Example
+  REGISTRATION: IUser;
   ACCOUNT_UPDATE: { field: string; oldValue: string }; // Example
   IDENTIFIER_UPDATE: { field: string; oldValue: string };
 }
