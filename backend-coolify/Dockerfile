@@ -18,7 +18,7 @@ ARG SERVICE_NAME
 ARG APP_PATH=apps/${SERVICE_NAME}
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json turbo.json tsup.config.ts ./
 COPY ${APP_PATH}/package.json ./${APP_PATH}/
 COPY packages/shared/package.json ./packages/shared/
 COPY packages/database/package.json ./packages/database/
@@ -27,6 +27,7 @@ RUN pnpm install --frozen-lockfile
 
 RUN find /app/node_modules -path "*/node-asynq/proto/asynq.proto" | head -1 | xargs -I{} cp {} /app/asynq.proto
 
+COPY tsconfig.json turbo.json tsup.config.ts ./
 COPY ${APP_PATH} ./${APP_PATH}
 COPY packages/shared ./packages/shared
 COPY packages/database ./packages/database
@@ -59,7 +60,7 @@ ARG SERVICE_NAME
 ARG APP_PATH=apps/${SERVICE_NAME}
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
-COPY pnpm-workspace.yaml ./
+COPY pnpm-workspace.yaml tsconfig.json turbo.json tsup.config.ts ./
 COPY ${APP_PATH}/package.json ./package.json
 COPY --from=node-builder /app/${APP_PATH}/dist ./dist
 
