@@ -38,3 +38,8 @@ export const summarizeNum = (digit: string | number = 0): string => {
     return `${formatted.replace(/\.0$/, "")}${level}`;
   }
 };
+
+export const stripToNumbers = (text: string): number => {
+  const digitsOnly = text.replace(/\D/g, "");
+  return digitsOnly ? parseInt(digitsOnly, 10) : 0;
+};

@@ -1,4 +1,3 @@
-export * from "./src/useContext";
 export * from "./src/useColor";
 export * from "./src/useDate";
 export * from "./src/useDrag";

@@ -2,7 +2,7 @@ export * from "./src/animations";
 export * from "./src/dateTime";
 export * from "./src/misc";
 export * from "./src/inputValidation";
-export * from "./src/numberSum";
+export * from "./src/number";
 export * from "./src/worker";
 export * from "./src/signal";
 export * from "./src/storage";

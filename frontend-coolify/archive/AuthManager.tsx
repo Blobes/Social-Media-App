@@ -3,7 +3,7 @@
 import React from "react";
 import { useEffect, useRef } from "react";
 import { useEventListener, useGlobalStore, useMisc } from "@repo/shared-hooks";
-import { useAuthVerification } from "../apps/auth/login/useAuthVerification";
+import { useAuthVerification } from "../packages/features/src/apps/auth/login/useAuthVerification";
 
 /**
  * Manages the application authentication lifecycle and initialization.

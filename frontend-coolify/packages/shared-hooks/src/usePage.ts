@@ -215,14 +215,14 @@ export const usePage = () => {
     }
 
     // Fallback to last valid page if currently on an auth/offline utility page
-    const pagePath = !isAuthRoute && !isOfflineRoute ? pathname : lastPage.path;
+    const pagePath =
+      guards.isRedirecting || (!isAuthRoute && !isOfflineRoute)
+        ? pathname
+        : lastPage.path;
     const savedPage = getFromLocalStorage<IPage>();
-
     // Update the lastPage state for breadcrumbs or "back" logic
     setLastPage(
-      isAuthRoute && savedPage
-        ? savedPage
-        : { title: extractPageTitle(pagePath), path: pagePath },
+      savedPage ?? { title: extractPageTitle(pagePath), path: pagePath },
     );
   }, [
     guards,

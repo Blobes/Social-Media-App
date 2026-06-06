@@ -121,6 +121,7 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
         <AppButton
           variant="text"
           onClick={switchChannel}
+          options={{ disabled: timer > 0 }}
           style={{
             color: theme.palette.primary.dark,
             padding: theme.boxSpacing(3, 6),

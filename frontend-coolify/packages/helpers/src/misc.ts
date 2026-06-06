@@ -1,7 +1,5 @@
 "use client";
 
-import { height, width } from "@mui/system";
-import { AnalyzedImage } from "@repo/core";
 import { getCookie, setCookie } from "./storage";
 
 // Delay function

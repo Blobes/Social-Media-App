@@ -24,7 +24,6 @@ export * from "./src/apps/stake/StakeCard";
 export * from "./src/base-layout/GlobalUIManager";
 export * from "./src/base-layout/default/AppWrapper";
 export * from "./src/base-layout/BaseLayout";
-export * from "./src/base-layout/AuthManager";
 export * from "./src/base-layout/SocketProvider";
 
 //Post

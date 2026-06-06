@@ -8,7 +8,6 @@ import {
   PageLoaderUI,
   OfflinePromptUI,
   NetworkGlitchUI,
-  SplashUI,
 } from "@repo/shared-ui";
 import { usePathname } from "next/navigation";
 import { registerSW, delay, getFromLocalStorage } from "@repo/helpers";
@@ -20,7 +19,7 @@ import {
   usePage,
   useSnackbar,
 } from "@repo/shared-hooks";
-import { AuthStatus, CLIENT_ROUTES, DrawerRef, ModalRef } from "@repo/core";
+import { AuthStatus, DrawerRef, ModalRef } from "@repo/core";
 import { useAuthVerification } from "../apps/auth/login/useAuthVerification";
 import { RestrictedUI } from "../components/RestrictedUI";
 
@@ -61,6 +60,7 @@ export const GlobalUIManager = ({
     needsLogin,
     needsOnboarding,
     needsRestoreAccount,
+    needsOtpVerification,
   } = usePage();
   const pathname = usePathname();
   const { verifyAuth } = useAuthVerification();
@@ -79,10 +79,10 @@ export const GlobalUIManager = ({
       try {
         setGlobalLoading(true);
         registerSW();
-        //  await delay();
         await verifySignal();
         await verifyAuth();
       } finally {
+        await delay();
         setGlobalLoading(false);
       }
     };
@@ -113,16 +113,6 @@ export const GlobalUIManager = ({
     handlePageChange();
   }, [pathname, authStatus, accountStatus]);
 
-  // Showing Splash UI during hydration
-
-  // if (
-  //   !isMounted.current ||
-  //   authStatus === "PENDING" ||
-  //   networkStatus === "UNKNOWN"
-  // ) {
-  //   return <PageLoaderUI />;
-  // }
-
   // Determining if the app is still in its initial boot state
   const showLoaderUI =
     !isMounted.current ||
@@ -132,8 +122,10 @@ export const GlobalUIManager = ({
 
   if (showLoaderUI) return <PageLoaderUI />;
 
-  if (!isRedirecting) {
+  if (!isNavigating && !isRedirecting) {
     if (needsLogin) return <RestrictedUI type="NEEDS_LOGIN" />;
+    if (needsOtpVerification)
+      return <RestrictedUI type="NEEDS_OTP_VERIFICATION" />;
     if (needsOnboarding) return <RestrictedUI type="NEEDS_ONBOARDING" />;
     if (needsRestoreAccount) return <RestrictedUI type="NEEDS_RESTORE" />;
   }
@@ -142,7 +134,6 @@ export const GlobalUIManager = ({
     key: "last_auth_status",
   });
   const wasLoggedIn = savedLoginStatus === "AUTHENTICATED";
-
   // Update the condition
   const shouldShowOffline =
     showOfflineUI && isOffline && !offlineMode && wasLoggedIn;

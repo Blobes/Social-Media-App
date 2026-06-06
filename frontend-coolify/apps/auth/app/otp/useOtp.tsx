@@ -6,6 +6,7 @@ import { TransitPurpose, OtpTransitData, OtpChannel, IUser } from "@repo/core";
 import { OtpRequest, OtpService } from "./service";
 import { useMutation } from "@tanstack/react-query";
 import { useFeedback } from "./useFeedback";
+import { stripToNumbers } from "@repo/helpers";
 
 interface UseOtpOptions {
   dispatchOnload?: boolean;
@@ -70,6 +71,8 @@ export const useOtp = <P extends TransitPurpose>(
     if (timer > 0) {
       const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
       return () => clearInterval(interval);
+    } else {
+      setInlineMsg(null);
     }
   }, [timer]);
 
@@ -121,12 +124,15 @@ export const useOtp = <P extends TransitPurpose>(
         msg: {
           tagline: `A new code has been sent to your ${vars.channel?.toLowerCase()}.`,
           msgStatus: "SUCCESS",
-          duration: 10,
+          duration: 6,
         },
       });
     },
-    onError: (error: any) =>
-      setInlineMsg(error.message || "Failed to send code."),
+    onError: (error: any) => {
+      const seconds = stripToNumbers(error.message);
+      setTimer(seconds);
+      setInlineMsg(error.message || "Failed to send code.");
+    },
   });
 
   /**
@@ -178,7 +184,7 @@ export const useOtp = <P extends TransitPurpose>(
       if (customRequest) {
         return executeDispatch(customRequest);
       }
-      if (!recipient || !channel || timer > 0) return;
+      if (!recipient || !channel) return;
       executeDispatch({
         recipient,
         purpose: activeTransit?.purpose ?? "LOGIN_VERIFICATION",

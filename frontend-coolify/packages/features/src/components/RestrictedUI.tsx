@@ -22,6 +22,7 @@ export type RestrictedType =
   | "BANNED"
   | "NEEDS_LOGIN"
   | "NEEDS_ONBOARDING"
+  | "NEEDS_OTP_VERIFICATION"
   | "NEEDS_RESTORE";
 
 export interface RestrictedConfig {
@@ -58,6 +59,16 @@ export const RESTRICTED_CONFIG = (): Record<
       secondaryCta: {
         label: "Go Home",
         action: () => navigateTo(CLIENT_ROUTES.home, { loadPage: true }),
+      },
+    },
+    NEEDS_OTP_VERIFICATION: {
+      headline: "Verify your account",
+      tagline:
+        "You're almost there! Complete your verification process to unlock full access to Funstakes.",
+      icon: <UserPlus size={48} />,
+      primaryCta: {
+        label: "Verify Account",
+        action: () => navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true }),
       },
     },
     NEEDS_ONBOARDING: {
