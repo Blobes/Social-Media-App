@@ -30,12 +30,11 @@ export const usePage = () => {
   const modalContent = useGlobalStore((state) => state.modalContent);
   const setPage = useGlobalStore((state) => state.setPage);
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
 
   const { closeDrawer, closeModal } = useMisc();
   const router = useRouter();
   const pathname = usePathname();
-  // Tracks the intended destination during a route transition
-  const [pendingPath, setPendingPath] = useState<string | null>(null);
 
   /**
    * Helper functions for route classification.
