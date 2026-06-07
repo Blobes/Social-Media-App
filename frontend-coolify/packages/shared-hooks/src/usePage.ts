@@ -1,12 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import {
-  CLIENT_ROUTES,
-  DISALLOWED_ROUTES,
-  IPage,
-  ROUTES_REGISTRY,
-} from "@repo/core";
+import { useCallback, useState } from "react";
+import { DISALLOWED_ROUTES, IPage, ROUTES_REGISTRY } from "@repo/core";
 import {
   extractPageTitle,
   getFromLocalStorage,
@@ -30,21 +25,15 @@ interface NavigateOptions {
  * Manages page transitions, routing logic, and navigation state.
  */
 export const usePage = () => {
-  // Use atomic selectors to prevent unnecessary re-renders
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const drawerContent = useGlobalStore((state) => state.drawerContent);
   const modalContent = useGlobalStore((state) => state.modalContent);
   const setPage = useGlobalStore((state) => state.setPage);
-  const lastPage = useGlobalStore((state) => state.lastPage);
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
-  const authStatus = useGlobalStore((state) => state.authStatus);
-  const accountStatus = useGlobalStore((state) => state.accountStatus);
-  const authUser = useGlobalStore((state) => state.authUser);
 
   const { closeDrawer, closeModal } = useMisc();
   const router = useRouter();
   const pathname = usePathname();
-
   // Tracks the intended destination during a route transition
   const [pendingPath, setPendingPath] = useState<string | null>(null);
 
@@ -84,76 +73,9 @@ export const usePage = () => {
     [setPage],
   );
 
-  const isCurrentRoute = pathname === pendingPath;
   const isAuthRoute = isOnAuth(pathname);
   const isOfflineRoute = isOnOffline(pathname);
-  const isExternalRoute = isOnExternal(pathname);
-  const isInternalRoute = !isCurrentRoute && !isExternalRoute;
-  const isOnDisallowedRoute = isOnDisallowed(pathname);
-
-  const guards = useRouteGuards(pathname, pendingPath, isOnDisallowedRoute);
-
-  // // Synchronous Defensive Guards & Redirect Logic
-  // const guards = useMemo(() => {
-  //   // Direct Security Violations
-  //   const needsLogin =
-  //     authStatus === "UNAUTHENTICATED" &&
-  //     isInternalRoute &&
-  //     pathname !== CLIENT_ROUTES.home.path;
-
-  //   const needsOtpVerification =
-  //     authStatus === "AUTHENTICATED" &&
-  //     (accountStatus === "NOT_VERIFIED" ||
-  //       (authUser &&
-  //         (!authUser.isEmailVerified || !authUser.isPhoneVerified))) &&
-  //     isInternalRoute &&
-  //     pathname !== CLIENT_ROUTES.verifyOtp.path;
-
-  //   const needsOnboarding =
-  //     authStatus === "AUTHENTICATED" &&
-  //     !needsOtpVerification &&
-  //     (accountStatus === "NOT_ONBOARDED" ||
-  //       (authUser && !authUser.isOnboarded)) &&
-  //     isInternalRoute &&
-  //     pathname !== CLIENT_ROUTES.onboarding.path &&
-  //     pathname !== CLIENT_ROUTES.verifyOtp.path;
-
-  //   const needsRestoreAccount =
-  //     !needsLogin &&
-  //     accountStatus === "DEACTIVATED" &&
-  //     isInternalRoute &&
-  //     pathname !== CLIENT_ROUTES.restoreAccount.path;
-
-  //   const isDisallowed = isOnDisallowed(pathname);
-
-  //   // Navigation State
-  //   const isNavigating = !!pendingPath && pendingPath !== pathname;
-  //   const isRedirecting =
-  //     needsLogin ||
-  //     needsOtpVerification ||
-  //     needsOnboarding ||
-  //     needsRestoreAccount ||
-  //     isDisallowed;
-
-  //   return {
-  //     needsLogin,
-  //     needsOnboarding,
-  //     needsRestoreAccount,
-  //     needsOtpVerification,
-  //     isNavigating,
-  //     isRedirecting,
-  //   };
-  // }, [
-  //   pathname,
-  //   authStatus,
-  //   accountStatus,
-  //   authUser,
-  //   pendingPath,
-  //   isOnAuth,
-  //   isOnWeb,
-  //   isOnOffline,
-  //   isOnDisallowed,
-  // ]);
+  const routeGuards = useRouteGuards(pathname, pendingPath);
 
   /**
    * Core navigation handler managing SPA transitions and cross-zone jumps.
@@ -205,13 +127,16 @@ export const usePage = () => {
     ],
   );
 
+  /**
+   * Synchronizes route change and enforces access control.
+   */
   const handlePageChange = useCallback(() => {
     setInlineMsg(null);
     setPendingPath(null);
     setGlobalLoading(false);
 
-    if (guards.isRedirecting) {
-      const redirect = REDIRECT_MAP.find(({ guard }) => guards[guard]);
+    if (routeGuards.isRedirecting) {
+      const redirect = REDIRECT_MAP.find(({ guard }) => routeGuards[guard]);
       if (redirect)
         navigateTo(redirect.target, { loadPage: true, savePage: false });
       return;
@@ -223,7 +148,7 @@ export const usePage = () => {
       savedPage ?? { title: extractPageTitle(pathname), path: pathname },
     );
   }, [
-    guards,
+    routeGuards,
     pathname,
     isAuthRoute,
     isOfflineRoute,
@@ -232,69 +157,14 @@ export const usePage = () => {
     navigateTo,
   ]);
 
-  /**
-   * Synchronizes route change and enforces access control.
-   */
-  // const handlePageChange = useCallback(() => {
-  //   // Reset transient UI states on every navigation
-  //   setInlineMsg(null);
-  //   setPendingPath(null);
-  //   setGlobalLoading(false);
-
-  //   // Security Guard: Execute redirects immediately and terminate execution path
-  //   if (guards.isRedirecting) {
-  //     if (guards.needsLogin) {
-  //       navigateTo(CLIENT_ROUTES.home, { loadPage: true, savePage: false });
-  //     } else if (guards.needsOtpVerification) {
-  //       navigateTo(CLIENT_ROUTES.verifyOtp, {
-  //         loadPage: true,
-  //         savePage: false,
-  //       });
-  //     } else if (guards.needsOnboarding) {
-  //       navigateTo(CLIENT_ROUTES.onboarding, {
-  //         loadPage: true,
-  //         savePage: false,
-  //       });
-  //     } else if (guards.needsRestoreAccount) {
-  //       navigateTo(CLIENT_ROUTES.restoreAccount, {
-  //         loadPage: true,
-  //         savePage: false,
-  //       });
-  //     } else if (isOnDisallowed(pathname)) {
-  //       navigateTo(CLIENT_ROUTES.about, { loadPage: true, savePage: false });
-  //     }
-  //     return;
-  //   }
-
-  //   // Skip local storage fallback synchronization entirely for utility or auth operations
-  //   if (isAuthRoute || isOfflineRoute) {
-  //     return;
-  //   }
-
-  //   const pagePath = pathname;
-  //   const savedPage = getFromLocalStorage<IPage>();
-
-  //   // Process synchronization safely for validated standard web routes
-  //   setLastPage(
-  //     savedPage ?? { title: extractPageTitle(pagePath), path: pagePath },
-  //   );
-  // }, [
-  //   guards,
-  //   pathname,
-  //   isAuthRoute,
-  //   isOfflineRoute,
-  //   setLastPage,
-  //   setInlineMsg,
-  //   navigateTo,
-  //   extractPageTitle,
-  //   isOnDisallowed,
-  // ]);
-
   return {
     setLastPage,
     isOnWeb,
+    isOnAuth,
+    isOnDisallowed,
+    isOnExternal,
     navigateTo,
     handlePageChange,
-    ...guards,
+    ...routeGuards,
   };
 };

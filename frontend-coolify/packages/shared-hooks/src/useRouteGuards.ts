@@ -1,21 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import {
-  CLIENT_ROUTES,
-  DISALLOWED_ROUTES,
-  IPage,
-  ROUTES_REGISTRY,
-} from "@repo/core";
-import {
-  extractPageTitle,
-  getFromLocalStorage,
-  crossZoneCheck,
-  saveToLocalStorage,
-  delay,
-} from "@repo/helpers";
-import { usePathname, useRouter } from "next/navigation";
-import { useMisc } from "./useMisc";
+import { useMemo } from "react";
+import { CLIENT_ROUTES, DISALLOWED_ROUTES, ROUTES_REGISTRY } from "@repo/core";
 import { useGlobalStore } from "./store/useGlobalStore";
 
 export const REDIRECT_MAP = [
@@ -29,7 +15,6 @@ export const REDIRECT_MAP = [
 export const useRouteGuards = (
   pathname: string,
   pendingPath: string | null,
-  isOnDisallowedRoute: boolean,
 ) => {
   const authStatus = useGlobalStore((state) => state.authStatus);
   const accountStatus = useGlobalStore((state) => state.accountStatus);
@@ -39,6 +24,7 @@ export const useRouteGuards = (
     const isCurrentRoute = pathname === pendingPath;
     const isExternalRoute = ROUTES_REGISTRY.external.includes(pathname);
     const isInternalRoute = !isCurrentRoute && !isExternalRoute;
+    const isOnDisallowedRoute = DISALLOWED_ROUTES.includes(pathname);
 
     const needsLogin =
       authStatus === "UNAUTHENTICATED" &&
