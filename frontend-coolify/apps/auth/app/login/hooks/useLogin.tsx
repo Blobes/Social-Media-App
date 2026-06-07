@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import { useTheme } from "@mui/material/styles";
-import { useSnackbar, useGlobalStore } from "@repo/shared-hooks";
+import { useSnackbar } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { useLockCountdown } from "./useLockCount";
 import { setCookie, getCookie, delay } from "@repo/helpers";

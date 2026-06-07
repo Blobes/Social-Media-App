@@ -73,6 +73,7 @@ export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
         gap: theme.gap(10),
         ...style.container,
         [theme.breakpoints.down("md")]: {
+          flex: "none",
           ...style.container?.mdScreen,
         },
         [theme.breakpoints.down("sm")]: {

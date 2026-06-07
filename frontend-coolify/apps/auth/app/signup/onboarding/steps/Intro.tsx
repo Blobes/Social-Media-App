@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { Stack, Typography, useTheme } from "@mui/material";
-import Image from "next/image";
+import { Divider, Stack, Typography, useTheme } from "@mui/material";
 import { asset } from "@repo/assets";
 import { AppButton, SVGWrapper } from "@repo/shared-ui";
 import { AuthStepName, StepperProps } from "@repo/core";
+import { Logout } from "@repo/features";
 
 /**
  * First step of onboarding providing context and a way to start the process.
@@ -41,13 +41,6 @@ export const OnboardingIntro: React.FC<StepperProps<AuthStepName>> = ({
           //   },
           // }}
         />
-        {/* <Image
-          alt="Welcome"
-          src={asset.logo} // Or a specific welcome illustration if available
-          width={80}
-          height={80}
-          style={{ borderRadius: theme.radius.full }}
-        /> */}
 
         <Stack sx={{ gap: theme.gap(4) }}>
           <Typography variant="h4" fontWeight={700}>
@@ -71,9 +64,25 @@ export const OnboardingIntro: React.FC<StepperProps<AuthStepName>> = ({
         Get Started
       </AppButton>
 
+      {/* Footer */}
+      <Divider sx={{ width: "100%" }} />
       <Typography variant="caption" color={theme.palette.gray[200]}>
         It only takes a few minutes to set up your account.
       </Typography>
+      <Logout
+        containerStyle={{
+          gap: theme.gap(4),
+          hover: {
+            "& svg": { stroke: theme.palette.primary.dark },
+          },
+        }}
+        textStyle={{
+          width: "fit-content",
+          textAlign: "center",
+          color: theme.palette.gray[200],
+        }}
+        iconStyle={{ size: 18 }}
+      />
     </Stack>
   );
 };

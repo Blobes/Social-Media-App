@@ -118,8 +118,8 @@ export const GlobalUIManager = ({
     !isMounted.current ||
     authStatus === "PENDING" ||
     networkStatus === "UNKNOWN" ||
+    isNavigating ||
     isGlobalLoading;
-
   if (showLoaderUI) return <PageLoaderUI />;
 
   if (!isNavigating && !isRedirecting) {

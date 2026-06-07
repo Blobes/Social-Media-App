@@ -1,12 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { CSSProperties } from "react";
 import { AppButton } from "@repo/shared-ui";
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useMisc } from "@repo/shared-hooks";
-import { LogOut, LogOutIcon } from "lucide-react";
+import { LogIn, LogOut, LogOutIcon } from "lucide-react";
 import { useLogout } from "./useLogout";
+import { GenericStyle } from "@repo/core";
 
 export const ComfirmLogout = () => {
   const { closeModal } = useMisc();
@@ -33,7 +34,17 @@ export const ComfirmLogout = () => {
   );
 };
 
-export const Logout = () => {
+interface LogoutProps {
+  containerStyle?: GenericStyle;
+  textStyle?: GenericStyle;
+  iconStyle?: GenericStyle;
+}
+
+export const Logout = ({
+  containerStyle,
+  textStyle,
+  iconStyle,
+}: LogoutProps) => {
   const { openModal, closeDrawer, closeModal } = useMisc();
   const theme = useTheme();
 
@@ -48,10 +59,17 @@ export const Logout = () => {
         width: "100%",
         gap: theme.gap(10),
         padding: theme.boxSpacing(0),
-        "& svg": { width: "22px", height: "22px" },
+        "& svg": {
+          width: iconStyle?.size || 22,
+          height: iconStyle?.size || 22,
+          transform: "scale(-1)",
+          ...iconStyle,
+        },
         "&:hover": {
           background: "transparent",
+          ...containerStyle?.hover,
         },
+        ...containerStyle,
       }}>
       <LogOut />
       <Typography
@@ -63,6 +81,7 @@ export const Logout = () => {
           "&:hover": {
             color: theme.palette.primary.dark,
           },
+          ...textStyle,
         }}>
         Logout
       </Typography>

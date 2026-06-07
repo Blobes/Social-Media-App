@@ -49,7 +49,7 @@ export default function SignupPage() {
             flexDirection: "column",
             padding: theme.boxSpacing(0),
             borderRadius: 0,
-            scrollSnapType: "y mandatory",
+            scrollSnapType: "y proximity",
             scrollbarWidth: "none",
             "&::-webkit-scrollbar": { display: "none" },
           },
@@ -86,7 +86,7 @@ export default function SignupPage() {
             [theme.breakpoints.down("md")]: {
               width: "100%",
               height: "100vh",
-              scrollSnapAlign: "center",
+              scrollSnapAlign: "start",
             },
           }}
         />

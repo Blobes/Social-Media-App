@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Stack, Typography } from "@mui/material";
+import { Divider, Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   AppButton,
@@ -12,6 +12,7 @@ import {
 import { useOtp } from "./useOtp";
 import { SquareAsterisk } from "lucide-react";
 import { OtpTransitData } from "@repo/core";
+import { Logout } from "@repo/features";
 
 interface VerifyOtpProps {
   transitData: OtpTransitData[];
@@ -94,7 +95,9 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
       </Stack>
 
       {/* Footer */}
-      <Stack direction="column" alignItems="center" gap={theme.gap(10)}>
+      <Stack
+        gap={theme.gap(10)}
+        sx={{ width: "100%", flexDirection: "column", alignItems: "center" }}>
         <Stack direction="row" alignItems="center" gap={0}>
           <Typography variant="body2">Didn't receive a code?</Typography>
           <AppButton
@@ -132,6 +135,23 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
             `Send code via ${isEmail ? "SMS" : "email"}`
           )}
         </AppButton>
+        <Divider sx={{ width: "100%" }} />
+        <Logout
+          containerStyle={{
+            gap: theme.gap(4),
+            hover: {
+              "& svg": { stroke: theme.palette.primary.dark },
+            },
+          }}
+          textStyle={{
+            width: "fit-content",
+            textAlign: "center",
+            color: theme.palette.gray[200],
+          }}
+          iconStyle={{
+            size: 18,
+          }}
+        />
       </Stack>
     </Stack>
   );

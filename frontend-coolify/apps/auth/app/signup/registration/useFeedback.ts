@@ -17,6 +17,7 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const setAccessToken = useGlobalStore((state) => state.setAccessToken);
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
+  const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
   const { handleSendOtp } = useOtp();
   const { handleVerifyOtp } = useAuthNavigation();
 
@@ -30,6 +31,7 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
     const user = res.payload as IUser;
     if (res.status === "SUCCESS" && user) {
       setAccessToken(res.accessToken);
+      setAuthStatus("AUTHENTICATED");
       setAccountStatus("NOT_VERIFIED");
       handleSendOtp({
         recipient: user.email || email,

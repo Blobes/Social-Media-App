@@ -12,6 +12,7 @@ import {
   LISTS,
   ListType,
   GenericStyle,
+  INPUT_GUIDES,
 } from "@repo/core";
 import {
   AppButton,
@@ -49,11 +50,10 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
     emailValidationMsg,
     phoneValidity,
     phoneValidationMsg,
-    activeValidationVisuals,
-    adjustedPasswordGuides,
     onEmailChange,
     onPhoneChange,
     onPasswordChange,
+    passwordVisualStates,
     handleSubmit,
     handleMenuClose,
     handleCountrySelect,
@@ -247,17 +247,9 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
               mt: 1,
             }}>
             <UIGuide
-              guides={adjustedPasswordGuides}
+              guides={[INPUT_GUIDES.PASSWORD]}
               showTitle={false}
-              detailVisual={
-                activeValidationVisuals
-                  ? {
-                      id: activeValidationVisuals.id,
-                      icon: activeValidationVisuals.icon,
-                      textColor: activeValidationVisuals.textColor,
-                    }
-                  : undefined
-              }
+              detailVisuals={passwordVisualStates}
             />
           </Box>
         </Stack>
@@ -286,6 +278,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         sx={{
           textAlign: "center",
           width: "100%",
+          paddingTop: theme.boxSpacing(8),
           ...style.tagline,
         }}>
         Already have an account?
@@ -297,7 +290,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             ...inlineLinkStyle,
             marginLeft: theme.boxSpacing(2),
           }}>
-          Sign in
+          Login
         </AnchorLink>
       </Typography>
     </Stack>

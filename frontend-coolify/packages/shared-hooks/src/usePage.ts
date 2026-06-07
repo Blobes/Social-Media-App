@@ -17,6 +17,7 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { useMisc } from "./useMisc";
 import { useGlobalStore } from "./store/useGlobalStore";
+import { REDIRECT_MAP, useRouteGuards } from "./useRouteGuards";
 
 interface NavigateOptions {
   type?: "push" | "replace";
@@ -88,58 +89,71 @@ export const usePage = () => {
   const isOfflineRoute = isOnOffline(pathname);
   const isExternalRoute = isOnExternal(pathname);
   const isInternalRoute = !isCurrentRoute && !isExternalRoute;
+  const isOnDisallowedRoute = isOnDisallowed(pathname);
 
-  // Synchronous Defensive Guards & Redirect Logic
-  const guards = useMemo(() => {
-    // Direct Security Violations
-    const needsLogin = authStatus === "UNAUTHENTICATED" && isInternalRoute;
+  const guards = useRouteGuards(pathname, pendingPath, isOnDisallowedRoute);
 
-    const needsOtpVerification =
-      (accountStatus === "NOT_VERIFIED" ||
-        (authUser && !authUser.isEmailVerified && !authUser.isPhoneVerified)) &&
-      isInternalRoute;
+  // // Synchronous Defensive Guards & Redirect Logic
+  // const guards = useMemo(() => {
+  //   // Direct Security Violations
+  //   const needsLogin =
+  //     authStatus === "UNAUTHENTICATED" &&
+  //     isInternalRoute &&
+  //     pathname !== CLIENT_ROUTES.home.path;
 
-    const needsOnboarding =
-      authStatus === "AUTHENTICATED" &&
-      (accountStatus === "NOT_ONBOARDED" ||
-        (authUser && !authUser.isOnboarded)) &&
-      isInternalRoute;
+  //   const needsOtpVerification =
+  //     authStatus === "AUTHENTICATED" &&
+  //     (accountStatus === "NOT_VERIFIED" ||
+  //       (authUser &&
+  //         (!authUser.isEmailVerified || !authUser.isPhoneVerified))) &&
+  //     isInternalRoute &&
+  //     pathname !== CLIENT_ROUTES.verifyOtp.path;
 
-    const needsRestoreAccount =
-      authStatus === "AUTHENTICATED" &&
-      accountStatus === "DEACTIVATED" &&
-      isInternalRoute;
+  //   const needsOnboarding =
+  //     authStatus === "AUTHENTICATED" &&
+  //     !needsOtpVerification &&
+  //     (accountStatus === "NOT_ONBOARDED" ||
+  //       (authUser && !authUser.isOnboarded)) &&
+  //     isInternalRoute &&
+  //     pathname !== CLIENT_ROUTES.onboarding.path &&
+  //     pathname !== CLIENT_ROUTES.verifyOtp.path;
 
-    const isDisallowed = isOnDisallowed(pathname);
+  //   const needsRestoreAccount =
+  //     !needsLogin &&
+  //     accountStatus === "DEACTIVATED" &&
+  //     isInternalRoute &&
+  //     pathname !== CLIENT_ROUTES.restoreAccount.path;
 
-    // Navigation State
-    const isNavigating = !!pendingPath && pendingPath !== pathname;
-    const isRedirecting =
-      needsLogin ||
-      needsOtpVerification ||
-      needsOnboarding ||
-      needsRestoreAccount ||
-      isDisallowed;
+  //   const isDisallowed = isOnDisallowed(pathname);
 
-    return {
-      needsLogin,
-      needsOnboarding,
-      needsRestoreAccount,
-      needsOtpVerification,
-      isNavigating,
-      isRedirecting,
-    };
-  }, [
-    pathname,
-    authStatus,
-    accountStatus,
-    authUser,
-    pendingPath,
-    isOnAuth,
-    isOnWeb,
-    isOnOffline,
-    isOnDisallowed,
-  ]);
+  //   // Navigation State
+  //   const isNavigating = !!pendingPath && pendingPath !== pathname;
+  //   const isRedirecting =
+  //     needsLogin ||
+  //     needsOtpVerification ||
+  //     needsOnboarding ||
+  //     needsRestoreAccount ||
+  //     isDisallowed;
+
+  //   return {
+  //     needsLogin,
+  //     needsOnboarding,
+  //     needsRestoreAccount,
+  //     needsOtpVerification,
+  //     isNavigating,
+  //     isRedirecting,
+  //   };
+  // }, [
+  //   pathname,
+  //   authStatus,
+  //   accountStatus,
+  //   authUser,
+  //   pendingPath,
+  //   isOnAuth,
+  //   isOnWeb,
+  //   isOnOffline,
+  //   isOnDisallowed,
+  // ]);
 
   /**
    * Core navigation handler managing SPA transitions and cross-zone jumps.
@@ -191,51 +205,90 @@ export const usePage = () => {
     ],
   );
 
-  /**
-   * Synchronizes route change and enforces access control.
-   */
   const handlePageChange = useCallback(() => {
-    // Reset transient UI states on every navigation
     setInlineMsg(null);
     setPendingPath(null);
     setGlobalLoading(false);
 
-    // Security Guard: Execute redirects if isRedirecting is true
     if (guards.isRedirecting) {
-      if (guards.needsLogin) navigateTo(CLIENT_ROUTES.home, { loadPage: true });
-      if (guards.needsOtpVerification)
-        navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true });
-      else if (guards.needsOnboarding)
-        navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
-      else if (guards.needsRestoreAccount)
-        navigateTo(CLIENT_ROUTES.restoreAccount, { loadPage: true });
-      else if (isOnDisallowed(pathname))
-        navigateTo(CLIENT_ROUTES.about, { loadPage: true });
+      const redirect = REDIRECT_MAP.find(({ guard }) => guards[guard]);
+      if (redirect)
+        navigateTo(redirect.target, { loadPage: true, savePage: false });
       return;
     }
+    if (isAuthRoute || isOfflineRoute) return;
 
-    // Fallback to last valid page if currently on an auth/offline utility page
-    const pagePath =
-      guards.isRedirecting || (!isAuthRoute && !isOfflineRoute)
-        ? pathname
-        : lastPage.path;
     const savedPage = getFromLocalStorage<IPage>();
-    // Update the lastPage state for breadcrumbs or "back" logic
     setLastPage(
-      savedPage ?? { title: extractPageTitle(pagePath), path: pagePath },
+      savedPage ?? { title: extractPageTitle(pathname), path: pathname },
     );
   }, [
     guards,
     pathname,
-    lastPage.path,
+    isAuthRoute,
+    isOfflineRoute,
     setLastPage,
     setInlineMsg,
     navigateTo,
-    extractPageTitle,
-    isOnAuth,
-    isOnOffline,
-    isOnDisallowed,
   ]);
+
+  /**
+   * Synchronizes route change and enforces access control.
+   */
+  // const handlePageChange = useCallback(() => {
+  //   // Reset transient UI states on every navigation
+  //   setInlineMsg(null);
+  //   setPendingPath(null);
+  //   setGlobalLoading(false);
+
+  //   // Security Guard: Execute redirects immediately and terminate execution path
+  //   if (guards.isRedirecting) {
+  //     if (guards.needsLogin) {
+  //       navigateTo(CLIENT_ROUTES.home, { loadPage: true, savePage: false });
+  //     } else if (guards.needsOtpVerification) {
+  //       navigateTo(CLIENT_ROUTES.verifyOtp, {
+  //         loadPage: true,
+  //         savePage: false,
+  //       });
+  //     } else if (guards.needsOnboarding) {
+  //       navigateTo(CLIENT_ROUTES.onboarding, {
+  //         loadPage: true,
+  //         savePage: false,
+  //       });
+  //     } else if (guards.needsRestoreAccount) {
+  //       navigateTo(CLIENT_ROUTES.restoreAccount, {
+  //         loadPage: true,
+  //         savePage: false,
+  //       });
+  //     } else if (isOnDisallowed(pathname)) {
+  //       navigateTo(CLIENT_ROUTES.about, { loadPage: true, savePage: false });
+  //     }
+  //     return;
+  //   }
+
+  //   // Skip local storage fallback synchronization entirely for utility or auth operations
+  //   if (isAuthRoute || isOfflineRoute) {
+  //     return;
+  //   }
+
+  //   const pagePath = pathname;
+  //   const savedPage = getFromLocalStorage<IPage>();
+
+  //   // Process synchronization safely for validated standard web routes
+  //   setLastPage(
+  //     savedPage ?? { title: extractPageTitle(pagePath), path: pagePath },
+  //   );
+  // }, [
+  //   guards,
+  //   pathname,
+  //   isAuthRoute,
+  //   isOfflineRoute,
+  //   setLastPage,
+  //   setInlineMsg,
+  //   navigateTo,
+  //   extractPageTitle,
+  //   isOnDisallowed,
+  // ]);
 
   return {
     setLastPage,

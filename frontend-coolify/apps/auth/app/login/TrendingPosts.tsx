@@ -223,6 +223,7 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
               width: "100%",
               color: theme.palette.primary.light,
               textAlign: "center",
+              [theme.breakpoints.down("md")]: { fontSize: 28 },
             }}>
             Trends you might have missed while away.
           </Typography>
@@ -234,7 +235,6 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
             style={{
               container: {
                 height: "70%",
-                [theme.breakpoints.down("md")]: { height: "fit-content" },
                 [theme.breakpoints.only("sm")]: {
                   width: "70%",
                 },

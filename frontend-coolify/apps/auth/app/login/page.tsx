@@ -53,7 +53,7 @@ export default function LoginPage() {
               flexDirection: "column",
               padding: theme.boxSpacing(0),
               borderRadius: 0,
-              scrollSnapType: "y mandatory",
+              scrollSnapType: "y proximity",
               scrollbarWidth: "none",
               "&::-webkit-scrollbar": { display: "none" },
             },
@@ -65,7 +65,7 @@ export default function LoginPage() {
                 borderRadius: 0,
                 padding: theme.boxSpacing(18, 20),
                 mdScreen: {
-                  height: "98vh",
+                  height: "100vh",
                   width: "70%",
                   minHeight: "fit-content",
                   scrollSnapAlign: "start",

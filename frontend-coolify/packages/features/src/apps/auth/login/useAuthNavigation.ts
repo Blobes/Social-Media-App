@@ -41,7 +41,10 @@ export const useAuthNavigation = () => {
       onVerificationSuccess: () => {
         if (!user.isOnboarded) {
           setAccountStatus("NOT_ONBOARDED");
-          navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true });
+          navigateTo(CLIENT_ROUTES.onboarding, {
+            loadPage: true,
+            savePage: false,
+          });
         } else {
           setAccountStatus("ACTIVE");
           navigateTo(CLIENT_ROUTES.home, { loadPage: true });
@@ -49,7 +52,7 @@ export const useAuthNavigation = () => {
       },
     };
     queryClient.setQueryData(transitKey, otpTransitData);
-    navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true });
+    navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true, savePage: false });
   };
 
   return { handleVerifyOtp };

@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalStore, usePage } from "@repo/shared-hooks";
+import { usePage } from "@repo/shared-hooks";
 import { Check, Dot } from "lucide-react";
 import { INPUT_GUIDES, MenuRef, InputStatus, CLIENT_ROUTES } from "@repo/core";
 import {
@@ -35,7 +35,6 @@ export const useSignup = () => {
   const [phoneValidity, setPhoneValidity] = useState<InputStatus>();
   const [phoneValidationMsg, setPhoneValidationMsg] = useState("");
 
-  // Track if a user explicitly selected a code from the country selection menu list
   const isCountrySelectedRef = useRef<boolean>(false);
   const countryMenuRef = useRef<MenuRef>(null);
   const { handleSuccess, handleError } = useSignupFeedback({ email });
@@ -50,53 +49,31 @@ export const useSignup = () => {
     };
   }, [password]);
 
-  const activeValidationVisuals = useMemo(() => {
-    if (!password) return undefined;
+  // Map real-time validation state directly to the original IDs from INPUT_GUIDES
+  const passwordVisualStates = useMemo(() => {
+    if (!password) return [];
 
-    const baseGuide = INPUT_GUIDES.PASSWORD;
-    const details = baseGuide.guideDetails;
-
+    const details = INPUT_GUIDES.PASSWORD.guideDetails;
     const criteriaKeys: (keyof typeof passwordCriteria)[] = [
       "hasMinLength",
       "hasUppercase",
-      "hasLowercase",
       "hasNumeric",
       "hasSpecial",
     ];
 
-    const updatedDetails = details.map((item, idx) => {
+    return details.map((item, idx) => {
       const key = criteriaKeys[idx] || "hasMinLength";
       const pass = passwordCriteria[key];
 
       return {
-        id: item.id,
-        detail: item.detail,
+        id: item.id, // Keeps 'pass-detail1', 'pass-detail2', etc.
         icon: pass ? (
-          <Check size={14} stroke={theme.palette.success.main} />
-        ) : (
-          <Dot size={14} stroke={theme.palette.gray[200]} />
-        ),
-        textColor: pass ? theme.palette.success.main : theme.palette.gray[200],
+          <Check size={16} stroke={theme.palette.success.main} />
+        ) : undefined,
+        textColor: pass ? theme.palette.success.main : undefined,
       };
     });
-
-    return {
-      id: "live-password-detail",
-      icon: <Dot size={14} />,
-      textColor: theme.palette.gray[200],
-      customDetails: updatedDetails,
-    };
   }, [password, passwordCriteria, theme]);
-
-  const adjustedPasswordGuides = useMemo(() => {
-    if (!activeValidationVisuals) return [INPUT_GUIDES.PASSWORD];
-    return [
-      {
-        ...INPUT_GUIDES.PASSWORD,
-        guideDetails: activeValidationVisuals.customDetails,
-      },
-    ];
-  }, [activeValidationVisuals]);
 
   const isPasswordValid = useMemo(() => {
     return validatePassword(password).status === "VALID";
@@ -144,25 +121,22 @@ export const useSignup = () => {
         result.status === "INVALID" ? (result.message ?? "") : "",
       );
     },
-    [setInlineMsg],
+    [],
   );
 
-  const validateAndSetPhone = useCallback(
-    (value: string) => {
-      setPhone(value);
-      if (value === "") {
-        setPhoneValidity(undefined);
-        setPhoneValidationMsg("");
-      } else {
-        const result = validatePhone(value);
-        setPhoneValidity(result.status === "VALID" ? "VALID" : "INVALID");
-        setPhoneValidationMsg(
-          result.status === "INVALID" ? (result.message ?? "") : "",
-        );
-      }
-    },
-    [setPhone],
-  );
+  const validateAndSetPhone = useCallback((value: string) => {
+    setPhone(value);
+    if (value === "") {
+      setPhoneValidity(undefined);
+      setPhoneValidationMsg("");
+    } else {
+      const result = validatePhone(value);
+      setPhoneValidity(result.status === "VALID" ? "VALID" : "INVALID");
+      setPhoneValidationMsg(
+        result.status === "INVALID" ? (result.message ?? "") : "",
+      );
+    }
+  }, []);
 
   const onPhoneChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -173,7 +147,6 @@ export const useSignup = () => {
       let start = target.selectionStart || 0;
       let inputValue = target.value;
 
-      // Clear the whole input if the user backspaces into or out of the country dial code bracket boundaries
       if (isDeleting && inputValue.length <= 6) {
         setInlineMsg(null);
         setPhone("");
@@ -183,7 +156,6 @@ export const useSignup = () => {
         return;
       }
 
-      // Force dropdown list open immediately on typing the first character structure
       if (
         !isDeleting &&
         inputValue.length > 0 &&
@@ -208,12 +180,9 @@ export const useSignup = () => {
 
       validateAndSetPhone(inputValue);
     },
-    [setInlineMsg, validateAndSetPhone],
+    [validateAndSetPhone],
   );
 
-  /**
-   * Clears out input text if the search overlay loses focus without selecting an option.
-   */
   const handleMenuClose = useCallback(() => {
     if (!isCountrySelectedRef.current) {
       setPhone("");
@@ -222,9 +191,6 @@ export const useSignup = () => {
     }
   }, []);
 
-  /**
-   * Sets explicitly confirmed country dial structures picked up directly from list interactions.
-   */
   const handleCountrySelect = useCallback(
     (dialCode: string) => {
       isCountrySelectedRef.current = true;
@@ -238,17 +204,20 @@ export const useSignup = () => {
       setInlineMsg(null);
       setPassword(e.target.value);
     },
-    [setInlineMsg],
+    [],
   );
 
-  const handleLoginClick = useCallback((e: React.MouseEvent) => {
-    setInlineMsg(null);
-    navigateTo(CLIENT_ROUTES.signup, {
-      event: e,
-      loadPage: true,
-      savePage: false,
-    });
-  }, []);
+  const handleLoginClick = useCallback(
+    (e: React.MouseEvent) => {
+      setInlineMsg(null);
+      navigateTo(CLIENT_ROUTES.login, {
+        event: e,
+        loadPage: true,
+        savePage: false,
+      });
+    },
+    [navigateTo],
+  );
 
   const handleSubmit = (e: React.SubmitEvent) => {
     setInlineMsg(null);
@@ -266,8 +235,7 @@ export const useSignup = () => {
     phoneValidity,
     phoneValidationMsg,
     passwordCriteria,
-    activeValidationVisuals,
-    adjustedPasswordGuides,
+    passwordVisualStates,
     isPasswordValid,
     onEmailChange,
     onPhoneChange,

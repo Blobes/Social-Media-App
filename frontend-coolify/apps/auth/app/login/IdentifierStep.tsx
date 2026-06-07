@@ -220,7 +220,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         component="p"
         variant="body3"
         sx={{
-          paddingBottom: theme.boxSpacing(2),
+          paddingTop: theme.boxSpacing(8),
           textAlign: "center",
           ...style.tagline,
         }}>
