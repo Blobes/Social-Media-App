@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 /**
- * Manages carousel state with support for external pausing and dynamic navigation.
+ * Manages carousel state with support for external pausing, dynamic navigation, multi-view window offsets, and keyboard listeners.
  */
 export const useCarousel = (
   length: number,
   interval = 5000,
   autoPlay = false,
   initialIndex = 0,
+  visibleCount = 1,
 ) => {
   const safeInitialIndex =
     length > 0 ? Math.min(Math.max(initialIndex, 0), length - 1) : 0;
@@ -50,6 +51,23 @@ export const useCarousel = (
     setIndex(i);
   };
 
+  /** Compute which items are visible within the sliding window frame */
+  const visibleIndices = useMemo(() => {
+    if (visibleCount <= 1 || length === 0) return [index];
+
+    const indices: number[] = [];
+    const sideCount = Math.floor(visibleCount / 2);
+
+    for (let i = -sideCount; i <= sideCount; i++) {
+      let targetIndex = (index + i) % length;
+      if (targetIndex < 0) {
+        targetIndex += length;
+      }
+      indices.push(targetIndex);
+    }
+    return indices;
+  }, [index, visibleCount, length]);
+
   useEffect(() => {
     if (!autoPlay || length <= 1) return;
 
@@ -60,5 +78,22 @@ export const useCarousel = (
     return () => clearInterval(timer);
   }, [autoPlay, interval, next, length]);
 
-  return { variants, index, direction, next, prev, goTo };
+  useEffect(() => {
+    if (length <= 1) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight") {
+        next();
+      } else if (event.key === "ArrowLeft") {
+        prev();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [next, prev, length]);
+
+  return { variants, index, direction, next, prev, goTo, visibleIndices };
 };

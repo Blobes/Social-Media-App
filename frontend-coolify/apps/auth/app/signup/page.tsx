@@ -20,7 +20,7 @@ export default function SignupPage() {
         alignItems: "center",
         justifyContent: "center",
         minHeight: "fit-content",
-        ...applyBGPattern({ url: asset.zebraPattern, opacity: 0.06 }),
+        ...applyBGPattern({ url: asset.zebraPattern, opacity: 0.04 }),
         [theme.breakpoints.down("md")]: {
           minHeight: "unset",
           padding: theme.boxSpacing(0),

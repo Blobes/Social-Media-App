@@ -79,7 +79,7 @@ let designSystem = createTheme({
   },
   fixedColors: {
     gray50: grey[50],
-    gray800: "#06122B",
+    gray800: "#121421",
     grayTrans: (opacity?: number) => `rgba(103, 126, 145, ${opacity ?? 0.18})`,
     primary: "#9FAEFF",
     pTrans: "rgba(72, 107, 246, 0.12)",

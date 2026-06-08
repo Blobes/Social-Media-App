@@ -41,8 +41,9 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
     <Stack
       sx={{
         gap: theme.gap(20),
-        width: "100%",
-        [theme.breakpoints.up("sm")]: { width: "60cqh" },
+        width: "60cqh",
+        [theme.breakpoints.only("sm")]: { width: "70cqh" },
+        [theme.breakpoints.down("xs")]: { width: "100%" },
         alignItems: "center",
       }}>
       <Stack
@@ -64,8 +65,9 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
       {/* OTP Field and CTA */}
       <Stack
         sx={{
-          width: "100%",
-          [theme.breakpoints.up("sm")]: { width: "48cqh" },
+          width: "48cqh",
+          [theme.breakpoints.only("sm")]: { width: "56cqh" },
+          [theme.breakpoints.down("xs")]: { width: "100%" },
           gap: theme.gap(16),
           alignItems: "center",
         }}>

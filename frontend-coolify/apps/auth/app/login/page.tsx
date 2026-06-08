@@ -77,11 +77,7 @@ export default function LoginPage() {
               },
             }}
           />
-          <TrendingPosts
-            style={{
-              width: "50%",
-            }}
-          />
+          <TrendingPosts />
         </Stack>
       ) : (
         <RestrictedUI

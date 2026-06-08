@@ -21,7 +21,9 @@ import {
   Typography,
 } from "@mui/material";
 import { Eye, EyeClosed, FileUp } from "lucide-react";
-import { GenericStyle } from "@repo/core";
+import { GenericStyle, ICountryItem, LISTS, ListType } from "@repo/core";
+import { formatPhoneNumber } from "@repo/helpers";
+import { DisplayList as CountryList } from "./Menu";
 
 export const sharedStyle = (theme: any, style: any, value: any) => {
   return {
@@ -38,6 +40,10 @@ export const sharedStyle = (theme: any, style: any, value: any) => {
         padding: theme?.boxSpacing(8.5, 5, 0.5, 0),
       }),
       ...style?.outline,
+    },
+    [`& .${outlinedInputClasses.focused}`]: {
+      padding: theme.boxSpacing(8.5, 5, 0.5, 0),
+      ...style?.outline?.focused,
     },
   };
 };
@@ -202,6 +208,139 @@ export const PasswordInput = ({
   );
 };
 
+export interface PhoneInputProps extends Omit<InputProps, "onChange"> {
+  includeCountryCode?: boolean;
+  onPhoneChange: (value: string) => void;
+  onClearInlineMsg?: () => void;
+}
+/**
+ * Manages phone input strings, structural cursor alignment, and lazy-loaded contextual country lists.
+ */
+export const PhoneInput = ({
+  variant = "outlined",
+  id = "",
+  value = "",
+  placeholder = "e.g. +1234567890",
+  label = "Phone Number",
+  helperText = "",
+  required = false,
+  disabled = false,
+  error = false,
+  includeCountryCode = true,
+  onPhoneChange,
+  onClearInlineMsg,
+  style,
+}: PhoneInputProps) => {
+  const theme = useTheme();
+  const { COUNTRY_LIST } = LISTS();
+  const countryMenuRef = useRef<any>(null);
+  const isCountrySelectedRef = useRef<boolean>(false);
+
+  const handleMenuClose = useCallback(() => {
+    if (includeCountryCode && !isCountrySelectedRef.current) {
+      onPhoneChange("");
+    }
+  }, [includeCountryCode, onPhoneChange]);
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const target = e.target as HTMLInputElement;
+      const isDeleting =
+        (e.nativeEvent as any).inputType === "deleteContentBackward";
+
+      let start = target.selectionStart || 0;
+      let inputValue = target.value;
+
+      if (includeCountryCode && isDeleting && inputValue.length <= 6) {
+        onClearInlineMsg?.();
+        onPhoneChange("");
+        isCountrySelectedRef.current = false;
+        return;
+      }
+
+      if (
+        includeCountryCode &&
+        !isDeleting &&
+        inputValue.length > 0 &&
+        !isCountrySelectedRef.current
+      ) {
+        countryMenuRef.current?.openMenu(target);
+      }
+
+      const oldLen = inputValue.length;
+      inputValue = formatPhoneNumber(inputValue);
+      const newLen = inputValue.length;
+
+      if (!isDeleting) {
+        start = start + (newLen - oldLen);
+      }
+
+      onClearInlineMsg?.();
+
+      window.requestAnimationFrame(() => {
+        target.setSelectionRange(start, start);
+      });
+
+      onPhoneChange(inputValue);
+    },
+    [includeCountryCode, onPhoneChange, onClearInlineMsg],
+  );
+
+  return (
+    <>
+      <TextField
+        variant={variant}
+        id={id}
+        type="tel"
+        value={value}
+        placeholder={placeholder}
+        label={label}
+        helperText={helperText}
+        required={required}
+        disabled={disabled}
+        error={error}
+        size="small"
+        fullWidth
+        sx={{
+          ...sharedStyle(theme, style, value),
+          ...style,
+        }}
+        onChange={handleChange}
+      />
+
+      {includeCountryCode && (
+        <CountryList<ICountryItem>
+          menuRef={countryMenuRef}
+          list={COUNTRY_LIST}
+          listName={ListType.COUNTRY}
+          showSearchBar
+          stickToScreen={false}
+          heightThreshold={65}
+          style={{
+            item: {
+              padding: theme.boxSpacing(4, 8),
+              gap: "10px",
+              borderRadius: 0,
+              "& svg": { width: "16px", height: "16px" },
+            },
+            container: {
+              padding: 0,
+            },
+          }}
+          onMenuClose={handleMenuClose}
+          onItemClick={(item) => {
+            if (item?.code) {
+              isCountrySelectedRef.current = true;
+              const formattedPrefix = `(+${item.code.replace(/\+/g, "")}) `;
+              onPhoneChange(formattedPrefix);
+            }
+          }}
+        />
+      )}
+    </>
+  );
+};
+
 export interface OtpInputProps {
   length?: number;
   onComplete?: (code: string) => void;
@@ -341,7 +480,6 @@ export const OtpInput = ({
           sx={{
             color: theme.palette.gray[200],
             fontSize: "14px",
-            // fontWeight: 500,
           }}>
           {label}
         </Typography>
@@ -387,9 +525,9 @@ export const OtpInput = ({
               },
             }}
             sx={{
-              "& .MuiOutlinedInput-root": {
+              [`& .${outlinedInputClasses.root}`]: {
                 width: style?.input.width || 44,
-                height: 48,
+                height: 50,
                 minWidth: 38,
                 display: "flex",
                 alignItems: "center",

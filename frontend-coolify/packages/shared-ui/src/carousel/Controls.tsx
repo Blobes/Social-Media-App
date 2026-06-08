@@ -5,12 +5,17 @@ import { Box, IconButton } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { motion } from "framer-motion";
+import { GenericStyle } from "@repo/core";
 
 interface ArrowProps {
   onPrev: () => void;
   onNext: () => void;
+  style?: {
+    arrowLeft?: GenericStyle;
+    arrowRight?: GenericStyle;
+  };
 }
-export const CarouselArrows = ({ onPrev, onNext }: ArrowProps) => {
+export const CarouselArrows = ({ onPrev, onNext, style }: ArrowProps) => {
   const theme = useTheme();
 
   const sharedStyle = {
@@ -38,8 +43,12 @@ export const CarouselArrows = ({ onPrev, onNext }: ArrowProps) => {
           onPrev();
         }}
         sx={{
-          left: 8,
           ...sharedStyle,
+          left: style?.arrowLeft?.left || 8,
+          ...(style?.arrowLeft as any),
+          [theme.breakpoints.down("sm")]: {
+            ...(style?.arrowLeft?.smScreen as any),
+          },
         }}>
         <ChevronLeft />
       </IconButton>
@@ -47,8 +56,12 @@ export const CarouselArrows = ({ onPrev, onNext }: ArrowProps) => {
         data-no-doubletap
         onClick={onNext}
         sx={{
-          right: 8,
           ...sharedStyle,
+          right: style?.arrowRight?.left || 8,
+          ...(style?.arrowRight as any),
+          [theme.breakpoints.down("sm")]: {
+            ...(style?.arrowRight?.smScreen as any),
+          },
         }}>
         <ChevronRight />
       </IconButton>

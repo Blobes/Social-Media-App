@@ -6,7 +6,7 @@ import { Stack, Typography, Box, Paper, Button } from "@mui/material";
 import { Stepper } from "./Stepper";
 import { motion, AnimatePresence } from "framer-motion";
 import { getFramerVariants } from "@repo/helpers";
-import { Guide, TourGuide } from "@repo/core";
+import { GenericStyle, Guide, TourGuide } from "@repo/core";
 import { Media } from "./media/Media";
 import { AppButton } from "./Buttons";
 
@@ -18,6 +18,7 @@ interface GuideProps {
     icon?: React.ReactElement;
     textColor?: string;
   }[];
+  containerStyle?: GenericStyle;
 }
 
 /**
@@ -27,11 +28,14 @@ export const UIGuide = ({
   guides,
   showTitle = true,
   detailVisuals = [],
+  containerStyle,
 }: GuideProps) => {
   const theme = useTheme();
 
   return (
-    <Stack gap={theme.gap(4)} sx={{ padding: theme.boxSpacing(6) }}>
+    <Stack
+      gap={theme.gap(4)}
+      sx={{ padding: theme.boxSpacing(6), ...containerStyle }}>
       {guides.map((guide) => {
         const hasMultiple = guide.guideDetails.length > 1;
         const useList = hasMultiple && guide.displayAsList;

@@ -39,11 +39,14 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
         alignItems: "flex-start",
         justifyContent: "flex-end",
         borderRadius: theme.radius[5] || "24px",
-        overflow: "hidden",
         background: data.bgColor,
         ...(!hasMedia && applyBGPattern({ url: asset.bgNoise, contain: true })),
         gap: theme.gap(18),
         padding: theme.boxSpacing(22, 18, 18, 18),
+        [theme.breakpoints.down("sm")]: {
+          gap: theme.gap(14),
+          padding: theme.boxSpacing(18, 14, 14, 14),
+        },
       }}>
       {/* Background Visual Rendering Block */}
       {hasMedia && targetMedia && (
@@ -100,7 +103,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
           color: "#FFFFFF",
           position: "relative",
           display: "flex",
-          alignItems: "flex-start",
+          alignItems: "center",
           gap: theme.gap(6),
         }}>
         <SVGWrapper
@@ -113,8 +116,8 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
             borderRadius: theme.radius.full,
             overflow: "hidden",
             [theme.breakpoints.down("md")]: {
-              width: 38,
-              height: 38,
+              width: 44,
+              height: 44,
             },
           }}
         />
@@ -130,38 +133,27 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
               : "Active stake"}
           </Typography>
           {data.post.postType === "GIST" ? (
-            <Box
+            <Typography
+              component="span"
+              variant="body3"
               sx={{
-                display: "flex",
-                alignItems: "center",
-                flexWrap: "wrap",
+                color: "inherit",
+                width: "100%",
+                ...lineClamp(1),
               }}>
-              <Typography
-                component="span"
-                variant="body3"
-                sx={{
-                  color: "inherit",
-                }}>
-                Shared
-              </Typography>
+              Shared
               <SmartDate
+                component="span"
                 variant="body3"
                 timestamp={data.post.createdAt}
                 adaptiveTime={useAdaptiveTime}
                 sx={{
                   padding: theme.boxSpacing(0, 2),
-                  width: "fit-content",
-                  flex: "none",
                   color: "inherit",
                 }}
-              />
-              <Typography
-                variant="body3"
-                component="span"
-                sx={{ color: "inherit" }}>
-                ago with {summarizeNum(data.post.viewCount) || 0} views
-              </Typography>
-            </Box>
+              />{" "}
+              ago with {summarizeNum(data.post.viewCount) || 0} views
+            </Typography>
           ) : (
             <Typography
               variant="body3"
@@ -192,7 +184,7 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
   return (
     <Box
       sx={{
-        width: style?.width || "100%",
+        width: "50%",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -201,6 +193,7 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
         padding: theme.boxSpacing(18, 20),
         margin: "0 auto",
         backgroundColor: theme.palette.gray[300],
+        overflow: "hidden",
         ...style?.container,
         [theme.breakpoints.down("md")]: {
           width: "100%",
@@ -222,21 +215,40 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
             sx={{
               width: "100%",
               color: theme.palette.primary.light,
+              fontWeight: 700,
               textAlign: "center",
-              [theme.breakpoints.down("md")]: { fontSize: 28 },
+              [theme.breakpoints.down("md")]: {
+                fontSize: 26,
+                lineHeight: "1.4em",
+              },
             }}>
             Trends you might have missed while away.
           </Typography>
           <Carousel
+            variant="linear"
             items={carouselItems}
             autoPlay={true}
             pauseOnHover={true}
             interval={7000}
+            visibleCount={2}
             style={{
               container: {
-                height: "70%",
+                height: "76%",
                 [theme.breakpoints.only("sm")]: {
                   width: "70%",
+                },
+                [theme.breakpoints.down("sm")]: {
+                  height: "68%",
+                },
+              },
+              arrowLeft: {
+                smScreen: {
+                  left: -10,
+                },
+              },
+              arrowRight: {
+                smScreen: {
+                  right: -10,
                 },
               },
             }}

@@ -76,7 +76,7 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
               border: `1px solid ${theme.palette.gray[50]}`,
               width: "fit-content",
               minWidth: 150,
-              maxWidth: 250,
+              maxWidth: 300,
               maxHeight: `calc(100vh - ${heightThreshold ?? 20}%)`,
               marginTop: "8px",
               ...scrollBarStyle(theme),
@@ -228,7 +228,13 @@ export const DisplayList = <T extends IMenuItem>({
       stickToScreen={stickToScreen}
       heightThreshold={heightThreshold}
       onMenuClose={onMenuClose}
-      style={style?.container}>
+      style={{
+        [theme.breakpoints.down("sm")]: {
+          width: "88%",
+          maxWidth: "unset",
+        },
+        ...(style?.container as any),
+      }}>
       {showSearchBar && (!isSourceEmpty || currentQuery.length > 0) && (
         <SearchBar
           onChange={handleChange}
@@ -237,7 +243,7 @@ export const DisplayList = <T extends IMenuItem>({
           style={{
             width: "100%",
             borderRadius: 0,
-            height: 42,
+            height: 46,
             position: "sticky",
             top: 0,
             zIndex: 2,

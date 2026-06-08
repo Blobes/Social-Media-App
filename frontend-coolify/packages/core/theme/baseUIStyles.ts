@@ -1,6 +1,7 @@
 "use client";
 
 import { createTheme } from "@mui/material/styles";
+import { padding } from "@mui/system";
 
 const baseUIStyles = createTheme({
   components: {
@@ -94,11 +95,11 @@ const baseUIStyles = createTheme({
           backgroundColor: theme.fixedColors.gray800,
           color: theme.fixedColors.gray50,
           fontSize: "12px",
-          borderRadius: theme.radius[2],
+          borderRadius: theme.radius[3],
           boxShadow: theme.shadows[1],
           maxWidth: 420,
           margin: theme.boxSpacing(0, 6),
-          border: `1px solid ${theme.palette.gray.trans[1]}`,
+          border: `1px solid ${theme.palette.gray.trans[2]}`,
         }),
         arrow: ({ theme }) => ({
           color: theme.fixedColors.gray800,
@@ -255,6 +256,7 @@ const baseUIStyles = createTheme({
             color: "var(--TextField-default)",
             transform: "translate(15px, 7px) scale(0.83)",
             borderRadius: theme.radius[1],
+            padding: 0,
           },
           "& label.MuiInputLabel-root.Mui-error.Mui-focused, & label.MuiInputLabel-root.Mui-error":
             {
@@ -266,6 +268,9 @@ const baseUIStyles = createTheme({
             fontWeight: "500",
             color: "var(--TextField-default)",
             margin: theme.boxSpacing(4, 0, 0, 0),
+          },
+          "& .MuiFormHelperText-root.Mui-focused": {
+            padding: 0,
           },
         }),
       },
@@ -291,7 +296,6 @@ const baseUIStyles = createTheme({
             outline: `2px solid ${theme.fixedColors.pTrans}`,
             boxShadow: `0 0 0 4px ${theme.fixedColors.pTrans}`,
             outlineOffset: "1px",
-            padding: theme.boxSpacing(8.5, 5, 0.5, 0),
           },
           "&.Mui-error, &.Mui-error:hover": {
             borderColor: "var(--TextField-error)",

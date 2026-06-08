@@ -1,19 +1,11 @@
 "use client";
 
 import React from "react";
-import { Divider, Stack, Typography, Box } from "@mui/material";
+import { Divider, Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalStore } from "@repo/shared-hooks";
 import Image from "next/image";
 import { asset } from "@repo/assets";
-import {
-  CLIENT_ROUTES,
-  ICountryItem,
-  LISTS,
-  ListType,
-  GenericStyle,
-  INPUT_GUIDES,
-} from "@repo/core";
+import { CLIENT_ROUTES, GenericStyle, INPUT_GUIDES } from "@repo/core";
 import {
   AppButton,
   TextInput,
@@ -23,7 +15,7 @@ import {
   SVGWrapper,
   AnchorLink,
   UIGuide,
-  DisplayList as CountryList,
+  PhoneInput,
 } from "@repo/shared-ui";
 import { useSignup } from "./useSignup";
 
@@ -40,7 +32,6 @@ interface SignupProps {
  */
 export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
   const theme = useTheme();
-  const { COUNTRY_LIST } = LISTS();
 
   const {
     email,
@@ -50,18 +41,16 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
     emailValidationMsg,
     phoneValidity,
     phoneValidationMsg,
-    onEmailChange,
-    onPhoneChange,
-    onPasswordChange,
+    handleEmailChange,
+    handlePhoneChange,
+    handlePasswordChange,
     passwordVisualStates,
     handleSubmit,
-    handleMenuClose,
-    handleCountrySelect,
     isSubmitLoading,
     isSubmitDisabled,
-    countryMenuRef,
     inlineMsg,
     handleLoginClick,
+    clearInlineMsg,
   } = useSignup();
 
   const inlineLinkStyle = {
@@ -111,7 +100,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             textAlign: "center",
             ...style.headline,
           }}>
-          Sign up
+          Sign up to Funstakes
         </Typography>
         <Typography
           component="p"
@@ -190,68 +179,38 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           type="email"
           label="Email Address"
           placeholder="Enter your email"
-          onChange={onEmailChange}
+          onChange={handleEmailChange}
           helperText={emailValidationMsg}
           error={email !== "" && emailValidity === "INVALID"}
         />
 
-        <TextInput
+        <PhoneInput
           value={phone}
-          type="tel"
           label="Phone Number (Optional)"
           placeholder="e.g. +1234567890"
-          onChange={onPhoneChange}
+          includeCountryCode={true}
+          onPhoneChange={handlePhoneChange}
+          onClearInlineMsg={clearInlineMsg}
           helperText={phoneValidationMsg}
           error={phone !== "" && phoneValidity === "INVALID"}
         />
 
-        <CountryList<ICountryItem>
-          menuRef={countryMenuRef}
-          list={COUNTRY_LIST}
-          listName={ListType.COUNTRY}
-          showSearchBar
-          stickToScreen={false}
-          heightThreshold={65}
-          style={{
-            item: {
-              padding: theme.boxSpacing(4, 8),
-              gap: "10px",
-              borderRadius: 0,
-              "& svg": { width: "16px", height: "16px" },
-            },
-            container: {
-              padding: 0,
-            },
-          }}
-          onMenuClose={handleMenuClose}
-          onItemClick={(item) => {
-            if (item?.code) {
-              const formattedPrefix = `(+${item.code.replace(/\+/g, "")}) `;
-              handleCountrySelect(formattedPrefix);
-            }
-          }}
-        />
-
-        <Stack gap={theme.gap(2)}>
+        <Stack gap={theme.gap(4)}>
           <PasswordInput
             label="Password"
             placeholder="Create password"
-            onChange={onPasswordChange}
+            onChange={handlePasswordChange}
             value={password}
           />
-
-          <Box
-            sx={{
+          <UIGuide
+            guides={[INPUT_GUIDES.PASSWORD]}
+            showTitle={false}
+            detailVisuals={passwordVisualStates}
+            containerStyle={{
               backgroundColor: theme.palette.gray.trans[1],
               borderRadius: theme.radius[2],
-              mt: 1,
-            }}>
-            <UIGuide
-              guides={[INPUT_GUIDES.PASSWORD]}
-              showTitle={false}
-              detailVisuals={passwordVisualStates}
-            />
-          </Box>
+            }}
+          />
         </Stack>
 
         <AppButton
