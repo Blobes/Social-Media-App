@@ -91,7 +91,13 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
 
       <Stack
         gap={theme.gap(4)}
-        sx={{ width: "100%", paddingBottom: theme.boxSpacing(6) }}>
+        sx={{
+          width: "100%",
+          paddingBottom: theme.boxSpacing(6),
+          [theme.breakpoints.down("md")]: {
+            paddingBottom: theme.boxSpacing(12),
+          },
+        }}>
         <Typography
           component="h3"
           variant="h5"

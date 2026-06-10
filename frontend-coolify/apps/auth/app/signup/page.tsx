@@ -66,7 +66,7 @@ export default function SignupPage() {
               justifyContent: "flex-start",
               padding: theme.boxSpacing(18, 20),
               mdScreen: {
-                height: "98vh",
+                height: "100svh",
                 minHeight: "fit-content",
                 justifyContent: "center",
                 flex: "none",
@@ -91,7 +91,7 @@ export default function SignupPage() {
             backgroundColor: "#1F2876",
             [theme.breakpoints.down("md")]: {
               width: "100%",
-              height: "100vh",
+              height: "100svh",
               scrollSnapAlign: "start",
             },
           }}

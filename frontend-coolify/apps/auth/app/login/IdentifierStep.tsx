@@ -59,7 +59,14 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
 
   return (
     <Stack gap={theme.gap(8)}>
-      <Stack gap={theme.gap(8)} sx={{ paddingBottom: theme.boxSpacing(6) }}>
+      <Stack
+        gap={theme.gap(8)}
+        sx={{
+          paddingBottom: theme.boxSpacing(6),
+          [theme.breakpoints.down("md")]: {
+            paddingBottom: theme.boxSpacing(12),
+          },
+        }}>
         <Typography
           component="h3"
           variant="h5"
