@@ -26,9 +26,7 @@
     "packages/**/*.ts",
     "packages/**/*.tsx",
     "apps/**/*.ts",
-    "apps/**/*.tsx",
-    "archive/AuthManager.tsx",
-    "archive/useContext.tsx"
+    "apps/**/*.tsx"
   ],
   "exclude": ["**/node_modules", ".next"]
 }
