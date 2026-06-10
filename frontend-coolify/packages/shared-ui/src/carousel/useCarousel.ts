@@ -1,99 +1,254 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { PanInfo, useMotionValue, useTransform, animate } from "framer-motion";
 
 /**
- * Manages carousel state with support for external pausing, dynamic navigation, multi-view window offsets, and keyboard listeners.
+ * Manages spotlight centering state engines, drag metrics, and infinite scroll loops.
  */
 export const useCarousel = (
   length: number,
   interval = 5000,
   autoPlay = false,
   initialIndex = 0,
-  visibleCount = 1,
+  isMultiView = false,
+  setCurrentIndex?: (index: number) => void,
+  variant: "stacked" | "linear" = "stacked",
+  loop = true,
 ) => {
   const safeInitialIndex =
     length > 0 ? Math.min(Math.max(initialIndex, 0), length - 1) : 0;
+  const cloneCount = length > 0 ? (loop ? (isMultiView ? 4 : 2) : 0) : 0;
 
-  const [index, setIndex] = useState(safeInitialIndex);
-  const [direction, setDirection] = useState(0);
+  const [index, setIndex] = useState(safeInitialIndex + cloneCount);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
-  const variants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? "100%" : "-100%",
-      opacity: 0,
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
+  const dragX = useMotionValue(0);
+  const indexMV = useMotionValue(index);
+  const containerWidthMV = useMotionValue(400);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const virtualIndex = useMemo(() => {
+    if (length <= 0) return 0;
+    if (!loop) return index;
+    return (index - cloneCount + length * 10) % length;
+  }, [index, cloneCount, length, loop]);
+
+  const commitIndex = useCallback(
+    (newIndex: number) => {
+      setIndex(newIndex);
+      indexMV.set(newIndex);
     },
-    exit: (direction: number) => ({
-      zIndex: 0,
-      x: direction < 0 ? "100%" : "-100%",
-      opacity: 0,
-    }),
-  };
+    [index],
+  );
 
-  const next = useCallback(() => {
-    setDirection(1);
-    setIndex((prev) => (prev + 1 === length ? 0 : prev + 1));
-  }, [length]);
+  const setPauseState = useCallback(
+    (paused: boolean) => {
+      setIsPaused(paused);
+    },
+    [setIsPaused],
+  );
 
-  const prev = useCallback(() => {
-    setDirection(-1);
-    setIndex((prev) => (prev === 0 ? length - 1 : prev - 1));
-  }, [length]);
+  const finishSwipe = useCallback(
+    async (targetIndex: number, dir: number) => {
+      const computedItemWidth = containerWidthMV.get() * 1;
+      const itemsToJump = Math.abs(targetIndex - index);
+      const finalDragX =
+        dir > 0
+          ? -computedItemWidth * itemsToJump
+          : computedItemWidth * itemsToJump;
 
-  const goTo = (i: number) => {
-    if (i === index) return;
-    setDirection(i > index ? 1 : -1);
-    setIndex(i);
-  };
+      setIsNavigating(true);
+      await animate(dragX, finalDragX, {
+        type: "spring",
+        stiffness: 400,
+        damping: 38,
+      });
 
-  /** Compute which items are visible within the sliding window frame */
-  const visibleIndices = useMemo(() => {
-    if (visibleCount <= 1 || length === 0) return [index];
+      let finalIndex = targetIndex;
+      if (loop) {
+        if (targetIndex < cloneCount) {
+          finalIndex = targetIndex + length;
+        } else if (targetIndex >= cloneCount + length) {
+          finalIndex = targetIndex - length;
+        }
+      } else finalIndex = Math.min(Math.max(targetIndex, 0), length - 1);
+      commitIndex(finalIndex);
+      dragX.set(0);
+      setIsNavigating(false);
+    },
+    [dragX, length, cloneCount, commitIndex, containerWidthMV, index, loop],
+  );
 
-    const indices: number[] = [];
-    const sideCount = Math.floor(visibleCount / 2);
+  const next = useCallback(async () => {
+    if (!loop && index >= length - 1) return;
+    await finishSwipe(index + 1, 1);
+  }, [index, finishSwipe, loop, length]);
 
-    for (let i = -sideCount; i <= sideCount; i++) {
-      let targetIndex = (index + i) % length;
-      if (targetIndex < 0) {
-        targetIndex += length;
+  const prev = useCallback(async () => {
+    if (!loop && index <= 0) return;
+    await finishSwipe(index - 1, -1);
+  }, [index, finishSwipe, loop]);
+
+  const goTo = useCallback(
+    async (i: number) => {
+      const targetStructuralIndex = loop ? i + cloneCount : i;
+      if (targetStructuralIndex === index) return;
+      const dir = targetStructuralIndex > index ? 1 : -1;
+      await finishSwipe(targetStructuralIndex, dir);
+    },
+    [index, finishSwipe, cloneCount, loop],
+  );
+
+  const handleDrag = useCallback(
+    (_: any, info: PanInfo) => {
+      setPauseState(true);
+      const isStartIdx = index === 0 && info.offset.x > 0;
+      const isEndIdx = index === length - 1 && info.offset.x < 0;
+      if (!loop && (isStartIdx || isEndIdx)) {
+        dragX.set(0);
+        return;
       }
-      indices.push(targetIndex);
+      if (Math.abs(info.offset.x) > 5) {
+        setIsDragging(true);
+      }
+    },
+    [loop, index, length, dragX, setPauseState],
+  );
+
+  const handleDragEnd = useCallback(
+    async (_: any, info: PanInfo) => {
+      setIsDragging(false);
+      const computedItemWidth = containerWidthMV.get();
+      const swipeThreshold = computedItemWidth * 0.2;
+      const velocityThreshold = 500;
+      const { offset, velocity } = info;
+
+      const canSwipeNext = loop || index < length - 1;
+      const canSwipePrev = loop || index > 0;
+      if (
+        (offset.x < -swipeThreshold || velocity.x < -velocityThreshold) &&
+        canSwipeNext
+      ) {
+        await finishSwipe(index + 1, 1);
+      } else if (
+        (offset.x > swipeThreshold || velocity.x > velocityThreshold) &&
+        canSwipePrev
+      ) {
+        await finishSwipe(index - 1, -1);
+      }
+      setPauseState(false);
+    },
+    [
+      index,
+      dragX,
+      finishSwipe,
+      length,
+      loop,
+      isDragging,
+      containerWidthMV,
+      setPauseState,
+    ],
+  );
+
+  const getItemProgress = useCallback(
+    (structuralIndex: number, currentTrackX: number) => {
+      const containerWidth = containerWidthMV.get();
+      const computedItemWidth = containerWidth * 1;
+      const itemLeftInTrack = structuralIndex * computedItemWidth;
+      const itemCenterInTrack = itemLeftInTrack + computedItemWidth / 2;
+      const absoluteItemCenterOnScreen = itemCenterInTrack + currentTrackX;
+      const containerCenterOnScreen = containerWidth / 2;
+      const distanceFromCenter = Math.abs(
+        absoluteItemCenterOnScreen - containerCenterOnScreen,
+      );
+      const maxDistance = isMultiView ? containerWidth : containerWidth * 0.5;
+      return Math.min(distanceFromCenter / maxDistance, 1);
+    },
+    [containerWidthMV, isMultiView],
+  );
+
+  const visibleItems = useMemo(() => {
+    if (length === 0) return [];
+    const result = [];
+    const totalItems = loop ? cloneCount * 2 + length : length;
+    for (let i = 0; i < totalItems; i++) {
+      let itemIndex = loop ? (i - cloneCount) % length : i;
+      if (itemIndex < 0) itemIndex += length;
+      result.push({
+        structuralIndex: i,
+        itemIndex,
+      });
     }
-    return indices;
-  }, [index, visibleCount, length]);
+    return result;
+  }, [length, cloneCount, variant, loop]);
+
+  const trackX = useTransform(
+    [dragX, containerWidthMV, indexMV],
+    (values: number[]) => {
+      const [v, width, idx] = values;
+      const computedItemWidth = width * 1;
+      const activeItemLeft = idx * computedItemWidth;
+      const activeItemCenter = activeItemLeft + computedItemWidth / 2;
+      const containerCenter = width / 2;
+      return containerCenter - activeItemCenter + v;
+    },
+  );
 
   useEffect(() => {
-    if (!autoPlay || length <= 1) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new ResizeObserver(([entry]) => {
+      if (entry?.contentRect) {
+        containerWidthMV.set(entry.contentRect.width);
+      }
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [containerWidthMV]);
 
+  useEffect(() => {
+    setCurrentIndex?.(virtualIndex);
+  }, [setCurrentIndex]);
+
+  useEffect(() => {
+    if (!autoPlay || isPaused || length <= 1) return;
+    if (!loop && index >= length - 1) return;
     const timer = setInterval(() => {
-      next();
+      finishSwipe(index + 1, 1);
     }, interval);
-
     return () => clearInterval(timer);
-  }, [autoPlay, interval, next, length]);
+  }, [autoPlay, isPaused, interval, length, index, loop, finishSwipe]);
 
   useEffect(() => {
     if (length <= 1) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "ArrowRight") {
-        next();
-      } else if (event.key === "ArrowLeft") {
-        prev();
-      }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") next();
+      else if (e.key === "ArrowLeft") prev();
     };
-
     window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [next, prev, length]);
 
-  return { variants, index, direction, next, prev, goTo, visibleIndices };
+  return {
+    index,
+    containerRef,
+    virtualIndex,
+    isPaused,
+    isNavigating,
+    isDragging,
+    trackX,
+    next,
+    prev,
+    goTo,
+    handleDrag,
+    handleDragEnd,
+    setPauseState,
+    visibleItems,
+    getItemProgress,
+    isFirst: loop ? false : index === 0,
+    isLast: loop ? false : index === length - 1,
+  };
 };

@@ -68,7 +68,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
             textAlign: "center",
             ...style.headline,
           }}>
-          Predict Events. Stake. Win together.
+          Predict. Stake. Win.
         </Typography>
         <Typography
           component="p"

@@ -151,7 +151,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
                   padding: theme.boxSpacing(0, 2),
                   color: "inherit",
                 }}
-              />{" "}
+              />
               ago with {summarizeNum(data.post.viewCount) || 0} views
             </Typography>
           ) : (
@@ -227,10 +227,11 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
           <Carousel
             variant="linear"
             items={carouselItems}
-            autoPlay={true}
-            pauseOnHover={true}
+            // loop={false}
+            autoPlay
+            pauseOnHover
             interval={7000}
-            visibleCount={2}
+            isMultiView
             style={{
               container: {
                 height: "76%",

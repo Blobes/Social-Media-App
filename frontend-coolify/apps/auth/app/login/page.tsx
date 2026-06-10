@@ -32,7 +32,7 @@ export default function LoginPage() {
       {authStatus === "UNAUTHENTICATED" ? (
         <Stack
           sx={{
-            width: "70%",
+            width: "75%",
             flexDirection: "row",
             gap: theme.gap(0),
             justifyContent: "space-between",

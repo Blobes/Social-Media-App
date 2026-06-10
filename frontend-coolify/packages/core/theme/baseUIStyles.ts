@@ -114,6 +114,10 @@ const baseUIStyles = createTheme({
           padding: theme.boxSpacing(3),
           margin: 0,
           "&:hover": { backgroundColor: theme.fixedColors.pTrans },
+          "&:disabled": {
+            backgroundColor: theme.palette.gray.trans.overlay(0.3),
+            opacity: 0.6,
+          },
         }),
       },
     },

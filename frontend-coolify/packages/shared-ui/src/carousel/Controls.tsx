@@ -10,16 +10,25 @@ import { GenericStyle } from "@repo/core";
 interface ArrowProps {
   onPrev: () => void;
   onNext: () => void;
+  disableLeft?: boolean;
+  disableRight?: boolean;
   style?: {
     arrowLeft?: GenericStyle;
     arrowRight?: GenericStyle;
   };
 }
-export const CarouselArrows = ({ onPrev, onNext, style }: ArrowProps) => {
+export const CarouselArrows = ({
+  onPrev,
+  onNext,
+  disableLeft,
+  disableRight,
+  style,
+}: ArrowProps) => {
   const theme = useTheme();
 
   const sharedStyle = {
     position: "absolute",
+    top: "40%",
     zIndex: 10,
     bgcolor: theme.palette.gray.trans.overlay(0.3),
     transition: "stroke 0.3s ease, background-color 0.3s ease",
@@ -42,6 +51,7 @@ export const CarouselArrows = ({ onPrev, onNext, style }: ArrowProps) => {
         onClick={() => {
           onPrev();
         }}
+        disabled={disableLeft}
         sx={{
           ...sharedStyle,
           left: style?.arrowLeft?.left || 8,
@@ -55,6 +65,7 @@ export const CarouselArrows = ({ onPrev, onNext, style }: ArrowProps) => {
       <IconButton
         data-no-doubletap
         onClick={onNext}
+        disabled={disableRight}
         sx={{
           ...sharedStyle,
           right: style?.arrowRight?.left || 8,

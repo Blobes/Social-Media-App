@@ -30,6 +30,8 @@ export default function SignupPage() {
         sx={{
           width: "70%",
           height: "85vh",
+          maxHeight: 600,
+          maxWidth: 1100,
           flexDirection: "row",
           gap: theme.gap(0),
           justifyContent: "space-between",
@@ -38,12 +40,14 @@ export default function SignupPage() {
           overflow: "hidden",
           boxShadow: `-12px -12px 30px 6px ${theme.palette.gray.trans.overlay(0.06, true)}, 
           18px 18px 30px 6px ${theme.palette.gray.trans.overlay(0.06, true)}`,
-          [theme.breakpoints.down(1180)]: {
+          [theme.breakpoints.only("md")]: {
             width: "80%",
           },
           [theme.breakpoints.down("md")]: {
             width: "100%",
             height: "100%",
+            maxHeight: "unset",
+            maxWidth: "unset",
             overflow: "auto",
             boxShadow: "none",
             flexDirection: "column",
@@ -64,6 +68,8 @@ export default function SignupPage() {
               mdScreen: {
                 height: "98vh",
                 minHeight: "fit-content",
+                justifyContent: "center",
+                flex: "none",
                 scrollSnapAlign: "start",
                 padding: theme.boxSpacing(20, 10),
                 overflow: "unset",
