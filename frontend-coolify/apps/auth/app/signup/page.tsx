@@ -41,7 +41,7 @@ export default function SignupPage() {
           boxShadow: `-12px -12px 30px 6px ${theme.palette.gray.trans.overlay(0.06, true)}, 
           18px 18px 30px 6px ${theme.palette.gray.trans.overlay(0.06, true)}`,
           [theme.breakpoints.only("md")]: {
-            width: "80%",
+            width: "90%",
           },
           [theme.breakpoints.down("md")]: {
             width: "100%",
