@@ -5,12 +5,10 @@ import { IPost, GenericStyle } from "@repo/core";
 import { useAdaptiveTime } from "@repo/shared-hooks";
 import { useTheme } from "@mui/material/styles";
 import {
-  Carousel,
   LinearCarousel,
   GistSkeleton,
   SmartDate,
   SVGWrapper,
-  StackedCarousel,
 } from "@repo/shared-ui";
 import { useTrendingData } from "./hooks/usePostTrends";
 import { Box, Stack, Typography } from "@mui/material";
@@ -111,6 +109,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
         sx={{
           zIndex: 2,
           color: "#FFFFFF",
+          width: "100%",
           position: "relative",
           display: "flex",
           alignItems: "center",
@@ -126,16 +125,20 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
             borderRadius: theme.radius.full,
             overflow: "hidden",
             [theme.breakpoints.down("md")]: {
-              width: 44,
-              height: 44,
+              width: 42,
+              height: 42,
             },
           }}
         />
-        <Box>
+        <Box
+          sx={{
+            width: "100%",
+          }}>
           <Typography
             variant="body1"
             sx={{
               color: "inherit",
+              lineHeight: 1.3,
             }}>
             {data.post.postType === "GIST"
               ? `${summarizeNum(data.post.likeCount) || 0} 
@@ -235,7 +238,7 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
           </Typography>
           <LinearCarousel
             items={carouselItems}
-            // isMultiView={false}
+            isMultiView={false}
             autoPlay
             pauseOnHover
             interval={7000}

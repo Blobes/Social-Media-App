@@ -4,20 +4,23 @@ import React from "react";
 import { Box } from "@mui/material";
 import { motion, useTransform } from "framer-motion";
 import { useCarousel } from "./useCarousel";
-import { CarouselArrows, CarouselDots } from "./Controls";
+import {
+  CarouselArrows,
+  CarouselDots,
+} from "../packages/shared-ui/src/carousel/Controls";
 import { useTheme } from "@mui/material/styles";
 import { GenericStyle } from "@repo/core";
 
-export interface CarouselStyle {
+export interface OCarouselStyle {
   container?: GenericStyle;
   item?: React.CSSProperties;
   arrowLeft?: GenericStyle;
   arrowRight?: GenericStyle;
 }
 
-interface CarouselProps {
+interface OCarouselProps {
   items: React.ReactNode[];
-  style?: CarouselStyle;
+  style?: OCarouselStyle;
   showArrows?: boolean;
   autoPlay?: boolean;
   pauseOnHover?: boolean;
@@ -44,7 +47,7 @@ export const Carousel = ({
   isMultiView = false,
   variant = "stacked",
   loop = true,
-}: CarouselProps) => {
+}: OCarouselProps) => {
   const theme = useTheme();
 
   const {

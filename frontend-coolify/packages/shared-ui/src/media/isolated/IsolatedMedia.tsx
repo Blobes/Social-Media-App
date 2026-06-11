@@ -6,10 +6,10 @@ import { useTheme } from "@mui/material/styles";
 import { GenericStyle, IMedia, MediaSourceType } from "@repo/core";
 import { MediaRenderer } from "../MediaRenderer";
 import { ElementTap } from "../../ElementTap";
-import { Carousel } from "../../carousel/Carousel";
 import { IsolatedHeader } from "./Header";
 import { IsolatedFooter } from "./Footer";
 import { useIsolatedMedia } from "./useIsolated";
+import { LinearCarousel } from "../../carousel/LinearCarousel";
 
 export interface IsolatedProps {
   mediaList?: IMedia[];
@@ -61,10 +61,12 @@ export const IsolatedMedia = ({
     if (!mediaList || mediaList.length === 0) return null;
     if (mediaList.length === 1) return <MediaRenderer media={mediaList[0]} />;
     return (
-      <Carousel
+      <LinearCarousel
         items={carouselItems}
         initialIndex={initialIndex}
         setCurrentIndex={handleSetCurrentIndex}
+        isMultiView={false}
+        showArrows={false}
       />
     );
   };

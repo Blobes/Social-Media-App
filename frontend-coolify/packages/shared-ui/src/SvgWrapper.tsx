@@ -15,6 +15,7 @@ interface SVGWrapperProps extends BoxProps {
   preserveColor?: boolean;
   loop?: boolean;
   autoplay?: boolean;
+  fbSize?: number | string;
 }
 
 /**
@@ -25,6 +26,7 @@ export const SVGWrapper = ({
   src,
   color,
   size = 44,
+  fbSize = 44,
   preserveColor = false,
   loop = true,
   autoplay = true,
@@ -107,13 +109,13 @@ export const SVGWrapper = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            height: "100%",
-            width: "100%",
+            // height: "100%",
+            // width: "100%",
           }}>
           <Box
             sx={{
-              width: 44,
-              height: 44,
+              width: fbSize,
+              height: fbSize,
               padding: theme.boxSpacing(4),
               backgroundColor: theme.palette.gray.trans[1],
               borderRadius: theme.radius.full,

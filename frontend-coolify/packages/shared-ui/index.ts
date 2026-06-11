@@ -33,7 +33,6 @@ export * from "./src/Footer";
 export * from "./src/SvgWrapper";
 export * from "./src/StatusSwitcher";
 export * from "./src/Skeletons";
-export * from "./src/carousel/Carousel";
 export * from "./src/carousel/Controls";
 export * from "./src/media/isolated/IsolatedMedia";
 export * from "./src/WordTrimmer";

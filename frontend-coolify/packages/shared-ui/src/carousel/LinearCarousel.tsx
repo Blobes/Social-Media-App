@@ -7,7 +7,7 @@ import { useLinearCarousel } from "./useLinear";
 import { CarouselArrows, CarouselDots } from "./Controls";
 import { GenericStyle } from "@repo/core";
 
-export interface LCarouselStyle {
+export interface CarouselStyle {
   container?: GenericStyle;
   viewport?: GenericStyle;
   item?: React.CSSProperties;
@@ -15,9 +15,9 @@ export interface LCarouselStyle {
   arrowRight?: GenericStyle;
 }
 
-interface LCarouselProps {
+export interface CarouselProps {
   items: React.ReactNode[];
-  style?: LCarouselStyle;
+  style?: CarouselStyle;
   showArrows?: boolean;
   autoPlay?: boolean;
   pauseOnHover?: boolean;
@@ -40,7 +40,7 @@ export const LinearCarousel = ({
   setCurrentIndex,
   initialIndex = 0,
   isMultiView = true,
-}: LCarouselProps) => {
+}: CarouselProps) => {
   const theme = useTheme();
 
   const {
