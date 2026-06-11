@@ -4,7 +4,13 @@ import React from "react";
 import { IPost, GenericStyle } from "@repo/core";
 import { useAdaptiveTime } from "@repo/shared-hooks";
 import { useTheme } from "@mui/material/styles";
-import { Carousel, GistSkeleton, SmartDate, SVGWrapper } from "@repo/shared-ui";
+import {
+  Carousel,
+  CSSCarousel,
+  GistSkeleton,
+  SmartDate,
+  SVGWrapper,
+} from "@repo/shared-ui";
 import { useTrendingData } from "./hooks/usePostTrends";
 import { Box, Stack, Typography } from "@mui/material";
 import { applyBGPattern, lineClamp, summarizeNum } from "@repo/helpers";
@@ -92,6 +98,9 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
           lineHeight: 1.4,
           ...lineClamp(5),
           textShadow: hasMedia ? "0px 2px 8px rgba(0,0,0,0.2)" : "none",
+          [theme.breakpoints.down("md")]: {
+            fontSize: 22,
+          },
         }}>
         {data.caption}
       </Typography>
@@ -224,32 +233,22 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
             }}>
             Trends you might have missed while away.
           </Typography>
-          <Carousel
-            variant="linear"
+          <CSSCarousel
             items={carouselItems}
-            // loop={false}
+            // isMultiView={false}
             autoPlay
             pauseOnHover
             interval={7000}
-            isMultiView
             style={{
               container: {
+                width: "35cqw",
                 height: "76%",
-                [theme.breakpoints.only("sm")]: {
-                  width: "70%",
+                [theme.breakpoints.only("md")]: {
+                  width: "40cqw",
                 },
-                [theme.breakpoints.down("sm")]: {
+                [theme.breakpoints.down("md")]: {
+                  width: "100cqw",
                   height: "68%",
-                },
-              },
-              arrowLeft: {
-                smScreen: {
-                  left: -10,
-                },
-              },
-              arrowRight: {
-                smScreen: {
-                  right: -10,
                 },
               },
             }}

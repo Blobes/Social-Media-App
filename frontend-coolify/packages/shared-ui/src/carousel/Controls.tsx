@@ -37,9 +37,9 @@ export const CarouselArrows = ({
     },
     "&:hover": {
       opacity: 0.8,
-      bgcolor: theme.fixedColors.gray50,
+      bgcolor: theme.fixedColors.gray800,
       "& svg": {
-        stroke: theme.fixedColors.gray800,
+        stroke: theme.fixedColors.gray50,
       },
     },
   };
@@ -54,7 +54,7 @@ export const CarouselArrows = ({
         disabled={disableLeft}
         sx={{
           ...sharedStyle,
-          left: style?.arrowLeft?.left || 8,
+          left: style?.arrowLeft?.left || 10,
           ...(style?.arrowLeft as any),
           [theme.breakpoints.down("sm")]: {
             ...(style?.arrowLeft?.smScreen as any),
@@ -68,7 +68,7 @@ export const CarouselArrows = ({
         disabled={disableRight}
         sx={{
           ...sharedStyle,
-          right: style?.arrowRight?.left || 8,
+          right: style?.arrowRight?.left || 10,
           ...(style?.arrowRight as any),
           [theme.breakpoints.down("sm")]: {
             ...(style?.arrowRight?.smScreen as any),

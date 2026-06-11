@@ -42,7 +42,7 @@ export default function LoginPage() {
             boxShadow: `-12px -12px 30px 6px ${theme.palette.gray.trans.overlay(0.06, true)}, 
            18px 18px 30px 6px ${theme.palette.gray.trans.overlay(0.06, true)}`,
             [theme.breakpoints.down(1180)]: {
-              width: "80%",
+              width: "90%",
             },
             [theme.breakpoints.down("md")]: {
               width: "100%",
