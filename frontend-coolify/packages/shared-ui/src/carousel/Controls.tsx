@@ -28,7 +28,7 @@ export const CarouselArrows = ({
 
   const sharedStyle = {
     position: "absolute",
-    top: "40%",
+    top: "50%",
     zIndex: 10,
     bgcolor: theme.palette.gray.trans.overlay(0.3),
     transition: "stroke 0.3s ease, background-color 0.3s ease",

@@ -47,10 +47,10 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
         background: data.bgColor,
         ...(!hasMedia && applyBGPattern({ url: asset.bgNoise, contain: true })),
         gap: theme.gap(18),
-        padding: theme.boxSpacing(22, 18, 18, 18),
+        padding: theme.boxSpacing(18, 16, 16, 16),
         [theme.breakpoints.down("sm")]: {
           gap: theme.gap(14),
-          padding: theme.boxSpacing(18, 14, 14, 14),
+          padding: theme.boxSpacing(16, 14, 14, 14),
         },
       }}>
       {/* Background Visual Rendering Block */}
@@ -238,7 +238,6 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
           </Typography>
           <LinearCarousel
             items={carouselItems}
-            isMultiView={false}
             autoPlay
             pauseOnHover
             interval={7000}
