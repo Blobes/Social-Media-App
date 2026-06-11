@@ -5,7 +5,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 /**
  * Handles programmatic element scroll drivers and state syncing for native CSS snap containers.
  */
-export const useCSSCarousel = (
+export const useLinearCarousel = (
   length: number,
   interval = 5000,
   autoPlay = false,

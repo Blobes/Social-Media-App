@@ -6,10 +6,11 @@ import { useAdaptiveTime } from "@repo/shared-hooks";
 import { useTheme } from "@mui/material/styles";
 import {
   Carousel,
-  CSSCarousel,
+  LinearCarousel,
   GistSkeleton,
   SmartDate,
   SVGWrapper,
+  StackedCarousel,
 } from "@repo/shared-ui";
 import { useTrendingData } from "./hooks/usePostTrends";
 import { Box, Stack, Typography } from "@mui/material";
@@ -96,7 +97,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
           position: "relative",
           color: "#FFFFFF",
           lineHeight: 1.4,
-          ...lineClamp(5),
+          ...lineClamp(6),
           textShadow: hasMedia ? "0px 2px 8px rgba(0,0,0,0.2)" : "none",
           [theme.breakpoints.down("md")]: {
             fontSize: 22,
@@ -150,7 +151,6 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
                 width: "100%",
                 ...lineClamp(1),
               }}>
-              Shared
               <SmartDate
                 component="span"
                 variant="body3"
@@ -161,7 +161,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
                   color: "inherit",
                 }}
               />
-              ago with {summarizeNum(data.post.viewCount) || 0} views
+              ago | {summarizeNum(data.post.viewCount) || 0} views
             </Typography>
           ) : (
             <Typography
@@ -233,7 +233,7 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
             }}>
             Trends you might have missed while away.
           </Typography>
-          <CSSCarousel
+          <LinearCarousel
             items={carouselItems}
             // isMultiView={false}
             autoPlay
@@ -248,7 +248,7 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
                 },
                 [theme.breakpoints.down("md")]: {
                   width: "100cqw",
-                  height: "68%",
+                  height: "60%",
                 },
               },
             }}

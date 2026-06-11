@@ -3,11 +3,11 @@
 import React from "react";
 import { Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useCSSCarousel } from "./useCSSCarousel";
+import { useLinearCarousel } from "./useLinear";
 import { CarouselArrows, CarouselDots } from "./Controls";
 import { GenericStyle } from "@repo/core";
 
-export interface CSSCarouselStyle {
+export interface LCarouselStyle {
   container?: GenericStyle;
   viewport?: GenericStyle;
   item?: React.CSSProperties;
@@ -15,9 +15,9 @@ export interface CSSCarouselStyle {
   arrowRight?: GenericStyle;
 }
 
-interface CSSCarouselProps {
+interface LCarouselProps {
   items: React.ReactNode[];
-  style?: CSSCarouselStyle;
+  style?: LCarouselStyle;
   showArrows?: boolean;
   autoPlay?: boolean;
   pauseOnHover?: boolean;
@@ -30,7 +30,7 @@ interface CSSCarouselProps {
 /**
  * Single-view presentation layer driven entirely by native CSS horizontal scroll snapping.
  */
-export const CSSCarousel = ({
+export const LinearCarousel = ({
   items,
   style,
   showArrows = true,
@@ -40,7 +40,7 @@ export const CSSCarousel = ({
   setCurrentIndex,
   initialIndex = 0,
   isMultiView = true,
-}: CSSCarouselProps) => {
+}: LCarouselProps) => {
   const theme = useTheme();
 
   const {
@@ -54,7 +54,7 @@ export const CSSCarousel = ({
     setPauseState,
     isFirst,
     isLast,
-  } = useCSSCarousel(
+  } = useLinearCarousel(
     items.length,
     interval,
     autoPlay,

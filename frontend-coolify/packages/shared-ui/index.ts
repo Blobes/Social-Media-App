@@ -40,4 +40,5 @@ export * from "./src/WordTrimmer";
 export * from "./src/StepperProgress";
 export * from "./src/UIGuide";
 export * from "./src/media/UploadTracker";
-export * from "./src/carousel/CSSCarousel";
+export * from "./src/carousel/LinearCarousel";
+export * from "./src/carousel/StackedCarousel";
