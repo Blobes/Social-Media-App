@@ -2,7 +2,6 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ES2017"
-    // "esModuleInterop": true
   },
   "include": [
     "src/**/*.ts",
@@ -10,6 +9,5 @@
     "next-env.d.ts",
     "next.config.js",
     ".next/types/**/*.ts"
-  ],
-  "exclude": ["node_modules"]
+  ]
 }
