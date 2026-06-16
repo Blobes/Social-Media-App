@@ -188,6 +188,24 @@ export const createS3Service = (config: IS3Config) => {
     return `${config.PUBLIC_URL}/${fileKey}`;
   };
 
+  /**
+   * Commits raw string or buffer components directly to your R2 bucket instances.
+   */
+  const uploadRawJsonToS3 = async (
+    fileKey: string,
+    jsonStringContent: string,
+  ): Promise<void> => {
+    const command = new PutObjectCommand({
+      Bucket: config.BUCKET_NAME,
+      Key: fileKey,
+      ContentType: "application/json",
+      Body: Buffer.from(jsonStringContent, "utf-8"),
+      CacheControl: "public, max-age=0, no-cache, must-revalidate", // Make it highly cacheable for CDN nodes
+    });
+
+    await s3.send(command);
+  };
+
   return {
     client: s3,
     generateS3Url,
@@ -197,5 +215,6 @@ export const createS3Service = (config: IS3Config) => {
     completeMultipartUpload,
     deleteFromS3,
     getPublicUrl,
+    uploadRawJsonToS3,
   };
 };

@@ -21,6 +21,18 @@ interface SeenResponse {
   viewCount: number;
 }
 
+// Added request contract layout structure mapping criteria
+export interface TranslateTextReq {
+  postId: string;
+  caption: string;
+  sourceLang: string;
+  targetLang: string;
+}
+
+interface TranslateTextResponse {
+  translatedText: string;
+}
+
 export const PostService = () => {
   const markAsSeen = async (
     postId: string,
@@ -107,5 +119,32 @@ export const PostService = () => {
     [],
   );
 
-  return { markAsSeen, fetchFeed, lookupTopics };
+  /**
+   * Forwards a dynamic entity caption text block to the server for live engine translation.
+   */
+  const translateText = useCallback(
+    async (
+      data: TranslateTextReq,
+    ): Promise<ISinglePayload<TranslateTextResponse | null>> => {
+      try {
+        const url = SERVER_API.translateCaption;
+        const res = await apiClient<ISinglePayload<TranslateTextResponse>>(
+          url,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          },
+        );
+        return res;
+      } catch (error) {
+        throw error;
+      }
+    },
+    [],
+  );
+
+  return { markAsSeen, fetchFeed, lookupTopics, translateText };
 };

@@ -14,7 +14,6 @@ import { UserAvatar, AnchorLink, AppButton, SearchBar } from "@repo/shared-ui";
 import { asset } from "@repo/assets";
 import { useHeader } from "./useHeader";
 import { CLIENT_ROUTES } from "@repo/core";
-import { useCreatePost } from "../../apps/post/hooks/useCreatePost";
 
 interface HeaderProps {
   scrollRef?: React.RefObject<HTMLElement | null>;

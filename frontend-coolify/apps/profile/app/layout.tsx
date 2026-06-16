@@ -15,7 +15,7 @@ export default async function RootLayout({
 }>) {
   return (
     <BaseLayout>
-      <GlobalUIManager>
+      <GlobalUIManager namespace="profile">
         <DefaultWrapper>{children}</DefaultWrapper>
       </GlobalUIManager>
     </BaseLayout>

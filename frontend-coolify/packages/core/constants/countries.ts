@@ -2,7 +2,7 @@
 
 import { ICountryItem } from "../types/ui-props";
 
-export const COUNTRIES: Record<string, ICountryItem> = {
+export const COUNTRIES = {
   NG: { name: "Nigeria", code: "+234", iso: "NG", flag: "🇳🇬" },
   GH: { name: "Ghana", code: "+233", iso: "GH", flag: "🇬🇭" },
   KE: { name: "Kenya", code: "+254", iso: "KE", flag: "🇰🇪" },
@@ -13,4 +13,4 @@ export const COUNTRIES: Record<string, ICountryItem> = {
   AE: { name: "United Arab Emirates", code: "+971", iso: "AE", flag: "🇦🇪" },
   FR: { name: "France", code: "+33", iso: "FR", flag: "🇫🇷" },
   DE: { name: "Germany", code: "+49", iso: "DE", flag: "🇩🇪" },
-};
+} satisfies Record<string, ICountryItem>;

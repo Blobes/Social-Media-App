@@ -159,3 +159,10 @@ export interface StepperProps<T> extends NavigationProps {
   setStep?: (step: T) => void;
   step?: T;
 }
+
+export interface IBGFadeSlideData {
+  name: string;
+  headline: string;
+  tagline: string;
+  media: IMedia;
+}

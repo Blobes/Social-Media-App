@@ -28,6 +28,7 @@ export const CACHE_KEYS = {
     FEED: "gists",
     SEEN: "seen",
     LOOKUP_TOPICS: "lookup_topics",
+    TRANSLATION: "post_translation",
   },
   [KeyType.USER]: {
     SESSION: "auth_sessions",

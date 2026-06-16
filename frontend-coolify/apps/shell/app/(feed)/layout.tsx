@@ -21,7 +21,7 @@ export default async function RootLayout({
   return (
     <BaseLayout>
       <Prefetcher route="/offline" />
-      <GlobalUIManager>
+      <GlobalUIManager namespace="shell">
         <DefaultWrapper>{children}</DefaultWrapper>
       </GlobalUIManager>
     </BaseLayout>

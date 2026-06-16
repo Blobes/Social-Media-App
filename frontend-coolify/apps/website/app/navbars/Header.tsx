@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { AppBar, Stack, IconButton } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGlobalStore, useMisc, usePage } from "@repo/shared-hooks";
@@ -10,42 +10,36 @@ import Image from "next/image";
 import { Menu } from "lucide-react";
 import { asset } from "@repo/assets";
 import { CLIENT_ROUTES } from "@repo/core";
+import { usePopup } from "@repo/features";
 
 export const Header: React.FC = () => {
   const authStatus = useGlobalStore((state) => state.authStatus);
-  const { openDrawer, closeDrawer, isDesktop, handleWindowResize } = useMisc();
+  const { isDesktop, handleWindowResize } = useMisc();
   const { navigateTo } = usePage();
   const theme = useTheme();
   const isLoggedIn = authStatus === "AUTHENTICATED";
-
-  /* ---------------------------------- effects --------------------------------- */
-  useEffect(() => {
-    window.addEventListener("resize", handleWindowResize);
-    //  openMobileWebNav()
-    return () => window.removeEventListener("resize", handleWindowResize);
-  }, []);
+  const { openPopup } = usePopup();
 
   /* -------------------------------- handlers --------------------------------- */
-
-  const openMobileWebNav = () =>
-    openDrawer({
-      content: (
+  const openMobileWebNav = useCallback(
+    () =>
+      openPopup(
+        "WEB_MOBILE_MENU",
         <MobileNav
           style={{
             gap: theme.gap(4),
           }}
-        />
+        />,
       ),
-      source: "navbar",
-      onClose: () => closeDrawer(),
-      style: {
-        base: { overlay: { padding: theme.boxSpacing(6) } },
-        smallScreen: {
-          overlay: { padding: theme.boxSpacing(0) },
-          content: { height: "100%", width: "80%", borderRadius: "0px" },
-        },
-      },
-    });
+    [openPopup],
+  );
+
+  /* ---------------------------------- effects --------------------------------- */
+  useEffect(() => {
+    window.addEventListener("resize", handleWindowResize);
+    // openMobileWebNav();
+    return () => window.removeEventListener("resize", handleWindowResize);
+  }, []);
 
   /* ---------------------------------- render ---------------------------------- */
   return (

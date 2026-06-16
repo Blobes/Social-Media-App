@@ -85,7 +85,7 @@ export const editGist = async (
       caption: content.trim(),
       media: [],
       topics: gist.topics || [],
-      skipModeration: false,
+      moderationTaskMode: "MODERATE_AND_EXTRACT_KEYWORDS",
       event: "POST_UPDATE",
     };
     await enqueueModerationTask(

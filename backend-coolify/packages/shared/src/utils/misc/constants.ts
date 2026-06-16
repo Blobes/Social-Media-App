@@ -23,3 +23,22 @@ export const MIME_TO_EXTENSION: Record<string, string> = {
 
 // Create a type from the array for strict TypeScript checking
 export type AllowedMimeType = (typeof ALLOWED_MIME_TYPES)[number];
+
+const ISO_MAP: Record<string, string> = {
+  eng: "en",
+  spa: "es",
+  fra: "fr",
+  deu: "de",
+  ita: "it",
+  por: "pt",
+  cmn: "zh", // Mandarin / Chinese
+  jpn: "ja",
+  arb: "ar",
+  rus: "ru",
+};
+/**
+ * Converts a 3-letter language code to a 2-letter fallback code.
+ */
+export const to2ISOCode = (threeLetterCode: string): string => {
+  return ISO_MAP[threeLetterCode] || "en"; // Default fallback to English if text is ambiguous
+};

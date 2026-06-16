@@ -68,6 +68,9 @@ export const getPostStaticData = (): PipelineStage[] => {
               latestCaption: {
                 caption: { $ifNull: ["$latestCaption.caption", ""] },
                 captionId: { $ifNull: ["$latestCaption.captionId", "$_id"] },
+                detectedLanguage: {
+                  $ifNull: ["$latestCaption.detectedLanguage", "en"],
+                },
                 updatedAt: {
                   $ifNull: ["$latestCaption.createdAt", "$createdAt"],
                 },

@@ -1,7 +1,7 @@
 // Midllewares
 export * from "./middlewares/isAdmin";
-// export * from "./middlewares/moderateContent";
 export * from "./middlewares/authToken";
+export * from "./middlewares/internalToken";
 
 // Types
 export * from "./types";
@@ -9,7 +9,7 @@ export * from "./types";
 // Services
 export * from "./services/auth/dispatchEmailCode";
 export * from "./services/auth/dispatchWhatsappCode";
-export * from "./utils/misc/topic";
+export * from "./services/topic";
 export * from "./services/user/publicStatus";
 export * from "./services/s3";
 export * from "./services/upstash";
@@ -21,7 +21,7 @@ export * from "./services/post/gistFinalizers";
 
 // Routes
 export * from "./routes/topic";
-export * from "./routes/media";
+export * from "./routes/upload";
 export * from "./routes/report";
 export * from "./routes/health";
 
@@ -40,11 +40,13 @@ export * from "./utils/misc/sanitizeData";
 export * from "./utils/misc/feedProcessor";
 export * from "./utils/misc/tokens";
 export * from "./utils/misc/session";
+export * from "./utils/misc/topic";
 export * from "./utils/redis/cache";
 export * from "./utils/redis/ratelimit";
 export * from "./utils/pipelines/user/dataLookup";
 export * from "./utils/pipelines/post/dataLookup";
 export * from "./utils/misc/device";
+export * from "./utils/misc/topic";
 
 // Environment config
 export * from "../env-config/corsConfig";

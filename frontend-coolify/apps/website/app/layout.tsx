@@ -9,7 +9,10 @@ export default function RootLayout({
 }>) {
   return (
     <BaseLayout>
-      <GlobalUIManager showOfflineUI={false} showNetworkErrorUI={false}>
+      <GlobalUIManager
+        showOfflineUI={false}
+        showNetworkErrorUI={false}
+        namespace="website">
         <Wrapper>{children}</Wrapper>
       </GlobalUIManager>
     </BaseLayout>

@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { DISALLOWED_ROUTES, IPage, ROUTES_REGISTRY } from "@repo/core";
+import {
+  DISALLOWED_ROUTES,
+  IPage,
+  NavigateOptions,
+  ROUTES_REGISTRY,
+} from "@repo/core";
 import {
   extractPageTitle,
   getFromLocalStorage,
@@ -13,13 +18,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useMisc } from "./useMisc";
 import { useGlobalStore } from "./store/useGlobalStore";
 import { REDIRECT_MAP, useRouteGuards } from "./useRouteGuards";
-
-interface NavigateOptions {
-  type?: "push" | "replace";
-  savePage?: boolean;
-  loadPage?: boolean;
-  event?: React.MouseEvent;
-}
 
 /**
  * Manages page transitions, routing logic, and navigation state.

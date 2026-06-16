@@ -28,14 +28,15 @@ export const useTrendingData = () => {
     asset.avatar6,
   ];
 
-  const gradLocation = "30%";
+  const gradLocation = "60%";
   const gradDegree = "180deg";
   const bgColors = [
-    `linear-gradient(${gradDegree},rgb(19, 29, 97) 0%,rgb(50, 73, 200) ${gradLocation})`,
-    `linear-gradient(${gradDegree},rgb(13, 65, 82) 0%,rgb(29, 157, 169) ${gradLocation})`,
-    `linear-gradient(${gradDegree},rgb(11, 71, 32) 0%,rgb(29, 141, 96) ${gradLocation})`,
-    `linear-gradient(${gradDegree},rgb(63, 66, 12) 0%,rgb(111, 129, 30) ${gradLocation})`,
-    `linear-gradient(${gradDegree},rgb(81, 46, 22) 0%,rgb(145, 105, 26) ${gradLocation})`,
+    `linear-gradient(${gradDegree},rgb(29, 45, 150) 0%,rgb(16, 26, 84) ${gradLocation})`,
+    `linear-gradient(${gradDegree},rgb(18, 89, 112) 0%,rgb(9, 62, 67) ${gradLocation})`,
+    `linear-gradient(${gradDegree},rgb(21, 124, 57) 0%,rgb(11, 68, 45) ${gradLocation})`,
+    `linear-gradient(${gradDegree},rgb(102, 107, 20) 0%,rgb(58, 68, 11) ${gradLocation})`,
+    `linear-gradient(${gradDegree},rgb(113, 61, 27) 0%,rgb(61, 35, 9) ${gradLocation})`,
+    `linear-gradient(${gradDegree},rgb(112, 26, 114) 0%,rgb(68, 9, 61) ${gradLocation})`,
   ];
 
   const processedPosts = useMemo(() => {

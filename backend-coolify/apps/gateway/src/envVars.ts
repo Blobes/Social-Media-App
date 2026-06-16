@@ -1,6 +1,9 @@
 import {
+  createValidateInternalToken,
   createVerifyAuthToken,
   getEnv,
+  IAuthConfig,
+  IInternalTokenConfig,
   IS3Config,
   loadEnv,
 } from "@repo/shared";
@@ -71,7 +74,7 @@ export const s3Config: IS3Config = {
 /**
  * Authentication Middleware and Configuration
  */
-const authConfig = {
+const authConfig: IAuthConfig = {
   get ACCESS_TOKEN_SECRET() {
     return getEnv("JWT_SECRET");
   },
@@ -80,8 +83,17 @@ const authConfig = {
   },
 };
 
+const internalTokenConfig: IInternalTokenConfig = {
+  get INTERNAL_TOKEN_SECRET() {
+    return getEnv("INTERNAL_SECRET_TOKEN");
+  },
+};
+
 export const verifyAuthToken: RequestHandler =
   createVerifyAuthToken(authConfig);
+
+export const validateInternalToken: RequestHandler =
+  createValidateInternalToken(internalTokenConfig);
 
 // Legacy Compatibility Exports
 export const NODE_ENV = env.NODE_ENV;

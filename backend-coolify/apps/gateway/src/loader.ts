@@ -1,7 +1,7 @@
 import express, { Express } from "express";
 import {
   corsConfig,
-  mediaRouter,
+  uploadRouter,
   upstashClient,
   reportRouter,
   topicRouter,
@@ -9,7 +9,7 @@ import {
 } from "@repo/shared";
 import { rateLimiter } from "./middleware/rateLimiter";
 import gatewayRoutes from "./proxy";
-import { s3Config, verifyAuthToken } from "./envVars";
+import { s3Config, validateInternalToken, verifyAuthToken } from "./envVars";
 
 export default async (app: Express) => {
   // 1. CORS and Rate Limiting
@@ -35,7 +35,14 @@ export default async (app: Express) => {
   // 4. Gateway's own shared routes (these need the body parser above)
   app.use("/health", healthRouter("GATEWAY"));
   app.use("/report", reportRouter({ verifyAuthToken }));
-  app.use("/media", mediaRouter({ uploadConfig: s3Config, verifyAuthToken }));
+  app.use(
+    "/upload",
+    uploadRouter({
+      uploadConfig: s3Config,
+      verifyAuthToken,
+      validateInternalToken,
+    }),
+  );
   app.use("/topic", topicRouter({ verifyAuthToken }));
 
   return app;

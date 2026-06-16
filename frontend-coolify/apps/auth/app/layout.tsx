@@ -19,7 +19,7 @@ export default async function RootLayout({
 }>) {
   return (
     <BaseLayout>
-      <GlobalUIManager>
+      <GlobalUIManager namespace="auth">
         <RootUIContainer shouldScroll={true}>{children}</RootUIContainer>
       </GlobalUIManager>
     </BaseLayout>

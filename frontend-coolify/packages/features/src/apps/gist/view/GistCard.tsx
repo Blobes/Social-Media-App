@@ -18,7 +18,7 @@ import {
   CACHE_KEYS,
 } from "@repo/core";
 import { mediaData } from "@repo/assets";
-import { Feedback, WordTrimmer } from "@repo/shared-ui";
+import { Feedback } from "@repo/shared-ui";
 import { GistService } from "../gistService";
 import { GistMedia } from "./GistMedia";
 import { PostHeader } from "../../post/components/header/PostHeader";
@@ -26,6 +26,7 @@ import { Metrics } from "../../post/components/Metrics";
 import { PostEngagement } from "../../post/components/engagement/Engagement";
 import { usePostLike as useGistLike } from "../../post/hooks/like/usePostLike";
 import { usePostSeen } from "../../post/hooks/usePostSeen";
+import { DynamicCaption } from "../../post/components/Caption";
 
 interface GistProps {
   gist: IGist;
@@ -121,7 +122,12 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
         }}
       />
 
-      <WordTrimmer
+      <DynamicCaption
+        captionId={latestCaption.captionId}
+        caption={latestCaption.caption}
+        detectedLanguage={latestCaption.detectedLanguage}
+      />
+      {/* <WordTrimmer
         text={latestCaption.caption}
         style={{
           container: {
@@ -131,7 +137,7 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
             },
           },
         }}
-      />
+      /> */}
 
       <GistMedia
         gist={gistData}

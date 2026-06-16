@@ -1,17 +1,15 @@
 "use client";
 
 import React, { useRef, useEffect, useCallback } from "react";
-import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
-import { dragToCloseConfig } from "@repo/helpers";
 import { CLIENT_ROUTES, MenuRef } from "@repo/core";
 import {
-  useDragClose,
   useGlobalStore,
   useMisc,
   usePage,
   usePageScroll,
 } from "@repo/shared-hooks";
+import { usePopup } from "../../hooks/usePopup";
 
 /** * Parameters for handling avatar interactions on different screen sizes.
  */
@@ -28,24 +26,17 @@ export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
   const authStatus = useGlobalStore((state) => state.authStatus);
   const authUser = useGlobalStore((state) => state.authUser);
 
-  const { openDrawer, closeDrawer, isDesktop, handleWindowResize } = useMisc();
+  const { isDesktop, handleWindowResize } = useMisc();
   const { setLastPage, navigateTo } = usePage();
   const { handlePageScroll } = usePageScroll();
+  const { openPopup } = usePopup();
 
-  const theme = useTheme();
   const router = useRouter();
   const menuRef = useRef<MenuRef>(null);
   const createPostRef = useRef<MenuRef>(null);
 
   const scrollDir = handlePageScroll(scrollRef);
   const isLoggedIn = authStatus === "AUTHENTICATED";
-
-  /** * Syncs window resize events with the shared state.
-   */
-  useEffect(() => {
-    window.addEventListener("resize", handleWindowResize);
-    return () => window.removeEventListener("resize", handleWindowResize);
-  }, [handleWindowResize]);
 
   /** * Redirects to the notification center.
    */
@@ -75,32 +66,24 @@ export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
    */
   const openMobileNav = useCallback(
     (element: AvatarParams) => {
-      openDrawer({
-        ...element.mobile,
-        source: "navbar",
-        onClose: closeDrawer,
-        useDragConfig: () => useDragClose(dragToCloseConfig()),
-        style: {
-          base: {
-            overlay: { padding: theme.boxSpacing(6), display: "none" },
-            content: { height: "100%", borderRadius: "0px" },
-          },
-          smallScreen: {
-            overlay: { padding: theme.boxSpacing(0), display: "flex" },
-          },
-          header: {
-            justifyContent: "space-between",
-            padding: theme.boxSpacing(5, 8),
-          },
-        },
-      });
+      openPopup(
+        "APP_MOBILE_MENU",
+        element.mobile.content,
+        element.mobile.header,
+      );
     },
-    [openDrawer, closeDrawer, theme],
+    [openPopup],
   );
 
   const handleCreatePost = (e: React.MouseEvent<HTMLElement>) => {
     if (isDesktop) createPostRef.current?.openMenu(e.currentTarget);
   };
+
+  // Syncs window resize events with the shared state.
+  useEffect(() => {
+    window.addEventListener("resize", handleWindowResize);
+    return () => window.removeEventListener("resize", handleWindowResize);
+  }, [handleWindowResize]);
 
   return {
     isLoggedIn,

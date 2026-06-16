@@ -5,14 +5,14 @@ import { useTheme } from "@mui/material/styles";
 import { Login } from "./Login";
 import { Stack } from "@mui/material";
 import { applyBGPattern } from "@repo/helpers";
-import { useMisc, useGlobalStore } from "@repo/shared-hooks";
-import { ComfirmLogout, RestrictedUI } from "@repo/features";
+import { useGlobalStore } from "@repo/shared-hooks";
+import { RestrictedUI, usePopup } from "@repo/features";
 import { TrendingPosts } from "./TrendingPosts";
 
 export default function LoginPage() {
   const theme = useTheme();
   const authStatus = useGlobalStore((state) => state.authStatus);
-  const { openModal, closeModal } = useMisc();
+  const { openPopup } = usePopup();
 
   return (
     <Stack
@@ -84,8 +84,7 @@ export default function LoginPage() {
           type="ALREADY_LOGGED_IN"
           secondaryCta={{
             label: "Logout",
-            action: () =>
-              openModal({ content: <ComfirmLogout />, onClose: closeModal }),
+            action: () => openPopup("CONFIRM_LOGOUT"),
           }}
         />
       )}

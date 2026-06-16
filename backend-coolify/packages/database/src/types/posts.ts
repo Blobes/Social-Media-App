@@ -22,6 +22,8 @@ export interface IGist {
     captionId?: string | null;
     caption: string;
     createdAt?: string;
+    detectedLanguage?: string;
+    detectedLanguageShort?: string;
   };
   editCount: number;
 

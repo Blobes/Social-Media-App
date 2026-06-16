@@ -23,6 +23,7 @@
     "ua-parser-js": "catalog:",
     "@socket.io/redis-emitter": "catalog:",
     "node-asynq": "catalog:",
+    "franc-min": "catalog:",
     "@repo/database": "workspace:*"
   },
   "peerDependencies": {

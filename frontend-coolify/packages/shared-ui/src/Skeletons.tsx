@@ -4,25 +4,19 @@ import React from "react";
 import { Skeleton, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 
-interface Style {
-  bgColor?: string;
-  width?: string | number;
-  height?: string | number;
-  radius?: string | number;
-}
 interface SkeletonProps {
   quantity?: number;
+  bgColor?: string;
 }
-
-const defaultStyle = (theme: any, styles?: Style) => ({
-  bgcolor: styles?.bgColor || theme.palette.gray.trans[1],
-  width: styles?.width || "100%",
-  height: styles?.height || 16,
-  radius: styles?.radius,
-});
-
-export const GistSkeleton = ({ quantity = 2 }: SkeletonProps) => {
+export const GistSkeleton = ({ quantity = 2, bgColor }: SkeletonProps) => {
   const theme = useTheme();
+  const defaultStyle = {
+    bgcolor: bgColor || theme.palette.gray.trans[1],
+    width: "100%",
+    height: 14,
+    radius: 0,
+  };
+
   return (
     <Stack sx={{ width: "100%", gap: theme.gap(8) }}>
       {Array.from({ length: quantity }).map((_, index) => (
@@ -31,6 +25,7 @@ export const GistSkeleton = ({ quantity = 2 }: SkeletonProps) => {
           <Stack
             sx={{
               width: "inherit",
+              alignItems: "center",
               flexDirection: "row",
               [theme.breakpoints.down("md")]: {
                 paddingX: theme.boxSpacing(6),
@@ -40,17 +35,19 @@ export const GistSkeleton = ({ quantity = 2 }: SkeletonProps) => {
               variant="circular"
               sx={{
                 flex: "none",
-                ...defaultStyle(theme, { width: 40, height: 40 }),
+                ...defaultStyle,
+                height: 36,
+                width: 36,
               }}
             />
-            <Stack sx={{ width: "inherit" }}>
-              <Skeleton variant="rectangular" sx={defaultStyle(theme)} />
-              <Skeleton variant="rectangular" sx={defaultStyle(theme)} />
+            <Stack sx={{ width: "inherit", gap: theme.gap(3) }}>
+              <Skeleton variant="rectangular" sx={{ ...defaultStyle }} />
+              <Skeleton variant="rectangular" sx={{ ...defaultStyle }} />
             </Stack>
           </Stack>
           <Skeleton
             variant="rectangular"
-            sx={defaultStyle(theme, { height: 300 })}
+            sx={{ ...defaultStyle, height: 300 }}
           />
         </Stack>
       ))}
@@ -58,15 +55,21 @@ export const GistSkeleton = ({ quantity = 2 }: SkeletonProps) => {
   );
 };
 
-export const StakeSkeleton = ({ quantity = 2 }: SkeletonProps) => {
+export const StakeSkeleton = ({ quantity = 2, bgColor }: SkeletonProps) => {
   const theme = useTheme();
+  const defaultStyle = {
+    bgcolor: bgColor || theme.palette.gray.trans[1],
+    width: "100%",
+    height: 40,
+    radius: 0,
+  };
   return (
     <Stack sx={{ width: "100%", gap: theme.gap(8) }}>
       {Array.from({ length: quantity }).map((_, index) => (
         <Skeleton
           key={index}
           variant="rectangular"
-          sx={defaultStyle(theme, { height: 300 })}
+          sx={{ ...defaultStyle, height: 300 }}
         />
       ))}
     </Stack>

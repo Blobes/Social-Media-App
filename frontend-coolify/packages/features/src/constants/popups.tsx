@@ -1,0 +1,114 @@
+"use client";
+
+import React from "react";
+import { DrawerProps, IDragResult, ModalProps } from "@repo/core";
+import { ComfirmLogout } from "../apps/auth/logout/Logout";
+import { Theme } from "@mui/material/styles";
+
+export type PopupName =
+  | "CONFIRM_LOGOUT"
+  | "GIST_MEDIA_VIEW"
+  | "CREATE_POST"
+  | "WEB_MOBILE_MENU"
+  | "APP_MOBILE_MENU";
+export type PopupType = "MODAL" | "DRAWER";
+
+export interface PopupConfig {
+  type: { baseScreen?: PopupType; smallScreen?: PopupType };
+  modal?: ModalProps;
+  drawer?: DrawerProps;
+}
+
+interface ConfigContext {
+  content?: React.ReactNode;
+  header?: React.ReactNode;
+  closeModal: () => void;
+  closeDrawer: () => void;
+  dragConfig: () => IDragResult;
+  theme: Theme;
+}
+
+/**
+ * Returns configuration schemas for target window items based on contextual close parameters.
+ */
+export const POPUP_CONFIG = ({
+  content,
+  header,
+  closeModal,
+  closeDrawer,
+  dragConfig,
+  theme,
+}: ConfigContext): Record<PopupName, PopupConfig> => {
+  return {
+    CONFIRM_LOGOUT: {
+      type: { baseScreen: "MODAL" },
+      modal: { content: <ComfirmLogout />, onClose: closeModal },
+    },
+
+    GIST_MEDIA_VIEW: {
+      type: { baseScreen: "MODAL" },
+      modal: { content, onClose: closeModal },
+    },
+
+    CREATE_POST: {
+      type: { baseScreen: "MODAL" },
+      modal: {
+        content,
+        onClose: closeModal,
+        style: {
+          base: {
+            overlay: { padding: theme.boxSpacing(6), display: "none" },
+            content: { height: "100%", borderRadius: "0px" },
+          },
+          smallScreen: {
+            overlay: { padding: theme.boxSpacing(0), display: "flex" },
+          },
+          header: {
+            justifyContent: "space-between",
+            padding: theme.boxSpacing(5, 8),
+          },
+        },
+      },
+    },
+
+    WEB_MOBILE_MENU: {
+      type: { smallScreen: "DRAWER" },
+      drawer: {
+        content,
+        source: "navbar",
+        onClose: closeDrawer,
+        style: {
+          base: { overlay: { padding: theme.boxSpacing(6) } },
+          smallScreen: {
+            overlay: { padding: theme.boxSpacing(0) },
+            content: { height: "100%", width: "80%", borderRadius: "0px" },
+          },
+        },
+      },
+    },
+
+    APP_MOBILE_MENU: {
+      type: { smallScreen: "DRAWER" },
+      drawer: {
+        content,
+        header,
+        source: "navbar",
+        onClose: closeDrawer,
+        useDragConfig: dragConfig,
+        style: {
+          base: {
+            overlay: { padding: theme.boxSpacing(6), display: "none" },
+            content: { height: "100%", borderRadius: "0px" },
+          },
+          smallScreen: {
+            overlay: { padding: theme.boxSpacing(0), display: "flex" },
+          },
+          header: {
+            justifyContent: "space-between",
+            padding: theme.boxSpacing(5, 8),
+          },
+        },
+      },
+    },
+  };
+};

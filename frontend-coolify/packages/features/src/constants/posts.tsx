@@ -2,7 +2,7 @@
 
 import { PostType } from "@repo/core";
 import React from "react";
-import { CreateGist } from "../gist/create/CreateGist";
+import { CreateGist } from "../apps/gist/create/CreateGist";
 
 interface PostItem {
   postType: PostType;

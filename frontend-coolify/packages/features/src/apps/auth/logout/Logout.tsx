@@ -1,13 +1,14 @@
 "use client";
 
-import React, { CSSProperties } from "react";
+import React from "react";
 import { AppButton } from "@repo/shared-ui";
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useMisc } from "@repo/shared-hooks";
-import { LogIn, LogOut, LogOutIcon } from "lucide-react";
+import { LogOut, LogOutIcon } from "lucide-react";
 import { useLogout } from "./useLogout";
 import { GenericStyle } from "@repo/core";
+import { usePopup } from "@repo/features/src/hooks/usePopup";
 
 export const ComfirmLogout = () => {
   const { closeModal } = useMisc();
@@ -45,15 +46,16 @@ export const Logout = ({
   textStyle,
   iconStyle,
 }: LogoutProps) => {
-  const { openModal, closeDrawer, closeModal } = useMisc();
+  const { closeDrawer } = useMisc();
   const theme = useTheme();
+  const { openPopup } = usePopup();
 
   return (
     <AppButton
       variant="text"
       onClick={() => {
         closeDrawer();
-        openModal({ content: <ComfirmLogout />, onClose: closeModal });
+        openPopup("CONFIRM_LOGOUT");
       }}
       style={{
         width: "100%",

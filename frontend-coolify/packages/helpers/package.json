@@ -25,7 +25,10 @@
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-persist-client": "catalog:",
     "@tanstack/query-async-storage-persister": "catalog:",
-    "blurhash": "catalog:"
+    "blurhash": "catalog:",
+    "i18next": "catalog:",
+    "react-i18next": "catalog:",
+    "i18next-http-backend": "catalog:"
   },
   "devDependencies": {
     "next": "catalog:",

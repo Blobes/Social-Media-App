@@ -6,12 +6,14 @@ import { InternalSocketEmitter } from "../socket";
 import { createMediaBatch } from "../../utils/media/createBatch";
 import { executeTopicUpdate } from "../topic";
 import { executePostFlag } from "./executePostFlag";
+import { franc } from "franc-min";
+import { to2ISOCode } from "../../utils/misc/constants";
+import { topicsExtractor } from "../../utils/misc/topic";
 
 interface Config {
   redisKey?: string;
   s3Config: IS3Config;
 }
-
 /**
  * Commits the finalized state from processing into MongoDB for initial post creation.
  */
@@ -94,7 +96,11 @@ export const finalizeGistCreation = async (
   const determinedSensitiveGraphic =
     !!existingGistShell?.hasSensitiveGraphic || !!modResult.hasSensitiveGraphic;
 
-  const targetTopics = modResult.extractedTopics || [];
+  // Fallback to custom regex token extractor utility if the AI framework fails to populate metadata arrays
+  let targetTopics = modResult.extractedTopics || [];
+  if (targetTopics.length === 0 && caption) {
+    targetTopics = topicsExtractor(caption);
+  }
 
   if (targetTopics.length > 0) {
     await executeTopicUpdate(
@@ -113,12 +119,15 @@ export const finalizeGistCreation = async (
     sourceType: "GIST",
   });
 
+  const detectedIso3 = franc(caption, { minLength: 3 });
+  const detectedIso2 = to2ISOCode(detectedIso3);
   const captionPromise = PostCaptionModel.create(
     [
       {
         postId,
         postType: "GIST",
         caption: caption?.trim() || "",
+        detectedLanguage: detectedIso2,
         version: 1,
         isLatest: true,
       },
@@ -170,6 +179,7 @@ export const finalizeGistCreation = async (
       latestCaption: {
         captionId: initialCaption._id,
         caption: initialCaption.caption,
+        detectedLanguage: detectedIso2,
       },
       topics: targetTopics.map((t) => t.trim().toLowerCase()),
       status:
@@ -237,7 +247,10 @@ export const finalizeGistUpdate = async (
   const determinedSensitiveGraphic =
     !!gist.hasSensitiveGraphic || !!modResult.hasSensitiveGraphic;
 
-  const targetTopics = modResult.extractedTopics || [];
+  let targetTopics = modResult.extractedTopics || [];
+  if (targetTopics.length === 0 && caption) {
+    targetTopics = topicsExtractor(caption);
+  }
 
   if (targetTopics.length > 0) {
     await executeTopicUpdate(
@@ -254,12 +267,15 @@ export const finalizeGistUpdate = async (
   const upcomingEditCount = (gist.editCount || 0) + 1;
   const nextVersion = upcomingEditCount + 1;
 
+  const detectedIso3 = franc(caption, { minLength: 3 });
+  const detectedIso2 = to2ISOCode(detectedIso3);
   const [newCaptionDoc] = await PostCaptionModel.create(
     [
       {
         postId,
         postType: "GIST",
         caption: caption?.trim() || "",
+        detectedLanguage: detectedIso2,
         version: nextVersion,
         isLatest: true,
       },
@@ -312,6 +328,7 @@ export const finalizeGistUpdate = async (
         latestCaption: {
           captionId: newCaptionDoc._id,
           caption: newCaptionDoc.caption,
+          detectedLanguage: newCaptionDoc.detectedLanguage,
         },
         topics: targetTopics.map((t) => t.trim().toLowerCase()),
         status: modResult.status,

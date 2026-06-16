@@ -56,15 +56,6 @@ export interface IJwtUser {
   role?: Role;
 }
 
-// export interface IModerationReq {
-//   topics: string[];
-//   severity?: ISeverity | null;
-//   needsReview: boolean;
-//   ruleViolated?: string | null;
-//   isUnsure?: boolean;
-//   reason?: string | null;
-// }
-
 export interface IAuthRequest extends Request {
   user?: IJwtUser;
 }
@@ -109,8 +100,11 @@ export interface IVerifyAuth {
   optionalAuth?: RequestHandler;
 }
 
-export interface IMediaConfig extends IVerifyAuth {
-  uploadConfig: IS3Config;
+export interface IInternalTokenConfig {
+  INTERNAL_TOKEN_SECRET: string;
+}
+export interface IValidateInternalToken {
+  validateInternalToken: RequestHandler;
 }
 
 export interface IS3Config {
@@ -120,6 +114,10 @@ export interface IS3Config {
   BUCKET_NAME: string;
   ENDPOINT_URL: string;
   PUBLIC_URL: string;
+}
+
+export interface IUploadConfig extends IVerifyAuth, IValidateInternalToken {
+  uploadConfig: IS3Config;
 }
 
 export interface IEmailDispatchTokens {

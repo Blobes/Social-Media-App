@@ -9,6 +9,7 @@ import {
   GistSkeleton,
   SmartDate,
   SVGWrapper,
+  StaticText,
 } from "@repo/shared-ui";
 import { useTrendingData } from "./hooks/usePostTrends";
 import { Box, Stack, Typography } from "@mui/material";
@@ -87,7 +88,8 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
       )}
 
       {/* Main Content Fields */}
-      <Typography
+      <StaticText
+        i18nKey="carousel_post_caption"
         component="h5"
         variant="subtitle1"
         sx={{
@@ -102,7 +104,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
           },
         }}>
         {data.caption}
-      </Typography>
+      </StaticText>
 
       {/* Engagement Footer Details */}
       <Box
@@ -117,24 +119,21 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
         }}>
         <SVGWrapper
           src={data.avatar}
-          size={50}
+          size={42}
           preserveColor={true}
           sx={{
             flex: "none",
             border: "2px solid #FFFFFF",
             borderRadius: theme.radius.full,
             overflow: "hidden",
-            [theme.breakpoints.down("md")]: {
-              width: 42,
-              height: 42,
-            },
           }}
         />
         <Box
           sx={{
             width: "100%",
           }}>
-          <Typography
+          <StaticText
+            i18nKey="carousel_post_likes"
             variant="body1"
             sx={{
               color: "inherit",
@@ -144,9 +143,10 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
               ? `${summarizeNum(data.post.likeCount) || 0} 
               ${data.post.likeCount > 1 ? "likes" : "like"}`
               : "Active stake"}
-          </Typography>
+          </StaticText>
           {data.post.postType === "GIST" ? (
-            <Typography
+            <StaticText
+              i18nKey="carousel_post_info"
               component="span"
               variant="body3"
               sx={{
@@ -165,16 +165,17 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
                 }}
               />
               ago | {summarizeNum(data.post.viewCount) || 0} views
-            </Typography>
+            </StaticText>
           ) : (
-            <Typography
+            <StaticText
+              i18nKey="carousel_post_info"
               variant="body3"
               sx={{
                 color: "inherit",
                 display: "block",
               }}>
               Shared trending post
-            </Typography>
+            </StaticText>
           )}
         </Box>
       </Box>
@@ -218,7 +219,10 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
         },
       }}>
       {isLoading ? (
-        <GistSkeleton quantity={1} />
+        <GistSkeleton
+          quantity={1}
+          bgColor={theme.palette.gray.trans.overlay(0.08)}
+        />
       ) : carouselItems.length > 0 ? (
         <>
           <Typography

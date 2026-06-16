@@ -5,7 +5,8 @@ import { Box, IconButton } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { motion } from "framer-motion";
-import { GenericStyle } from "@repo/core";
+import { GenericStyle, IBGFadeSlideData } from "@repo/core";
+import { StaticText } from "../Localize";
 
 interface ArrowProps {
   onPrev: () => void;
@@ -28,7 +29,7 @@ export const CarouselArrows = ({
 
   const sharedStyle = {
     position: "absolute",
-    top: "50%",
+    top: "70%",
     zIndex: 10,
     bgcolor: theme.palette.gray.trans.overlay(0.3),
     transition: "stroke 0.3s ease, background-color 0.3s ease",
@@ -87,7 +88,6 @@ interface DotProps {
   interval: number;
   autoPlay: boolean;
 }
-
 /**
  * Pagination tracking indicators with a sliding window layout for high slide counts.
  */
@@ -185,6 +185,110 @@ export const CarouselDots = ({
                 }}
               />
             )}
+          </Box>
+        );
+      })}
+    </Box>
+  );
+};
+
+interface NamedProgressBarProps {
+  slides: IBGFadeSlideData[];
+  current: number;
+  onGoTo: (i: number) => void;
+  interval: number;
+  autoPlay: boolean;
+  style?: GenericStyle;
+}
+/**
+ * Renders textual slider indicators mapped with native underlying progress loading lines.
+ */
+export const NamedProgressBar = ({
+  slides,
+  current,
+  onGoTo,
+  interval,
+  autoPlay,
+  style,
+}: NamedProgressBarProps) => {
+  const theme = useTheme();
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "calc(90% - 96px)",
+        maxWidth: "400px",
+        gap: 0,
+        pointerEvents: "auto",
+        zIndex: 5,
+        ...style,
+      }}>
+      {slides.map((slide, i) => {
+        const isActive = i === current;
+
+        return (
+          <Box
+            key={slide.media._id}
+            onClick={() => onGoTo(i)}
+            sx={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              gap: theme.gap(1),
+              cursor: "pointer",
+              position: "relative",
+              padding: theme.boxSpacing(1, 3, 3, 3),
+              borderRadius: theme.radius[2],
+              "&:hover": {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+              },
+            }}>
+            <StaticText
+              i18nKey="slide_label"
+              variant="caption"
+              sx={{
+                fontWeight: 700,
+                fontSize: 11,
+                letterSpacing: "0.05em",
+                color: isActive ? "#ffffff" : "rgba(255, 255, 255, 0.4)",
+                transition: "color 0.3s ease",
+              }}>
+              {slide.name}
+            </StaticText>
+
+            {/* Progress Container Track */}
+            <Box
+              sx={{
+                width: "100%",
+                height: 2,
+                bgcolor: "rgba(255, 255, 255, 0.15)",
+                position: "relative",
+                borderRadius: theme.radius?.full || 1,
+                overflow: "hidden",
+              }}>
+              {isActive && (
+                <Box
+                  component={motion.div}
+                  initial={{ width: autoPlay ? "0%" : "100%" }}
+                  animate={{ width: "100%" }}
+                  transition={{
+                    duration: autoPlay ? interval / 1000 : 0,
+                    ease: "linear",
+                  }}
+                  sx={{
+                    position: "absolute",
+                    left: 0,
+                    top: 0,
+                    height: "100%",
+                    width: "100%",
+                    bgcolor: "#ffffff",
+                  }}
+                />
+              )}
+            </Box>
           </Box>
         );
       })}

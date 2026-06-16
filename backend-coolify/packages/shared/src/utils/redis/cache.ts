@@ -152,6 +152,9 @@ export const CACHE_KEYS = {
   POST: (postType: PostType, postId: string) =>
     `post:${postType.toLowerCase()}:${postId}`,
 
+  POST_TRANSLATION: (postId: string, targetLang: string) =>
+    `post:translation:${postId}:${targetLang}`,
+
   // --- Taxonomy & Search Discovery ---
   TOPICS_LOOKUP: (
     keyword: string,

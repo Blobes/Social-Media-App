@@ -4,8 +4,8 @@ import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { Signup } from "./registration/Signup";
 import { Stack } from "@mui/material";
-import { asset } from "@repo/assets";
-import { SVGWrapper } from "@repo/shared-ui";
+import { asset, BG_SLIDER_DATA } from "@repo/assets";
+import { BGFadeCarousel, SVGWrapper } from "@repo/shared-ui";
 import { applyBGPattern, autoScroll } from "@repo/helpers";
 
 export default function SignupPage() {
@@ -80,7 +80,24 @@ export default function SignupPage() {
             },
           }}
         />
-        <SVGWrapper
+        <BGFadeCarousel
+          slides={BG_SLIDER_DATA}
+          autoPlay
+          pauseOnHover
+          interval={7000}
+          style={{
+            container: {
+              width: "50%",
+              height: "100%",
+              [theme.breakpoints.down("md")]: {
+                width: "100%",
+                height: "100svh",
+                scrollSnapAlign: "start",
+              },
+            },
+          }}
+        />
+        {/* <SVGWrapper
           src={asset.SignupAnimation}
           preserveColor={true}
           sx={{
@@ -95,7 +112,7 @@ export default function SignupPage() {
               scrollSnapAlign: "start",
             },
           }}
-        />
+        /> */}
       </Stack>
     </Stack>
   );

@@ -34,8 +34,9 @@ export interface IGistPayload {
   author: IPostAuthor;
 
   latestCaption: {
-    captionId?: string | null;
+    captionId: string;
     caption: string;
+    detectedLanguage?: string;
     createdAt?: string;
   };
 

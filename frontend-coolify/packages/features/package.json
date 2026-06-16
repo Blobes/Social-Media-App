@@ -16,7 +16,9 @@
     "@repo/assets": "workspace:*",
     "framer-motion": "catalog:",
     "@tanstack/react-query": "catalog:",
-    "@tanstack/react-query-devtools": "catalog:"
+    "@tanstack/react-query-devtools": "catalog:",
+    "i18next": "catalog:",
+    "react-i18next": "catalog:"
   },
   "peerDependencies": {
     "next": "catalog:",

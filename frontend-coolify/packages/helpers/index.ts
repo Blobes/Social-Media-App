@@ -9,7 +9,6 @@ export * from "./src/storage";
 export * from "./src/sync";
 export * from "./src/textColorExtractor";
 export * from "./src/apiClient";
-
 export * from "./src/queryClient";
 export * from "./src/styles";
 export * from "./src/metadata";
@@ -18,3 +17,4 @@ export * from "./src/cloudUpload";
 export * from "./src/textFormatter";
 export * from "./src/page";
 export * from "./src/media";
+export * from "./src/localization";

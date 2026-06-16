@@ -5,7 +5,7 @@ import { Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useStackedCarousel } from "./useStacked";
 import { CarouselDots } from "./Controls";
-import { CarouselProps } from "./LinearCarousel";
+import { CarouselProps } from "./Linear";
 
 /**
  * Presentation layer for a stacked card layout animated purely through CSS transitions.

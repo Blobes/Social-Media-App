@@ -15,6 +15,7 @@ const PostCaptionSchema = new Schema(
     caption: { type: String, required: true },
     version: { type: Number, required: true, default: 1 },
     isLatest: { type: Boolean, default: true },
+    detectedLanguage: { type: String, default: "en" },
   },
   {
     timestamps: true,

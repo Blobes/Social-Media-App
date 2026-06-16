@@ -87,7 +87,9 @@ export const API_BASE = {
   post: "/post",
   feed: "/feed",
   gist: "/gist",
-  media: "/media",
+
+  // Upload
+  upload: "/upload",
   // Report
   report: "/report",
   // Admin
@@ -113,18 +115,19 @@ export const SERVER_API = {
   updateOnboarding: `${API_BASE.auth}/onboarding`,
 
   // Media Standard Operations
-  mediaUpload: `${API_BASE.media}/get-upload-policy`,
-  getMediaUrl: `${API_BASE.media}/get-upload-url`,
+  mediaUpload: `${API_BASE.upload}/get-upload-policy`,
+  getMediaUrl: `${API_BASE.upload}/get-upload-url`,
 
   // Media Chunked Multipart Operations
-  initMultipart: `${API_BASE.media}/multipart/init`,
-  signPart: `${API_BASE.media}/multipart/sign-part`,
-  completeMultipart: `${API_BASE.media}/multipart/complete`,
+  initMultipart: `${API_BASE.upload}/multipart/init`,
+  signPart: `${API_BASE.upload}/multipart/sign-part`,
+  completeMultipart: `${API_BASE.upload}/multipart/complete`,
 
   // Feed
   userFeed: (id: string) => `${API_BASE.feed}/${id}`,
   followersFeed: `${API_BASE.feed}/followers`,
   postSeen: (id: string) => `${API_BASE.post}/${id}/seen`,
+  translateCaption: `${API_BASE.post}/translate/caption`,
 
   // Gists
   likeGist: (id: string) => `${API_BASE.gist}/${id}/like`,

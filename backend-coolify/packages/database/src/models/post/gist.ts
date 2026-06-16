@@ -39,6 +39,7 @@ const GistSchema = new Schema<IGistDocument>(
         ref: "PostCaption",
       },
       caption: { type: String, required: true },
+      detectedLanguage: { type: String, default: "en" },
       createdAt: { type: Date, default: Date.now, required: false },
     },
     editCount: { type: Number, default: 0 },

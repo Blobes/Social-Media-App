@@ -4,9 +4,9 @@ import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { Stack } from "@mui/material";
 import { VerifyOtp } from "./VerifyOtp";
-import { RestrictedUI } from "@repo/features";
 import { useCachedData } from "@repo/shared-hooks";
 import { OtpTransitData } from "@repo/core";
+import { RestrictedUI } from "@repo/features";
 
 export default function OtpPage() {
   const theme = useTheme();

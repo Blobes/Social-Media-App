@@ -80,7 +80,7 @@ export const createGist = async (req: CreateRequest, res: Response) => {
     });
 
     // Path 1: Skip moderation entirely AND user provided their own structural topics
-    if (skipModeration && hasUserTopics) {
+    if (skipModeration) {
       await finalizeGistCreation(
         {
           postId: newGist._id.toString(),

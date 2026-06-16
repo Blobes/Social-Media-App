@@ -9,7 +9,7 @@ import { ElementTap } from "../../ElementTap";
 import { IsolatedHeader } from "./Header";
 import { IsolatedFooter } from "./Footer";
 import { useIsolatedMedia } from "./useIsolated";
-import { LinearCarousel } from "../../carousel/LinearCarousel";
+import { LinearCarousel } from "../../carousel/Linear";
 
 export interface IsolatedProps {
   mediaList?: IMedia[];

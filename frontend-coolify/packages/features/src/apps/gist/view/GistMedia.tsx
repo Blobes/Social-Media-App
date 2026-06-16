@@ -8,6 +8,7 @@ import { useCallback, useMemo } from "react";
 import { applyBGEffects } from "@repo/helpers";
 import { IGist, UIMode } from "@repo/core";
 import { GistMediaView } from "./GistMediaView";
+import { usePopup } from "@repo/features/src/hooks/usePopup";
 
 export interface LikeState {
   likedByMe: boolean;
@@ -31,7 +32,7 @@ export const GistMedia = ({
   mode,
 }: GistMediaProps) => {
   const theme = useTheme();
-  const { openModal, closeModal } = useMisc();
+  const { openPopup } = usePopup();
 
   const mediaStyle = useMemo(
     () => ({
@@ -53,20 +54,18 @@ export const GistMedia = ({
   const handleMedia = useCallback(
     (index?: number) => {
       if (index === undefined || index === null) return;
-      openModal({
-        content: (
-          <GistMediaView
-            gist={gist}
-            mediaList={mediaList}
-            likeState={likeState}
-            initialIndex={index}
-            mode={mode}
-          />
-        ),
-        onClose: closeModal,
-      });
+      openPopup(
+        "GIST_MEDIA_VIEW",
+        <GistMediaView
+          gist={gist}
+          mediaList={mediaList}
+          likeState={likeState}
+          initialIndex={index}
+          mode={mode}
+        />,
+      );
     },
-    [openModal, closeModal, gist, mediaList, likeState, mode],
+    [openPopup, gist, mediaList, likeState, mode],
   );
 
   const mappedList = useMemo(() => {

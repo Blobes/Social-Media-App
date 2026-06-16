@@ -16,7 +16,7 @@ import { useGlobalStore, useMisc, usePage } from "@repo/shared-hooks";
 import { LISTS, MenuRef } from "@repo/core";
 import { Logout } from "../../apps/auth/logout/Logout";
 import { useCreatePost } from "../../apps/post/hooks/useCreatePost";
-import { CREATE_POST } from "../../apps/post/costants";
+import { CREATE_POST } from "../../constants/posts";
 
 export const HeaderDesktopNav = ({
   menuRef,

@@ -21,10 +21,11 @@ import {
 } from "@repo/shared-hooks";
 import { AuthStatus, DrawerRef, ModalRef } from "@repo/core";
 import { useAuthVerification } from "../apps/auth/login/useAuthVerification";
-import { RestrictedUI } from "../components/RestrictedUI";
+import { LanguageProvider } from "./Providers";
 
 export interface UIManagerProps {
   children: React.ReactNode;
+  namespace: string;
   showOfflineUI?: boolean;
   showNetworkErrorUI?: boolean;
 }
@@ -34,6 +35,7 @@ export interface UIManagerProps {
  */
 export const GlobalUIManager = ({
   children,
+  namespace,
   showOfflineUI = true,
   showNetworkErrorUI = true,
 }: UIManagerProps) => {
@@ -53,15 +55,7 @@ export const GlobalUIManager = ({
   const accountStatus = useGlobalStore((state) => state.accountStatus);
 
   const { verifySignal, isUnstableNetwork, isOffline } = useMisc();
-  const {
-    handlePageChange,
-    isRedirecting,
-    isNavigating,
-    needsLogin,
-    needsOnboarding,
-    needsRestoreAccount,
-    needsOtpVerification,
-  } = usePage();
+  const { handlePageChange, isNavigating } = usePage();
   const pathname = usePathname();
   const { verifyAuth } = useAuthVerification();
   const { setSBTimer, removeSBMessages } = useSnackbar();
@@ -122,14 +116,6 @@ export const GlobalUIManager = ({
     isGlobalLoading;
   if (showLoaderUI) return <PageLoaderUI />;
 
-  if (!isNavigating && !isRedirecting) {
-    if (needsLogin) return <RestrictedUI type="NEEDS_LOGIN" />;
-    if (needsOtpVerification)
-      return <RestrictedUI type="NEEDS_OTP_VERIFICATION" />;
-    if (needsOnboarding) return <RestrictedUI type="NEEDS_ONBOARDING" />;
-    if (needsRestoreAccount) return <RestrictedUI type="NEEDS_RESTORE" />;
-  }
-
   const savedLoginStatus = getFromLocalStorage<AuthStatus>({
     key: "last_auth_status",
   });
@@ -161,17 +147,19 @@ export const GlobalUIManager = ({
 
   // Main UI rendering with portal-like overlays
   return (
-    <>
-      {children}
-      {snackBarMsg.messages && snackBarMsg.messages.length > 0 && (
-        <SnackBars
-          snackBarMsg={snackBarMsg}
-          removeMessage={removeSBMessages}
-          setSBTimer={setSBTimer}
-        />
-      )}
-      {drawerContent && <Drawer ref={drawerRef} {...drawerContent} />}
-      {modalContent && <Modal ref={modalRef} {...modalContent} />}
-    </>
+    <LanguageProvider namespace={namespace}>
+      <>
+        {children}
+        {snackBarMsg.messages && snackBarMsg.messages.length > 0 && (
+          <SnackBars
+            snackBarMsg={snackBarMsg}
+            removeMessage={removeSBMessages}
+            setSBTimer={setSBTimer}
+          />
+        )}
+        {drawerContent && <Drawer ref={drawerRef} {...drawerContent} />}
+        {modalContent && <Modal ref={modalRef} {...modalContent} />}
+      </>
+    </LanguageProvider>
   );
 };

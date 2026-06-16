@@ -210,3 +210,10 @@ export interface MediaUploadPayload {
 }
 
 export type ITopic = IMenuItem & ITopicPayload;
+
+export interface NavigateOptions {
+  type?: "push" | "replace";
+  savePage?: boolean;
+  loadPage?: boolean;
+  event?: React.MouseEvent;
+}
