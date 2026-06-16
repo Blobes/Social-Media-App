@@ -16,7 +16,7 @@ ARG APP_NAME
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
 
 # Copy workspace config
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json tsconfig.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json tsconfig.json i18next.config.ts locale-script.ts  ./
 COPY apps ./apps
 COPY packages ./packages
 
