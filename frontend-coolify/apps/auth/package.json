@@ -30,6 +30,7 @@
     "typescript": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "@types/react-dom": "catalog:"
+    "@types/react-dom": "catalog:",
+    "i18next-cli": "catalog:"
   }
 }

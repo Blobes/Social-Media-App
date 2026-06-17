@@ -1,5 +1,5 @@
-import { createI18nConfig } from "../../i18next.config.js";
 import { defineConfig } from "i18next-cli";
+import { createI18nConfig } from "../../i18next.config.js";
 
 const baseConfig = createI18nConfig("auth");
 export default defineConfig({
