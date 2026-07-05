@@ -1,11 +1,13 @@
 "use client";
 
 import React from "react";
-import { Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ProfileCard } from "./ProfileCard";
 import { Followers } from "./Followers";
 import { autoScroll } from "@repo/helpers";
+import { COMMON_FEEDBACK } from "@repo/core";
+import { TransText } from "@repo/shared-ui";
 
 export const RightSidebar = () => {
   const theme = useTheme();
@@ -26,9 +28,10 @@ export const RightSidebar = () => {
         },
       }}>
       <ProfileCard />
-      <Typography variant="subtitle1" sx={{ width: "100%" }}>
-        Those following you
-      </Typography>
+      <TransText
+        {...COMMON_FEEDBACK.those_following_you}
+        sx={{ ...theme.typography.subtitle1, width: "100%" }}
+      />
       <Followers />
     </Stack>
   );

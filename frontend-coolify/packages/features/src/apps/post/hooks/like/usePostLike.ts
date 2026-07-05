@@ -2,10 +2,17 @@
 
 import { useState, useCallback, useRef } from "react";
 import { vibrate } from "@repo/helpers";
-import { AuthStatus, QUEUE_KEYS, QueueItem, UIMode } from "@repo/core";
+import {
+  AuthStatus,
+  COMMON_FEEDBACK,
+  POST_FEEDBACK,
+  QUEUE_KEYS,
+  QueueItem,
+  UIMode,
+} from "@repo/core";
 import { usePostLikeSync } from "./useLikeSync";
 import { usePostLikeMutation } from "./useLikeMutation";
-import { SBMessage } from "@repo/shared-hooks";
+import { SBMessage, useStaticTranslation } from "@repo/shared-hooks";
 
 // The smallest like-only data shape shared across the hook.
 export interface LikeSlice {
@@ -91,6 +98,7 @@ export const usePostLike = (
     updateStore,
     queryKey,
   } = context;
+  const { translateTxtString } = useStaticTranslation();
 
   const [likeState, setLikeState] = useState<LikeSlice>({
     likedByMe: post.likedByMe,
@@ -158,14 +166,15 @@ export const usePostLike = (
     }
 
     if (!navigator.onLine || isUnstableNetwork || mode === "OFFLINE") {
+      const feedbackMsg =
+        mode === "OFFLINE"
+          ? POST_FEEDBACK.network_mode_offline_tagline
+          : !navigator.onLine
+            ? COMMON_FEEDBACK.network_offline_tagline
+            : COMMON_FEEDBACK.connection_unstable_tagline;
       setSBMessage({
         msg: {
-          tagline:
-            mode === "OFFLINE"
-              ? "Post is offline."
-              : !navigator.onLine
-                ? "You are offline."
-                : "Connection unstable.",
+          tagline: translateTxtString(feedbackMsg),
           msgStatus: "ERROR",
           hasClose: true,
         },

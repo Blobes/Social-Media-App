@@ -1,17 +1,21 @@
-import { otpWorkflowRegistry } from "@/auth/helpers/otpActions";
-import { DeviceModel, UserModel } from "@repo/database";
+import { NextFunction, Request, Response } from "express";
 import {
-  CACHE_KEYS,
-  ensurePrimaryDevice,
-  getOrSetDeviceToken,
-  hashCode,
-  invalidatePattern,
-  setOtpChannel,
   VerificationPurpose,
+  getOrSetDeviceToken,
+  clearAuthCookies,
+  MESSAGES_REGISTRY,
+  forwardError,
 } from "@repo/shared";
-import { Request, Response } from "express";
+import { executeOtpVerification } from "@/auth/services/optVerifier";
 
-export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
+/**
+ * Controller endpoint to handle incoming validation requests for transactional OTP records.
+ */
+export const verifyOtp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   const { recipient, code, purpose } = req.body as {
     recipient?: string;
     code?: string;
@@ -21,89 +25,59 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
   if (!recipient || !code || !purpose) {
     res.status(400).json({
       status: "ERROR",
-      message: "Missing required fields.",
+      ...MESSAGES_REGISTRY.AUTH.CODE_REQUIRED,
       payload: null,
     });
     return;
   }
 
   const deviceToken = getOrSetDeviceToken(req, res);
-  const normalized = recipient.toLowerCase().trim();
-  const otpChannel = setOtpChannel(normalized);
+  const userAgent = req.headers["user-agent"] || "unknown";
 
   try {
-    const user = await UserModel.findOne(
-      otpChannel === "EMAIL"
-        ? { email: normalized }
-        : { phoneNumber: normalized },
-    ).setOptions({ skipFilter: true });
+    const serviceResult = await executeOtpVerification({
+      recipient,
+      code,
+      purpose,
+      deviceToken,
+      userAgent,
+    });
 
-    if (!user) {
-      res.status(404).json({
+    if (serviceResult.status !== "SUCCESS") {
+      res.status(serviceResult.status === "USER_NOT_FOUND" ? 404 : 400).json({
         status: "ERROR",
-        message: "Account not found.",
+        ...serviceResult.transInfo,
         payload: null,
       });
       return;
     }
 
-    // OTP Logic Check
-    if (
-      !user.verificationCode ||
-      !user.verificationExpiry ||
-      Date.now() > user.verificationExpiry.getTime()
-    ) {
-      res.status(400).json({
-        status: "ERROR",
-        message: "Code expired or not found.",
-        payload: null,
-      });
-      return;
+    if (serviceResult.payload?.actionPayload?.clearLocalCookies) {
+      clearAuthCookies(res);
+      delete serviceResult.payload.actionPayload.clearLocalCookies;
     }
-
-    if (hashCode(code) !== user.verificationCode) {
-      res
-        .status(400)
-        .json({ status: "ERROR", message: "Invalid code.", payload: null });
-      return;
-    }
-
-    // Trace execution for trackability
-    console.log(
-      `[OTP_TRACE] Purpose: ${purpose} | User: ${user._id} | Channel: ${otpChannel}`,
-    );
-
-    // Execute strategy
-    let actionPayload = null;
-    const workflow = otpWorkflowRegistry[purpose];
-    if (workflow) actionPayload = await workflow(user, req, res);
-
-    // Self-Heal Primary Device
-    const currentDevice = deviceToken
-      ? await DeviceModel.findOne({ userId: user._id, deviceToken }).select(
-          "_id",
-        )
-      : null;
-    await ensurePrimaryDevice(user, currentDevice?._id?.toString());
-
-    // Finalize state
-    user.verificationCode = null;
-    user.verificationExpiry = null;
-    await user.save();
-
-    await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(String(user._id)));
 
     res.status(200).json({
       status: "SUCCESS",
-      message: "Verified successfully.",
-      payload: { ...actionPayload, purpose, channel: otpChannel },
+      ...serviceResult.transInfo,
+      payload: serviceResult.payload,
     });
   } catch (error: any) {
     console.error(`[OTP_ERROR] ${purpose}:`, error);
-    res.status(error.status || 500).json({
-      status: "ERROR",
-      message: error.message || "Verification failed.",
-      payload: null,
-    });
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      error,
+      error.status || 500,
+    );
+    // res.status(error.status || 500).json({
+    //   status: "ERROR",
+    //   ...(error.message
+    //     ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
+    //     : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR),
+    //   payload: null,
+    // });
   }
 };

@@ -8,10 +8,11 @@ import {
   InlineMsgUI,
   OtpInput,
   ProgressIcon,
+  TransText,
 } from "@repo/shared-ui";
 import { useOtp } from "./useOtp";
 import { SquareAsterisk } from "lucide-react";
-import { OtpTransitData } from "@repo/core";
+import { AUTH_BUTTON_LABELS, AUTH_FEEDBACK, OtpTransitData } from "@repo/core";
 import { Logout } from "@repo/features";
 
 interface VerifyOtpProps {
@@ -54,12 +55,16 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
           strokeWidth="1.5px"
           style={{ stroke: theme.palette.primary.main }}
         />
-        <Typography variant="h5" fontWeight={500}>
-          Verify your {isEmail ? "Email" : "Phone"}
-        </Typography>
-        <Typography variant="body2" color="gray.200">
-          We sent a 6-digit code to <b>{recipient}</b>
-        </Typography>
+        <TransText
+          {...AUTH_FEEDBACK.verify_your_credential(isEmail ? "Email" : "Phone")}
+          sx={{ ...theme.typography.h5, fontWeight: 500 }}
+        />
+        <TransText
+          {...AUTH_FEEDBACK.otp_code_sent(
+            recipient || isEmail ? "the Email address" : " the Phone number",
+          )}
+          style={{ ...theme.typography.body2, color: theme.palette.gray[200] }}
+        />
       </Stack>
 
       {/* OTP Field and CTA */}
@@ -91,7 +96,7 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
           {isVerifying ? (
             <ProgressIcon otherProps={{ size: 24 }} />
           ) : (
-            "Verify code"
+            <TransText {...AUTH_BUTTON_LABELS.otp_verify_code} noComponent />
           )}
         </AppButton>
       </Stack>
@@ -101,7 +106,10 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
         gap={theme.gap(10)}
         sx={{ width: "100%", flexDirection: "column", alignItems: "center" }}>
         <Stack direction="row" alignItems="center" gap={0}>
-          <Typography variant="body2">Didn't receive a code?</Typography>
+          <TransText
+            {...AUTH_FEEDBACK.otp_didnt_receive_code}
+            sx={{ ...theme.typography.body2 }}
+          />
           <AppButton
             variant="text"
             onClick={() => handleSendOtp()}
@@ -114,10 +122,13 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
             options={{ disabled: timer > 0 }}>
             {isSending ? (
               <ProgressIcon otherProps={{ size: 14 }} />
-            ) : timer > 0 ? (
-              `Resend in ${timer}s`
             ) : (
-              "Resend Now"
+              <TransText
+                {...(timer > 0
+                  ? AUTH_BUTTON_LABELS.otp_resend_code_in_seconds(timer)
+                  : AUTH_BUTTON_LABELS.otp_resend_code_now)}
+                noComponent
+              />
             )}
           </AppButton>
         </Stack>
@@ -134,7 +145,12 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
           {isSending ? (
             <ProgressIcon otherProps={{ size: 14 }} />
           ) : (
-            `Send code via ${isEmail ? "SMS" : "email"}`
+            <TransText
+              {...AUTH_BUTTON_LABELS.otp_switch_channel(
+                isEmail ? "SMS" : "email",
+              )}
+              noComponent
+            />
           )}
         </AppButton>
         <Divider sx={{ width: "100%" }} />

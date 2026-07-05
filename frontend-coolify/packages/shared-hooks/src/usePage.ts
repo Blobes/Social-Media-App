@@ -6,6 +6,7 @@ import {
   IPage,
   NavigateOptions,
   ROUTES_REGISTRY,
+  useGlobalStore,
 } from "@repo/core";
 import {
   extractPageTitle,
@@ -16,7 +17,6 @@ import {
 } from "@repo/helpers";
 import { usePathname, useRouter } from "next/navigation";
 import { useMisc } from "./useMisc";
-import { useGlobalStore } from "./store/useGlobalStore";
 import { REDIRECT_MAP, useRouteGuards } from "./useRouteGuards";
 
 /**

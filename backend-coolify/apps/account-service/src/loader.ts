@@ -2,7 +2,7 @@ import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 import authRoutes from "./auth/authRoutes";
 import userRoutes from "./user/userRoutes";
-import { healthRouter } from "@repo/shared";
+import { errorHandlerMiddleware, healthRouter } from "@repo/shared";
 
 export default (app: Express) => {
   // ====== Middlewares ======
@@ -21,6 +21,7 @@ export default (app: Express) => {
   // ====== Use Routes ======
   app.use("/auth", authRoutes);
   app.use("/user", userRoutes);
-
+  // Global Error handler
+  app.use(errorHandlerMiddleware);
   return app;
 };

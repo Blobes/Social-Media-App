@@ -2,10 +2,11 @@
 
 import React from "react";
 import { Avatar, IconButton } from "@mui/material";
-import { getInitialsAndColors } from "@repo/helpers";
+import { getImageFromText, getInitialsAndColors } from "@repo/helpers";
 import { BasicTooltip } from "./Tooltips";
 import { GenericStyle, IUser } from "@repo/core";
 import { useTheme } from "@mui/material/styles";
+import { asset } from "@repo/assets";
 
 interface UserAvatarProps {
   userInfo: IUser | null;
@@ -20,7 +21,7 @@ export const UserAvatar = ({
   onClick,
   url,
   style = { width: "30px", height: "30px" },
-  toolTipValue = "",
+  toolTipValue,
 }: UserAvatarProps) => {
   const theme = useTheme();
 
@@ -28,10 +29,21 @@ export const UserAvatar = ({
     return null;
   }
   const { firstName, lastName, profileImage } = userInfo;
-
-  const initials = getInitialsAndColors(`${firstName} ${lastName}`);
+  const textAvatar = getInitialsAndColors(`${firstName} ${lastName}`);
   const { marginTop, marginLeft, ...otherStyle } = style;
   const dynamicFontSize = `calc(${otherStyle.width || "30px"} * 0.45)`;
+
+  const defaultAvatars = [
+    asset.avatar1,
+    asset.avatar2,
+    asset.avatar3,
+    asset.avatar4,
+    asset.avatar5,
+    asset.avatar6,
+  ];
+  const imageAvatar =
+    profileImage ||
+    getImageFromText(`${firstName} ${lastName}`, defaultAvatars).imageUrl;
 
   return (
     <BasicTooltip title={toolTipValue} sx={{ borderRadius: theme.radius[3] }}>
@@ -47,16 +59,17 @@ export const UserAvatar = ({
         aria-label="User profile">
         <Avatar
           sx={{
-            color: initials.textColor,
-            bgcolor: initials.bgColor,
+            color: textAvatar.textColor,
+            bgcolor: textAvatar.bgColor,
             borderRadius: theme.radius[100],
             fontSize: dynamicFontSize,
             fontWeight: "500",
             ...otherStyle,
           }}
           alt={`${firstName} ${lastName}`}
-          children={initials.initials}
-          src={profileImage ? profileImage : ""}
+          {...(imageAvatar
+            ? { src: imageAvatar }
+            : { children: textAvatar.initials })}
         />
       </IconButton>
     </BasicTooltip>

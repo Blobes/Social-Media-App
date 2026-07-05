@@ -1,26 +1,14 @@
-import { authTokens, FUNSTAKES_REDIS_URL } from "@/envVars";
-import { UserModel } from "@repo/database";
+import { registerUserAccount } from "@/auth/services/registerAccount";
 import {
-  genAccessTokens,
+  forwardError,
   generateRandomIp,
-  generateTestEmail,
-  genRefreshTokens,
-  genVerificationCode,
-  getClientIp,
-  getLocationFromIp,
-  hashCode,
-  userSensitiveFields,
-  IAuthRequest,
-  toJwtUser,
   getOrSetDeviceToken,
-  upsertDevice,
-  enqueueOtpTask,
+  MESSAGES_REGISTRY,
+  setAuthCookies,
 } from "@repo/shared";
-import bcrypt from "bcrypt";
-import { Request, Response } from "express";
-import { v4 as uuidv4 } from "uuid";
+import { NextFunction, Request, Response } from "express";
 
-interface CreateRequest extends Request {
+export interface CreateRequest extends Request {
   body: {
     email: string;
     password: string;
@@ -28,125 +16,91 @@ interface CreateRequest extends Request {
   };
 }
 
+/**
+ * Controller endpoint for handling incoming user signup registration flows.
+ */
 export const createAccount = async (
   req: CreateRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const { email, password, phone } = req.body;
-
-  // Ensuring identity hint is set for the browser
   const deviceToken = getOrSetDeviceToken(req, res);
+  const userAgent = req.headers["user-agent"] || "unknown";
+  // const clientIp = getClientIp(req); // Don't remove or touch just leave as is
+  const randomIp = generateRandomIp();
 
   if (!email || !password) {
     return res.status(400).json({
       status: "ERROR",
-      message: "Email and password fields are required.",
+      ...MESSAGES_REGISTRY.AUTH.EMAIL_PASSWORD_REQUIRED,
       payload: null,
     });
   }
 
   try {
-    const normalizedEmail = email.toLowerCase().trim();
-    // const testEmail = generateTestEmail(normalizedEmail);
+    const serviceResult = await registerUserAccount({
+      email,
+      password,
+      phone,
+      deviceToken,
+      ipAddress: randomIp,
+      userAgent,
+    });
 
-    const existingUser = await UserModel.findOne({
-      email: normalizedEmail,
-    }).setOptions({ skipFilter: true });
-
-    if (existingUser) {
-      if (existingUser.isDeactivated) {
-        return res.status(409).json({
-          status: "DEACTIVATED",
-          message: "This email belongs to a deactivated account.",
-          payload: { userId: existingUser._id },
-        });
-      }
+    if (serviceResult.status === "DEACTIVATED") {
       return res.status(409).json({
-        status: "ERROR",
-        message: "Email already in use.",
-        payload: null,
+        status: "DEACTIVATED",
+        ...serviceResult.transInfo,
+        payload: { userId: serviceResult.userId },
       });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const code = genVerificationCode();
-    // const clientIp = getClientIp(req); // Don't remove or touch just leave as is
-    const randomIp = generateRandomIp();
-    const userLocation = await getLocationFromIp(randomIp);
-    const sessionId = uuidv4();
-
-    // Initializing user document
-    const newUser = new UserModel({
-      email: normalizedEmail,
-      password: hashedPassword,
-      phoneNumber: phone,
-      country: userLocation?.country,
-      state: userLocation?.state,
-      verificationCode: hashCode(code),
-      verificationExpiry: new Date(Date.now() + 10 * 60 * 1000),
-      lastEmailCodeSentAt: new Date(),
-    });
-
-    // Explicitly saving user first so the ID exists for the device relation
-    await newUser.save();
-
-    // Registering the device and anchoring it as primary
-    const device = await upsertDevice(newUser, deviceToken, req);
-
-    // Enqueue OTP task
-    await enqueueOtpTask(FUNSTAKES_REDIS_URL, {
-      email: normalizedEmail,
-      code,
-      type: "EMAIL",
-    });
-
-    // Identity pinning using the registered device record
-    const jwtUser = toJwtUser(newUser, device._id.toString(), sessionId);
-
-    const accessToken = genAccessTokens(
-      jwtUser,
-      req as IAuthRequest,
-      res,
-      sessionId,
-      authTokens.ACCESS_TOKEN_SECRET,
-    );
-
-    const refreshToken = await genRefreshTokens(
-      jwtUser,
-      req as IAuthRequest,
-      res,
-      sessionId,
-      authTokens.REFRESH_TOKEN_SECRET,
-    );
-
-    const safeData = newUser.toObject();
-    userSensitiveFields().forEach((field) => {
-      delete (safeData as any)[field];
-    });
-
+    if (serviceResult.accessToken && serviceResult.refreshToken) {
+      setAuthCookies(res, {
+        accessToken: serviceResult.accessToken,
+        refreshToken: serviceResult.refreshToken,
+      });
+    }
     return res.status(200).json({
       status: "SUCCESS",
-      message: "Registration successful. Verification code sent to email.",
-      payload: safeData,
-      accessToken,
-      refreshToken,
+      ...serviceResult.transInfo,
+      payload: serviceResult.safeData,
+      accessToken: serviceResult.accessToken,
+      refreshToken: serviceResult.refreshToken,
     });
   } catch (error: any) {
-    if (error.code === 11000) {
+    if (error.message === "CONFLICT_EMAIL_IN_USE") {
       return res.status(409).json({
         status: "ERROR",
-        message: `Conflict: ${Object.keys(error.keyValue)[0]} already exists.`,
+        ...MESSAGES_REGISTRY.AUTH.EMAIL_CONFLICT,
         payload: null,
       });
     }
 
+    if (error.message === "CONFLICT_PHONE_IN_USE") {
+      return res.status(409).json({
+        status: "ERROR",
+        ...MESSAGES_REGISTRY.AUTH.PHONE_CONFLICT,
+        payload: null,
+      });
+    }
+
+    if (error.code === 11000) {
+      const fieldName = Object.keys(error.keyValue)[0] || "record";
+      return res.status(409).json({
+        status: "ERROR",
+        ...MESSAGES_REGISTRY.AUTH.RECORD_ALREADY_EXISTS(fieldName),
+        payload: null,
+      });
+    }
     console.error("Registration Error:", error);
-    return res.status(500).json({
-      status: "ERROR",
-      message: error.message || "Internal server error during registration.",
-      payload: null,
-    });
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      error,
+    );
   }
 };

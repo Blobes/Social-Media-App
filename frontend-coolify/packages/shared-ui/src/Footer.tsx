@@ -12,6 +12,9 @@ interface footerProps {
   navigateTo: (savePage: IPage, options: any) => void;
 }
 
+/**
+ * Renders the application footer link ecosystem with dynamic localization routing.
+ */
 export const Footer = ({ navList, navigateTo }: footerProps) => {
   const theme = useTheme();
 
@@ -28,7 +31,7 @@ export const Footer = ({ navList, navigateTo }: footerProps) => {
       {navList.map((item, index) => (
         <Fragment key={index}>
           <AnchorLink
-            url={item.url ?? "#"}
+            href={item.url ?? "#"}
             onClick={() => {
               if (item.title && item.url)
                 navigateTo(

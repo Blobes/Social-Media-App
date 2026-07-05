@@ -8,7 +8,8 @@ import { BottomNav } from "./BottomNav";
 import { RootUIContainer } from "@repo/shared-ui";
 import { AppHeader } from "./Header";
 import { scrollBarStyle } from "@repo/helpers";
-import { useGlobalStore, useMisc } from "@repo/shared-hooks";
+import { useMisc } from "@repo/shared-hooks";
+import { useGlobalStore } from "@repo/core";
 
 interface WrapperProps {
   children: React.ReactNode;

@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
 import { GistModel, IMedia, PostCaptionModel, UserModel } from "@repo/database";
 import { FinalizePostReq, IS3Config } from "../../types";
-import { hardDeleteMedia } from "../../utils/media/hardDelete";
+import { hardDeleteMedia } from "../media/hardDelete";
 import { InternalSocketEmitter } from "../socket";
-import { createMediaBatch } from "../../utils/media/createBatch";
+import { createMediaBatch } from "../media/createBatch";
 import { executeTopicUpdate } from "../topic";
 import { executePostFlag } from "./executePostFlag";
 import { franc } from "franc-min";
-import { to2ISOCode } from "../../utils/misc/constants";
 import { topicsExtractor } from "../../utils/misc/topic";
+import { to2ISOCode } from "../../constants/others";
 
 interface Config {
   redisKey?: string;

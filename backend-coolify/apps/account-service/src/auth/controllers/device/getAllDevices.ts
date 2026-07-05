@@ -1,6 +1,6 @@
 import { DeviceModel } from "@repo/database";
-import { IAuthRequest } from "@repo/shared";
-import { Response } from "express";
+import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
+import { NextFunction, Response } from "express";
 
 /**
  * Fetches all hardware devices associated with the authenticated user.
@@ -8,6 +8,7 @@ import { Response } from "express";
 export const getDevices = async (
   req: IAuthRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const userId = req.user?.id;
 
@@ -18,14 +19,17 @@ export const getDevices = async (
 
     return res.status(200).json({
       status: "SUCCESS",
-      message: "Devices retrieved.",
+      ...MESSAGES_REGISTRY.AUTH.DEVICES_RETRIEVED,
       payload: devices,
     });
-  } catch (error) {
-    return res.status(500).json({
-      status: "ERROR",
-      message: "Failed to fetch devices.",
-      payload: null,
-    });
+  } catch (error: any) {
+    console.error("Get Device Error:", error);
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      error,
+    );
   }
 };

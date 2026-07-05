@@ -10,8 +10,13 @@ import {
   removeFromLocalStorage,
   saveToLocalStorage,
 } from "@repo/helpers";
-import { AuthStatus, CLIENT_ROUTES } from "@repo/core";
-import { useGlobalStore } from "./store/useGlobalStore";
+import {
+  AuthStatus,
+  CLIENT_ROUTES,
+  COMMON_FEEDBACK,
+  useGlobalStore,
+} from "@repo/core";
+import { useStaticTranslation } from "./useTrans";
 
 /**
  * Manages global window event listeners for network, lifecycle, and transitions.
@@ -21,6 +26,7 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
   const setNetworkStatus = useGlobalStore((state) => state.setNetworkStatus);
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const authStatus = useGlobalStore((state) => state.authStatus);
+  const { translateTxtString } = useStaticTranslation();
 
   const { switchToOnlineMode } = useOffline();
   const { navigateTo } = usePage();
@@ -59,7 +65,7 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
     setSBMessage({
       msg: {
         id: "offline-notification",
-        tagline: "No internet connection",
+        tagline: translateTxtString(COMMON_FEEDBACK.no_internet_tagline),
         msgStatus: "INFO",
         behavior: "FIXED",
         hasClose: true,

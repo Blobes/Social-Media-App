@@ -5,7 +5,14 @@ import { Divider, Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
 import { asset } from "@repo/assets";
-import { CLIENT_ROUTES, GenericStyle, INPUT_GUIDES } from "@repo/core";
+import {
+  AUTH_BUTTON_LABELS,
+  AUTH_FEEDBACK,
+  AUTH_INPUT,
+  CLIENT_ROUTES,
+  COMMON_FEEDBACK,
+  GenericStyle,
+} from "@repo/core";
 import {
   AppButton,
   TextInput,
@@ -16,8 +23,10 @@ import {
   AnchorLink,
   UIGuide,
   PhoneInput,
+  TransText,
 } from "@repo/shared-ui";
 import { useSignup } from "./useSignup";
+import { useGuides, useStaticTranslation } from "@repo/shared-hooks";
 
 interface SignupProps {
   style?: {
@@ -32,6 +41,7 @@ interface SignupProps {
  */
 export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
   const theme = useTheme();
+  const { INPUT_GUIDES } = useGuides();
 
   const {
     email,
@@ -53,8 +63,11 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
     clearInlineMsg,
   } = useSignup();
 
+  const { translateTxtString } = useStaticTranslation();
+
   const inlineLinkStyle = {
     color: theme.palette.primary.main,
+    flex: "none",
     "&:hover": { textDecoration: "underline", fontWeight: 600 },
   };
 
@@ -98,35 +111,35 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             paddingBottom: theme.boxSpacing(12),
           },
         }}>
-        <Typography
+        <TransText
+          {...COMMON_FEEDBACK.sign_up_to_funstakes}
           component="h3"
-          variant="h5"
           sx={{
+            ...theme.typography.h5,
             color: theme.palette.gray[300],
             textAlign: "center",
             ...style.headline,
-          }}>
-          Sign up to Funstakes
-        </Typography>
-        <Typography
+          }}
+        />
+        <TransText
+          {...COMMON_FEEDBACK.user_terms_agreement}
           component="p"
-          variant="body3"
+          inlineComponents={{
+            agreement: (
+              <AnchorLink href="/user-agreement" style={inlineLinkStyle} />
+            ),
+            policy: (
+              <AnchorLink href="/privacy-policy" style={inlineLinkStyle} />
+            ),
+          }}
           sx={{
-            fontSize: 14,
+            ...theme.typography.caption,
             color: theme.palette.gray[200],
+            paddingBottom: theme.boxSpacing(2),
             textAlign: "center",
             ...style.tagline,
-          }}>
-          By signing up, you agree to our{" "}
-          <AnchorLink url="#" style={inlineLinkStyle}>
-            User Agreement
-          </AnchorLink>{" "}
-          and confirm you look through the{" "}
-          <AnchorLink url="#" style={inlineLinkStyle}>
-            Privacy Policy
-          </AnchorLink>
-          .
-        </Typography>
+          }}
+        />
       </Stack>
 
       {/* Third Party Providers */}
@@ -134,7 +147,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         <AppButton
           variant="outlined"
           style={{
-            fontSize: "16px",
+            ...theme.typography.button,
             padding: theme.boxSpacing(4.5, 9),
             gap: theme.gap(4),
             width: "100%",
@@ -146,7 +159,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         <AppButton
           variant="outlined"
           style={{
-            fontSize: "16px",
+            ...theme.typography.button,
             gap: theme.gap(4),
             padding: theme.boxSpacing(4.5, 9),
             width: "100%",
@@ -163,12 +176,12 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
 
       <Divider
         sx={{
-          fontSize: 14,
+          ...theme.typography.caption,
           color: theme.palette.gray[200],
           width: "100%",
           margin: 0,
         }}>
-        Or sign up with
+        <TransText {...AUTH_FEEDBACK.or_sign_up_with} noComponent />
       </Divider>
 
       {inlineMsg && (
@@ -183,8 +196,10 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         <TextInput
           value={email}
           type="email"
-          label="Email Address"
-          placeholder="Enter your email"
+          label={translateTxtString(AUTH_INPUT.label.email_address)}
+          placeholder={translateTxtString(
+            AUTH_INPUT.placeholder.enter_your_email,
+          )}
           onChange={handleEmailChange}
           helperText={emailValidationMsg}
           error={email !== "" && emailValidity === "INVALID"}
@@ -192,8 +207,8 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
 
         <PhoneInput
           value={phone}
-          label="Phone Number (Optional)"
-          placeholder="e.g. +1234567890"
+          label={translateTxtString(AUTH_INPUT.label.phone_optional)}
+          placeholder={translateTxtString(AUTH_INPUT.placeholder.phone_example)}
           includeCountryCode={true}
           onPhoneChange={handlePhoneChange}
           onClearInlineMsg={clearInlineMsg}
@@ -203,8 +218,10 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
 
         <Stack gap={theme.gap(4)}>
           <PasswordInput
-            label="Password"
-            placeholder="Create password"
+            label={translateTxtString(AUTH_INPUT.label.password)}
+            placeholder={translateTxtString(
+              AUTH_INPUT.placeholder.create_password,
+            )}
             onChange={handlePasswordChange}
             value={password}
           />
@@ -218,12 +235,11 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             }}
           />
         </Stack>
-
         <AppButton
           variant="contained"
           submit
           style={{
-            fontSize: "16px",
+            ...theme.typography.button,
             padding: theme.boxSpacing(5.5, 9),
             width: "100%",
             marginTop: theme.gap(4),
@@ -232,32 +248,37 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           {isSubmitLoading ? (
             <ProgressIcon otherProps={{ size: 25 }} />
           ) : (
-            "Sign up"
+            <TransText {...AUTH_BUTTON_LABELS.signup} noComponent />
           )}
         </AppButton>
       </Stack>
-
-      <Typography
-        component="p"
-        variant="body3"
+      <Stack
         sx={{
-          textAlign: "center",
-          width: "100%",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
           paddingTop: theme.boxSpacing(8),
-          ...style.tagline,
+          gap: theme.gap(2),
         }}>
-        Already have an account?
+        <TransText
+          {...AUTH_FEEDBACK.already_have_an_account}
+          component="p"
+          sx={{
+            ...theme.typography.body3,
+            textAlign: "center",
+            width: "100%",
+            ...style.tagline,
+          }}
+        />
         <AnchorLink
-          variant="text"
           onClick={handleLoginClick}
-          url={CLIENT_ROUTES.login.path}
+          href={CLIENT_ROUTES.login.path}
           style={{
             ...inlineLinkStyle,
-            marginLeft: theme.boxSpacing(2),
           }}>
-          Login
+          <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
         </AnchorLink>
-      </Typography>
+      </Stack>
     </Stack>
   );
 };

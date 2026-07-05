@@ -1,10 +1,14 @@
 "use client";
 
 import { grey, red } from "@mui/material/colors";
-import { createTheme, responsiveFontSizes } from "@mui/material/styles";
-import baseUIStyles from "./baseUIStyles";
+import { createTheme, PaletteColor } from "@mui/material/styles";
+import defaultUIStyles from "./defaultUIStyles";
 
-let designSystem = createTheme({
+const baseTheme = createTheme({
+  // Enables the native MUI v6 CSS variables engine automatically
+  cssVariables: {
+    colorSchemeSelector: "class", // Instructs MUI to monitor the HTML class list for "dark"
+  },
   colorSchemes: {
     light: {
       palette: {
@@ -22,8 +26,10 @@ let designSystem = createTheme({
           trans: {
             1: "rgba(1, 7, 30, 0.06)",
             2: "rgba(1, 14, 24, 0.12)",
-            overlay: (opacity?: number, adaptive: boolean = false) =>
-              `rgba(${adaptive ? "8, 27, 95" : "1, 6, 19"}, ${opacity ?? 0.5})`,
+            overlay: {
+              default: "1, 6, 19",
+              adaptive: "8, 27, 95",
+            },
           },
         },
         info: {
@@ -57,8 +63,10 @@ let designSystem = createTheme({
           trans: {
             1: "rgba(173, 218, 255, 0.08)",
             2: "rgba(173, 218, 255, 0.2)",
-            overlay: (opacity?: number, adaptive: boolean = false) =>
-              `rgba(${adaptive ? "40, 57, 217" : "1, 6, 19"}, ${opacity ?? 0.5})`,
+            overlay: {
+              default: "1, 6, 19",
+              adaptive: "40, 57, 217",
+            },
           },
         },
         info: {
@@ -84,23 +92,63 @@ let designSystem = createTheme({
     primary: "#9FAEFF",
     pTrans: "rgba(72, 107, 246, 0.12)",
   } as const,
+  // Base typography structure for native MUI semantic tag variants
   typography: {
-    fontFamily: "'Satoshi','Manrope','Cabinet Grotesk', Arial, sans-serif",
+    fontFamily:
+      "var(--ui-font-family, 'Satoshi','Manrope','Cabinet Grotesk', Arial, sans-serif)",
     h1: { fontWeight: 600 },
     h2: { fontWeight: 600 },
-    h4: { fontWeight: 700 },
-    h5: { fontWeight: 700, fontSize: "32px" },
-    h6: { fontWeight: 700, fontSize: "26px" },
-    subtitle1: {
-      fontSize: "22px",
+    h4: {
+      fontSize: "calc(2.5rem * var(--ui-font-scale, 1))", // 40px
       fontWeight: 700,
+      lineHeight: 1.2,
     },
-    body1: { fontSize: "18px", fontWeight: 600 },
-    body2: { fontSize: "16px", fontWeight: 500 },
-    body3: { fontSize: "15px", fontWeight: 500 },
-    caption: {},
-    overline: {},
-    button: { textTransform: "unset", fontSize: "16px" },
+    h5: {
+      fontWeight: 700,
+      fontSize: "calc(2rem * var(--ui-font-scale, 1))", // 32px
+      lineHeight: 1.4,
+    },
+    h6: {
+      fontWeight: 700,
+      fontSize: "calc(1.625rem * var(--ui-font-scale, 1))", // 26px
+      lineHeight: 1.4,
+    },
+    subtitle1: {
+      fontSize: "calc(1.375rem * var(--ui-font-scale, 1))", // 22px
+      fontWeight: 700,
+      lineHeight: 1.4,
+    },
+    body1: {
+      fontSize: "calc(1.125rem * var(--ui-font-scale, 1))", // 18px
+      fontWeight: 600,
+      lineHeight: 1.3,
+    },
+    body2: {
+      fontSize: "calc(1rem * var(--ui-font-scale, 1))", // 16px
+      fontWeight: 500,
+      lineHeight: 1.4,
+    },
+    body3: {
+      fontSize: "calc(0.9375rem * var(--ui-font-scale, 1))", // 15px
+      fontWeight: 500,
+      lineHeight: 1.4,
+    },
+    caption: {
+      fontSize: "calc(0.875rem * var(--ui-font-scale, 1))", // 14px
+      fontWeight: 500,
+      lineHeight: 1.4,
+    },
+    overline: {
+      fontSize: "calc(0.8125rem * var(--ui-font-scale, 1))", // 13px
+      fontWeight: 600,
+      textTransform: "uppercase",
+      letterSpacing: 0.05,
+    },
+    button: {
+      textTransform: "unset",
+      fontSize: "calc(1rem * var(--ui-font-scale, 1))", // 16px
+      fontWeight: 600,
+    },
   },
   radius: {
     0: "0px",
@@ -113,20 +161,53 @@ let designSystem = createTheme({
     full: "1000px",
   },
   boxSpacing: (top, right, bottom, left) => {
-    return `${top * 2}px ${right || right === 0 ? right * 2 + "px" : ""} ${
-      bottom || bottom === 0 ? bottom * 2 + "px" : ""
-    } ${left || left === 0 ? left * 2 + "px" : ""}`;
+    const multi = "var(--ui-density-base, 2px)";
+    return `calc(${top} * ${multi}) ${right || right === 0 ? `calc(${right} * ${multi})` : ""} ${
+      bottom || bottom === 0 ? `calc(${bottom} * ${multi})` : ""
+    } ${left || left === 0 ? `calc(${left} * ${multi})` : ""}`;
   },
-  gap: (value = 0) => `${value * 2}px`,
+  gap: (value = 0) => `calc(${value} * var(--ui-density-base, 2px))`,
 });
 
-designSystem = responsiveFontSizes(designSystem);
+baseTheme.palette.primary = {
+  light: "var(--mui-palette-primary-light)",
+  main: "var(--mui-palette-primary-main)",
+  dark: "var(--mui-palette-primary-dark)",
+} as PaletteColor;
 
-const globalTheme = createTheme({
-  ...designSystem,
-  components: {
-    ...baseUIStyles.components,
+// Map the top-level palette fields directly to CSS variables.
+baseTheme.palette.gray = {
+  0: "var(--mui-palette-gray-0)",
+  50: "var(--mui-palette-gray-50)",
+  100: "var(--mui-palette-gray-100)",
+  200: "var(--mui-palette-gray-200)",
+  300: "var(--mui-palette-gray-300)",
+  trans: {
+    1: "var(--mui-palette-gray-trans-1)",
+    2: "var(--mui-palette-gray-trans-2)",
+    overlay: (opacity?: number, adaptive: boolean = false) => {
+      const activeVariable = adaptive
+        ? "var(--mui-palette-gray-trans-overlay-adaptive)"
+        : "var(--mui-palette-gray-trans-overlay-default)";
+      return `rgba(${activeVariable}, ${opacity ?? 0.5})`;
+    },
   },
-});
+};
+
+baseTheme.palette.info = {
+  light: "var(--mui-palette-info-light)",
+  main: "var(--mui-palette-info-main)",
+  dark: "var(--mui-palette-info-dark)",
+} as PaletteColor;
+
+baseTheme.palette.error = {
+  light: "var(--mui-palette-error-light)",
+  main: "var(--mui-palette-error-main)",
+  dark: "var(--mui-palette-error-dark)",
+  trans: "var(--mui-palette-error-trans)",
+} as PaletteColor;
+
+baseTheme.components = defaultUIStyles.components as any;
+const globalTheme = baseTheme;
 
 export default globalTheme;

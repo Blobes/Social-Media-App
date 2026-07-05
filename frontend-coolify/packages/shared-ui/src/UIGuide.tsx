@@ -2,13 +2,19 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { Stack, Typography, Box, Paper, Button } from "@mui/material";
+import { Stack, Box, Paper } from "@mui/material";
 import { Stepper } from "./Stepper";
 import { motion, AnimatePresence } from "framer-motion";
 import { getFramerVariants } from "@repo/helpers";
-import { GenericStyle, Guide, TourGuide } from "@repo/core";
+import {
+  COMMON_BUTTON_LABELS,
+  GenericStyle,
+  Guide,
+  TourGuide,
+} from "@repo/core";
 import { Media } from "./media/Media";
 import { AppButton } from "./Buttons";
+import { TransText } from "./Text";
 
 interface GuideProps {
   guides: Guide[];
@@ -44,9 +50,9 @@ export const UIGuide = ({
         return (
           <Stack key={guide.id || guide.title} gap={theme.gap(2)}>
             {showTitle && guide.title && (
-              <Typography variant="body3" sx={{ fontWeight: 600 }}>
+              <TransText sx={{ ...theme.typography.body3, fontWeight: 600 }}>
                 {guide.title}
-              </Typography>
+              </TransText>
             )}
 
             <Box
@@ -113,12 +119,15 @@ export const UIGuide = ({
                         )}
 
                     {typeof item.detail === "string" ? (
-                      <Typography
-                        variant="inherit"
+                      <TransText
                         component="p"
-                        sx={{ width: "100%", margin: 0 }}>
+                        sx={{
+                          ...theme.typography.body3,
+                          width: "100%",
+                          margin: 0,
+                        }}>
                         {item.detail}
-                      </Typography>
+                      </TransText>
                     ) : (
                       item.detail
                     )}
@@ -245,21 +254,26 @@ export const UserTourGuide = ({
             direction="row"
             justifyContent="space-between"
             alignItems="center">
-            <Typography
-              variant="caption"
-              sx={{ fontWeight: 500, opacity: 0.6 }}>
+            <TransText
+              sx={{
+                ...theme.typography.caption,
+                fontWeight: 500,
+                opacity: 0.6,
+              }}>
               {activeIndex + 1} / {steps.length}
-            </Typography>
+            </TransText>
 
             <Stack direction="row" gap={1} alignItems="center">
               {activeIndex < steps.length - 1 && (
-                <Button
+                <AppButton
                   variant="text"
-                  size="small"
                   onClick={() => setOpen(false)}
-                  sx={{ color: "text.secondary", textTransform: "none" }}>
-                  Skip
-                </Button>
+                  style={{
+                    color: theme.palette.gray[200],
+                    textTransform: "none",
+                  }}>
+                  <TransText {...COMMON_BUTTON_LABELS.skip} noComponent />
+                </AppButton>
               )}
               <AppButton
                 variant="contained"
@@ -269,7 +283,12 @@ export const UserTourGuide = ({
                   padding: theme.boxSpacing(6, 9),
                   width: "100%",
                 }}>
-                {activeIndex === steps.length - 1 ? "Finish" : "Next"}
+                <TransText
+                  {...COMMON_BUTTON_LABELS.active_view(
+                    activeIndex === steps.length - 1 ? "Finish" : "Next",
+                  )}
+                  noComponent
+                />
               </AppButton>
             </Stack>
           </Stack>

@@ -3,9 +3,9 @@
 import React from "react";
 import { Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useLinearCarousel } from "./useLinear";
 import { CarouselArrows, CarouselDots } from "./Controls";
 import { GenericStyle } from "@repo/core";
+import { useLinearCarousel } from "@repo/shared-hooks";
 
 export interface CarouselStyle {
   container?: GenericStyle;

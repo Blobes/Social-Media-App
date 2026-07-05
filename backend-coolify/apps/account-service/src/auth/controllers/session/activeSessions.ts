@@ -1,48 +1,42 @@
-import { findUserSessions, IAuthRequest } from "@repo/shared";
-import { Response } from "express";
+import { fetchActiveSessions } from "@/auth/services/sessions/activeSessions";
+import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
+import { NextFunction, Response } from "express";
 
 /**
- * Retrieves all active sessions for the current user and flags the current device.
+ * Controller endpoint to handle incoming requests for tracking and managing concurrent active user sessions.
  */
 export const getActiveSessions = async (
   req: IAuthRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const userId = req.user?.id;
   const currentSessionId = req.user?.sessionId;
 
-  if (!userId) {
-    return res.status(401).json({ status: "ERROR", message: "Unauthorized" });
-  }
-
   try {
-    const allSessions = await findUserSessions(userId);
+    const serviceResult = await fetchActiveSessions(userId, currentSessionId);
 
-    const sessions = allSessions.map(({ sessionId, data }) => ({
-      sessionId,
-      deviceId: data.deviceId,
-      isCurrentDevice: sessionId === currentSessionId,
-      userAgent: data.userAgent,
-      ip: data.ip,
-      lastActive: data.lastActive,
-      createdAt: data.createdAt,
-    }));
-
-    // Current device at the top of the list
-    const sortedSessions = sessions.sort((a, b) =>
-      a.isCurrentDevice === b.isCurrentDevice ? 0 : a.isCurrentDevice ? -1 : 1,
-    );
+    if (serviceResult.status === "UNAUTHORIZED") {
+      return res.status(401).json({
+        status: "UNAUTHORIZED",
+        ...serviceResult.transInfo,
+        payload: null,
+      });
+    }
 
     return res.status(200).json({
       status: "SUCCESS",
-      message: "Active sessions retrieved.",
-      payload: sortedSessions,
+      ...serviceResult.transInfo,
+      payload: serviceResult.payload,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Get Active Sessions Error:", error);
-    return res.status(500).json({
-      status: "ERROR",
-      message: "Could not retrieve active sessions.",
-    });
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      error,
+    );
   }
 };

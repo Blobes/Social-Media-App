@@ -1,17 +1,19 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import {
-  cleanDeviceSessions,
-  clearAuthTokens,
+  clearAuthCookies,
+  forwardError,
   IAuthRequest,
-  removeSession,
+  MESSAGES_REGISTRY,
 } from "@repo/shared";
+import { terminateUserSessions } from "@/auth/services/sessions/terminateSessions";
 
 /**
- * Terminates sessions based on hardware identity or global wipe.
+ * Controller endpoint to handle incoming session termination and cookie clearance.
  */
 export const logoutUser = async (
   req: IAuthRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const userId = req.user?.id;
   const currentSessionId = req.user?.sessionId;
@@ -25,46 +27,39 @@ export const logoutUser = async (
   if (!userId) {
     return res.status(401).json({
       status: "UNAUTHORIZED",
-      message: "Authentication context missing",
+      ...MESSAGES_REGISTRY.AUTH.UNAUTHORIZED,
       payload: null,
     });
   }
 
   try {
-    if (logoutAll) {
-      // Wipes all sessions across every piece of hardware for this user
-      await cleanDeviceSessions(userId, undefined, { clearAll: true });
-    } else if (targetDeviceId) {
-      // Terminates all sessions associated with a specific hardware ID
-      await cleanDeviceSessions(userId, targetDeviceId);
-    } else if (currentSessionId) {
-      // Fallback: Terminate only the specific current session if no target device is provided
-      await removeSession(userId, currentSessionId);
-    }
+    const serviceResult = await terminateUserSessions({
+      userId,
+      currentSessionId,
+      jwtDeviceId,
+      targetDeviceId,
+      logoutAll,
+    });
 
-    // Determine if we need to clear client-side cookies.
-    const isCurrentDeviceTargeted = targetDeviceId === jwtDeviceId;
-    const shouldClearCookies =
-      logoutAll || isCurrentDeviceTargeted || !targetDeviceId;
-    if (shouldClearCookies) {
-      clearAuthTokens(res);
+    if (serviceResult.shouldClearCookies) {
+      clearAuthCookies(res);
     }
 
     return res.status(200).json({
       status: "SUCCESS",
-      message: logoutAll
-        ? "Successfully logged out of all devices."
-        : "Device session(s) terminated successfully.",
+      ...serviceResult.transInfo,
       payload: {
-        loggedOutLocally: shouldClearCookies,
+        loggedOutLocally: serviceResult.shouldClearCookies,
       },
     });
   } catch (error: any) {
     console.error("Logout Processing Error:", error);
-    return res.status(500).json({
-      status: "ERROR",
-      message: "An internal error occurred during logout.",
-      payload: null,
-    });
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      error,
+    );
   }
 };

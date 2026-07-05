@@ -9,13 +9,13 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 import { v4 as uuidv4 } from "uuid";
+import { IS3Config } from "../types";
 import {
   ALLOWED_MIME_TYPES,
   AllowedMimeType,
   MAX_FILE_SIZE_BYTES,
   MIME_TO_EXTENSION,
-} from "../utils/misc/constants";
-import { IS3Config } from "../types";
+} from "../constants/others";
 
 /**
  * Creates an instance of the cloud storage service mapped to Cloudflare R2 infrastructure.
@@ -200,7 +200,7 @@ export const createS3Service = (config: IS3Config) => {
       Key: fileKey,
       ContentType: "application/json",
       Body: Buffer.from(jsonStringContent, "utf-8"),
-      CacheControl: "public, max-age=0, no-cache, must-revalidate", // Make it highly cacheable for CDN nodes
+      CacheControl: "public, max-age=31536000, immutable",
     });
 
     await s3.send(command);

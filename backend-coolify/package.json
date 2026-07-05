@@ -11,7 +11,8 @@
     "check-types": "turbo run check-types",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "clean": "pnpm -r exec rm -rf dist out",
-    "clean:workspaces": "pnpm -r exec rm -rf node_modules dist out && rm -rf node_modules"
+    "clean:workspaces": "pnpm -r exec rm -rf node_modules dist out && rm -rf node_modules",
+    "sync:api-messages": "pnpm dlx tsx sync-api-msg.ts"
   },
   "devDependencies": {
     "@types/node": "catalog:",

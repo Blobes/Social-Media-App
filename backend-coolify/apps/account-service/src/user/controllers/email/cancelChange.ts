@@ -1,69 +1,61 @@
-import { UserModel } from "@repo/database";
-import { IAuthRequest } from "@repo/shared";
-import { Response, RequestHandler } from "express";
+import { Response, RequestHandler, NextFunction } from "express";
+import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
+import { executeEmailChangeCancellation } from "@/user/services/email";
 
+/**
+ * Controller endpoint to terminate ongoing email update pipelines.
+ */
 export const cancelEmailChange: RequestHandler = async (
   req: IAuthRequest,
   res: Response,
-) => {
+  next: NextFunction,
+): Promise<void> => {
   const userId = req.user?.id;
 
   if (!userId) {
     res.status(401).json({
       status: "ERROR",
-      message: "Unauthorized access",
+      ...MESSAGES_REGISTRY.AUTH.UNAUTHORIZED,
       payload: null,
     });
     return;
   }
 
   try {
-    const user = await UserModel.findById(userId);
+    const serviceResult = await executeEmailChangeCancellation({ userId });
 
-    if (!user) {
+    if (serviceResult.status === "NOT_FOUND") {
       res.status(404).json({
         status: "ERROR",
-        message: "User not found",
+        ...serviceResult.transInfo,
         payload: null,
       });
       return;
     }
 
-    // If there is no pending email, there's nothing to cancel
-    if (!user.pendingEmail) {
+    if (serviceResult.status === "NO_PENDING_CHANGE") {
       res.status(400).json({
         status: "ERROR",
-        message: "No pending email change to cancel",
+        ...serviceResult.transInfo,
         payload: null,
       });
       return;
     }
-
-    // --- THE REVERSION ---
-    // We clear the pending email and all verification-related fields.
-    user.pendingEmail = null;
-    user.verificationCode = null;
-    user.verificationExpiry = null;
-    user.lastEmailCodeSentAt = null;
-
-    // Ensure the original email is still marked as verified
-    user.isEmailVerified = true;
-
-    await user.save();
 
     res.status(200).json({
       status: "SUCCESS",
-      message:
-        "Email change process cancelled. Your current email remains active.",
+      ...serviceResult.transInfo,
       payload: null,
     });
     return;
   } catch (error: any) {
-    res.status(500).json({
-      status: "ERROR",
-      message: error.message || "Server error during cancellation",
-      payload: null,
-    });
-    return;
+    console.error("Email Change Cancellation Error:", error);
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.AUTH.UPDATE_CANCELLATION_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.AUTH.UPDATE_CANCELLATION_FALLBACK_ERROR,
+      error,
+    );
   }
 };

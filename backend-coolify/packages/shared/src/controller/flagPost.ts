@@ -1,6 +1,8 @@
-import { Response } from "express";
+import { Response, NextFunction } from "express";
 import { FlagPostData, IAuthRequest } from "../types";
 import { executePostFlag } from "../services/post/executePostFlag";
+import { MESSAGES_REGISTRY } from "../constants/msgRegistry";
+import { forwardError } from "../utils/misc/error";
 
 interface FlagRequest extends IAuthRequest {
   body: FlagPostData;
@@ -9,6 +11,7 @@ interface FlagRequest extends IAuthRequest {
 export const flagPost = async (
   req: FlagRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const reporterId = req.body.source === "USER" ? req.user?.id || null : null;
@@ -18,7 +21,8 @@ export const flagPost = async (
     if (result.status === "CONFLICT") {
       res.status(400).json({
         status: "ERROR",
-        message: result.message,
+        ...result.transInfo,
+        payload: null,
       });
       return;
     }
@@ -26,23 +30,32 @@ export const flagPost = async (
     if (result.status === "NOT_FOUND") {
       res.status(404).json({
         status: "ERROR",
-        message: result.message,
+        ...result.transInfo,
+        payload: null,
       });
       return;
     }
 
-    res.status(result.message === "Report received." ? 201 : 200).json({
+    const isSimpleReceipt =
+      result.transInfo.message ===
+      MESSAGES_REGISTRY.POST.POST_REPORT_RECEIVED.message;
+
+    res.status(isSimpleReceipt ? 201 : 200).json({
       status: "SUCCESS",
-      message: result.message,
+      ...result.transInfo,
       source: req.body.source,
       logId: result.logId,
       escalated: result.escalated,
     });
   } catch (error: any) {
     console.error("Flaging Sync Error:", error);
-    res.status(500).json({
-      status: "ERROR",
-      error: "Internal flagging synchronization error.",
-    });
+
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.POST.POST_FLAGGING_SYNC_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.POST.POST_FLAGGING_SYNC_FALLBACK_ERROR,
+      error,
+    );
   }
 };

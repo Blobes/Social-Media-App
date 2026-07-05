@@ -1,9 +1,10 @@
 "use client";
 
 import React, { Fragment } from "react";
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { GenericStyle } from "@repo/core";
+import { TransText } from "./Text";
 
 interface Item {
   text?: string;
@@ -27,9 +28,9 @@ export const Strip = ({ items = [], style = {} }: StripProps) => {
       }}>
       {items.map((item, index) => (
         <Fragment key={index}>
-          <Typography
-            variant="body2"
+          <TransText
             sx={{
+              ...theme.typography.body2,
               display: "flex",
               alignItems: "center",
               gap: theme.gap(2),
@@ -39,7 +40,7 @@ export const Strip = ({ items = [], style = {} }: StripProps) => {
             }}>
             {item.element && item.element}
             {item.text && item.text}
-          </Typography>
+          </TransText>
 
           {index < items.length - 1 && (
             <Box

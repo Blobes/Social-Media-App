@@ -2,16 +2,20 @@
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
+  COMMON_FEEDBACK,
+  COMMON_MEDIA,
   MediaUploadPayload,
   MenuRef,
+  POST_FEEDBACK,
   PostStepName,
   StepperProps,
+  useGlobalStore,
 } from "@repo/core";
 import { uploadMediaToCloud } from "@repo/helpers";
 import {
   useFileProcessing,
-  useGlobalStore,
   useSnackbar,
+  useStaticTranslation,
 } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { GistService } from "../gistService";
@@ -49,13 +53,16 @@ export const useGistContent = ({
 }: Content & FilesProps) => {
   const { createGist } = GistService();
   const { setSBMessage } = useSnackbar();
+  const { translateTxtString } = useStaticTranslation();
 
   const topicsMenuRef = useRef<MenuRef>(null);
 
   const authUser = useGlobalStore((state) => state.authUser);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [inlineErrMsg, setInlineErrMsg] = useState<string | null>(null);
+  const [inlineErrMsg, setInlineErrMsg] = useState<React.ReactNode | null>(
+    null,
+  );
 
   const [moderationTrackingId, setModerationTrackingId] = useState<
     string | null
@@ -89,11 +96,14 @@ export const useGistContent = ({
       setSBMessage({
         msg: {
           msgStatus: "SUCCESS",
-          headline: "Processing Complete",
-          tagline:
+          headline: translateTxtString(
+            POST_FEEDBACK.processing_complete_headline,
+          ),
+          tagline: translateTxtString(
             status === "SHADOWBANNED"
-              ? "Your gist has been successfully processed."
-              : "Gist published successfully.",
+              ? POST_FEEDBACK.processing_complete_tagline("Gist")
+              : POST_FEEDBACK.published_success_tagline("Gist"),
+          ),
           behavior: "TIMED",
           duration: 5,
           hasClose: true,
@@ -112,10 +122,12 @@ export const useGistContent = ({
     setSBMessage({
       msg: {
         msgStatus: "ERROR",
-        headline: "Content Rejected",
-        tagline:
-          data.reason ||
-          "Your content violated automated community guidelines.",
+        headline: translateTxtString(POST_FEEDBACK.content_rejected_headline),
+        tagline: translateTxtString(
+          data.reason
+            ? POST_FEEDBACK.content_rejected_tagline(data.reason as string)
+            : POST_FEEDBACK.content_violation_tagline,
+        ),
         behavior: "TIMED",
         duration: 6,
         hasClose: true,
@@ -133,7 +145,9 @@ export const useGistContent = ({
         msg: {
           id: `gist-err-${Date.now()}`,
           msgStatus: "ERROR",
-          tagline: errorMessage || "Gist Creation Failed",
+          tagline:
+            errorMessage ||
+            translateTxtString(POST_FEEDBACK.creation_failed_tagline("Gist")),
           behavior: "TIMED",
           hasClose: true,
         },
@@ -167,7 +181,7 @@ export const useGistContent = ({
       msg: {
         id: "media-upload",
         msgStatus: "INFO",
-        headline: "Transfer in Progress",
+        headline: translateTxtString(COMMON_MEDIA.media_transfer_progress),
         customContent: <MediaUploadTracker uploadStates={uploadStatesOnly} />,
         behavior: hasActiveUploads ? "FIXED" : "TIMED",
         duration: hasActiveUploads ? undefined : 4,
@@ -185,7 +199,7 @@ export const useGistContent = ({
       msg: {
         id: `moderation-${moderationTrackingId}`,
         msgStatus: "INFO",
-        headline: "Verifying Content Safeties",
+        headline: translateTxtString(COMMON_MEDIA.verifying_content_safeties),
         behavior: "FIXED",
         customContent: (
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -255,9 +269,7 @@ export const useGistContent = ({
     },
     onError: (error: any) => {
       console.error("Post publication failed:", error);
-      setInlineErrMsg(
-        error.message || "An error occurred during asset processing.",
-      );
+      setInlineErrMsg(error.message || COMMON_FEEDBACK.server_error);
     },
   });
 

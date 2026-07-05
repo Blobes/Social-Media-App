@@ -6,7 +6,7 @@ export * from "./src/types/device";
 export * from "./src/types/moderation";
 export * from "./src/types/topic";
 
-// User
+// Moderation
 export * from "./src/models/moderation/flaggedPost";
 export * from "./src/models/moderation/postReport";
 
@@ -20,6 +20,7 @@ export * from "./src/models/post/view";
 export * from "./src/models/user/socials";
 export * from "./src/models/user/idVerification";
 export * from "./src/models/user/account";
+export * from "./src/models/user/deactivated";
 export * from "./src/models/device";
 
 // Media
@@ -27,3 +28,5 @@ export * from "./src/models/media";
 
 // Topic
 export * from "./src/models/topic";
+
+export * from "./src/models/logs";

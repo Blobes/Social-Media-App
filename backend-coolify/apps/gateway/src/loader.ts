@@ -6,6 +6,7 @@ import {
   reportRouter,
   topicRouter,
   healthRouter,
+  errorHandlerMiddleware,
 } from "@repo/shared";
 import { rateLimiter } from "./middleware/rateLimiter";
 import gatewayRoutes from "./proxy";
@@ -44,6 +45,8 @@ export default async (app: Express) => {
     }),
   );
   app.use("/topic", topicRouter({ verifyAuthToken }));
+
+  app.use(errorHandlerMiddleware);
 
   return app;
 };

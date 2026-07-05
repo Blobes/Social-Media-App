@@ -1,10 +1,16 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { Divider, Stack, Typography, useTheme } from "@mui/material";
+import { Divider, Stack, useTheme } from "@mui/material";
 import { asset } from "@repo/assets";
-import { AppButton, SVGWrapper } from "@repo/shared-ui";
-import { AuthStepName, StepperProps } from "@repo/core";
+import { AppButton, SVGWrapper, TransText } from "@repo/shared-ui";
+import {
+  AUTH_FEEDBACK,
+  AuthStepName,
+  COMMON_BUTTON_LABELS,
+  COMMON_FEEDBACK,
+  StepperProps,
+} from "@repo/core";
 import { Logout } from "@repo/features";
 
 /**
@@ -43,13 +49,14 @@ export const OnboardingIntro: React.FC<StepperProps<AuthStepName>> = ({
         />
 
         <Stack sx={{ gap: theme.gap(4) }}>
-          <Typography variant="h4" fontWeight={700}>
-            Welcome Aboard Funstaker!
-          </Typography>
-          <Typography variant="body2" color={theme.palette.gray[200]}>
-            Nice to have you here. Let's get your profile set up so you can
-            start exploring and winning.
-          </Typography>
+          <TransText
+            {...COMMON_FEEDBACK.welcome_aboard_headline}
+            sx={{ ...theme.typography.h4 }}
+          />
+          <TransText
+            {...COMMON_FEEDBACK.welcome_aboard_tagline}
+            sx={{ ...theme.typography.body2, color: theme.palette.gray[200] }}
+          />
         </Stack>
       </Stack>
 
@@ -57,18 +64,19 @@ export const OnboardingIntro: React.FC<StepperProps<AuthStepName>> = ({
         variant="contained"
         onClick={handleStart}
         style={{
-          fontSize: "16px",
+          ...theme.typography.button,
           padding: theme.boxSpacing(5.5, 9),
           width: "100%",
         }}>
-        Get Started
+        <TransText {...COMMON_BUTTON_LABELS.get_started} noComponent />
       </AppButton>
 
       {/* Footer */}
       <Divider sx={{ width: "100%" }} />
-      <Typography variant="caption" color={theme.palette.gray[200]}>
-        It only takes a few minutes to set up your account.
-      </Typography>
+      <TransText
+        {...AUTH_FEEDBACK.few_minutes_to_setup_account}
+        sx={{ ...theme.typography.caption, color: theme.palette.gray[200] }}
+      />
       <Logout
         containerStyle={{
           gap: theme.gap(4),

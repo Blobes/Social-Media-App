@@ -5,11 +5,13 @@ import { useTheme } from "@mui/material/styles";
 import { Signup } from "./registration/Signup";
 import { Stack } from "@mui/material";
 import { asset, BG_SLIDER_DATA } from "@repo/assets";
-import { BGFadeCarousel, SVGWrapper } from "@repo/shared-ui";
+import { BGFadeCarousel } from "@repo/shared-ui";
 import { applyBGPattern, autoScroll } from "@repo/helpers";
+import { useStaticTranslation } from "@repo/shared-hooks";
 
 export default function SignupPage() {
   const theme = useTheme();
+  const { translateTxtString } = useStaticTranslation();
 
   return (
     <Stack
@@ -81,7 +83,7 @@ export default function SignupPage() {
           }}
         />
         <BGFadeCarousel
-          slides={BG_SLIDER_DATA}
+          slides={BG_SLIDER_DATA(translateTxtString)}
           autoPlay
           pauseOnHover
           interval={7000}
@@ -97,22 +99,6 @@ export default function SignupPage() {
             },
           }}
         />
-        {/* <SVGWrapper
-          src={asset.SignupAnimation}
-          preserveColor={true}
-          sx={{
-            width: "50%",
-            height: "100%",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "#1F2876",
-            [theme.breakpoints.down("md")]: {
-              width: "100%",
-              height: "100svh",
-              scrollSnapAlign: "start",
-            },
-          }}
-        /> */}
       </Stack>
     </Stack>
   );

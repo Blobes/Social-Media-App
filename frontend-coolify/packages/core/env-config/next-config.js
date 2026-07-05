@@ -1,10 +1,24 @@
+import fs from "fs";
+import path from "path";
+
+/** @type {import('next').NextConfig} */
+
+const packageJson = JSON.parse(
+  fs.readFileSync(path.resolve("../../package.json"), "utf8"),
+);
+
 /**
  * Generates the foundational configuration block shared across the application architecture.
  */
 export function withBaseConfig(appConfig = {}, backendApi, appName) {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  const appVersion = isProduction ? packageJson.version : `dev-${Date.now()}`;
+
   return {
     ...appConfig,
-    output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
+    output: isProduction ? "standalone" : undefined,
+    env: { ...appConfig.env, NEXT_PUBLIC_APP_VERSION: appVersion },
     webpack(config) {
       // Add .lottie support
       config.module.rules.push({
@@ -17,13 +31,13 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
       }
       return config;
     },
+
     async headers() {
       // Execute and read any headers defined inside the passed appConfig
       const userHeaders =
         typeof appConfig.headers === "function"
           ? await appConfig.headers()
           : [];
-
       // Define internal global cross-origin isolation parameters
       const baseHeaders = [
         {
@@ -51,14 +65,12 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
           ],
         },
       ];
-
       return [...baseHeaders, ...userHeaders];
     },
     async rewrites() {
       const baseRewrites = appConfig.rewrites
         ? await appConfig.rewrites()
         : { beforeFiles: [], afterFiles: [], fallback: [] };
-
       // Ensure we handle both array and object rewrite formats
       const beforeFiles = Array.isArray(baseRewrites)
         ? []

@@ -27,6 +27,8 @@ export type AppName =
 
 export type PostType = "GIST" | "STAKE";
 
+export type MsgPostType = "Gist" | "Stake" | "Post";
+
 export type ModerationTaskMode =
   | "MODERATE_ONLY"
   | "MODERATE_AND_EXTRACT_KEYWORDS"
@@ -206,4 +208,10 @@ export interface FlagPostData {
     text?: string;
     mediaIds?: string[];
   };
+}
+
+export interface TransInfo {
+  readonly i18nKey?: string;
+  readonly message?: string;
+  readonly interpolations?: Record<string, any>;
 }

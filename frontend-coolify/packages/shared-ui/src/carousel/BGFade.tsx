@@ -1,13 +1,14 @@
 "use client";
 
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { IBGFadeSlideData } from "@repo/core";
 import { NamedProgressBar } from "./Controls";
-import { useBGFadeCarousel } from "./useBGFade";
+import { TransText } from "../Text";
+import { A11y } from "../A11y";
 import { CarouselStyle } from "./Linear";
-import { StaticText } from "../Localize";
+import { useBGFadeCarousel } from "@repo/shared-hooks";
 
 interface BGFadeCarouselProps {
   slides: IBGFadeSlideData[];
@@ -15,7 +16,14 @@ interface BGFadeCarouselProps {
   autoPlay?: boolean;
   pauseOnHover?: boolean;
   style?: CarouselStyle;
+  enableEdgeTap?: boolean;
+  progressBarPosition?: "top" | "bottom";
+  header?: React.ReactNode;
+  enablePressToHide?: boolean;
+  shouldResetOnEnd?: boolean;
+  onSlideEnd?: () => void;
 }
+
 /**
  * Interface layout applying absolute asset opacity crossfades paired with text visibility shifts.
  */
@@ -25,123 +33,247 @@ export const BGFadeCarousel = ({
   autoPlay = false,
   pauseOnHover = true,
   style,
+  enableEdgeTap = false,
+  progressBarPosition = "bottom",
+  header,
+  enablePressToHide = false,
+  shouldResetOnEnd = true,
+  onSlideEnd,
 }: BGFadeCarouselProps) => {
   const theme = useTheme();
   const itemsLength = slides.length;
 
-  const { currentIndex, isPaused, goTo, setPauseState, renderMediaAsset } =
-    useBGFadeCarousel(itemsLength, interval, autoPlay);
+  const {
+    currentIndex,
+    isPaused,
+    isPressed,
+    containerRef,
+    next,
+    prev,
+    goTo,
+    setPauseState,
+    handleTapNavigation,
+    handlePressStart,
+    handlePressEnd,
+    isLast,
+  } = useBGFadeCarousel(
+    itemsLength,
+    interval,
+    autoPlay,
+    0,
+    undefined,
+    shouldResetOnEnd,
+    onSlideEnd,
+  );
 
   if (!itemsLength) return null;
 
-  return (
-    <Box
-      onMouseEnter={() => pauseOnHover && setPauseState(true)}
-      onMouseLeave={() => setPauseState(false)}
-      onTouchStart={() => pauseOnHover && setPauseState(true)}
-      onTouchEnd={() => setPauseState(false)}
-      sx={{
-        position: "relative",
+  const isContentHidden = enablePressToHide && isPressed;
+
+  // Progress tracks stop expanding animations if auto-resetting is disabled on the final slide
+  const shouldAnimateProgress =
+    autoPlay && !isPaused && !isPressed && !(isLast && !shouldResetOnEnd);
+
+  const renderedProgressBar = (
+    <NamedProgressBar
+      slides={slides}
+      current={currentIndex}
+      onGoTo={goTo}
+      interval={interval}
+      autoPlay={shouldAnimateProgress}
+      style={{
         width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-end",
-        overflow: "hidden",
-        borderRadius: theme.radius[6],
-        flex: "none",
-        bgcolor: "#000000",
-        ...style?.container,
-      }}>
-      {/* Absolute Background Layer Stack */}
+        zIndex: 10,
+        opacity: isContentHidden ? 0 : 1,
+        transition: "opacity 0.2s ease-in-out",
+      }}
+    />
+  );
+
+  return (
+    <A11y
+      useCase="carousel-track"
+      label="Background media spotlight carousel showcases"
+      onSwipeNext={next}
+      onSwipePrev={prev}>
       <Box
+        ref={containerRef}
+        onClick={(e) => handleTapNavigation(e, enableEdgeTap)}
+        onMouseEnter={() => pauseOnHover && !isPressed && setPauseState(true)}
+        onMouseLeave={() => handlePressEnd(enablePressToHide)}
+        onTouchStart={() => handlePressStart(enablePressToHide, pauseOnHover)}
+        onTouchEnd={() => handlePressEnd(enablePressToHide)}
+        onMouseDown={() => handlePressStart(enablePressToHide, pauseOnHover)}
+        onMouseUp={() => handlePressEnd(enablePressToHide)}
         sx={{
-          position: "absolute",
-          inset: 0,
+          position: "relative",
           width: "100%",
           height: "100%",
-          zIndex: 0,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          overflow: "hidden",
+          borderRadius: theme.radius[6],
+          flex: "none",
+          bgcolor: "#000000",
+          cursor: enablePressToHide ? "pointer" : "default",
+          ...style?.container,
         }}>
-        {slides.map((slide, idx) =>
-          renderMediaAsset(slide, idx === currentIndex),
-        )}
-        {/* Overlay dark gradient mask to protect text readability */}
+        {/* Absolute Background Layer Stack */}
         <Box
           sx={{
             position: "absolute",
             inset: 0,
-            zIndex: 1,
-            background:
-              "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.5) 100%)",
-            pointerEvents: "none",
-          }}
-        />
-      </Box>
+            width: "100%",
+            height: "100%",
+            zIndex: 0,
+          }}>
+          {slides.map((slide, idx) => {
+            const isSelected = idx === currentIndex;
+            const assetStyles = {
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover" as const,
+              opacity: isSelected ? 1 : 0,
+              transition: "opacity 1s cubic-bezier(0.4, 0, 0.2, 1)",
+              border: "none",
+            };
 
-      {/* Foreground Content Stack Layer */}
-      {slides.map((slide, idx) => {
-        const isSelected = idx === currentIndex;
-        return (
+            if (slide.media.type === "VIDEO") {
+              return (
+                <Box
+                  component="video"
+                  key={`bg-video-${slide.media._id}`}
+                  src={slide.media.url}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  sx={assetStyles}
+                />
+              );
+            }
+            return (
+              <Box
+                key={`bg-image-${slide.media._id}`}
+                sx={{
+                  ...assetStyles,
+                  backgroundImage: `url(${slide.media.url})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              />
+            );
+          })}
+
           <Box
-            key={`content-panel-${slide.media._id}`}
             sx={{
-              position: "relative",
-              zIndex: 5,
-              width: "90%",
-              maxWidth: "600px",
-              padding: theme.gap(12),
-              paddingBottom: theme.gap(38),
-              boxSizing: "border-box",
+              position: "absolute",
+              inset: 0,
+              zIndex: 1,
+              background:
+                "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.5) 100%)",
               pointerEvents: "none",
-              display: isSelected ? "flex" : "none",
-              flexDirection: "column",
-              gap: theme.gap?.(3) || "12px",
-              color: "#ffffff",
-              animation: isSelected
-                ? "fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards"
-                : "none",
-              "@keyframes fadeInUp": {
-                "0%": { opacity: 0, transform: "translateY(10px)" },
-                "100%": { opacity: 1, transform: "translateY(0)" },
-              },
-            }}>
-            <StaticText
-              i18nKey="slide_headline"
-              variant="h5"
-              component={"h5"}
-              sx={{
-                fontWeight: 800,
-                letterSpacing: "-0.02em",
-                fontSize: { xs: 24, sm: 24 },
-                lineHeight: 1.15,
-              }}>
-              {slide.headline}
-            </StaticText>
+            }}
+          />
+        </Box>
 
-            <StaticText
-              i18nKey="slide_tagline"
-              variant="body3"
+        {/* Top Control Segment Block Zone */}
+        <Stack
+          spacing={2}
+          sx={{
+            position: "relative",
+            zIndex: 6,
+            width: "100%",
+            padding: theme.gap(6),
+            boxSizing: "border-box",
+            pointerEvents: "auto",
+          }}>
+          {progressBarPosition === "top" && renderedProgressBar}
+          {header && (
+            <Box
               sx={{
-                color: "rgba(255, 255, 255, 0.7)",
+                width: "100%",
+                opacity: isContentHidden ? 0 : 1,
+                transition: "opacity 0.2s ease-in-out",
               }}>
-              {slide.tagline}
-            </StaticText>
-          </Box>
-        );
-      })}
-      {/* Integrated Overlaid Action Progress Segment */}
-      <NamedProgressBar
-        slides={slides}
-        current={currentIndex}
-        onGoTo={goTo}
-        interval={interval}
-        autoPlay={autoPlay && !isPaused}
-        style={{
-          position: "absolute",
-          bottom: 28,
-          left: 22,
-        }}
-      />
-    </Box>
+              {header}
+            </Box>
+          )}
+        </Stack>
+
+        {/* Bottom Control Segment Block Zone */}
+        <Stack
+          justifyContent="flex-end"
+          sx={{
+            position: "relative",
+            zIndex: 5,
+            width: "100%",
+            height: "100%",
+            gap: theme.gap(10),
+            padding: theme.boxSpacing(12),
+            paddingBottom:
+              progressBarPosition === "bottom"
+                ? theme.boxSpacing(14)
+                : theme.boxSpacing(38),
+          }}>
+          {/* Foreground Content Stack Layer */}
+          {slides.map((slide, idx) => {
+            const isSelected = idx === currentIndex;
+            const slideId = slide.media._id || String(idx);
+
+            return (
+              <Box
+                key={`content-panel-${slideId}`}
+                sx={{
+                  position: "relative",
+                  zIndex: 5,
+                  width: "90%",
+                  maxWidth: "600px",
+                  boxSizing: "border-box",
+                  paddingLeft: theme.gap(2),
+                  pointerEvents: "none",
+                  display: isSelected ? "flex" : "none",
+                  flexDirection: "column",
+                  gap: theme.gap(3),
+                  color: "#ffffff",
+                  opacity: isContentHidden ? 0 : 1,
+                  transition: "opacity 0.2s ease-in-out",
+                  animation: isSelected
+                    ? "fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards"
+                    : "none",
+                  "@keyframes fadeInUp": {
+                    "0%": { opacity: 0, transform: "translateY(10px)" },
+                    "100%": { opacity: 1, transform: "translateY(0)" },
+                  },
+                }}>
+                <TransText
+                  component={"h5"}
+                  sx={{
+                    ...theme.typography.h5,
+                    fontWeight: 800,
+                    letterSpacing: "-0.02em",
+                    fontSize: 24,
+                    lineHeight: 1.15,
+                  }}>
+                  {slide.headline}
+                </TransText>
+
+                <TransText
+                  sx={{
+                    ...theme.typography.body3,
+                    color: "rgba(255, 255, 255, 0.7)",
+                  }}>
+                  {slide.tagline}
+                </TransText>
+              </Box>
+            );
+          })}
+          {progressBarPosition === "bottom" && renderedProgressBar}
+        </Stack>
+      </Box>
+    </A11y>
   );
 };

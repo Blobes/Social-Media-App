@@ -1,24 +1,21 @@
 "use client";
 
 import React from "react";
-import { Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import {
-  useAdaptiveTime,
-  useSnackbar,
-  useMisc,
-  useGlobalStore,
-  useGistStore,
-} from "@repo/shared-hooks";
+import { useAdaptiveTime, useSnackbar, useMisc } from "@repo/shared-hooks";
 import {
   UIMode,
   IGist,
   MediaProps,
   GenericStyle,
   CACHE_KEYS,
+  POST_FEEDBACK,
+  useGlobalStore,
+  useGistStore,
 } from "@repo/core";
 import { mediaData } from "@repo/assets";
-import { Feedback } from "@repo/shared-ui";
+import { Feedback, TransText } from "@repo/shared-ui";
 import { GistService } from "../gistService";
 import { GistMedia } from "./GistMedia";
 import { PostHeader } from "../../post/components/header/PostHeader";
@@ -68,7 +65,11 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
         isUnstableNetwork,
         setSBMessage,
         mode,
-        LoginPrompt: <Typography>Login to engage</Typography>,
+        LoginPrompt: (
+          <TransText tKey={POST_FEEDBACK.login_engage_tagline.tKey}>
+            {POST_FEEDBACK.login_engage_tagline.tValue}
+          </TransText>
+        ),
         updateStore: updateGistLike,
         queryKey: [[CACHE_KEYS.POST.GISTS], [CACHE_KEYS.POST.FEED]],
       },
@@ -90,7 +91,14 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
   const gistMedia: MediaProps[] = media && media.length > 0 ? media : mediaData;
 
   if (gistData.status === "DELETED") {
-    return <Feedback tagline="Deleted by author." />;
+    return (
+      <Feedback
+        transData={{
+          textDesc: POST_FEEDBACK.post_deleted_tagline,
+        }}
+        tagline={POST_FEEDBACK.post_deleted_tagline.tValue}
+      />
+    );
   }
 
   // Dynamic metrics updated from gistData

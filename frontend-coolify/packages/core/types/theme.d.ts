@@ -1,4 +1,11 @@
 import "@mui/material/styles";
+import React from "react";
+
+type OverlayFunc = (opacity?: number, adaptive?: boolean) => string;
+interface OverlayObj {
+  default: string;
+  adaptive: string;
+}
 
 declare module "@mui/material/styles" {
   interface PaletteColor {
@@ -17,7 +24,7 @@ declare module "@mui/material/styles" {
       trans: {
         1: string;
         2: string;
-        overlay: (opacity?: number, adaptive?: boolean) => string;
+        overlay: OverlayFunc;
       };
     };
     error: {
@@ -28,7 +35,18 @@ declare module "@mui/material/styles" {
     };
   }
   interface PaletteOptions {
-    gray?: Partial<Palette["gray"]>;
+    gray?: {
+      0?: string;
+      50?: string;
+      100?: string;
+      200?: string;
+      300?: string;
+      trans?: {
+        1?: string;
+        2?: string;
+        overlay?: OverlayObj | OverlayFunc;
+      };
+    };
     error?: Partial<Palette["error"]>;
   }
 

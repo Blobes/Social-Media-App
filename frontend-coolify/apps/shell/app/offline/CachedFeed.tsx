@@ -1,19 +1,35 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { delay, autoScroll } from "@repo/helpers";
-import { Feedback, GistSkeleton, StakeSkeleton } from "@repo/shared-ui";
+import {
+  Feedback,
+  GistSkeleton,
+  StakeSkeleton,
+  TransText,
+} from "@repo/shared-ui";
 import { CircleSlash2 } from "lucide-react";
-import { useCachedData, usePage } from "@repo/shared-hooks";
-import { CLIENT_ROUTES, IPost, CACHE_KEYS } from "@repo/core";
+import {
+  useCachedData,
+  usePage,
+  useStaticTranslation,
+} from "@repo/shared-hooks";
+import {
+  CLIENT_ROUTES,
+  IPost,
+  CACHE_KEYS,
+  POST_FEEDBACK,
+  COMMON_BUTTON_LABELS,
+} from "@repo/core";
 import { GistCard, StakeCard } from "@repo/features";
 
 export const CachedFeed = () => {
   const theme = useTheme();
   const { navigateTo } = usePage();
   const [isLoading, setIsLoading] = useState(true);
+  const { translateTxtString } = useStaticTranslation();
 
   // Pulling the reactive data from cache.
   const feed = useCachedData<IPost>([
@@ -58,13 +74,17 @@ export const CachedFeed = () => {
         </>
       ) : feed.length < 1 ? (
         <Feedback
-          headline="No offline posts"
-          tagline="Can't find any post at this time."
+          transData={{
+            headline: POST_FEEDBACK.offline_feed_empty_headline,
+            textDesc: POST_FEEDBACK.offline_feed_empty_tagline,
+          }}
+          headline={POST_FEEDBACK.offline_feed_empty_headline.tValue}
+          tagline={POST_FEEDBACK.offline_feed_empty_tagline.tValue}
           icon={<CircleSlash2 />}
           primaryCta={{
             type: "BUTTON",
             variant: "outlined",
-            label: "Explore Funstakes",
+            label: translateTxtString(COMMON_BUTTON_LABELS.explore_funstakes),
             action: () =>
               navigateTo(CLIENT_ROUTES.about, {
                 type: "push",
@@ -104,7 +124,9 @@ export const CachedFeed = () => {
             case "STAKE":
               return <StakeCard key={post._id} stake={post} />;
             default:
-              <Typography>Post type not found</Typography>;
+              <TransText tKey={POST_FEEDBACK.post_type_not_found.tKey}>
+                {POST_FEEDBACK.post_type_not_found.tValue}
+              </TransText>;
           }
         })
       )}

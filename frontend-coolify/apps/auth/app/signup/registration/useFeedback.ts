@@ -1,7 +1,7 @@
 "use client";
 
-import { useGlobalStore } from "@repo/shared-hooks";
-import { CACHE_KEYS, IUser } from "@repo/core";
+import { useStaticTranslation } from "@repo/shared-hooks";
+import { AUTH_FEEDBACK, CACHE_KEYS, IUser, useGlobalStore } from "@repo/core";
 import { SignupResponse } from "../service";
 import { useOtp } from "../../otp/useOtp";
 import { useAuthNavigation } from "@repo/features";
@@ -20,6 +20,7 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
   const { handleSendOtp } = useOtp();
   const { handleVerifyOtp } = useAuthNavigation();
+  const { translateTxtString } = useStaticTranslation();
 
   /**
    * Caches credentials and routes user to validation views upon successful container generation.
@@ -57,7 +58,9 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
     error: any,
     setMsg: React.Dispatch<React.SetStateAction<React.ReactNode | null>>,
   ) => {
-    setMsg(error.message || "Registration failed. Please verify your entries.");
+    setMsg(
+      error.message || translateTxtString(AUTH_FEEDBACK.registration_failed),
+    );
   };
 
   return { handleSuccess, handleError };

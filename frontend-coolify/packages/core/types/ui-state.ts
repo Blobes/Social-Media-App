@@ -3,7 +3,7 @@
 import { SystemStyleObject } from "@mui/system";
 import { Theme } from "@mui/material/styles";
 import { FetchStatus, IMedia, ITopicPayload, IUser } from "./payloads/modified";
-import { Direction, IStep } from "./ui-props";
+import { Direction, IStep, TransData } from "./ui-props";
 import { CSSProperties } from "react";
 import { Dimensions, MediaType, StorageProvider } from "./payloads/media";
 
@@ -79,10 +79,14 @@ export interface IListItem {
   action?: () => void | null;
 }
 
+export interface IInlineMsg {
+  msg: React.ReactNode | null;
+}
+
 export interface IMessage {
   id?: string;
-  headline?: string | null;
-  tagline?: string | null;
+  headline?: string;
+  tagline?: string;
   customContent?: React.ReactNode;
   msgStatus?: FetchStatus;
   behavior?: "FIXED" | "TIMED";
@@ -109,7 +113,7 @@ export interface InputValidation {
 }
 
 export interface IPage {
-  title: string;
+  title: string | (() => string);
   path: string;
 }
 
@@ -187,6 +191,7 @@ export type MediaProcessingStatus =
   | "FAILED";
 
 export interface MediaProcessingProgress {
+  i18nKey?: string;
   fileName?: string;
   status: MediaProcessingStatus;
   progress: number;

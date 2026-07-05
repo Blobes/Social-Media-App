@@ -1,10 +1,12 @@
 "use client";
 
 import React from "react";
-import { Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { RecentMedia } from "./RecentMedia";
 import { autoScroll } from "@repo/helpers";
+import { TransText } from "@repo/shared-ui";
+import { COMMON_MEDIA } from "@repo/core";
 
 export const RightSidebar = () => {
   const theme = useTheme();
@@ -24,9 +26,11 @@ export const RightSidebar = () => {
           ...autoScroll().mobile,
         },
       }}>
-      <Typography variant="subtitle1" sx={{ width: "100%" }}>
-        Recently Viewed Images & Videos
-      </Typography>
+      <TransText
+        component="h6"
+        {...COMMON_MEDIA.recently_viewed_media}
+        sx={{ ...theme.typography.subtitle1, width: "100%" }}
+      />
       <RecentMedia />
     </Stack>
   );

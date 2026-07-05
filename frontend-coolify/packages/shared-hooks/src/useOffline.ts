@@ -3,8 +3,7 @@
 import { useCallback } from "react";
 import { usePage } from "./usePage";
 import { getFromLocalStorage } from "@repo/helpers";
-import { CLIENT_ROUTES, IPage } from "@repo/core";
-import { useGlobalStore } from "./store/useGlobalStore";
+import { CLIENT_ROUTES, IPage, useGlobalStore } from "@repo/core";
 
 /**
  * Manages transitions between online and offline application states.

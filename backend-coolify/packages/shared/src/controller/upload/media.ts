@@ -1,10 +1,34 @@
-import { Response } from "express";
-import {
-  ALLOWED_MIME_TYPES,
-  AllowedMimeType,
-} from "../../utils/misc/constants";
-import { IAuthRequest, IS3Config } from "../../types";
+import { Response, NextFunction } from "express";
 import { createS3Service } from "../../services/s3";
+import { ALLOWED_MIME_TYPES, AllowedMimeType } from "../../constants/others";
+import { IAuthRequest, IS3Config } from "../../types";
+import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
+import { forwardError } from "../../utils/misc/error";
+
+interface PolicyRequestBody {
+  fileType: AllowedMimeType;
+}
+
+interface UrlRequestBody {
+  fileType?: AllowedMimeType;
+  fileKey?: string;
+}
+
+interface InitMultipartRequestBody {
+  fileType: AllowedMimeType;
+}
+
+interface SignPartRequestBody {
+  uploadId: string;
+  fileKey: string;
+  partNumber: number;
+}
+
+interface CompleteMultipartRequestBody {
+  uploadId: string;
+  fileKey: string;
+  parts: { ETag: string; PartNumber: number }[];
+}
 
 /**
  * Express middleware handler routing standard secure POST policy signatures.
@@ -12,25 +36,29 @@ import { createS3Service } from "../../services/s3";
 export const MediaUploadPolicyHandler = (s3Config: IS3Config) => {
   const s3Service = createS3Service(s3Config);
 
-  return async (req: IAuthRequest, res: Response): Promise<void> => {
-    const { fileType } = req.body as { fileType: AllowedMimeType };
+  return async (
+    req: IAuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    const { fileType } = req.body as PolicyRequestBody;
     const userId = req.user?.id;
 
     if (!fileType || !ALLOWED_MIME_TYPES.includes(fileType)) {
-      res
-        .status(400)
-        .json({
-          status: "ERROR",
-          message: "Invalid or missing fileType parameter.",
-          payload: null,
-        });
+      res.status(400).json({
+        status: "ERROR",
+        ...MESSAGES_REGISTRY.UPLOAD.INVALID_OR_MISSING_FILE_TYPE,
+        payload: null,
+      });
       return;
     }
 
     if (!userId) {
-      res
-        .status(401)
-        .json({ status: "ERROR", message: "Unauthorized.", payload: null });
+      res.status(401).json({
+        status: "ERROR",
+        ...MESSAGES_REGISTRY.AUTH.UNAUTHORIZED,
+        payload: null,
+      });
       return;
     }
 
@@ -41,18 +69,21 @@ export const MediaUploadPolicyHandler = (s3Config: IS3Config) => {
 
       res.status(200).json({
         status: "SUCCESS",
-        message: "Pre-signed POST policy generated successfully",
+        ...MESSAGES_REGISTRY.UPLOAD.PRE_SIGNED_POST_POLICY_SUCCESS,
         payload: { uploadUrl, fields, fileKey, publicUrl },
       });
     } catch (error: any) {
       console.error("S3 Presign Policy Error:", error);
-      res
-        .status(500)
-        .json({
-          status: "ERROR",
-          message: error.message || "Failed to generate policy",
-          payload: null,
-        });
+
+      return forwardError(
+        next,
+        error.message
+          ? MESSAGES_REGISTRY.UPLOAD.PRE_SIGNED_POST_POLICY_THROWN_ERROR(
+              error.message,
+            )
+          : MESSAGES_REGISTRY.SYSTEM.INTERNAL_SERVER_ERROR,
+        error,
+      );
     }
   };
 };
@@ -63,17 +94,20 @@ export const MediaUploadPolicyHandler = (s3Config: IS3Config) => {
 export const MediaUploadUrlHandler = (s3Config: IS3Config) => {
   const s3Service = createS3Service(s3Config);
 
-  return async (req: IAuthRequest, res: Response): Promise<void> => {
-    const { fileType, fileKey: requestedFileKey } = req.body as {
-      fileType?: AllowedMimeType;
-      fileKey?: string;
-    };
+  return async (
+    req: IAuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    const { fileType, fileKey: requestedFileKey } = req.body as UrlRequestBody;
     const userId = req.user?.id;
 
     if (!userId) {
-      res
-        .status(401)
-        .json({ status: "ERROR", message: "Unauthorized.", payload: null });
+      res.status(401).json({
+        status: "ERROR",
+        ...MESSAGES_REGISTRY.AUTH.UNAUTHORIZED,
+        payload: null,
+      });
       return;
     }
 
@@ -82,20 +116,18 @@ export const MediaUploadUrlHandler = (s3Config: IS3Config) => {
         const publicUrl = s3Service.getPublicUrl(requestedFileKey);
         res.status(200).json({
           status: "SUCCESS",
-          message: "Public delivery link resolved successfully",
+          ...MESSAGES_REGISTRY.UPLOAD.PUBLIC_DELIVERY_LINK_RESOLVED,
           payload: { uploadUrl: "", fileKey: requestedFileKey, publicUrl },
         });
         return;
       }
 
       if (!fileType || !ALLOWED_MIME_TYPES.includes(fileType)) {
-        res
-          .status(400)
-          .json({
-            status: "ERROR",
-            message: "Invalid or missing fileType parameter.",
-            payload: null,
-          });
+        res.status(400).json({
+          status: "ERROR",
+          ...MESSAGES_REGISTRY.UPLOAD.INVALID_OR_MISSING_FILE_TYPE,
+          payload: null,
+        });
         return;
       }
 
@@ -104,18 +136,19 @@ export const MediaUploadUrlHandler = (s3Config: IS3Config) => {
 
       res.status(200).json({
         status: "SUCCESS",
-        message: "Pre-signed URL generated successfully",
+        ...MESSAGES_REGISTRY.UPLOAD.PRE_SIGNED_URL_SUCCESS,
         payload: { uploadUrl: url, fileKey, publicUrl },
       });
     } catch (error: any) {
       console.error("S3 Presign PUT URL Error:", error);
-      res
-        .status(500)
-        .json({
-          status: "ERROR",
-          message: error.message || "Failed to generate track url",
-          payload: null,
-        });
+
+      return forwardError(
+        next,
+        error.message
+          ? MESSAGES_REGISTRY.UPLOAD.PRE_SIGNED_URL_THROWN_ERROR(error.message)
+          : MESSAGES_REGISTRY.SYSTEM.INTERNAL_SERVER_ERROR,
+        error,
+      );
     }
   };
 };
@@ -126,14 +159,20 @@ export const MediaUploadUrlHandler = (s3Config: IS3Config) => {
 export const InitMultipartHandler = (s3Config: IS3Config) => {
   const s3Service = createS3Service(s3Config);
 
-  return async (req: IAuthRequest, res: Response): Promise<void> => {
-    const { fileType } = req.body as { fileType: AllowedMimeType };
+  return async (
+    req: IAuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    const { fileType } = req.body as InitMultipartRequestBody;
     const userId = req.user?.id;
 
     if (!userId) {
-      res
-        .status(401)
-        .json({ status: "ERROR", message: "Unauthorized", payload: null });
+      res.status(401).json({
+        status: "ERROR",
+        ...MESSAGES_REGISTRY.AUTH.UNAUTHORIZED,
+        payload: null,
+      });
       return;
     }
 
@@ -145,14 +184,21 @@ export const InitMultipartHandler = (s3Config: IS3Config) => {
 
       res.status(200).json({
         status: "SUCCESS",
-        message: "Multipart session initialized",
+        ...MESSAGES_REGISTRY.UPLOAD.MULTIPART_SESSION_INITIALIZED,
         payload: { uploadId, fileKey },
       });
     } catch (error: any) {
       console.error("Init Multipart Error:", error);
-      res
-        .status(500)
-        .json({ status: "ERROR", message: error.message, payload: null });
+
+      return forwardError(
+        next,
+        error.message
+          ? MESSAGES_REGISTRY.UPLOAD.MULTIPART_SESSION_THROWN_ERROR(
+              error.message,
+            )
+          : MESSAGES_REGISTRY.SYSTEM.INTERNAL_SERVER_ERROR,
+        error,
+      );
     }
   };
 };
@@ -163,12 +209,12 @@ export const InitMultipartHandler = (s3Config: IS3Config) => {
 export const SignPartHandler = (s3Config: IS3Config) => {
   const s3Service = createS3Service(s3Config);
 
-  return async (req: IAuthRequest, res: Response): Promise<void> => {
-    const { uploadId, fileKey, partNumber } = req.body as {
-      uploadId: string;
-      fileKey: string;
-      partNumber: number;
-    };
+  return async (
+    req: IAuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    const { uploadId, fileKey, partNumber } = req.body as SignPartRequestBody;
 
     try {
       const { partUploadUrl } = await s3Service.signMultipartPart(
@@ -179,14 +225,21 @@ export const SignPartHandler = (s3Config: IS3Config) => {
 
       res.status(200).json({
         status: "SUCCESS",
-        message: "Part segment link generated",
+        ...MESSAGES_REGISTRY.UPLOAD.PART_SEGMENT_LINK_GENERATED,
         payload: { partUploadUrl },
       });
     } catch (error: any) {
       console.error("Sign Part Error:", error);
-      res
-        .status(500)
-        .json({ status: "ERROR", message: error.message, payload: null });
+
+      return forwardError(
+        next,
+        error.message
+          ? MESSAGES_REGISTRY.UPLOAD.PART_SEGMENT_LINK_THROWN_ERROR(
+              error.message,
+            )
+          : MESSAGES_REGISTRY.SYSTEM.INTERNAL_SERVER_ERROR,
+        error,
+      );
     }
   };
 };
@@ -197,26 +250,34 @@ export const SignPartHandler = (s3Config: IS3Config) => {
 export const CompleteMultipartHandler = (s3Config: IS3Config) => {
   const s3Service = createS3Service(s3Config);
 
-  return async (req: IAuthRequest, res: Response): Promise<void> => {
-    const { uploadId, fileKey, parts } = req.body as {
-      uploadId: string;
-      fileKey: string;
-      parts: { ETag: string; PartNumber: number }[];
-    };
+  return async (
+    req: IAuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    const { uploadId, fileKey, parts } =
+      req.body as CompleteMultipartRequestBody;
 
     try {
       await s3Service.completeMultipartUpload(uploadId, fileKey, parts);
 
       res.status(200).json({
         status: "SUCCESS",
-        message: "Multipart asset successfully assembled",
+        ...MESSAGES_REGISTRY.UPLOAD.MULTIPART_ASSET_ASSEMBLED,
         payload: null,
       });
     } catch (error: any) {
       console.error("Complete Multipart Error:", error);
-      res
-        .status(500)
-        .json({ status: "ERROR", message: error.message, payload: null });
+
+      return forwardError(
+        next,
+        error.message
+          ? MESSAGES_REGISTRY.UPLOAD.MULTIPART_ASSET_ASSEMBLED_THROWN_ERROR(
+              error.message,
+            )
+          : MESSAGES_REGISTRY.SYSTEM.INTERNAL_SERVER_ERROR,
+        error,
+      );
     }
   };
 };

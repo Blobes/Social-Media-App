@@ -1,9 +1,49 @@
 "use client";
 
-import { ApiError, FetchStatus } from "@repo/core";
+import {
+  ApiError,
+  COMMON_FEEDBACK,
+  FetchStatus,
+  useGlobalStore,
+} from "@repo/core";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const DEFAULT_TIMEOUT = 60000; // Default timeout in milliseconds (1 minute)
+
+interface APIMessagePayload {
+  i18nKey: string;
+  message?: string;
+  interpolations?: Record<string, string | number>;
+}
+/**
+ * Parses and translates structured feedback contracts sent directly from API nodes.
+ */
+export const resolveAPIMessage = (
+  payload: APIMessagePayload,
+  fallbackString = "apimessage:auth.server_error",
+): string => {
+  const storeState = useGlobalStore.getState();
+  const I18nInstance = storeState.i18nInstance;
+  const currentLanguage = storeState.currentLanguage;
+
+  if (!I18nInstance) return payload?.message || "";
+
+  if (!payload?.i18nKey)
+    return (
+      payload?.message ||
+      I18nInstance.t(fallbackString, { lng: currentLanguage })
+    );
+  // Route lookups to the isolated apimessage namespace file explicitly
+  const translationKey = payload.i18nKey.includes(":")
+    ? payload.i18nKey
+    : `apimessage:${payload.i18nKey}`;
+
+  return I18nInstance.t(translationKey, {
+    defaultValue: payload.message,
+    ...payload.interpolations,
+    lng: currentLanguage,
+  });
+};
 
 /**
  * Standardized fetch wrapper that handles timeouts, base URLs, and error parsing.
@@ -41,6 +81,24 @@ export const apiClient = async <T>(
       responseData = await response.json();
     }
 
+    // HANDLING LOCALIZATION ON FEEDBACK
+    if (responseData) {
+      const target = responseData.error || responseData;
+      const { i18nKey, values, message } = target;
+      if (i18nKey || message) {
+        const fallback = response.ok
+          ? "apimessage:auth.logged_in_successfully"
+          : "apimessage:auth.server_error";
+        const localizedString = resolveAPIMessage(
+          { i18nKey, interpolations: values, message },
+          fallback,
+        );
+        responseData.message = localizedString;
+        if (responseData.error) responseData.error.message = localizedString;
+      }
+    }
+
+    // --- ERROR HANDLING ROUTINE ---
     if (!response.ok) {
       // Create a robust error object for TanStack's 'onError' to consume
       const error = new Error(
@@ -66,7 +124,10 @@ export const apiClient = async <T>(
 
     // Map network or timeout failures to a status 0 for checkNetworkError logic
     if (error.name === "AbortError" || error.message === "timeout") {
-      apiErr.message = "Connection timed out or failed.";
+      apiErr.message = resolveAPIMessage({
+        i18nKey: COMMON_FEEDBACK.network_connection_failed.tKey,
+        message: COMMON_FEEDBACK.network_connection_failed.tValue,
+      });
       apiErr.httpStatus = 0;
       apiErr.status = "TIMEOUT";
       apiErr.payload = null;
@@ -74,10 +135,18 @@ export const apiClient = async <T>(
       error.message === "Failed to fetch" ||
       error instanceof TypeError
     ) {
+      apiErr.message = resolveAPIMessage({
+        i18nKey: COMMON_FEEDBACK.server_error.tKey,
+        message: COMMON_FEEDBACK.server_error.tValue,
+      });
       apiErr.httpStatus = 0;
       apiErr.status = "NETWORK_ERROR";
       apiErr.payload = null;
     } else {
+      apiErr.message = resolveAPIMessage({
+        i18nKey: COMMON_FEEDBACK.unknown_error.tKey,
+        message: error.message,
+      });
       apiErr.httpStatus = error.httpStatus || 500;
       apiErr.status = "ERROR";
       apiErr.payload = null;
@@ -100,7 +169,10 @@ export const checkNetworkError = (err: ApiError) => {
     return {
       payload: null,
       status: "ERROR" as FetchStatus,
-      message: "Network connection failed",
+      message: resolveAPIMessage({
+        i18nKey: COMMON_FEEDBACK.network_connection_failed.tKey,
+        message: COMMON_FEEDBACK.network_connection_failed.tValue,
+      }),
     };
   }
   return null;

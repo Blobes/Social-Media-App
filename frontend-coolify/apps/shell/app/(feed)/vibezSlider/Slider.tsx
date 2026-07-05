@@ -3,11 +3,16 @@
 import React from "react";
 import { Stack, FormControl } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { AppButton, UserAvatar, ResponsiveTextarea } from "@repo/shared-ui";
+import {
+  AppButton,
+  UserAvatar,
+  ResponsiveTextarea,
+  TransText,
+} from "@repo/shared-ui";
 import { Image, Play } from "lucide-react";
-import { useGlobalStore } from "@repo/shared-hooks";
+import { POST_BUTTON_LABELS, useGlobalStore } from "@repo/core";
 
-export const VibeSlider = () => {
+export const UpdatesCarousel = () => {
   const theme = useTheme();
   const authUser = useGlobalStore((state) => state.authUser);
   if (!authUser) {
@@ -65,7 +70,8 @@ export const VibeSlider = () => {
               backgroundColor: theme.palette.gray.trans[2],
             },
           }}>
-          <Image size={20} /> Image
+          <Image size={20} />{" "}
+          <TransText {...POST_BUTTON_LABELS.add_image} noComponent />
         </AppButton>
         <AppButton
           variant="contained"
@@ -77,7 +83,8 @@ export const VibeSlider = () => {
               backgroundColor: theme.palette.gray.trans[2],
             },
           }}>
-          <Play size={20} /> Video
+          <Play size={20} />{" "}
+          <TransText {...POST_BUTTON_LABELS.add_video} noComponent />
         </AppButton>
       </Stack>
     </Stack>

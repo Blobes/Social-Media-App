@@ -7,7 +7,7 @@ import { FollowerCard } from "./FollowerCard";
 import { ProgressIcon, Feedback } from "@repo/shared-ui";
 import { UserMinus } from "lucide-react";
 import { useUser } from "@repo/features";
-import { useGlobalStore } from "@repo/shared-hooks";
+import { COMMON_FEEDBACK, useGlobalStore } from "@repo/core";
 
 export const Followers = () => {
   const theme = useTheme();
@@ -25,7 +25,15 @@ export const Followers = () => {
           <ProgressIcon otherProps={{ size: 30 }} />
         </Stack>
       ) : authUser && followers && followers.length < 1 ? (
-        <Feedback tagline="You don't have followers!" icon={<UserMinus />} />
+        <Feedback
+          transData={{
+            textDesc: message
+              ? undefined
+              : COMMON_FEEDBACK.user_no_follower_tagline,
+          }}
+          tagline={message || COMMON_FEEDBACK.user_no_follower_tagline.tValue}
+          icon={<UserMinus />}
+        />
       ) : followers && followers.length > 0 ? (
         <Stack
           direction="row"
@@ -42,7 +50,10 @@ export const Followers = () => {
         </Stack>
       ) : (
         <Feedback
-          tagline={message || "Something went wrong."}
+          transData={{
+            textDesc: message ? undefined : COMMON_FEEDBACK.server_error,
+          }}
+          tagline={message || COMMON_FEEDBACK.server_error.tValue}
           icon={<UserMinus />}
         />
       )}

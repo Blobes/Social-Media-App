@@ -10,6 +10,7 @@ import { ReplyButton, ReplyProps } from "./Reply";
 import { summarizeNum } from "@repo/helpers";
 import { GenericStyle } from "@repo/core";
 import { FollowButton, FollowProps } from "./Follow";
+import { TransText } from "@repo/shared-ui";
 
 interface Hide {
   like?: boolean;
@@ -50,9 +51,9 @@ export const PostEngagement = ({
     <Stack alignItems="center" spacing={0.5}>
       {ButtonComponent}
       {isVertical && count !== undefined && (
-        <Typography
-          variant="caption"
+        <TransText
           sx={{
+            ...theme.typography.caption,
             fontWeight: 700,
             fontSize: "11px",
             color: theme.palette.gray[200],
@@ -60,7 +61,7 @@ export const PostEngagement = ({
             textShadow: "0px 1px 2px rgba(0,0,0,0.5)",
           }}>
           {summarizeNum(count)}
-        </Typography>
+        </TransText>
       )}
     </Stack>
   );

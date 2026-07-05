@@ -1,130 +1,69 @@
-import { UserModel } from "@repo/database";
-import { Request, Response } from "express";
+import { executeAccountCheck } from "@/auth/services/accountChecker";
+import { NextFunction, Request, Response } from "express";
+import { forwardError, MESSAGES_REGISTRY } from "@repo/shared";
 
-interface CheckUsernameRequest extends Request {
-  body: {
+/**
+ * Controller endpoint to evaluate username parameters for registration availability or active login flags.
+ */
+export const checkUsername = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<any> => {
+  const { username, purpose = "REGISTRATION" } = req.body as {
     username?: string;
     purpose?: "REGISTRATION" | "LOGIN";
   };
-}
-
-/**
- * Checks username availability for registration or trust status for login.
- */
-export const checkUsername = async (
-  req: CheckUsernameRequest,
-  res: Response,
-): Promise<void> => {
-  const { username, purpose = "REGISTRATION" } = req.body;
-
-  if (!username) {
-    res.status(400).json({
-      status: "ERROR",
-      message: "Username is required",
-      payload: null,
-    });
-    return;
-  }
 
   try {
-    const formattedUsername = username.trim();
+    const serviceResult = await executeAccountCheck({
+      type: "USERNAME",
+      identifier: username || "",
+      purpose,
+    });
 
-    const existingUser = await UserModel.findOne({
-      username: { $regex: new RegExp(`^${formattedUsername}$`, "i") },
-    }).setOptions({ skipFilter: true });
-
-    // ── LOGIN flow ──────────────────────────────────────────────────────────
-    if (purpose === "LOGIN") {
-      if (!existingUser) {
-        res.status(404).json({
-          status: "ERROR",
-          message: "Username not found.",
-          payload: null,
-        });
-        return;
-      }
-
-      if (existingUser.isDeactivated) {
-        res.status(200).json({
-          status: "SUCCESS",
-          isExisting: true,
-          message: "This account is deactivated. Please restore it to log in.",
-          payload: {
-            accountStatus: "DEACTIVATED",
-            userId: existingUser._id,
-            username: existingUser.username,
-            firstName: existingUser.firstName,
-            email: existingUser.email,
-            phone: existingUser.phoneNumber,
-          },
-        });
-        return;
-      }
-
-      res.status(200).json({
-        status: "SUCCESS",
-        message: "Username exists and is active.",
-        isExisting: true,
-        payload: {
-          accountStatus: "ACTIVE",
-          userId: existingUser._id,
-          username: existingUser.username,
-          firstName: existingUser.firstName,
-          email: existingUser.email,
-          phone: existingUser.phoneNumber,
-        },
-      });
-      return;
-    }
-
-    // ── REGISTRATION flow ───────────────────────────────────────────────────
-    if (!existingUser) {
-      res.status(200).json({
-        status: "SUCCESS",
-        isExisting: false,
-        message: "Username is available",
+    if (serviceResult.status === "MISSING_IDENTIFIER") {
+      return res.status(400).json({
+        status: "ERROR",
+        ...MESSAGES_REGISTRY.AUTH.USERNAME_REQUIRED,
         payload: null,
       });
-      return;
     }
 
-    // Logic for generating suggestions if username is taken
-    const suggestions: string[] = [];
-    const regex = new RegExp(`^${formattedUsername}\\d*$`, "i");
-
-    const taken = await UserModel.find({ username: regex })
-      .select("username -_id")
-      .setOptions({ skipFilter: true })
-      .lean();
-
-    const takenSet = new Set(
-      taken
-        .map((u) => u.username)
-        .filter((name): name is string => typeof name === "string")
-        .map((name) => name.toLowerCase()),
-    );
-
-    let counter = 1;
-    while (suggestions.length < 5) {
-      const candidate = `${formattedUsername}${counter}`;
-      if (!takenSet.has(candidate.toLowerCase())) suggestions.push(candidate);
-      counter++;
-      if (counter > 100) break;
+    if (serviceResult.status === "NOT_FOUND") {
+      return res.status(404).json({
+        status: "ERROR",
+        ...MESSAGES_REGISTRY.AUTH.USERNAME_NOT_FOUND,
+        payload: null,
+      });
     }
 
-    res.status(200).json({
+    if (serviceResult.status === "THIRD_PARTY_RESTRICTION") {
+      return res.status(400).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        isExisting: serviceResult.isExisting,
+        signedUpWith: serviceResult.signedUpWith,
+        payload: serviceResult.payload,
+      });
+    }
+
+    return res.status(200).json({
       status: "SUCCESS",
-      isExisting: true,
-      suggestions,
-      message: "Username is already taken.",
-      payload: null,
+      ...serviceResult.transInfo,
+      isExisting: serviceResult.isExisting,
+      signedUpWith: serviceResult.signedUpWith,
+      suggestions: serviceResult.suggestions,
+      payload: serviceResult.payload,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[checkUsername] Error:", error);
-    res.status(500).json({
-      status: "ERROR",
-      message: error instanceof Error ? error.message : "Internal server error",
-      payload: null,
-    });
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      error,
+    );
   }
 };

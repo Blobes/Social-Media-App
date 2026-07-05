@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback } from "react";
-import { useSnackbar, useGlobalStore } from "@repo/shared-hooks";
+import { useSnackbar, useStaticTranslation } from "@repo/shared-hooks";
 import { UserService } from "./service";
-import { IUser, CACHE_KEYS } from "@repo/core";
+import { IUser, CACHE_KEYS, useGlobalStore, COMMON_FEEDBACK } from "@repo/core";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 /**
@@ -12,6 +12,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 export const useUser = (userId?: string) => {
   const { fetchUser, fetchFollowers, followUser } = UserService();
   const { setSBMessage } = useSnackbar();
+  const { translateTxtString } = useStaticTranslation();
   const queryClient = useQueryClient();
 
   // Accessing global state via selectors for stable references
@@ -70,8 +71,10 @@ export const useUser = (userId?: string) => {
     onError: (error: any) => {
       setSBMessage({
         msg: {
-          tagline: error.message || "Failed to update follow status",
           msgStatus: "ERROR",
+          tagline:
+            error.message ||
+            translateTxtString(COMMON_FEEDBACK.follow_update_failed_tagline),
         },
       });
     },

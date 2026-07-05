@@ -1,12 +1,19 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { CircularProgress, Stack } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { WordTrimmer, AppButton } from "@repo/shared-ui";
+import { WordTrimmer, AppButton, TransText } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
-import { GenericStyle, SUPPORTED_ISO_CODES } from "@repo/core";
-import { useCaptionTranslation } from "../hooks/useTranslation";
+import {
+  AUTH_BUTTON_LABELS,
+  CACHE_KEYS,
+  GenericStyle,
+  SUPPORTED_ISO_CODES,
+  useGlobalStore,
+} from "@repo/core";
+import { useDynamicTranslation } from "@repo/shared-hooks";
+import { getBrowserLanguage } from "@repo/helpers";
 
 interface DynamicCaptionProps {
   captionId: string;
@@ -26,13 +33,57 @@ export const DynamicCaption: React.FC<DynamicCaptionProps> = ({
 }) => {
   const theme = useTheme();
   const { i18n } = useTranslation();
-  const userLanguage = i18n.language || "en";
 
-  const isDifferentLanguage =
-    detectedLanguage.toLowerCase() !== userLanguage.toLowerCase();
-  const isSupportedLanguage = SUPPORTED_ISO_CODES.includes(
-    detectedLanguage.toLowerCase(),
-  );
+  const userPreferredLanguage = useGlobalStore((state) => state.authUser)
+    ?.preferences?.preferredLanguage;
+  const userSelectedLanguage = i18n.language;
+  const browserLanguage = getBrowserLanguage();
+
+  const postSourceLang = detectedLanguage.toLowerCase();
+
+  /**
+   * Resolves the translation target language using a prioritized fallback resolution chain.
+   */
+  const targetLanguage = useMemo(() => {
+    // 1. Profile Preference Fallback Layer
+    if (userPreferredLanguage) {
+      const preferred = userPreferredLanguage.toLowerCase();
+      if (
+        preferred !== postSourceLang &&
+        SUPPORTED_ISO_CODES.includes(preferred)
+      ) {
+        return preferred;
+      }
+    }
+
+    // 2. Runtime UI Instance Selection Fallback Layer
+    if (userSelectedLanguage) {
+      const selected = userSelectedLanguage.toLowerCase();
+      if (
+        selected !== postSourceLang &&
+        SUPPORTED_ISO_CODES.includes(selected)
+      ) {
+        return selected;
+      }
+    }
+
+    // 3. Client System Environment Configuration Baseline
+    if (browserLanguage) {
+      const browser = browserLanguage.toLowerCase();
+      if (browser !== postSourceLang && SUPPORTED_ISO_CODES.includes(browser)) {
+        return browser;
+      }
+    }
+
+    return null;
+  }, [
+    userPreferredLanguage,
+    userSelectedLanguage,
+    browserLanguage,
+    postSourceLang,
+  ]);
+
+  const needsTranslation = targetLanguage !== null;
 
   const {
     translatedText,
@@ -40,15 +91,26 @@ export const DynamicCaption: React.FC<DynamicCaptionProps> = ({
     isError,
     showingTranslation,
     toggleTranslation,
-  } = useCaptionTranslation({
-    postId: captionId,
-    caption,
-    sourceLang: detectedLanguage,
-    targetLang: userLanguage,
+  } = useDynamicTranslation({
+    parentKey: CACHE_KEYS.POST.TRANSLATION,
+    textData: {
+      textId: captionId,
+      textToTranslate: caption,
+      sourceLang: postSourceLang,
+      targetLang: targetLanguage ?? "en", // Pass a fallback fallback to appease type checks safely
+    },
+    resolveTranslation: (res: any) =>
+      res?.payload?.translatedText || res?.data?.translatedText,
   });
 
   const visibleText =
     showingTranslation && translatedText ? translatedText : caption;
+
+  const btnLabel = isError
+    ? AUTH_BUTTON_LABELS.retry_translation
+    : showingTranslation
+      ? AUTH_BUTTON_LABELS.see_original
+      : AUTH_BUTTON_LABELS.see_translation;
 
   return (
     <Stack sx={{ width: "100%", ...style }}>
@@ -64,7 +126,7 @@ export const DynamicCaption: React.FC<DynamicCaptionProps> = ({
         }}
       />
 
-      {isDifferentLanguage && isSupportedLanguage && (
+      {needsTranslation && (
         <Stack direction="row" justifyContent="flex-start" sx={{ mt: 1 }}>
           <AppButton
             variant="text"
@@ -86,12 +148,8 @@ export const DynamicCaption: React.FC<DynamicCaptionProps> = ({
                 <CircularProgress size={12} color="inherit" sx={{ mr: 1 }} />
                 Translating...
               </>
-            ) : isError ? (
-              "Retry Translation"
-            ) : showingTranslation ? (
-              "See Original"
             ) : (
-              "See Translation"
+              <TransText {...btnLabel} noComponent />
             )}
           </AppButton>
         </Stack>

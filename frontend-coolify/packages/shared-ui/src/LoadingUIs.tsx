@@ -1,14 +1,15 @@
 "use client";
 
 import React from "react";
-import { CircularProgress, Typography } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { RootUIContainer } from "./Containers";
-import { GenericStyle } from "@repo/core";
+import { GenericStyle, ITranslation } from "@repo/core";
 import { asset } from "@repo/assets";
 import { SVGWrapper } from "./SvgWrapper";
+import { TransText } from "./Text";
 
-interface ProgressProps {
+interface ProgressProps extends ITranslation {
   style?: GenericStyle;
   otherProps?: any;
   info?: string;
@@ -23,10 +24,20 @@ export const ProgressIcon = ({
   style,
   otherProps,
   info,
+  tKey,
+  tValue,
+  interpolations,
   value,
   variant,
 }: ProgressProps) => {
   const theme = useTheme();
+
+  const typographyStyle = {
+    textAlign: "center",
+    fontWeight: "500",
+    fontStyle: "italic",
+  };
+
   return (
     <>
       <CircularProgress
@@ -39,15 +50,12 @@ export const ProgressIcon = ({
         aria-label="Loading…"
       />
       {info && (
-        <Typography
-          variant="body2"
-          sx={{
-            textAlign: "center",
-            fontWeight: "500",
-            fontStyle: "italic",
-          }}>
-          {info}
-        </Typography>
+        <TransText
+          tKey={tKey}
+          tValue={tValue}
+          interpolations={interpolations}
+          sx={{ ...theme.typography.body2, ...(typographyStyle as any) }}
+        />
       )}
     </>
   );

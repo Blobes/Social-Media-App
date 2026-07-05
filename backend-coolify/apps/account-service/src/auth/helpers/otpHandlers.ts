@@ -1,10 +1,7 @@
-import { Request, Response } from "express";
-import bcrypt from "bcrypt";
 import { IUserDocument } from "@repo/database";
 import {
   cleanDeviceSessions,
-  clearAuthTokens,
-  OtpType,
+  MESSAGES_REGISTRY,
   upsertDevice,
 } from "@repo/shared";
 
@@ -13,27 +10,14 @@ import {
  */
 export const guardIdentifierPending = (
   user: IUserDocument,
-  channel: OtpType,
+  channel: string,
 ): void => {
   const hasPending =
     channel === "EMAIL" ? !!user.pendingEmail : !!user.pendingPhoneNumber;
 
   if (!hasPending) {
     const error = new Error(
-      `No pending ${channel} change found. Initiate a ${channel} update request first.`,
-    ) as any;
-    error.status = 400;
-    throw error;
-  }
-
-  const isAlreadyVerified =
-    channel === "EMAIL"
-      ? !user.pendingEmail && user.isEmailVerified
-      : !user.pendingPhoneNumber && user.isPhoneVerified;
-
-  if (isAlreadyVerified) {
-    const error = new Error(
-      `This ${channel === "EMAIL" ? "email address" : "phone number"} is already verified.`,
+      MESSAGES_REGISTRY.AUTH.NO_PENDING_CHANNEL_CHANGE(channel).message,
     ) as any;
     error.status = 400;
     throw error;
@@ -41,47 +25,31 @@ export const guardIdentifierPending = (
 };
 
 /**
- * Finalizes password update and performs a global session wipe.
+ * Finalizes password update and states global session wipe instructions.
  */
-export const fulfillPasswordReset = async (
+export const finalizePasswordReset = async (
   user: IUserDocument,
-  newPassword: string,
-  res: Response,
 ): Promise<any> => {
-  if (newPassword.length < 6) {
-    const error = new Error(
-      "Password must be at least 6 characters long.",
-    ) as any;
-    error.status = 400;
-    throw error;
+  if (user.password) {
+    user.password = null;
   }
-  if (!newPassword) {
-    const error = new Error("New password is required for reset.") as any;
-    error.status = 400;
-    throw error;
-  }
-  // Hash the new password
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(newPassword, salt);
-  user.lastPasswordVerifiedAt = new Date();
-
-  // Clear all sessions from Redis/DB, including the primary device.
   await cleanDeviceSessions(String(user._id), undefined, {
     clearAll: true,
     preservePrimary: false,
   });
-  clearAuthTokens(res);
-
-  // Return specific payload for tracking
-  return { loggedOut: true, credentialUpdated: "PASSWORD" };
+  return {
+    loggedOut: true,
+    clearLocalCookies: true,
+    credentialUpdated: "PASSWORD",
+  };
 };
 
 /**
- * Handles user account email or phone verification flag.
+ * Handles user account email or phone verification flag updates.
  */
 export const syncIdentifierStatus = async (
   user: IUserDocument,
-  channel: OtpType,
+  channel: string,
 ): Promise<any> => {
   if (channel === "EMAIL") {
     user.isEmailVerified = true;
@@ -94,14 +62,14 @@ export const syncIdentifierStatus = async (
 };
 
 /**
- * Promotes a device record to 'trusted' by updating lastVerifiedAt.
+ * Promotes a device record to 'trusted' by updating lastVerifiedAt markers.
  */
 export const authorizeDeviceTrust = async (
   user: IUserDocument,
   deviceToken: string,
-  req: Request,
+  userAgent: string,
 ): Promise<void> => {
-  await upsertDevice(user, deviceToken, req);
+  await upsertDevice(user, deviceToken, userAgent);
 };
 
 /**
@@ -109,7 +77,7 @@ export const authorizeDeviceTrust = async (
  */
 export const commitIdentifierChange = async (
   user: IUserDocument,
-  channel: OtpType,
+  channel: string,
 ): Promise<any> => {
   let updatedField = null;
   if (channel === "EMAIL" && user.pendingEmail) {

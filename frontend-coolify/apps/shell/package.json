@@ -15,7 +15,6 @@
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "zustand": "^5.0.12",
     "@repo/assets": "workspace:*",
     "@repo/features": "workspace:*",
     "@repo/helpers": "workspace:*",
@@ -28,7 +27,6 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "typescript": "catalog:",
-    "i18next-cli": "catalog:"
+    "typescript": "catalog:"
   }
 }

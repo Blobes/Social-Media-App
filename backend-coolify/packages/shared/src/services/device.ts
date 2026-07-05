@@ -2,7 +2,7 @@ import { DeviceModel, IDevice, IUserDocument } from "@repo/database";
 import { UAParser } from "ua-parser-js";
 import { Request } from "express";
 import { Types } from "mongoose";
-import { cleanDeviceSessions } from "../utils/misc/session";
+import { cleanDeviceSessions } from "./session";
 import { CACHE_KEYS, getOrSetCache } from "../utils/redis/cache";
 
 const TRUST_WINDOW = 15 * 24 * 60 * 60 * 1000;
@@ -43,40 +43,36 @@ export async function evaluateDeviceTrust(device: IDevice | null): Promise<{
 }
 
 /**
- * Creates or updates a device record and ensures the user has a primary device.
- */
-/**
  * Registers or updates a device and ensures a primary anchor exists.
  */
 export async function upsertDevice(
   user: IUserDocument,
   deviceToken: string,
-  req: Request,
+  userAgent: string,
 ): Promise<IDevice> {
   let device = await DeviceModel.findOne({
     userId: user._id,
     deviceToken,
   });
 
-  const parser = new UAParser(req.headers["user-agent"]);
+  // const parser = new UAParser(req.headers["user-agent"]);
+  const parser = new UAParser(userAgent);
   const ua = parser.getResult();
 
   if (!device) {
     device = await DeviceModel.create({
       userId: user._id,
       deviceToken,
-      userAgent: req.headers["user-agent"],
+      userAgent,
       deviceType: ua.device.type || "desktop",
       os: ua.os.name,
       browser: ua.browser.name,
       name: `${ua.os.name || "Unknown"} ${ua.browser.name || "Browser"}`,
     });
   }
-
   device.lastSeenAt = new Date();
   device.lastVerifiedAt = new Date();
   await device.save();
-
   // Call the centralized repair logic instead of manual assignment
   // We pass the device._id so the system knows this is the "current" device
   await ensurePrimaryDevice(user, device._id);

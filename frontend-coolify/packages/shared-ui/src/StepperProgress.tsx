@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { Stack, Typography, Box } from "@mui/material";
+import { Stack, Box } from "@mui/material";
 import { useTheme, styled } from "@mui/material/styles";
 import { Check } from "lucide-react";
 import { IStep } from "@repo/core";
 import { BasicTooltip } from "./Tooltips";
+import { TransText } from "./Text";
 
 interface ProgressProps<T> {
   steps: IStep<T>[];
@@ -139,10 +140,10 @@ export const StepperProgress = <T,>({
                       index + 1
                     )}
                   </StepDot>
-                  <Typography
-                    variant="caption"
+                  <TransText
                     noWrap={true}
                     sx={{
+                      ...theme.typography.caption,
                       maxWidth: 56,
                       fontSize: "15px",
                       fontWeight: isActive || isCompleted ? 700 : 500,
@@ -153,7 +154,7 @@ export const StepperProgress = <T,>({
                       whiteSpace: "nowrap",
                     }}>
                     {step.label || String(step.name)}
-                  </Typography>
+                  </TransText>
                 </Stack>
               </BasicTooltip>
 

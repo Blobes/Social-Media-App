@@ -6,6 +6,8 @@ import { Feedback } from "./Feedback";
 import { Unplug } from "lucide-react";
 import { ProgressIcon } from "./LoadingUIs";
 import { RootUIContainer } from "./Containers";
+import { COMMON_BUTTON_LABELS, COMMON_FEEDBACK } from "@repo/core";
+import { useStaticTranslation } from "@repo/shared-hooks";
 
 interface Props {
   checkingSignal: boolean;
@@ -19,6 +21,7 @@ export const NetworkGlitchUI = ({
   isUnstableNetwork,
 }: Props) => {
   const theme = useTheme();
+  const { translateTxtString } = useStaticTranslation();
 
   useEffect(() => {
     const refreshTimer = window.setTimeout(() => {
@@ -38,15 +41,21 @@ export const NetworkGlitchUI = ({
       {isUnstableNetwork && checkingSignal ? (
         <ProgressIcon
           otherProps={{ size: "30px" }}
-          info="Retrieving connection..."
+          tKey={COMMON_FEEDBACK.retrieving_connection.tKey}
+          info={COMMON_FEEDBACK.retrieving_connection.tValue}
         />
       ) : (
         <Feedback
-          headline="Oops, something went wrong"
-          tagline="Check your internet connection. We'll retry automatically in a few minutes."
+          transData={{
+            headline: COMMON_FEEDBACK.network_glitch_headline,
+            textDesc: COMMON_FEEDBACK.network_glitch_tagline,
+            primaryBtn: COMMON_BUTTON_LABELS.refresh,
+          }}
+          headline={COMMON_FEEDBACK.network_glitch_headline.tValue}
+          tagline={COMMON_FEEDBACK.network_glitch_tagline.tValue}
           icon={<Unplug />}
           primaryCta={{
-            label: "Refresh",
+            label: translateTxtString(COMMON_BUTTON_LABELS.refresh),
             variant: "outlined",
             action: () => window.location.reload(),
           }}

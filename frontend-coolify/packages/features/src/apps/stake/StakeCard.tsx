@@ -5,6 +5,7 @@ import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { GenericStyle, IStake } from "@repo/core";
 import { usePostSeen } from "../post/hooks/usePostSeen";
+import { TransText } from "@repo/shared-ui";
 
 interface StakeProps {
   stake: IStake;
@@ -31,17 +32,17 @@ export const StakeCard = ({ stake, style = {} }: StakeProps) => {
         ...style,
       }}>
       {/* Post content */}
-      <Typography
-        variant="body2"
+      <TransText
         sx={{
+          ...theme.typography.body2,
           padding: theme.boxSpacing(6, 0),
           textAlign: "center",
           [theme.breakpoints.down("md")]: {
             padding: theme.boxSpacing(6),
           },
         }}>
-        {content}{" "}
-      </Typography>
+        {content}
+      </TransText>
     </Stack>
   );
 };

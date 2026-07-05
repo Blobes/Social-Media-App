@@ -6,7 +6,11 @@ import { useTheme } from "@mui/material/styles";
 import NextLink from "next/link";
 import { crossZoneCheck, debouncedPrefetch, prefetchPage } from "@repo/helpers";
 import { GenericStyle } from "@repo/core";
+import { A11y } from "./A11y";
 
+/**
+ * Prefetches cross-zone asset bundles on relevant navigation user intents.
+ */
 const handlePrefetch = (
   href: string,
   isCrossZone: boolean,
@@ -19,7 +23,7 @@ const handlePrefetch = (
 
 interface ButtonProps {
   variant?: "text" | "contained" | "outlined";
-  children?: React.ReactNode | string;
+  children?: React.ReactNode;
   style?: GenericStyle;
   overrideStyle?: "full" | "partial";
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
@@ -28,9 +32,12 @@ interface ButtonProps {
   submit?: boolean;
 }
 
+/**
+ * Global application button offering unified routing capabilities and internationalization.
+ */
 export const AppButton = ({
   variant = "contained",
-  children = "children",
+  children,
   style = {},
   overrideStyle = "partial",
   onClick,
@@ -81,37 +88,36 @@ export const AppButton = ({
 
   if (href) {
     const isCrossZone = crossZoneCheck(href);
-
     return (
-      <Button
-        component={isCrossZone ? "a" : NextLink}
-        href={href}
-        onMouseEnter={() => handlePrefetch(href, isCrossZone, true)}
-        onMouseDown={() => handlePrefetch(href, isCrossZone)}
-        onTouchStart={() => handlePrefetch(href, isCrossZone)}
-        {...buttonProps}>
-        {children}
-      </Button>
+      <A11y useCase="interactive">
+        <Button
+          component={isCrossZone ? "a" : NextLink}
+          href={href}
+          onMouseEnter={() => handlePrefetch(href, isCrossZone, true)}
+          onMouseDown={() => handlePrefetch(href, isCrossZone)}
+          onTouchStart={() => handlePrefetch(href, isCrossZone)}
+          {...buttonProps}>
+          {children}
+        </Button>
+      </A11y>
     );
   }
-
   return (
-    <Button type={submit ? "submit" : "button"} {...buttonProps}>
-      {children}
-    </Button>
+    <A11y useCase="interactive">
+      <Button type={submit ? "submit" : "button"} {...buttonProps}>
+        {children}
+      </Button>
+    </A11y>
   );
 };
 
-interface AnchorLinkProps {
-  children: React.ReactNode | string;
-  url: string;
-  style?: GenericStyle;
-  overrideStyle?: "full" | "partial";
-  [key: string]: any;
-}
+type AnchorLinkProps = Omit<ButtonProps, "variant">;
+/**
+ * Structural link surface standardizing microservice cross-zone navigations and translation keys.
+ */
 export const AnchorLink = ({
   children,
-  url,
+  href,
   style = {},
   overrideStyle = "partial",
   ...rest
@@ -130,21 +136,24 @@ export const AnchorLink = ({
   const mergedStyle =
     overrideStyle === "full" ? style : { ...defaultStyle, ...style };
 
-  const isCrossZone = crossZoneCheck(url);
+  if (!href) return;
+  const isCrossZone = crossZoneCheck(href);
 
   return (
-    <Link
-      variant="body3"
-      component={isCrossZone ? "a" : NextLink}
-      href={url}
-      sx={{
-        ...mergedStyle,
-      }}
-      onMouseEnter={() => handlePrefetch(url, isCrossZone, true)}
-      onMouseDown={() => handlePrefetch(url, isCrossZone)}
-      onTouchStart={() => handlePrefetch(url, isCrossZone)}
-      {...rest}>
-      {children}
-    </Link>
+    <A11y useCase="interactive">
+      <Link
+        component={isCrossZone ? "a" : NextLink}
+        href={href}
+        sx={{
+          ...theme.typography.body3,
+          ...mergedStyle,
+        }}
+        onMouseEnter={() => handlePrefetch(href, isCrossZone, true)}
+        onMouseDown={() => handlePrefetch(href, isCrossZone)}
+        onTouchStart={() => handlePrefetch(href, isCrossZone)}
+        {...rest}>
+        {children}
+      </Link>
+    </A11y>
   );
 };

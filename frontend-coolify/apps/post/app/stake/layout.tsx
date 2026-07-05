@@ -15,7 +15,7 @@ export default async function RootLayout({
 }>) {
   return (
     <BaseLayout>
-      <GlobalUIManager namespace="post">
+      <GlobalUIManager>
         <DefaultWrapper>{children}</DefaultWrapper>
       </GlobalUIManager>
     </BaseLayout>

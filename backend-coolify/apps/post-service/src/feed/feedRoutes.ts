@@ -1,9 +1,9 @@
 import express, { Router } from "express";
 import { getAllPost } from "./controllers/getAllPost";
-import { getfollowersPosts } from "./controllers/followersPosts";
 import { getUserPosts } from "./controllers/getUserPosts";
 import { optionalAuth, verifyAuthToken } from "@/envVars";
 import { getUserDraftPosts } from "./controllers/getDraftPosts";
+import { getFollowersPosts } from "./controllers/followersPosts";
 
 const router: Router = express.Router();
 
@@ -14,7 +14,7 @@ router.get("/test", (req, res) => {
 
 // Feed Logic
 router.get("/", optionalAuth, getAllPost);
-router.get("/followers", verifyAuthToken, getfollowersPosts);
+router.get("/followers", verifyAuthToken, getFollowersPosts);
 router.get(":id/drafts", verifyAuthToken, getUserDraftPosts);
 router.get("/:id", verifyAuthToken, getUserPosts);
 

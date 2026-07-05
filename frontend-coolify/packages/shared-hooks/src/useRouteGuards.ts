@@ -1,8 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import { CLIENT_ROUTES, DISALLOWED_ROUTES, ROUTES_REGISTRY } from "@repo/core";
-import { useGlobalStore } from "./store/useGlobalStore";
+import {
+  CLIENT_ROUTES,
+  DISALLOWED_ROUTES,
+  ROUTES_REGISTRY,
+  useGlobalStore,
+} from "@repo/core";
 
 export const REDIRECT_MAP = [
   { guard: "needsLogin", target: CLIENT_ROUTES.home },

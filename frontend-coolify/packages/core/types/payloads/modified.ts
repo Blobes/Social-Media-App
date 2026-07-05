@@ -25,6 +25,8 @@ export interface ISinglePayload<T> {
   message: string;
   payload: T | null;
   status: FetchStatus;
+  i18nKey?: string;
+
   httpStatus?: number;
 }
 

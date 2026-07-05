@@ -1,8 +1,8 @@
 "use client";
 
-import { useSnackbar, useGlobalStore } from "@repo/shared-hooks";
+import { useSnackbar } from "@repo/shared-hooks";
 import { AuthService } from "./service";
-import { CACHE_KEYS } from "@repo/core";
+import { CACHE_KEYS, useGlobalStore } from "@repo/core";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 

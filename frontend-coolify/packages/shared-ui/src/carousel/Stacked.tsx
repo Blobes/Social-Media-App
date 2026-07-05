@@ -3,9 +3,9 @@
 import React from "react";
 import { Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useStackedCarousel } from "./useStacked";
 import { CarouselDots } from "./Controls";
 import { CarouselProps } from "./Linear";
+import { useStackedCarousel } from "@repo/shared-hooks";
 
 /**
  * Presentation layer for a stacked card layout animated purely through CSS transitions.

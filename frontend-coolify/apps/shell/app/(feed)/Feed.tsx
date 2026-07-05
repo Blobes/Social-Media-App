@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Box, Stack, Typography } from "@mui/material";
-import { VibeSlider } from "./vibezSlider/Slider";
+import { Box, Stack } from "@mui/material";
+import { UpdatesCarousel } from "./vibezSlider/Slider";
 import {
   Feedback,
   GistSkeleton,
   ProgressIcon,
   StakeSkeleton,
+  TransText,
 } from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
@@ -17,8 +18,14 @@ import {
   useCachedData,
   useInfiniteScroll,
   usePageCache,
+  useStaticTranslation,
 } from "@repo/shared-hooks";
-import { IPost, CACHE_KEYS } from "@repo/core";
+import {
+  IPost,
+  CACHE_KEYS,
+  COMMON_BUTTON_LABELS,
+  POST_FEEDBACK,
+} from "@repo/core";
 
 export const Feed = () => {
   const theme = useTheme();
@@ -40,6 +47,7 @@ export const Feed = () => {
 
   usePageCache(rawData, CACHE_KEYS.POST.FEED);
 
+  const { translateTxtString } = useStaticTranslation();
   const { sentinelRef } = useInfiniteScroll({
     hasNextPage,
     isFetchingNextPage,
@@ -69,7 +77,7 @@ export const Feed = () => {
 
   return (
     <Stack sx={containerStyle}>
-      <VibeSlider />
+      <UpdatesCarousel />
 
       {isLoading ? (
         <>
@@ -78,12 +86,17 @@ export const Feed = () => {
         </>
       ) : feed.length < 1 ? (
         <Feedback
-          tagline={message || "Something went wrong, check your network"}
+          transData={{
+            textDesc: message
+              ? undefined
+              : POST_FEEDBACK.no_post_found_tagline(),
+          }}
+          tagline={message || POST_FEEDBACK.no_post_found_tagline().tValue}
           icon={<Milestone />}
           primaryCta={{
             type: "BUTTON",
             variant: "outlined",
-            label: "Refresh",
+            label: translateTxtString(COMMON_BUTTON_LABELS.refresh),
             action: () => {
               handleRefresh();
             },
@@ -94,7 +107,7 @@ export const Feed = () => {
               backgroundColor: "none",
               gap: theme.gap(6),
             },
-            tagline: { fontSize: "16px" },
+            tagline: { ...theme.typography.body2 },
             icon: {
               width: "50px",
               height: "50px",
@@ -121,7 +134,9 @@ export const Feed = () => {
                 return <StakeCard key={post._id} stake={post} />;
 
               default:
-                <Typography>Post type not found</Typography>;
+                <TransText tKey={POST_FEEDBACK.post_type_not_found.tKey}>
+                  {POST_FEEDBACK.post_type_not_found.tValue}
+                </TransText>;
             }
           })}
           {/* Pagination Sentinel */}

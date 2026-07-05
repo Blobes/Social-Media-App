@@ -1,12 +1,13 @@
 "use client";
 
 import React from "react";
-import { Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useUser } from "@repo/features";
-import { UserAvatar } from "@repo/shared-ui";
-import { IUser } from "@repo/core";
+import { TransText, UserAvatar } from "@repo/shared-ui";
+import { COMMON_BUTTON_LABELS, COMMON_FEEDBACK, IUser } from "@repo/core";
 import { AnchorLink, AppButton, Strip } from "@repo/shared-ui";
+import { useStaticTranslation } from "@repo/shared-hooks";
 
 interface FollowerProps {
   follower: IUser;
@@ -14,6 +15,7 @@ interface FollowerProps {
 export const FollowerCard = ({ follower }: FollowerProps) => {
   const theme = useTheme();
   const { handleFollow, followedUser, isLoading } = useUser(follower._id);
+  const { translateTxtString } = useStaticTranslation();
 
   if (!followedUser) return null;
 
@@ -25,7 +27,7 @@ export const FollowerCard = ({ follower }: FollowerProps) => {
       alignItems="center"
       sx={{ width: "100%", gap: theme.gap(6) }}>
       <AnchorLink
-        url="#"
+        href="#"
         style={{
           width: "100%",
           flexGrow: 1,
@@ -43,24 +45,31 @@ export const FollowerCard = ({ follower }: FollowerProps) => {
           }}
         />
         <Stack sx={{ width: "100%", gap: theme.gap(0) }}>
-          <Typography
-            variant="body2"
-            fontWeight={600}
+          <TransText
             noWrap={true}
-            sx={{ textAlign: "left" }}>
+            sx={{
+              ...theme.typography.body2,
+              fontWeight: 600,
+              textAlign: "left",
+            }}>
             {fullName}
-          </Typography>
-          <Typography
-            variant="body3"
-            sx={{ margin: "unset!important", textAlign: "left" }}
+          </TransText>
+          <TransText
+            sx={{
+              ...theme.typography.body3,
+              margin: "unset!important",
+              textAlign: "left",
+            }}
             noWrap={true}>
             <Strip
               items={[
                 { text: username },
-                ...(isFollowing && followsMe ? [{ text: "Following" }] : []),
+                ...(isFollowing && followsMe
+                  ? [{ text: translateTxtString(COMMON_FEEDBACK.following) }]
+                  : []),
               ]}
             />
-          </Typography>
+          </TransText>
         </Stack>
       </AnchorLink>
 
@@ -73,7 +82,12 @@ export const FollowerCard = ({ follower }: FollowerProps) => {
           borderColor: theme.palette.gray.trans[2],
         }}
         onClick={() => handleFollow(follower)}>
-        {isFollowing ? "Unfollow" : "Follow back"}
+        <TransText
+          {...COMMON_BUTTON_LABELS.follow_toggle(
+            isFollowing ? "Unfollow" : "Follow back",
+          )}
+          noComponent
+        />
       </AppButton>
     </Stack>
   );

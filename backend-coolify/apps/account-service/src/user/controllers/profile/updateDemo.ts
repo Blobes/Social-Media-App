@@ -1,11 +1,6 @@
-import { UserModel } from "@repo/database";
-import {
-  IAuthRequest,
-  userSensitiveFields,
-  invalidateCache,
-  CACHE_KEYS,
-} from "@repo/shared";
-import { Response } from "express";
+import { NextFunction, Response } from "express";
+import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
+import { updateAccountDemoInfo } from "@/user/services/profile/info";
 
 interface DemoRequest extends IAuthRequest {
   body: {
@@ -16,64 +11,53 @@ interface DemoRequest extends IAuthRequest {
   };
 }
 
+/**
+ * Controller endpoint to modify contextual background identities and clear profile lookup entries.
+ */
 export const updateDemoInfo = async (
   req: DemoRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const authUserId = req.user?.id;
   const { gender, dateOfBirth, location, relationship } = req.body;
 
   if (!authUserId) {
     return res.status(401).json({
-      message: "Unauthorized access",
       status: "ERROR",
+      ...MESSAGES_REGISTRY.AUTH.UNAUTHORIZED,
       payload: null,
     });
   }
 
   try {
-    const updatedUser = await UserModel.findByIdAndUpdate(
+    const serviceResult = await updateAccountDemoInfo({
       authUserId,
-      {
-        $set: {
-          gender,
-          dateOfBirth,
-          location,
-          relationship,
-        },
-      },
-      { new: true, runValidators: true },
-    );
+      gender,
+      dateOfBirth,
+      location,
+      relationship,
+    });
 
-    if (!updatedUser) {
+    if (serviceResult.status === "NOT_FOUND") {
       return res.status(404).json({
-        message: "User account not found or deactivated",
         status: "ERROR",
+        ...serviceResult.transInfo,
         payload: null,
       });
     }
 
-    // Invalidate the profile cache after successful database update
-    await invalidateCache(CACHE_KEYS.USER_PROFILE(authUserId));
-
-    const safePayload = updatedUser.toObject();
-
-    // Remove strictly internal/security fields using the helper
-    userSensitiveFields().forEach((field) => {
-      delete (safePayload as any)[field];
-    });
-
     return res.status(200).json({
-      message: "Demographic information updated successfully",
       status: "SUCCESS",
-      payload: safePayload,
+      ...serviceResult.transInfo,
+      payload: serviceResult.payload,
     });
   } catch (error: any) {
     console.error("Update Demo Error:", error);
-    return res.status(500).json({
-      message: error.message || "Failed to update demographic info",
-      status: "ERROR",
-      payload: null,
-    });
+    return forwardError(
+      next,
+      MESSAGES_REGISTRY.PROFILE.UPDATE_DEMO_ERROR,
+      error,
+    );
   }
 };

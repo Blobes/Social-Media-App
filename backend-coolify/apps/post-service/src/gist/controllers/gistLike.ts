@@ -1,120 +1,62 @@
-import mongoose from "mongoose";
-import { Response } from "express";
-import { CACHE_KEYS, IAuthRequest, invalidateCache } from "@repo/shared";
-import { GistLikeModel, GistModel } from "@repo/database";
+import { NextFunction, Response } from "express";
+import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
+import { executeGistLike } from "../services/gistLike";
 
+/**
+ * Controller endpoint processing traffic criteria to track and switch like engagement details.
+ */
 export const gistLike = async (
   req: IAuthRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const gistId = req.params.id as string;
   const userId = req.user?.id;
 
-  // 1. Initial Validation
-  if (!userId) {
-    return res.status(401).json({
-      payload: null,
-      status: "ERROR",
-      message: "Unauthorized",
-    });
-  }
-
-  if (!mongoose.Types.ObjectId.isValid(gistId)) {
-    return res.status(400).json({
-      payload: null,
-      status: "ERROR",
-      message: "Invalid gist ID",
-    });
-  }
-
-  const session = await mongoose.startSession();
-
   try {
-    session.startTransaction();
+    const serviceResult = await executeGistLike({
+      gistId,
+      userId,
+    });
 
-    // 2. Fetch the container (Gist)
-    const gist = await GistModel.findById(gistId).session(session);
-    if (!gist) {
-      await session.abortTransaction();
-      return res.status(404).json({
-        payload: null,
+    if (serviceResult.status === "INVALID_SESSION") {
+      return res.status(401).json({
         status: "ERROR",
-        message: "Gist not found",
+        ...serviceResult.transInfo,
+        payload: serviceResult.payload,
       });
     }
 
-    // 3. Check for existing like using correct field 'gistId'
-    const existingLike = await GistLikeModel.findOne({
-      gistId,
-      userId,
-    }).session(session);
-
-    let isLiked: boolean;
-
-    if (existingLike) {
-      // UNLIKE LOGIC
-      await GistLikeModel.deleteOne({ _id: existingLike._id }).session(session);
-
-      // Atomic decrement
-      await GistModel.updateOne(
-        { _id: gistId },
-        { $inc: { likeCount: -1 } },
-        { session },
-      );
-      isLiked = false;
-    } else {
-      // LIKE LOGIC
-      await GistLikeModel.create(
-        [
-          {
-            gistId,
-            userId,
-          },
-        ],
-        { session },
-      );
-
-      // Atomic increment
-      await GistModel.updateOne(
-        { _id: gistId },
-        { $inc: { likeCount: 1 } },
-        { session },
-      );
-      isLiked = true;
+    if (serviceResult.status === "INVALID_ID") {
+      return res.status(400).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: serviceResult.payload,
+      });
     }
 
-    await session.commitTransaction();
-
-    invalidateCache(CACHE_KEYS.POST("GIST", gistId));
-
-    // 4. Fetch the final count post-transaction for accuracy
-    const updatedGist = await GistModel.findById(gistId)
-      .select("likeCount")
-      .lean();
+    if (serviceResult.status === "NOT_FOUND") {
+      return res.status(404).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: serviceResult.payload,
+      });
+    }
 
     return res.status(200).json({
       status: "SUCCESS",
-      message: isLiked
-        ? "Gist liked successfully"
-        : "Gist unliked successfully",
-      payload: {
-        likedByMe: isLiked,
-        likeCount: updatedGist?.likeCount ?? 0,
-      },
+      ...serviceResult.transInfo,
+      payload: serviceResult.payload,
     });
   } catch (error: any) {
-    if (session.inTransaction()) {
-      // Check if transaction is active
-      await session.abortTransaction();
-    }
-
     console.error("Like Gist Error:", error);
-    return res.status(500).json({
-      payload: null,
-      status: "ERROR",
-      message: error.message || "Server error while toggling like",
-    });
-  } finally {
-    session.endSession();
+
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.POST.POST_LIKE_THROWN_ERROR(error.message, "Gist")
+        : MESSAGES_REGISTRY.POST.POST_LIKE_FALLBACK_ERROR("Gist"),
+      error,
+    );
   }
 };

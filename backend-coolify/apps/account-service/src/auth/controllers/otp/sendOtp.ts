@@ -1,23 +1,21 @@
-import { otpWorkflowRegistry } from "@/auth/helpers/otpActions";
-import { emailDispatchTokens, phoneDispatchTokens } from "@/envVars";
-import { UserModel } from "@repo/database";
+import { NextFunction, Request, Response } from "express";
 import {
-  dispatchEmailCode,
-  dispatchWhatsAppCode,
-  genVerificationCode,
-  hashCode,
-  setOtpChannel,
   VerificationPurpose,
+  getOrSetDeviceToken,
+  clearAuthCookies,
+  MESSAGES_REGISTRY,
+  forwardError,
 } from "@repo/shared";
-import { Request, Response } from "express";
-
-const COOLDOWN_SECONDS = 60;
+import { executeOtpDispatch } from "@/auth/services/otpDispatcher";
 
 /**
- * Sends a verification code to an email or phone number.
- * Purpose is validated at send time only — never stored on the user document.
+ * Controller endpoint to handle verification code requests.
  */
-export const sendOtp = async (req: Request, res: Response): Promise<void> => {
+export const sendOtp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   const { recipient, purpose } = req.body as {
     recipient?: string;
     purpose?: VerificationPurpose;
@@ -29,7 +27,7 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
   if (!recipient) {
     res.status(400).json({
       status: "ERROR",
-      message: "A destination email or phone number is required.",
+      ...MESSAGES_REGISTRY.AUTH.EMAIL_REQUIRED,
       payload: null,
     });
     return;
@@ -38,107 +36,42 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
   if (!purpose || !VALID_PURPOSES.includes(purpose)) {
     res.status(400).json({
       status: "ERROR",
-      message: `A valid purpose is required. Accepted values: ${VALID_PURPOSES.join(", ")}.`,
+      ...MESSAGES_REGISTRY.AUTH.INVALID_PASSWORD_PURPOSE,
       payload: null,
     });
     return;
   }
 
-  const normalized = recipient.toLowerCase().trim();
-  const channel = setOtpChannel(normalized);
-
-  if (!channel) {
-    res.status(400).json({
-      status: "ERROR",
-      message: "OTP channel must be a valid email address or phone number.",
-      payload: null,
-    });
-    return;
-  }
+  const deviceToken = getOrSetDeviceToken(req, res);
+  const userAgent = req.headers["user-agent"] || "unknown";
 
   try {
-    const user = await UserModel.findOne(
-      channel === "EMAIL" ? { email: normalized } : { phoneNumber: normalized },
-    );
+    const serviceResult = await executeOtpDispatch({
+      recipient,
+      purpose,
+      userAgent,
+      deviceToken,
+    });
 
-    if (!user) {
-      res.status(404).json({
-        status: "ERROR",
-        message: `No account found for this ${channel === "EMAIL" ? "email address" : "phone number"}.`,
-        payload: null,
-      });
-      return;
-    }
-
-    // Trace execution for trackability
-    console.log(
-      `[OTP_TRACE] Purpose: ${purpose} | User: ${user._id} | Channel: ${channel}`,
-    );
-
-    // Delegate purpose-specific validation to handlers
-    let actionPayload = null;
-    const workflow = otpWorkflowRegistry[purpose];
-    if (workflow)
-      actionPayload = await workflow(user, req, res, "DISPATCH_REQUEST");
-
-    // Rate limit
-    const lastSentAt =
-      channel === "EMAIL" ? user.lastEmailCodeSentAt : user.lastPhoneCodeSentAt;
-
-    if (lastSentAt) {
-      const elapsed = (Date.now() - lastSentAt.getTime()) / 1000;
-
-      if (elapsed < COOLDOWN_SECONDS) {
-        res.status(429).json({
-          status: "ERROR",
-          message: `Please wait ${Math.ceil(COOLDOWN_SECONDS - elapsed)} seconds before requesting a new code.`,
-          payload: null,
-        });
-        return;
-      }
-    }
-
-    // Generate and persist code — purpose is NOT stored
-    const newCode = genVerificationCode();
-    user.verificationCode = hashCode(newCode);
-    user.verificationExpiry = new Date(Date.now() + 10 * 60 * 1000);
-
-    if (channel === "EMAIL") {
-      user.lastEmailCodeSentAt = new Date();
-    } else {
-      user.lastPhoneCodeSentAt = new Date();
-    }
-
-    await user.save();
-
-    // Dispatch — fire-and-forget
-    try {
-      if (channel === "EMAIL") {
-        await dispatchEmailCode(
-          { to: normalized, code: newCode },
-          emailDispatchTokens,
-        );
-      } else {
-        await dispatchWhatsAppCode(
-          { to: normalized, code: newCode },
-          phoneDispatchTokens,
-        );
-      }
-    } catch (dispatchError) {
-      console.error(`[sendCode] ${channel} dispatch failed:`, dispatchError);
+    // Check if the service execution requested client cookie eviction
+    if (serviceResult.payload.actionPayload?.clearLocalCookies) {
+      clearAuthCookies(res);
+      delete serviceResult.payload.actionPayload.clearLocalCookies;
     }
 
     res.status(200).json({
       status: "SUCCESS",
-      message: `A verification code has been sent to your ${channel === "EMAIL" ? "email address" : "phone number"}.`,
-      payload: { ...actionPayload, recipient, channel, purpose },
+      ...serviceResult.transInfo,
+      payload: serviceResult.payload,
     });
   } catch (error: any) {
     console.error("[sendCode] Error:", error);
-    res.status(error.status || 500).json({
-      status: "ERROR",
-      message: error.message || "Failed to send verification code.",
-      payload: null,
-    });
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      error,
+    );
   }
 };

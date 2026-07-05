@@ -1,18 +1,19 @@
 "use client";
 
 import React from "react";
-import { AppButton } from "@repo/shared-ui";
+import { AppButton, TransText } from "@repo/shared-ui";
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useMisc } from "@repo/shared-hooks";
 import { LogOut, LogOutIcon } from "lucide-react";
 import { useLogout } from "./useLogout";
-import { GenericStyle } from "@repo/core";
+import { AUTH_BUTTON_LABELS, AUTH_FEEDBACK, GenericStyle } from "@repo/core";
 import { usePopup } from "@repo/features/src/hooks/usePopup";
 
 export const ComfirmLogout = () => {
   const { closeModal } = useMisc();
   const { handleLogout } = useLogout();
+  const theme = useTheme();
 
   return (
     <Stack
@@ -22,14 +23,18 @@ export const ComfirmLogout = () => {
         justifyContent: "center",
       }}>
       <LogOutIcon />
-      <Typography variant="h4" component="h4">
-        Do you really want to logout?
-      </Typography>
+      <TransText
+        {...AUTH_FEEDBACK.logout_confirmation}
+        component="h4"
+        sx={theme.typography.h4}
+      />
       <Stack direction="row">
         <AppButton variant="outlined" onClick={closeModal}>
-          Not really
+          <TransText {...AUTH_BUTTON_LABELS.logout_not_really} noComponent />
         </AppButton>
-        <AppButton onClick={async () => handleLogout()}>Sure I do</AppButton>
+        <AppButton onClick={async () => handleLogout()}>
+          <TransText {...AUTH_BUTTON_LABELS.logout_sure_i_do} noComponent />
+        </AppButton>
       </Stack>
     </Stack>
   );
@@ -74,7 +79,8 @@ export const Logout = ({
         ...containerStyle,
       }}>
       <LogOut />
-      <Typography
+      <TransText
+        {...AUTH_BUTTON_LABELS.logout}
         variant="body2"
         sx={{
           fontWeight: "600",
@@ -84,9 +90,8 @@ export const Logout = ({
             color: theme.palette.primary.dark,
           },
           ...textStyle,
-        }}>
-        Logout
-      </Typography>
+        }}
+      />
     </AppButton>
   );
 };

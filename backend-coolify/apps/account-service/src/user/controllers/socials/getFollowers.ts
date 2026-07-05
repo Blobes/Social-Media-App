@@ -1,17 +1,15 @@
+import { NextFunction, Response } from "express";
 import mongoose from "mongoose";
-import { Response } from "express";
-import {
-  IAuthRequest,
-  getOrSetCache,
-  userSocialLookup,
-  getStaticUserList,
-  CACHE_KEYS,
-} from "@repo/shared";
-import { FollowModel } from "@repo/database";
+import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
+import { executeFollowersFetch } from "@/user/services/socials";
 
+/**
+ * Controller endpoint to pull follower user profiles decorated with structural social graphs.
+ */
 export const getFollowers = async (
   req: IAuthRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const targetUserId = req.params.id as string;
   const authUserId = req.user?.id;
@@ -19,8 +17,8 @@ export const getFollowers = async (
   // Fail fast on invalid ID formats
   if (!mongoose.Types.ObjectId.isValid(targetUserId)) {
     return res.status(400).json({
-      message: "User ID format is not valid",
       status: "ERROR",
+      ...MESSAGES_REGISTRY.PROFILE.INVALID_ID_FORMAT,
       payload: null,
     });
   }
@@ -28,70 +26,30 @@ export const getFollowers = async (
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
 
-    // Use a generic cache key to maximize hit rate across all visitors
-    const cacheKey = CACHE_KEYS.USER_FOLLOWERS(targetUserId, page, limit);
-
-    // 1. Fetch the "Neutral" list from Cache or MongoDB
-    const neutralFollowers = await getOrSetCache(
-      cacheKey,
-      async () => {
-        const result = await FollowModel.aggregate([
-          // Initial filter on the relationship collection
-          {
-            $match: {
-              followingId: new mongoose.Types.ObjectId(String(targetUserId)),
-            },
-          },
-          // Join with Users collection to get the profile of the follower
-          {
-            $lookup: {
-              from: "users",
-              localField: "followerId",
-              foreignField: "_id",
-              as: "followerDetails",
-            },
-          },
-          { $unwind: "$followerDetails" },
-          // Promote follower details to the top level for the aggregator
-          { $replaceRoot: { newRoot: "$followerDetails" } },
-
-          // Apply standardized formatting and generic aggregation
-          ...getStaticUserList({
-            matchFilter: {},
-            skip,
-            limit,
-          }),
-        ]);
-        return result;
-      },
-      600, // Cache for 10 minutes
-    );
-
-    // 2. Decorate the list with the current viewer's social context
-    // This adds 'isFollowing' and 'followsMe' dynamically in Node.js
-    const finalFollowers = await userSocialLookup(neutralFollowers, authUserId);
+    const serviceResult = await executeFollowersFetch({
+      targetUserId,
+      authUserId,
+      page,
+      limit,
+    });
 
     return res.status(200).json({
-      message:
-        finalFollowers.length > 0
-          ? "Followers fetched successfully"
-          : "No followers found",
       status: "SUCCESS",
-      payload: finalFollowers,
+      ...serviceResult.transInfo,
+      payload: serviceResult.payload,
       meta: {
         page,
         limit,
-        count: finalFollowers.length,
+        count: serviceResult.payload.length,
       },
     });
   } catch (error: any) {
     console.error("Get Followers Error:", error);
-    return res.status(500).json({
-      message: error.message || "Failed to fetch followers",
-      status: "ERROR",
-      payload: null,
-    });
+    return forwardError(
+      next,
+      MESSAGES_REGISTRY.PROFILE.FOLLOWERS_FETCH_ERROR,
+      error,
+    );
   }
 };

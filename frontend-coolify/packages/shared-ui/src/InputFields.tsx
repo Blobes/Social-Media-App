@@ -8,7 +8,7 @@ import React, {
   KeyboardEvent,
   ChangeEvent,
 } from "react";
-import { useTheme } from "@mui/material/styles";
+import { useTheme, styled } from "@mui/material/styles";
 import {
   Box,
   FormHelperText,
@@ -18,12 +18,48 @@ import {
   outlinedInputClasses,
   Stack,
   TextField,
-  Typography,
+  TextareaAutosize,
+  useMediaQuery,
 } from "@mui/material";
 import { Eye, EyeClosed, FileUp } from "lucide-react";
-import { GenericStyle, ICountryItem, LISTS, ListType } from "@repo/core";
-import { formatPhoneNumber } from "@repo/helpers";
+import {
+  AUTH_INPUT,
+  COMMON_INPUT,
+  GenericStyle,
+  ICountryItem,
+  ITranslation,
+  LISTS,
+  ListType,
+} from "@repo/core";
+import { formatPhoneNumber, scrollBarStyle } from "@repo/helpers";
 import { DisplayList as CountryList } from "./Menu";
+import { TransText } from "./Text";
+
+export interface InputProps {
+  variant?: "outlined" | "filled";
+  id?: string;
+  type?: "text" | "number" | "email" | "search" | "password" | "tel";
+  value?: string;
+  placeholder?: string;
+  label?: string;
+  helperText?: string;
+  required?: boolean;
+  disabled?: boolean;
+  error?: boolean;
+  affix?: React.ReactNode;
+  affixPosition?: "start" | "end";
+  focusResizeWidth?: boolean;
+  onChange?: (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => void;
+  onFocus?: (
+    event: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => void;
+  onBlur?: (
+    event: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => void;
+  style?: GenericStyle;
+}
 
 export const sharedStyle = (theme: any, style: any, value: any) => {
   return {
@@ -48,31 +84,6 @@ export const sharedStyle = (theme: any, style: any, value: any) => {
   };
 };
 
-export interface InputProps {
-  variant?: "outlined" | "filled";
-  id?: string;
-  type?: "text" | "number" | "email" | "search" | "password" | "tel";
-  value?: string;
-  placeholder?: string;
-  label?: string;
-  helperText?: React.ReactNode;
-  required?: boolean;
-  disabled?: boolean;
-  error?: boolean;
-  affix?: React.ReactNode;
-  affixPosition?: "start" | "end";
-  focusResizeWidth?: boolean;
-  onChange?: (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
-  ) => void;
-  onFocus?: (
-    event: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>,
-  ) => void;
-  onBlur?: (
-    event: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>,
-  ) => void;
-  style?: GenericStyle;
-}
 export const TextInput = ({
   variant = "outlined",
   id = "",
@@ -346,8 +357,8 @@ export interface OtpInputProps {
   onComplete?: (code: string) => void;
   onChange?: (code: string) => void;
   error?: boolean;
-  helperText?: string;
-  label?: string;
+  tHelperText?: ITranslation;
+  tLabel?: ITranslation;
   disabled?: boolean;
   autoSubmit?: boolean;
   style?: GenericStyle;
@@ -360,8 +371,8 @@ export const OtpInput = ({
   onComplete,
   onChange,
   error = false,
-  helperText = "",
-  label = "Enter code",
+  tHelperText,
+  tLabel,
   disabled = false,
   autoSubmit = true,
   style,
@@ -473,16 +484,15 @@ export const OtpInput = ({
 
   return (
     <Stack sx={{ flexDirection: "column", gap: theme.gap(4), ...style }}>
-      {label && (
-        <Typography
-          variant="body2"
-          component="label"
+      {tLabel && (
+        <TransText
+          {...(tLabel ?? AUTH_INPUT.label.enter_code)}
           sx={{
+            ...theme.typography.body2,
             color: theme.palette.gray[200],
             fontSize: "14px",
-          }}>
-          {label}
-        </Typography>
+          }}
+        />
       )}
 
       <Stack sx={{ gap: theme.gap(3), flexDirection: "row" }}>
@@ -539,9 +549,9 @@ export const OtpInput = ({
         ))}
       </Stack>
 
-      {helperText && (
+      {tHelperText && (
         <FormHelperText error={error} sx={{ mx: 0 }}>
-          {helperText}
+          <TransText {...(tLabel ?? AUTH_INPUT.label.enter_code)} noComponent />
         </FormHelperText>
       )}
     </Stack>
@@ -554,7 +564,7 @@ export interface FileInputProps {
   accept?: string;
   disabled?: boolean;
   selectedCount?: number;
-  placeholder?: string;
+  tPlaceholder?: ITranslation;
 }
 
 /**
@@ -566,7 +576,7 @@ export const FileInput = ({
   accept = "image/*,video/*",
   disabled = false,
   selectedCount = 0,
-  placeholder = "Choose media file dependencies...",
+  tPlaceholder,
 }: FileInputProps) => {
   const theme = useTheme();
   return (
@@ -594,11 +604,25 @@ export const FileInput = ({
           size={20}
           style={{ marginRight: "8px", stroke: theme.palette.gray[200] }}
         />
-        <Typography
-          variant="body2"
-          sx={{ color: theme.palette.gray[200], flexGrow: 1 }}>
-          {selectedCount > 0 ? `${selectedCount} files targeted` : placeholder}
-        </Typography>
+        {selectedCount > 0 ? (
+          <TransText
+            {...COMMON_INPUT.placeholder.media_files_selected(selectedCount)}
+            sx={{
+              ...theme.typography.body2,
+              color: theme.palette.gray[200],
+              flexGrow: 1,
+            }}
+          />
+        ) : (
+          <TransText
+            {...(tPlaceholder ?? COMMON_INPUT.placeholder.choose_media_file)}
+            sx={{
+              ...theme.typography.body2,
+              color: theme.palette.gray[200],
+              flexGrow: 1,
+            }}
+          />
+        )}
         <input
           type="file"
           multiple={multiple}
@@ -609,5 +633,118 @@ export const FileInput = ({
         />
       </Box>
     </Box>
+  );
+};
+
+interface TextAreaProps extends InputProps {
+  maxRows?: number;
+  minRows?: number;
+  maxLength?: number | null;
+  style?: {
+    default: GenericStyle;
+    focused: GenericStyle;
+    hover: GenericStyle;
+  };
+}
+
+// TextArea Styled Input
+const StyledTextarea = styled(TextareaAutosize, {
+  shouldForwardProp: (prop) => prop !== "customStyle",
+})<{ customStyle: TextAreaProps["style"]; label: TextAreaProps["label"] }>(({
+  label,
+  customStyle,
+  theme,
+}) => {
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const styles = {
+    width: "100%",
+    padding: label ? theme.boxSpacing(10, 0, 2, 2) : theme.boxSpacing(3, 2, 2),
+    boxSizing: "border-box",
+    fontFamily: "inherit",
+    fontSize: "17px",
+    lineHeight: 1.4,
+    color: theme.palette.gray[300],
+    backgroundColor: "unset",
+    resize: "none",
+    border: "none",
+    ...scrollBarStyle(theme),
+    ...customStyle?.default,
+    "&:focus": {
+      border: "none",
+      outline: "none",
+      ...customStyle?.focused,
+    },
+    "&:hover": {
+      ...customStyle?.hover,
+    },
+  };
+  return styles as any;
+});
+
+// TextArea Styled Label
+const StyledLabel = styled("label")<{ shrink: boolean }>(
+  ({ theme, shrink }) =>
+    ({
+      position: "absolute",
+      left: theme.boxSpacing(2),
+      top: shrink ? theme.boxSpacing(1) : theme.boxSpacing(3),
+      fontSize: shrink ? 12 : 17,
+      color: theme.palette.gray[200],
+      transition: "all 0.2s ease",
+      pointerEvents: "none",
+      width: "100%",
+      textWrap: "nowrap",
+      textOverflow: "ellipsis",
+      overflow: "hidden",
+      padding: theme.boxSpacing(0),
+    }) as any,
+);
+
+export const ResponsiveTextarea = ({
+  style = { default: {}, focused: {}, hover: {} },
+  maxRows = 4,
+  minRows = 1,
+  placeholder = "Type here...",
+  label,
+  value = "",
+  maxLength = null,
+  onChange,
+  onFocus,
+  onBlur,
+}: TextAreaProps) => {
+  const [focused, setFocused] = useState(false);
+  const [inputValue, setInputValue] = useState(value);
+  const shrink = focused || value.length > 0;
+  return (
+    <>
+      {label && (
+        <StyledLabel htmlFor="textarea" shrink={shrink}>
+          {label}
+        </StyledLabel>
+      )}
+      <StyledTextarea
+        id="textarea"
+        aria-label="Text area"
+        customStyle={style}
+        maxRows={maxRows}
+        minRows={minRows}
+        label={label}
+        placeholder={label ? "" : placeholder}
+        value={inputValue}
+        maxLength={maxLength ?? undefined}
+        onChange={(e: any) => {
+          setInputValue(e.target.value);
+          onChange && onChange(e);
+        }}
+        onFocus={(e: any) => {
+          setFocused(true);
+          onFocus && onFocus(e);
+        }}
+        onBlur={(e: any) => {
+          setFocused(false);
+          onBlur && onBlur(e);
+        }}
+      />
+    </>
   );
 };

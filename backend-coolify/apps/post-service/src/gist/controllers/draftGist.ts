@@ -1,9 +1,9 @@
-import { Response } from "express";
-import { getClientIp, generateRandomIp, getLocationFromIp } from "@repo/shared";
-import { GistModel, IPostStatus, PostVisibility } from "@repo/database";
+import { Response, NextFunction } from "express";
+import { getClientIp, MESSAGES_REGISTRY, forwardError } from "@repo/shared";
+import { executeDraftPost } from "@/shared/services/draft";
 import { CreateRequest } from "./createGist";
 
-interface DraftRequest extends CreateRequest {
+export interface DraftRequest extends CreateRequest {
   body: {
     gistId?: string;
     caption?: string;
@@ -12,77 +12,63 @@ interface DraftRequest extends CreateRequest {
 }
 
 /**
- * Persists draft text metadata by updating an existing record if a gistId is provided, or creating a new one.
+ * Controller endpoint to persist draft tracking layers by modifying old structures or instantiating unique workspace records.
  */
-export const draftGist = async (req: DraftRequest, res: Response) => {
+export const draftGist = async (
+  req: DraftRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<any> => {
   const userId = req.user?.id;
   const { gistId, caption, topics } = req.body;
+  const postType = "GIST";
+  const msgPostType = "Gist";
 
-  if (!userId) {
-    res.status(400).json({
-      status: "ERROR",
-      payload: null,
-      message: "Invalid User Session",
-    });
-    return;
-  }
-
+  // Preserving client networking lookup logic layer unchanged
   const userIp = getClientIp(req);
-  const geoData = await getLocationFromIp(generateRandomIp());
-  const location = geoData
-    ? {
-        name: `${geoData.city}, ${geoData.state}`,
-        type: "Point" as const,
-        coordinates: [Number(geoData.longitude), Number(geoData.latitude)],
-      }
-    : undefined;
-
-  const updateFields = {
-    authorId: userId,
-    status: "DRAFT" as IPostStatus,
-    visibility: "PRIVATE" as PostVisibility,
-    location,
-    latestCaption: caption ? { caption: caption.trim() } : undefined,
-    mediaIds: [],
-    topics: topics || [],
-  };
 
   try {
-    let draftedGist;
+    const serviceResult = await executeDraftPost({
+      userId,
+      postId: gistId,
+      caption,
+      topics,
+      postType,
+      msgPostType,
+    });
 
-    if (gistId) {
-      // Upsert tracking profile ensuring the user can only modify their own draft entries
-      draftedGist = await GistModel.findOneAndUpdate(
-        { _id: gistId, authorId: userId },
-        { $set: updateFields },
-        { new: true, runValidators: true },
-      );
-
-      if (!draftedGist) {
-        res.status(404).json({
-          status: "ERROR",
-          message:
-            "Target draft reference not found or unauthorized access attempt flagged",
-        });
-        return;
-      }
-    } else {
-      // Fall back to record initialization if no previous draft sequence hash exists
-      draftedGist = await GistModel.create(updateFields);
+    if (serviceResult.status === "INVALID_SESSION") {
+      return res.status(400).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: serviceResult.payload,
+      });
     }
 
-    res.status(gistId ? 200 : 201).json({
+    if (serviceResult.status === "NOT_FOUND") {
+      return res.status(404).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: serviceResult.payload,
+      });
+    }
+
+    const statusCode = serviceResult.status === "SUCCESS_UPDATED" ? 200 : 201;
+
+    return res.status(statusCode).json({
       status: "SUCCESS",
-      payload: { gistId: draftedGist._id },
-      message: gistId
-        ? "Draft progress updated successfully."
-        : "Gist successfully saved as a draft.",
+      ...serviceResult.transInfo,
+      payload: serviceResult.payload,
     });
   } catch (error: any) {
-    console.error("❌ Failed to save draft:", error.message);
-    res.status(500).json({
-      status: "ERROR",
-      message: "Failed to preserve draft tracking state",
-    });
+    console.error(`[draft${postType}] Error:`, error);
+
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.POST.DRAFT_THROWN_ERROR(error.message, msgPostType)
+        : MESSAGES_REGISTRY.POST.DRAFT_FALLBACK_ERROR(msgPostType),
+      error,
+    );
   }
 };

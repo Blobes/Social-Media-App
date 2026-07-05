@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { useGlobalStore } from "./store/useGlobalStore";
-import { IMessage } from "@repo/core";
+import { IMessage, useGlobalStore } from "@repo/core";
 
 export interface SBMessage {
   msg?: IMessage;

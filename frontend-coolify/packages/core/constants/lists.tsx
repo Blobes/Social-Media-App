@@ -19,33 +19,38 @@ import {
 import { CLIENT_ROUTES } from "./routes";
 import { COUNTRIES } from "./countries";
 import { IMenuItem } from "../types/ui-state";
-import { ICountryItem, ListType } from "../types/ui-props";
+import { ICountryItem, ITranslation, ListType } from "../types/ui-props";
+import { COMMON_LIST } from "./msgRegistry";
 
-export const LISTS = () => {
+export const LISTS = (translator?: (transData: ITranslation) => string) => {
   // User profile navigation list visible to only logged-in users
+  const translate = (transData: ITranslation) => {
+    return translator ? translator(transData) : transData.tValue;
+  };
+
   const USER_NAV_LIST: IMenuItem[] = [
     {
-      title: CLIENT_ROUTES.profile.title,
+      title: translate(COMMON_LIST.nav.profile),
       element: <User />,
       url: CLIENT_ROUTES.profile.path,
     },
     {
-      title: CLIENT_ROUTES.pricing.title,
+      title: translate(COMMON_LIST.nav.pricing),
       element: <Gem />,
       url: CLIENT_ROUTES.pricing.path,
     },
     {
-      title: CLIENT_ROUTES.wallet.title,
+      title: translate(COMMON_LIST.nav.wallet),
       element: <WalletMinimal />,
       url: CLIENT_ROUTES.wallet.path,
     },
     {
-      title: CLIENT_ROUTES.bookmarks.title,
+      title: translate(COMMON_LIST.nav.bookmarks),
       element: <Bookmark />,
       url: CLIENT_ROUTES.bookmarks.path,
     },
     {
-      title: CLIENT_ROUTES.settings.title,
+      title: translate(COMMON_LIST.nav.settings),
       element: <Settings />,
       url: CLIENT_ROUTES.settings.path,
     },
@@ -54,12 +59,12 @@ export const LISTS = () => {
   // Left Sidebar navigation list visible to only logged-in users
   const SIDEBAR_NAV_LIST: IMenuItem[] = [
     {
-      title: CLIENT_ROUTES.home.title,
+      title: translate(COMMON_LIST.nav.home),
       element: <House />,
       url: CLIENT_ROUTES.home.path,
     },
     {
-      title: CLIENT_ROUTES.explore.title,
+      title: translate(COMMON_LIST.nav.explore),
       element: <Search />,
       url: CLIENT_ROUTES.explore.path,
     },
@@ -79,12 +84,12 @@ export const LISTS = () => {
       url: CLIENT_ROUTES.voices.path,
     },
     {
-      title: CLIENT_ROUTES.notifications.title,
+      title: translate(COMMON_LIST.nav.notifications),
       element: <Bell />,
       url: CLIENT_ROUTES.notifications.path,
     },
     {
-      title: CLIENT_ROUTES.inbox.title,
+      title: translate(COMMON_LIST.nav.inbox),
       element: <Mail />,
       url: CLIENT_ROUTES.inbox.path,
     },
@@ -92,12 +97,12 @@ export const LISTS = () => {
 
   const HEADER_NAV_LIST: IMenuItem[] = [
     {
-      title: CLIENT_ROUTES.support.title,
+      title: translate(COMMON_LIST.nav.support),
       element: <BadgeQuestionMark />,
       url: CLIENT_ROUTES.support.path,
     },
     {
-      title: CLIENT_ROUTES.pricing.title,
+      title: translate(COMMON_LIST.nav.pricing),
       element: <Gem />,
       url: CLIENT_ROUTES.pricing.path,
     },
@@ -105,31 +110,31 @@ export const LISTS = () => {
 
   const FOOTER_NAV_LIST: IMenuItem[] = [
     {
-      title: CLIENT_ROUTES.about.title,
+      title: translate(COMMON_LIST.nav.about),
       url: CLIENT_ROUTES.about.path,
     },
     {
-      title: CLIENT_ROUTES.support.title,
+      title: translate(COMMON_LIST.nav.support),
       url: CLIENT_ROUTES.support.path,
     },
     {
-      title: CLIENT_ROUTES.pricing.title,
+      title: translate(COMMON_LIST.nav.pricing),
       url: CLIENT_ROUTES.pricing.path,
     },
     {
-      title: CLIENT_ROUTES.blogs.title,
+      title: translate(COMMON_LIST.nav.blogs),
       url: CLIENT_ROUTES.blogs.path,
     },
     {
-      title: CLIENT_ROUTES.privacy.title,
+      title: translate(COMMON_LIST.nav.privacy),
       url: CLIENT_ROUTES.privacy.path,
     },
     {
-      title: CLIENT_ROUTES.terms.title,
+      title: translate(COMMON_LIST.nav.terms),
       url: CLIENT_ROUTES.terms.path,
     },
     {
-      title: CLIENT_ROUTES.news.title,
+      title: translate(COMMON_LIST.nav.news),
       url: CLIENT_ROUTES.news.path,
     },
   ];
@@ -147,20 +152,20 @@ export const LISTS = () => {
 
   const MESSAGES = {
     [ListType.COUNTRY]: {
-      empty: "No country found.",
-      noMatch: "No country matches your search.",
+      empty: translate(COMMON_LIST.msg.country_empty),
+      noMatch: translate(COMMON_LIST.msg.country_no_match),
     },
     [ListType.NAVIGATION]: {
-      empty: "Navigation menu is empty.",
-      noMatch: "No menu items found.",
+      empty: translate(COMMON_LIST.msg.navigation_empty),
+      noMatch: translate(COMMON_LIST.msg.navigation_no_match),
     },
     [ListType.TOPICS]: {
-      empty: "Add topics to this post.",
-      noMatch: "No matching topics.",
+      empty: translate(COMMON_LIST.msg.topics_empty),
+      noMatch: translate(COMMON_LIST.msg.topics_no_match),
     },
     [ListType.DEFAULT]: {
-      empty: "No items found.",
-      noMatch: "No results match your search.",
+      empty: translate(COMMON_LIST.msg.default_empty),
+      noMatch: translate(COMMON_LIST.msg.default_no_match),
     },
   };
 

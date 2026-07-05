@@ -1,17 +1,23 @@
 import { useMutation } from "@tanstack/react-query";
-import { useDebounce, useGlobalStore } from "@repo/shared-hooks";
+import {
+  useDebounce,
+  useInputValidation,
+  useStaticTranslation,
+} from "@repo/shared-hooks";
 import { useCallback, useEffect, useState } from "react";
-import { validateInputs, validateUsername } from "@repo/helpers";
 import { OnboardingService } from "../../service";
 import { LoginService } from "../../../login/service";
+import { COMMON_FEEDBACK, useGlobalStore } from "@repo/core";
 
 /**
  * Manages Identity logic using the updated bulk validator.
  */
 export const useIdentity = (onSuccess?: () => void) => {
   const { checkUsername } = LoginService();
+  const { validateInputs, validateUsername } = useInputValidation();
   const { syncIdentity, updateProgress } = OnboardingService();
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
+  const { translateTxtString } = useStaticTranslation();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -77,8 +83,10 @@ export const useIdentity = (onSuccess?: () => void) => {
       setInlineMsg(null);
       if (onSuccess) onSuccess();
     },
-    onError: (err: any) => {
-      setInlineMsg(err.message || "An error occurred during sync");
+    onError: (error: any) => {
+      setInlineMsg(
+        error.message || translateTxtString(COMMON_FEEDBACK.sync_error),
+      );
       setUsernameStatus({ status: "IDLE" });
     },
   });

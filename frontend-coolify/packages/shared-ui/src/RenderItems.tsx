@@ -1,12 +1,20 @@
 "use client";
 
 import React, { Fragment } from "react";
-import { Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { GenericStyle, IMenuItem, IPage, ITopic, ListType } from "@repo/core";
+import {
+  GenericStyle,
+  IMenuItem,
+  IPage,
+  ITopic,
+  ListType,
+  POST_INFO,
+} from "@repo/core";
 import { matchPaths, summarizeNum } from "@repo/helpers";
 import { usePathname } from "next/navigation";
 import { AnchorLink } from "./Buttons";
+import { TransText } from "./Text";
 
 // Props for the reusable nav renderer
 export interface RenderListProps<T extends IMenuItem> {
@@ -140,12 +148,13 @@ const DefaultItem = ({ title, element, style }: Default) => {
   return (
     <>
       {element && element}
-      {title && <Typography sx={{ ...style }}>{title}</Typography>}
+      {title && <TransText sx={{ ...style }}>{title}</TransText>}
     </>
   );
 };
 
 const TopicItem = ({ title, element, style, postCount }: Default & ITopic) => {
+  const theme = useTheme();
   return (
     <>
       <DefaultItem
@@ -154,9 +163,10 @@ const TopicItem = ({ title, element, style, postCount }: Default & ITopic) => {
         style={{ width: "100%", ...style }}
       />
       {postCount && (
-        <Typography variant="caption" sx={{ fontWeight: 500 }}>
-          {summarizeNum(postCount)}
-        </Typography>
+        <TransText
+          {...POST_INFO.topic_post_count(summarizeNum(postCount))}
+          sx={{ ...theme.typography.caption, fontWeight: 500 }}
+        />
       )}
     </>
   );

@@ -2,7 +2,7 @@ import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 import feedRoutes from "./feed/feedRoutes";
 import postRoutes from "./shared/routes";
-import { healthRouter } from "@repo/shared";
+import { errorHandlerMiddleware, healthRouter } from "@repo/shared";
 import { gistRouter } from "./gist/gistRoutes";
 import sharedRoutes from "./shared/routes";
 
@@ -26,5 +26,6 @@ export default (app: Express) => {
   app.use("/gist", gistRouter());
   app.use("/", sharedRoutes);
 
+  app.use(errorHandlerMiddleware);
   return app;
 };

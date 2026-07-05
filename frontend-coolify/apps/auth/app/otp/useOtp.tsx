@@ -1,8 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useGlobalStore, useSnackbar } from "@repo/shared-hooks";
-import { TransitPurpose, OtpTransitData, OtpChannel, IUser } from "@repo/core";
+import { useSnackbar, useStaticTranslation } from "@repo/shared-hooks";
+import {
+  TransitPurpose,
+  OtpTransitData,
+  OtpChannel,
+  IUser,
+  useGlobalStore,
+  AUTH_FEEDBACK,
+} from "@repo/core";
 import { OtpRequest, OtpService } from "./service";
 import { useMutation } from "@tanstack/react-query";
 import { useFeedback } from "./useFeedback";
@@ -25,6 +32,7 @@ export const useOtp = <P extends TransitPurpose>(
   const inlineMsg = useGlobalStore((state) => state.inlineMsg);
   const { setSBMessage } = useSnackbar();
   const { handleAuthOtpSuccess, onUpdateSuccess } = useFeedback();
+  const { translateTxtString } = useStaticTranslation();
 
   const [code, setCode] = useState("");
   const [timer, setTimer] = useState(0);
@@ -109,7 +117,10 @@ export const useOtp = <P extends TransitPurpose>(
         );
       if (vars.purpose === "ACCOUNT_UPDATE") onUpdateSuccess();
     },
-    onError: (err: any) => setInlineMsg(err.message || "Invalid code."),
+    onError: (error: any) =>
+      setInlineMsg(
+        error.message || translateTxtString(AUTH_FEEDBACK.otp_invalid_code),
+      ),
   });
 
   /**
@@ -122,7 +133,11 @@ export const useOtp = <P extends TransitPurpose>(
       setCode("");
       setSBMessage({
         msg: {
-          tagline: `A new code has been sent to your ${vars.channel?.toLowerCase()}.`,
+          tagline: translateTxtString(
+            AUTH_FEEDBACK.new_code_sent_tagline(
+              vars.channel?.toLowerCase() || "email",
+            ),
+          ),
           msgStatus: "SUCCESS",
           duration: 6,
         },
@@ -131,7 +146,9 @@ export const useOtp = <P extends TransitPurpose>(
     onError: (error: any) => {
       const seconds = stripToNumbers(error.message);
       setTimer(seconds);
-      setInlineMsg(error.message || "Failed to send code.");
+      setInlineMsg(
+        error.message || translateTxtString(AUTH_FEEDBACK.otp_send_code_failed),
+      );
     },
   });
 
@@ -144,7 +161,10 @@ export const useOtp = <P extends TransitPurpose>(
 
       const finalCode = validationCode || code;
 
-      if (!activeTransit) return setInlineMsg("Missing session data.");
+      if (!activeTransit)
+        return setInlineMsg(
+          translateTxtString(AUTH_FEEDBACK.otp_missing_session),
+        );
       if (finalCode.length < 6) return;
 
       const { purpose, identifier } = activeTransit;
@@ -160,7 +180,10 @@ export const useOtp = <P extends TransitPurpose>(
         return null;
       })();
 
-      if (!method) return setInlineMsg("Unsupported verification method.");
+      if (!method)
+        return setInlineMsg(
+          translateTxtString(AUTH_FEEDBACK.unsupported_verification_method),
+        );
       await executeVerify({ purpose, method });
     },
     [
@@ -213,8 +236,9 @@ export const useOtp = <P extends TransitPurpose>(
     if (!nextDest) {
       setSBMessage({
         msg: {
-          tagline: `No ${nextChannel.toLowerCase()} found on your profile.`,
-          msgStatus: "ERROR",
+          tagline: translateTxtString(
+            AUTH_FEEDBACK.no_email_or_phone(nextChannel.toLowerCase()),
+          ),
         },
       });
       return;

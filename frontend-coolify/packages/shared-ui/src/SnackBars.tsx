@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { IconButton, Paper, Stack, Typography } from "@mui/material";
+import { IconButton, Paper, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { motion } from "framer-motion";
 import { ISnackBarMsgs } from "@repo/core";
@@ -9,6 +9,7 @@ import { AppButton } from "./Buttons";
 import { Info, CircleCheck, CircleAlert, X } from "lucide-react";
 import { GroupTransition, Transition } from "./Transition";
 import { WordTrimmer } from "./WordTrimmer";
+import { TransText } from "./Text";
 
 interface SnackbarProps {
   snackBarMsg: ISnackBarMsgs;
@@ -120,9 +121,10 @@ export const SnackBars = ({
                     width: "100%",
                   }}>
                   {msg.headline && (
-                    <Typography variant="body2" sx={{ fontWeight: 501 }}>
+                    <TransText
+                      sx={{ ...theme.typography.body2, fontWeight: 501 }}>
                       {msg.headline}
-                    </Typography>
+                    </TransText>
                   )}
 
                   {msg.tagline && (
@@ -160,8 +162,7 @@ export const SnackBars = ({
                       )}
                     </WordTrimmer>
                   )}
-
-                  {msg.customContent && msg.headline}
+                  {msg.customContent && msg.customContent}
                 </Stack>
 
                 <Stack

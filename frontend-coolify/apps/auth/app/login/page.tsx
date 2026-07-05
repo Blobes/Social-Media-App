@@ -5,9 +5,10 @@ import { useTheme } from "@mui/material/styles";
 import { Login } from "./Login";
 import { Stack } from "@mui/material";
 import { applyBGPattern } from "@repo/helpers";
-import { useGlobalStore } from "@repo/shared-hooks";
+
 import { RestrictedUI, usePopup } from "@repo/features";
 import { TrendingPosts } from "./TrendingPosts";
+import { useGlobalStore } from "@repo/core";
 
 export default function LoginPage() {
   const theme = useTheme();

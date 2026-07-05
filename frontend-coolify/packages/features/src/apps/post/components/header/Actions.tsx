@@ -49,10 +49,10 @@ export const HeaderActions = ({
         ...sx,
       }}>
       <SmartDate
-        variant="body3"
         timestamp={createdAt}
         adaptiveTime={useAdaptiveTime}
         sx={{
+          ...theme.typography.body3,
           color: theme.palette.gray[200],
           padding: theme.boxSpacing(0, 4),
           width: "fit-content",

@@ -1,17 +1,13 @@
-import { Response } from "express";
+import { Response, NextFunction } from "express";
 import {
   getClientIp,
-  generateRandomIp,
-  getLocationFromIp,
-  enqueueModerationTask,
   IAuthRequest,
-  IPostModData,
-  finalizeGistCreation,
-  FinalizePostReq,
-  ModerationTaskMode,
+  MESSAGES_REGISTRY,
+  forwardError,
 } from "@repo/shared";
-import { GistModel, IMedia, IPostStatus } from "@repo/database";
+import { IMedia } from "@repo/database";
 import { FUNSTAKES_REDIS_URL, s3Config } from "@/envVars";
+import { executeCreateGist } from "../services/create";
 
 export interface CreateRequest extends IAuthRequest {
   body: {
@@ -23,132 +19,72 @@ export interface CreateRequest extends IAuthRequest {
   };
 }
 
-export const createGist = async (req: CreateRequest, res: Response) => {
+/**
+ * Controller endpoint to handle request routing parameters for fresh content record initialization.
+ */
+export const createGist = async (
+  req: CreateRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<any> => {
   const userId = req.user?.id;
-  const {
-    caption,
-    media,
-    topics,
-    skipModeration = false,
-    hasSensitiveGraphic = false,
-  } = req.body;
+  const { caption, media, topics, skipModeration, hasSensitiveGraphic } =
+    req.body;
 
-  if (!userId) {
-    res.status(400).json({
-      status: "ERROR",
-      payload: null,
-      message: "Invalid User Session",
-    });
-    return;
-  }
-
-  const hasCaption = caption && caption.trim().length > 0;
-  const hasMedia = media && Array.isArray(media) && media.length > 0;
-
-  if (!hasCaption && !hasMedia) {
-    res.status(400).json({
-      status: "ERROR",
-      message: "Gist must contain either text content or media.",
-    });
-    return;
-  }
-
+  // Preserving client network address lookup strategy context requirements unchanged
   const userIp = getClientIp(req);
-  const geoData = await getLocationFromIp(generateRandomIp());
-  const location = geoData
-    ? {
-        name: `${geoData.city}, ${geoData.state}`,
-        type: "Point" as const,
-        coordinates: [Number(geoData.longitude), Number(geoData.latitude)],
-      }
-    : undefined;
 
   try {
-    const hasUserTopics = topics && topics.length > 0;
-
-    // Determine the baseline status based on whether full safety screening is bypassed
-    const initialStatus: IPostStatus = skipModeration
-      ? "PUBLISHED"
-      : "UNDER_REVIEW";
-
-    const newGist = await GistModel.create({
-      authorId: userId,
-      status: initialStatus,
-      location,
-      latestCaption: { caption: caption?.trim() || "Processing..." },
-      hasSensitiveGraphic,
-    });
-
-    // Path 1: Skip moderation entirely AND user provided their own structural topics
-    if (skipModeration) {
-      await finalizeGistCreation(
-        {
-          postId: newGist._id.toString(),
-          userId: userId.toString(),
-          postType: "GIST",
-          caption,
-          media: media || [],
-          event: "POST_CREATION",
-          modResult: {
-            status: "PUBLISHED",
-            hasSensitiveGraphic,
-            ruleViolated: "",
-            severity: "NONE",
-            reason:
-              "Moderation skipped by administrative directive bypass constraints.",
-            extractedTopics: topics,
-            needsReview: false,
-          },
-        } as FinalizePostReq,
-        { s3Config, redisKey: FUNSTAKES_REDIS_URL },
-      );
-
-      res.status(201).json({
-        status: "SUCCESS",
-        payload: { gistId: newGist._id },
-        message: "Gist created successfully via skip bypass pathing.",
-      });
-      return;
-    }
-
-    // Path 2: Enqueue worker tasks for asynchronous evaluation pipelines
-    let modTaskMode: ModerationTaskMode;
-    if (skipModeration) modTaskMode = "EXTRACT_KEYWORDS_ONLY";
-    else
-      modTaskMode = hasUserTopics
-        ? "MODERATE_ONLY"
-        : "MODERATE_AND_EXTRACT_KEYWORDS";
-
-    const moderationData: IPostModData = {
-      postId: newGist._id.toString(),
-      postType: "GIST",
-      userId: userId.toString(),
+    const serviceResult = await executeCreateGist({
+      userId,
       caption,
       media,
-      topics: topics || [],
-      event: "POST_CREATION",
-      moderationTaskMode: modTaskMode,
-    };
+      topics,
+      skipModeration,
+      hasSensitiveGraphic,
+      s3Config,
+      redisUrl: FUNSTAKES_REDIS_URL,
+      userIp,
+    });
 
-    await enqueueModerationTask(
-      FUNSTAKES_REDIS_URL,
-      "moderate:post",
-      moderationData,
-    );
+    if (serviceResult.status === "INVALID_SESSION") {
+      return res.status(400).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: serviceResult.payload,
+      });
+    }
 
-    const msg = skipModeration
-      ? "Gist data initiated. Extracting contextual taxonomy descriptors."
-      : "Gist is being processed.";
+    if (serviceResult.status === "MISSING_CONTENT") {
+      return res.status(400).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: serviceResult.payload,
+      });
+    }
 
-    res.status(202).json({
+    if (serviceResult.status === "SUCCESS_BYPASS") {
+      return res.status(201).json({
+        status: "SUCCESS",
+        ...serviceResult.transInfo,
+        payload: serviceResult.payload,
+      });
+    }
+
+    return res.status(202).json({
       status: "SUCCESS",
-      payload: { gistId: newGist._id },
-      message: msg,
+      ...serviceResult.transInfo,
+      payload: serviceResult.payload,
     });
   } catch (error: any) {
-    res.status(500).json({
-      status: "ERROR",
-      message: error.message || "Failed to initiate gist",
-    });
+    console.error("[createGist] Error:", error);
+
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.POST.CREATION_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.POST.CREATION_FALLBACK_ERROR(),
+      error,
+    );
   }
 };

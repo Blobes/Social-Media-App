@@ -1,6 +1,8 @@
-import { Response } from "express";
+import { Response, NextFunction } from "express";
 import { IAuthRequest } from "../../types";
 import { executeTopicUpdate } from "../../services/topic";
+import { forwardError } from "../../utils/misc/error";
+import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 
 interface ManageRequest extends IAuthRequest {
   body: {
@@ -15,24 +17,26 @@ interface ManageRequest extends IAuthRequest {
 }
 
 /**
- * Orchestrates topic creation, on user preference settings, post creation and post engagement.
+ * Controller endpoint processing ingestion configurations to match up taxonomy tags safely against target updates.
  */
 export const manageTopics = async (
   req: ManageRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const userId = req.user?.id;
   const { topics, targetId, targetModel, actionType } = req.body;
 
-  if (!topics || !Array.isArray(topics) || topics.length === 0) {
-    return res.status(400).json({
+  if (!userId) {
+    return res.status(401).json({
       status: "ERROR",
-      message: "A list of topics is required.",
+      ...MESSAGES_REGISTRY.AUTH.UNAUTHORIZED,
+      payload: null,
     });
   }
 
   try {
-    await executeTopicUpdate({
+    const serviceResult = await executeTopicUpdate({
       topics,
       userId,
       targetId,
@@ -40,15 +44,31 @@ export const manageTopics = async (
       actionType,
     });
 
+    if (serviceResult.status === "INVALID_INPUT") {
+      return res.status(400).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: null,
+      });
+    }
+
     return res.status(200).json({
       status: "SUCCESS",
-      message: "Topics processed successfully",
+      ...serviceResult.transInfo,
+      payload: serviceResult.payload,
     });
   } catch (error: any) {
-    console.error(`[Topic Manager] Error during ${actionType}:`, error);
-    return res.status(500).json({
-      status: "ERROR",
-      message: error.message || "Internal server error",
-    });
+    console.error(
+      `[Topic Manager] Execution Instance Failure during ${actionType}:`,
+      error,
+    );
+
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.POST.POST_TOPICS_UPDATE_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.POST.POST_TOPICS_UPDATE_FALLBACK_ERROR,
+      error,
+    );
   }
 };

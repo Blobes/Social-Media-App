@@ -1,20 +1,12 @@
-import { authTokens } from "@/envVars";
-import { IUserDocument, UserModel } from "@repo/database";
+import { NextFunction, Request, Response } from "express";
 import {
-  genAccessTokens,
-  genRefreshTokens,
-  IAuthRequest,
-  userSensitiveFields,
-  upstashClient,
-  CACHE_KEYS,
-  toJwtUser,
   getOrSetDeviceToken,
-  upsertDevice,
-  evaluateDeviceTrust,
+  generateRandomIp,
+  setAuthCookies,
+  MESSAGES_REGISTRY,
+  forwardError,
 } from "@repo/shared";
-import bcrypt from "bcrypt";
-import { Request, Response } from "express";
-import { v4 as uuidv4 } from "uuid";
+import { authenticateUser } from "@/auth/services/sessions/authenticateUser";
 
 interface LoginRequest extends Request {
   body: {
@@ -22,14 +14,17 @@ interface LoginRequest extends Request {
     password: string;
   };
 }
+
 /**
- * Executes the login flow using the decoupled Device Registry and Redis session management.
+ * Controller endpoint to handle incoming user session login requests.
  */
 export const loginUser = async (
   req: LoginRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const { identifier, password } = req.body;
+  const userAgent = req.headers["user-agent"] || "unknown";
 
   if (!identifier || !password) {
     return res.status(400).json({
@@ -40,101 +35,81 @@ export const loginUser = async (
   }
 
   const deviceToken = getOrSetDeviceToken(req, res);
-  const normalizedIdentifier = identifier.toLowerCase().trim();
+  const randomIp = generateRandomIp();
 
   try {
-    const user = await UserModel.findOne({
-      $or: [
-        { email: normalizedIdentifier },
-        { username: { $regex: new RegExp(`^${normalizedIdentifier}$`, "i") } },
-        { phoneNumber: normalizedIdentifier },
-      ],
-    }).setOptions({ skipFilter: true });
-
-    if (!user) {
-      return res.status(400).json({
-        status: "ERROR",
-        message: "User not found.",
-        payload: null,
-      });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({
-        status: "UNAUTHORIZED",
-        message: "Incorrect password.",
-        payload: null,
-      });
-    }
-
-    // 1. HARDWARE REGISTRY & PRIMARY SELF-HEAL:
-    // upsertDevice internally calls ensurePrimaryDevice(user, device._id).
-    const device = await upsertDevice(user, deviceToken, req);
-
-    const userId = user._id.toString();
-    const deviceIdString = device._id.toString();
-
-    // 2. SESSION INITIALIZATION
-    const sessionId = uuidv4();
-
-    // Sync the primary device reference for high-speed middleware checks
-    await upstashClient.set(
-      CACHE_KEYS.USER_PRIMARY_DEVICE(userId),
-      user.primaryDeviceId?.toString(),
-    );
-
-    const jwtUser = toJwtUser(user as IUserDocument, deviceIdString, sessionId);
-
-    const accessToken = genAccessTokens(
-      jwtUser,
-      req as IAuthRequest,
-      res,
-      sessionId,
-      authTokens.ACCESS_TOKEN_SECRET,
-    );
-
-    const refreshToken = await genRefreshTokens(
-      jwtUser,
-      req as IAuthRequest,
-      res,
-      sessionId,
-      authTokens.REFRESH_TOKEN_SECRET,
-    );
-
-    // Update last password verification
-    user.lastPasswordVerifiedAt = new Date();
-    await user.save();
-
-    const safeData = user.toObject();
-    userSensitiveFields().forEach((field) => {
-      delete (safeData as any)[field];
+    const serviceResult = await authenticateUser({
+      identifier,
+      password,
+      deviceToken,
+      userAgent,
+      ipAddress: randomIp,
     });
 
-    // Evaluate if the hardware is known and verified within the trust window
-    const trust = await evaluateDeviceTrust(device);
-    const isVerified = safeData.isEmailVerified || safeData.isPhoneVerified;
-    const requireOtp = !isVerified || !trust.trusted;
+    if (serviceResult.status === "USER_NOT_FOUND") {
+      return res.status(400).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: null,
+      });
+    }
+
+    if (serviceResult.status === "NO_USER_PASSWORD_SET") {
+      return res.status(400).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: null,
+      });
+    }
+
+    if (serviceResult.status === "THIRD_PARTY_RESTRICTION") {
+      return res.status(403).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: null,
+      });
+    }
+
+    if (serviceResult.status === "DEACTIVATED_ACCOUNT") {
+      return res.status(403).json({
+        status: "DEACTIVATED_ACCOUNT",
+        ...serviceResult.transInfo,
+        payload: null,
+      });
+    }
+
+    if (serviceResult.status === "UNAUTHORIZED") {
+      return res.status(401).json({
+        status: "UNAUTHORIZED",
+        ...serviceResult.transInfo,
+        payload: null,
+      });
+    }
+
+    if (serviceResult.accessToken && serviceResult.refreshToken) {
+      setAuthCookies(res, {
+        accessToken: serviceResult.accessToken,
+        refreshToken: serviceResult.refreshToken,
+      });
+    }
 
     return res.status(200).json({
       status: "SUCCESS",
-      message: "Logged in successfully.",
-      accessToken,
-      refreshToken,
-      payload: safeData,
-      requireOtp,
-      otpReason: requireOtp
-        ? !isVerified
-          ? "UNVERIFIED_ACCOUNT"
-          : "UNTRUSTED_DEVICE"
-        : undefined, // Helpful for debugging (NEW_DEVICE vs STALE_DEVICE)
+      ...serviceResult.transInfo,
+      accessToken: serviceResult.accessToken,
+      refreshToken: serviceResult.refreshToken,
+      payload: serviceResult.payload,
+      requireOtp: serviceResult.requireOtp,
+      otpReason: serviceResult.otpReason,
     });
   } catch (error: any) {
     console.error("Login Error:", error);
-    return res.status(500).json({
-      status: "ERROR",
-      message: error.message || "Internal server error.",
-      payload: null,
-    });
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      error,
+    );
   }
 };

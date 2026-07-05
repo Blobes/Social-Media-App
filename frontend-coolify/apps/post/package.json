@@ -12,22 +12,20 @@
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "@mui/material": "catalog:",
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "lucide-react": "catalog:",
-    "zustand": "catalog:",
     "@repo/shared-ui": "workspace:*",
     "@repo/shared-hooks": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/core": "workspace:*",
-    "@repo/features": "workspace:*",
-    "@mui/material": "catalog:"
+    "@repo/features": "workspace:*"
   },
   "devDependencies": {
     "typescript": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "i18next-cli": "catalog:"
+    "@types/react-dom": "catalog:"
   }
 }

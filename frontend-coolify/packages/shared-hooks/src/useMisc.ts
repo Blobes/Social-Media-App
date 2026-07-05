@@ -3,8 +3,7 @@
 import { useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { delay, checkSignal } from "@repo/helpers";
-import { DrawerProps, ModalProps } from "@repo/core";
-import { useGlobalStore } from "./store/useGlobalStore";
+import { DrawerProps, ModalProps, useGlobalStore } from "@repo/core";
 import { useCallback } from "react";
 
 /**

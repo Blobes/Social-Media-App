@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useGlobalStore, useMisc, useOffline } from "@repo/shared-hooks";
+import { useMisc, useOffline } from "@repo/shared-hooks";
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useEffect, useRef } from "react";
@@ -11,6 +11,7 @@ import { BottomNav } from "./navbars/BottomNav";
 import { RightSidebar } from "./navbars/right-sidebar/Sidebar";
 import { RootUIContainer } from "@repo/shared-ui";
 import { scrollBarStyle } from "@repo/helpers";
+import { useGlobalStore } from "@repo/core";
 
 export const Wrapper = ({ children }: { children: React.ReactNode }) => {
   const { isDesktop, isOnline } = useMisc();

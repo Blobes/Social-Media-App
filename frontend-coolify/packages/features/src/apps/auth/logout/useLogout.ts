@@ -3,14 +3,9 @@
 import { useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CLIENT_ROUTES, SERVER_API } from "@repo/core";
+import { CLIENT_ROUTES, SERVER_API, useGlobalStore } from "@repo/core";
 import { apiClient } from "@repo/helpers";
-import {
-  useGlobalStore,
-  useMisc,
-  usePage,
-  useSnackbar,
-} from "@repo/shared-hooks";
+import { useMisc, usePage, useSnackbar } from "@repo/shared-hooks";
 
 /** * Handles the user logout flow, clearing state, cache, and redirecting. */
 export const useLogout = () => {

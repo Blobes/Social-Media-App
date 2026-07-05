@@ -8,13 +8,15 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
-import { Box, Menu, Typography } from "@mui/material";
+import { Box, Menu } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { MenuRef, GenericStyle, IMenuItem, ListType, LISTS } from "@repo/core";
 import { RenderItemList, RenderListProps } from "./RenderItems";
 import { SearchBar } from "./Search";
 import { scrollBarStyle } from "@repo/helpers";
 import { ProgressIcon } from "./LoadingUIs";
+import { useStaticTranslation } from "@repo/shared-hooks";
+import { TransText } from "./Text";
 
 interface MenuProps {
   children?: ReactNode;
@@ -146,6 +148,7 @@ export const DisplayList = <T extends IMenuItem>({
   heightThreshold,
 }: MenuListProps<T> & MenuProps) => {
   const theme = useTheme();
+  const { translateTxtString } = useStaticTranslation();
   const [filteredList, setFilteredList] = useState<T[]>(list);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -202,8 +205,10 @@ export const DisplayList = <T extends IMenuItem>({
    * Returns localized fallback messaging contextual parameters.
    */
   const feedback = () => {
-    if (isSourceEmpty) return LISTS().MESSAGES[listName].empty;
-    if (isSearchEmpty) return LISTS().MESSAGES[listName].noMatch;
+    if (isSourceEmpty)
+      return LISTS(translateTxtString).MESSAGES[listName].empty;
+    if (isSearchEmpty)
+      return LISTS(translateTxtString).MESSAGES[listName].noMatch;
     if (isLoading) return "Fetching list entries...";
     return null;
   };
@@ -263,12 +268,13 @@ export const DisplayList = <T extends IMenuItem>({
       {feedback() ? (
         <Box
           sx={{ width: "100%", p: theme.boxSpacing(4), textAlign: "center" }}>
-          <Typography variant="body3" sx={{ color: theme.palette.gray[200] }}>
+          <TransText
+            sx={{ ...theme.typography.body3, color: theme.palette.gray[200] }}>
             {feedback()}
             {isSearchEmpty && (
               <b style={{ display: "block" }}>"{currentQuery}"</b>
             )}
-          </Typography>
+          </TransText>
         </Box>
       ) : (
         // Extracted children from fragment layout into transparent inline elements array block

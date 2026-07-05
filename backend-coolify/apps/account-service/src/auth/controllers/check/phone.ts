@@ -1,58 +1,68 @@
-import { UserModel } from "@repo/database";
-import { Request, Response } from "express";
+import { executeAccountCheck } from "@/auth/services/accountChecker";
+import { NextFunction, Request, Response } from "express";
+import { forwardError, MESSAGES_REGISTRY } from "@repo/shared";
 
 /**
  * Checks phone existence and evaluates hardware trust.
  */
-export const checkPhone = async (req: Request, res: Response): Promise<any> => {
-  const { phone } = req.body as { phone?: string };
-
-  if (!phone) {
-    return res.status(400).json({
-      status: "ERROR",
-      message: "Phone number is required",
-      payload: null,
-    });
-  }
-
-  // Ensure only numeric characters for lookup
-  const normalizedPhone = phone.replace(/\D/g, "");
+export const checkPhone = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<any> => {
+  const { phone, purpose = "LOGIN" } = req.body as {
+    phone?: string;
+    purpose?: "REGISTRATION" | "LOGIN";
+  };
 
   try {
-    const existingUser = await UserModel.findOne({
-      phoneNumber: normalizedPhone,
-    }).setOptions({ skipFilter: true });
+    const serviceResult = await executeAccountCheck({
+      type: "PHONE",
+      identifier: phone || "",
+      purpose,
+    });
 
-    if (existingUser) {
-      return res.status(200).json({
-        status: "SUCCESS",
-        message: !existingUser.isDeactivated
-          ? "Phone number is already registered."
-          : "This account is deactivated. Please restore it to continue.",
-        isExisting: true,
-        payload: {
-          accountStatus: !existingUser.isDeactivated ? "ACTIVE" : "DEACTIVATED",
-          userId: existingUser._id,
-          username: existingUser.username,
-          firstName: existingUser.firstName,
-          email: existingUser.email,
-          phone: existingUser.phoneNumber,
-        },
+    if (serviceResult.status === "MISSING_IDENTIFIER") {
+      return res.status(400).json({
+        status: "ERROR",
+        ...MESSAGES_REGISTRY.AUTH.PHONE_REQUIRED,
+        payload: null,
+      });
+    }
+
+    if (serviceResult.status === "NOT_FOUND") {
+      return res.status(404).json({
+        status: "ERROR",
+        ...MESSAGES_REGISTRY.AUTH.PHONE_NOT_FOUND,
+        payload: null,
+      });
+    }
+
+    if (serviceResult.status === "THIRD_PARTY_RESTRICTION") {
+      return res.status(400).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        isExisting: serviceResult.isExisting,
+        signedUpWith: serviceResult.signedUpWith,
+        payload: serviceResult.payload,
       });
     }
 
     return res.status(200).json({
       status: "SUCCESS",
-      isExisting: false,
-      message: "Phone number is available",
-      payload: null,
+      ...serviceResult.transInfo,
+      isExisting: serviceResult.isExisting,
+      signedUpWith: serviceResult.signedUpWith,
+      payload: serviceResult.payload,
     });
   } catch (error: any) {
     console.error("Check Phone Error:", error);
-    return res.status(500).json({
-      status: "ERROR",
-      message: error.message || "Server error during phone check",
-      payload: null,
-    });
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      error,
+    );
   }
 };

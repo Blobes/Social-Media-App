@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { IPost, GenericStyle } from "@repo/core";
+import { IPost, GenericStyle, COMMON_FEEDBACK, POST_INFO } from "@repo/core";
 import { useAdaptiveTime } from "@repo/shared-hooks";
 import { useTheme } from "@mui/material/styles";
 import {
@@ -9,11 +9,11 @@ import {
   GistSkeleton,
   SmartDate,
   SVGWrapper,
-  StaticText,
+  TransText,
 } from "@repo/shared-ui";
 import { useTrendingData } from "./hooks/usePostTrends";
-import { Box, Stack, Typography } from "@mui/material";
-import { applyBGPattern, lineClamp, summarizeNum } from "@repo/helpers";
+import { Box, Stack } from "@mui/material";
+import { applyBGPattern, summarizeNum } from "@repo/helpers";
 import { Quote } from "lucide-react";
 import { asset } from "@repo/assets";
 
@@ -88,23 +88,18 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
       )}
 
       {/* Main Content Fields */}
-      <StaticText
-        i18nKey="carousel_post_caption"
+      <TransText
         component="h5"
-        variant="subtitle1"
+        trimCount={6}
         sx={{
+          ...theme.typography.subtitle1,
           zIndex: 2,
           position: "relative",
           color: "#FFFFFF",
-          lineHeight: 1.4,
-          ...lineClamp(6),
           textShadow: hasMedia ? "0px 2px 8px rgba(0,0,0,0.2)" : "none",
-          [theme.breakpoints.down("md")]: {
-            fontSize: 22,
-          },
         }}>
         {data.caption}
-      </StaticText>
+      </TransText>
 
       {/* Engagement Footer Details */}
       <Box
@@ -132,50 +127,60 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
           sx={{
             width: "100%",
           }}>
-          <StaticText
-            i18nKey="carousel_post_likes"
-            variant="body1"
-            sx={{
-              color: "inherit",
-              lineHeight: 1.3,
-            }}>
-            {data.post.postType === "GIST"
-              ? `${summarizeNum(data.post.likeCount) || 0} 
-              ${data.post.likeCount > 1 ? "likes" : "like"}`
-              : "Active stake"}
-          </StaticText>
           {data.post.postType === "GIST" ? (
-            <StaticText
-              i18nKey="carousel_post_info"
-              component="span"
-              variant="body3"
-              sx={{
-                color: "inherit",
-                width: "100%",
-                ...lineClamp(1),
-              }}>
-              <SmartDate
-                component="span"
-                variant="body3"
-                timestamp={data.post.createdAt}
-                adaptiveTime={useAdaptiveTime}
+            <>
+              <TransText
+                {...(data.post.likeCount === 1
+                  ? POST_INFO.post_likes_one(summarizeNum(data.post.likeCount))
+                  : POST_INFO.post_likes_many(
+                      summarizeNum(data.post.likeCount),
+                    ))}
                 sx={{
-                  padding: theme.boxSpacing(0, 2),
+                  ...theme.typography.body1,
                   color: "inherit",
                 }}
               />
-              ago | {summarizeNum(data.post.viewCount) || 0} views
-            </StaticText>
+              <Box
+                sx={{
+                  display: "inline-flex",
+                  flexDirection: "row",
+                  gap: theme.gap(2),
+                }}>
+                <SmartDate
+                  timestamp={data.post.createdAt}
+                  adaptiveTime={useAdaptiveTime}
+                  suffix="ago |"
+                  sx={{
+                    ...theme.typography.body3,
+                    color: "inherit",
+                  }}
+                />
+                <TransText
+                  {...(data.post.viewCount === 1
+                    ? POST_INFO.post_views_one(
+                        summarizeNum(data.post.viewCount),
+                      )
+                    : POST_INFO.post_views_many(
+                        summarizeNum(data.post.viewCount),
+                      ))}
+                  trimCount={1}
+                  sx={{
+                    ...theme.typography.body3,
+                    color: "inherit",
+                    width: "100%",
+                  }}
+                />
+              </Box>
+            </>
           ) : (
-            <StaticText
-              i18nKey="carousel_post_info"
-              variant="body3"
+            <TransText
               sx={{
+                ...theme.typography.body3,
                 color: "inherit",
                 display: "block",
               }}>
               Shared trending post
-            </StaticText>
+            </TransText>
           )}
         </Box>
       </Box>
@@ -225,21 +230,16 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
         />
       ) : carouselItems.length > 0 ? (
         <>
-          <Typography
+          <TransText
+            {...COMMON_FEEDBACK.trends_missed}
             component="h5"
-            variant="h6"
             sx={{
+              ...theme.typography.h6,
               width: "100%",
               color: theme.palette.primary.light,
-              fontWeight: 700,
               textAlign: "center",
-              [theme.breakpoints.down("md")]: {
-                fontSize: 26,
-                lineHeight: "1.4em",
-              },
-            }}>
-            Trends you might have missed while away.
-          </Typography>
+            }}
+          />
           <LinearCarousel
             items={carouselItems}
             autoPlay
@@ -264,26 +264,26 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
         <>
           <Quote size={50} />
           <Stack gap={theme.gap(8)} alignItems="center">
-            <Typography
-              variant="h6"
+            <TransText
+              {...COMMON_FEEDBACK.quote1}
+              component="h6"
               sx={{
+                ...theme.typography.h6,
                 textAlign: "center",
                 width: "80%",
                 color: theme.palette.gray[0],
-                lineHeight: "1.4em",
-              }}>
-              Something Must Be Unique About You
-            </Typography>
-            <Typography
-              variant="body1"
+              }}
+            />
+            <TransText
               sx={{
+                ...theme.typography.body1,
+                fontWeight: "600",
                 width: "100%",
                 textAlign: "center",
                 color: theme.palette.primary.light,
-                fontWeight: "600",
               }}>
               ~ Funstakes
-            </Typography>
+            </TransText>
           </Stack>
         </>
       )}

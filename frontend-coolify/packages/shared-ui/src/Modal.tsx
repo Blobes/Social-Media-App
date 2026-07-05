@@ -12,6 +12,7 @@ import { ModalProps, ModalRef } from "@repo/core";
 import { Transition } from "./Transition";
 import { scrollBarStyle } from "@repo/helpers";
 import { X } from "lucide-react";
+import { A11y } from "./A11y";
 
 export const Modal = forwardRef<ModalRef, ModalProps>(
   (
@@ -111,7 +112,17 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
           timeout={200}
           {...trans}
           onExited={() => setShouldRemove(true)}>
-          <Stack
+          {/* Wraps the modal inner card cleanly to trap keyboard focus loops when visible */}
+          <A11y
+            useCase="dialog"
+            isOpen={isOpen}
+            onClose={() => {
+              setOpen(false);
+              if (onClose) onClose();
+            }}
+            label={
+              typeof header === "string" ? header : "Modal Dialog View Window"
+            }
             sx={{
               maxHeight: "100%",
               gap: theme.gap(0),
@@ -160,8 +171,8 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
                       {header && header}
                       {canBeClosed && (
                         <IconButton
-                          aria-label="Modal closer"
-                          aria-controls="close-drawer"
+                          aria-label="Close modal window context"
+                          aria-controls="close-modal"
                           aria-haspopup="true"
                           ref={closeRef}
                           onClick={handleClose}>
@@ -188,7 +199,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
               }}>
               {content}
             </Stack>
-          </Stack>
+          </A11y>
         </Transition>
       </Stack>
     );

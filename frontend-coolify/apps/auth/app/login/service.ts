@@ -23,6 +23,7 @@ export interface LoginResponse extends ISinglePayload<IUser> {
 export interface CheckResponse extends ISinglePayload<IUser> {
   isExisting: boolean;
   suggestions?: string[];
+  signedUpWith?: "EMAIL" | "GOOGLE" | "APPLE";
 }
 
 export const LoginService = () => {

@@ -1,7 +1,7 @@
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 import adminRoutes from "./routes";
-import { healthRouter } from "@repo/shared";
+import { errorHandlerMiddleware, healthRouter } from "@repo/shared";
 
 export default (app: Express) => {
   // ====== Middlewares ======
@@ -19,6 +19,8 @@ export default (app: Express) => {
 
   // ====== Routes ======
   app.use("/", adminRoutes);
+
+  app.use(errorHandlerMiddleware);
 
   return app;
 };

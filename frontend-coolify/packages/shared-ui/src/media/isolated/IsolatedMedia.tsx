@@ -1,15 +1,21 @@
 "use client";
 
 import React from "react";
-import { Box, Stack, Typography, Fade } from "@mui/material";
+import { Box, Stack, Fade } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { GenericStyle, IMedia, MediaSourceType } from "@repo/core";
+import {
+  COMMON_MEDIA,
+  GenericStyle,
+  IMedia,
+  MediaSourceType,
+} from "@repo/core";
 import { MediaRenderer } from "../MediaRenderer";
 import { ElementTap } from "../../ElementTap";
 import { IsolatedHeader } from "./Header";
 import { IsolatedFooter } from "./Footer";
 import { useIsolatedMedia } from "./useIsolated";
 import { LinearCarousel } from "../../carousel/Linear";
+import { TransText } from "../../Text";
 
 export interface IsolatedProps {
   mediaList?: IMedia[];
@@ -25,6 +31,9 @@ export interface IsolatedProps {
   initialIndex?: number;
 }
 
+/**
+ * Orchestrator matching media rendering surfaces with floating header actions and information panels.
+ */
 export const IsolatedMedia = ({
   mediaList = [],
   postEngagment,
@@ -96,9 +105,13 @@ export const IsolatedMedia = ({
               py: 0.5,
               borderRadius: 10,
             }}>
-            <Typography variant="caption" fontWeight="bold">
-              {activeIndex + 1} / {mediaList.length}
-            </Typography>
+            <TransText
+              {...COMMON_MEDIA.gallery_counter(
+                activeIndex + 1,
+                mediaList.length,
+              )}
+              sx={{ ...theme.typography.caption, fontWeight: 600 }}
+            />
           </Box>
         )}
 

@@ -2,16 +2,19 @@
 
 import React from "react";
 import { IconButton, Stack, Typography } from "@mui/material";
-import {
-  AppButton,
-  TextInput,
-  ProgressIcon,
-  BasicTooltip,
-} from "@repo/shared-ui";
+import { AppButton, TextInput, ProgressIcon, TransText } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 import { useIdentity } from "../hooks/useIdentity";
 import { ChevronLeft } from "lucide-react";
-import { AuthStepName, StepperProps } from "@repo/core";
+import {
+  AUTH_BUTTON_LABELS,
+  AUTH_FEEDBACK,
+  AUTH_INPUT,
+  AuthStepName,
+  COMMON_BUTTON_LABELS,
+  StepperProps,
+} from "@repo/core";
+import { useStaticTranslation } from "@repo/shared-hooks";
 
 /**
  * Step 1: Identity UI utilizing the bulk-validated hook.
@@ -30,16 +33,23 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
     usernameStatus,
     setFormData,
   } = useIdentity(onNext);
+  const { translateTxtString } = useStaticTranslation();
 
   return (
     <Stack sx={{ gap: theme.gap(18), width: "100%" }}>
       <Stack sx={{ textAlign: "center" }}>
-        <Typography variant="h5" fontWeight={600}>
-          Confirm your identity
-        </Typography>
-        <Typography variant="body2" color={theme.palette.gray[200]}>
-          Set up your legal names and unique handle.
-        </Typography>
+        <TransText
+          {...AUTH_FEEDBACK.confirm_identity}
+          sx={theme.typography.h5}
+        />
+        <TransText
+          {...AUTH_FEEDBACK.confirm_identity}
+          sx={theme.typography.h5}
+        />
+        <TransText
+          {...AUTH_FEEDBACK.setup_legal_names_username}
+          sx={{ ...theme.typography.body2, color: theme.palette.gray[200] }}
+        />
       </Stack>
 
       <Stack
@@ -50,22 +60,28 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
           submitIdentity();
         }}>
         <TextInput
-          placeholder="Enter first name"
-          label="First name"
+          placeholder={translateTxtString(
+            AUTH_INPUT.placeholder.enter_first_name,
+          )}
+          label={translateTxtString(AUTH_INPUT.label.first_name)}
           value={formData.firstName}
           onChange={handleChange}
         />
 
         <TextInput
-          placeholder="Enter last name"
-          label="Last name"
+          placeholder={translateTxtString(
+            AUTH_INPUT.placeholder.enter_last_name,
+          )}
+          label={translateTxtString(AUTH_INPUT.label.last_name)}
           value={formData.lastName}
           onChange={handleChange}
         />
 
         <TextInput
-          placeholder="Enter username"
-          label="Username"
+          placeholder={translateTxtString(
+            AUTH_INPUT.placeholder.create_username,
+          )}
+          label={translateTxtString(AUTH_INPUT.label.username)}
           value={formData.username}
           onChange={handleChange}
           error={usernameStatus.status === "TAKEN"}
@@ -77,13 +93,16 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
         {usernameStatus.status === "TAKEN" && usernameStatus.suggestions && (
           <Stack direction="row" flexWrap="wrap" gap={1}>
             {usernameStatus.suggestions.map((sug) => (
-              <Typography
+              <TransText
                 key={sug}
-                variant="caption"
                 onClick={() => setFormData({ ...formData, username: sug })}
-                sx={{ cursor: "pointer", color: theme.palette.primary.main }}>
+                sx={{
+                  ...theme.typography.caption,
+                  cursor: "pointer",
+                  color: theme.palette.primary.main,
+                }}>
                 {sug}
-              </Typography>
+              </TransText>
             ))}
           </Stack>
         )}
@@ -112,13 +131,17 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
           <AppButton
             variant="contained"
             style={{
-              fontSize: "16px",
+              ...theme.typography.button,
               padding: theme.boxSpacing(5.5, 9),
               width: "100%",
             }}
             submit
             options={{ disabled: !isFormValid || isPending }}>
-            {isPending ? <ProgressIcon otherProps={{ size: 24 }} /> : "Proceed"}
+            {isPending ? (
+              <ProgressIcon otherProps={{ size: 24 }} />
+            ) : (
+              <TransText {...AUTH_BUTTON_LABELS.proceed} noComponent />
+            )}
           </AppButton>
         </Stack>
       </Stack>

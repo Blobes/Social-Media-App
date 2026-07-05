@@ -1,83 +1,68 @@
-import { UserModel } from "@repo/database";
+import { NextFunction, Response } from "express";
+import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
 import {
-  IAuthRequest,
-  softDeleteMedia,
-  userSensitiveFields,
-  invalidateCache,
-  CACHE_KEYS,
-} from "@repo/shared";
-import { Response } from "express";
+  executeUserImageRemoval,
+  RemoveImageType,
+} from "@/user/services/profile/image";
 
 interface RemoveRequest extends IAuthRequest {
   body: {
-    imageType: "PROFILE" | "COVER";
+    imageType: RemoveImageType;
   };
 }
 
+/**
+ * Controller endpoint to sever image asset references linked to user document parameters.
+ */
 export const removeUserImage = async (
   req: RemoveRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const authUserId = req.user?.id;
   const { imageType } = req.body;
 
-  // Fail fast if the user is not authenticated
   if (!authUserId) {
     return res.status(401).json({
       status: "ERROR",
-      message: "Unauthorized access",
+      ...MESSAGES_REGISTRY.AUTH.UNAUTHORIZED,
       payload: null,
     });
   }
 
-  // Validate the image type before proceeding
   if (imageType !== "PROFILE" && imageType !== "COVER") {
     return res.status(400).json({
       status: "ERROR",
-      message: "Invalid image type. Must be 'PROFILE' or 'COVER'.",
+      ...MESSAGES_REGISTRY.PROFILE.INVALID_IMAGE_TYPE,
       payload: null,
     });
   }
 
-  const fieldToUpdate = imageType === "PROFILE" ? "profileImage" : "coverImage";
-
   try {
-    // Execute soft delete to handle the database reference update
-    const updatedUser = await softDeleteMedia({
-      model: UserModel as any,
-      id: authUserId,
-      field: fieldToUpdate,
-      populateFields: ["profileImage", "coverImage"],
+    const serviceResult = await executeUserImageRemoval({
+      authUserId,
+      imageType,
     });
 
-    if (!updatedUser) {
+    if (serviceResult.status === "NOT_FOUND") {
       return res.status(404).json({
         status: "ERROR",
-        message: "User not found or deactivated",
+        ...serviceResult.transInfo,
         payload: null,
       });
     }
 
-    // Invalidate the profile cache to reflect the removal immediately
-    await invalidateCache(CACHE_KEYS.USER_PROFILE(authUserId));
-
-    // Sanitize the response payload
-    const safePayload = updatedUser.toObject();
-    userSensitiveFields().forEach((field) => {
-      delete (safePayload as any)[field];
-    });
-
     return res.status(200).json({
       status: "SUCCESS",
-      message: `${imageType === "PROFILE" ? "Profile" : "Cover"} image removed from view`,
-      payload: safePayload,
+      ...serviceResult.transInfo,
+      payload: serviceResult.payload,
     });
   } catch (error: any) {
     console.error("Soft Delete Media Error:", error);
-    return res.status(500).json({
-      status: "ERROR",
-      message: error.message || "Failed to remove image reference",
-      payload: null,
-    });
+    return forwardError(
+      next,
+      MESSAGES_REGISTRY.PROFILE.IMAGE_REMOVAL_ERROR,
+      error,
+    );
   }
 };

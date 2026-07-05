@@ -3,16 +3,10 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useTheme } from "@mui/material/styles";
-import { usePage } from "@repo/shared-hooks";
+import { useGuides, useInputValidation, usePage } from "@repo/shared-hooks";
 import { Check } from "lucide-react";
-import { INPUT_GUIDES, InputStatus, CLIENT_ROUTES } from "@repo/core";
-import {
-  delay,
-  sanitizePhoneNumber,
-  validateEmail,
-  validatePassword,
-  validatePhone,
-} from "@repo/helpers";
+import { InputStatus, CLIENT_ROUTES } from "@repo/core";
+import { delay, sanitizePhoneNumber } from "@repo/helpers";
 import { SignupService } from "../service";
 import { useSignupFeedback } from "./useFeedback";
 
@@ -23,6 +17,9 @@ export const useSignup = () => {
   const theme = useTheme();
   const { createAccount } = SignupService();
   const { navigateTo } = usePage();
+  const { validateEmail, validatePassword, validatePhone } =
+    useInputValidation();
+  const { INPUT_GUIDES } = useGuides();
 
   const [inlineMsg, setInlineMsg] = useState<React.ReactNode | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);

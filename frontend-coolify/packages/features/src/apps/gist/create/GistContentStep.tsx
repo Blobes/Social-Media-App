@@ -1,19 +1,28 @@
 "use client";
 
 import React from "react";
-import { Box, Chip, Stack, Typography } from "@mui/material";
+import { Box, Chip, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   AppButton,
   FileInput,
   InlineMsgUI,
+  SelectedMediaFiles,
   TextInput,
   DisplayList as TopicList,
+  TransText,
 } from "@repo/shared-ui";
 import { Content, FilesProps } from "./useGistContent";
-import { ITopic, ListType } from "@repo/core";
-import { GistMediaUpload } from "./MediaUpload";
+import {
+  COMMON_MEDIA,
+  ITopic,
+  ListType,
+  POST_BUTTON_LABELS,
+  POST_FEEDBACK,
+  POST_INPUT,
+} from "@repo/core";
 import { GistContext } from "./CreateGist";
+import { useStaticTranslation } from "@repo/shared-hooks";
 
 export interface GistStepProps extends Content {
   gistContext: GistContext;
@@ -28,8 +37,10 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
   stagedFiles,
   topics,
   gistContext,
+  setStep,
 }) => {
   const theme = useTheme();
+  const { translateTxtString } = useStaticTranslation();
 
   const {
     isProcessing,
@@ -59,18 +70,19 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
         gap: theme.gap(7.5),
       }}>
       <Stack sx={{ gap: theme.gap(2) }}>
-        <Typography variant="subtitle1" sx={{ color: theme.palette.gray[300] }}>
-          Compose Gist
-        </Typography>
-
+        <TransText
+          {...POST_FEEDBACK.compose_post}
+          sx={{ ...theme.typography.subtitle1, color: theme.palette.gray[300] }}
+        />
         {!isProcessing && inlineErrMsg && (
           <InlineMsgUI msg={inlineErrMsg} type="ERROR" />
         )}
-
         <TextInput
           variant="outlined"
-          label="What's happening?"
-          placeholder="Share your technical discovery or insights..."
+          label={translateTxtString(POST_INPUT.label.whats_happening)}
+          placeholder={translateTxtString(
+            POST_INPUT.placeholder.share_your_thought,
+          )}
           value={caption}
           disabled={isProcessing}
           onChange={(e) => setCaption(e.target.value)}
@@ -93,27 +105,40 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
 
       {stagedFiles.length > 0 && (
         <Stack sx={{ gap: theme.gap(3) }}>
-          <Typography
-            variant="body3"
-            sx={{ color: theme.palette.gray[200], fontWeight: 600 }}>
-            Added media ({stagedFiles.length})
-          </Typography>
-
-          <GistMediaUpload
+          <TransText
+            {...COMMON_MEDIA.added_media(stagedFiles.length)}
+            sx={{
+              ...theme.typography.body3,
+              color: theme.palette.gray[200],
+              fontWeight: 600,
+            }}
+          />
+          <SelectedMediaFiles
             stagedFiles={stagedFiles}
             processingStates={processingStates || {}}
             onRemoveFile={handleRemoveFile}
+            onPreviewClick={() => setStep?.("MEDIA_PREVIEW")}
           />
         </Stack>
       )}
 
       <Stack sx={{ gap: theme.gap(2.5) }}>
-        <Typography
-          variant="body3"
-          sx={{ color: theme.palette.gray[200], fontWeight: 600 }}>
-          Categorization Taxonomy
-        </Typography>
-
+        <TransText
+          {...COMMON_MEDIA.added_media(stagedFiles.length)}
+          sx={{
+            ...theme.typography.body3,
+            color: theme.palette.gray[200],
+            fontWeight: 600,
+          }}
+        />
+        <TransText
+          {...POST_FEEDBACK.categorization_taxonomy}
+          sx={{
+            ...theme.typography.body3,
+            color: theme.palette.gray[200],
+            fontWeight: 600,
+          }}
+        />
         <AppButton
           variant="outlined"
           onClick={(e) =>
@@ -125,7 +150,7 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
             fontSize: "13px",
             padding: "8px 16px",
           }}>
-          Add Topics
+          <TransText {...POST_BUTTON_LABELS.post_add_topic} noComponent />
         </AppButton>
 
         {topics.length > 0 && (
@@ -195,7 +220,7 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
           padding: theme.boxSpacing(6, 0),
           gap: "10px",
         }}>
-        <Typography variant="button">Next</Typography>
+        <TransText {...POST_BUTTON_LABELS.post_next} noComponent />
       </AppButton>
     </Box>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { Typography, Divider, Stack, IconButton } from "@mui/material";
+import { Divider, Stack, IconButton } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   Strip,
@@ -9,11 +9,12 @@ import {
   ThemeSwitcher,
   StatusSwitcher,
   DisplayList,
+  TransText,
 } from "@repo/shared-ui";
 import { summarizeNum } from "@repo/helpers";
 import { SlidersHorizontal, WalletMinimal } from "lucide-react";
-import { useGlobalStore, useMisc, usePage } from "@repo/shared-hooks";
-import { LISTS, MenuRef } from "@repo/core";
+import { useMisc, usePage, useStaticTranslation } from "@repo/shared-hooks";
+import { LISTS, MenuRef, POST_FEEDBACK, useGlobalStore } from "@repo/core";
 import { Logout } from "../../apps/auth/logout/Logout";
 import { useCreatePost } from "../../apps/post/hooks/useCreatePost";
 import { CREATE_POST } from "../../constants/posts";
@@ -24,7 +25,8 @@ export const HeaderDesktopNav = ({
   menuRef: React.RefObject<MenuRef | null>;
 }) => {
   const theme = useTheme();
-  const { USER_NAV_LIST } = LISTS();
+  const { translateTxtString } = useStaticTranslation();
+  const { USER_NAV_LIST } = LISTS(translateTxtString);
   const { closeDrawer } = useMisc();
 
   return (
@@ -66,12 +68,13 @@ const UserInfo = () => {
           alignItems: "center",
         }}>
         <Stack sx={{ gap: theme.gap(0), width: "100%" }}>
-          <Typography variant="body1" sx={{ fontWeight: "600" }}>
+          <TransText sx={{ ...theme.typography.body1, fontWeight: "600" }}>
             {firstName} {lastName}
-          </Typography>
-          <Typography variant="body2" sx={{ color: theme.palette.gray[200] }}>
+          </TransText>
+          <TransText
+            sx={{ ...theme.typography.body2, color: theme.palette.gray[200] }}>
             {username}
-          </Typography>
+          </TransText>
         </Stack>
         <IconButton sx={{ fontSize: "20px", fontWeight: "500" }}>
           <WalletMinimal style={{ width: "20px", height: "20px" }} />
@@ -156,9 +159,10 @@ export const HeaderMobileNav = ({}) => {
         <ThemeSwitcher />
         <Stack direction="row" gap={theme.gap(10)} alignItems="center">
           <SlidersHorizontal style={{ width: "18px", height: "18px" }} />
-          <Typography variant="body2" sx={{ fontWeight: "600" }}>
-            Filter feed
-          </Typography>
+          <TransText
+            {...POST_FEEDBACK.filter_feed}
+            sx={{ ...theme.typography.body2, fontWeight: "600" }}
+          />
         </Stack>
         <Logout />
       </Stack>

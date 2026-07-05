@@ -13,7 +13,8 @@ import { refreshSession } from "./controllers/session/refreshSession";
 import { getDevices } from "./controllers/device/getAllDevices";
 import { removeDevice } from "./controllers/device/removeDevice";
 import { verifyAuthToken } from "@/envVars";
-import { updateOnboarding } from "./controllers/new-account/updateOnboarding";
+import { updateOnboarding } from "./controllers/new-account/onboarding";
+import { oauthExchange } from "./oauth/oauthExchange";
 
 const router: Router = express.Router();
 
@@ -31,6 +32,9 @@ router.post("/check-username", checkUsername);
 // --- ACCOUNT ONBOARDING ---
 router.post("/signup", createAccount);
 router.post("/onboarding", verifyAuthToken, updateOnboarding);
+
+// OAuth
+router.post("/oauth-exchange", oauthExchange);
 
 // --- SESSION MANAGEMENT ---
 router.post("/login", loginUser);

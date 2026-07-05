@@ -22,8 +22,8 @@
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "zustand": "catalog:",
-    "socket.io-client": "4.8.3",
+    "socket.io-client": "catalog:",
+    "i18next": "catalog:",
     "@tanstack/react-query": "catalog:"
   },
   "devDependencies": {

@@ -1,15 +1,21 @@
 "use client";
 
 import React from "react";
-import { AppButton, Footer } from "@repo/shared-ui";
-import { usePage } from "@repo/shared-hooks";
-import { Stack, Typography } from "@mui/material";
+import { AppButton, Footer, TransText } from "@repo/shared-ui";
+import { usePage, useStaticTranslation } from "@repo/shared-hooks";
+import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { CLIENT_ROUTES, LISTS } from "@repo/core";
+import {
+  CLIENT_ROUTES,
+  COMMON_BUTTON_LABELS,
+  COMMON_FEEDBACK,
+  LISTS,
+} from "@repo/core";
 
 export const Welcome = () => {
   const { navigateTo } = usePage();
-  const { FOOTER_NAV_LIST } = LISTS();
+  const { translateTxtString } = useStaticTranslation();
+  const { FOOTER_NAV_LIST } = LISTS(translateTxtString);
   const theme = useTheme();
 
   return (
@@ -24,13 +30,15 @@ export const Welcome = () => {
           minHeight: "fit-content",
           padding: theme.boxSpacing(12),
         }}>
-        <Typography variant="h5" component="h5">
-          Join millions of stakers on FunStakes
-        </Typography>
+        <TransText
+          {...COMMON_FEEDBACK.join_funstakes_headline}
+          component="h5"
+          sx={theme.typography.h5}
+        />
         <AppButton
           href={CLIENT_ROUTES.signup.path}
           onClick={() => navigateTo(CLIENT_ROUTES.signup, { savePage: false })}>
-          Get started
+          <TransText {...COMMON_BUTTON_LABELS.get_started} noComponent />
         </AppButton>
       </Stack>
       <Footer navList={FOOTER_NAV_LIST} navigateTo={navigateTo} />

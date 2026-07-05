@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { formatDate } from "@repo/helpers";
-import { useGlobalStore } from "./store/useGlobalStore";
+import { useGlobalStore } from "@repo/core";
 
 /**
  * Optimized hook that subscribes to a single global clock pulse.

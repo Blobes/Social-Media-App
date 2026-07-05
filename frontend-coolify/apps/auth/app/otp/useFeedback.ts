@@ -1,12 +1,19 @@
 "use client";
 
-import { useSnackbar, usePage, useGlobalStore } from "@repo/shared-hooks";
-import { CACHE_KEYS, CLIENT_ROUTES, IUser } from "@repo/core";
+import { useSnackbar, usePage, useStaticTranslation } from "@repo/shared-hooks";
+import {
+  AUTH_FEEDBACK,
+  CACHE_KEYS,
+  CLIENT_ROUTES,
+  IUser,
+  useGlobalStore,
+} from "@repo/core";
 import { queryClient } from "@repo/helpers";
 
 export const useFeedback = () => {
   const { setSBMessage } = useSnackbar();
   const { navigateTo } = usePage();
+  const { translateTxtString } = useStaticTranslation();
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
 
@@ -28,7 +35,9 @@ export const useFeedback = () => {
     // Notify User
     setSBMessage({
       msg: {
-        tagline: "Verification successful!",
+        tagline: translateTxtString(
+          AUTH_FEEDBACK.verification_successful_tagline,
+        ),
         msgStatus: "SUCCESS",
       },
     });
@@ -51,7 +60,9 @@ export const useFeedback = () => {
     });
     setSBMessage({
       msg: {
-        tagline: "Security details updated successfully.",
+        tagline: translateTxtString(
+          AUTH_FEEDBACK.security_details_updated_tagline,
+        ),
         msgStatus: "SUCCESS",
       },
     });

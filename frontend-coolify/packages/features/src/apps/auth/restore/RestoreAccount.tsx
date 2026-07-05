@@ -4,22 +4,27 @@ import React from "react";
 import { ShieldBan } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { Feedback } from "@repo/shared-ui";
-import { usePage } from "@repo/shared-hooks";
-import { CLIENT_ROUTES } from "@repo/core";
+import { usePage, useStaticTranslation } from "@repo/shared-hooks";
+import {
+  AUTH_BUTTON_LABELS,
+  AUTH_FEEDBACK,
+  CLIENT_ROUTES,
+  TransData,
+} from "@repo/core";
 
-interface RestoreProps {
-  headline?: string;
-  tagline?: string;
-}
+interface RestoreProps extends TransData {}
 
-export const RestoreAccount = ({ headline, tagline }: RestoreProps) => {
+export const RestoreAccount = ({ headline, textDesc }: RestoreProps) => {
   const theme = useTheme();
   const { navigateTo } = usePage();
+  const { translateTxtString } = useStaticTranslation();
 
   return (
     <Feedback
-      headline={headline || "Account is Deactivated"}
-      tagline={tagline || "To restore it, click the 'Restore account' button"}
+      transData={{
+        headline: headline || AUTH_FEEDBACK.account_deactivated_headline,
+        textDesc: textDesc || AUTH_FEEDBACK.account_deactivated_tagline,
+      }}
       style={{
         container: {
           padding: theme.boxSpacing(18),
@@ -34,7 +39,7 @@ export const RestoreAccount = ({ headline, tagline }: RestoreProps) => {
       }}
       icon={<ShieldBan />}
       primaryCta={{
-        label: "Restore account",
+        label: translateTxtString(AUTH_BUTTON_LABELS.restore_account),
         action: () => navigateTo(CLIENT_ROUTES.restoreAccount),
       }}
     />

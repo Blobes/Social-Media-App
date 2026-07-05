@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { Divider, Stack, Typography } from "@mui/material";
-import { useGlobalStore } from "@repo/shared-hooks";
+import { Divider, Stack } from "@mui/material";
 import {
   AppButton,
   TextInput,
@@ -13,12 +12,16 @@ import {
   UIGuide as CredentialGuide,
   SVGWrapper,
   AnchorLink,
+  TransText,
 } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 import {
+  AUTH_FEEDBACK,
+  AUTH_INPUT,
   CLIENT_ROUTES,
+  COMMON_BUTTON_LABELS,
+  COMMON_FEEDBACK,
   ICountryItem,
-  INPUT_GUIDES,
   LISTS,
   ListType,
 } from "@repo/core";
@@ -26,6 +29,7 @@ import { CircleQuestionMark } from "lucide-react";
 import { useIdentifier } from "./hooks/useIdentifier";
 import { LoginStepProps } from "../types";
 import { asset } from "@repo/assets";
+import { useGuides, useStaticTranslation } from "@repo/shared-hooks";
 
 export const IdentifierStep: React.FC<LoginStepProps> = ({
   setStep,
@@ -35,9 +39,12 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
 }) => {
   const theme = useTheme();
   const { COUNTRY_LIST } = LISTS();
+  const { translateTxtString } = useStaticTranslation();
+  const { INPUT_GUIDES } = useGuides();
 
-  const inlineTxtStlye = {
+  const inlineTxtStyle = {
     color: theme.palette.primary.main,
+    flex: "none",
     "&:hover": { textDecoration: "underline", fontWeight: 600 },
   };
 
@@ -67,36 +74,35 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
             paddingBottom: theme.boxSpacing(12),
           },
         }}>
-        <Typography
+        <TransText
+          {...COMMON_FEEDBACK.predict_stake_win}
           component="h3"
-          variant="h5"
           sx={{
+            ...theme.typography.h5,
             color: theme.palette.gray[300],
             textAlign: "center",
             ...style.headline,
-          }}>
-          Predict. Stake. Win.
-        </Typography>
-        <Typography
+          }}
+        />
+        <TransText
+          {...COMMON_FEEDBACK.user_terms_agreement}
           component="p"
-          variant="body3"
+          inlineComponents={{
+            agreement: (
+              <AnchorLink href="/user-agreement" style={inlineTxtStyle} />
+            ),
+            policy: (
+              <AnchorLink href="/privacy-policy" style={inlineTxtStyle} />
+            ),
+          }}
           sx={{
-            fontSize: 14,
+            ...theme.typography.body3,
             color: theme.palette.gray[200],
             paddingBottom: theme.boxSpacing(2),
             textAlign: "center",
             ...style.tagline,
-          }}>
-          By continuing, you agree to our{" "}
-          <AnchorLink url="#" style={inlineTxtStlye}>
-            User Agreement
-          </AnchorLink>{" "}
-          and acknowledge that you understand the{" "}
-          <AnchorLink url="#" style={inlineTxtStlye}>
-            Privacy Policy
-          </AnchorLink>
-          .
-        </Typography>
+          }}
+        />
       </Stack>
 
       {/* 3rd party sign in */}
@@ -104,7 +110,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         <AppButton
           variant="outlined"
           style={{
-            fontSize: "16px",
+            ...theme.typography.button,
             padding: theme.boxSpacing(4.5, 9),
             gap: theme.gap(4),
             width: "100%",
@@ -116,7 +122,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         <AppButton
           variant="outlined"
           style={{
-            fontSize: "16px",
+            ...theme.typography.button,
             gap: theme.gap(4),
             padding: theme.boxSpacing(4.5, 9),
             width: "100%",
@@ -131,8 +137,13 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         </AppButton>
       </Stack>
 
-      <Divider sx={{ fontSize: 14, color: theme.palette.gray[200], margin: 0 }}>
-        Or sign in with
+      <Divider
+        sx={{
+          ...theme.typography.caption,
+          color: theme.palette.gray[200],
+          margin: 0,
+        }}>
+        <TransText {...AUTH_FEEDBACK.or_sign_in_with} noComponent />
       </Divider>
 
       {/* Feedback */}
@@ -145,8 +156,10 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         onSubmit={handleSubmit}>
         <TextInput
           value={input}
-          label="Email, Phone or Username"
-          placeholder="Email address, phone or username"
+          label={translateTxtString(AUTH_INPUT.label.email_phone_username)}
+          placeholder={translateTxtString(
+            AUTH_INPUT.placeholder.email_phone_username,
+          )}
           onChange={handleChange}
           helperText={validationMsg}
           error={input !== "" && validity === "INVALID"}
@@ -209,7 +222,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
           variant="contained"
           submit
           style={{
-            fontSize: "16px",
+            ...theme.typography.button,
             padding: theme.boxSpacing(5.5, 9),
             width: "100%",
           }}
@@ -217,32 +230,28 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
           {isAuthLoading ? (
             <ProgressIcon otherProps={{ size: 25 }} />
           ) : (
-            "Continue"
+            <TransText {...COMMON_BUTTON_LABELS.continue} noComponent />
           )}
         </AppButton>
       </Stack>
 
       {/* Footer */}
-      <Typography
+      <TransText
+        {...COMMON_FEEDBACK.new_to_funstakes}
         component="p"
-        variant="body3"
-        sx={{
-          paddingTop: theme.boxSpacing(8),
-          textAlign: "center",
-          ...style.tagline,
-        }}>
-        New to Funstakes?
-        <AnchorLink
-          variant="text"
-          url={CLIENT_ROUTES.signup.path}
-          onClick={handleSignupClick}
-          style={{
-            ...inlineTxtStlye,
-            marginLeft: theme.boxSpacing(2),
-          }}>
-          Sign up
-        </AnchorLink>
-      </Typography>
+        sx={{ ...theme.typography.body3, textAlign: "center" }}
+        inlineComponents={{
+          anchor: (
+            <AnchorLink
+              href={CLIENT_ROUTES.signup.path}
+              onClick={handleSignupClick}
+              style={{
+                ...inlineTxtStyle,
+              }}
+            />
+          ),
+        }}
+      />
     </Stack>
   );
 };

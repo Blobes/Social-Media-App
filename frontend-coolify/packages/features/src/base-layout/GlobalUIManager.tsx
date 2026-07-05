@@ -13,19 +13,16 @@ import { usePathname } from "next/navigation";
 import { registerSW, delay, getFromLocalStorage } from "@repo/helpers";
 import {
   useEventListener,
-  useGlobalStore,
   useMisc,
   useOffline,
   usePage,
   useSnackbar,
 } from "@repo/shared-hooks";
-import { AuthStatus, DrawerRef, ModalRef } from "@repo/core";
+import { AuthStatus, DrawerRef, ModalRef, useGlobalStore } from "@repo/core";
 import { useAuthVerification } from "../apps/auth/login/useAuthVerification";
-import { LanguageProvider } from "./Providers";
 
 export interface UIManagerProps {
   children: React.ReactNode;
-  namespace: string;
   showOfflineUI?: boolean;
   showNetworkErrorUI?: boolean;
 }
@@ -35,7 +32,6 @@ export interface UIManagerProps {
  */
 export const GlobalUIManager = ({
   children,
-  namespace,
   showOfflineUI = true,
   showNetworkErrorUI = true,
 }: UIManagerProps) => {
@@ -147,19 +143,17 @@ export const GlobalUIManager = ({
 
   // Main UI rendering with portal-like overlays
   return (
-    <LanguageProvider namespace={namespace}>
-      <>
-        {children}
-        {snackBarMsg.messages && snackBarMsg.messages.length > 0 && (
-          <SnackBars
-            snackBarMsg={snackBarMsg}
-            removeMessage={removeSBMessages}
-            setSBTimer={setSBTimer}
-          />
-        )}
-        {drawerContent && <Drawer ref={drawerRef} {...drawerContent} />}
-        {modalContent && <Modal ref={modalRef} {...modalContent} />}
-      </>
-    </LanguageProvider>
+    <>
+      {children}
+      {snackBarMsg.messages && snackBarMsg.messages.length > 0 && (
+        <SnackBars
+          snackBarMsg={snackBarMsg}
+          removeMessage={removeSBMessages}
+          setSBTimer={setSBTimer}
+        />
+      )}
+      {drawerContent && <Drawer ref={drawerRef} {...drawerContent} />}
+      {modalContent && <Modal ref={modalRef} {...modalContent} />}
+    </>
   );
 };

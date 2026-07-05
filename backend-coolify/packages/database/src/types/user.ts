@@ -44,6 +44,8 @@ export interface IUser {
   // --- 3. AUTHENTICATION & SECURITY (Wire-safe) ---
   role: UserRole;
   accountStatus: AccountStatus;
+  signedUpWith?: "EMAIL" | "GOOGLE" | "APPLE";
+  oAuthId?: string;
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
   lastEmailCodeSentAt?: Date | null;
@@ -100,4 +102,17 @@ export interface IUser {
   deactivatedAt?: Date | null;
   createdAt: Date | null;
   updatedAt: Date | null;
+}
+
+export interface IDeactivatedAccount {
+  userId: Types.ObjectId;
+  reason:
+    | "USER_DEACTIVATION"
+    | "SYSTEM_SUSPENSION"
+    | "ADMIN_SUSPENSION"
+    | "INACTIVE_STALE";
+  description?: string;
+  deactivatedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }

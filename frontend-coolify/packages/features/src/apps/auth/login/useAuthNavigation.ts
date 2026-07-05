@@ -10,8 +10,9 @@ import {
   OtpReason,
   InputType,
   TransitPurpose,
+  useGlobalStore,
 } from "@repo/core";
-import { useGlobalStore, usePage } from "@repo/shared-hooks";
+import { usePage } from "@repo/shared-hooks";
 
 export const useAuthNavigation = () => {
   const { navigateTo } = usePage();

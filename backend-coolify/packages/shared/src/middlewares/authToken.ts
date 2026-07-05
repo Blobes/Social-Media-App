@@ -2,10 +2,11 @@ import jwt from "jsonwebtoken";
 import { Response, NextFunction, RequestHandler } from "express";
 import { upstashClient } from "../services/upstash";
 import { CACHE_KEYS } from "../utils/redis/cache";
-import { clearAuthTokens } from "../utils/misc/tokens";
 import { IAuthConfig, IAuthRequest, IJwtUser } from "../types";
 import { validateHardwareTrust } from "../services/device";
 import { getOrSetDeviceToken } from "../utils/misc/device";
+import { clearAuthCookies } from "../services/session";
+import { MESSAGES_REGISTRY } from "../constants/msgRegistry";
 
 export const createVerifyAuthToken = (config: IAuthConfig): RequestHandler => {
   return async (
@@ -22,7 +23,7 @@ export const createVerifyAuthToken = (config: IAuthConfig): RequestHandler => {
     if (!token) {
       return res.status(401).json({
         status: "UNAUTHORIZED",
-        message: "No token provided",
+        ...MESSAGES_REGISTRY.AUTH.NO_AUTH_TOKEN,
         payload: null,
       });
     }
@@ -40,11 +41,10 @@ export const createVerifyAuthToken = (config: IAuthConfig): RequestHandler => {
       );
 
       if (needsOtp) {
-        clearAuthTokens(res);
+        clearAuthCookies(res);
         return res.status(401).json({
           status: "UNAUTHORIZED",
-          message:
-            "Device trust expired or unknown hardware. Please re-authenticate.",
+          ...MESSAGES_REGISTRY.AUTH.DEVICE_TRUST_EXPIRED,
           payload: null,
         });
       }
@@ -54,10 +54,10 @@ export const createVerifyAuthToken = (config: IAuthConfig): RequestHandler => {
       const sessionData: any = await upstashClient.get(sessionKey);
 
       if (!sessionData || sessionData.deviceId !== payload.deviceId) {
-        clearAuthTokens(res);
+        clearAuthCookies(res);
         return res.status(401).json({
           status: "UNAUTHORIZED",
-          message: "Session expired, revoked, or hardware mismatch.",
+          ...MESSAGES_REGISTRY.AUTH.SESSIONS_EXPIRED,
           payload: null,
         });
       }
@@ -67,7 +67,7 @@ export const createVerifyAuthToken = (config: IAuthConfig): RequestHandler => {
     } catch (err) {
       return res.status(401).json({
         status: "UNAUTHORIZED",
-        message: "Invalid or expired token",
+        ...MESSAGES_REGISTRY.AUTH.INVALID_TOKEN,
         payload: null,
       });
     }

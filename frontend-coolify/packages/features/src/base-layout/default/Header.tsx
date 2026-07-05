@@ -10,10 +10,21 @@ import {
   HeaderDesktopNav,
   HeaderMobileNav,
 } from "./NavMenu";
-import { UserAvatar, AnchorLink, AppButton, SearchBar } from "@repo/shared-ui";
+import {
+  UserAvatar,
+  AnchorLink,
+  AppButton,
+  SearchBar,
+  LanguageSelector,
+  TransText,
+} from "@repo/shared-ui";
 import { asset } from "@repo/assets";
 import { useHeader } from "./useHeader";
-import { CLIENT_ROUTES } from "@repo/core";
+import {
+  AUTH_BUTTON_LABELS,
+  CLIENT_ROUTES,
+  POST_BUTTON_LABELS,
+} from "@repo/core";
 
 interface HeaderProps {
   scrollRef?: React.RefObject<HTMLElement | null>;
@@ -56,7 +67,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
       }}>
       {/* Logo */}
       <AnchorLink
-        url={CLIENT_ROUTES.home.path}
+        href={CLIENT_ROUTES.home.path}
         onClick={handleLogo}
         style={{ display: "inline-flex" }}>
         <Image
@@ -133,7 +144,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
               variant="outlined"
               style={{ fontSize: "14px" }}
               onClick={handleCreatePost}>
-              Create
+              <TransText {...POST_BUTTON_LABELS.create_post} noComponent />
             </AppButton>
           </>
         )}
@@ -147,9 +158,10 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
             onClick={() =>
               navigateTo(CLIENT_ROUTES.login, { savePage: false })
             }>
-            Login
+            <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
           </AppButton>
         )}
+        <LanguageSelector />
       </Stack>
     </AppBar>
   );

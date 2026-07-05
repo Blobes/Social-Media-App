@@ -3,5 +3,11 @@
   "compilerOptions": {
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "../shared-hooks/src/carousel/useBGFade.tsx",
+    "../shared-hooks/src/carousel/useLinear.ts",
+    "../shared-hooks/src/carousel/useStacked.ts"
+  ]
 }

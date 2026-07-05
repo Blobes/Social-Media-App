@@ -2,9 +2,10 @@
 
 import React from "react";
 import { useColorScheme, useTheme } from "@mui/material/styles";
-import { Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import { BasicTooltip } from "./Tooltips";
 import { MoonStar, Sun } from "lucide-react";
+import { TransText } from "./Text";
 
 export const ThemeSwitcher: React.FC = () => {
   const { mode, systemMode, setMode } = useColorScheme();
@@ -26,9 +27,9 @@ export const ThemeSwitcher: React.FC = () => {
           "& svg": { width: "22px", height: "22px" },
         }}>
         {effectiveMode === "dark" ? <MoonStar /> : <Sun />}
-        <Typography variant="body2" sx={{ fontWeight: "600" }}>
+        <TransText sx={{ ...theme.typography.body2, fontWeight: "600" }}>
           {effectiveMode === "dark" ? "Dark theme" : "Light theme"}
-        </Typography>
+        </TransText>
       </Stack>
 
       {/* Switcher */}

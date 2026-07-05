@@ -1,16 +1,22 @@
-import { Stack, Typography } from "@mui/material";
-import { MediaProcessingProgress } from "@repo/core";
+"use client";
+
+import { Stack } from "@mui/material";
+import { COMMON_MEDIA, MediaProcessingProgress } from "@repo/core";
 import { ProgressIcon } from "../LoadingUIs";
+import { TransText } from "../Text";
+import { useTheme } from "@mui/material/styles";
 
 interface UploadTrackerProps {
   uploadStates: Record<string, MediaProcessingProgress>;
 }
+
 /**
  * Renders real-time media upload metrics directly inside the shared snackbar container.
  */
 export const MediaUploadTracker: React.FC<UploadTrackerProps> = ({
   uploadStates,
 }) => {
+  const theme = useTheme();
   return (
     <Stack sx={{ gap: "8px", minWidth: "240px" }}>
       {Object.entries(uploadStates).map(([trackingId, state]) => {
@@ -24,14 +30,17 @@ export const MediaUploadTracker: React.FC<UploadTrackerProps> = ({
               justifyContent: "space-between",
               gap: "12px",
             }}>
-            <Typography variant="body3" sx={{ color: "inherit" }}>
-              <strong>{state.fileName || "File"}:</strong>{" "}
-              {status === "UPLOADING"
-                ? "uploading in progress"
+            <TransText
+              {...(status === "UPLOADING"
+                ? COMMON_MEDIA.uploading(state.fileName)
                 : status === "SUCCESS"
-                  ? "successfully uploaded"
-                  : state.error || "failed, something went wrong"}
-            </Typography>
+                  ? COMMON_MEDIA.upload_success(state.fileName)
+                  : COMMON_MEDIA.upload_error(
+                      state.fileName,
+                      state.error || "failed, something went wrong",
+                    ))}
+              sx={{ ...theme.typography.body3, color: "inherit" }}
+            />
             <ProgressIcon
               variant="determinate"
               value={state.progress}

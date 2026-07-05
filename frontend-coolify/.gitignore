@@ -41,7 +41,7 @@ archive.md
 *.tsbuildinfo
 next-env.d.ts
 
-packages/core/locales/**/*.json
+locale/versions/**/*.json
 
 .git
 .gitignore

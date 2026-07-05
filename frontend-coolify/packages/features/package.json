@@ -27,8 +27,7 @@
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "@mui/material": "catalog:",
-    "lucide-react": "catalog:",
-    "zustand": "catalog:"
+    "lucide-react": "catalog:"
   },
   "devDependencies": {
     "next": "catalog:",

@@ -7,7 +7,7 @@ import { IUser } from "../../types/user";
  */
 export interface IUserDocument
   extends Omit<IUser, "_id" | "createdAt" | "updatedAt">, Document {
-  password: string;
+  password: string | null;
   verificationCode?: string | null;
   verificationExpiry?: Date | null;
   idVerificationRequest?: Types.ObjectId | null;
@@ -71,7 +71,7 @@ const UserSchema = new Schema<IUserDocument>(
     isAgeVerified: { type: Boolean, default: false },
 
     // --- 3. AUTHENTICATION & SECURITY ---
-    password: { type: String, required: true },
+    password: { type: String, required: true, default: null },
     role: {
       type: String,
       enum: ["USER", "ADMIN", "MODERATOR"],
@@ -82,6 +82,12 @@ const UserSchema = new Schema<IUserDocument>(
       enum: ["ACTIVE", "DEACTIVATED", "SUSPENDED", "BANNED"],
       default: "ACTIVE",
     },
+    signedUpWith: {
+      type: String,
+      enum: ["EMAIL", "GOOGLE", "APPLE"],
+      default: "EMAIL",
+    },
+    oAuthId: { type: String, default: null },
     isEmailVerified: { type: Boolean, default: false },
     isPhoneVerified: { type: Boolean, default: false },
     verificationCode: { type: String, default: null },

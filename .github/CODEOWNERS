@@ -5,9 +5,9 @@
 /backend/ @Blobes
 
 # Frontend Team
-/frontend/apps/feed/ @Blobes
+/frontend/apps/shell/ @Blobes
 /frontend/apps/gist/ @Blobes
 
 # ONLY YOU can approve changes to shared state and the shell
 /frontend/packages/ @Blobes
-/frontend/apps/shell/ @Blobes
+/frontend/packages/core/constants/msgRegistry.ts  @Blobes

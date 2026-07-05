@@ -4,7 +4,7 @@ import React from "react";
 import { Stack, Typography, SxProps, Theme } from "@mui/material";
 import { GenericStyle, IPostAuthor } from "@repo/core";
 import { useTheme } from "@mui/material/styles";
-import { UserAvatar } from "@repo/shared-ui";
+import { TransText, UserAvatar } from "@repo/shared-ui";
 
 export interface AuthorProps {
   author: IPostAuthor;
@@ -35,16 +35,21 @@ export const AuthorInfo = ({
         aria-label={author.fullName}
       />
       <Stack sx={{ width: "100%", gap: theme.gap(0), minWidth: "40px" }}>
-        <Typography variant="body2" noWrap sx={{ fontWeight: "bold" }}>
+        <TransText
+          noWrap
+          sx={{ ...theme.typography.body2, fontWeight: "bold" }}>
           {author.fullName}
-        </Typography>
+        </TransText>
         {showUsername && (
-          <Typography
-            variant="body3"
+          <TransText
             noWrap
-            sx={{ color: theme.palette.gray[200], lineHeight: "1.1em" }}>
+            sx={{
+              ...theme.typography.body3,
+              color: theme.palette.gray[200],
+              lineHeight: "1.1em",
+            }}>
             @{author.username}
-          </Typography>
+          </TransText>
         )}
       </Stack>
     </Stack>

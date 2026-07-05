@@ -10,19 +10,19 @@
     "check-types": "turbo run check-types",
     "clean": "pnpm -r exec rm -rf .next dist out",
     "clean:workspaces": "pnpm -r exec rm -rf node_modules .next dist out && rm -rf node_modules",
-    "i18n:extract:root": "i18next-cli extract",
-    "i18n:extract:apps": "pnpm -r --filter='./apps/*' exec i18next-cli extract",
-    "i18n:extract": "pnpm run i18n:extract:root && pnpm run i18n:extract:apps",
-    "i18n:translate": "dotenv -e .env.development -- pnpm dlx tsx locale-script.ts",
-    "i18n:sync": "pnpm run i18n:extract && pnpm run i18n:translate"
+    "trans:extract": "dotenv -e .env.development -- pnpm dlx tsx locale/extractor.ts",
+    "trans:translate": "dotenv -e .env.development -- pnpm dlx tsx locale/translator.ts --mode=translate-only",
+    "trans:upload": "dotenv -e .env.development -- pnpm dlx tsx locale/translator.ts --mode=upload-only",
+    "trans:translate-upload": "dotenv -e .env.development -- pnpm dlx tsx locale/translator.ts --mode=translate-and-upload",
+    "trans:sync-all": "pnpm run trans:extract && pnpm run trans:translate",
+    "link:locales": "ln -sf $(pwd)/locale/versions ./packages/assets/shared-public/locale"
   },
   "devDependencies": {
     "dotenv-cli": "catalog:default",
     "next": "catalog:",
     "prettier": "catalog:",
     "turbo": "catalog:",
-    "typescript": "catalog:",
-    "i18next-cli": "catalog:"
+    "typescript": "catalog:"
   },
   "packageManager": "pnpm@10.30.1",
   "engines": {

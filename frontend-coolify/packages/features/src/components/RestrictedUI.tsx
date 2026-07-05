@@ -44,6 +44,11 @@ export const RestrictedUI = ({
 
   return (
     <Feedback
+      transData={{
+        headline: config.transData?.headline,
+        textDesc: config.transData?.textDesc,
+        primaryBtn: config.transData?.primaryBtn,
+      }}
       headline={headline ?? config.headline}
       tagline={tagline ?? config.tagline}
       icon={config.icon}

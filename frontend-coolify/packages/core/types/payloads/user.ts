@@ -59,6 +59,8 @@ export interface IUserPayload {
   // --- 3. AUTHENTICATION & SECURITY (Wire-safe) ---
   role?: UserRole;
   accountStatus?: AccountStatus;
+  signedUpWith?: "EMAIL" | "GOOGLE" | "APPLE";
+  oAuthId?: string;
   isEmailVerified?: boolean;
   isPhoneVerified?: boolean;
   lastEmailCodeSentAt?: Date | string | null;

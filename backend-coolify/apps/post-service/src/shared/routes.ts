@@ -1,7 +1,7 @@
 import express, { Router } from "express";
-import { markPostAsSeen } from "./markAsSeen";
+import { markPostAsSeen } from "./controllers/markAsSeen";
 import { optionalAuth, verifyAuthToken } from "../envVars";
-import { translateCaption } from "./translate";
+import { translateCaption } from "./controllers/translate";
 
 const router: Router = express.Router();
 

@@ -2,14 +2,15 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import { useTheme } from "@mui/material/styles";
-import { useSnackbar } from "@repo/shared-hooks";
+import { useSnackbar, useStaticTranslation } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { useLockCountdown } from "./useLockCount";
 import { setCookie, getCookie, delay } from "@repo/helpers";
-import { InputStatus, AuthStepName } from "@repo/core";
+import { InputStatus, AuthStepName, AUTH_FEEDBACK } from "@repo/core";
 import { LoginService } from "../service";
 import { clearLoginLock, formatRemainingTime } from "@repo/features";
 import { useLoginFeedback } from "./useFeedback";
+import { TransText } from "@repo/shared-ui";
 
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MIN = 2;
@@ -27,8 +28,9 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     identifier,
     setStep,
   });
+  const { translateTxtString } = useStaticTranslation();
 
-  const [inlineMsg, setInlineMsg] = useState<React.ReactNode>(null);
+  const [inlineMsg, setInlineMsg] = useState<React.ReactNode | null>(null);
   const [activeLockTime, setActiveLockTime] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [passwordValidity, setPasswordValidity] = useState<InputStatus>();
@@ -41,7 +43,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     padding: theme.boxSpacing(0, 3),
     margin: theme.boxSpacing(0, 3, 1, 3),
     borderRadius: theme.radius[1],
-    fontSize: "14px",
+    ...theme.typography.caption,
   };
 
   const resetLockStates = useCallback(() => {
@@ -55,7 +57,10 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     useCallback(() => {
       resetLockStates();
       setSBMessage({
-        msg: { tagline: "Login Activated", msgStatus: "SUCCESS" },
+        msg: {
+          tagline: translateTxtString(AUTH_FEEDBACK.login_activated_tagline),
+          msgStatus: "SUCCESS",
+        },
       });
     }, [resetLockStates, setSBMessage]),
   );
@@ -74,13 +79,11 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
   useEffect(() => {
     if (isLocked) {
       setInlineMsg(
-        <span>
-          You've exceeded the maximum login attempts. Try again in{" "}
-          <strong style={inlineMsgStyle}>
-            {formatRemainingTime(remainingSec)}
-          </strong>
-          . Or reset your password.
-        </span>,
+        <TransText
+          component="span"
+          {...AUTH_FEEDBACK.password_locked(formatRemainingTime(remainingSec))}
+          inlineComponents={{ timer: <strong style={inlineMsgStyle} /> }}
+        />,
       );
     }
   }, [remainingSec, isLocked, setInlineMsg]);
@@ -88,6 +91,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
   const handleFailedPassword = useCallback(() => {
     const current = parseInt(getCookie("loginAttempts") || "0", 10);
     const nextAttempts = current + 1;
+    const attemptsLeft = MAX_ATTEMPTS - nextAttempts;
 
     setCookie("loginAttempts", String(nextAttempts), LOCKOUT_MIN);
     if (nextAttempts >= MAX_ATTEMPTS) {
@@ -97,12 +101,13 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
       return true;
     }
     setInlineMsg(
-      <span>
-        <strong>Incorrect password. </strong>You have{" "}
-        <strong style={inlineMsgStyle}>{MAX_ATTEMPTS - nextAttempts}</strong>
-        {MAX_ATTEMPTS - nextAttempts === 1 ? "attempt" : "attempts"} left before
-        your login is temporarily locked.
-      </span>,
+      <TransText
+        component="span"
+        {...(attemptsLeft === 1
+          ? AUTH_FEEDBACK.incorrect_password_attempts_one(attemptsLeft)
+          : AUTH_FEEDBACK.incorrect_password_attempts_many(attemptsLeft))}
+        inlineComponents={{ counter: <strong style={inlineMsgStyle} /> }}
+      />,
     );
     return false;
   }, [setInlineMsg, theme]);

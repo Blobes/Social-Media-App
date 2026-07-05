@@ -1,90 +1,84 @@
-import { UserModel } from "@repo/database";
+import { NextFunction, Response } from "express";
 import {
-  CACHE_KEYS,
   IAuthRequest,
-  hashCode,
-  invalidateCache,
-  cleanDeviceSessions,
-  clearAuthTokens,
+  MESSAGES_REGISTRY,
+  clearAuthCookies,
+  forwardError,
 } from "@repo/shared";
-import { Response } from "express";
+import { executePhoneUpdateVerification } from "@/user/services/phone";
 
 /**
- * Finalizes phone number update and rotates sessions for security.
+ * Controller endpoint to confirm telephone authentication states and flush stale channels.
  */
 export const verifyPhoneUpdate = async (
   req: IAuthRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const { code } = req.body;
   const userId = req.user?.id;
   const currentDeviceId = req.user?.deviceId;
 
+  if (!userId) {
+    return res.status(401).json({
+      status: "ERROR",
+      ...MESSAGES_REGISTRY.AUTH.UNAUTHORIZED,
+      payload: null,
+    });
+  }
+
+  if (!code) {
+    return res.status(400).json({
+      status: "ERROR",
+      ...MESSAGES_REGISTRY.AUTH.CODE_REQUIRED,
+      payload: null,
+    });
+  }
+
   try {
-    const user = await UserModel.findById(userId);
-
-    if (!user || !user.pendingPhoneNumber) {
-      return res.status(400).json({
-        status: "ERROR",
-        message: "No pending phone change request found.",
-        payload: null,
-      });
-    }
-
-    const isCodeValid = hashCode(code) === user.verificationCode;
-    const isExpired = user.verificationExpiry
-      ? new Date() > user.verificationExpiry
-      : true;
-
-    if (!isCodeValid || isExpired) {
-      return res.status(400).json({
-        status: "ERROR",
-        message: isExpired
-          ? "Verification code has expired."
-          : "Invalid verification code.",
-        payload: null,
-      });
-    }
-
-    user.phoneNumber = user.pendingPhoneNumber;
-    user.pendingPhoneNumber = null;
-    user.verificationCode = null;
-    user.verificationExpiry = null;
-    user.lastPhoneChangeAt = new Date();
-
-    await user.save();
-
-    // Security: Preserve primary device but clear others after sensitive identity change
-    await cleanDeviceSessions(String(userId), undefined, {
-      clearAll: true,
-      preservePrimary: true,
-      primaryDeviceId: user.primaryDeviceId?.toString(),
+    const serviceResult = await executePhoneUpdateVerification({
+      userId,
+      currentDeviceId,
+      code,
     });
 
-    const isCurrentDevicePrimary =
-      currentDeviceId === user.primaryDeviceId?.toString();
-
-    // Logout secondary devices to force re-authentication with new identity state
-    if (!isCurrentDevicePrimary) {
-      clearAuthTokens(res);
+    if (serviceResult.status === "NOT_FOUND") {
+      return res.status(400).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: null,
+      });
     }
 
-    await invalidateCache(CACHE_KEYS.USER_PROFILE(userId as string));
+    if (
+      serviceResult.status === "EXPIRED" ||
+      serviceResult.status === "INVALID_CODE"
+    ) {
+      return res.status(400).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: null,
+      });
+    }
+
+    // Terminate cookie lifetimes if transactional changes occur on non-primary links
+    if (serviceResult.payload?.loggedOut) {
+      clearAuthCookies(res);
+    }
 
     return res.status(200).json({
       status: "SUCCESS",
-      message: "Phone number verified. Other sessions have been terminated.",
-      payload: {
-        phoneNumber: user.phoneNumber,
-        loggedOut: !isCurrentDevicePrimary,
-      },
+      ...serviceResult.transInfo,
+      payload: serviceResult.payload,
     });
   } catch (error: any) {
     console.error("Verify Phone Error:", error);
-    return res.status(500).json({
-      status: "ERROR",
-      message: "An error occurred during verification.",
-      payload: null,
-    });
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      error,
+    );
   }
 };

@@ -1,11 +1,13 @@
 import { DeviceModel, UserModel } from "@repo/database";
 import {
   cleanDeviceSessions,
-  clearAuthTokens,
+  clearAuthCookies,
   ensurePrimaryDevice,
+  forwardError,
   IAuthRequest,
+  MESSAGES_REGISTRY,
 } from "@repo/shared";
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 
 /**
  * Controller update: Wipes Redis sessions when a device is removed.
@@ -13,6 +15,7 @@ import { Response } from "express";
 export const removeDevice = async (
   req: IAuthRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const userId = req.user?.id!;
   const currentDeviceId = req.user?.deviceId;
@@ -20,8 +23,12 @@ export const removeDevice = async (
 
   try {
     const device = await DeviceModel.findOne({ _id: id, userId });
-    if (!device)
-      return res.status(404).json({ status: "ERROR", message: "Not found" });
+    if (!device) {
+      return res.status(404).json({
+        status: "ERROR",
+        ...MESSAGES_REGISTRY.AUTH.DEACTIVATED_NOT_FOUND,
+      });
+    }
 
     // Wipe all sessions associated with this hardware ID in Redis
     await cleanDeviceSessions(userId, id);
@@ -40,20 +47,26 @@ export const removeDevice = async (
     }
 
     if (isCurrentDevice) {
-      clearAuthTokens(res);
+      clearAuthCookies(res);
       return res.status(200).json({
         status: "SUCCESS",
-        message: "Device removed and all related sessions terminated.",
+        ...MESSAGES_REGISTRY.AUTH.DEVICE_SESSION_TERMINATED,
         payload: { logout: true },
       });
     }
 
-    return res
-      .status(200)
-      .json({ status: "SUCCESS", message: "Device removed." });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ status: "ERROR", message: "Failed to remove device." });
+    return res.status(200).json({
+      status: "SUCCESS",
+      ...MESSAGES_REGISTRY.AUTH.DEVICE_REMOVED,
+    });
+  } catch (error: any) {
+    console.error("Remove Device Error:", error);
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      error,
+    );
   }
 };

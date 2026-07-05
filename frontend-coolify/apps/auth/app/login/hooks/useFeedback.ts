@@ -1,8 +1,15 @@
 "use client";
 
-import { usePage, useGlobalStore } from "@repo/shared-hooks";
+import { usePage, useStaticTranslation } from "@repo/shared-hooks";
 import { getFromLocalStorage } from "@repo/helpers";
-import { CLIENT_ROUTES, IPage, IUser, OtpChannel } from "@repo/core";
+import {
+  AUTH_FEEDBACK,
+  CLIENT_ROUTES,
+  IPage,
+  IUser,
+  OtpChannel,
+  useGlobalStore,
+} from "@repo/core";
 import { clearLoginLock, useAuthNavigation } from "@repo/features";
 import { UseLogin } from "./useLogin";
 import { LoginResponse } from "../service";
@@ -14,6 +21,7 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
   const { handleSendOtp } = useOtp();
   const { inputType } = useIdentifier({ existingInput: identifier });
   const { handleVerifyOtp: handleOtpRequired } = useAuthNavigation();
+  const { translateTxtString } = useStaticTranslation();
 
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
@@ -87,9 +95,7 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
     if (isPasswordErr) {
       handleFailedPassword();
     } else {
-      setMsg(
-        error.message || "Registration failed. Please verify your entries.",
-      );
+      setMsg(error.message || translateTxtString(AUTH_FEEDBACK.login_failed));
     }
   };
 

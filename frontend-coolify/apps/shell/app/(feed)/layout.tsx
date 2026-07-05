@@ -1,6 +1,6 @@
+import { BaseLayout, DefaultWrapper, GlobalUIManager } from "@repo/features";
 import React from "react";
 import { Viewport, Metadata } from "next";
-import { BaseLayout, DefaultWrapper, GlobalUIManager } from "@repo/features";
 import { Prefetcher } from "@repo/shared-ui";
 import { baseMetadata, sharedViewport } from "@repo/helpers";
 
@@ -21,7 +21,7 @@ export default async function RootLayout({
   return (
     <BaseLayout>
       <Prefetcher route="/offline" />
-      <GlobalUIManager namespace="shell">
+      <GlobalUIManager>
         <DefaultWrapper>{children}</DefaultWrapper>
       </GlobalUIManager>
     </BaseLayout>

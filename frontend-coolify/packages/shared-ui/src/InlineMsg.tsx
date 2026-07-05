@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AlertCircle } from "lucide-react";
+import { TransText } from "./Text";
 
 interface MsgProps {
   msg: React.ReactNode;
@@ -31,11 +31,12 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
   }, [scrollIntoView]);
 
   return (
-    <Typography
-      variant="body3"
+    <TransText
       component="div"
+      isLiveAlert
       ref={scrollRef}
       sx={{
+        ...theme.typography.body3,
         width: "100%",
         padding: theme.boxSpacing(4, 5),
         borderRadius: theme.radius[3],
@@ -64,6 +65,6 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
         }}
       />
       {msg}
-    </Typography>
+    </TransText>
   );
 };

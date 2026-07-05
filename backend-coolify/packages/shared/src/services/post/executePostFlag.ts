@@ -4,22 +4,26 @@ import {
   PostReportModel,
   UserModel,
 } from "@repo/database";
-import { FlagPostData } from "../../types";
+import { FlagPostData, TransInfo } from "../../types";
 import { calculateThreshold } from "../../utils/misc/calculations";
+import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 
 const MAX_MODERATION_ATTEMPTS = 3;
 
-/* Executes the core content moderation reporting, evaluation, and escalation pipeline.
+export interface ExecutePostFlagResult {
+  escalated: boolean;
+  transInfo: TransInfo;
+  logId: string;
+  status: "SUCCESS" | "CONFLICT" | "NOT_FOUND";
+}
+
+/**
+ * Executes the core content moderation reporting, evaluation, and escalation pipeline.
  */
 export const executePostFlag = async (
   payload: FlagPostData,
   reporterId: string | null,
-): Promise<{
-  escalated: boolean;
-  message: string;
-  logId: string;
-  status: "SUCCESS" | "CONFLICT" | "NOT_FOUND";
-}> => {
+): Promise<ExecutePostFlagResult> => {
   const {
     postId,
     postType,
@@ -55,7 +59,7 @@ export const executePostFlag = async (
     if (e.code === 11000) {
       return {
         escalated: false,
-        message: "You have already reported this post.",
+        transInfo: MESSAGES_REGISTRY.POST.POST_ALREADY_REPORTED,
         logId: String(flaggedRecord._id),
         status: "CONFLICT",
       };
@@ -72,7 +76,7 @@ export const executePostFlag = async (
   if (!postData) {
     return {
       escalated: false,
-      message: "Source post not found.",
+      transInfo: MESSAGES_REGISTRY.POST.POST_SOURCE_NOT_FOUND,
       logId: String(flaggedRecord._id),
       status: "NOT_FOUND",
     };
@@ -123,7 +127,7 @@ export const executePostFlag = async (
         FlaggedPostModel.findByIdAndUpdate(flaggedRecord._id, {
           reviewStatus: "REJECTED",
           resolutionNote:
-            "Automated rejection: Content exceeded maximum moderation cycles.",
+            MESSAGES_REGISTRY.POST.POST_AUTOMATED_REJECTION_NOTE.message,
         }),
         PostReportModel.deleteMany({ flaggedPostId: flaggedRecord._id }),
       );
@@ -136,7 +140,10 @@ export const executePostFlag = async (
             $set: {
               accountStatus: "SUSPENDED",
               suspensionExpiresAt: expires,
-              suspensionReason: `Automated: ${updatedUser.moderationStrikes} strikes reached.`,
+              suspensionReason:
+                MESSAGES_REGISTRY.POST.POST_AUTOMATED_SUSPENSION_REASON(
+                  updatedUser.moderationStrikes,
+                ).message,
             },
           }),
         );
@@ -145,7 +152,7 @@ export const executePostFlag = async (
       await Promise.all(updatePromises);
       return {
         escalated: true,
-        message: "Post banned and user penalized.",
+        transInfo: MESSAGES_REGISTRY.POST.POST_BANNED_AND_PENALIZED,
         logId: String(flaggedRecord._id),
         status: "SUCCESS",
       };
@@ -168,7 +175,9 @@ export const executePostFlag = async (
 
   return {
     escalated: shouldEscalate,
-    message: shouldEscalate ? "Post placed under review." : "Report received.",
+    transInfo: shouldEscalate
+      ? MESSAGES_REGISTRY.POST.POST_PLACED_UNDER_REVIEW
+      : MESSAGES_REGISTRY.POST.POST_REPORT_RECEIVED,
     logId: String(flaggedRecord._id),
     status: "SUCCESS",
   };

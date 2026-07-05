@@ -1,109 +1,43 @@
-import { hydrateSocialState } from "@/feed/syncPost";
-import { GistModel } from "@repo/database";
-import {
-  IAuthRequest,
-  getStaticPostList,
-  getOrSetCache,
-  getPostSocialData,
-  personalizeFeed,
-  getUserPreferences,
-  CACHE_KEYS,
-} from "@repo/shared";
-import { Response } from "express";
-import mongoose from "mongoose";
+import { Response, NextFunction } from "express";
+import { IAuthRequest, MESSAGES_REGISTRY, forwardError } from "@repo/shared";
+import { executeGetGistList } from "../services/gistList";
 
+/**
+ * Controller endpoint processing request constraints to resolve and paginate global content feed listing metrics.
+ */
 export const getGistList = async (
   req: IAuthRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const userId = req.user?.id;
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
 
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const skip = (page - 1) * limit;
-
-    const globalCacheKey = CACHE_KEYS.POST_FEED_TYPE("GIST", page, limit);
-
-    const cachedData = (await getOrSetCache(globalCacheKey, async () => {
-      const total = await GistModel.countDocuments({ status: "PUBLISHED" });
-      const pipeline = getStaticPostList({
-        matchFilter: { status: "PUBLISHED" },
-        postType: "GIST",
-        limit: limit + 5,
-        skip,
-      });
-      const data = await GistModel.aggregate(pipeline);
-      return { staticGists: data, totalCount: total };
-    })) || { staticGists: [], totalCount: 0 };
-
-    const { staticGists, totalCount } = cachedData;
-
-    if (!staticGists || staticGists.length === 0) {
-      return res.status(200).json({
-        status: "SUCCESS",
-        payload: [],
-        meta: { totalDocs: totalCount, currentPage: page },
-      });
-    }
-
-    let candidateGists = staticGists.slice(0, limit);
-    let socialMap = new Map(); // Setup Social Map (Only if logged in)
-
-    // Logic for logged in user
-    if (userId) {
-      //  Ensure IDs are handled as ObjectIds for the $match
-      // but kept as Strings for the $indexOfArray comparison.
-      const gistIdsAsObjects = candidateGists.map(
-        (g: any) => new mongoose.Types.ObjectId(String(g._id)),
-      );
-
-      const gistIdsAsStrings = candidateGists.map((g: any) => String(g._id));
-
-      const socialData = await GistModel.aggregate([
-        { $match: { _id: { $in: gistIdsAsObjects } } },
-        { $addFields: { postType: "GIST", stringId: { $toString: "$_id" } } },
-        {
-          $addFields: {
-            __order: { $indexOfArray: [gistIdsAsStrings, "$stringId"] },
-          },
-        },
-        { $sort: { __order: 1 } },
-        ...getPostSocialData({ userId: String(userId) }),
-      ]);
-
-      // Map the social data back using a Map for O(1) lookup to prevent index errors
-      socialMap = new Map((socialData || []).map((s) => [String(s._id), s]));
-
-      // Apply personalization if logged in
-      const userPreferences = await getUserPreferences(userId, req.user);
-      candidateGists = personalizeFeed(staticGists, userPreferences).slice(
-        0,
-        limit,
-      );
-    }
-
-    // Merge real-time social flags into the cached static objects
-    const finalPayload = hydrateSocialState(candidateGists, socialMap);
+    const serviceResult = await executeGetGistList({
+      userId,
+      userRawPayload: req.user,
+      page,
+      limit,
+    });
 
     return res.status(200).json({
       status: "SUCCESS",
-      payload: finalPayload,
-      message: "Gists fetched successfully",
-      meta: {
-        totalDocs: totalCount,
-        totalPages: Math.ceil(totalCount / limit),
-        currentPage: page,
-        limit,
-        hasNextPage: skip + finalPayload.length < totalCount,
-      },
+      ...serviceResult.transInfo,
+      payload: serviceResult.payload,
+      meta: serviceResult.meta,
     });
   } catch (error: any) {
     console.error("Fetch Gists List Error Details:", error);
-    return res.status(500).json({
-      status: "ERROR",
-      message: error.message || "Internal Server Error",
-    });
+
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.POST.CREATION_THROWN_ERROR(error.message, "Gist")
+        : MESSAGES_REGISTRY.POST.CREATION_FALLBACK_ERROR("Gist"),
+      error,
+    );
   }
 };
 

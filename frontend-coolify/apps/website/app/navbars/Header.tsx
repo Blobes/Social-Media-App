@@ -3,13 +3,18 @@
 import React, { useCallback, useEffect } from "react";
 import { AppBar, Stack, IconButton } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useGlobalStore, useMisc, usePage } from "@repo/shared-hooks";
+import { useMisc, usePage } from "@repo/shared-hooks";
 import { DesktopNav, MobileNav } from "./Nav";
-import { AnchorLink, AppButton } from "@repo/shared-ui";
+import { AnchorLink, AppButton, TransText } from "@repo/shared-ui";
 import Image from "next/image";
 import { Menu } from "lucide-react";
 import { asset } from "@repo/assets";
-import { CLIENT_ROUTES } from "@repo/core";
+import {
+  AUTH_BUTTON_LABELS,
+  CLIENT_ROUTES,
+  COMMON_BUTTON_LABELS,
+  useGlobalStore,
+} from "@repo/core";
 import { usePopup } from "@repo/features";
 
 export const Header: React.FC = () => {
@@ -59,7 +64,7 @@ export const Header: React.FC = () => {
       }}>
       {/* Logo */}
       <AnchorLink
-        url={CLIENT_ROUTES.about.path}
+        href={CLIENT_ROUTES.about.path}
         onClick={() => navigateTo(CLIENT_ROUTES.about)}>
         <Image
           src={asset.logo}
@@ -90,7 +95,10 @@ export const Header: React.FC = () => {
               onClick={() =>
                 navigateTo(CLIENT_ROUTES.home, { type: "push", loadPage: true })
               }>
-              Go to funstakes.com
+              <TransText
+                {...COMMON_BUTTON_LABELS.go_to_funstakes}
+                noComponent
+              />
             </AppButton>
           )}
 
@@ -106,7 +114,7 @@ export const Header: React.FC = () => {
                     loadPage: true,
                   })
                 }>
-                Sign up
+                <TransText {...AUTH_BUTTON_LABELS.signup} noComponent />
               </AppButton>
               <AppButton
                 href={CLIENT_ROUTES.login.path}
@@ -119,7 +127,7 @@ export const Header: React.FC = () => {
                     loadPage: true,
                   })
                 }>
-                Login
+                <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
               </AppButton>
             </Stack>
           )}

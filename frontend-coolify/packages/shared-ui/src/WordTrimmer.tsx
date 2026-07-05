@@ -1,20 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
-import { Typography, Box, TypographyProps, Stack } from "@mui/material";
+import React, { useId, useState } from "react";
+import { Stack } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { motion } from "framer-motion";
-import { GenericStyle } from "@repo/core";
+import { COMMON_BUTTON_LABELS, GenericStyle } from "@repo/core";
 import { AppButton } from "./Buttons";
+import { useStaticTranslation } from "@repo/shared-hooks";
+import { TransText } from "./Text";
 
 interface WordTrimmerProps {
-  children?: React.ReactNode;
-  text: string;
-  wordLimit?: number;
-  variant?: TypographyProps["variant"];
-  component?: React.ElementType;
-  style?: { container?: GenericStyle; btn?: GenericStyle };
+  text?: string;
   showMoreLabel?: string;
   showLessLabel?: string;
+  children?: React.ReactNode;
+  wordLimit?: number;
+  component?: React.ElementType;
+  style?: {
+    textContent?: GenericStyle;
+    container?: GenericStyle;
+    btn?: GenericStyle;
+  };
   onToggleClick?: () => void;
 }
 
@@ -25,14 +31,17 @@ export const WordTrimmer = ({
   children,
   text,
   wordLimit = 20,
-  variant = "body2",
   component = "p",
   style,
-  showMoreLabel = "Show more",
-  showLessLabel = "Show less",
+  showMoreLabel,
+  showLessLabel,
   onToggleClick,
 }: WordTrimmerProps) => {
+  const { translateTxtString } = useStaticTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
+  const theme = useTheme();
+  // Unique structural ID linking the toggle control to the controlled text section
+  const textContentId = useId();
 
   if (!text) return null;
 
@@ -50,41 +59,49 @@ export const WordTrimmer = ({
       ? words.slice(0, wordLimit).join(" ") + "..."
       : text;
 
+  const activeLabel = isExpanded
+    ? showLessLabel || translateTxtString(COMMON_BUTTON_LABELS.show_less)
+    : showMoreLabel || translateTxtString(COMMON_BUTTON_LABELS.show_more);
+
   return (
     <Stack sx={{ width: "100%", ...style?.container }}>
-      <Typography
-        variant={variant}
+      <TransText
         component={motion[component as keyof typeof motion] || motion.p}
         sx={{
+          ...style?.textContent,
           color: "inherit",
           wordBreak: "break-word",
           whiteSpace: "pre-wrap",
           display: "inline",
         }}>
         {displayText}
+      </TransText>
 
-        {isTrimmable && (
-          <AppButton
-            variant="text"
-            onClick={handleToggle}
-            style={{
-              p: 0,
-              color: "inherit",
-              borderRadius: 0,
+      {isTrimmable && (
+        <AppButton
+          variant="text"
+          onClick={handleToggle}
+          options={{
+            "aria-expanded": isExpanded,
+            "aria-controls": textContentId,
+          }}
+          style={{
+            p: 0,
+            color: "inherit",
+            borderRadius: 0,
+            textDecoration: "underline",
+            verticalAlign: "baseline",
+            ...style?.btn,
+            "&:hover": {
+              bgcolor: "transparent",
               textDecoration: "underline",
-              verticalAlign: "baseline",
-              ...style?.btn,
-              "&:hover": {
-                bgcolor: "transparent",
-                textDecoration: "underline",
-                ...style?.btn?.["&:hover"],
-              },
-            }}>
-            {isExpanded ? showLessLabel : showMoreLabel}
-          </AppButton>
-        )}
-        {children}
-      </Typography>
+              ...style?.btn?.["&:hover"],
+            },
+          }}>
+          {activeLabel}
+        </AppButton>
+      )}
+      {children}
     </Stack>
   );
 };

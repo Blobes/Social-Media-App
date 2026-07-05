@@ -16,7 +16,9 @@
     "mongoose": "catalog:",
     "uuid": "catalog:",
     "jsonwebtoken": "catalog:",
-    "@types/jsonwebtoken": "catalog:"
+    "@types/jsonwebtoken": "catalog:",
+    "google-auth-library": "catalog:",
+    "jwks-rsa": "catalog:"
   },
   "devDependencies": {
     "tsup": "catalog:",

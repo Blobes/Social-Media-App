@@ -1,19 +1,19 @@
-import { UserModel, DeviceModel } from "@repo/database";
+import { NextFunction, Response } from "express";
 import {
-  CACHE_KEYS,
-  clearAuthTokens,
   IAuthRequest,
-  invalidatePattern,
-  cleanDeviceSessions,
+  MESSAGES_REGISTRY,
+  clearAuthCookies,
+  forwardError,
 } from "@repo/shared";
-import { Response } from "express";
+import { executeAccountDeactivation } from "@/user/services/deactivation";
 
 /**
- * Handles account deactivation and clears all hardware-linked sessions and primary status.
+ * Controller endpoint to deactivate accounts and strip active user environments.
  */
 export const deactivateAccount = async (
   req: IAuthRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const { targetId } = req.body as { targetId?: string };
   const authUserId = req.user?.id;
@@ -22,7 +22,7 @@ export const deactivateAccount = async (
   if (!authUserId) {
     return res.status(401).json({
       status: "ERROR",
-      message: "Unauthorized",
+      ...MESSAGES_REGISTRY.AUTH.UNAUTHORIZED,
       payload: null,
     });
   }
@@ -36,75 +36,45 @@ export const deactivateAccount = async (
     if (!isDeactivatingSelf && userRole !== "ADMIN") {
       return res.status(403).json({
         status: "ERROR",
-        message: "You don't have permission to perform this action",
+        ...MESSAGES_REGISTRY.AUTH.FORBIDDEN,
         payload: null,
       });
     }
 
-    const userToExclude = await UserModel.findById(finalIdToProcess);
-
-    if (!userToExclude) {
-      return res.status(404).json({
-        status: "ERROR",
-        message: "User not found",
-        payload: null,
-      });
-    }
-
-    if (userToExclude.isDeactivated) {
-      return res.status(400).json({
-        status: "ERROR",
-        message: "Account is already deactivated",
-        payload: null,
-      });
-    }
-
-    // 1. Update User Record
-    await UserModel.findByIdAndUpdate(
+    const serviceResult = await executeAccountDeactivation({
       finalIdToProcess,
-      {
-        $set: {
-          isDeactivated: true,
-          deactivatedAt: new Date(),
-          accountStatus: "DEACTIVATED",
-          verificationCode: null,
-          pendingEmail: null,
-          primaryDeviceId: null, // Clear primary device anchor
-        },
-      },
-      { new: true },
-    );
+    });
 
-    // 2. Clear Hardware Registry Status
-    await DeviceModel.updateMany(
-      { userId: finalIdToProcess },
-      { $set: { isPrimary: false, isStale: true } },
-    );
-
-    // 3. Wipe sessions and cache
-    await Promise.all([
-      cleanDeviceSessions(finalIdToProcess, undefined, { clearAll: true }),
-      invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(finalIdToProcess)),
-      invalidatePattern(CACHE_KEYS.WILDCARD_USER_SESSIONS(finalIdToProcess)),
-    ]);
-
-    if (isDeactivatingSelf) {
-      clearAuthTokens(res);
+    if (serviceResult.status !== "SUCCESS") {
+      return res.status(serviceResult.status === "NOT_FOUND" ? 404 : 400).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: null,
+      });
     }
+
+    // Flush active cookies if client requested self deactivation
+    if (isDeactivatingSelf) {
+      clearAuthCookies(res);
+    }
+
+    const transMsg = isDeactivatingSelf
+      ? MESSAGES_REGISTRY.AUTH.ACCOUNT_DEACTIVATED_SELF
+      : MESSAGES_REGISTRY.AUTH.ACCOUNT_DEACTIVATED_ADMIN;
 
     return res.status(200).json({
       status: "SUCCESS",
-      message: isDeactivatingSelf
-        ? "Your account has been deactivated."
-        : "User account deactivated by administrator.",
+      ...transMsg,
       payload: null,
     });
   } catch (error: any) {
     console.error("Soft Delete Error:", error);
-    return res.status(500).json({
-      status: "ERROR",
-      message: error.message || "Failed to deactivate account.",
-      payload: null,
-    });
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.AUTH.DEACTIVATION_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.AUTH.DEACTIVATION_FALLBACK_ERROR,
+      error,
+    );
   }
 };

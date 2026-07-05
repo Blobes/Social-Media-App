@@ -3,16 +3,25 @@
 import React, { useRef } from "react";
 import { Divider, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { RenderItemList, AppButton } from "@repo/shared-ui";
-import { useGlobalStore, useMisc, usePage } from "@repo/shared-hooks";
-import { CLIENT_ROUTES, GenericStyle, LISTS, MenuRef } from "@repo/core";
+import { RenderItemList, AppButton, TransText } from "@repo/shared-ui";
+import { useMisc, usePage, useStaticTranslation } from "@repo/shared-hooks";
+import {
+  AUTH_BUTTON_LABELS,
+  CLIENT_ROUTES,
+  COMMON_BUTTON_LABELS,
+  GenericStyle,
+  LISTS,
+  MenuRef,
+  useGlobalStore,
+} from "@repo/core";
 
 interface NavProps {
   style?: GenericStyle;
 }
 export const DesktopNav: React.FC<NavProps> = ({ style }) => {
   const theme = useTheme();
-  const { HEADER_NAV_LIST } = LISTS();
+  const { translateTxtString } = useStaticTranslation();
+  const { HEADER_NAV_LIST } = LISTS(translateTxtString);
   const menuRef = useRef<MenuRef>(null);
 
   return (
@@ -70,7 +79,7 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
           onClick={() =>
             navigateTo(CLIENT_ROUTES.home, { type: "push", loadPage: true })
           }>
-          Go to funstakes.com
+          <TransText {...COMMON_BUTTON_LABELS.go_to_funstakes} noComponent />
         </AppButton>
       )}
 
@@ -86,6 +95,7 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
                 loadPage: true,
               })
             }>
+            <TransText {...AUTH_BUTTON_LABELS.signup} noComponent />
             Sign up
           </AppButton>
           <AppButton

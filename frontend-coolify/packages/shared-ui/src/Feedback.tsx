@@ -1,17 +1,28 @@
 "use client";
 
 import React from "react";
-import { IconButton, Stack, Typography } from "@mui/material";
+import { IconButton, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AppButton } from "./Buttons";
 import { RefreshCcw } from "lucide-react";
 import { BasicTooltip } from "./Tooltips";
-import { GenericStyle } from "@repo/core";
+import { GenericStyle, TransData } from "@repo/core";
+import { TransText } from "./Text";
+
+interface CTA {
+  type?: "BUTTON" | "ICON";
+  variant?: "contained" | "outlined";
+  label?: React.ReactNode;
+  toolTip?: string;
+  action: () => void | Promise<void>;
+  href?: string;
+}
 
 interface FeedbackProps {
   headline?: string;
   tagline?: string;
   icon?: React.ReactNode;
+  transData?: TransData;
   style?: {
     container?: GenericStyle;
     headline?: GenericStyle;
@@ -20,35 +31,26 @@ interface FeedbackProps {
     primaryCta?: GenericStyle;
     secondaryCta?: GenericStyle;
   };
-  primaryCta?: {
-    type?: "BUTTON" | "ICON";
-    variant?: "contained" | "outlined";
-    label?: string | React.ReactNode;
-    toolTip?: string;
-    action: () => void | Promise<void>;
-    href?: string;
-  };
-  secondaryCta?: {
-    type?: "BUTTON" | "ICON";
-    label?: string | React.ReactNode;
-    toolTip?: string;
-    action: () => void;
-    href?: string;
-  };
+  primaryCta?: CTA;
+  secondaryCta?: CTA;
 }
 
+/**
+ * Standardized empty-state, success, and contextual user action feedback layouts.
+ */
 export const Feedback: React.FC<FeedbackProps> = ({
   headline,
   tagline,
+  transData,
   icon,
   style,
   primaryCta,
   secondaryCta,
 }) => {
   const theme = useTheme();
+
   const primaryCtaType = primaryCta?.type || "BUTTON";
   const secondaryCtaType = secondaryCta?.type || "BUTTON";
-
   const primHref = primaryCta?.href ? { href: primaryCta?.href } : {};
   const secHref = secondaryCta?.href ? { href: secondaryCta?.href } : {};
 
@@ -82,27 +84,33 @@ export const Feedback: React.FC<FeedbackProps> = ({
           {icon}
         </Stack>
       )}
+
       {/* Headline */}
       {headline && (
-        <Typography
-          variant="body1"
-          component={"h6"}
+        <TransText
+          tKey={transData?.headline?.tKey}
+          interpolations={transData?.headline?.interpolations}
+          component="h6"
           sx={{
+            ...theme.typography.body1,
             fontWeight: "bold",
             ...style?.headline,
           }}>
           {headline}
-        </Typography>
+        </TransText>
       )}
+
       {/* Tagline */}
       {tagline && (
-        <Typography
-          variant="body3"
+        <TransText
+          tKey={transData?.textDesc?.tKey}
+          interpolations={transData?.textDesc?.interpolations}
           sx={{
+            ...theme.typography.body3,
             ...style?.tagline,
           }}>
           {tagline}
-        </Typography>
+        </TransText>
       )}
       {/* CTAs */}
       {primaryCta &&
@@ -117,7 +125,7 @@ export const Feedback: React.FC<FeedbackProps> = ({
               ...style?.primaryCta,
             }}
             onClick={primaryCta.action}>
-            {primaryCta.label || "Start"}
+            {primaryCta.label}
           </AppButton>
         ) : (
           <BasicTooltip title={primaryCta.toolTip || ""}>
@@ -126,6 +134,7 @@ export const Feedback: React.FC<FeedbackProps> = ({
             </IconButton>
           </BasicTooltip>
         ))}
+
       {secondaryCta &&
         (secondaryCtaType === "BUTTON" ? (
           <AppButton
@@ -133,7 +142,7 @@ export const Feedback: React.FC<FeedbackProps> = ({
             onClick={secondaryCta.action}
             {...secHref}
             style={{ padding: theme.boxSpacing(2, 6), ...style?.secondaryCta }}>
-            {secondaryCta.label || "Start"}
+            {secondaryCta.label}
           </AppButton>
         ) : (
           <BasicTooltip title={secondaryCta.toolTip || ""}>

@@ -2,9 +2,12 @@
 
 import React from "react";
 import { styled, useTheme } from "@mui/material/styles";
-import { InputBase, Stack, Typography } from "@mui/material";
+import { InputBase, Stack } from "@mui/material";
 import { Search as SearchIcon } from "lucide-react";
-import { InputProps, sharedStyle } from "./InputFields";
+import { InputProps } from "./InputFields";
+import { COMMON_INPUT } from "@repo/core";
+import { useStaticTranslation } from "@repo/shared-hooks";
+import { TransText } from "./Text";
 
 const InputWrapper = styled(Stack)(({ theme }) => ({
   flexDirection: "row",
@@ -32,7 +35,7 @@ export const SearchBar = ({
   style,
   placeholder,
 }: InputProps) => {
-  const theme = useTheme();
+  const { translateTxtString } = useStaticTranslation();
 
   return (
     <InputWrapper
@@ -47,7 +50,9 @@ export const SearchBar = ({
       }}>
       <SearchIcon size="20" />
       <InputBase
-        placeholder={placeholder ?? "Explore"}
+        placeholder={
+          placeholder ?? translateTxtString(COMMON_INPUT.placeholder.search)
+        }
         inputProps={{ "aria-label": "search" }}
         onChange={onChange}
         sx={{
@@ -65,16 +70,16 @@ export const SearchContainer = () => {
   return (
     <InputWrapper sx={{ cursor: "pointer" }}>
       <SearchIcon size="20" />
-      <Typography
+      <TransText
         component="p"
-        variant="body3"
         sx={{
+          ...theme.typography.body3,
           color: theme.palette.gray[200],
           width: "100%",
           fontWeight: "500",
         }}>
         Search & explore
-      </Typography>
+      </TransText>
     </InputWrapper>
   );
 };

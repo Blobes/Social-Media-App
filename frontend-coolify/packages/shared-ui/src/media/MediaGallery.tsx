@@ -1,12 +1,13 @@
 "use client";
 
 import React, { CSSProperties, useMemo } from "react";
-import { Box, ImageList, ImageListItem, Typography } from "@mui/material";
+import { Box, ImageList, ImageListItem } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ElementTap } from "../ElementTap";
 import Image from "next/image";
 import { VideoMedia } from "./VideoMedia";
-import { MediaProps, MediaStyle } from "@repo/core";
+import { COMMON_MEDIA, MediaProps, MediaStyle } from "@repo/core";
+import { TransText } from "../Text";
 
 export interface GalleryProps {
   mediaList: MediaProps[];
@@ -151,9 +152,10 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
                     padding: theme.boxSpacing(4),
                     color: theme.fixedColors.gray50,
                   }}>
-                  <Typography variant="h6" textAlign="center">
-                    +{remainingCount}
-                  </Typography>
+                  <TransText
+                    {...COMMON_MEDIA.remaining_count}
+                    sx={{ ...theme.typography.h6, textAlign: "center" }}
+                  />
                 </Box>
               )}
             </ElementTap>

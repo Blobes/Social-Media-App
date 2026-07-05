@@ -1,21 +1,23 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
-import { Trans } from "react-i18next";
-import { Typography, TypographyProps } from "@mui/material";
-import {
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  ListItemText,
-} from "@mui/material";
-import { LANGUAGES } from "@repo/core";
+import React, { useState, useTransition, useRef } from "react";
+// import parse from "html-react-parser";
+import { MenuItem, ListItemText, Typography } from "@mui/material";
+import { LANGUAGES, MenuRef } from "@repo/core";
+import { MenuPopup } from "./Menu";
+import { AppButton } from "./Buttons";
+import { getBrowserLanguage } from "@repo/helpers";
+import { useTheme } from "@mui/material/styles";
 
 /**
- * Decoupled reusable dropdown interface dispatching events over the main window stream.
+ * Reusable dropdown language selection trigger utilizing the workspace unified MenuPopup.
  */
 export const LanguageSelector: React.FC = () => {
   const [isPending, startTransition] = useTransition();
+  const menuRef = useRef<MenuRef>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const theme = useTheme();
+
   const [currentLang, setCurrentLang] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("app_lang") || "en";
@@ -23,57 +25,97 @@ export const LanguageSelector: React.FC = () => {
     return "en";
   });
 
-  const handleLangChange = (e: SelectChangeEvent<string>) => {
-    const nextLang = e.target.value;
+  const selectedLangObj = LANGUAGES.find((l) => l.iso === currentLang);
+
+  /**
+   * Dispatches unified localized runtime events over global custom layout contexts.
+   */
+  const handleLangSelect = (nextLang: string) => {
     startTransition(() => {
       localStorage.setItem("app_lang", nextLang);
       setCurrentLang(nextLang);
       window.dispatchEvent(
         new CustomEvent("GLOBAL_LANG_CHANGED", { detail: nextLang }),
       );
+      menuRef.current?.closeMenu();
+      setIsMenuOpen(false);
     });
   };
 
+  /**
+   * Resets language state to match native browser system localization properties.
+   */
+  const handleResetToDefault = () => {
+    startTransition(() => {
+      const systemLang = getBrowserLanguage();
+      localStorage.setItem("app_lang", systemLang);
+      setCurrentLang(systemLang);
+      window.dispatchEvent(
+        new CustomEvent("GLOBAL_LANG_CHANGED", { detail: systemLang }),
+      );
+      menuRef.current?.closeMenu();
+      setIsMenuOpen(false);
+    });
+  };
+
+  /**
+   * Triggers the ref-based MenuPopup anchoring routine.
+   */
+  const handleButtonClick = (event: React.MouseEvent<HTMLElement>) => {
+    menuRef.current?.openMenu(event.currentTarget);
+    setIsMenuOpen(true);
+  };
+
   return (
-    <Select
-      value={currentLang}
-      onChange={handleLangChange}
-      disabled={isPending}
-      size="small"
-      renderValue={(selected) => {
-        const lang = LANGUAGES.find((l) => l.iso === selected);
-        return lang ? `${lang.flag} ${lang.title}` : selected;
-      }}>
-      {LANGUAGES.map((lang) => (
-        <MenuItem key={lang.iso} value={lang.iso}>
+    <>
+      <AppButton
+        variant="text"
+        onClick={handleButtonClick}
+        options={{
+          disabled: isPending,
+          "aria-expanded": isMenuOpen,
+          "aria-haspopup": "menu",
+          "aria-controls": "navigation-dropdown-tray",
+        }}
+        style={{}}>
+        {selectedLangObj
+          ? `${selectedLangObj.flag} ${selectedLangObj.title}`
+          : currentLang}
+      </AppButton>
+
+      <MenuPopup ref={menuRef}>
+        {/* System Default Reset Trigger */}
+        <MenuItem
+          onClick={handleResetToDefault}
+          sx={{
+            borderRadius: 1,
+            my: 0.5,
+            borderBottom: "1px dashed",
+            borderColor: "divider",
+          }}>
           <ListItemText>
-            {lang.flag} &nbsp; {lang.title}
+            <Typography sx={{ ...theme.typography.body2, fontWeight: 600 }}>
+              🌐 &nbsp; System Default
+            </Typography>
           </ListItemText>
         </MenuItem>
-      ))}
-    </Select>
-  );
-};
-
-interface TextProps extends Omit<TypographyProps, "children"> {
-  i18nKey: string;
-  values?: Record<string, string | number>;
-  children?: React.ReactNode;
-}
-/**
- * Global reusable text wrapper supporting complex child interpolation and node substitution.
- */
-export const StaticText: React.FC<TextProps> = ({
-  i18nKey,
-  values,
-  children,
-  ...typographyProps
-}) => {
-  return (
-    <Typography {...typographyProps}>
-      <Trans i18nKey={i18nKey} values={values}>
-        {children}
-      </Trans>
-    </Typography>
+        {LANGUAGES.map((lang) => (
+          <MenuItem
+            key={lang.iso}
+            selected={lang.iso === currentLang}
+            onClick={() => handleLangSelect(lang.iso)}
+            sx={{
+              borderRadius: 1,
+              my: 0.5,
+            }}>
+            <ListItemText>
+              <Typography sx={{ ...theme.typography.body2 }}>
+                {lang.flag} &nbsp; {lang.title}
+              </Typography>
+            </ListItemText>
+          </MenuItem>
+        ))}
+      </MenuPopup>
+    </>
   );
 };

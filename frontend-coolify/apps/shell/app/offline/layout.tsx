@@ -9,10 +9,7 @@ export default function OfflineLayout({
 }>) {
   return (
     <BaseLayout>
-      <GlobalUIManager
-        showOfflineUI={false}
-        showNetworkErrorUI={false}
-        namespace="shell">
+      <GlobalUIManager showOfflineUI={false} showNetworkErrorUI={false}>
         <Wrapper>{children}</Wrapper>
       </GlobalUIManager>
     </BaseLayout>

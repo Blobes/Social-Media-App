@@ -19,6 +19,20 @@ export enum KeyType {
   USER = "USER",
 }
 
+export interface ITranslation {
+  readonly tKey?: string;
+  readonly tValue?: string;
+  readonly interpolations?: Record<string, any>;
+  inlineComponents?: React.ReactElement[] | Record<string, React.ReactElement>;
+}
+
+export interface TransData {
+  headline?: ITranslation;
+  textDesc?: ITranslation;
+  primaryBtn?: ITranslation;
+  secondaryBtn?: ITranslation;
+}
+
 // Transition
 export interface IDragConfig {
   axis: "X" | "Y";
@@ -161,7 +175,7 @@ export interface StepperProps<T> extends NavigationProps {
 }
 
 export interface IBGFadeSlideData {
-  name: string;
+  name?: string;
   headline: string;
   tagline: string;
   media: IMedia;

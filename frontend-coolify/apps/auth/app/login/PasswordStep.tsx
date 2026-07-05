@@ -1,19 +1,26 @@
 "use client";
 
 import React from "react";
-import { IconButton, Stack, Typography } from "@mui/material";
+import { IconButton, Stack } from "@mui/material";
 import {
   AppButton,
   PasswordInput,
   InlineMsgUI,
   BasicTooltip,
   ProgressIcon,
+  TransText,
 } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 import { Pencil } from "lucide-react";
 import { useLogin } from "./hooks/useLogin";
 import { LoginStepProps } from "../types";
-import { useGlobalStore } from "@repo/shared-hooks";
+import {
+  AUTH_BUTTON_LABELS,
+  AUTH_FEEDBACK,
+  AUTH_INPUT,
+  COMMON_FEEDBACK,
+} from "@repo/core";
+import { useStaticTranslation } from "@repo/shared-hooks";
 
 interface StepProps extends LoginStepProps {
   credential: string;
@@ -25,6 +32,7 @@ export const PasswordStep: React.FC<StepProps> = ({
   style = {},
 }) => {
   const theme = useTheme();
+  const { translateTxtString } = useStaticTranslation();
 
   // Consuming the controller
   const {
@@ -42,23 +50,26 @@ export const PasswordStep: React.FC<StepProps> = ({
   return (
     <Stack sx={{ width: "100%" }}>
       <Stack>
-        <Typography
+        <TransText
+          {...COMMON_FEEDBACK.welcome_back()}
           component="h3"
-          variant="h5"
-          sx={{ textAlign: "center", ...style.headline }}>
-          Welcome back
-        </Typography>
-        <Typography
-          component="p"
-          variant="body2"
           sx={{
+            ...theme.typography.h5,
+            textAlign: "center",
+            ...style.headline,
+          }}
+        />
+        <TransText
+          {...AUTH_FEEDBACK.enter_password_to_login}
+          component="p"
+          sx={{
+            ...theme.typography.body2,
             color: theme.palette.gray[200],
             paddingBottom: theme.boxSpacing(8),
             textAlign: "center",
             ...style.tagline,
-          }}>
-          Enter your password to login.
-        </Typography>
+          }}
+        />
       </Stack>
 
       {!isAuthLoading && inlineMsg && (
@@ -71,10 +82,10 @@ export const PasswordStep: React.FC<StepProps> = ({
         onSubmit={handleSubmit}>
         <Stack gap={theme.gap(8)}>
           <Stack direction="row" gap={theme.gap(2)}>
-            <Typography
+            <TransText
               component="p"
-              variant="body3"
               sx={{
+                ...theme.typography.body3,
                 textAlign: "left",
                 padding: theme.boxSpacing(4, 6),
                 borderRadius: theme.radius[3],
@@ -84,8 +95,9 @@ export const PasswordStep: React.FC<StepProps> = ({
                 fontWeight: "500",
               }}>
               {identifier}
-            </Typography>
-            <BasicTooltip title={"Change credential"}>
+            </TransText>
+            <BasicTooltip
+              title={translateTxtString(AUTH_BUTTON_LABELS.change_credential)}>
               <IconButton
                 sx={{
                   padding: theme.boxSpacing(4, 4),
@@ -105,8 +117,10 @@ export const PasswordStep: React.FC<StepProps> = ({
             </BasicTooltip>
           </Stack>
           <PasswordInput
-            label="Password"
-            placeholder="Password"
+            label={translateTxtString(AUTH_INPUT.label.password)}
+            placeholder={translateTxtString(
+              AUTH_INPUT.placeholder.enter_password,
+            )}
             onChange={onPasswordChange}
             helperText={errorMsg}
             value={password}
@@ -118,7 +132,7 @@ export const PasswordStep: React.FC<StepProps> = ({
           variant="contained"
           submit
           style={{
-            fontSize: "16px",
+            ...theme.typography.button,
             padding: theme.boxSpacing(6, 9),
             width: "100%",
           }}
@@ -129,7 +143,11 @@ export const PasswordStep: React.FC<StepProps> = ({
               isLocked || // Now using the boolean from controller
               isAuthLoading,
           }}>
-          {isAuthLoading ? <ProgressIcon otherProps={{ size: 25 }} /> : "Login"}
+          {isAuthLoading ? (
+            <ProgressIcon otherProps={{ size: 25 }} />
+          ) : (
+            <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
+          )}
         </AppButton>
       </Stack>
     </Stack>

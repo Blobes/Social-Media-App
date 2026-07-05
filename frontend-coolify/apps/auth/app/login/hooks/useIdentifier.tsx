@@ -1,17 +1,24 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { usePage } from "@repo/shared-hooks";
+import {
+  useInputValidation,
+  usePage,
+  useStaticTranslation,
+} from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { LoginService } from "../service";
+import { delay, formatPhoneNumber, sanitizePhoneNumber } from "@repo/helpers";
 import {
-  delay,
-  formatPhoneNumber,
-  getInputValidity,
-  sanitizePhoneNumber,
-} from "@repo/helpers";
-import { CLIENT_ROUTES, InputStatus, MenuRef, AuthStepName } from "@repo/core";
-import { AppButton } from "@repo/shared-ui";
+  CLIENT_ROUTES,
+  InputStatus,
+  MenuRef,
+  AuthStepName,
+  AUTH_BUTTON_LABELS,
+  AUTH_FEEDBACK,
+  COMMON_FEEDBACK,
+} from "@repo/core";
+import { AppButton, TransText } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 
 interface UseIdentifier {
@@ -27,6 +34,8 @@ export const useIdentifier = ({
 }: UseIdentifier) => {
   const { checkEmail, checkPhone, checkUsername } = LoginService();
   const { navigateTo } = usePage();
+  const { translateTxtString } = useStaticTranslation();
+  const { getInputValidity } = useInputValidation();
   const theme = useTheme();
   const countryMenuRef = useRef<MenuRef>(null);
 
@@ -34,7 +43,7 @@ export const useIdentifier = ({
   const [input, setInput] = useState(existingInput ?? "");
   const [validity, setValidity] = useState<InputStatus>();
   const [validationMsg, setValidationMsg] = useState("");
-  const [inlineMsg, setInlineMsg] = useState<React.ReactNode>(null);
+  const [inlineMsg, setInlineMsg] = useState<React.ReactNode | null>(null);
 
   const inputValidity = getInputValidity(input);
   const isValidInput = inputValidity.status === "VALID";
@@ -61,47 +70,73 @@ export const useIdentifier = ({
     onSuccess: async (res) => {
       const inputType = inputValidity.type ?? "UNKNOWN";
 
-      // 1. Handle Deactivated
-      if (
-        res.status === "SUCCESS" &&
-        res.payload?.accountStatus === "DEACTIVATED"
-      ) {
-        setStep?.("RESTORE_ACCOUNT");
-        return;
-      }
-
-      // 2. Handle Existing User
-      if (res.status === "SUCCESS" && res.isExisting === true) {
-        setIdentifier?.(input);
-        setStep?.("PASSWORD");
-      }
-
-      // 3. Handle Credential Not Found
-      else {
+      if (res.status === "SUCCESS") {
+        // 1. Handle Deactivated
+        if (res.payload?.accountStatus === "DEACTIVATED") {
+          setStep?.("RESTORE_ACCOUNT");
+          return;
+        }
+        // 2. Handle Existing User
+        if (res.isExisting === true) {
+          setIdentifier?.(input);
+          setStep?.("PASSWORD");
+        }
+      } else if (res.status === "ERROR") {
+        // 3. Handle Credential Not Found
+        if (res.httpStatus === 404) {
+          setInlineMsg(
+            <span>
+              <TransText
+                {...(inputType === "PHONE"
+                  ? AUTH_FEEDBACK.no_account_found_phone
+                  : AUTH_FEEDBACK.no_account_found_email)}
+                noComponent
+              />
+              {inputType === "EMAIL" && (
+                <AppButton
+                  variant="text"
+                  href={CLIENT_ROUTES.signup.path}
+                  onClick={handleSignupClick}
+                  style={{
+                    ...theme.typography.caption,
+                    color: theme.palette.primary.main,
+                    "&:hover": { textDecoration: "underline" },
+                  }}>
+                  <TransText
+                    {...AUTH_BUTTON_LABELS.create_account}
+                    noComponent
+                  />
+                </AppButton>
+              )}
+            </span>,
+          );
+        }
+      } else if (res.httpStatus === 403 && res.signedUpWith !== "EMAIL") {
+        // 3. Handle account signed up with OAuth providers
         setInlineMsg(
           <span>
-            {`We couldn't find an account with the ${
-              inputType.toLowerCase() + (inputType === "PHONE" ? " number" : "")
-            }.`}
-            {inputType === "EMAIL" && (
-              <AppButton
-                variant="text"
-                href={CLIENT_ROUTES.signup.path}
-                onClick={handleSignupClick}
-                style={{
-                  color: theme.palette.primary.main,
-                  fontSize: "14px",
-                  "&:hover": { textDecoration: "underline" },
-                }}>
-                Create one
-              </AppButton>
-            )}
+            {res.message}
+            <AppButton
+              variant="text"
+              href={CLIENT_ROUTES.signup.path}
+              onClick={handleSignupClick}
+              style={{
+                ...theme.typography.caption,
+                color: theme.palette.primary.main,
+                "&:hover": { textDecoration: "underline" },
+              }}>
+              <TransText {...AUTH_BUTTON_LABELS.set_password} noComponent />
+            </AppButton>
           </span>,
         );
+      } else {
+        setInlineMsg(res.message);
       }
     },
     onError: (error: any) => {
-      setInlineMsg(error.message || "An error occurred. Please try again.");
+      setInlineMsg(
+        error.message || translateTxtString(COMMON_FEEDBACK.server_error),
+      );
     },
     onMutate: () => {
       setInlineMsg(null);

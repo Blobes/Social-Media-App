@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { motion } from "framer-motion";
 import { GenericStyle, IBGFadeSlideData } from "@repo/core";
-import { StaticText } from "../Localize";
+import { TransText } from "../Text";
 
 interface ArrowProps {
   onPrev: () => void;
@@ -228,12 +228,14 @@ export const NamedProgressBar = ({
       }}>
       {slides.map((slide, i) => {
         const isActive = i === current;
+        const slideId = slide.media._id || String(i);
 
         return (
           <Box
-            key={slide.media._id}
+            key={slideId}
             onClick={() => onGoTo(i)}
             sx={{
+              width: "fit-content",
               flex: 1,
               display: "flex",
               flexDirection: "column",
@@ -246,27 +248,29 @@ export const NamedProgressBar = ({
                 backgroundColor: "rgba(255, 255, 255, 0.1)",
               },
             }}>
-            <StaticText
-              i18nKey="slide_label"
-              variant="caption"
-              sx={{
-                fontWeight: 700,
-                fontSize: 11,
-                letterSpacing: "0.05em",
-                color: isActive ? "#ffffff" : "rgba(255, 255, 255, 0.4)",
-                transition: "color 0.3s ease",
-              }}>
-              {slide.name}
-            </StaticText>
+            {/* Uniquely scoped via distinct slide identifiers to prevent dictionary compilation collisions */}
+            {slide.name && (
+              <TransText
+                sx={{
+                  ...theme.typography.caption,
+                  fontWeight: 700,
+                  fontSize: 11,
+                  letterSpacing: "0.05em",
+                  color: isActive ? "#ffffff" : "rgba(255, 255, 255, 0.4)",
+                  transition: "color 0.3s ease",
+                }}>
+                {slide.name}
+              </TransText>
+            )}
 
             {/* Progress Container Track */}
             <Box
               sx={{
-                width: "100%",
+                width: slide.name ? "min-content" : "100%",
                 height: 2,
                 bgcolor: "rgba(255, 255, 255, 0.15)",
                 position: "relative",
-                borderRadius: theme.radius?.full || 1,
+                borderRadius: theme.radius.full,
                 overflow: "hidden",
               }}>
               {isActive && (

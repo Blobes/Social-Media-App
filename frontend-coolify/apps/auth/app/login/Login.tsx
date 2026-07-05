@@ -2,12 +2,7 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import {
-  IStep,
-  AuthStepName,
-  useLightModeTheme,
-  useDarkModeTheme,
-} from "@repo/core";
+import { IStep, AuthStepName, AUTH_FEEDBACK } from "@repo/core";
 import { Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
 import Image from "next/image";
@@ -42,8 +37,8 @@ export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
       name: "RESTORE_ACCOUNT",
       element: (
         <RestoreAccount
-          headline={`${input} is deactivated`}
-          tagline="This account has been deactivated. Restore it to log in"
+          headline={AUTH_FEEDBACK.account_deactivated_headline}
+          textDesc={AUTH_FEEDBACK.user_account_deactivated_tagline}
         />
       ),
     },

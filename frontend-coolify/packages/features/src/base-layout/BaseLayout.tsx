@@ -1,11 +1,7 @@
 "use server";
 
+import { Providers } from "./Providers";
 import React from "react";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { queryClient } from "@repo/helpers";
-import { GlobalThemeProvider } from "@repo/core";
-import { SocketProvider } from "./Providers";
 
 export async function BaseLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -36,12 +32,7 @@ export async function BaseLayout({ children }: { children: React.ReactNode }) {
         />
       </head>
       <body>
-        <QueryClientProvider client={queryClient}>
-          <SocketProvider>
-            <GlobalThemeProvider>{children}</GlobalThemeProvider>
-          </SocketProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
-        </QueryClientProvider>
+        <Providers>{children}</Providers>
         <noscript>You need to enable JavaScript to run this app!</noscript>
       </body>
     </html>

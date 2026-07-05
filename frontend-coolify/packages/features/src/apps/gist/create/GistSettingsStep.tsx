@@ -1,25 +1,29 @@
 "use client";
 
 import React from "react";
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Checkbox, FormControlLabel, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { AppButton, InlineMsgUI, ProgressIcon } from "@repo/shared-ui";
-import { PostStepName, StepperProps } from "@repo/core";
+import {
+  AppButton,
+  InlineMsgUI,
+  ProgressIcon,
+  TransText,
+} from "@repo/shared-ui";
+import {
+  POST_BUTTON_LABELS,
+  POST_FEEDBACK,
+  POST_INPUT,
+  PostStepName,
+  StepperProps,
+} from "@repo/core";
 
 export interface SettingsStepProps extends StepperProps<PostStepName> {
   hasSensitiveGraphic?: boolean;
   setHasSensitiveGraphic?: (val: boolean) => void;
   isProcessing: boolean;
-  inlineErrMsg: string | null;
+  inlineErrMsg: React.ReactNode | null;
   handleGistPublish: (e: React.SubmitEvent) => void;
 }
-
 /**
  * Standardized secondary configuration panel processing parameters and publishing actions.
  */
@@ -45,10 +49,10 @@ export const GistSettingsStep: React.FC<SettingsStepProps> = ({
         gap: theme.gap(7.5),
       }}>
       <Stack sx={{ gap: theme.gap(2) }}>
-        <Typography variant="subtitle1" sx={{ color: theme.palette.gray[300] }}>
-          Gist Settings
-        </Typography>
-
+        <TransText
+          {...POST_FEEDBACK.post_settings}
+          sx={{ ...theme.typography.subtitle1, color: theme.palette.gray[300] }}
+        />
         {!isProcessing && inlineErrMsg && (
           <InlineMsgUI msg={inlineErrMsg} type="ERROR" />
         )}
@@ -68,9 +72,10 @@ export const GistSettingsStep: React.FC<SettingsStepProps> = ({
             />
           }
           label={
-            <Typography variant="body2" sx={{ color: theme.palette.gray[200] }}>
-              Flag sensitive graphics (blur preview)
-            </Typography>
+            <TransText
+              {...POST_INPUT.label.flag_sensitive_graphics}
+              sx={{ ...theme.typography.body2, color: theme.palette.gray[200] }}
+            />
           }
         />
       </Stack>
@@ -81,7 +86,7 @@ export const GistSettingsStep: React.FC<SettingsStepProps> = ({
           onClick={() => setStep?.("CONTENT")}
           options={{ disabled: isProcessing }}
           style={{ flex: 1, padding: theme.boxSpacing(6, 0) }}>
-          Back
+          <TransText {...POST_BUTTON_LABELS.post_back} noComponent />
         </AppButton>
 
         <AppButton
@@ -98,12 +103,10 @@ export const GistSettingsStep: React.FC<SettingsStepProps> = ({
           {isProcessing ? (
             <>
               <ProgressIcon style={{ width: "20px", height: "20px" }} />
-              <Typography variant="button">
-                Syncing Cluster Elements...
-              </Typography>
+              <TransText {...POST_BUTTON_LABELS.syncing_post} noComponent />
             </>
           ) : (
-            <Typography variant="button">Publish Post</Typography>
+            <TransText {...POST_BUTTON_LABELS.post_submit} noComponent />
           )}
         </AppButton>
       </Stack>

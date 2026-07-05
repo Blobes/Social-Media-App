@@ -1,9 +1,9 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { IPost, QUEUE_KEYS } from "@repo/core";
+import { IPost, POST_FEEDBACK, QUEUE_KEYS } from "@repo/core";
 import { updateCacheItem } from "@repo/helpers";
-import { SBMessage } from "@repo/shared-hooks";
+import { SBMessage, useStaticTranslation } from "@repo/shared-hooks";
 
 /**
  * Syncs server-confirmed like state back into cache and optional external stores.
@@ -16,6 +16,7 @@ export const usePostLikeMutation = (
   updateStore?: (id: string, likedByMe: boolean, likeCount: number) => void,
 ) => {
   const queryClient = useQueryClient();
+  const { translateTxtString } = useStaticTranslation();
 
   return useMutation({
     mutationFn: onLikeApi,
@@ -49,8 +50,10 @@ export const usePostLikeMutation = (
     onError: (error) => {
       setSBMessage({
         msg: {
-          tagline: error.message || "Post like sync failed:",
           msgStatus: "ERROR",
+          tagline:
+            error.message ||
+            translateTxtString(POST_FEEDBACK.like_sync_failed_tagline),
           hasClose: true,
         },
         override: true,

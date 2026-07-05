@@ -43,6 +43,15 @@ export const authTokens: IAuthConfig = {
   },
 };
 
+export const oAuthID = {
+  get GOOGLE_CLIENT_ID() {
+    return getEnv("GOOGLE_CLIENT_ID");
+  },
+  get APPLE_CLIENT_ID() {
+    return getEnv("APPLE_CLIENT_ID");
+  },
+};
+
 /**
  * Email Provider Configuration
  */

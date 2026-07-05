@@ -1,5 +1,9 @@
+import crypto from "crypto";
 import mongoose, { ClientSession } from "mongoose";
 import { TopicModel, UserModel } from "@repo/database";
+import { TransInfo } from "../types";
+import { CACHE_KEYS, getOrSetCache } from "../utils/redis/cache";
+import { MESSAGES_REGISTRY } from "../constants/msgRegistry";
 
 export interface ManageTopicsParams {
   topics: string[];
@@ -7,6 +11,43 @@ export interface ManageTopicsParams {
   targetId?: string;
   targetModel?: "Gist" | "Stake" | "User";
   actionType: "USER_PREFERENCE" | "POST_CREATION_OR_UPDATE" | "POST_ENGAGEMENT";
+}
+export interface RemoveTopicsFromUserResult {
+  status: "INVALID_INPUT" | "SUCCESS";
+  transInfo: TransInfo;
+  payload: null;
+}
+export interface ManageTopicsResult {
+  status: "INVALID_INPUT" | "SUCCESS";
+  transInfo: TransInfo;
+  payload: any[];
+}
+export interface PruneUnusedTopicsResult {
+  status: "INVALID_INPUT" | "SUCCESS";
+  transInfo: TransInfo;
+  payload: {
+    deletedCount: number;
+  };
+}
+
+export interface LookupTopicsInput {
+  keyword?: string;
+  alreadySelected?: string[];
+  page: number;
+  limit: number;
+}
+
+export interface LookupTopicsResult {
+  status: "SUCCESS";
+  transInfo: TransInfo;
+  payload: any[];
+  metaData: {
+    totalDocs: number;
+    totalPages: number;
+    currentPage: number;
+    limit: number;
+    hasNextPage: boolean;
+  };
 }
 
 /**
@@ -17,13 +58,17 @@ export const handlePostCreationTopics = async (
   targetModel: string,
   topicDocs: any[],
   session?: ClientSession,
-) => {
+): Promise<void> => {
   const DynamicModel = mongoose.model(targetModel);
   const post = await DynamicModel.findById(targetId)
     .session(session || null)
     .select("topics");
 
-  if (!post) throw new Error(`${targetModel} not found`);
+  if (!post) {
+    throw new Error(
+      MESSAGES_REGISTRY.SYSTEM.TARGET_MODEL_NOT_FOUND(targetModel).message,
+    );
+  }
 
   const existingPostTopicIds = (post.topics || []).map((id: any) =>
     id.toString(),
@@ -55,11 +100,14 @@ export const handleUserPreferenceTopics = async (
   userId: string,
   topicDocs: any[],
   session?: ClientSession,
-) => {
+): Promise<void> => {
   const user = await UserModel.findById(userId)
     .session(session || null)
     .select("preferences");
-  if (!user) throw new Error("User not found");
+
+  if (!user) {
+    throw new Error(MESSAGES_REGISTRY.AUTH.USER_NOT_FOUND.message);
+  }
 
   const existingPrefIds = (user.preferences?.preferredTopics || []).map(
     (t: any) => t.topicId.toString(),
@@ -103,11 +151,14 @@ export const handlePostEngagementTopics = async (
   userId: string,
   topicDocs: any[],
   session?: ClientSession,
-) => {
+): Promise<void> => {
   const user = await UserModel.findById(userId)
     .session(session || null)
     .select("preferences");
-  if (!user) throw new Error("User not found");
+
+  if (!user) {
+    throw new Error(MESSAGES_REGISTRY.AUTH.USER_NOT_FOUND.message);
+  }
 
   const preferredTopics = user.preferences?.preferredTopics || [];
   const existingPrefIds = preferredTopics.map((t: any) => t.topicId.toString());
@@ -166,8 +217,16 @@ export const handlePostEngagementTopics = async (
 export const executeTopicUpdate = async (
   params: ManageTopicsParams,
   session?: ClientSession,
-) => {
+): Promise<ManageTopicsResult> => {
   const { topics, userId, targetId, targetModel, actionType } = params;
+
+  if (!topics || !Array.isArray(topics) || topics.length === 0) {
+    return {
+      status: "INVALID_INPUT",
+      transInfo: MESSAGES_REGISTRY.POST.POST_TOPICS_LIST_REQUIRED,
+      payload: [],
+    };
+  }
 
   const uniqueTitles = [...new Set(topics.map((t) => t.trim().toLowerCase()))];
 
@@ -189,15 +248,18 @@ export const executeTopicUpdate = async (
 
   switch (actionType) {
     case "USER_PREFERENCE":
-      if (!userId)
-        throw new Error("User not authenticated for status preference updates");
+      if (!userId) {
+        throw new Error(
+          MESSAGES_REGISTRY.PROFILE.UNAUTHENTICATED_PREFERENCE_UPDATE.message,
+        );
+      }
       await handleUserPreferenceTopics(userId, topicDocs, session);
       break;
 
     case "POST_CREATION_OR_UPDATE":
       if (!targetId || !targetModel) {
         throw new Error(
-          "targetId and targetModel are required parameters for post processing operations",
+          MESSAGES_REGISTRY.POST.MISSING_POST_PROCESSING_PARAMS.message,
         );
       }
       await handlePostCreationTopics(targetId, targetModel, topicDocs, session);
@@ -210,50 +272,165 @@ export const executeTopicUpdate = async (
       break;
 
     default:
-      throw new Error("Invalid operational routing type target received");
+      throw new Error(
+        MESSAGES_REGISTRY.SYSTEM.INVALID_OPERATIONAL_ROUTING.message,
+      );
   }
 
-  return topicDocs;
+  return {
+    status: "SUCCESS",
+    transInfo: MESSAGES_REGISTRY.POST.POST_TOPICS_PROCESSED_SUCCESSFULLY,
+    payload: topicDocs,
+  };
 };
 
-export const pruneDeadTopics = async (topicIds?: string[]) => {
-  // Calculate the date 30 days ago from "now"
+/**
+ * Standard cleanup system targeting topics without remaining active entity bindings.
+ */
+export const pruneDeadTopics = async (
+  topicIds: string[],
+): Promise<PruneUnusedTopicsResult> => {
+  if (!topicIds || !Array.isArray(topicIds)) {
+    return {
+      status: "INVALID_INPUT",
+      transInfo: MESSAGES_REGISTRY.POST.POST_TOPIC_IDS_REQUIRED,
+      payload: { deletedCount: 0 },
+    };
+  }
+
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   const query: any = {
     userCount: 0,
     postCount: 0,
-    // Using createdAt ensures we don't kill a topic created 5 minutes ago
     createdAt: { $lt: thirtyDaysAgo },
   };
 
-  // If specific IDs are provided via the controller, we apply the filter
-  if (topicIds && topicIds.length > 0) {
+  if (topicIds.length > 0) {
     query._id = { $in: topicIds };
   }
 
   const result = await TopicModel.deleteMany(query);
-  return result.deletedCount;
+
+  return {
+    status: "SUCCESS",
+    transInfo: MESSAGES_REGISTRY.POST.POST_TOPICS_PRUNED(result.deletedCount),
+    payload: { deletedCount: result.deletedCount },
+  };
 };
 
+/**
+ * Drops targeted topics profiles from a specific user preferred preference sequence.
+ */
 export const removeTopicsFromUser = async (
   userId: string,
   staleTopicIds: string[],
-) => {
-  if (!staleTopicIds.length) return;
+): Promise<RemoveTopicsFromUserResult> => {
+  if (!staleTopicIds || !Array.isArray(staleTopicIds)) {
+    return {
+      status: "INVALID_INPUT",
+      transInfo: MESSAGES_REGISTRY.POST.POST_TOPIC_IDS_REQUIRED,
+      payload: null,
+    };
+  }
 
-  // 1. Remove the specific topics from the User's array
+  if (!staleTopicIds.length) {
+    return {
+      status: "SUCCESS",
+      transInfo: MESSAGES_REGISTRY.POST.POST_USER_TOPICS_REMOVED_SUCCESSFULLY,
+      payload: null,
+    };
+  }
+
   const userUpdate = await UserModel.updateOne(
     { _id: userId },
-    { $pull: { preferredTopics: { _id: { $in: staleTopicIds } } } },
+    {
+      $pull: {
+        "preferences.preferredTopics": { topicId: { $in: staleTopicIds } },
+      },
+    },
   );
 
-  // 2. Decrement the global userCount only if the user document was actually modified
   if (userUpdate.modifiedCount > 0) {
     await TopicModel.updateMany(
       { _id: { $in: staleTopicIds } },
       { $inc: { userCount: -1 } },
     );
   }
+
+  return {
+    status: "SUCCESS",
+    transInfo: MESSAGES_REGISTRY.POST.POST_USER_TOPICS_REMOVED_SUCCESSFULLY,
+    payload: null,
+  };
+};
+
+/**
+ * Executes paginated calculations across cache lookups and indexed database queries to evaluate matches for topic categories.
+ */
+export const executeLookupTopics = async (
+  input: LookupTopicsInput,
+): Promise<LookupTopicsResult> => {
+  const { keyword, alreadySelected = [], page, limit } = input;
+  const skip = (page - 1) * limit;
+  const cleanKeyword = keyword ? keyword.trim() : "";
+
+  const exclusionHash = crypto
+    .createHash("md5")
+    .update([...alreadySelected].sort().join(","))
+    .digest("hex");
+
+  const cacheKey = CACHE_KEYS.TOPICS_LOOKUP(
+    cleanKeyword,
+    exclusionHash,
+    page,
+    limit,
+  );
+
+  const { topics, totalCount } = await getOrSetCache(
+    cacheKey,
+    async () => {
+      const filter: any = {
+        title: { $nin: alreadySelected },
+      };
+
+      if (cleanKeyword !== "") {
+        filter.title = {
+          ...filter.title,
+          $regex: cleanKeyword,
+          $options: "i",
+        };
+      }
+
+      const total = await TopicModel.countDocuments(filter);
+      let databaseQuery = TopicModel.find(filter);
+
+      if (cleanKeyword !== "") {
+        databaseQuery = databaseQuery.sort({ postCount: -1 });
+      } else {
+        databaseQuery = databaseQuery.sort({ postCount: -1, createdAt: -1 });
+      }
+
+      const data = await databaseQuery.skip(skip).limit(limit);
+      return { topics: data, totalCount: total };
+    },
+    300,
+  );
+
+  const totalPages = Math.ceil(totalCount / limit);
+  const hasNextPage = page < totalPages;
+
+  return {
+    status: "SUCCESS",
+    transInfo: MESSAGES_REGISTRY.POST.POST_TOPICS_FETCHED_SUCCESS,
+    payload: topics ?? [],
+    metaData: {
+      totalDocs: totalCount,
+      totalPages,
+      currentPage: page,
+      limit,
+      hasNextPage,
+    },
+  };
 };

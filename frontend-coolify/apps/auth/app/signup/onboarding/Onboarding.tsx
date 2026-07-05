@@ -3,11 +3,10 @@
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { Stepper, StepperProgress } from "@repo/shared-ui";
-import { IStep, AuthStepName, StepperProps } from "@repo/core";
+import { IStep, AuthStepName, StepperProps, useGlobalStore } from "@repo/core";
 import { Stack } from "@mui/material";
 import { OnboardingIntro } from "./steps/Intro";
 import { Identity } from "./steps/Identity";
-import { useGlobalStore } from "@repo/shared-hooks";
 import { WelcomeBack } from "./steps/WelcomeBack";
 
 /**

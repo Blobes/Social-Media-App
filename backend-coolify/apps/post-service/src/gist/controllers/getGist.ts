@@ -1,86 +1,59 @@
-import { GistModel } from "@repo/database";
+import { Response, NextFunction } from "express";
 import {
   IAuthRequest,
-  getPostStaticData,
-  getOrSetCache,
-  getPostSocialData,
-  CACHE_KEYS,
+  MESSAGES_REGISTRY,
+  forwardError,
+  PostType,
 } from "@repo/shared";
-import { Response } from "express";
-import mongoose from "mongoose";
+import { executeGetGist } from "../services/getGist";
 
+/**
+ * Controller endpoint managing request routing configurations for collecting and hydrating specific gist profiles.
+ */
 export const getGist = async (
   req: IAuthRequest,
   res: Response,
-): Promise<void> => {
+  next: NextFunction,
+): Promise<any> => {
   const postId = req.params.id as string;
   const userId = req.user?.id;
 
-  if (!mongoose.Types.ObjectId.isValid(postId)) {
-    res.status(400).json({ status: "ERROR", message: "Invalid Post ID" });
-    return;
-  }
-
   try {
-    const cacheKey = CACHE_KEYS.POST("GIST", postId);
-
-    // STEP 1: Get the Static/Formatted data from Cache (or DB if miss)
-    // This caches the heavy author lookups and polymorphic formatting
-    const cachedGist = await getOrSetCache(cacheKey, async () => {
-      const result = await GistModel.aggregate([
-        {
-          $match: {
-            _id: new mongoose.Types.ObjectId(postId),
-            status: "PUBLISHED",
-          },
-        },
-        { $addFields: { postType: "GIST" } },
-        ...getPostStaticData(), // Purely static structure logic
-      ]);
-      return result.length > 0 ? result[0] : null;
+    const serviceResult = await executeGetGist({
+      postId,
+      userId,
     });
 
-    if (!cachedGist) {
-      res.status(404).json({ status: "ERROR", message: "Gist not found" });
-      return;
-    }
-
-    // STEP 2: If no user, return the static cached data immediately
-    if (!userId) {
-      res.status(200).json({
-        status: "SUCCESS",
-        payload: cachedGist,
-        message: "Gist fetched successfully",
+    if (serviceResult.status === "INVALID_ID") {
+      return res.status(400).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: serviceResult.payload,
       });
-      return;
     }
 
-    // STEP 3: Fetch ONLY the dynamic social bits for the logged-in user
-    // This hits the lightweight likes and follows collections
-    const socialStatus = await GistModel.aggregate([
-      { $match: { _id: new mongoose.Types.ObjectId(postId) } },
-      { $addFields: { postType: "GIST" } },
-      ...getPostSocialData({ userId: String(userId) }), // Real-time social logic
-    ]);
+    if (serviceResult.status === "NOT_FOUND") {
+      return res.status(404).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: serviceResult.payload,
+      });
+    }
 
-    // STEP 4: Merge the real-time social flags into the cached static payload
-    const finalResult = {
-      ...cachedGist,
-      likedByMe: socialStatus[0]?.likedByMe || false,
-      author: {
-        ...cachedGist.author,
-        isFollowing: socialStatus[0]?.isFollowing || false,
-        followsMe: socialStatus[0]?.followsMe || false,
-      },
-    };
-
-    res.status(200).json({
+    return res.status(200).json({
       status: "SUCCESS",
-      payload: finalResult,
-      message: "Gist fetched and hydrated successfully",
+      ...serviceResult.transInfo,
+      payload: serviceResult.payload,
     });
   } catch (error: any) {
     console.error("Get Gist Error:", error);
-    res.status(500).json({ status: "ERROR", message: "Internal Server Error" });
+
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.POST.CREATION_THROWN_ERROR(error.message, "Gist")
+        : MESSAGES_REGISTRY.POST.CREATION_FALLBACK_ERROR("Gist"),
+      error,
+    );
   }
 };

@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { Box, Stack } from "@mui/material";
-import { CreateGist } from "../create/CreateGist";
+import { CreateGist } from "../create/page";
 import { Feedback, GistSkeleton, ProgressIcon } from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
@@ -12,8 +12,14 @@ import {
   useCachedData,
   useInfiniteScroll,
   usePageCache,
+  useStaticTranslation,
 } from "@repo/shared-hooks";
-import { IGist, CACHE_KEYS } from "@repo/core";
+import {
+  IGist,
+  CACHE_KEYS,
+  POST_FEEDBACK,
+  COMMON_BUTTON_LABELS,
+} from "@repo/core";
 
 /**
  * Main Gists feed component.
@@ -31,6 +37,7 @@ export const Gists = () => {
     fetchNextPage,
   } = useGists();
 
+  const { translateTxtString } = useStaticTranslation();
   const cachedGists = useCachedData<IGist>([CACHE_KEYS.POST.GISTS]);
 
   const { sentinelRef } = useInfiniteScroll({
@@ -42,7 +49,11 @@ export const Gists = () => {
   // Activate progressive caching for the gist domain.
   usePageCache(rawData, CACHE_KEYS.POST.GISTS);
 
-  const gists = onlineGists.length > 0 ? onlineGists : cachedGists;
+  const gists = onlineGists.length > 0 ? onlineGists : cachedGists || [];
+
+  const finalMsg = message
+    ? undefined
+    : POST_FEEDBACK.no_post_found_tagline("gist");
 
   const containerStyle = useMemo(
     () => ({
@@ -71,12 +82,15 @@ export const Gists = () => {
         <GistSkeleton />
       ) : gists.length < 1 ? (
         <Feedback
-          tagline={message || "No gists found in cache or online."}
+          transData={{
+            textDesc: finalMsg,
+          }}
+          tagline={message || finalMsg?.tValue}
           icon={<Milestone />}
           primaryCta={{
             type: "BUTTON",
             variant: "outlined",
-            label: "Refresh",
+            label: translateTxtString(COMMON_BUTTON_LABELS.explore_funstakes),
             action: () => {
               handleRefresh();
             },
@@ -87,7 +101,7 @@ export const Gists = () => {
               backgroundColor: "none",
               gap: theme.gap(6),
             },
-            tagline: { fontSize: "16px" },
+            tagline: { ...theme.typography.body2 },
             icon: {
               width: "50px",
               height: "50px",

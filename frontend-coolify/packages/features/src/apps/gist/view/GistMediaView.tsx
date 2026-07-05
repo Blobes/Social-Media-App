@@ -9,6 +9,7 @@ import { PostEngagement } from "../../post/components/engagement/Engagement";
 import { PostHeader } from "../../post/components/header/PostHeader";
 import { LikeState } from "./GistMedia";
 import { useGistLikeState } from "./hooks/useGistState";
+import { DynamicCaption } from "../../post/components/Caption";
 
 interface ViewProps {
   gist: IGist;
@@ -70,16 +71,10 @@ export const GistMediaView = ({
   );
 
   const postCaption = (
-    <WordTrimmer
-      text={latestCaption.caption}
-      style={{
-        container: {
-          padding: theme.boxSpacing(4, 0),
-          [theme.breakpoints.down("md")]: {
-            padding: theme.boxSpacing(4, 6),
-          },
-        },
-      }}
+    <DynamicCaption
+      captionId={latestCaption.captionId}
+      caption={latestCaption.caption}
+      detectedLanguage={latestCaption.detectedLanguage}
     />
   );
 

@@ -1,39 +1,58 @@
 "use client";
 
 import { IPage } from "../types/ui-state";
+import { COMMON_LIST } from "./msgRegistry";
 
 export const CLIENT_ROUTES = {
   // Web
-  about: { title: "About", path: "/about" },
-  pricing: { title: "Pricing", path: "/pricing" },
-  blogs: { title: "Blogs", path: "/blogs" },
-  support: { title: "Support", path: "/support" },
-  privacy: { title: "Privacy", path: "/privacy" },
-  terms: { title: "Terms", path: "/terms" },
-  news: { title: "News", path: "/news" },
+  about: { title: COMMON_LIST.nav.about.tValue, path: "/about" },
+  pricing: { title: COMMON_LIST.nav.pricing.tValue, path: "/pricing" },
+  blogs: { title: COMMON_LIST.nav.blogs.tValue, path: "/blogs" },
+  support: { title: COMMON_LIST.nav.support.tValue, path: "/support" },
+  privacy: { title: COMMON_LIST.nav.privacy.tValue, path: "/privacy" },
+  terms: { title: COMMON_LIST.nav.terms.tValue, path: "/terms" },
+  news: { title: COMMON_LIST.nav.news.tValue, path: "/news" },
 
   // Auth
-  login: { title: "Login", path: "/login" },
-  signup: { title: "Signup", path: "/signup" },
-  restoreAccount: { title: "Restore Account", path: "/restore-account" },
-  verifyOtp: { title: "Verify Otp", path: "/verify-otp" },
-  onboarding: { title: "Onboarding", path: "/onboarding" },
+  login: { title: COMMON_LIST.nav.login.tValue, path: "/login" },
+  signup: { title: COMMON_LIST.nav.signup.tValue, path: "/signup" },
+  restoreAccount: {
+    title: COMMON_LIST.nav.restoreAccount.tValue,
+    path: "/restore-account",
+  },
+  verifyOtp: {
+    title: COMMON_LIST.nav.verifyOtp.tValue,
+    path: "/verify-otp",
+  },
+  onboarding: {
+    title: COMMON_LIST.nav.onboarding.tValue,
+    path: "/onboarding",
+  },
 
   // Shell
-  home: { title: "Home", path: "/" },
-  explore: { title: "Explore", path: "/explore" },
+  home: { title: COMMON_LIST.nav.home.tValue, path: "/" },
+  explore: { title: COMMON_LIST.nav.explore.tValue, path: "/explore" },
 
   // Messaging
-  inbox: { title: "Inbox", path: "/inbox" },
+  inbox: { title: COMMON_LIST.nav.inbox.tValue, path: "/inbox" },
 
   // Wallet
-  wallet: { title: "Wallet", path: "/wallet" },
+  wallet: { title: COMMON_LIST.nav.wallet.tValue, path: "/wallet" },
 
   // Profile
-  profile: { title: "Profile", path: "/profile" },
-  bookmarks: { title: "Bookmarks", path: "/bookmarks" },
-  notifications: { title: "Notifications", path: "/notifications" },
-  settings: { title: "Settings", path: "/settings" },
+  profile: { title: COMMON_LIST.nav.profile.tValue, path: "/profile" },
+  bookmarks: {
+    title: COMMON_LIST.nav.bookmarks.tValue,
+    path: "/bookmarks",
+  },
+  notifications: {
+    title: COMMON_LIST.nav.notifications.tValue,
+    path: "/notifications",
+  },
+  settings: {
+    title: COMMON_LIST.nav.settings.tValue,
+    path: "/settings",
+  },
 
   // Post
   gist: { title: "Gist", path: "/gist" },
@@ -42,7 +61,7 @@ export const CLIENT_ROUTES = {
   voices: { title: "Voices", path: "/voices" },
 
   // Offline
-  offline: { title: "Offline", path: "/offline" },
+  offline: { title: COMMON_LIST.nav.offline.tValue, path: "/offline" },
 } satisfies Record<string, IPage>;
 
 /** * Registry mapping logical application zones to their respective route paths.

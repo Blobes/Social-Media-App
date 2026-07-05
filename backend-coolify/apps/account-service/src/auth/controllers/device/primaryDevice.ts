@@ -1,6 +1,6 @@
 import { DeviceModel, UserModel } from "@repo/database";
-import { CACHE_KEYS, IAuthRequest } from "@repo/shared";
-import { Response } from "express";
+import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
+import { NextFunction, Response } from "express";
 
 /**
  * Manually promotes a specific device to the primary anchor for the account.
@@ -8,6 +8,7 @@ import { Response } from "express";
 export const setPrimaryDevice = async (
   req: IAuthRequest,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const userId = req.user?.id;
   const { id } = req.params;
@@ -18,7 +19,7 @@ export const setPrimaryDevice = async (
     if (!targetDevice) {
       return res.status(404).json({
         status: "ERROR",
-        message: "Device not found.",
+        ...MESSAGES_REGISTRY.AUTH.PRIMARY_DEVICE_NOT_FOUND,
         payload: null,
       });
     }
@@ -41,14 +42,17 @@ export const setPrimaryDevice = async (
 
     return res.status(200).json({
       status: "SUCCESS",
-      message: "Primary device updated successfully.",
+      ...MESSAGES_REGISTRY.AUTH.PRIMARY_DEVICE_UPDATED,
       payload: targetDevice,
     });
-  } catch (error) {
-    return res.status(500).json({
-      status: "ERROR",
-      message: "Failed to update primary device.",
-      payload: null,
-    });
+  } catch (error: any) {
+    console.error("Set Primary Device Error:", error);
+    return forwardError(
+      next,
+      error.message
+        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
+        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      error,
+    );
   }
 };

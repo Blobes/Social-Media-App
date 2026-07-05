@@ -4,10 +4,14 @@ import React from "react";
 import { Stack, Typography, Divider } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
-import { UserAvatar, AppButton } from "@repo/shared-ui";
+import { UserAvatar, AppButton, TransText } from "@repo/shared-ui";
 import { summarizeNum } from "@repo/helpers";
 import { asset } from "@repo/assets";
-import { useGlobalStore } from "@repo/shared-hooks";
+import {
+  COMMON_BUTTON_LABELS,
+  COMMON_FEEDBACK,
+  useGlobalStore,
+} from "@repo/core";
 
 export const ProfileCard = () => {
   const theme = useTheme();
@@ -60,16 +64,15 @@ export const ProfileCard = () => {
           justifyContent: "center",
           gap: theme.gap(1),
         }}>
-        <Typography
-          variant="subtitle1"
-          noWrap={true}>{`${firstName} ${lastName}`}</Typography>
-        <Typography
+        <TransText
+          sx={theme.typography.subtitle1}
+          noWrap={true}>{`${firstName} ${lastName}`}</TransText>
+        <TransText
           component="p"
-          variant="body3"
           noWrap={true}
-          sx={{ color: theme.palette.gray[200] }}>
+          sx={{ ...theme.typography.body3, color: theme.palette.gray[200] }}>
           {email}
-        </Typography>
+        </TransText>
         <Divider />
         <Stack flexDirection="row" width="inherit">
           <Stack
@@ -78,20 +81,25 @@ export const ProfileCard = () => {
               width: "inherit",
               borderRight: `1px solid ${theme.palette.gray.trans[1]}`,
             }}>
-            <Typography variant="subtitle1">
+            <TransText sx={theme.typography.subtitle1}>
               {summarizeNum(followersCount ?? 0)}
-            </Typography>
-            <Typography variant="body3" sx={{ color: theme.palette.gray[200] }}>
-              Followers
-            </Typography>
+            </TransText>
+            <TransText
+              {...COMMON_FEEDBACK.followers}
+              sx={{
+                ...theme.typography.body3,
+                color: theme.palette.gray[200],
+              }}
+            />
           </Stack>
           <Stack sx={{ width: "inherit" }} spacing={`${theme.gap(-5)}`}>
-            <Typography variant="subtitle1">
+            <TransText sx={theme.typography.subtitle1}>
               {summarizeNum(followingCount ?? 0)}
-            </Typography>
-            <Typography variant="body3" sx={{ color: theme.palette.gray[200] }}>
-              Following
-            </Typography>
+            </TransText>
+            <TransText
+              {...COMMON_FEEDBACK.following}
+              sx={{ ...theme.typography.body3, color: theme.palette.gray[200] }}
+            />
           </Stack>
         </Stack>
         <Divider />
@@ -104,7 +112,7 @@ export const ProfileCard = () => {
             padding: theme.boxSpacing(2, 5),
             borderColor: theme.palette.gray.trans[2],
           }}>
-          My profile
+          <TransText {...COMMON_BUTTON_LABELS.my_profile} noComponent />
         </AppButton>
       </Stack>
     </Stack>

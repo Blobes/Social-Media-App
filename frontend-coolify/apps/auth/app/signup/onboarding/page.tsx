@@ -2,10 +2,10 @@
 
 import React from "react";
 import { Stack, useTheme } from "@mui/material";
-import { useGlobalStore } from "@repo/shared-hooks";
 import { applyBGPattern } from "@repo/helpers";
 import { Onboarding } from "./Onboarding";
 import { RestrictedUI } from "@repo/features";
+import { useGlobalStore } from "@repo/core";
 
 export default function OnboardingPage() {
   const theme = useTheme();

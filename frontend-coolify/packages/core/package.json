@@ -9,6 +9,9 @@
     ".": "./index.ts",
     "./next-config": "./env-config/next-config.js"
   },
+  "dependencies": {
+    "zustand": "catalog:"
+  },
   "peerDependencies": {
     "next": "catalog:",
     "react": "catalog:",
@@ -17,7 +20,9 @@
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "@mui/material": "catalog:",
-    "@mui/system": "catalog:"
+    "@mui/system": "catalog:",
+    "socket.io-client": "catalog:",
+    "i18next": "catalog:"
   },
   "devDependencies": {
     "next": "catalog:",
