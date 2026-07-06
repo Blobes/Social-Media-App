@@ -16,10 +16,11 @@ export const initializeLocalization = async (
 
   const isDevelopment = process.env.NODE_ENV === "development";
   const CDN_HOST = process.env.CLOUDFLARE_UPLOAD_HOST;
+  const DEV_VERSION = process.env.NEXT_PUBLIC_APP_VERSION;
 
   const loadPath = isDevelopment
-    ? `/locale/versions/{{lng}}/{{ns}}.json?v=${process.env.NEXT_PUBLIC_APP_VERSION || Date.now()}`
-    : `${CDN_HOST}/locales/{{lng}}/{{ns}}.json?v=${process.env.NEXT_PUBLIC_APP_VERSION || Date.now()}`;
+    ? `/locale/versions/{{lng}}/{{ns}}.json?v=${DEV_VERSION || Date.now()}`
+    : `${CDN_HOST}/locales/{{lng}}/{{ns}}.json?v=${DEV_VERSION || Date.now()}`;
 
   await instance
     .use(HttpBackend)

@@ -1,10 +1,12 @@
 "use client";
 
 import React from "react";
-import { Box, Stack } from "@mui/material";
+import { Box, IconButton, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AppButton } from "./Buttons";
 import { useGlobalStore } from "@repo/core";
+import { ArrowLeft, Delete, Space, X } from "lucide-react";
+import { TransText } from "./Text";
 
 // Centralized keyboard matrix dictionary managed entirely inside the component
 const KEYBOARD_CONFIGS: Record<
@@ -58,69 +60,75 @@ export const VirtualKeyboard = ({
     matrix: [["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]],
   };
 
+  const sharedStyle = {
+    color: theme.palette.gray[300],
+    backgroundColor: theme.palette.gray.trans[1],
+    borderRadius: theme.radius[3],
+    height: 38,
+    "&:hover": {
+      backgroundColor: theme.palette.gray[50],
+    },
+  };
+
   return (
     <Box
       dir={currentConfig.rtl ? "rtl" : "ltr"}
       sx={{
         position: "absolute",
         top: "100%",
-        right: 0,
+        right: 60,
         zIndex: theme.zIndex?.modal || 1300,
         width: "100%",
         maxWidth: "460px",
-        marginTop: theme.gap?.(2) || "4px",
+        marginTop: theme.gap(2),
         backgroundColor: theme.palette.gray[0],
-        border: `1px solid ${theme.palette.gray[100]}`,
-        borderRadius: theme.radius[3],
-        padding: theme.boxSpacing(4, 4),
+        border: `1px solid ${theme.palette.gray.trans[1]}`,
+        borderRadius: theme.radius[4],
+        padding: theme.boxSpacing(4),
         boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.12)",
         display: "flex",
         flexDirection: "column",
-        gap: theme.gap?.(1.5) || "6px",
+        gap: theme.gap(3),
+        [theme.breakpoints.down("md")]: {
+          borderRadius: 0,
+          border: "none",
+        },
       }}>
       <Stack
         flexDirection="row"
         justifyContent="space-between"
         alignItems="center"
-        sx={{ padding: theme.boxSpacing(1, 2) }}>
-        <Box
+        sx={{ padding: theme.boxSpacing(2) }}>
+        <TransText
           sx={{
             ...theme.typography.caption,
             color: theme.palette.gray[200],
             fontWeight: 600,
           }}>
           {currentConfig.label}
-        </Box>
-        <AppButton
-          variant="text"
+        </TransText>
+        <IconButton
           onClick={onClose}
-          style={{
-            fontSize: "12px",
-            padding: theme.boxSpacing(0, 2),
-          }}>
-          Close
-        </AppButton>
+          sx={{ backgroundColor: theme.palette.gray.trans[1], flex: "none" }}>
+          <X size={18} />
+        </IconButton>
       </Stack>
 
       {currentConfig.matrix.map((row, rowIndex) => (
         <Stack
           key={rowIndex}
           flexDirection="row"
-          gap={theme.gap?.(1) || "4px"}
+          gap={theme.gap(1)}
           justifyContent="center">
           {row.map((char) => (
             <AppButton
               key={char}
-              variant="outlined"
               onClick={() => onKeyClick(char)}
               style={{
-                flex: 1,
-                minWidth: "unset",
-                padding: theme.boxSpacing(2, 0),
+                minWidth: 30,
                 fontSize: "14px",
-                color: theme.palette.gray[300],
-                border: `1px solid ${theme.palette.gray[100]}`,
-                backgroundColor: theme.palette.gray[50],
+                width: "100%",
+                ...sharedStyle,
               }}>
               {char}
             </AppButton>
@@ -128,29 +136,21 @@ export const VirtualKeyboard = ({
         </Stack>
       ))}
 
-      <Stack flexDirection="row" gap={theme.gap?.(1) || "4px"}>
+      <Stack flexDirection="row" gap={theme.gap(2)}>
         <AppButton
-          variant="contained"
           onClick={onBackspace}
           style={{
-            flex: 1,
-            fontSize: "13px",
-            backgroundColor: theme.palette.error.main,
-            "&:hover": {
-              backgroundColor: theme.palette.error.dark,
-            },
+            ...sharedStyle,
           }}>
-          Backspace
+          <Delete size={24} />
         </AppButton>
         <AppButton
-          variant="outlined"
           onClick={onSpace}
           style={{
-            flex: 2,
-            border: `1px solid ${theme.palette.gray[100]}`,
-            backgroundColor: theme.palette.gray[50],
+            width: "100%",
+            ...sharedStyle,
           }}>
-          Space
+          <Space size={28} />
         </AppButton>
       </Stack>
     </Box>
