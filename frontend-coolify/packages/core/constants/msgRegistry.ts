@@ -21,6 +21,14 @@ export const common = {
       tValue: "{{view}}",
       interpolations: { view },
     }),
+    add_selected_media: {
+      tKey: "common:button.add_selected_media",
+      tValue: "Add",
+    },
+    browse_files: {
+      tKey: "common:button.browse_files",
+      tValue: "Browse...",
+    },
     continue: { tKey: "auth:button.continue", tValue: "Continue" },
     explore_funstakes: {
       tKey: "common:button.explore_funstakes",
@@ -39,9 +47,17 @@ export const common = {
       tKey: "common:button.go_to_funstakes",
       tValue: "Go to funstakes.com",
     },
+    gallery_folder_fallback: {
+      tKey: "common:input.label.gallery_folder_fallback",
+      tValue: "Gallery",
+    },
     get_started: {
       tKey: "common:button.get_started",
       tValue: "Get Started",
+    },
+    grant_permission: {
+      tKey: "common:button.grant_permission",
+      tValue: "Grant Permission",
     },
     my_profile: {
       tKey: "common:button.my_profile",
@@ -50,6 +66,10 @@ export const common = {
     refresh: {
       tKey: "common:button.refresh",
       tValue: "Refresh",
+    },
+    request_access: {
+      tKey: "common:button.request_access",
+      tValue: "Access",
     },
     show_more: {
       tKey: "common:button.show_more",
@@ -159,6 +179,11 @@ export const common = {
     connection_unstable_tagline: {
       tKey: "common:feedback.connection_unstable_tagline",
       tValue: "Connection unstable.",
+    },
+    file_permission_tagline: {
+      tKey: "common:feedback.file_permission_tagline",
+      tValue:
+        "Grant storage directory read access to view local gallery media items natively.",
     },
     follow_update_failed_tagline: {
       tKey: "common:feedback.follow_update_failed_tagline",
@@ -560,6 +585,10 @@ export const common = {
       tValue: "{{current}} / {{total}}",
       interpolations: { current, total },
     }),
+    gallery_default_name: {
+      tKey: "common:media.gallery_default_name",
+      tValue: "Gallery Library",
+    },
     media_transfer_progress: {
       tKey: "common:media.media_transfer_progress",
       tValue: "Transfer in Progress",

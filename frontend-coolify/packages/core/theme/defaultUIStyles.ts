@@ -271,6 +271,7 @@ const defaultUIStyles: BaseStylesContainer = {
           "& .MuiInputBase-input": {
             fontSize: "var(--TextField-fontSize)",
             fontWeight: "501",
+            textAlign: "var(--ui-text-align, inherit)" as any,
           },
 
           "& .MuiInputLabel-root": {
@@ -296,6 +297,7 @@ const defaultUIStyles: BaseStylesContainer = {
             fontWeight: "500",
             color: "var(--TextField-default)",
             margin: theme.boxSpacing(4, 0, 0, 0),
+            textAlign: "var(--ui-text-align, inherit)" as any,
           },
           "& .MuiFormHelperText-root.Mui-focused": {
             padding: 0,

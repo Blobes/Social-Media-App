@@ -150,7 +150,7 @@ async function fetchCloudTranslation(
   5. Output ONLY the raw translated string. No markdown, no conversational text.`;
 
   const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/meta/llama-3.1-8b-instruct`,
+    `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/meta/llama-3.3-70b-instruct-fp8-fast`,
     {
       method: "POST",
       headers: {
@@ -165,6 +165,8 @@ async function fetchCloudTranslation(
             content: `Target Language: ${targetLang}\nSource Text: ${text}`,
           },
         ],
+        temperature: 0.0,
+        max_tokens: 1024,
       }),
     },
   );

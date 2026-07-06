@@ -18,3 +18,4 @@ export * from "./src/useGuides";
 export * from "./src/carousel/useBGFade";
 export * from "./src/carousel/useLinear";
 export * from "./src/carousel/useStacked";
+export * from "./src/useKeyboard";

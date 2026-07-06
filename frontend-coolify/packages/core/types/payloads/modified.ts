@@ -21,12 +21,15 @@ export interface ApiError extends Error {
   payload: any | null;
 }
 
-export interface ISinglePayload<T> {
-  message: string;
+export interface APITransMsg {
+  message?: string;
+  i18nKey?: string;
+  interpolations?: Record<string, any>;
+}
+
+export interface ISinglePayload<T> extends APITransMsg {
   payload: T | null;
   status: FetchStatus;
-  i18nKey?: string;
-
   httpStatus?: number;
 }
 

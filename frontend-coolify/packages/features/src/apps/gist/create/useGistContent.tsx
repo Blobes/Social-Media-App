@@ -74,7 +74,7 @@ export const useGistContent = ({
   const {
     compressingIds,
     processingStates,
-    handleFileSelection,
+    handleSelectedFiles,
     handleRemoveFile,
   } = useFileProcessing({
     stagedFiles,
@@ -334,7 +334,7 @@ export const useGistContent = ({
       isMutationLoading || !!moderationTrackingId || compressingIds.length > 0,
     inlineErrMsg,
     processingStates,
-    handleFileSelection,
+    handleSelectedFiles,
     handleRemoveFile,
     handleGistPublish,
     handleNext,

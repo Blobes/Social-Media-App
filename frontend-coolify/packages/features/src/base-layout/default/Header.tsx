@@ -15,7 +15,6 @@ import {
   AnchorLink,
   AppButton,
   SearchBar,
-  LanguageSelector,
   TransText,
 } from "@repo/shared-ui";
 import { asset } from "@repo/assets";
@@ -161,7 +160,6 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
             <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
           </AppButton>
         )}
-        <LanguageSelector />
       </Stack>
     </AppBar>
   );

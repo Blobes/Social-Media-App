@@ -5,8 +5,8 @@ import { Box, Chip, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   AppButton,
-  FileInput,
   InlineMsgUI,
+  MediaFileSelector,
   SelectedMediaFiles,
   TextInput,
   DisplayList as TopicList,
@@ -22,7 +22,7 @@ import {
   POST_INPUT,
 } from "@repo/core";
 import { GistContext } from "./CreateGist";
-import { useStaticTranslation } from "@repo/shared-hooks";
+import { MockMediaFile, useStaticTranslation } from "@repo/shared-hooks";
 
 export interface GistStepProps extends Content {
   gistContext: GistContext;
@@ -45,7 +45,7 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
   const {
     isProcessing,
     inlineErrMsg,
-    handleFileSelection,
+    handleSelectedFiles,
     handleNext,
     topicsMenuRef,
     topicSearchQuery,
@@ -58,8 +58,20 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
     handleTopics,
     handleRemoveTopic,
     handleRemoveFile,
-    processingStates, // Extracted processing states containing live metrics
+    processingStates,
   } = gistContext;
+
+  /**
+   * Adapts modern browser selection outputs back into the contextual raw file handler pipeline.
+   */
+  const handleMediaSelection = (selectedMockFiles: MockMediaFile[]) => {
+    const rawFiles = selectedMockFiles
+      .map((mock) => mock.rawFile)
+      .filter((file): file is File => !!file);
+    if (rawFiles.length > 0) {
+      handleSelectedFiles(rawFiles);
+    }
+  };
 
   return (
     <Box
@@ -89,22 +101,14 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
         />
       </Stack>
 
-      <Stack
-        sx={{
-          flexDirection: "row",
-          alignItems: "center",
-          gap: theme.gap(4),
-          width: "100%",
-        }}>
-        <FileInput
-          onChange={handleFileSelection}
-          disabled={isProcessing}
-          selectedCount={stagedFiles.length}
-        />
-      </Stack>
-
       {stagedFiles.length > 0 && (
         <Stack sx={{ gap: theme.gap(3) }}>
+          <SelectedMediaFiles
+            stagedFiles={stagedFiles}
+            processingStates={processingStates || {}}
+            onRemoveFile={handleRemoveFile}
+            onPreviewClick={() => setStep?.("MEDIA_PREVIEW")}
+          />
           <TransText
             {...COMMON_MEDIA.added_media(stagedFiles.length)}
             sx={{
@@ -113,24 +117,10 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
               fontWeight: 600,
             }}
           />
-          <SelectedMediaFiles
-            stagedFiles={stagedFiles}
-            processingStates={processingStates || {}}
-            onRemoveFile={handleRemoveFile}
-            onPreviewClick={() => setStep?.("MEDIA_PREVIEW")}
-          />
         </Stack>
       )}
 
       <Stack sx={{ gap: theme.gap(2.5) }}>
-        <TransText
-          {...COMMON_MEDIA.added_media(stagedFiles.length)}
-          sx={{
-            ...theme.typography.body3,
-            color: theme.palette.gray[200],
-            fontWeight: 600,
-          }}
-        />
         <TransText
           {...POST_FEEDBACK.categorization_taxonomy}
           sx={{
@@ -174,7 +164,7 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
                   borderRadius: theme.radius[1],
                   "& .MuiChip-deleteIcon": {
                     color: theme.palette.error.light,
-                    "&hover": { color: theme.palette.error.main },
+                    "&:hover": { color: theme.palette.error.main },
                   },
                 }}
               />
@@ -208,6 +198,14 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
           },
         }}
         onItemClick={(item) => handleTopics(item)}
+      />
+
+      <MediaFileSelector
+        initialMaximized={false}
+        isOverlay={false}
+        allowDrag={true}
+        showToggleBtn={true}
+        onFilesSelected={handleMediaSelection}
       />
 
       <AppButton

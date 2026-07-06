@@ -22,6 +22,7 @@ interface MenuProps {
   children?: ReactNode;
   stickToScreen?: boolean;
   heightThreshold?: number;
+  marginThreshold?: number;
   onMenuClose?: () => void;
   style?: GenericStyle;
 }
@@ -31,7 +32,14 @@ interface MenuProps {
  */
 export const MenuPopup = forwardRef<MenuRef, MenuProps>(
   (
-    { children, stickToScreen = true, heightThreshold, onMenuClose, style },
+    {
+      children,
+      stickToScreen = true,
+      heightThreshold,
+      marginThreshold = 16,
+      onMenuClose,
+      style,
+    },
     ref,
   ) => {
     const theme = useTheme();
@@ -61,7 +69,7 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
         onClose={handleClose}
         keepMounted
         disableScrollLock
-        marginThreshold={stickToScreen ? 16 : null}
+        marginThreshold={stickToScreen ? marginThreshold : null}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "left",
@@ -80,11 +88,12 @@ export const MenuPopup = forwardRef<MenuRef, MenuProps>(
               minWidth: 150,
               maxWidth: 300,
               maxHeight: `calc(100vh - ${heightThreshold ?? 20}%)`,
-              marginTop: "8px",
+              marginTop: theme.gap(4),
               ...scrollBarStyle(theme),
               "& ul": {
                 display: "flex",
                 flexDirection: "column",
+                ...style?.ul,
               },
               ...style,
             },

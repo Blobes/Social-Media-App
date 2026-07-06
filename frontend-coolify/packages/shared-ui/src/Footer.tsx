@@ -6,6 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import { AnchorLink } from "./Buttons";
 import { Fragment } from "react";
 import { IMenuItem, IPage } from "@repo/core";
+import { LanguageSelector } from "./Localize";
 
 interface footerProps {
   navList: IMenuItem[];
@@ -25,6 +26,7 @@ export const Footer = ({ navList, navigateTo }: footerProps) => {
         flexWrap: "wrap",
         alignItems: "center",
         justifyContent: "center",
+        gap: theme.gap(2),
         width: "100%",
         padding: theme.boxSpacing(6, 12),
       }}>
@@ -40,9 +42,8 @@ export const Footer = ({ navList, navigateTo }: footerProps) => {
                 );
             }}
             style={{
+              ...theme.typography.overlineLower,
               color: theme.palette.gray[200],
-              fontSize: "12px",
-              fontWeight: "600",
               "&:hover": { color: theme.palette.gray[300] },
             }}>
             {item.title}
@@ -52,11 +53,17 @@ export const Footer = ({ navList, navigateTo }: footerProps) => {
             <Divider
               orientation="vertical"
               flexItem
-              sx={{ mx: 1, height: "14px", width: "unset" }}
+              sx={{ mx: theme.gap(4), height: "14px", width: "unset" }}
             />
           )}
         </Fragment>
       ))}
+      <Divider
+        orientation="vertical"
+        flexItem
+        sx={{ ml: theme.gap(4), height: "14px", width: "unset" }}
+      />
+      <LanguageSelector />
     </Stack>
   );
 };

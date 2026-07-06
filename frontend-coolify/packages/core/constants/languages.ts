@@ -6,7 +6,7 @@ export interface Language {
   flag?: string;
 }
 
-export const LANGUAGES: Language[] = [
+export const LANGUAGES = [
   { title: "English", iso: "en", flag: "🇬🇧" },
   { title: "Español", iso: "es", flag: "🇪🇸" },
   { title: "Français", iso: "fr", flag: "🇫🇷" },
@@ -17,6 +17,10 @@ export const LANGUAGES: Language[] = [
   { title: "日本語", iso: "ja", flag: "🇯🇵" },
   { title: "العربية", iso: "ar", flag: "🇸🇦" },
   { title: "Русский", iso: "ru", flag: "🇷🇺" },
-];
+] as const satisfies readonly Language[];
 
-export const SUPPORTED_ISO_CODES: string[] = LANGUAGES.map((lang) => lang.iso);
+export type SupportedIsoCode = (typeof LANGUAGES)[number]["iso"];
+
+export const SUPPORTED_ISO_CODES: SupportedIsoCode[] = LANGUAGES.map(
+  (lang) => lang.iso,
+);

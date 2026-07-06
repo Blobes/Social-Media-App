@@ -3,7 +3,7 @@
 import { SystemStyleObject } from "@mui/system";
 import { Theme } from "@mui/material/styles";
 import { FetchStatus, IMedia, ITopicPayload, IUser } from "./payloads/modified";
-import { Direction, IStep, TransData } from "./ui-props";
+import { Direction, IStep } from "./ui-props";
 import { CSSProperties } from "react";
 import { Dimensions, MediaType, StorageProvider } from "./payloads/media";
 

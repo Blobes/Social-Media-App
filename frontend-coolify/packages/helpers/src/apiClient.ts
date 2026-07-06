@@ -2,6 +2,7 @@
 
 import {
   ApiError,
+  APITransMsg,
   COMMON_FEEDBACK,
   FetchStatus,
   useGlobalStore,
@@ -10,17 +11,12 @@ import {
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const DEFAULT_TIMEOUT = 60000; // Default timeout in milliseconds (1 minute)
 
-interface APIMessagePayload {
-  i18nKey: string;
-  message?: string;
-  interpolations?: Record<string, string | number>;
-}
 /**
  * Parses and translates structured feedback contracts sent directly from API nodes.
  */
 export const resolveAPIMessage = (
-  payload: APIMessagePayload,
-  fallbackString = "apimessage:auth.server_error",
+  payload: APITransMsg,
+  fallbackKey = "apimessage:auth.server_error",
 ): string => {
   const storeState = useGlobalStore.getState();
   const I18nInstance = storeState.i18nInstance;
@@ -30,8 +26,7 @@ export const resolveAPIMessage = (
 
   if (!payload?.i18nKey)
     return (
-      payload?.message ||
-      I18nInstance.t(fallbackString, { lng: currentLanguage })
+      payload?.message || I18nInstance.t(fallbackKey, { lng: currentLanguage })
     );
   // Route lookups to the isolated apimessage namespace file explicitly
   const translationKey = payload.i18nKey.includes(":")
@@ -84,13 +79,13 @@ export const apiClient = async <T>(
     // HANDLING LOCALIZATION ON FEEDBACK
     if (responseData) {
       const target = responseData.error || responseData;
-      const { i18nKey, values, message } = target;
+      const { i18nKey, interpolations, message } = target;
       if (i18nKey || message) {
         const fallback = response.ok
           ? "apimessage:auth.logged_in_successfully"
           : "apimessage:auth.server_error";
         const localizedString = resolveAPIMessage(
-          { i18nKey, interpolations: values, message },
+          { i18nKey, interpolations, message },
           fallback,
         );
         responseData.message = localizedString;

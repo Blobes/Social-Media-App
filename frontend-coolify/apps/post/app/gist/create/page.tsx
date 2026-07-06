@@ -13,7 +13,7 @@ import { Image, Play } from "lucide-react";
 import { POST_BUTTON_LABELS, POST_INPUT, useGlobalStore } from "@repo/core";
 import { useStaticTranslation } from "@repo/shared-hooks";
 
-export const CreateGist = () => {
+export default function CreateGistPage() {
   const theme = useTheme();
   const authUser = useGlobalStore((state) => state.authUser);
   const { translateTxtString } = useStaticTranslation();
@@ -94,4 +94,4 @@ export const CreateGist = () => {
       </Stack>
     </Stack>
   );
-};
+}

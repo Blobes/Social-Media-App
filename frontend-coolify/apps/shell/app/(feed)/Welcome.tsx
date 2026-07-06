@@ -23,7 +23,6 @@ export const Welcome = () => {
       <Stack
         sx={{
           alignItems: "center",
-          textAlign: "center",
           justifyContent: "center",
           height: "100%",
           width: "100%",
@@ -33,7 +32,7 @@ export const Welcome = () => {
         <TransText
           {...COMMON_FEEDBACK.join_funstakes_headline}
           component="h5"
-          sx={theme.typography.h5}
+          sx={{ ...theme.typography.h5, textAlign: "center" }}
         />
         <AppButton
           href={CLIENT_ROUTES.signup.path}

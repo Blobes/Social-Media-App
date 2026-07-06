@@ -21,7 +21,7 @@ import {
   TextareaAutosize,
   useMediaQuery,
 } from "@mui/material";
-import { Eye, EyeClosed, FileUp } from "lucide-react";
+import { Eye, EyeClosed, FileUp, Keyboard } from "lucide-react";
 import {
   AUTH_INPUT,
   COMMON_INPUT,
@@ -30,10 +30,14 @@ import {
   ITranslation,
   LISTS,
   ListType,
+  SupportedIsoCode,
+  useGlobalStore,
 } from "@repo/core";
 import { formatPhoneNumber, scrollBarStyle } from "@repo/helpers";
 import { DisplayList as CountryList } from "./Menu";
 import { TransText } from "./Text";
+import { useVirtualKeyboard } from "@repo/shared-hooks";
+import { VirtualKeyboard } from "./Keyboard";
 
 export interface InputProps {
   variant?: "outlined" | "filled";
@@ -61,24 +65,54 @@ export interface InputProps {
   style?: GenericStyle;
 }
 
-export const sharedStyle = (theme: any, style: any, value: any) => {
+interface SharedStyle {
+  theme: any;
+  style: any;
+  value: any;
+  currLang?: SupportedIsoCode;
+}
+
+export const sharedStyle = (styleOptions: SharedStyle) => {
+  const { style, theme, value, currLang } = styleOptions;
+
+  const rtlLabel = {
+    default: {
+      right: 0,
+      left: "unset",
+      transform: "translate(-12px, 17px)",
+    },
+    focused: {
+      right: 0,
+      left: "unset",
+      transform: "translate(0px, 7px) scale(0.83)",
+    },
+  };
+  const input = {
+    padding: theme.boxSpacing(7, 4, 2, 4),
+  };
+
   return {
-    [`& .${inputLabelClasses.root}.${inputLabelClasses.focused}, 
-      & .${inputLabelClasses.shrink}`]: {
+    [`& .${inputLabelClasses.root}`]: {
+      ...(currLang === "ar" && rtlLabel.default),
+    },
+    [`& .${inputLabelClasses.root}.${inputLabelClasses.focused}, & .${inputLabelClasses.root}.${inputLabelClasses.shrink}, 
+      & .${inputLabelClasses.root}.${inputLabelClasses.error}`]: {
+      ...(currLang === "ar" && rtlLabel.focused),
       ...style?.label,
     },
     [`& .${outlinedInputClasses.input}`]: {
       color: `${theme?.palette.gray[300]}`,
+      ...input,
       ...style?.input,
     },
     [`& .${outlinedInputClasses.root}`]: {
       ...(value?.length > 0 && {
-        padding: theme?.boxSpacing(8.5, 5, 0.5, 0),
+        ...input,
       }),
       ...style?.outline,
     },
     [`& .${outlinedInputClasses.focused}`]: {
-      padding: theme.boxSpacing(8.5, 5, 0.5, 0),
+      ...input,
       ...style?.outline?.focused,
     },
   };
@@ -103,44 +137,84 @@ export const TextInput = ({
   style,
 }: InputProps) => {
   const theme = useTheme();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const currLang = useGlobalStore((state) => state.currentLanguage);
+
+  const {
+    showKeyboard,
+    setShowKeyboard,
+    useVirtualKeyboard: isVirtualActive,
+    handleKeyInsert,
+    handleBackspace,
+    handleSpace,
+  } = useVirtualKeyboard(inputRef, onChange);
 
   return (
-    <TextField
-      variant={variant}
-      id={id}
-      type={type}
-      value={value}
-      placeholder={placeholder}
-      label={label}
-      helperText={helperText}
-      required={required}
-      disabled={disabled}
-      error={error}
-      size="small"
-      fullWidth
-      {...(affix && {
-        slotProps: {
-          input: {
-            [affixPosition === "start" ? "startAdornment" : "endAdornment"]: (
-              <InputAdornment position={affixPosition}>{affix}</InputAdornment>
-            ),
+    <>
+      <TextField
+        variant={variant}
+        id={id}
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        label={label}
+        helperText={helperText}
+        required={required}
+        disabled={disabled}
+        error={error}
+        size="small"
+        fullWidth
+        {...(affix && {
+          slotProps: {
+            input: {
+              ...(affix && {
+                [affixPosition === "start" ? "startAdornment" : "endAdornment"]:
+                  (
+                    <InputAdornment position={affixPosition}>
+                      {affix}
+                    </InputAdornment>
+                  ),
+              }),
+              ...(isVirtualActive && {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowKeyboard((prev) => !prev)}
+                      size="small">
+                      <Keyboard size={18} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }),
+            },
+            htmlInput: {
+              inputMode: isVirtualActive && showKeyboard ? "none" : "text",
+            },
           },
-        },
-      })}
-      sx={{
-        ...sharedStyle(theme, style, value),
-        ...style,
-      }}
-      onChange={(e) => {
-        onChange && onChange(e);
-      }}
-      onFocus={(e) => {
-        onFocus && onFocus(e);
-      }}
-      onBlur={(e) => {
-        onBlur && onBlur(e);
-      }}
-    />
+        })}
+        sx={{
+          ...sharedStyle({ theme, style, value, currLang }),
+          ...style,
+        }}
+        onChange={(e) => onChange && onChange(e)}
+        onFocus={(e) => {
+          if (isVirtualActive) setShowKeyboard(true);
+          onFocus && onFocus(e);
+        }}
+        onBlur={(e) => {
+          if (e.relatedTarget && e.relatedTarget.closest("[dir='rtl']")) return;
+          onBlur && onBlur(e);
+        }}
+      />
+      {isVirtualActive && showKeyboard && (
+        <VirtualKeyboard
+          onKeyClick={handleKeyInsert}
+          onBackspace={handleBackspace}
+          onSpace={handleSpace}
+          onClose={() => setShowKeyboard(false)}
+        />
+      )}
+    </>
   );
 };
 
@@ -170,6 +244,7 @@ export const PasswordInput = ({
     event.preventDefault();
   };
   const theme = useTheme();
+  const currLang = useGlobalStore((state) => state.currentLanguage);
 
   return (
     <TextField
@@ -186,7 +261,7 @@ export const PasswordInput = ({
       size="small"
       fullWidth
       sx={{
-        ...sharedStyle(theme, style, value),
+        ...sharedStyle({ theme, style, value, currLang }),
         ...style,
       }}
       slotProps={{
@@ -246,6 +321,7 @@ export const PhoneInput = ({
   const { COUNTRY_LIST } = LISTS();
   const countryMenuRef = useRef<any>(null);
   const isCountrySelectedRef = useRef<boolean>(false);
+  const currLang = useGlobalStore((state) => state.currentLanguage);
 
   const handleMenuClose = useCallback(() => {
     if (includeCountryCode && !isCountrySelectedRef.current) {
@@ -303,6 +379,7 @@ export const PhoneInput = ({
         variant={variant}
         id={id}
         type="tel"
+        inputMode="tel"
         value={value}
         placeholder={placeholder}
         label={label}
@@ -313,7 +390,7 @@ export const PhoneInput = ({
         size="small"
         fullWidth
         sx={{
-          ...sharedStyle(theme, style, value),
+          ...sharedStyle({ theme, style, value, currLang }),
           ...style,
         }}
         onChange={handleChange}
@@ -714,7 +791,20 @@ export const ResponsiveTextarea = ({
 }: TextAreaProps) => {
   const [focused, setFocused] = useState(false);
   const [inputValue, setInputValue] = useState(value);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const theme = useTheme();
+
+  const {
+    showKeyboard,
+    setShowKeyboard,
+    useVirtualKeyboard: isVirtualActive,
+    handleKeyInsert,
+    handleBackspace,
+    handleSpace,
+  } = useVirtualKeyboard(textareaRef, onChange);
+
   const shrink = focused || value.length > 0;
+
   return (
     <>
       {label && (
@@ -722,6 +812,20 @@ export const ResponsiveTextarea = ({
           {label}
         </StyledLabel>
       )}
+      {isVirtualActive && (
+        <IconButton
+          onClick={() => setShowKeyboard((prev) => !prev)}
+          size="small"
+          style={{
+            position: "absolute",
+            top: theme.boxSpacing(2),
+            left: theme.boxSpacing(2),
+            zIndex: 2,
+          }}>
+          <Keyboard size={18} />
+        </IconButton>
+      )}
+
       <StyledTextarea
         id="textarea"
         aria-label="Text area"
@@ -732,19 +836,26 @@ export const ResponsiveTextarea = ({
         placeholder={label ? "" : placeholder}
         value={inputValue}
         maxLength={maxLength ?? undefined}
-        onChange={(e: any) => {
-          setInputValue(e.target.value);
-          onChange && onChange(e);
-        }}
+        onChange={(e: any) => onChange && onChange(e)}
         onFocus={(e: any) => {
           setFocused(true);
+          if (isVirtualActive) setShowKeyboard(true);
           onFocus && onFocus(e);
         }}
         onBlur={(e: any) => {
+          if (e.relatedTarget && e.relatedTarget.closest("[dir='rtl']")) return;
           setFocused(false);
           onBlur && onBlur(e);
         }}
       />
+      {isVirtualActive && showKeyboard && (
+        <VirtualKeyboard
+          onKeyClick={handleKeyInsert}
+          onBackspace={handleBackspace}
+          onSpace={handleSpace}
+          onClose={() => setShowKeyboard(false)}
+        />
+      )}
     </>
   );
 };

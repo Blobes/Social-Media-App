@@ -7,6 +7,7 @@ import { i18n as I18nInstance } from "i18next";
 import {
   GlobalThemeProvider,
   SUPPORTED_ISO_CODES,
+  SupportedIsoCode,
   useGlobalStore,
   useSocketStore,
 } from "@repo/core";
@@ -61,11 +62,14 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
     }
 
     // Initialize isolated instance exactly once on mount
-    initializeLocalization(targetLang, SUPPORTED_ISO_CODES).then((instance) => {
+    initializeLocalization(
+      targetLang as SupportedIsoCode,
+      SUPPORTED_ISO_CODES,
+    ).then((instance) => {
       if (!isMounted) return;
       instanceRef.current = instance;
       setI18nInstance(instance);
-      setCurrentLanguage(instance.language);
+      setCurrentLanguage(instance.language as SupportedIsoCode);
     });
 
     return () => {

@@ -62,9 +62,9 @@ export const useSignup = () => {
       return {
         id: item.id, // Keeps 'pass-detail1', 'pass-detail2', etc.
         icon: pass ? (
-          <Check size={16} stroke={theme.palette.success.main} />
+          <Check size={16} stroke={theme.palette.success.dark} />
         ) : undefined,
-        textColor: pass ? theme.palette.success.main : undefined,
+        textColor: pass ? theme.palette.success.dark : undefined,
       };
     });
   }, [password, passwordCriteria, theme]);

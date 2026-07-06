@@ -251,10 +251,10 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
                 height: "76%",
                 [theme.breakpoints.only("md")]: {
                   width: "40cqw",
+                  height: "60%",
                 },
                 [theme.breakpoints.down("md")]: {
                   width: "100cqw",
-                  height: "60%",
                 },
               },
             }}

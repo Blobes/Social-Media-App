@@ -43,3 +43,5 @@ export * from "./src/carousel/BGFade";
 export * from "./src/Localize";
 export * from "./src/Text";
 export * from "./src/media/create/SelectedMedia";
+export * from "./src/media/create/MediaFileSelector";
+export * from "./src/Keyboard";

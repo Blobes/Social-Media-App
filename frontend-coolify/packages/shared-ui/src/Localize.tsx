@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition, useRef } from "react";
 // import parse from "html-react-parser";
-import { MenuItem, ListItemText, Typography } from "@mui/material";
+import { MenuItem, ListItemText } from "@mui/material";
 import { LANGUAGES, MenuRef } from "@repo/core";
 import { MenuPopup } from "./Menu";
 import { AppButton } from "./Buttons";
@@ -26,6 +26,15 @@ export const LanguageSelector: React.FC = () => {
   });
 
   const selectedLangObj = LANGUAGES.find((l) => l.iso === currentLang);
+
+  const SharedItemStyle = {
+    ...theme.typography.body3,
+    borderRadius: theme.radius.full,
+    minHeight: "unset",
+    padding: theme.boxSpacing(4, 6),
+    // my: 0.5,
+    // borderBottom: "1px dashed",
+  };
 
   /**
    * Dispatches unified localized runtime events over global custom layout contexts.
@@ -77,42 +86,31 @@ export const LanguageSelector: React.FC = () => {
           "aria-haspopup": "menu",
           "aria-controls": "navigation-dropdown-tray",
         }}
-        style={{}}>
+        style={{
+          ...theme.typography.overline,
+          color: theme.palette.gray[200],
+        }}>
         {selectedLangObj
-          ? `${selectedLangObj.flag} ${selectedLangObj.title}`
+          ? `${selectedLangObj.flag} ${selectedLangObj.iso}`
           : currentLang}
       </AppButton>
 
-      <MenuPopup ref={menuRef}>
+      <MenuPopup
+        ref={menuRef}
+        heightThreshold={40}
+        marginThreshold={54}
+        style={{ borderRadius: theme.radius[2], ul: { gap: theme.gap(4) } }}>
         {/* System Default Reset Trigger */}
-        <MenuItem
-          onClick={handleResetToDefault}
-          sx={{
-            borderRadius: 1,
-            my: 0.5,
-            borderBottom: "1px dashed",
-            borderColor: "divider",
-          }}>
-          <ListItemText>
-            <Typography sx={{ ...theme.typography.body2, fontWeight: 600 }}>
-              🌐 &nbsp; System Default
-            </Typography>
-          </ListItemText>
+        <MenuItem onClick={handleResetToDefault} sx={SharedItemStyle}>
+          🌐 &nbsp; System
         </MenuItem>
         {LANGUAGES.map((lang) => (
           <MenuItem
             key={lang.iso}
             selected={lang.iso === currentLang}
             onClick={() => handleLangSelect(lang.iso)}
-            sx={{
-              borderRadius: 1,
-              my: 0.5,
-            }}>
-            <ListItemText>
-              <Typography sx={{ ...theme.typography.body2 }}>
-                {lang.flag} &nbsp; {lang.title}
-              </Typography>
-            </ListItemText>
+            sx={SharedItemStyle}>
+            {lang.flag} &nbsp; {lang.title}
           </MenuItem>
         ))}
       </MenuPopup>

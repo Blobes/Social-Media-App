@@ -1,13 +1,13 @@
 "use client";
 
-import { grey, red } from "@mui/material/colors";
+import { green, grey, red } from "@mui/material/colors";
 import { createTheme, PaletteColor } from "@mui/material/styles";
 import defaultUIStyles from "./defaultUIStyles";
 
+// Build a static base theme instance. No dynamic language function parameters here.
 const baseTheme = createTheme({
-  // Enables the native MUI v6 CSS variables engine automatically
   cssVariables: {
-    colorSchemeSelector: "class", // Instructs MUI to monitor the HTML class list for "dark"
+    colorSchemeSelector: "class",
   },
   colorSchemes: {
     light: {
@@ -31,6 +31,11 @@ const baseTheme = createTheme({
               adaptive: "8, 27, 95",
             },
           },
+        },
+        success: {
+          light: green[300],
+          main: green[500],
+          dark: green[700],
         },
         info: {
           light: "#E8EDFF",
@@ -69,6 +74,11 @@ const baseTheme = createTheme({
             },
           },
         },
+        success: {
+          light: green[700],
+          main: green[500],
+          dark: green[300],
+        },
         info: {
           light: "#0A0D1C",
           main: "#E7EBFF",
@@ -92,62 +102,77 @@ const baseTheme = createTheme({
     primary: "#9FAEFF",
     pTrans: "rgba(72, 107, 246, 0.12)",
   } as const,
-  // Base typography structure for native MUI semantic tag variants
   typography: {
     fontFamily:
       "var(--ui-font-family, 'Satoshi','Manrope','Cabinet Grotesk', Arial, sans-serif)",
-    h1: { fontWeight: 600 },
-    h2: { fontWeight: 600 },
+    h1: { fontWeight: 600, textAlign: "var(--ui-text-align, inherit)" as any },
+    h2: { fontWeight: 600, textAlign: "var(--ui-text-align, inherit)" as any },
     h4: {
-      fontSize: "calc(2.5rem * var(--ui-font-scale, 1))", // 40px
+      fontSize: "calc(2.5rem * var(--ui-font-scale, 1))",
       fontWeight: 700,
       lineHeight: 1.2,
+      textAlign: "var(--ui-text-align, inherit)" as any,
     },
     h5: {
       fontWeight: 700,
-      fontSize: "calc(2rem * var(--ui-font-scale, 1))", // 32px
+      fontSize: "calc(2rem * var(--ui-font-scale, 1))",
       lineHeight: 1.4,
+      textAlign: "var(--ui-text-align, inherit)" as any,
     },
     h6: {
       fontWeight: 700,
-      fontSize: "calc(1.625rem * var(--ui-font-scale, 1))", // 26px
+      fontSize: "calc(1.625rem * var(--ui-font-scale, 1))",
       lineHeight: 1.4,
+      textAlign: "var(--ui-text-align, inherit)" as any,
     },
     subtitle1: {
-      fontSize: "calc(1.375rem * var(--ui-font-scale, 1))", // 22px
+      fontSize: "calc(1.375rem * var(--ui-font-scale, 1))",
       fontWeight: 700,
       lineHeight: 1.4,
+      textAlign: "var(--ui-text-align, inherit)" as any,
     },
     body1: {
-      fontSize: "calc(1.125rem * var(--ui-font-scale, 1))", // 18px
+      fontSize: "calc(1.125rem * var(--ui-font-scale, 1))",
       fontWeight: 600,
       lineHeight: 1.3,
+      textAlign: "var(--ui-text-align, inherit)" as any,
     },
     body2: {
-      fontSize: "calc(1rem * var(--ui-font-scale, 1))", // 16px
+      fontSize: "calc(1rem * var(--ui-font-scale, 1))",
       fontWeight: 500,
       lineHeight: 1.4,
+      textAlign: "var(--ui-text-align, inherit)" as any,
     },
     body3: {
-      fontSize: "calc(0.9375rem * var(--ui-font-scale, 1))", // 15px
+      fontSize: "calc(0.9375rem * var(--ui-font-scale, 1))",
       fontWeight: 500,
       lineHeight: 1.4,
+      textAlign: "var(--ui-text-align, inherit)" as any,
     },
     caption: {
-      fontSize: "calc(0.875rem * var(--ui-font-scale, 1))", // 14px
+      fontSize: "calc(0.875rem * var(--ui-font-scale, 1))",
       fontWeight: 500,
       lineHeight: 1.4,
+      textAlign: "var(--ui-text-align, inherit)" as any,
     },
     overline: {
-      fontSize: "calc(0.8125rem * var(--ui-font-scale, 1))", // 13px
+      fontSize: "calc(0.8125rem * var(--ui-font-scale, 1))",
       fontWeight: 600,
       textTransform: "uppercase",
       letterSpacing: 0.05,
+      textAlign: "var(--ui-text-align, inherit)" as any,
+    },
+    overlineLower: {
+      fontSize: "calc(0.8125rem * var(--ui-font-scale, 1))",
+      fontWeight: 600,
+      letterSpacing: 0.05,
+      textAlign: "var(--ui-text-align, inherit)" as any,
     },
     button: {
       textTransform: "unset",
-      fontSize: "calc(1rem * var(--ui-font-scale, 1))", // 16px
+      fontSize: "calc(1rem * var(--ui-font-scale, 1))",
       fontWeight: 600,
+      textAlign: "var(--ui-text-align, inherit)" as any,
     },
   },
   radius: {
@@ -175,7 +200,6 @@ baseTheme.palette.primary = {
   dark: "var(--mui-palette-primary-dark)",
 } as PaletteColor;
 
-// Map the top-level palette fields directly to CSS variables.
 baseTheme.palette.gray = {
   0: "var(--mui-palette-gray-0)",
   50: "var(--mui-palette-gray-50)",
@@ -194,6 +218,12 @@ baseTheme.palette.gray = {
   },
 };
 
+baseTheme.palette.success = {
+  light: "var(--mui-palette-success-light)",
+  main: "var(--mui-palette-success-main)",
+  dark: "var(--mui-palette-success-dark)",
+} as PaletteColor;
+
 baseTheme.palette.info = {
   light: "var(--mui-palette-info-light)",
   main: "var(--mui-palette-info-main)",
@@ -208,6 +238,5 @@ baseTheme.palette.error = {
 } as PaletteColor;
 
 baseTheme.components = defaultUIStyles.components as any;
-const globalTheme = baseTheme;
 
-export default globalTheme;
+export default baseTheme;

@@ -1,14 +1,45 @@
 "use client";
 
-import { useState, useEffect, useCallback, ChangeEvent } from "react";
-import { MediaProcessingProgress, QUEUE_KEYS, TrackedFile } from "@repo/core";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  ChangeEvent,
+  useMemo,
+  useRef,
+} from "react";
+import {
+  COMMON_MEDIA,
+  MediaProcessingProgress,
+  MenuRef,
+  QUEUE_KEYS,
+  TrackedFile,
+} from "@repo/core";
 import { checkDeviceCapability, compressVideoAsync } from "@repo/helpers";
+import { useStaticTranslation } from "./useTrans";
 
 export interface UseFileProcessingProps {
   stagedFiles: File[];
   setStagedFiles: React.Dispatch<React.SetStateAction<File[]>>;
   setErrorMessage: (msg: string | null) => void;
   shouldCompress?: boolean;
+}
+export interface MockMediaFile {
+  id: string;
+  url: string;
+  type: "IMAGE" | "VIDEO";
+  name: string;
+  rawFile?: File;
+}
+export interface MediaFolder {
+  id: string;
+  name: string;
+  files: MockMediaFile[];
+}
+interface UseMediaFileSelectorProps {
+  initialMaximized?: boolean;
+  allowDrag?: boolean;
+  onFilesSelected?: (files: MockMediaFile[]) => void;
 }
 
 /**
@@ -22,17 +53,23 @@ export const useFileProcessing = ({
 }: UseFileProcessingProps) => {
   const [compressingIds, setCompressingIds] = useState<string[]>([]);
 
-  // Leverage the progression hook internally to monitor event channels
   const { processingStates } = useFileProcessingProgress(stagedFiles);
 
   /**
    * Processes raw inputs, attaches tracking variables, and pushes video streams to background workers when flag criteria are met.
    */
-  const handleFileSelection = useCallback(
-    async (e: ChangeEvent<HTMLInputElement>) => {
-      if (!e.target.files) return;
+  const handleSelectedFiles = useCallback(
+    async (input: ChangeEvent<HTMLInputElement> | File[]) => {
+      let rawFiles: File[] = [];
 
-      const rawFiles = Array.from(e.target.files);
+      if (Array.isArray(input)) {
+        rawFiles = input;
+      } else if (input?.target?.files) {
+        rawFiles = Array.from(input.target.files);
+      } else {
+        return;
+      }
+
       const processedFiles: File[] = [];
 
       for (const file of rawFiles) {
@@ -55,6 +92,7 @@ export const useFileProcessing = ({
           highPerformanceAvailable
         ) {
           const tId = (file as TrackedFile).trackingId;
+          if (!tId) return;
 
           setCompressingIds((prev) => [...prev, tId]);
 
@@ -111,8 +149,8 @@ export const useFileProcessing = ({
 
   return {
     compressingIds,
-    processingStates, // Directly exposes your structured processing states down to consumption layers
-    handleFileSelection,
+    processingStates,
+    handleSelectedFiles,
     handleRemoveFile,
   };
 };
@@ -204,4 +242,232 @@ export const useFileProcessingProgress = (files: File[]) => {
   }, [files]);
 
   return { processingStates };
+};
+
+/**
+ * Handles internal state matrices for asset isolation, current directory tracking, toggles, and swipe gestures.
+ */
+export const useMediaFileSelector = ({
+  initialMaximized = false,
+  allowDrag = true,
+  onFilesSelected,
+}: UseMediaFileSelectorProps) => {
+  const { translateTxtString } = useStaticTranslation();
+  const [folders, setFolders] = useState<MediaFolder[]>([
+    {
+      id: "gallery",
+      name: translateTxtString(COMMON_MEDIA.gallery_default_name),
+      files: [],
+    },
+  ]);
+  const [currentFolderId, setCurrentFolderId] = useState<string>("gallery");
+  const [selectedFiles, setSelectedFiles] = useState<MockMediaFile[]>([]);
+  const [isMaximized, setIsMaximized] = useState(initialMaximized);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [permissionStatus, setPermissionStatus] = useState<
+    PermissionState | "unrequested"
+  >("unrequested");
+
+  const dragConstraintsRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<MenuRef>(null);
+  const directoryHandleRef = useRef<FileSystemDirectoryHandle | null>(null);
+
+  const currentFolder = useMemo(() => {
+    return folders.find((f) => f.id === currentFolderId) || folders[0] || null;
+  }, [folders, currentFolderId]);
+
+  const minimizedMediaList = useMemo(() => {
+    if (!currentFolder) return [];
+    return currentFolder.files.slice(0, 9);
+  }, [currentFolder]);
+
+  /**
+   * Scans a system directory handle recursively to resolve media asset records into state.
+   */
+  const readDirectoryAssets = async (dirHandle: FileSystemDirectoryHandle) => {
+    try {
+      const discoveredFiles: MockMediaFile[] = [];
+
+      for await (const entry of dirHandle.values()) {
+        if (entry.kind === "file") {
+          const file = await entry.getFile();
+          const isImage = file.type.startsWith("image/");
+          const isVideo = file.type.startsWith("video/");
+
+          if (isImage || isVideo) {
+            discoveredFiles.push({
+              id: `${file.name}-${file.size}`,
+              url: URL.createObjectURL(file),
+              type: isVideo ? "VIDEO" : "IMAGE",
+              name: file.name,
+              rawFile: file,
+            });
+          }
+        }
+      }
+
+      setFolders([
+        {
+          id: "gallery",
+          name: translateTxtString(COMMON_MEDIA.gallery_default_name),
+          files: discoveredFiles,
+        },
+      ]);
+      setPermissionStatus("granted");
+    } catch (error) {
+      setPermissionStatus("denied");
+    }
+  };
+
+  /**
+   * Triggers an explicit system prompt asking the user to designate a working media folder directory.
+   */
+  const handleRequestPermission = async () => {
+    try {
+      if (!window.showDirectoryPicker) {
+        handleTriggerNativeBrowse();
+        return;
+      }
+
+      const handle = await window.showDirectoryPicker({
+        mode: "read",
+      });
+
+      directoryHandleRef.current = handle;
+      await readDirectoryAssets(handle);
+    } catch (err) {
+      setPermissionStatus("denied");
+    }
+  };
+
+  /**
+   * Attempts to verify if system storage folder access privileges persist on initial mount execution.
+   */
+  useEffect(() => {
+    const checkExistingPermissions = async () => {
+      if (!window.showDirectoryPicker || !directoryHandleRef.current) {
+        setPermissionStatus("unrequested");
+        return;
+      }
+
+      try {
+        const status = await directoryHandleRef.current.queryPermission({
+          mode: "read",
+        });
+        setPermissionStatus(status);
+
+        if (status === "granted") {
+          await readDirectoryAssets(directoryHandleRef.current);
+        }
+      } catch {
+        setPermissionStatus("unrequested");
+      }
+    };
+
+    checkExistingPermissions();
+  }, []);
+
+  const handleOpenFolderMenu = (event: React.MouseEvent<HTMLElement>) => {
+    menuRef.current?.openMenu(event.currentTarget);
+    setIsMenuOpen(true);
+  };
+
+  const handleCloseFolderMenu = () => {
+    menuRef.current?.closeMenu();
+    setIsMenuOpen(false);
+  };
+
+  const handleSelectFolder = (folderId: string) => {
+    setCurrentFolderId(folderId);
+    handleCloseFolderMenu();
+  };
+
+  const handleToggleSelectFile = (file: MockMediaFile) => {
+    setSelectedFiles((prev) => {
+      const isAlreadySelected = prev.some((item) => item.id === file.id);
+      if (isAlreadySelected) {
+        return prev.filter((item) => item.id !== file.id);
+      } else {
+        return [...prev, file];
+      }
+    });
+  };
+
+  const handleConfirmSelection = () => {
+    if (onFilesSelected) {
+      onFilesSelected(selectedFiles);
+    }
+  };
+
+  /**
+   * Spawns a clean file input window in the background to access local storage media paths.
+   */
+  const handleTriggerNativeBrowse = () => {
+    handleCloseFolderMenu();
+
+    const input = document.createElement("input");
+    input.type = "file";
+    input.multiple = true;
+    input.accept = "image/*,video/*";
+
+    input.onchange = (e: Event) => {
+      const filesList = (e.target as HTMLInputElement).files;
+      if (!filesList) return;
+
+      const filesArray = Array.from(filesList);
+      const mappedFiles: MockMediaFile[] = filesArray.map((file, idx) => ({
+        id: `${file.name}-${idx}-${Date.now()}`,
+        url: URL.createObjectURL(file),
+        type: file.type.startsWith("video") ? "VIDEO" : "IMAGE",
+        name: file.name,
+        rawFile: file,
+      }));
+
+      setFolders((prevFolders) => {
+        return prevFolders.map((folder) => {
+          if (folder.id === currentFolderId) {
+            return {
+              ...folder,
+              files: [...mappedFiles, ...folder.files],
+            };
+          }
+          return folder;
+        });
+      });
+      setPermissionStatus("granted");
+    };
+
+    input.click();
+  };
+
+  /**
+   * Evaluates mechanical swipe limits on targeted interface panels to expand layout views.
+   */
+  const handleDragEnd = (_event: any, info: any) => {
+    if (!allowDrag) return;
+    if (info.offset.y < -60) {
+      setIsMaximized(true);
+    }
+  };
+
+  return {
+    folders,
+    isMaximized,
+    setIsMaximized,
+    currentFolder,
+    minimizedMediaList,
+    selectedFiles,
+    isMenuOpen,
+    menuRef,
+    dragConstraintsRef,
+    permissionStatus,
+    handleOpenFolderMenu,
+    handleCloseFolderMenu,
+    handleSelectFolder,
+    handleToggleSelectFile,
+    handleConfirmSelection,
+    handleTriggerNativeBrowse,
+    handleRequestPermission,
+    handleDragEnd,
+  };
 };

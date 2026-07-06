@@ -13,6 +13,7 @@ import {
   CLIENT_ROUTES,
   IMessage,
   AccountStatus,
+  SupportedIsoCode,
 } from "@repo/core";
 
 /** * Defines the shape and actions of the global application store.
@@ -27,8 +28,8 @@ interface GlobalState {
   // Language
   i18nInstance: I18nInstance | null;
   setI18nInstance: (instance: I18nInstance) => void;
-  currentLanguage: string;
-  setCurrentLanguage: (lang: string) => void;
+  currentLanguage: SupportedIsoCode;
+  setCurrentLanguage: (lang: SupportedIsoCode) => void;
 
   // User Account State
   accountStatus: AccountStatus;
