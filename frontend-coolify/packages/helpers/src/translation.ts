@@ -15,7 +15,7 @@ export const initializeLocalization = async (
   const instance = i18n.createInstance();
 
   const isDevelopment = process.env.NODE_ENV === "development";
-  const CDN_HOST = process.env.NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST;
+  const CDN_HOST = process.env.CLOUDFLARE_UPLOAD_HOST;
 
   const loadPath = isDevelopment
     ? `/locale/versions/{{lng}}/{{ns}}.json?v=${process.env.NEXT_PUBLIC_APP_VERSION || Date.now()}`

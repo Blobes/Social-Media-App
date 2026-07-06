@@ -95,7 +95,8 @@ export const sharedStyle = (styleOptions: SharedStyle) => {
     [`& .${inputLabelClasses.root}`]: {
       ...(currLang === "ar" && rtlLabel.default),
     },
-    [`& .${inputLabelClasses.root}.${inputLabelClasses.focused}, & .${inputLabelClasses.root}.${inputLabelClasses.shrink}, 
+    [`& .${inputLabelClasses.root}.${inputLabelClasses.focused}, 
+      & .${inputLabelClasses.root}.${inputLabelClasses.shrink}, 
       & .${inputLabelClasses.root}.${inputLabelClasses.error}`]: {
       ...(currLang === "ar" && rtlLabel.focused),
       ...style?.label,

@@ -8,7 +8,7 @@
     "BASE_URL",
     "AUTH_URL",
     "POST_URL",
-    "NEXT_PUBLIC_CLOUDFLARE_UPLOAD_HOST",
+    "CLOUDFLARE_UPLOAD_HOST",
     "NEXT_PUBLIC_APP_VERSION"
   ],
   "tasks": {

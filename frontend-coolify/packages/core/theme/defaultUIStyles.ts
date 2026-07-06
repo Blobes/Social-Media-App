@@ -283,7 +283,7 @@ const defaultUIStyles: BaseStylesContainer = {
           },
           "& label.Mui-focused, & label.MuiInputLabel-shrink": {
             color: "var(--TextField-default)",
-            transform: "translate(15px, 7px) scale(0.83)",
+            transform: "translate(16px, 7px) scale(0.83)",
             borderRadius: theme.radius[1],
             padding: 0,
           },
