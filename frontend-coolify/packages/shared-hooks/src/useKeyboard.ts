@@ -21,6 +21,13 @@ export const useVirtualKeyboard = (
       currentLanguage || "",
     );
 
+    // const FORCE_KEYBOARD_TESTING = true;
+
+    // if (FORCE_KEYBOARD_TESTING) {
+    //   setUseVirtualKeyboard(needsVirtualLayout);
+    //   return;
+    // }
+
     if (needsVirtualLayout) {
       // Evaluate if the active app language matches the primary detected browser locale layout
       const browserLang = getBrowserLanguage();

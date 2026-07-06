@@ -1,3 +1,4 @@
+import { SupportedIsoCode } from "@repo/core/constants/languages";
 import { AuthStepName } from "../ui-state";
 
 export type UserRole = "USER" | "ADMIN" | "MODERATOR";
@@ -100,7 +101,7 @@ export interface IUserPayload {
   followingCount?: number;
   preferences?: {
     showSensitiveGraphic: boolean;
-    preferredLanguage: string;
+    preferredLanguage: SupportedIsoCode;
     preferredTopics: Array<{
       topicId: string;
       title: string;

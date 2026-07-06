@@ -32,11 +32,9 @@ export const DynamicCaption: React.FC<DynamicCaptionProps> = ({
   style = {},
 }) => {
   const theme = useTheme();
-  const { i18n } = useTranslation();
-
+  const userSelectedLanguage = useGlobalStore((state) => state.currentLanguage);
   const userPreferredLanguage = useGlobalStore((state) => state.authUser)
     ?.preferences?.preferredLanguage;
-  const userSelectedLanguage = i18n.language;
   const browserLanguage = getBrowserLanguage();
 
   const postSourceLang = detectedLanguage.toLowerCase();
@@ -47,31 +45,29 @@ export const DynamicCaption: React.FC<DynamicCaptionProps> = ({
   const targetLanguage = useMemo(() => {
     // 1. Profile Preference Fallback Layer
     if (userPreferredLanguage) {
-      const preferred = userPreferredLanguage.toLowerCase();
       if (
-        preferred !== postSourceLang &&
-        SUPPORTED_ISO_CODES.includes(preferred)
-      ) {
-        return preferred;
-      }
+        userPreferredLanguage !== postSourceLang &&
+        SUPPORTED_ISO_CODES.includes(userPreferredLanguage)
+      )
+        return userPreferredLanguage;
     }
 
     // 2. Runtime UI Instance Selection Fallback Layer
     if (userSelectedLanguage) {
-      const selected = userSelectedLanguage.toLowerCase();
       if (
-        selected !== postSourceLang &&
-        SUPPORTED_ISO_CODES.includes(selected)
-      ) {
-        return selected;
-      }
+        userSelectedLanguage !== postSourceLang &&
+        SUPPORTED_ISO_CODES.includes(userSelectedLanguage)
+      )
+        return userSelectedLanguage;
     }
 
     // 3. Client System Environment Configuration Baseline
     if (browserLanguage) {
-      const browser = browserLanguage.toLowerCase();
-      if (browser !== postSourceLang && SUPPORTED_ISO_CODES.includes(browser)) {
-        return browser;
+      if (
+        browserLanguage !== postSourceLang &&
+        SUPPORTED_ISO_CODES.includes(browserLanguage)
+      ) {
+        return browserLanguage;
       }
     }
 
