@@ -1,6 +1,5 @@
 import { UserModel } from "@repo/database";
 import { FUNSTAKES_REDIS_URL } from "@/envVars";
-import bcrypt from "bcrypt";
 import {
   evaluateNotability,
   genVerificationCode,
@@ -11,6 +10,7 @@ import {
   cleanDeviceSessions,
   TransInfo,
   MESSAGES_REGISTRY,
+  verifyEncryptedPass,
 } from "@repo/shared";
 
 interface IInitiateEmailChangeInput {
@@ -103,7 +103,7 @@ export const initiateEmailChange = async (
         transInfo: MESSAGES_REGISTRY.AUTH.NO_PASSWORD_SET,
       };
     }
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await verifyEncryptedPass(password, user.password);
     if (!isMatch) {
       return {
         status: "INCORRECT_PASSWORD",

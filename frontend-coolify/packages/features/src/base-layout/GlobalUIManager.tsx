@@ -8,6 +8,7 @@ import {
   PageLoaderUI,
   OfflinePromptUI,
   NetworkGlitchUI,
+  VirtualKeyboard,
 } from "@repo/shared-ui";
 import { usePathname } from "next/navigation";
 import { registerSW, delay, getFromLocalStorage } from "@repo/helpers";
@@ -154,6 +155,8 @@ export const GlobalUIManager = ({
       )}
       {drawerContent && <Drawer ref={drawerRef} {...drawerContent} />}
       {modalContent && <Modal ref={modalRef} {...modalContent} />}
+      {/* Virtual keyboard */}
+      <VirtualKeyboard />
     </>
   );
 };

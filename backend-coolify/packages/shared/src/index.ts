@@ -42,7 +42,7 @@ export * from "./utils/misc/calculations";
 export * from "./utils/misc/checkNotability";
 export * from "./utils/misc/sanitizeData";
 export * from "./services/post/feedProcessor";
-export * from "./utils/misc/genCodes";
+export * from "./utils/misc/hash";
 export * from "./services/session";
 export * from "./utils/misc/topic";
 export * from "./utils/redis/cache";

@@ -67,7 +67,7 @@ export const NetworkGlitchUI = ({
                 maxWidth: "40%",
               },
             },
-            tagline: { color: theme.palette.gray[200] },
+            tagline: { color: theme.palette.gray[200], textAlign: "center" },
             icon: {
               width: "60px",
               height: "60px",

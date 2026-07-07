@@ -83,3 +83,55 @@ export const sanitizePhoneNumber = (
 
   return `${prefix}${digits}`;
 };
+
+interface FormatPhoneResult {
+  nextVal: string;
+  nextCursor: number;
+  shouldReset: boolean;
+  shouldOpenMenu: boolean;
+}
+
+/**
+ * Transforms raw inputs into formatted phone values and manages cursor shifts for hardware or software entries.
+ */
+export const processPhoneFormatting = (
+  rawValue: string,
+  currentCursor: number,
+  isDeleting: boolean,
+  includeCountryCode: boolean,
+  isCountrySelected: boolean,
+): FormatPhoneResult => {
+  let nextVal = rawValue;
+  let nextCursor = currentCursor;
+
+  if (includeCountryCode && isDeleting && nextVal.length <= 6) {
+    return {
+      nextVal: "",
+      nextCursor: 0,
+      shouldReset: true,
+      shouldOpenMenu: false,
+    };
+  }
+
+  const shouldOpenMenu = !!(
+    includeCountryCode &&
+    !isDeleting &&
+    nextVal.length > 0 &&
+    !isCountrySelected
+  );
+
+  const oldLen = nextVal.length;
+  nextVal = formatPhoneNumber(nextVal);
+  const newLen = nextVal.length;
+
+  if (!isDeleting) {
+    nextCursor = nextCursor + (newLen - oldLen);
+  }
+
+  return {
+    nextVal,
+    nextCursor,
+    shouldReset: false,
+    shouldOpenMenu,
+  };
+};

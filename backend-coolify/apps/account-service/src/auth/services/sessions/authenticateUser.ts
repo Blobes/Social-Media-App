@@ -11,8 +11,8 @@ import {
   evaluateDeviceTrust,
   MESSAGES_REGISTRY,
   TransInfo,
+  verifyEncryptedPass,
 } from "@repo/shared";
-import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import { CheckType, executeAccountCheck } from "../accountChecker";
 
@@ -108,7 +108,8 @@ export const authenticateUser = async (
     };
   }
 
-  const isMatch = await bcrypt.compare(password, user.password);
+  // const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = await verifyEncryptedPass(password, user.password);
   if (!isMatch) {
     return {
       status: "UNAUTHORIZED",

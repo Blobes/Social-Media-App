@@ -1,11 +1,12 @@
 import { UserModel } from "@repo/database";
-import bcrypt from "bcrypt";
 import {
   CACHE_KEYS,
   invalidateCache,
   cleanDeviceSessions,
   TransInfo,
   MESSAGES_REGISTRY,
+  verifyEncryptedPass,
+  encryptPass,
 } from "@repo/shared";
 
 export type PasswordPurpose = "CREATE_PASSWORD" | "CHANGE_PASSWORD";
@@ -73,8 +74,7 @@ export const executePasswordUpdate = async (
         transInfo: MESSAGES_REGISTRY.AUTH.CURRENT_PASSWORD_REQUIRED,
       };
     }
-
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    const isMatch = await verifyEncryptedPass(currentPassword, user.password);
     if (!isMatch) {
       return {
         status: "INCORRECT_CURRENT_PASSWORD",
@@ -82,7 +82,10 @@ export const executePasswordUpdate = async (
       };
     }
 
-    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    const isSamePassword = await verifyEncryptedPass(
+      newPassword,
+      user.password,
+    );
     if (isSamePassword) {
       return {
         status: "PASSWORD_REUSE_FORBIDDEN",
@@ -92,8 +95,7 @@ export const executePasswordUpdate = async (
   }
 
   // Cryptographic mutation and update operations
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(newPassword, salt);
+  user.password = await encryptPass(newPassword);
   await user.save();
 
   // Nuke secondary environments to isolate security contexts

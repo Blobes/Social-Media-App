@@ -52,6 +52,20 @@ interface GlobalState {
   // Time
   now: number;
 
+  // Virtual Keyboard
+  activeInputRef: React.RefObject<
+    HTMLInputElement | HTMLTextAreaElement | null
+  > | null;
+  activeOnChange: ((event: any) => void) | null;
+  activeFieldType: "text" | "tel" | "number" | "phone-formatted" | null;
+  isKeyboardVisible: boolean;
+  setActiveInput: (
+    ref: React.RefObject<HTMLInputElement | HTMLTextAreaElement | null> | null,
+    onChange: ((event: any) => void) | null,
+    fieldType?: "text" | "tel" | "number" | "phone-formatted" | null,
+  ) => void;
+  setKeyboardVisible: (visible: boolean) => void;
+
   // Actions
   setAuthStatus: (status: AuthStatus) => void;
   setAuthUser: (user: IUser | null) => void;
@@ -159,4 +173,17 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   updateNow: () => set({ now: Date.now() }),
 
   setTransitData: (data) => set({ transitData: data }),
+
+  // Virtual Keyboard
+  activeInputRef: null,
+  activeOnChange: null,
+  activeFieldType: null,
+  isKeyboardVisible: false,
+  setActiveInput: (ref, onChange, fieldType) =>
+    set({
+      activeInputRef: ref,
+      activeOnChange: onChange,
+      activeFieldType: fieldType,
+    }),
+  setKeyboardVisible: (visible) => set({ isKeyboardVisible: visible }),
 }));

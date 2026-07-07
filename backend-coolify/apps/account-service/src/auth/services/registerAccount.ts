@@ -12,8 +12,8 @@ import {
   enqueueOtpTask,
   MESSAGES_REGISTRY,
   TransInfo,
+  encryptPass,
 } from "@repo/shared";
-import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import { executeAccountCheck } from "./accountChecker";
 
@@ -74,9 +74,10 @@ export const registerUserAccount = async (
     }
   }
 
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
+  // const salt = await bcrypt.genSalt(10);
+  // const hashedPassword = await bcrypt.hash(password, salt);
 
+  const hashedPassword = await encryptPass(password);
   const code = genVerificationCode();
   const userLocation = await getLocationFromIp(ipAddress);
   const sessionId = uuidv4();

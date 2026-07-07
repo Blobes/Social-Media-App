@@ -24,6 +24,7 @@ export interface IUser {
   // --- 1. CORE IDENTITY ---
   email: string;
   username?: string;
+  usernameCanonical?: string;
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;

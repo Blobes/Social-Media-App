@@ -34,12 +34,22 @@ export const useSignup = () => {
   const { handleSuccess, handleError } = useSignupFeedback({ email });
 
   const passwordCriteria = useMemo(() => {
+    const hasAnyLetter = /\p{Letter}/u.test(password);
+    const containsCasedScript = /\p{Cased_Letter}/u.test(password);
+
+    const isLowercaseValid = containsCasedScript
+      ? /\p{Lowercase_Letter}/u.test(password)
+      : hasAnyLetter;
+    const isUppercaseValid = containsCasedScript
+      ? /\p{Uppercase_Letter}/u.test(password)
+      : hasAnyLetter;
+
     return {
       hasMinLength: password.length >= 8,
-      hasLowercase: /[a-z]/.test(password),
-      hasUppercase: /[A-Z]/.test(password),
-      hasNumeric: /[0-9]/.test(password),
-      hasSpecial: /[^A-Za-z0-9]/.test(password),
+      hasLowercase: isLowercaseValid,
+      hasUppercase: isUppercaseValid,
+      hasNumeric: /\p{Number}/u.test(password),
+      hasSpecial: /[\p{Punctuation}\p{Symbol}]/u.test(password),
     };
   }, [password]);
 

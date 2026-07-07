@@ -16,6 +16,7 @@ export type TransTextProps<C extends React.ElementType = "p"> = ITranslation & {
   isLiveAlert?: boolean;
   tooltip?: TooltipProps;
   trimCount?: number;
+  breakWord?: boolean;
 } & Omit<TypographyProps<C, { component?: C }>, "classes" | "component">;
 
 type ReactI18nComponents =
@@ -37,6 +38,7 @@ export const TransText = <C extends React.ElementType = "p">({
   isLiveAlert = false,
   tooltip,
   trimCount = 0,
+  breakWord = false,
   ...typographyProps
 }: TransTextProps<C>) => {
   const activeI18nInstance = useGlobalStore((state) => state.i18nInstance);
@@ -45,6 +47,13 @@ export const TransText = <C extends React.ElementType = "p">({
 
   // Evaluate structural overrides using the target lineClamp design function if trimCount is active
   const extendedSx = {
+    ...(breakWord
+      ? {
+          overflowWrap: "break-word", // Recommended standard
+          wordBreak: "break-word", // Backward compatibility
+          whiteSpace: "normal",
+        }
+      : {}),
     ...(trimCount > 0 ? lineClamp(trimCount) : {}),
     ...typographyProps.sx,
   };

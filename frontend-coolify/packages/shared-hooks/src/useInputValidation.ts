@@ -13,12 +13,15 @@ interface Input {
 }
 
 /**
- * Validates an email address based on general format, length of local/domain
- * parts, and common domain restrictions (e.g., no double dots).
+ * Validates text inputs, credentials, and password compliance across multiple supported international locales.
  */
 export const useInputValidation = () => {
   const { translateTxtString } = useStaticTranslation();
 
+  /**
+   * Validates an email address based on general format, length of local/domain
+   * parts, and common domain restrictions (e.g., no double dots).
+   */
   const validateEmail = (email: string): InputValidation => {
     if (!email || email.trim().length === 0) {
       return {
@@ -73,7 +76,7 @@ export const useInputValidation = () => {
 
   /**
    * Validates a phone number:
-   * 1. Checks if it contains only valid characters (digits, +, -, (, ), space)
+   * 1. Checks if it contains only valid characters (digits, +, -, (, ), space) across script formats
    * 2. Ensures a minimum length (standard is ~10 digits globally for mobile)
    * 3. Normalizes briefly to check digit count
    */
@@ -88,7 +91,7 @@ export const useInputValidation = () => {
       };
     }
 
-    const validChars = /^[\d\s\-+()]+$/;
+    const validChars = /^[\p{Number}\s\-+()]+$/u;
     if (!validChars.test(trimmed)) {
       return {
         status: "INVALID",
@@ -98,7 +101,8 @@ export const useInputValidation = () => {
       };
     }
 
-    const digitCount = trimmed.replace(/\D/g, "").length;
+    const normalizedDigits = trimmed.replace(/[^\p{Number}]/gu, "");
+    const digitCount = normalizedDigits.length;
 
     if (digitCount < 10) {
       return {
@@ -121,9 +125,8 @@ export const useInputValidation = () => {
   };
 
   /**
-   * Validates a password's strength:
-   * Requires min 8 characters, at least one uppercase, one lowercase,
-   * one number, and one special character.
+   * Validates a password's strength checking case, digits, and special characters globally.
+   * Utilizes safe lookahead validations to accurately parse Latin and non-Latin character variations.
    */
   const validatePassword = (password: string): InputValidation => {
     const input = password ?? "";
@@ -143,7 +146,9 @@ export const useInputValidation = () => {
       };
     }
 
-    if (!/[a-z]/.test(input)) {
+    // 1. Enforce that the password contains at least one valid global letter variant (\p{Letter})
+    const hasAnyLetter = /\p{Letter}/u.test(input);
+    if (!hasAnyLetter) {
       return {
         id: "pass-detail-2",
         status: "INVALID",
@@ -153,17 +158,33 @@ export const useInputValidation = () => {
       };
     }
 
-    if (!/[A-Z]/.test(input)) {
-      return {
-        id: "pas-sdetail-3",
-        status: "INVALID",
-        message: translateTxtString(
-          COMMON_INPUT_VALIDATION.password_missing_uppercase,
-        ),
-      };
+    // 2. Conditionally evaluate casing rules ONLY if the user typed characters from a script that utilizes case variations
+    const containsCasedScript = /\p{Cased_Letter}/u.test(input);
+    if (containsCasedScript) {
+      if (!/\p{Lowercase_Letter}/u.test(input)) {
+        return {
+          id: "pass-detail-2",
+          status: "INVALID",
+          message: translateTxtString(
+            COMMON_INPUT_VALIDATION.password_missing_lowercase,
+          ),
+        };
+      }
+
+      if (!/\p{Uppercase_Letter}/u.test(input)) {
+        return {
+          id: "pas-sdetail-3",
+          status: "INVALID",
+          message: translateTxtString(
+            COMMON_INPUT_VALIDATION.password_missing_uppercase,
+          ),
+        };
+      }
     }
 
-    if (!/[0-9]/.test(input)) {
+    // 3. Verify presence of numerical elements, validating both Latin digits (0-9) and localized variants
+    const hasNumber = /\p{Number}/u.test(input);
+    if (!hasNumber) {
       return {
         id: "pass-detail-4",
         status: "INVALID",
@@ -173,7 +194,9 @@ export const useInputValidation = () => {
       };
     }
 
-    if (!/[^A-Za-z0-9]/.test(input)) {
+    // 4. Ensure presence of a dedicated special character by validating explicitly against punctuation and symbol property blocks
+    const hasSpecialChar = /[\p{Punctuation}\p{Symbol}]/u.test(input);
+    if (!hasSpecialChar) {
       return {
         id: "pass-detail-5",
         status: "INVALID",
@@ -190,9 +213,9 @@ export const useInputValidation = () => {
   };
 
   /**
-   * Validates a username based on strict rules:
+   * Validates a username based on global script rules:
    * 1. Must be 3-25 characters.
-   * 2. Must start with a letter.
+   * 2. Must start with a localized letter.
    * 3. Can contain letters, numbers, and underscores only.
    * 4. No spaces, hyphens, brackets, or other special characters.
    */
@@ -208,7 +231,7 @@ export const useInputValidation = () => {
       };
     }
 
-    const startsWithLetter = /^[a-zA-Z]/.test(value);
+    const startsWithLetter = /^\p{Letter}/u.test(value);
     if (!startsWithLetter) {
       return {
         status: "INVALID",
@@ -218,7 +241,7 @@ export const useInputValidation = () => {
       };
     }
 
-    const validPattern = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+    const validPattern = /^[\p{Letter}][\p{Letter}\p{Number}_]*$/u;
     if (!validPattern.test(value)) {
       return {
         status: "INVALID",
@@ -258,9 +281,10 @@ export const useInputValidation = () => {
       };
     }
 
-    const hasDigits = /\d/.test(value);
-    const hasLetters = /[a-zA-Z]/.test(value);
-    const isPhoneSymbolsOnly = /^[\d\s\-\(\)\+]+$/.test(value);
+    const hasDigits = /\p{Number}/u.test(value);
+    const hasLetters = /\p{Letter}/u.test(value);
+    const isPhoneSymbolsOnly = /^[\p{Number}\s\-\(\)\+]+$/u.test(value);
+
     if (hasDigits && !hasLetters && isPhoneSymbolsOnly) {
       return {
         ...validatePhone(value),
@@ -287,7 +311,8 @@ export const useInputValidation = () => {
         ),
       };
     }
-    if (/^\d+$/.test(value)) {
+
+    if (/^\p{Number}+$/u.test(value)) {
       return {
         status: "INVALID",
         message: translateTxtString(

@@ -218,10 +218,10 @@ export const NamedProgressBar = ({
       sx={{
         display: "flex",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: "flex-start",
         width: "calc(90% - 96px)",
         maxWidth: "400px",
-        gap: 0,
+        gap: theme.gap(6),
         pointerEvents: "auto",
         zIndex: 5,
         ...style,
@@ -235,11 +235,11 @@ export const NamedProgressBar = ({
             key={slideId}
             onClick={() => onGoTo(i)}
             sx={{
-              width: "fit-content",
-              flex: 1,
+              width: slide.name ? "fit-content" : "100%",
+              minWidth: 60,
               display: "flex",
               flexDirection: "column",
-              gap: theme.gap(1),
+              gap: theme.gap(3),
               cursor: "pointer",
               position: "relative",
               padding: theme.boxSpacing(1, 3, 3, 3),
@@ -266,7 +266,7 @@ export const NamedProgressBar = ({
             {/* Progress Container Track */}
             <Box
               sx={{
-                width: slide.name ? "min-content" : "100%",
+                width: "100%",
                 height: 2,
                 bgcolor: "rgba(255, 255, 255, 0.15)",
                 position: "relative",

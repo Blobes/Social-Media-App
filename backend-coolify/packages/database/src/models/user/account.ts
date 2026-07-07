@@ -34,6 +34,12 @@ const UserSchema = new Schema<IUserDocument>(
       sparse: true,
       trim: true,
     },
+    usernameCanonical: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+    },
     firstName: {
       type: String,
       trim: true,

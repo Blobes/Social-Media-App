@@ -33,7 +33,11 @@ import {
   SupportedIsoCode,
   useGlobalStore,
 } from "@repo/core";
-import { formatPhoneNumber, scrollBarStyle } from "@repo/helpers";
+import {
+  formatPhoneNumber,
+  processPhoneFormatting,
+  scrollBarStyle,
+} from "@repo/helpers";
 import { DisplayList as CountryList } from "./Menu";
 import { TransText } from "./Text";
 import { useVirtualKeyboard } from "@repo/shared-hooks";
@@ -145,77 +149,74 @@ export const TextInput = ({
     showKeyboard,
     setShowKeyboard,
     useVirtualKeyboard: isVirtualActive,
-    handleKeyInsert,
-    handleBackspace,
-    handleSpace,
+    registerAsActiveInput,
   } = useVirtualKeyboard(inputRef, onChange);
 
   return (
-    <>
-      <TextField
-        variant={variant}
-        id={id}
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        label={label}
-        helperText={helperText}
-        required={required}
-        disabled={disabled}
-        error={error}
-        size="small"
-        fullWidth
-        {...(affix && {
-          slotProps: {
-            input: {
-              ...(affix && {
-                [affixPosition === "start" ? "startAdornment" : "endAdornment"]:
-                  (
-                    <InputAdornment position={affixPosition}>
-                      {affix}
-                    </InputAdornment>
-                  ),
-              }),
-              ...(isVirtualActive && {
-                endAdornment: (
-                  <InputAdornment position="end">
+    <TextField
+      inputRef={inputRef}
+      variant={variant}
+      id={id}
+      type={type}
+      value={value}
+      placeholder={placeholder}
+      label={label}
+      helperText={helperText}
+      required={required}
+      disabled={disabled}
+      error={error}
+      size="small"
+      fullWidth
+      slotProps={{
+        input: {
+          // Render the start surface only if explicitly targeted by affix configuration
+          ...(affix &&
+            affixPosition === "start" && {
+              startAdornment: (
+                <InputAdornment position="start">{affix}</InputAdornment>
+              ),
+            }),
+          // Consolidated end surface wrapper to handle overlaps seamlessly
+          ...((isVirtualActive || (affix && affixPosition === "end")) && {
+            endAdornment: (
+              <InputAdornment position="end">
+                <Stack
+                  flexDirection="row"
+                  alignItems="center"
+                  gap={theme.gap?.(1) || 0.5}>
+                  {isVirtualActive && (
                     <IconButton
-                      onClick={() => setShowKeyboard((prev) => !prev)}
+                      onClick={() => {
+                        registerAsActiveInput();
+                        setShowKeyboard(!showKeyboard);
+                      }}
                       size="small">
                       <Keyboard size={18} />
                     </IconButton>
-                  </InputAdornment>
-                ),
-              }),
-            },
-            htmlInput: {
-              inputMode: isVirtualActive && showKeyboard ? "none" : "text",
-            },
-          },
-        })}
-        sx={{
-          ...sharedStyle({ theme, style, value, currLang }),
-          ...style,
-        }}
-        onChange={(e) => onChange && onChange(e)}
-        onFocus={(e) => {
-          if (isVirtualActive) setShowKeyboard(true);
-          onFocus && onFocus(e);
-        }}
-        onBlur={(e) => {
-          if (e.relatedTarget && e.relatedTarget.closest("[dir='rtl']")) return;
-          onBlur && onBlur(e);
-        }}
-      />
-      {isVirtualActive && showKeyboard && (
-        <VirtualKeyboard
-          onKeyClick={handleKeyInsert}
-          onBackspace={handleBackspace}
-          onSpace={handleSpace}
-          onClose={() => setShowKeyboard(false)}
-        />
-      )}
-    </>
+                  )}
+                  {affix && affixPosition === "end" && affix}
+                </Stack>
+              </InputAdornment>
+            ),
+          }),
+        },
+        htmlInput: {
+          inputMode: isVirtualActive && showKeyboard ? "none" : "text",
+        },
+      }}
+      sx={{
+        ...sharedStyle({ theme, style, value, currLang }),
+        ...style,
+      }}
+      onChange={(e) => onChange && onChange(e)}
+      onFocus={(e) => {
+        registerAsActiveInput();
+        onFocus && onFocus(e);
+      }}
+      onBlur={(e) => {
+        onBlur && onBlur(e);
+      }}
+    />
   );
 };
 
@@ -237,6 +238,17 @@ export const PasswordInput = ({
   style,
 }: InputProps) => {
   const [showPassword, setShowPassword] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const theme = useTheme();
+  const currLang = useGlobalStore((state) => state.currentLanguage);
+
+  const {
+    showKeyboard,
+    setShowKeyboard,
+    useVirtualKeyboard: isVirtualActive,
+    registerAsActiveInput,
+  } = useVirtualKeyboard(inputRef, onChange);
+
   const toggleShowPassword = () => setShowPassword((show) => !show);
   const handleMouseDown = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -244,11 +256,10 @@ export const PasswordInput = ({
   const handleMouseUp = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
-  const theme = useTheme();
-  const currLang = useGlobalStore((state) => state.currentLanguage);
 
   return (
     <TextField
+      inputRef={inputRef}
       variant={variant}
       id={id}
       type={showPassword ? "text" : "password"}
@@ -267,29 +278,69 @@ export const PasswordInput = ({
       }}
       slotProps={{
         input: {
-          [affixPosition === "start" ? "startAdornment" : "endAdornment"]: (
-            <InputAdornment position={affixPosition}>
-              <IconButton
-                aria-label={
-                  showPassword ? "hide the password" : "display the password"
-                }
-                onClick={toggleShowPassword}
-                onMouseDown={handleMouseDown}
-                onMouseUp={handleMouseUp}>
-                {showPassword ? <Eye size={22} /> : <EyeClosed size={22} />}
-              </IconButton>
+          // Manage the start adornment row position independently
+          ...(affixPosition === "start" && {
+            startAdornment: (
+              <InputAdornment position="start">
+                <IconButton
+                  aria-label={
+                    showPassword ? "hide the password" : "display the password"
+                  }
+                  onClick={toggleShowPassword}
+                  onMouseDown={handleMouseDown}
+                  onMouseUp={handleMouseUp}
+                  size="small">
+                  {showPassword ? <Eye size={22} /> : <EyeClosed size={22} />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }),
+          // Handle combination or standalone instances on the end adornment surface
+          endAdornment: (
+            <InputAdornment position="end">
+              <Stack
+                flexDirection="row"
+                alignItems="center"
+                gap={theme.gap(0.2)}>
+                {isVirtualActive && (
+                  <IconButton
+                    onClick={() => {
+                      registerAsActiveInput();
+                      setShowKeyboard(!showKeyboard);
+                    }}
+                    size="small">
+                    <Keyboard size={18} />
+                  </IconButton>
+                )}
+                {affixPosition === "end" && (
+                  <IconButton
+                    aria-label={
+                      showPassword
+                        ? "hide the password"
+                        : "display the password"
+                    }
+                    onClick={toggleShowPassword}
+                    onMouseDown={handleMouseDown}
+                    onMouseUp={handleMouseUp}
+                    size="small">
+                    {showPassword ? <Eye size={22} /> : <EyeClosed size={22} />}
+                  </IconButton>
+                )}
+              </Stack>
             </InputAdornment>
           ),
         },
+        htmlInput: {
+          inputMode: isVirtualActive && showKeyboard ? "none" : "text",
+        },
+      }}
+      onChange={(e) => onChange && onChange(e)}
+      onFocus={(e) => {
+        registerAsActiveInput();
+        onFocus && onFocus(e);
       }}
       onBlur={(e) => {
         onBlur && onBlur(e);
-      }}
-      onChange={(e) => {
-        onChange && onChange(e);
-      }}
-      onFocus={(e) => {
-        onFocus && onFocus(e);
       }}
     />
   );
@@ -315,6 +366,8 @@ export const PhoneInput = ({
   error = false,
   includeCountryCode = true,
   onPhoneChange,
+  onBlur,
+  onFocus,
   onClearInlineMsg,
   style,
 }: PhoneInputProps) => {
@@ -323,6 +376,7 @@ export const PhoneInput = ({
   const countryMenuRef = useRef<any>(null);
   const isCountrySelectedRef = useRef<boolean>(false);
   const currLang = useGlobalStore((state) => state.currentLanguage);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleMenuClose = useCallback(() => {
     if (includeCountryCode && !isCountrySelectedRef.current) {
@@ -334,49 +388,47 @@ export const PhoneInput = ({
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const target = e.target as HTMLInputElement;
       const isDeleting =
-        (e.nativeEvent as any).inputType === "deleteContentBackward";
+        (e.nativeEvent as any)?.inputType === "deleteContentBackward";
+      const start = target.selectionStart || 0;
 
-      let start = target.selectionStart || 0;
-      let inputValue = target.value;
+      const result = processPhoneFormatting(
+        target.value,
+        start,
+        isDeleting,
+        includeCountryCode,
+        isCountrySelectedRef.current,
+      );
 
-      if (includeCountryCode && isDeleting && inputValue.length <= 6) {
+      if (result.shouldReset) {
         onClearInlineMsg?.();
         onPhoneChange("");
         isCountrySelectedRef.current = false;
         return;
       }
-
-      if (
-        includeCountryCode &&
-        !isDeleting &&
-        inputValue.length > 0 &&
-        !isCountrySelectedRef.current
-      ) {
+      if (result.shouldOpenMenu) {
         countryMenuRef.current?.openMenu(target);
       }
-
-      const oldLen = inputValue.length;
-      inputValue = formatPhoneNumber(inputValue);
-      const newLen = inputValue.length;
-
-      if (!isDeleting) {
-        start = start + (newLen - oldLen);
-      }
-
       onClearInlineMsg?.();
 
       window.requestAnimationFrame(() => {
-        target.setSelectionRange(start, start);
+        target.setSelectionRange(result.nextCursor, result.nextCursor);
       });
-
-      onPhoneChange(inputValue);
+      onPhoneChange(result.nextVal);
     },
     [includeCountryCode, onPhoneChange, onClearInlineMsg],
   );
 
+  const {
+    showKeyboard,
+    setShowKeyboard,
+    useVirtualKeyboard: isVirtualActive,
+    registerAsActiveInput,
+  } = useVirtualKeyboard(inputRef, handleChange, "phone-formatted");
+
   return (
-    <>
+    <Box sx={{ position: "relative", width: "100%" }}>
       <TextField
+        inputRef={inputRef}
         variant={variant}
         id={id}
         type="tel"
@@ -390,11 +442,36 @@ export const PhoneInput = ({
         error={error}
         size="small"
         fullWidth
+        slotProps={{
+          input: {
+            ...(isVirtualActive && {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => {
+                      registerAsActiveInput();
+                      setShowKeyboard(!showKeyboard);
+                    }}
+                    size="small">
+                    <Keyboard size={18} />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }),
+          },
+        }}
         sx={{
           ...sharedStyle({ theme, style, value, currLang }),
           ...style,
         }}
         onChange={handleChange}
+        onFocus={(e) => {
+          registerAsActiveInput();
+          onFocus && onFocus(e);
+        }}
+        onBlur={(e) => {
+          onBlur && onBlur(e);
+        }}
       />
 
       {includeCountryCode && (
@@ -426,7 +503,7 @@ export const PhoneInput = ({
           }}
         />
       )}
-    </>
+    </Box>
   );
 };
 
@@ -791,7 +868,7 @@ export const ResponsiveTextarea = ({
   onBlur,
 }: TextAreaProps) => {
   const [focused, setFocused] = useState(false);
-  const [inputValue, setInputValue] = useState(value);
+  // const [inputValue, setInputValue] = useState(value);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const theme = useTheme();
 
@@ -799,15 +876,13 @@ export const ResponsiveTextarea = ({
     showKeyboard,
     setShowKeyboard,
     useVirtualKeyboard: isVirtualActive,
-    handleKeyInsert,
-    handleBackspace,
-    handleSpace,
+    registerAsActiveInput,
   } = useVirtualKeyboard(textareaRef, onChange);
 
   const shrink = focused || value.length > 0;
 
   return (
-    <>
+    <Box sx={{ position: "relative", width: "100%" }}>
       {label && (
         <StyledLabel htmlFor="textarea" shrink={shrink}>
           {label}
@@ -815,7 +890,10 @@ export const ResponsiveTextarea = ({
       )}
       {isVirtualActive && (
         <IconButton
-          onClick={() => setShowKeyboard((prev) => !prev)}
+          onClick={() => {
+            registerAsActiveInput();
+            setShowKeyboard(!showKeyboard);
+          }}
           size="small"
           style={{
             position: "absolute",
@@ -828,6 +906,7 @@ export const ResponsiveTextarea = ({
       )}
 
       <StyledTextarea
+        ref={textareaRef}
         id="textarea"
         aria-label="Text area"
         customStyle={style}
@@ -835,7 +914,7 @@ export const ResponsiveTextarea = ({
         minRows={minRows}
         label={label}
         placeholder={label ? "" : placeholder}
-        value={inputValue}
+        value={value}
         maxLength={maxLength ?? undefined}
         onChange={(e: any) => onChange && onChange(e)}
         onFocus={(e: any) => {
@@ -849,14 +928,6 @@ export const ResponsiveTextarea = ({
           onBlur && onBlur(e);
         }}
       />
-      {isVirtualActive && showKeyboard && (
-        <VirtualKeyboard
-          onKeyClick={handleKeyInsert}
-          onBackspace={handleBackspace}
-          onSpace={handleSpace}
-          onClose={() => setShowKeyboard(false)}
-        />
-      )}
-    </>
+    </Box>
   );
 };

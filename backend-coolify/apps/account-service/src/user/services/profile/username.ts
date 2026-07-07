@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt";
 import { UserModel } from "@repo/database";
 import {
   userSensitiveFields,
@@ -6,6 +5,9 @@ import {
   CACHE_KEYS,
   TransInfo,
   MESSAGES_REGISTRY,
+  verifyEncryptedPass,
+  transformToASCII,
+  normalizeValue,
 } from "@repo/shared";
 
 interface IChangeUsernameInput {
@@ -38,8 +40,9 @@ export const executeUsernameChange = async (
   const COOLDOWN_PERIOD = 90 * 24 * 60 * 60 * 1000;
   const GRACE_PERIOD_MS = 15 * 60 * 1000;
 
-  const formattedUsername = newUsername?.trim();
-  if (!formattedUsername || formattedUsername.length < 3) {
+  const normalizedUsername = normalizeValue(newUsername);
+
+  if (!normalizedUsername || normalizedUsername.length < 3) {
     return {
       status: "INVALID_USERNAME",
       transInfo: MESSAGES_REGISTRY.PROFILE.INVALID_USERNAME,
@@ -74,8 +77,7 @@ export const executeUsernameChange = async (
         transInfo: MESSAGES_REGISTRY.AUTH.NO_PASSWORD_SET,
       };
     }
-
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await verifyEncryptedPass(password, user.password);
     if (!isMatch) {
       return {
         status: "INCORRECT_PASSWORD",
@@ -102,9 +104,9 @@ export const executeUsernameChange = async (
     }
   }
 
-  // Ensure unique constraints remain intact across matching profiles
+  const usernameCanonical = transformToASCII(normalizedUsername);
   const conflict = await UserModel.findOne({
-    username: { $regex: new RegExp(`^${formattedUsername}$`, "i") },
+    usernameCanonical,
     _id: { $ne: userId },
   }).setOptions({ skipFilter: true });
 
@@ -115,7 +117,8 @@ export const executeUsernameChange = async (
     };
   }
 
-  user.username = formattedUsername;
+  user.username = normalizedUsername;
+  user.usernameCanonical = usernameCanonical;
   user.lastUsernameChangeAt = new Date();
   await user.save();
 

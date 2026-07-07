@@ -108,70 +108,71 @@ const baseTheme = createTheme({
     h1: { fontWeight: 600, textAlign: "var(--ui-text-align, inherit)" as any },
     h2: { fontWeight: 600, textAlign: "var(--ui-text-align, inherit)" as any },
     h4: {
-      fontSize: "calc(2.5rem * var(--ui-font-scale, 1))",
+      fontSize: "calc(2.5rem * var(--ui-font-scale, 1))", // 40px
       fontWeight: 700,
       lineHeight: 1.2,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     h5: {
       fontWeight: 700,
-      fontSize: "calc(2rem * var(--ui-font-scale, 1))",
+      fontSize: "calc(2rem * var(--ui-font-scale, 1))", // 32px
       lineHeight: 1.4,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     h6: {
       fontWeight: 700,
-      fontSize: "calc(1.625rem * var(--ui-font-scale, 1))",
+      fontSize: "calc(1.625rem * var(--ui-font-scale, 1))", // 26px
       lineHeight: 1.4,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     subtitle1: {
-      fontSize: "calc(1.375rem * var(--ui-font-scale, 1))",
+      fontSize: "calc(1.375rem * var(--ui-font-scale, 1))", // 22px
       fontWeight: 700,
       lineHeight: 1.4,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     body1: {
-      fontSize: "calc(1.125rem * var(--ui-font-scale, 1))",
+      fontSize: "calc(1.125rem * var(--ui-font-scale, 1))", // 18px
       fontWeight: 600,
       lineHeight: 1.3,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     body2: {
-      fontSize: "calc(1rem * var(--ui-font-scale, 1))",
+      fontSize: "calc(1rem * var(--ui-font-scale, 1))", // 16px
       fontWeight: 500,
       lineHeight: 1.4,
       textAlign: "var(--ui-text-align, inherit)" as any,
+    },
+    button: {
+      fontSize: "calc(1rem * var(--ui-font-scale, 1))", // 16px
+      fontWeight: 600,
+      textAlign: "var(--ui-text-align, inherit)" as any,
+      textTransform: "unset",
     },
     body3: {
-      fontSize: "calc(0.9375rem * var(--ui-font-scale, 1))",
+      fontSize: "calc(0.9375rem * var(--ui-font-scale, 1))", // 15px
       fontWeight: 500,
       lineHeight: 1.4,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
+
     caption: {
-      fontSize: "calc(0.875rem * var(--ui-font-scale, 1))",
+      fontSize: "calc(0.875rem * var(--ui-font-scale, 1))", // 14px
       fontWeight: 500,
       lineHeight: 1.4,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     overline: {
-      fontSize: "calc(0.8125rem * var(--ui-font-scale, 1))",
+      fontSize: "calc(0.8125rem * var(--ui-font-scale, 1))", // 13px
       fontWeight: 600,
       textTransform: "uppercase",
       letterSpacing: 0.05,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     overlineLower: {
-      fontSize: "calc(0.8125rem * var(--ui-font-scale, 1))",
+      fontSize: "calc(0.8125rem * var(--ui-font-scale, 1))", // 13px
       fontWeight: 600,
       letterSpacing: 0.05,
-      textAlign: "var(--ui-text-align, inherit)" as any,
-    },
-    button: {
-      textTransform: "unset",
-      fontSize: "calc(1rem * var(--ui-font-scale, 1))",
-      fontWeight: 600,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
   },

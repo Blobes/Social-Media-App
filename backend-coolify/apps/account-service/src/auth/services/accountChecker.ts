@@ -1,5 +1,10 @@
 import { UserModel } from "@repo/database";
-import { MESSAGES_REGISTRY, TransInfo } from "@repo/shared";
+import {
+  MESSAGES_REGISTRY,
+  normalizeValue,
+  transformToASCII,
+  TransInfo,
+} from "@repo/shared";
 
 export type CheckType = "EMAIL" | "PHONE" | "USERNAME";
 export type CheckPurpose = "REGISTRATION" | "LOGIN";
@@ -54,14 +59,13 @@ export const executeAccountCheck = async (
   }
 
   let query: any = {};
-  const formattedValue = identifier.trim();
-
+  const formattedValue = normalizeValue(identifier);
   if (type === "EMAIL") {
     query = { email: formattedValue.toLowerCase() };
   } else if (type === "PHONE") {
     query = { phoneNumber: formattedValue.replace(/\D/g, "") };
   } else {
-    query = { username: { $regex: new RegExp(`^${formattedValue}$`, "i") } };
+    query = { usernameCanonical: transformToASCII(formattedValue) };
   }
 
   const existingUser = await UserModel.findOne(query).setOptions({
@@ -262,25 +266,32 @@ export const executeAccountCheck = async (
     };
   }
 
+  const baseCanonical = transformToASCII(formattedValue);
   const suggestions: string[] = [];
-  const regex = new RegExp(`^${formattedValue}\\d*$`, "i");
+  const suggestionRegex = new RegExp(`^${baseCanonical}\\d*$`, "i");
 
-  const taken = await UserModel.find({ username: regex })
-    .select("username -_id")
+  const taken = await UserModel.find({ usernameCanonical: suggestionRegex })
+    .select("usernameCanonical -_id")
     .setOptions({ skipFilter: true })
     .lean();
 
   const takenSet = new Set(
     taken
-      .map((u) => u.username)
+      .map((u) => u.usernameCanonical)
       .filter((name): name is string => typeof name === "string")
       .map((name) => name.toLowerCase()),
   );
 
   let counter = 1;
   while (suggestions.length < 5) {
-    const candidate = `${formattedValue}${counter}`;
-    if (!takenSet.has(candidate.toLowerCase())) suggestions.push(candidate);
+    const candidateSuffix = `${counter}`;
+    // Build canonical match string configuration layout
+    const candidateCanonical = `${baseCanonical}${candidateSuffix}`;
+    if (!takenSet.has(candidateCanonical.toLowerCase())) {
+      // Return human-readable text configuration layouts for display suggestion lines
+      const displayCandidate = `${formattedValue}${candidateSuffix}`;
+      suggestions.push(displayCandidate);
+    }
     counter++;
     if (counter > 100) break;
   }
@@ -290,7 +301,6 @@ export const executeAccountCheck = async (
     transInfo: MESSAGES_REGISTRY.AUTH.USERNAME_TAKEN,
     isExisting: true,
     suggestions,
-
     payload: null,
   };
 };

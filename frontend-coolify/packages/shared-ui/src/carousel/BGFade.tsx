@@ -260,7 +260,6 @@ export const BGFadeCarousel = ({
                   }}>
                   {slide.headline}
                 </TransText>
-
                 <TransText
                   sx={{
                     ...theme.typography.body3,

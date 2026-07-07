@@ -28,7 +28,7 @@ export const LanguageSelector: React.FC = () => {
   const selectedLangObj = LANGUAGES.find((l) => l.iso === currentLang);
 
   const SharedItemStyle = {
-    ...theme.typography.body3,
+    ...theme.typography.caption,
     borderRadius: theme.radius.full,
     minHeight: "unset",
     padding: theme.boxSpacing(4, 6),

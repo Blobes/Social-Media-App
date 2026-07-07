@@ -1,8 +1,5 @@
 "use client";
 
-import React from "react";
-import { Box, Stack, Typography } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 import {
   AUTH_INPUT,
   COMMON_INPUT_VALIDATION,
@@ -11,14 +8,12 @@ import {
   TourGuide,
 } from "@repo/core";
 import { useStaticTranslation } from "./useTrans";
-import { TransText } from "@repo/shared-ui";
 
 /**
  * Configuration for input validation messaging.
  */
 export const useGuides = () => {
   const { translateTxtString } = useStaticTranslation();
-  const theme = useTheme();
 
   const INPUT_GUIDES = {
     EMAIL: {
@@ -125,17 +120,7 @@ export const useGuides = () => {
       {
         name: "BEGIN",
         label: translateTxtString(COMMON_TOUR_GUIDES.new_user_begin_label),
-        desc: (
-          <Stack gap={1}>
-            <TransText sx={theme.typography.body2}>
-              {" "}
-              {translateTxtString(COMMON_TOUR_GUIDES.new_user_begin_desc)}
-            </TransText>
-            <Box sx={{ p: 1, bgcolor: "primary.light", borderRadius: 1 }}>
-              🚀 Custom Component Detail
-            </Box>
-          </Stack>
-        ),
+        desc: translateTxtString(COMMON_TOUR_GUIDES.new_user_begin_desc),
         xPosition: 50,
         yPosition: 50,
         allowPrevious: false,

@@ -114,6 +114,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         <TransText
           {...COMMON_FEEDBACK.sign_up_to_funstakes}
           component="h3"
+          breakWord
           sx={{
             ...theme.typography.h5,
             color: theme.palette.gray[300],
