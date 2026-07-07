@@ -7,7 +7,6 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "express": "catalog:",
     "@aws-sdk/client-s3": "catalog:",
     "@aws-sdk/s3-request-presigner": "catalog:",
     "@aws-sdk/s3-presigned-post": "catalog:",
@@ -25,8 +24,11 @@
     "@socket.io/redis-emitter": "catalog:",
     "node-asynq": "catalog:",
     "franc-min": "catalog:",
-    "bcrypt": "catalog:",
     "@repo/database": "workspace:*"
+  },
+  "peerDependencies": {
+    "express": "catalog:",
+    "bcrypt": "catalog:"
   },
   "devDependencies": {
     "mongoose": "catalog:",
