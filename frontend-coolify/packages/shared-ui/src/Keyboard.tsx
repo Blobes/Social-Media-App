@@ -118,7 +118,7 @@ export const VirtualKeyboard = ({
         <Stack
           key={rowIndex}
           flexDirection="row"
-          gap={theme.gap(1)}
+          gap={theme.gap(2)}
           justifyContent="center">
           {row.map((char) => (
             <AppButton
@@ -138,19 +138,19 @@ export const VirtualKeyboard = ({
 
       <Stack flexDirection="row" gap={theme.gap(2)}>
         <AppButton
-          onClick={onBackspace}
-          style={{
-            ...sharedStyle,
-          }}>
-          <Delete size={24} />
-        </AppButton>
-        <AppButton
           onClick={onSpace}
           style={{
             width: "100%",
             ...sharedStyle,
           }}>
           <Space size={28} />
+        </AppButton>
+        <AppButton
+          onClick={onBackspace}
+          style={{
+            ...sharedStyle,
+          }}>
+          <Delete size={24} />
         </AppButton>
       </Stack>
     </Box>

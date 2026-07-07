@@ -32,8 +32,6 @@ export const LanguageSelector: React.FC = () => {
     borderRadius: theme.radius.full,
     minHeight: "unset",
     padding: theme.boxSpacing(4, 6),
-    // my: 0.5,
-    // borderBottom: "1px dashed",
   };
 
   /**
