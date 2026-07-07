@@ -9,6 +9,7 @@
   "dependencies": {
     "@repo/database": "workspace:*",
     "@repo/shared": "workspace:*",
+    "bcrypt": "catalog:",
     "cookie-parser": "catalog:",
     "dotenv": "catalog:",
     "express": "catalog:",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "tsup": "catalog:",
+    "@types/bcrypt": "catalog:",
     "@types/cookie-parser": "catalog:",
     "@types/express": "catalog:",
     "@types/node": "catalog:",

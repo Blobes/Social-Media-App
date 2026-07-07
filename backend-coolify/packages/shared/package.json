@@ -25,11 +25,11 @@
     "@socket.io/redis-emitter": "catalog:",
     "node-asynq": "catalog:",
     "franc-min": "catalog:",
-    "bcrypt": "catalog:",
     "@repo/database": "workspace:*"
   },
   "peerDependencies": {
-    "express": "catalog:"
+    "express": "catalog:",
+    "bcrypt": "catalog:"
   },
   "devDependencies": {
     "mongoose": "catalog:",
