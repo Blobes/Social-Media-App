@@ -1,3 +1,4 @@
+import { verifyEncryptedPass } from "@/auth/helpers/encrypt";
 import { UserModel } from "@repo/database";
 import {
   userSensitiveFields,
@@ -5,7 +6,6 @@ import {
   CACHE_KEYS,
   TransInfo,
   MESSAGES_REGISTRY,
-  verifyEncryptedPass,
   transformToASCII,
   normalizeValue,
 } from "@repo/shared";

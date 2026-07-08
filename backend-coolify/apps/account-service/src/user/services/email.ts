@@ -10,8 +10,8 @@ import {
   cleanDeviceSessions,
   TransInfo,
   MESSAGES_REGISTRY,
-  verifyEncryptedPass,
 } from "@repo/shared";
+import { verifyEncryptedPass } from "@/auth/helpers/encrypt";
 
 interface IInitiateEmailChangeInput {
   userId: string;

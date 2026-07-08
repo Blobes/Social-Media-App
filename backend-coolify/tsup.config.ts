@@ -8,6 +8,5 @@ export const baseConfig = {
   minify: true,
   shims: true,
   noExternal: ["@repo/shared", "@repo/database"],
-  external: ["bcrypt"],
   outDir: "dist",
 };

@@ -12,10 +12,10 @@ import {
   enqueueOtpTask,
   MESSAGES_REGISTRY,
   TransInfo,
-  encryptPass,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
 import { executeAccountCheck } from "./accountChecker";
+import { encryptPass } from "../helpers/encrypt";
 
 interface IRegistrationInput {
   email: string;

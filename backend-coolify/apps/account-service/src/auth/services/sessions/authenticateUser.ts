@@ -11,10 +11,10 @@ import {
   evaluateDeviceTrust,
   MESSAGES_REGISTRY,
   TransInfo,
-  verifyEncryptedPass,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
 import { CheckType, executeAccountCheck } from "../accountChecker";
+import { verifyEncryptedPass } from "@/auth/helpers/encrypt";
 
 interface ILoginInput {
   identifier: string;

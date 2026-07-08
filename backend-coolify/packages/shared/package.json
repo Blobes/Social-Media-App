@@ -27,8 +27,7 @@
     "@repo/database": "workspace:*"
   },
   "peerDependencies": {
-    "express": "catalog:",
-    "bcrypt": "catalog:"
+    "express": "catalog:"
   },
   "devDependencies": {
     "mongoose": "catalog:",
@@ -39,7 +38,6 @@
     "@types/cors": "catalog:",
     "@types/uuid": "catalog:",
     "@types/nodemailer": "^7.0.4",
-    "@types/fluent-ffmpeg": "catalog:",
-    "@types/bcrypt": "catalog:"
+    "@types/fluent-ffmpeg": "catalog:"
   }
 }

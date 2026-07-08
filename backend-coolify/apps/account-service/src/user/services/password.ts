@@ -1,3 +1,4 @@
+import { encryptPass, verifyEncryptedPass } from "@/auth/helpers/encrypt";
 import { UserModel } from "@repo/database";
 import {
   CACHE_KEYS,
@@ -5,8 +6,6 @@ import {
   cleanDeviceSessions,
   TransInfo,
   MESSAGES_REGISTRY,
-  verifyEncryptedPass,
-  encryptPass,
 } from "@repo/shared";
 
 export type PasswordPurpose = "CREATE_PASSWORD" | "CHANGE_PASSWORD";
