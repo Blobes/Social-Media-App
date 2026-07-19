@@ -1,3 +1,5 @@
+import { IContentModeration } from "./moderation";
+
 export type PostVisibility =
   | "PUBLIC"
   | "FOLLOWERS"
@@ -17,6 +19,7 @@ export interface IGist {
   _id: string;
   authorId: string;
   mediaIds: string[];
+  status: IPostStatus;
 
   latestCaption: {
     captionId?: string | null;
@@ -48,9 +51,7 @@ export interface IGist {
   hasSensitiveGraphic: boolean;
 
   // Moderation
-  status: IPostStatus;
-  moderationLogId?: string | null;
-  moderationCount: number;
+  moderationCase?: IContentModeration;
 
   createdAt: string;
   updatedAt: string;

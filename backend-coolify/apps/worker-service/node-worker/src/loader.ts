@@ -1,7 +1,7 @@
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
-import { healthRouter } from "@repo/shared";
 import { internalRouter } from "./internal-api/routes";
+import { healthRouter } from "./health";
 
 export default (app: Express) => {
   // ====== Middlewares ======

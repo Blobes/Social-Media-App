@@ -28,12 +28,12 @@ const startServer = async () => {
 
 startServer();
 
+// Background workers
 otpDispatchWorker();
 startDeviceCleanupTask();
 startErrorLogCleanupTask();
 startUserMetricsReset();
 
-// Background workers
 // initUserCleanup()
 // initTopicCleanup();
 // initUserTopicCleanup();

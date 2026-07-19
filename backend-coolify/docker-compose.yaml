@@ -59,13 +59,13 @@ services:
     networks:
       - coolify
 
-  admin-service:
+  platform-service:
     build:
       context: .
       dockerfile: ./Dockerfile
       target: node-runner
       args:
-        SERVICE_NAME: admin-service
+        SERVICE_NAME: platform-service
     networks:
       - coolify
 

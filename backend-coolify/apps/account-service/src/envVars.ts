@@ -4,10 +4,11 @@ import {
   ICodeDispatchTokens,
   IEmailDispatchTokens,
   IPhoneDispatchTokens,
-  createVerifyAuthToken,
+  IS3Config,
   getEnv,
   loadEnv,
 } from "@repo/shared";
+import { verifyAuthTokens } from "@repo/security";
 
 if (process.env.NODE_ENV !== "production") {
   loadEnv();
@@ -125,6 +126,30 @@ export const phoneDispatchTokens: IPhoneDispatchTokens = {
 };
 
 /**
+ * Cloud Storage Configuration
+ */
+export const s3Config: IS3Config = {
+  get REGION() {
+    return getEnv("CLOUDFLARE_REGION");
+  },
+  get ACCESS_KEY_ID() {
+    return getEnv("CLOUDFLARE_ACCESS_KEY");
+  },
+  get SECRET_ACCESS_KEY() {
+    return getEnv("CLOUDFLARE_SECRET_KEY");
+  },
+  get BUCKET_NAME() {
+    return getEnv("CLOUDFLARE_BUCKET_NAME");
+  },
+  get ENDPOINT_URL() {
+    return getEnv("CLOUDFLARE_ENDPOINT_URL");
+  },
+  get PUBLIC_URL() {
+    return getEnv("CLOUDFLARE_PUBLIC_MEDIA_URL");
+  },
+};
+
+/**
  * Unified dispatch tokens for full-stack context.
  */
 export const codeDispatchTokens: ICodeDispatchTokens = {
@@ -132,8 +157,7 @@ export const codeDispatchTokens: ICodeDispatchTokens = {
   ...phoneDispatchTokens,
 };
 
-export const verifyAuthToken: RequestHandler =
-  createVerifyAuthToken(authTokens);
+export const authenticate: RequestHandler = verifyAuthTokens(authTokens);
 
 // Legacy Compatibility Exports
 export const NODE_ENV = env.NODE_ENV;

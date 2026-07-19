@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Divider, Stack, Typography } from "@mui/material";
+import { Divider, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   AppButton,
@@ -11,7 +11,7 @@ import {
   TransText,
 } from "@repo/shared-ui";
 import { useOtp } from "./useOtp";
-import { SquareAsterisk } from "lucide-react";
+import { ShieldCheckIcon, SquareAsterisk } from "lucide-react";
 import { AUTH_BUTTON_LABELS, AUTH_FEEDBACK, OtpTransitData } from "@repo/core";
 import { Logout } from "@repo/features";
 
@@ -31,48 +31,71 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
     handleSendOtp,
     channel,
     switchChannel,
+    switchToAuthenticator,
     recipient,
     inlineMsg,
     isSending,
   } = useOtp(transitData);
 
   const isEmail = channel === "EMAIL";
+  const isAuthenticator = channel === "AUTHENTICATOR";
 
   return (
     <Stack
       sx={{
         gap: theme.gap(20),
-        width: "60cqh",
-        [theme.breakpoints.only("sm")]: { width: "70cqh" },
-        [theme.breakpoints.down("xs")]: { width: "100%" },
+        width: "70cqh",
+        // [theme.breakpoints.only("sm")]: { width: "70cqh" },
+        [theme.breakpoints.down("sm")]: { width: "100%" },
         alignItems: "center",
       }}>
       <Stack
         spacing={theme.gap(2)}
         sx={{ textAlign: "center", alignItems: "center" }}>
-        <SquareAsterisk
-          size={60}
-          strokeWidth="1.5px"
-          style={{ stroke: theme.palette.primary.main }}
+        {isAuthenticator ? (
+          <ShieldCheckIcon
+            size={60}
+            strokeWidth="1.5px"
+            style={{ stroke: theme.palette.primary.main }}
+          />
+        ) : (
+          <SquareAsterisk
+            size={60}
+            strokeWidth="1.5px"
+            style={{ stroke: theme.palette.primary.main }}
+          />
+        )}
+
+        <TransText
+          {...(isAuthenticator
+            ? AUTH_FEEDBACK.verify_code_from_auth_app_headline
+            : AUTH_FEEDBACK.verify_your_credential(
+                isEmail ? "Email" : "Phone",
+              ))}
+          sx={{ ...theme.typography.h5, fontWeight: 500, textAlign: "center" }}
         />
         <TransText
-          {...AUTH_FEEDBACK.verify_your_credential(isEmail ? "Email" : "Phone")}
-          sx={{ ...theme.typography.h5, fontWeight: 500 }}
-        />
-        <TransText
-          {...AUTH_FEEDBACK.otp_code_sent(
-            recipient || isEmail ? "the Email address" : " the Phone number",
-          )}
-          style={{ ...theme.typography.body2, color: theme.palette.gray[200] }}
+          {...(isAuthenticator
+            ? AUTH_FEEDBACK.verify_code_from_auth_app_tagline
+            : AUTH_FEEDBACK.otp_code_sent(
+                recipient || isEmail
+                  ? "The Email address"
+                  : " The Phone number",
+              ))}
+          style={{
+            ...theme.typography.text3,
+            color: theme.palette.gray[200],
+            textAlign: "center",
+          }}
         />
       </Stack>
 
       {/* OTP Field and CTA */}
       <Stack
         sx={{
-          width: "48cqh",
-          [theme.breakpoints.only("sm")]: { width: "56cqh" },
-          [theme.breakpoints.down("xs")]: { width: "100%" },
+          width: "58cqh",
+          //  [theme.breakpoints.only("sm")]: { width: "56cqh" },
+          [theme.breakpoints.down("sm")]: { width: "100%" },
           gap: theme.gap(16),
           alignItems: "center",
         }}>
@@ -105,54 +128,90 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
       <Stack
         gap={theme.gap(10)}
         sx={{ width: "100%", flexDirection: "column", alignItems: "center" }}>
-        <Stack direction="row" alignItems="center" gap={0}>
-          <TransText
-            {...AUTH_FEEDBACK.otp_didnt_receive_code}
-            sx={{ ...theme.typography.body2 }}
-          />
+        {!isAuthenticator ? (
+          <>
+            <Stack direction="row" alignItems="center" gap={0}>
+              <TransText
+                {...AUTH_FEEDBACK.otp_didnt_receive_code}
+                sx={{ ...theme.typography.text3 }}
+              />
+              <AppButton
+                variant="text"
+                onClick={() => handleSendOtp()}
+                style={{
+                  color: theme.palette.primary.dark,
+                  "&:disabled": {
+                    color: theme.palette.primary.dark,
+                  },
+                }}
+                options={{ disabled: timer > 0 }}>
+                {isSending ? (
+                  <ProgressIcon otherProps={{ size: 14 }} />
+                ) : (
+                  <TransText
+                    {...(timer > 0
+                      ? AUTH_BUTTON_LABELS.otp_resend_code_in_seconds(timer)
+                      : AUTH_BUTTON_LABELS.otp_resend_code_now)}
+                    noComponent
+                  />
+                )}
+              </AppButton>
+            </Stack>
+
+            <AppButton
+              variant="text"
+              onClick={switchChannel}
+              options={{ disabled: timer > 0 }}
+              style={{
+                color: theme.palette.primary.dark,
+                padding: theme.boxSpacing(3, 6),
+              }}>
+              {isSending ? (
+                <ProgressIcon otherProps={{ size: 14 }} />
+              ) : (
+                <TransText
+                  {...AUTH_BUTTON_LABELS.otp_switch_channel(
+                    isEmail ? "SMS" : "email",
+                  )}
+                  noComponent
+                />
+              )}
+            </AppButton>
+
+            <AppButton
+              variant="text"
+              onClick={switchToAuthenticator}
+              style={{
+                color: theme.palette.primary.dark,
+                padding: theme.boxSpacing(3, 6),
+              }}>
+              <TransText
+                {...AUTH_BUTTON_LABELS.verify_with_authenticator}
+                noComponent
+              />
+            </AppButton>
+          </>
+        ) : (
+          // Only show switch option if the other channel exists on the user profile
           <AppButton
             variant="text"
-            onClick={() => handleSendOtp()}
+            onClick={switchChannel}
+            options={{ disabled: timer > 0 }}
             style={{
               color: theme.palette.primary.dark,
-              "&:disabled": {
-                color: theme.palette.primary.dark,
-              },
-            }}
-            options={{ disabled: timer > 0 }}>
+              padding: theme.boxSpacing(3, 6),
+            }}>
             {isSending ? (
               <ProgressIcon otherProps={{ size: 14 }} />
             ) : (
               <TransText
-                {...(timer > 0
-                  ? AUTH_BUTTON_LABELS.otp_resend_code_in_seconds(timer)
-                  : AUTH_BUTTON_LABELS.otp_resend_code_now)}
+                {...AUTH_BUTTON_LABELS.verify_with_email_phone}
                 noComponent
               />
             )}
           </AppButton>
-        </Stack>
+        )}
 
-        {/* Only show switch option if the other channel exists on the user profile */}
-        <AppButton
-          variant="text"
-          onClick={switchChannel}
-          options={{ disabled: timer > 0 }}
-          style={{
-            color: theme.palette.primary.dark,
-            padding: theme.boxSpacing(3, 6),
-          }}>
-          {isSending ? (
-            <ProgressIcon otherProps={{ size: 14 }} />
-          ) : (
-            <TransText
-              {...AUTH_BUTTON_LABELS.otp_switch_channel(
-                isEmail ? "SMS" : "email",
-              )}
-              noComponent
-            />
-          )}
-        </AppButton>
         <Divider sx={{ width: "100%" }} />
         <Logout
           containerStyle={{

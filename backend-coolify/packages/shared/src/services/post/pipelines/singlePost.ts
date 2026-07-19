@@ -42,7 +42,7 @@ export const getPostStaticData = (): PipelineStage[] => {
               vars: {
                 f: { $ifNull: ["$authorDetails.firstName", ""] },
                 l: { $ifNull: ["$authorDetails.lastName", ""] },
-                u: { $ifNull: ["$authorDetails.username", "User"] },
+                u: { $ifNull: ["$authorDetails.username", "anonymous"] },
               },
               in: {
                 $let: {

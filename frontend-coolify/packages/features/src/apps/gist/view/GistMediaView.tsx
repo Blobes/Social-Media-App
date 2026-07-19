@@ -3,13 +3,14 @@
 import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { useAdaptiveTime, useMisc } from "@repo/shared-hooks";
-import { IsolatedMedia, WordTrimmer } from "@repo/shared-ui";
+import { IsolatedMedia } from "@repo/shared-ui";
 import { IGist, MediaProps, UIMode } from "@repo/core";
 import { PostEngagement } from "../../post/components/engagement/Engagement";
 import { PostHeader } from "../../post/components/header/PostHeader";
 import { LikeState } from "./GistMedia";
 import { useGistLikeState } from "./hooks/useGistState";
 import { DynamicCaption } from "../../post/components/Caption";
+import { PostService } from "../../post/postService";
 
 interface ViewProps {
   gist: IGist;
@@ -30,6 +31,7 @@ export const GistMediaView = ({
   const { isDesktop } = useMisc();
   const { localLikeState, localIsLiking, handleGistLike } =
     useGistLikeState(likeState);
+  const { translateText } = PostService();
 
   const { author, createdAt, latestCaption, media } = gist;
   const { likedByMe, likeCount } = localLikeState;
@@ -75,6 +77,7 @@ export const GistMediaView = ({
       captionId={latestCaption.captionId}
       caption={latestCaption.caption}
       detectedLanguage={latestCaption.detectedLanguage}
+      transServiceFn={{ translateServiceFn: translateText }}
     />
   );
 

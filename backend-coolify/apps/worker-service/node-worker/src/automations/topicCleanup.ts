@@ -10,12 +10,25 @@ export const initTopicCleanup = () => {
   cron.schedule("0 0 1 * *", async () => {
     try {
       console.log("[Background Task] Starting monthly topic cleanup...");
-      const deletedCount = await pruneDeadTopics();
+
+      const result = await pruneDeadTopics();
+
+      // Explicitly check for structural errors returned inside the successful promise execution
+      if (result.status === "SERVER_ERROR") {
+        console.error(
+          `[Background Task] Monthly cleanup failed internally. Registry Message: ${result.transInfo.message}`,
+        );
+        return;
+      }
+
       console.log(
-        `[Background Task] Cleanup finished. Removed ${deletedCount} topics.`,
+        `[Background Task] Cleanup finished. Removed ${result.deletedCount} topics.`,
       );
     } catch (error: any) {
-      console.error("[Background Task] Monthly cleanup failed:", error.message);
+      console.error(
+        "[Background Task] Monthly cleanup failed catastrophically:",
+        error.message,
+      );
     }
   });
 };

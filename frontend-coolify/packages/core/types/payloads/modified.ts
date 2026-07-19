@@ -13,16 +13,19 @@ export type FetchStatus =
   | "FORBIDDEN"
   | "TIMEOUT"
   | "NETWORK_ERROR"
+  | "NO_AUTH_FLAG"
   | null;
 
 export interface ApiError extends Error {
   httpStatus: number;
   status: FetchStatus;
   payload: any | null;
+  localizedErrMsg?: string;
 }
 
 export interface APITransMsg {
   message?: string;
+  localizedSuccessMsg?: string;
   i18nKey?: string;
   interpolations?: Record<string, any>;
 }

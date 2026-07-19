@@ -28,7 +28,7 @@ export const LanguageSelector: React.FC = () => {
   const selectedLangObj = LANGUAGES.find((l) => l.iso === currentLang);
 
   const SharedItemStyle = {
-    ...theme.typography.caption,
+    ...theme.typography.text5,
     borderRadius: theme.radius.full,
     minHeight: "unset",
     padding: theme.boxSpacing(4, 6),
@@ -85,7 +85,7 @@ export const LanguageSelector: React.FC = () => {
           "aria-controls": "navigation-dropdown-tray",
         }}
         style={{
-          ...theme.typography.overline,
+          ...theme.typography.text6Caps,
           color: theme.palette.gray[200],
         }}>
         {selectedLangObj

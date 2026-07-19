@@ -141,7 +141,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
             <CreatePostMenuDesktop postRef={createPostRef} />
             <AppButton
               variant="outlined"
-              style={{ fontSize: "14px" }}
+              style={{ ...theme.typography.text5 }}
               onClick={handleCreatePost}>
               <TransText {...POST_BUTTON_LABELS.create_post} noComponent />
             </AppButton>
@@ -153,7 +153,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
           <AppButton
             href={CLIENT_ROUTES.login.path}
             variant="outlined"
-            style={{ fontSize: "14px" }}
+            style={{ ...theme.typography.text5 }}
             onClick={() =>
               navigateTo(CLIENT_ROUTES.login, { savePage: false })
             }>

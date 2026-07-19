@@ -6,7 +6,7 @@ import { Login } from "./Login";
 import { Stack } from "@mui/material";
 import { applyBGPattern } from "@repo/helpers";
 
-import { RestrictedUI, usePopup } from "@repo/features";
+import { DisplayFeedbackUI, usePopup } from "@repo/features";
 import { TrendingPosts } from "./TrendingPosts";
 import { useGlobalStore } from "@repo/core";
 
@@ -81,7 +81,7 @@ export default function LoginPage() {
           <TrendingPosts />
         </Stack>
       ) : (
-        <RestrictedUI
+        <DisplayFeedbackUI
           type="ALREADY_LOGGED_IN"
           secondaryCta={{
             label: "Logout",

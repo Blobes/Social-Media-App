@@ -1,12 +1,12 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
-export type UserRole = "USER" | "ADMIN" | "MODERATOR";
 export type AccountStatus =
   | "ACTIVE"
+  | "INACTIVE"
   | "DEACTIVATED"
   | "SUSPENDED"
-  | "BANNED"
-  | "NOT_ONBOARDED";
+  | "BANNED";
+// | "NOT_ONBOARDED";
 export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
 
 /**
@@ -18,22 +18,52 @@ export interface ITrustedDevice {
   name: string;
 }
 
-export interface IUser {
-  _id: string;
+export interface ITfaData {
+  secret: string | null; // Encrypted or plain secure base32 string
+  isEnabled: boolean; // Active status toggle
+  backupCodes: string[]; // Fallback recovery matrices
+  tempSecret: string | null;
+  tempBackupCodes: string[];
+}
 
-  // --- 1. CORE IDENTITY ---
+export interface IUserDocument extends Document {
+  // --- CORE IDENTITY ---
   email: string;
   username?: string;
   usernameCanonical?: string;
+  password: string | null;
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
 
-  // --- 2. VERIFICATION & NOTABILITY ---
+  // --- AUTHENTICATION & SECURITY ---
+  signedUpWith?: "EMAIL" | "GOOGLE" | "APPLE";
+  oAuthId?: string;
+  isEmailVerified: boolean;
+  isPhoneVerified: boolean;
+  primaryDeviceId?: Types.ObjectId | string | null;
+  lastPasswordVerifiedAt?: Date | null;
+  twoFactorAuth: ITfaData;
+
+  // --- OTP VERIFICATION ---
+  otpCode?: string | null;
+  otpCodeExpiresAt?: Date | null;
+  lastEmailCodeSentAt?: Date | null;
+  lastPhoneCodeSentAt: Date | null;
+
+  // --- IDENTITY UPDATES ---
+  pendingEmail?: string | null;
+  pendingPhoneNumber?: string | null;
+  lastEmailChangeAt?: Date | null;
+  lastPhoneChangeAt?: Date | null;
+  lastUsernameChangeAt?: Date | null;
+
+  // --- ID VERIFICATION & NOTABILITY ---
   isVerified: boolean;
   isPublicFigure: boolean;
   meritsVerification: boolean;
   isNotable: boolean;
+  idVerificationRequest?: Types.ObjectId | null;
   idVerificationStatus: VerificationStatus;
   verificationSignals: {
     hasWikipedia: boolean;
@@ -42,26 +72,15 @@ export interface IUser {
   };
   isAgeVerified: boolean;
 
-  // --- 3. AUTHENTICATION & SECURITY (Wire-safe) ---
-  role: UserRole;
+  // --- ACCOUNT STATUS UPDATES ---
   accountStatus: AccountStatus;
-  signedUpWith?: "EMAIL" | "GOOGLE" | "APPLE";
-  oAuthId?: string;
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
-  lastEmailCodeSentAt?: Date | null;
-  primaryDeviceId?: Types.ObjectId | string | null;
-  lastPasswordVerifiedAt?: Date | null;
+  lastActiveAt?: Date | null;
+  statusChangedAt?: Date | null;
+  statusReason?: string;
+  statusChangedBy?: Types.ObjectId | null;
+  deactivatedAt?: Date | null;
 
-  // --- 4. IDENTITY UPDATES ---
-  pendingEmail?: string | null;
-  lastEmailChangeAt?: Date | null;
-  pendingPhoneNumber?: string | null;
-  lastPhoneCodeSentAt: Date | null;
-  lastPhoneChangeAt?: Date | null;
-  lastUsernameChangeAt?: Date | null;
-
-  // --- 5. PROFILE DETAILS ---
+  // --- PROFILE DETAILS ---
   gender?: string | null;
   dateOfBirth?: string | null;
   about?: string | null;
@@ -70,18 +89,18 @@ export interface IUser {
   interests: string[];
   website?: string | null;
 
-  // --- 6. ASSETS ---
+  // --- PROFILE ASSETS ---
   profileImage?: string | null;
   coverImage?: string | null;
 
-  // --- 7. ONBOARDING & GEOGRAPHY ---
+  // --- ONBOARDING & GEOGRAPHY ---
   isOnboarded?: boolean;
   onboardingStep?: string | null;
   location?: string | null;
   country?: string | null;
   state?: string | null;
 
-  // --- 8. METRICS & PREFERENCES ---
+  // --- METRICS & PREFERENCES ---
   followersCount: number;
   followingCount: number;
   preferences: {
@@ -94,26 +113,12 @@ export interface IUser {
     }>;
   };
 
-  // --- 9. AUTOMATED AI MODERATION BYPASS FIELDS ---
+  // --- MODERATION FIELDS ---
+  policyBreachCount?: number;
   hasFlaggedPost: boolean;
   postCountWindow: number;
 
-  // --- 10. LIFECYCLE ---
-  isDeactivated: boolean;
-  deactivatedAt?: Date | null;
+  // --- LIFECYCLE ---
   createdAt: Date | null;
   updatedAt: Date | null;
-}
-
-export interface IDeactivatedAccount {
-  userId: Types.ObjectId;
-  reason:
-    | "USER_DEACTIVATION"
-    | "SYSTEM_SUSPENSION"
-    | "ADMIN_SUSPENSION"
-    | "INACTIVE_STALE";
-  description?: string;
-  deactivatedAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
 }

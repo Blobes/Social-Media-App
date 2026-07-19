@@ -1,4 +1,10 @@
-import { GistModel, IMedia, IPostStatus } from "@repo/database";
+import {
+  AccountStatus,
+  GistModel,
+  IMedia,
+  IPostStatus,
+  ModerationSeverity,
+} from "@repo/database";
 import { Request, RequestHandler } from "express";
 import mongoose, { InferSchemaType } from "mongoose";
 
@@ -18,10 +24,9 @@ export enum ISeverity {
 }
 
 export type AppName =
-  | "ADMIN_SERVICE"
+  | "PLATFORM_SERVICE"
   | "ACCOUNT_SERVICE"
   | "POST_SERVICE"
-  | "USER_SERVICE"
   | "WORKER_SERVICE"
   | "GATEWAY";
 
@@ -55,6 +60,7 @@ export interface IJwtUser {
   password?: string;
   firstName?: string;
   lastName?: string;
+  accountStatus?: AccountStatus;
   role?: Role;
 }
 
@@ -164,7 +170,7 @@ export interface OtpJobPayload {
 
 export interface IModResult {
   extractedTopics: string[];
-  severity: ISeverity | null;
+  severity: ModerationSeverity | null;
   ruleViolated: string | null;
   reason: string | null;
   needsReview: boolean;

@@ -18,7 +18,7 @@ export const startEligibilityWorker = () => {
           isEmailVerified: true,
           isPhoneVerified: true,
           createdAt: { $lte: NINETY_DAYS_AGO },
-          isDeactivated: false,
+          accountStatus: "ACTIVE",
           moderationStrikes: 0,
           followersCount: { $gte: 500 }, // Grant threshold
         },
@@ -35,7 +35,7 @@ export const startEligibilityWorker = () => {
           $or: [
             { moderationStrikes: { $gt: 0 } },
             { followersCount: { $lt: 450 } }, // Revoke threshold
-            { isDeactivated: true },
+            { accountStatus: "DEACTIVATED" },
           ],
         },
         { $set: { meritsVerification: false } },

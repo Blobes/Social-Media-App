@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Stack, Typography, SxProps, Theme } from "@mui/material";
+import { Stack } from "@mui/material";
 import { GenericStyle, IPostAuthor } from "@repo/core";
 import { useTheme } from "@mui/material/styles";
 import { TransText, UserAvatar } from "@repo/shared-ui";
@@ -37,14 +37,14 @@ export const AuthorInfo = ({
       <Stack sx={{ width: "100%", gap: theme.gap(0), minWidth: "40px" }}>
         <TransText
           noWrap
-          sx={{ ...theme.typography.body2, fontWeight: "bold" }}>
+          sx={{ ...theme.typography.text3, fontWeight: "bold" }}>
           {author.fullName}
         </TransText>
         {showUsername && (
           <TransText
             noWrap
             sx={{
-              ...theme.typography.body3,
+              ...theme.typography.text4,
               color: theme.palette.gray[200],
               lineHeight: "1.1em",
             }}>

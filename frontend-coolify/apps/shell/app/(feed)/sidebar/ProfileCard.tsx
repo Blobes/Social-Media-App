@@ -65,12 +65,12 @@ export const ProfileCard = () => {
           gap: theme.gap(1),
         }}>
         <TransText
-          sx={theme.typography.subtitle1}
+          sx={theme.typography.text1}
           noWrap={true}>{`${firstName} ${lastName}`}</TransText>
         <TransText
           component="p"
           noWrap={true}
-          sx={{ ...theme.typography.body3, color: theme.palette.gray[200] }}>
+          sx={{ ...theme.typography.text4, color: theme.palette.gray[200] }}>
           {email}
         </TransText>
         <Divider />
@@ -81,24 +81,24 @@ export const ProfileCard = () => {
               width: "inherit",
               borderRight: `1px solid ${theme.palette.gray.trans[1]}`,
             }}>
-            <TransText sx={theme.typography.subtitle1}>
+            <TransText sx={theme.typography.text1}>
               {summarizeNum(followersCount ?? 0)}
             </TransText>
             <TransText
               {...COMMON_FEEDBACK.followers}
               sx={{
-                ...theme.typography.body3,
+                ...theme.typography.text4,
                 color: theme.palette.gray[200],
               }}
             />
           </Stack>
           <Stack sx={{ width: "inherit" }} spacing={`${theme.gap(-5)}`}>
-            <TransText sx={theme.typography.subtitle1}>
+            <TransText sx={theme.typography.text1}>
               {summarizeNum(followingCount ?? 0)}
             </TransText>
             <TransText
               {...COMMON_FEEDBACK.following}
-              sx={{ ...theme.typography.body3, color: theme.palette.gray[200] }}
+              sx={{ ...theme.typography.text4, color: theme.palette.gray[200] }}
             />
           </Stack>
         </Stack>
@@ -106,9 +106,9 @@ export const ProfileCard = () => {
         <AppButton
           variant="outlined"
           style={{
+            ...theme.typography.text5,
             alignSelf: "center",
             width: "100%",
-            fontSize: "14px",
             padding: theme.boxSpacing(2, 5),
             borderColor: theme.palette.gray.trans[2],
           }}>

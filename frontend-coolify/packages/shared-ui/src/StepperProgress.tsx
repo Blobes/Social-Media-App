@@ -18,6 +18,8 @@ const StepDot = styled(Box, {
   shouldForwardProp: (prop) => prop !== "active" && prop !== "completed",
 })<{ active?: boolean; completed?: boolean }>(
   ({ theme, active, completed }) => ({
+    ...theme.typography.text3,
+    fontWeight: 600,
     width: 44,
     height: 44,
     borderRadius: theme.radius.full,
@@ -25,8 +27,6 @@ const StepDot = styled(Box, {
     flexShrink: 0, // Prevent dots from squishing on mobile
     alignItems: "center",
     justifyContent: "center",
-    fontSize: 16,
-    fontWeight: 600,
     transition: "all 0.3s ease",
     border: `2px solid ${
       completed || active
@@ -143,9 +143,8 @@ export const StepperProgress = <T,>({
                   <TransText
                     noWrap={true}
                     sx={{
-                      ...theme.typography.caption,
+                      ...theme.typography.text5,
                       maxWidth: 56,
-                      fontSize: "15px",
                       fontWeight: isActive || isCompleted ? 700 : 500,
                       color:
                         isActive || isCompleted

@@ -21,8 +21,10 @@ import { COUNTRIES } from "./countries";
 import { IMenuItem } from "../types/ui-state";
 import { ICountryItem, ITranslation, ListType } from "../types/ui-props";
 import { COMMON_LIST } from "./msgRegistry";
+import { useTheme } from "@mui/material/styles";
 
 export const LISTS = (translator?: (transData: ITranslation) => string) => {
+  const theme = useTheme();
   // User profile navigation list visible to only logged-in users
   const translate = (transData: ITranslation) => {
     return translator ? translator(transData) : transData.tValue;
@@ -146,7 +148,9 @@ export const LISTS = (translator?: (transData: ITranslation) => string) => {
       title: `${country.iso} (${country.code})`,
       code: country.code,
       type: "BUTTON" as const,
-      element: <span style={{ fontSize: "20px" }}>{country.flag}</span>,
+      element: (
+        <span style={{ ...theme.typography.text2 }}>{country.flag}</span>
+      ),
     }),
   );
 

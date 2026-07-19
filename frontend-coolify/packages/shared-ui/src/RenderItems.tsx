@@ -58,7 +58,8 @@ export const RenderItemList = <T extends IMenuItem>({
       outline: "none",
     },
     title: {
-      fontSize: (fontSize ?? "15px") + "!important",
+      ...theme.typography.text3,
+      fontSize: (fontSize ?? theme.typography.text3.fontSize) + "!important",
       fontWeight: (fontWeight ?? "600") + "!important",
       color: (color ?? theme.palette.gray[300]) + "!important",
       "&:hover": { textDecoration: "none", ...restStyle["&:hover"] },
@@ -165,7 +166,7 @@ const TopicItem = ({ title, element, style, postCount }: Default & ITopic) => {
       {postCount && (
         <TransText
           {...POST_INFO.topic_post_count(summarizeNum(postCount))}
-          sx={{ ...theme.typography.caption, fontWeight: 500 }}
+          sx={{ ...theme.typography.text5, fontWeight: 500 }}
         />
       )}
     </>

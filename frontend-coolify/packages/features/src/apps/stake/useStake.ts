@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CACHE_KEYS, IStake } from "@repo/core";
+import { ApiError, CACHE_KEYS, IStake } from "@repo/core";
 import { delay } from "@repo/helpers";
 import { stakeTestData } from "@repo/assets";
 
@@ -25,7 +25,7 @@ export const useStake = () => {
     isFetching,
     refetch,
     error,
-  } = useQuery({
+  } = useQuery<IStake[], ApiError>({
     queryKey: [CACHE_KEYS.POST.STAKES],
     queryFn: fetchStakes,
     // Adjust staleTime as needed for production data
@@ -43,6 +43,6 @@ export const useStake = () => {
     stakes,
     isLoading: isLoading || isFetching,
     handleRefresh,
-    error: error instanceof Error ? error.message : null,
+    message: error ? error.localizedErrMsg || error.message : null,
   };
 };

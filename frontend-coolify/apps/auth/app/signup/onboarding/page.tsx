@@ -4,12 +4,14 @@ import React from "react";
 import { Stack, useTheme } from "@mui/material";
 import { applyBGPattern } from "@repo/helpers";
 import { Onboarding } from "./Onboarding";
-import { RestrictedUI } from "@repo/features";
-import { useGlobalStore } from "@repo/core";
+import { DisplayFeedbackUI } from "@repo/features";
+import { AUTH_FEEDBACK, useGlobalStore } from "@repo/core";
+import { useStaticTranslation } from "@repo/shared-hooks";
 
 export default function OnboardingPage() {
   const theme = useTheme();
   const authUser = useGlobalStore((state) => state.authUser);
+  const { translateTxtString } = useStaticTranslation();
 
   return (
     <Stack
@@ -26,10 +28,14 @@ export default function OnboardingPage() {
         ...applyBGPattern(),
       }}>
       {authUser?.isOnboarded ? (
-        <RestrictedUI
+        <DisplayFeedbackUI
           type="UNAUTHORIZED"
-          headline="No Required Onboarding"
-          tagline="You have already completed the onboarding step."
+          headline={translateTxtString(
+            AUTH_FEEDBACK.no_required_onboarding_headline,
+          )}
+          tagline={translateTxtString(
+            AUTH_FEEDBACK.no_required_onboarding_tagline,
+          )}
         />
       ) : (
         <Onboarding />

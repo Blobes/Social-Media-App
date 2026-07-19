@@ -29,7 +29,7 @@ export const RightSidebar = () => {
       <TransText
         component="h6"
         {...COMMON_MEDIA.recently_viewed_media}
-        sx={{ ...theme.typography.subtitle1, width: "100%" }}
+        sx={{ ...theme.typography.text1, width: "100%" }}
       />
       <RecentMedia />
     </Stack>

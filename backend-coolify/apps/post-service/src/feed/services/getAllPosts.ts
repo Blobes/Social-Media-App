@@ -1,10 +1,9 @@
 import mongoose from "mongoose";
-import { FollowModel, GistModel, IPostStatus } from "@repo/database";
+import { GistModel, IPostStatus } from "@repo/database";
 import {
   getStaticPostList,
   getOrSetCache,
   getPostSocialData,
-  getOrSetCacheSet,
   getUserPreferences,
   personalizeFeed,
   CACHE_KEYS,

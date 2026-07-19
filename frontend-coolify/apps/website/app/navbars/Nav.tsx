@@ -75,7 +75,7 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
         <AppButton
           href={CLIENT_ROUTES.home.path}
           variant="outlined"
-          style={{ fontSize: "14px" }}
+          style={{ ...theme.typography.text5 }}
           onClick={() =>
             navigateTo(CLIENT_ROUTES.home, { type: "push", loadPage: true })
           }>
@@ -87,7 +87,7 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
         <>
           <AppButton
             href={CLIENT_ROUTES.signup.path}
-            style={{ fontSize: "14px" }}
+            style={{ ...theme.typography.text5 }}
             onClick={() =>
               navigateTo(CLIENT_ROUTES.signup, {
                 type: "push",
@@ -101,7 +101,7 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
           <AppButton
             href={CLIENT_ROUTES.login.path}
             variant="outlined"
-            style={{ fontSize: "14px" }}
+            style={{ ...theme.typography.text5 }}
             onClick={() =>
               navigateTo(CLIENT_ROUTES.login, {
                 type: "push",

@@ -1,0 +1,83 @@
+"use client";
+
+import React, { useState } from "react";
+import { useTheme } from "@mui/material/styles";
+import { Stepper } from "@repo/shared-ui";
+import { Stack } from "@mui/material";
+import Image from "next/image";
+import { asset } from "@repo/assets";
+import { IStep, PasswordResetStepName } from "@repo/core";
+import { CredentialStep } from "./Credential";
+import { NewPasswordStep } from "./NewPassword";
+import { ResetStepProps } from "../../types";
+
+/**
+ * Top level controller switching presentation stages via unified linear routing matrices.
+ */
+export const Reset: React.FC<ResetStepProps> = ({ style = {} }) => {
+  const theme = useTheme();
+  const [input, setInput] = useState("");
+  const [currStep, setCurrStep] = useState<PasswordResetStepName>("CREDENTIAL");
+
+  const steps: IStep<PasswordResetStepName>[] = [
+    {
+      name: "CREDENTIAL",
+      element: (
+        <CredentialStep
+          step={currStep}
+          setStep={setCurrStep}
+          existingInput={input}
+          setIdentifier={setInput}
+          style={{
+            headline: style?.headline,
+            tagline: style?.tagline,
+          }}
+        />
+      ),
+    },
+    {
+      name: "NEW_PASSWORD",
+      element: (
+        <NewPasswordStep
+          step={currStep}
+          setStep={setCurrStep}
+          style={{
+            headline: style?.headline,
+            tagline: style?.tagline,
+          }}
+        />
+      ),
+    },
+  ];
+
+  return (
+    <Stack
+      sx={{
+        backgroundColor: theme.palette.gray[0],
+        borderRadius: theme.radius[5],
+        justifyContent: "center",
+        alignItems: "center",
+        gap: theme.gap(10),
+        ...style.container,
+        [theme.breakpoints.down("md")]: {
+          flex: "none",
+          ...style.container?.mdScreen,
+        },
+        [theme.breakpoints.down("sm")]: {
+          width: style.container?.smScreen,
+        },
+      }}>
+      <Image
+        alt="logo"
+        src={asset.logo}
+        width={50}
+        height={50}
+        style={{
+          borderRadius: `${theme.radius.full}`,
+          flex: "none",
+        }}
+      />
+      <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />
+    </Stack>
+  );
+};

@@ -252,17 +252,16 @@ export const BGFadeCarousel = ({
                 <TransText
                   component={"h5"}
                   sx={{
-                    ...theme.typography.h5,
+                    ...theme.typography.h6,
                     fontWeight: 800,
                     letterSpacing: "-0.02em",
-                    fontSize: 24,
                     lineHeight: 1.15,
                   }}>
                   {slide.headline}
                 </TransText>
                 <TransText
                   sx={{
-                    ...theme.typography.body3,
+                    ...theme.typography.text4,
                     color: "rgba(255, 255, 255, 0.7)",
                   }}>
                   {slide.tagline}

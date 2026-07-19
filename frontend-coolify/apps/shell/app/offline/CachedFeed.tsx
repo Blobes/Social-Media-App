@@ -74,12 +74,10 @@ export const CachedFeed = () => {
         </>
       ) : feed.length < 1 ? (
         <Feedback
-          transData={{
-            headline: POST_FEEDBACK.offline_feed_empty_headline,
-            textDesc: POST_FEEDBACK.offline_feed_empty_tagline,
-          }}
-          headline={POST_FEEDBACK.offline_feed_empty_headline.tValue}
-          tagline={POST_FEEDBACK.offline_feed_empty_tagline.tValue}
+          headline={translateTxtString(
+            POST_FEEDBACK.offline_feed_empty_headline,
+          )}
+          tagline={translateTxtString(POST_FEEDBACK.offline_feed_empty_tagline)}
           icon={<CircleSlash2 />}
           primaryCta={{
             type: "BUTTON",
@@ -99,7 +97,7 @@ export const CachedFeed = () => {
               alignItems: "center",
               justifyContent: "center",
             },
-            tagline: { fontSize: "15px" },
+            tagline: { ...theme.typography.text4 },
             icon: {
               width: "50px",
               height: "50px",

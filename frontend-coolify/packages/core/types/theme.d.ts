@@ -73,18 +73,35 @@ declare module "@mui/material/styles" {
     gap?: (value: number) => string;
   }
   interface TypographyVariants {
-    body3: React.CSSProperties;
-    overlineLower: React.CSSProperties;
+    text1: React.CSSProperties;
+    text2: React.CSSProperties;
+    text3: React.CSSProperties;
+    text4: React.CSSProperties;
+    text5: React.CSSProperties;
+    text6: React.CSSProperties;
+    text6Caps: React.CSSProperties;
   }
   interface TypographyVariantsOptions {
-    body3?: React.CSSProperties;
-    overlineLower?: React.CSSProperties;
+    text4?: React.CSSProperties;
+    text6?: React.CSSProperties;
+    text1?: React.CSSProperties;
+    text2?: React.CSSProperties;
+    text3?: React.CSSProperties;
+    text4?: React.CSSProperties;
+    text5?: React.CSSProperties;
+    text6?: React.CSSProperties;
+    text6Caps?: React.CSSProperties;
   }
 }
 
 declare module "@mui/material/Typography" {
   interface TypographyPropsVariantOverrides {
-    body3: true;
-    overlineLower: true;
+    text1: true;
+    text2: true;
+    text3: true;
+    text4: true;
+    text5: true;
+    text6: true;
+    text6Caps: true;
   }
 }

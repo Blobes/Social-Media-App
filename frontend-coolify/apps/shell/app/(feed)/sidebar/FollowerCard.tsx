@@ -48,7 +48,7 @@ export const FollowerCard = ({ follower }: FollowerProps) => {
           <TransText
             noWrap={true}
             sx={{
-              ...theme.typography.body2,
+              ...theme.typography.text3,
               fontWeight: 600,
               textAlign: "left",
             }}>
@@ -56,7 +56,7 @@ export const FollowerCard = ({ follower }: FollowerProps) => {
           </TransText>
           <TransText
             sx={{
-              ...theme.typography.body3,
+              ...theme.typography.text4,
               margin: "unset!important",
               textAlign: "left",
             }}
@@ -77,7 +77,7 @@ export const FollowerCard = ({ follower }: FollowerProps) => {
         variant="outlined"
         options={{ disabled: isLoading }}
         style={{
-          fontSize: "13px",
+          ...theme.typography.text6,
           padding: theme.boxSpacing(1, 5),
           borderColor: theme.palette.gray.trans[2],
         }}

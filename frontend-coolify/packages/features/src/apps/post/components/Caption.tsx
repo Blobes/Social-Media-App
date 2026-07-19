@@ -2,12 +2,12 @@
 
 import React, { useMemo } from "react";
 import { CircularProgress, Stack } from "@mui/material";
-import { useTranslation } from "react-i18next";
 import { WordTrimmer, AppButton, TransText } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 import {
   AUTH_BUTTON_LABELS,
   CACHE_KEYS,
+  DynamicTranslateFns,
   GenericStyle,
   SUPPORTED_ISO_CODES,
   useGlobalStore,
@@ -19,6 +19,7 @@ interface DynamicCaptionProps {
   captionId: string;
   caption: string;
   detectedLanguage?: string;
+  transServiceFn: DynamicTranslateFns;
   style?: GenericStyle;
 }
 
@@ -29,6 +30,7 @@ export const DynamicCaption: React.FC<DynamicCaptionProps> = ({
   captionId,
   caption,
   detectedLanguage = "en",
+  transServiceFn,
   style = {},
 }) => {
   const theme = useTheme();
@@ -93,10 +95,13 @@ export const DynamicCaption: React.FC<DynamicCaptionProps> = ({
       textId: captionId,
       textToTranslate: caption,
       sourceLang: postSourceLang,
-      targetLang: targetLanguage ?? "en", // Pass a fallback fallback to appease type checks safely
+      targetLang: targetLanguage ?? "en",
     },
-    resolveTranslation: (res: any) =>
-      res?.payload?.translatedText || res?.data?.translatedText,
+    transCb: {
+      translateServiceFn: transServiceFn.translateServiceFn,
+      resolveTranslation: (res: any) =>
+        res?.payload?.translatedText || res?.data?.translatedText,
+    },
   });
 
   const visibleText =
@@ -128,9 +133,7 @@ export const DynamicCaption: React.FC<DynamicCaptionProps> = ({
             variant="text"
             onClick={toggleTranslation}
             style={{
-              fontSize: "12px",
-              fontWeight: 600,
-              textTransform: "none",
+              ...theme.typography.text6,
               padding: 0,
               minWidth: "unset",
               width: "auto",

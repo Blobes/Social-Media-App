@@ -7,7 +7,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { OnboardingService } from "../../service";
 import { LoginService } from "../../../login/service";
-import { COMMON_FEEDBACK, useGlobalStore } from "@repo/core";
+import { ApiError, COMMON_FEEDBACK, useGlobalStore } from "@repo/core";
 
 /**
  * Manages Identity logic using the updated bulk validator.
@@ -83,9 +83,9 @@ export const useIdentity = (onSuccess?: () => void) => {
       setInlineMsg(null);
       if (onSuccess) onSuccess();
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       setInlineMsg(
-        error.message || translateTxtString(COMMON_FEEDBACK.sync_error),
+        error.localizedErrMsg || translateTxtString(COMMON_FEEDBACK.sync_error),
       );
       setUsernameStatus({ status: "IDLE" });
     },

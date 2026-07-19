@@ -61,6 +61,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
     countryMenuRef,
     validateAndSet,
     handleSignupClick,
+    handleResetPassClick,
     inlineMsg,
   } = useIdentifier({ existingInput, setStep, setIdentifier });
 
@@ -96,7 +97,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
             ),
           }}
           sx={{
-            ...theme.typography.body3,
+            ...theme.typography.text4,
             color: theme.palette.gray[200],
             paddingBottom: theme.boxSpacing(2),
             textAlign: "center",
@@ -110,7 +111,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         <AppButton
           variant="outlined"
           style={{
-            ...theme.typography.button,
+            ...theme.typography.text3,
             padding: theme.boxSpacing(4.5, 9),
             gap: theme.gap(4),
             width: "100%",
@@ -122,7 +123,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         <AppButton
           variant="outlined"
           style={{
-            ...theme.typography.button,
+            ...theme.typography.text3,
             gap: theme.gap(4),
             padding: theme.boxSpacing(4.5, 9),
             width: "100%",
@@ -139,7 +140,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
 
       <Divider
         sx={{
-          ...theme.typography.caption,
+          ...theme.typography.text5,
           color: theme.palette.gray[200],
           margin: 0,
         }}>
@@ -222,7 +223,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
           variant="contained"
           submit
           style={{
-            ...theme.typography.button,
+            ...theme.typography.text3,
             padding: theme.boxSpacing(5.5, 9),
             width: "100%",
           }}
@@ -236,10 +237,11 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
       </Stack>
 
       {/* Footer */}
+      <Divider />
       <TransText
         {...COMMON_FEEDBACK.new_to_funstakes}
         component="p"
-        sx={{ ...theme.typography.body3, textAlign: "center" }}
+        sx={{ ...theme.typography.text4, textAlign: "center" }}
         inlineComponents={{
           anchor: (
             <AnchorLink
@@ -252,6 +254,14 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
           ),
         }}
       />
+      <AnchorLink
+        href={CLIENT_ROUTES.resetPassword.path}
+        onClick={handleResetPassClick}
+        style={{
+          ...inlineTxtStyle,
+        }}>
+        <TransText {...COMMON_BUTTON_LABELS.reset_password} noComponent />
+      </AnchorLink>
     </Stack>
   );
 };

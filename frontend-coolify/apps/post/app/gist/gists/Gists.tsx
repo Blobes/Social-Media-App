@@ -2,7 +2,6 @@
 
 import React, { useMemo } from "react";
 import { Box, Stack } from "@mui/material";
-import { CreateGist } from "../create/page";
 import { Feedback, GistSkeleton, ProgressIcon } from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
@@ -20,6 +19,7 @@ import {
   POST_FEEDBACK,
   COMMON_BUTTON_LABELS,
 } from "@repo/core";
+import { CreateGist } from "@repo/features/src/apps/gist/create/CreateGist";
 
 /**
  * Main Gists feed component.
@@ -51,9 +51,7 @@ export const Gists = () => {
 
   const gists = onlineGists.length > 0 ? onlineGists : cachedGists || [];
 
-  const finalMsg = message
-    ? undefined
-    : POST_FEEDBACK.no_post_found_tagline("gist");
+  const finalMsg = POST_FEEDBACK.no_post_found_tagline("gist");
 
   const containerStyle = useMemo(
     () => ({
@@ -82,10 +80,7 @@ export const Gists = () => {
         <GistSkeleton />
       ) : gists.length < 1 ? (
         <Feedback
-          transData={{
-            textDesc: finalMsg,
-          }}
-          tagline={message || finalMsg?.tValue}
+          tagline={message || translateTxtString(finalMsg)}
           icon={<Milestone />}
           primaryCta={{
             type: "BUTTON",
@@ -101,7 +96,7 @@ export const Gists = () => {
               backgroundColor: "none",
               gap: theme.gap(6),
             },
-            tagline: { ...theme.typography.body2 },
+            tagline: { ...theme.typography.text3 },
             icon: {
               width: "50px",
               height: "50px",

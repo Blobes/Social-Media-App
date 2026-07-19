@@ -2,6 +2,8 @@
 
 import {
   API_BASE,
+  DynamicTranslateReq,
+  DynamicTranslateRes,
   IListPayload,
   IPost,
   ISinglePayload,
@@ -21,61 +23,28 @@ interface SeenResponse {
   viewCount: number;
 }
 
-// Added request contract layout structure mapping criteria
-export interface TranslateTextReq {
-  postId: string;
-  caption: string;
-  sourceLang: string;
-  targetLang: string;
-}
-
-interface TranslateTextResponse {
-  translatedText: string;
-}
-
 export const PostService = () => {
+  // Notifies the server that a post has been viewed.
   const markAsSeen = async (
     postId: string,
     postType: PostType,
   ): Promise<ISinglePayload<SeenResponse | null>> => {
-    try {
-      const res = await apiClient<ISinglePayload<SeenResponse>>(
-        SERVER_API.postSeen(postId),
-        { method: "PATCH", body: JSON.stringify({ postType }) },
-      );
-      return res;
-    } catch (error) {
-      throw error;
-    }
+    return await apiClient<ISinglePayload<SeenResponse>>(
+      SERVER_API.postSeen(postId),
+      { method: "PATCH", body: JSON.stringify({ postType }) },
+    );
   };
 
+  // Fetches a paginated list of feed posts.
   const fetchFeed = useCallback(
     async (
       page: number = 1,
       limit: number = 20,
     ): Promise<IListPayload<IPost>> => {
-      try {
-        const url = `${API_BASE.feed}?page=${page}&limit=${limit}`;
-
-        const res = await apiClient<IListPayload<IPost>>(url, {
-          method: "GET",
-        });
-
-        return {
-          status: res.status,
-          payload: res.payload ?? [],
-          message: res.message,
-          metaData: res.metaData,
-        };
-      } catch (error: any) {
-        console.error("Feed Service Error:", error);
-        return {
-          status: error.status || "ERROR",
-          payload: null,
-          message:
-            error.message ?? "Something went wrong while fetching the feed",
-        };
-      }
+      const url = `${API_BASE.feed}?page=${page}&limit=${limit}`;
+      return await apiClient<IListPayload<IPost>>(url, {
+        method: "GET",
+      });
     },
     [],
   );
@@ -89,32 +58,14 @@ export const PostService = () => {
       page = 1,
       limit = 20,
     ): Promise<IListPayload<ITopic>> => {
-      try {
-        const url = `${SERVER_API.lookupTopics}?page=${page}&limit=${limit}`;
-        const res = await apiClient<IListPayload<ITopic>>(url, {
-          method: "POST",
-          body: JSON.stringify(data),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        return {
-          status: res.status,
-          payload: res.payload ?? [],
-          message: res.message,
-          metaData: res.metaData,
-        };
-      } catch (error: any) {
-        console.error("Topics Lookup Fetch Error:", error);
-        return {
-          status: error.status ?? "ERROR",
-          payload: [],
-          message:
-            error.message ??
-            "Unable to populate topics directory lookup matrix.",
-        };
-      }
+      const url = `${SERVER_API.lookupTopics}?page=${page}&limit=${limit}`;
+      return await apiClient<IListPayload<ITopic>>(url, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
     },
     [],
   );
@@ -124,24 +75,16 @@ export const PostService = () => {
    */
   const translateText = useCallback(
     async (
-      data: TranslateTextReq,
-    ): Promise<ISinglePayload<TranslateTextResponse | null>> => {
-      try {
-        const url = SERVER_API.translateCaption;
-        const res = await apiClient<ISinglePayload<TranslateTextResponse>>(
-          url,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-          },
-        );
-        return res;
-      } catch (error) {
-        throw error;
-      }
+      data: DynamicTranslateReq,
+    ): Promise<ISinglePayload<DynamicTranslateRes | null>> => {
+      const url = SERVER_API.translateCaption;
+      return await apiClient<ISinglePayload<DynamicTranslateRes>>(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
     },
     [],
   );

@@ -122,7 +122,7 @@ export const SnackBars = ({
                   }}>
                   {msg.headline && (
                     <TransText
-                      sx={{ ...theme.typography.body2, fontWeight: 501 }}>
+                      sx={{ ...theme.typography.text3, fontWeight: 501 }}>
                       {msg.headline}
                     </TransText>
                   )}
@@ -147,7 +147,7 @@ export const SnackBars = ({
                           variant="text"
                           onClick={msg.cta.action}
                           style={{
-                            fontSize: "14px",
+                            ...theme.typography.text5,
                             padding: 0,
                             borderRadius: 0,
                             minWidth: "unset",

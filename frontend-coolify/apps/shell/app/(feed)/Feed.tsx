@@ -86,12 +86,9 @@ export const Feed = () => {
         </>
       ) : feed.length < 1 ? (
         <Feedback
-          transData={{
-            textDesc: message
-              ? undefined
-              : POST_FEEDBACK.no_post_found_tagline(),
-          }}
-          tagline={message || POST_FEEDBACK.no_post_found_tagline().tValue}
+          tagline={
+            message || translateTxtString(POST_FEEDBACK.no_post_found_tagline())
+          }
           icon={<Milestone />}
           primaryCta={{
             type: "BUTTON",
@@ -107,7 +104,7 @@ export const Feed = () => {
               backgroundColor: "none",
               gap: theme.gap(6),
             },
-            tagline: { ...theme.typography.body2 },
+            tagline: { ...theme.typography.text3 },
             icon: {
               width: "50px",
               height: "50px",

@@ -53,11 +53,9 @@ export const PostEngagement = ({
       {isVertical && count !== undefined && (
         <TransText
           sx={{
-            ...theme.typography.caption,
+            ...theme.typography.text5,
             fontWeight: 700,
-            fontSize: "11px",
             color: theme.palette.gray[200],
-            // Added shadow for visibility if overlaid on media
             textShadow: "0px 1px 2px rgba(0,0,0,0.5)",
           }}>
           {summarizeNum(count)}

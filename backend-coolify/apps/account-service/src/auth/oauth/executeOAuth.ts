@@ -1,21 +1,21 @@
 import { authTokens } from "@/envVars";
-import { UserModel } from "@repo/database";
+import { AccountStatus, ModerationDecision, UserModel } from "@repo/database";
 import {
+  getAccountStatusMsg,
   MESSAGES_REGISTRY,
-  signAccessJwt,
-  signRefreshJwt,
   toJwtUser,
   TransInfo,
   upsertDevice,
   userSensitiveFields,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
-import { executeAccountCheck } from "../services/accountChecker";
+import { executeAccountCheck } from "../check/service";
 import {
   IOAuthProfile,
   verifyAppleToken,
   verifyGoogleToken,
 } from "./oAuthClients";
+import { signAccessJwt, signRefreshJwt } from "@repo/security";
 
 export type OAuthProvider = "GOOGLE" | "APPLE";
 export type OAuthPurpose = "REGISTRATION" | "LOGIN";
@@ -36,10 +36,12 @@ interface IOAuthAuthInput {
 interface IOAuthAuthResult {
   status:
     | "SUCCESS"
-    | "DEACTIVATED"
     | "MERGE_RESTRICTION"
     | "NOT_FOUND"
-    | "CONFLICT_EMAIL_IN_USE";
+    | "CONFLICT_EMAIL_IN_USE"
+    | "ACCOUNT_ACTIVE"
+    | "ACCOUNT_INACTIVE"
+    | ModerationDecision;
   transInfo?: TransInfo;
   accessToken?: string;
   refreshToken?: string;
@@ -82,16 +84,19 @@ export const authenticateWithOAuth = async (
     identifier: profile.email,
     purpose,
   });
-
+  const accountStatus = checkResult.payload?.accountStatus;
   // ── REGISTRATION PURPOSE PIPELINE ──────────────────────────────────────────
   if (purpose === "REGISTRATION") {
     if (checkResult.isExisting) {
-      if (checkResult.payload?.accountStatus === "DEACTIVATED") {
-        return {
-          status: "DEACTIVATED",
-          transInfo: MESSAGES_REGISTRY.AUTH.ACCOUNT_DEACTIVATED,
-        };
+      if (
+        accountStatus === "DEACTIVATED" ||
+        accountStatus === "SUSPENDED" ||
+        accountStatus === "BANNED"
+      ) {
+        const restrictionMsg = getAccountStatusMsg(accountStatus, "restricted");
+        return restrictionMsg;
       }
+
       return {
         status: "CONFLICT_EMAIL_IN_USE",
         transInfo: MESSAGES_REGISTRY.AUTH.EMAIL_ALREADY_REGISTERED,
@@ -105,6 +110,7 @@ export const authenticateWithOAuth = async (
       firstName: profile.firstName || "",
       lastName: profile.lastName || "",
       isEmailVerified: true,
+      lastActiveAt: new Date(),
     });
     await newUser.save();
 
@@ -147,12 +153,13 @@ export const authenticateWithOAuth = async (
       transInfo: MESSAGES_REGISTRY.AUTH.EMAIL_NOT_FOUND,
     };
   }
-
-  if (checkResult.payload?.accountStatus === "DEACTIVATED") {
-    return {
-      status: "DEACTIVATED",
-      ...checkResult.transInfo,
-    };
+  if (
+    accountStatus === "DEACTIVATED" ||
+    accountStatus === "SUSPENDED" ||
+    accountStatus === "BANNED"
+  ) {
+    const restrictionMsg = getAccountStatusMsg(accountStatus, "restricted");
+    return restrictionMsg;
   }
 
   const user = await UserModel.findById(checkResult.payload?.userId).setOptions(
@@ -180,6 +187,7 @@ export const authenticateWithOAuth = async (
   // Bind the generic identity identifier if missing, leaving signedUpWith unaltered
   if (!user.oAuthId) {
     user.oAuthId = profile.providerId;
+    user.lastActiveAt = new Date();
     await user.save();
   }
 

@@ -68,15 +68,15 @@ const UserInfo = () => {
           alignItems: "center",
         }}>
         <Stack sx={{ gap: theme.gap(0), width: "100%" }}>
-          <TransText sx={{ ...theme.typography.body1, fontWeight: "600" }}>
+          <TransText sx={{ ...theme.typography.text2, fontWeight: "600" }}>
             {firstName} {lastName}
           </TransText>
           <TransText
-            sx={{ ...theme.typography.body2, color: theme.palette.gray[200] }}>
+            sx={{ ...theme.typography.text3, color: theme.palette.gray[200] }}>
             {username}
           </TransText>
         </Stack>
-        <IconButton sx={{ fontSize: "20px", fontWeight: "500" }}>
+        <IconButton sx={{ ...theme.typography.text1 }}>
           <WalletMinimal style={{ width: "20px", height: "20px" }} />
           12K
         </IconButton>
@@ -110,8 +110,8 @@ const UserInfo = () => {
           },
         ]}
         style={{
+          ...theme.typography.text6,
           justifyContent: "space-between",
-          fontSize: "13px",
         }}
       />
     </Stack>
@@ -138,12 +138,11 @@ export const HeaderMobileNav = ({}) => {
           usePage={usePage}
           showActiveItem={false}
           style={{
+            ...theme.typography.text2,
             gap: theme.gap(10),
             padding: 0,
             background: "transparent",
             width: "100%",
-            textAlign: "left",
-            fontSize: "18px",
             "&:hover": {
               background: "transparent",
               color: theme.palette.primary.dark + "!important",
@@ -161,7 +160,7 @@ export const HeaderMobileNav = ({}) => {
           <SlidersHorizontal style={{ width: "18px", height: "18px" }} />
           <TransText
             {...POST_FEEDBACK.filter_feed}
-            sx={{ ...theme.typography.body2, fontWeight: "600" }}
+            sx={{ ...theme.typography.text3, fontWeight: "600" }}
           />
         </Stack>
         <Logout />

@@ -63,7 +63,7 @@ export const PasswordStep: React.FC<StepProps> = ({
           {...AUTH_FEEDBACK.enter_password_to_login}
           component="p"
           sx={{
-            ...theme.typography.body2,
+            ...theme.typography.text3,
             color: theme.palette.gray[200],
             paddingBottom: theme.boxSpacing(8),
             textAlign: "center",
@@ -85,7 +85,7 @@ export const PasswordStep: React.FC<StepProps> = ({
             <TransText
               component="p"
               sx={{
-                ...theme.typography.body3,
+                ...theme.typography.text4,
                 textAlign: "left",
                 padding: theme.boxSpacing(4, 6),
                 borderRadius: theme.radius[3],
@@ -132,7 +132,7 @@ export const PasswordStep: React.FC<StepProps> = ({
           variant="contained"
           submit
           style={{
-            ...theme.typography.button,
+            ...theme.typography.text3,
             padding: theme.boxSpacing(6, 9),
             width: "100%",
           }}

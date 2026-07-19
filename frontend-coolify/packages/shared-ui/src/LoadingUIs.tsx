@@ -54,7 +54,7 @@ export const ProgressIcon = ({
           tKey={tKey}
           tValue={tValue}
           interpolations={interpolations}
-          sx={{ ...theme.typography.body2, ...(typographyStyle as any) }}
+          sx={{ ...theme.typography.text3, ...(typographyStyle as any) }}
         />
       )}
     </>
@@ -68,7 +68,7 @@ export const PageLoaderUI = () => {
         alignItems: "center",
         justifyContent: "center",
       }}>
-      <SVGWrapper src={asset.LoadingAnimation} size={56} preserveColor={true} />
+      <SVGWrapper src={asset.LoadingAnimation} size={46} preserveColor={true} />
     </RootUIContainer>
   );
 };

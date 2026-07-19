@@ -6,7 +6,7 @@ import { useSnackbar, useStaticTranslation } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { useLockCountdown } from "./useLockCount";
 import { setCookie, getCookie, delay } from "@repo/helpers";
-import { InputStatus, AuthStepName, AUTH_FEEDBACK } from "@repo/core";
+import { InputStatus, AuthStepName, AUTH_FEEDBACK, ApiError } from "@repo/core";
 import { LoginService } from "../service";
 import { clearLoginLock, formatRemainingTime } from "@repo/features";
 import { useLoginFeedback } from "./useFeedback";
@@ -43,7 +43,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     padding: theme.boxSpacing(0, 3),
     margin: theme.boxSpacing(0, 3, 1, 3),
     borderRadius: theme.radius[1],
-    ...theme.typography.caption,
+    ...theme.typography.text5,
   };
 
   const resetLockStates = useCallback(() => {
@@ -121,7 +121,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
       setIsRedirecting(true);
       handleSuccess(res);
     },
-    onError: (err) => {
+    onError: (err: ApiError) => {
       setIsRedirecting(false);
       handleError(err, handleFailedPassword, setInlineMsg);
     },

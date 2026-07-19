@@ -2,8 +2,15 @@
 
 import { useCallback } from "react";
 import { useSnackbar, useStaticTranslation } from "@repo/shared-hooks";
-import { UserService } from "./service";
-import { IUser, CACHE_KEYS, useGlobalStore, COMMON_FEEDBACK } from "@repo/core";
+import { FollowPayload, UserService } from "./service";
+import {
+  IUser,
+  CACHE_KEYS,
+  useGlobalStore,
+  COMMON_FEEDBACK,
+  ApiError,
+  ISinglePayload,
+} from "@repo/core";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 /**
@@ -22,7 +29,7 @@ export const useUser = (userId?: string) => {
    * Fetches specific user profile data.
    * Query is enabled only if a userId is provided.
    */
-  const userQuery = useQuery({
+  const userQuery = useQuery<ISinglePayload<IUser>, ApiError>({
     queryKey: [CACHE_KEYS.USER.TARGET, userId],
     queryFn: () => fetchUser(userId!),
     enabled: !!userId,
@@ -31,11 +38,10 @@ export const useUser = (userId?: string) => {
   /**
    * Fetches the list of followers for a user.
    */
-  const followersQuery = useQuery({
+  const followersQuery = useQuery<IUser[], ApiError>({
     queryKey: [CACHE_KEYS.USER.FOLLOWERS, userId],
     queryFn: async () => {
       const res = await fetchFollowers(userId!);
-      if (res.status !== "SUCCESS") throw new Error(res.message);
       return res.payload || [];
     },
     enabled: !!userId,
@@ -45,17 +51,21 @@ export const useUser = (userId?: string) => {
    * Mutation for following/unfollowing a user.
    * Updates global auth state and invalidates relevant queries on success.
    */
-  const followMutation = useMutation({
+  const followMutation = useMutation<
+    ISinglePayload<FollowPayload>,
+    ApiError,
+    string
+  >({
     mutationFn: (targetId: string) => followUser(targetId),
     onSuccess: (res) => {
       setSBMessage({
         msg: {
-          tagline: res.message,
-          msgStatus: res.status,
+          tagline: res.localizedSuccessMsg || res.message,
+          msgStatus: "SUCCESS",
         },
       });
 
-      if (res.status === "SUCCESS" && res.payload) {
+      if (res.payload) {
         // Update global session user
         setAuthUser(res.payload.currentUser);
 
@@ -68,11 +78,12 @@ export const useUser = (userId?: string) => {
         });
       }
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       setSBMessage({
         msg: {
           msgStatus: "ERROR",
           tagline:
+            error.localizedErrMsg ||
             error.message ||
             translateTxtString(COMMON_FEEDBACK.follow_update_failed_tagline),
         },
@@ -99,12 +110,16 @@ export const useUser = (userId?: string) => {
     // User Data
     userRes: userQuery.data,
     isUserLoading: userQuery.isLoading,
-    userError: userQuery.error,
+    userErrorMessage: userQuery.error
+      ? userQuery.error.localizedErrMsg || userQuery.error.message
+      : null,
 
     // Followers Data
     followers: followersQuery.data || [],
     isFollowersLoading: followersQuery.isLoading,
-    message: followersQuery.error?.message || null,
+    followersMessage: followersQuery.error
+      ? followersQuery.error.localizedErrMsg || followersQuery.error.message
+      : null,
 
     // Aggregated loading state for backward compatibility
     isLoading:

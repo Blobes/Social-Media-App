@@ -165,7 +165,7 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                   {...COMMON_BUTTON_LABELS.request_access}
                   noComponent
                   sx={{
-                    ...theme.typography.caption,
+                    ...theme.typography.text5,
                     color: theme.palette.gray[200],
                   }}
                 />
@@ -281,7 +281,7 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                 endIcon: <ChevronDown size={16} />,
               }}
               style={{
-                ...theme.typography.caption,
+                ...theme.typography.text5,
                 color: theme.palette.gray[300],
                 textTransform: "none",
               }}>
@@ -362,7 +362,7 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                 <TransText
                   {...COMMON_FEEDBACK.file_permission_tagline}
                   sx={{
-                    ...theme.typography.caption,
+                    ...theme.typography.text5,
                     color: theme.palette.gray[200],
                   }}
                 />

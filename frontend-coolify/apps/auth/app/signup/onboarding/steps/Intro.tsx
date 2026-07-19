@@ -55,7 +55,7 @@ export const OnboardingIntro: React.FC<StepperProps<AuthStepName>> = ({
           />
           <TransText
             {...COMMON_FEEDBACK.welcome_aboard_tagline}
-            sx={{ ...theme.typography.body2, color: theme.palette.gray[200] }}
+            sx={{ ...theme.typography.text3, color: theme.palette.gray[200] }}
           />
         </Stack>
       </Stack>
@@ -64,7 +64,7 @@ export const OnboardingIntro: React.FC<StepperProps<AuthStepName>> = ({
         variant="contained"
         onClick={handleStart}
         style={{
-          ...theme.typography.button,
+          ...theme.typography.text3,
           padding: theme.boxSpacing(5.5, 9),
           width: "100%",
         }}>
@@ -75,7 +75,7 @@ export const OnboardingIntro: React.FC<StepperProps<AuthStepName>> = ({
       <Divider sx={{ width: "100%" }} />
       <TransText
         {...AUTH_FEEDBACK.few_minutes_to_setup_account}
-        sx={{ ...theme.typography.caption, color: theme.palette.gray[200] }}
+        sx={{ ...theme.typography.text5, color: theme.palette.gray[200] }}
       />
       <Logout
         containerStyle={{

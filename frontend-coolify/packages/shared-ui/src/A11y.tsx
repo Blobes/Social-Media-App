@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, forwardRef, useCallback } from "react";
 import {
   useMove,
   VisuallyHidden,
@@ -32,102 +32,120 @@ interface A11yProps {
 /**
  * Centrally attaches WCAG semantic attributes, roles, and focus traps to existing components without adding layout styles.
  */
-export const A11y = ({
-  useCase,
-  children,
-  isOpen = false,
-  onClose,
-  label,
-  onSwipeNext,
-  onSwipePrev,
-  sx,
-}: A11yProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Focus trap configurations for modals (WCAG 2.4.3)
-  const { overlayProps } = useOverlay(
-    { isOpen, onClose, isDismissable: true },
-    useCase === "dialog" ? containerRef : { current: null },
-  );
-  usePreventScroll({ isDisabled: useCase !== "dialog" || !isOpen });
-
-  // Custom key interaction abstractions for carousels (WCAG 2.1.1)
-  const { moveProps } = useMove({
-    onMove: (e) => {
-      if (useCase !== "carousel-track") return;
-      if (e.pointerType === "keyboard") {
-        if (e.deltaX > 0 && onSwipeNext) onSwipeNext();
-        if (e.deltaX < 0 && onSwipePrev) onSwipePrev();
-      }
+export const A11y = forwardRef<HTMLDivElement, A11yProps>( // Wrap component with forwardRef
+  (
+    {
+      useCase,
+      children,
+      isOpen = false,
+      onClose,
+      label,
+      onSwipeNext,
+      onSwipePrev,
+      sx,
     },
-  });
+    forwardedRef, // The ref passed from the parent component
+  ) => {
+    const internalRef = useRef<HTMLDivElement>(null);
 
-  switch (useCase) {
-    case "dialog":
-      if (!isOpen) return null;
-      return (
-        /* Locks tab key indexing inside your existing modal window structure */
-        <FocusScope contain restoreFocus autoFocus>
+    const combinedRef = useCallback(
+      (node: HTMLDivElement | null) => {
+        internalRef.current = node;
+
+        // Update the forwarded ref (handle function or object refs)
+        if (typeof forwardedRef === "function") {
+          forwardedRef(node);
+        } else if (forwardedRef) {
+          (
+            forwardedRef as React.MutableRefObject<HTMLDivElement | null>
+          ).current = node;
+        }
+      },
+      [forwardedRef],
+    );
+
+    const { overlayProps } = useOverlay(
+      { isOpen, onClose, isDismissable: true },
+      useCase === "dialog" ? internalRef : { current: null },
+    );
+    usePreventScroll({ isDisabled: useCase !== "dialog" || !isOpen });
+
+    // Custom key interaction abstractions for carousels (WCAG 2.1.1)
+    const { moveProps } = useMove({
+      onMove: (e) => {
+        if (useCase !== "carousel-track") return;
+        if (e.pointerType === "keyboard") {
+          if (e.deltaX > 0 && onSwipeNext) onSwipeNext();
+          if (e.deltaX < 0 && onSwipePrev) onSwipePrev();
+        }
+      },
+    });
+
+    switch (useCase) {
+      case "dialog":
+        return (
+          <FocusScope contain restoreFocus autoFocus>
+            <Box
+              {...overlayProps}
+              ref={combinedRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label={label}
+              sx={{ display: "flex", ...sx }}>
+              {children}
+            </Box>
+          </FocusScope>
+        );
+
+      case "text-live":
+        return (
           <Box
-            {...overlayProps}
-            ref={containerRef}
-            role="dialog"
-            aria-modal="true"
-            aria-label={label}
-            sx={{ display: "flex", ...sx }} // Keeps layout transparent to protect child styles
-          >
+            ref={combinedRef}
+            aria-live="polite"
+            aria-atomic="true"
+            sx={{ display: "contents", ...sx }}>
             {children}
           </Box>
-        </FocusScope>
-      );
+        );
 
-    case "text-live":
-      return (
-        <Box
-          ref={containerRef}
-          aria-live="polite"
-          aria-atomic="true"
-          sx={{ display: "contents", ...sx }}>
-          {children}
-        </Box>
-      );
+      case "carousel-track":
+        return (
+          <Box
+            {...moveProps}
+            ref={combinedRef}
+            role="region"
+            aria-roledescription="carousel"
+            aria-label={label ?? "Slider track"}
+            tabIndex={0}
+            sx={{ display: "contents", ...sx }}>
+            {children}
+          </Box>
+        );
 
-    case "carousel-track":
-      return (
-        <Box
-          {...moveProps}
-          ref={containerRef}
-          role="region"
-          aria-roledescription="carousel"
-          aria-label={label ?? "Slider track"}
-          tabIndex={0}
-          sx={{ display: "contents", ...sx }}>
-          {children}
-        </Box>
-      );
+      case "interactive":
+        return (
+          <Box
+            component="span"
+            ref={combinedRef}
+            sx={{
+              display: "contents",
+              "& *:focus-visible": {
+                outline: "2px solid var(--mui-palette-primary-main) !important",
+                outlineOffset: "3px !important",
+                boxShadow: "0 0 0 4px var(--mui-fixedColors-pTrans) !important",
+              },
+              ...sx,
+            }}>
+            {children}
+          </Box>
+        );
 
-    case "interactive":
-      return (
-        <Box
-          component="span"
-          ref={containerRef}
-          sx={{
-            display: "contents",
-            "& *:focus-visible": {
-              outline: "2px solid var(--mui-palette-primary-main) !important",
-              outlineOffset: "3px !important",
-              boxShadow: "0 0 0 4px var(--mui-fixedColors-pTrans) !important",
-            },
-            ...sx,
-          }}>
-          {children}
-        </Box>
-      );
+      case "hidden-label":
+        return <VisuallyHidden>{children}</VisuallyHidden>;
 
-    case "hidden-label":
-      return <VisuallyHidden>{children}</VisuallyHidden>;
-
-    default:
-      return <>{children}</>;
-  }
-};
+      default:
+        return <>{children}</>;
+    }
+  },
+);
+A11y.displayName = "A11y";

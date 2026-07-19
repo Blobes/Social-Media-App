@@ -30,13 +30,12 @@ export const Strip = ({ items = [], style = {} }: StripProps) => {
         <Fragment key={index}>
           <TransText
             sx={{
-              ...theme.typography.body2,
+              ...theme.typography.text3,
               display: "flex",
               alignItems: "center",
               gap: theme.gap(2),
               color: theme.palette.gray[200],
               textAlign: "center",
-              fontSize: "inherit",
             }}>
             {item.element && item.element}
             {item.text && item.text}

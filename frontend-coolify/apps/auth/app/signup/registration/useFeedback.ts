@@ -1,7 +1,13 @@
 "use client";
 
 import { useStaticTranslation } from "@repo/shared-hooks";
-import { AUTH_FEEDBACK, CACHE_KEYS, IUser, useGlobalStore } from "@repo/core";
+import {
+  ApiError,
+  AUTH_FEEDBACK,
+  CACHE_KEYS,
+  IUser,
+  useGlobalStore,
+} from "@repo/core";
 import { SignupResponse } from "../service";
 import { useOtp } from "../../otp/useOtp";
 import { useAuthNavigation } from "@repo/features";
@@ -19,7 +25,7 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
   const { handleSendOtp } = useOtp();
-  const { handleVerifyOtp } = useAuthNavigation();
+  const { handleOtpNavigation } = useAuthNavigation();
   const { translateTxtString } = useStaticTranslation();
 
   /**
@@ -36,17 +42,17 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
       setAccountStatus("NOT_VERIFIED");
       handleSendOtp({
         recipient: user.email || email,
-        purpose: "SIGNUP_VERIFICATION",
+        purpose: "ACCOUNT_VERIFICATION",
         channel: "EMAIL",
       });
-      handleVerifyOtp(
+      handleOtpNavigation({
         user,
-        user.email || email,
-        "EMAIL",
-        "NEW_ACCOUNT",
-        "SIGNUP_VERIFICATION",
-        CACHE_KEYS.AUTH_TRANSIT_DATA,
-      );
+        identifier: user.email || email,
+        inputType: "EMAIL",
+        reason: "NEW_ACCOUNT",
+        purpose: "ACCOUNT_VERIFICATION",
+        transitKey: CACHE_KEYS.AUTH_TRANSIT_DATA,
+      });
       return;
     }
   };
@@ -55,11 +61,12 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
    * Catches errors during registration and surfaces the rejection messages within the view container.
    */
   const handleError = (
-    error: any,
+    error: ApiError,
     setMsg: React.Dispatch<React.SetStateAction<React.ReactNode | null>>,
   ) => {
     setMsg(
-      error.message || translateTxtString(AUTH_FEEDBACK.registration_failed),
+      error.localizedErrMsg ||
+        translateTxtString(AUTH_FEEDBACK.registration_failed),
     );
   };
 

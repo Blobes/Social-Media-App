@@ -119,19 +119,19 @@ const defaultUIStyles: BaseStylesContainer = {
     MuiTooltip: {
       styleOverrides: {
         tooltip: ({ theme }) => ({
+          ...theme.typography.text6,
           padding: theme.boxSpacing(3, 5),
           backgroundColor: "var(--mui-fixedColors-gray800)",
           color: "var(--mui-fixedColors-gray50)",
-          fontSize: "12px",
           borderRadius: theme.radius[3],
           boxShadow: "var(--mui-shadows-1)",
           maxWidth: 420,
           margin: theme.boxSpacing(0, 6),
           border: `1px solid var(--mui-palette-gray-trans-2)`,
         }),
-        arrow: () => ({
+        arrow: ({ theme }) => ({
+          ...theme.typography.text6,
           color: "var(--mui-fixedColors-gray800)",
-          fontSize: "13px",
         }),
       },
     },

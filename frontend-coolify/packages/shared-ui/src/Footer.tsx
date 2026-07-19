@@ -42,7 +42,7 @@ export const Footer = ({ navList, navigateTo }: footerProps) => {
                 );
             }}
             style={{
-              ...theme.typography.overlineLower,
+              ...theme.typography.text6,
               color: theme.palette.gray[200],
               "&:hover": { color: theme.palette.gray[300] },
             }}>

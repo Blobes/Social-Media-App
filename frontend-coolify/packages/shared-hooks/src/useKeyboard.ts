@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useGlobalStore } from "@repo/core";
+import { InputFieldType, useGlobalStore } from "@repo/core";
 
 /**
  * Custom hook to abstract keyboard visibility toggle and selection insertion logic across distinct field inputs.
@@ -9,7 +9,7 @@ import { useGlobalStore } from "@repo/core";
 export const useVirtualKeyboard = (
   elementRef?: React.RefObject<HTMLInputElement | HTMLTextAreaElement | null>,
   onChange?: (event: any) => void,
-  fieldType: "text" | "tel" | "number" | "phone-formatted" = "text",
+  fieldType: InputFieldType = "text",
 ) => {
   const currentLanguage = useGlobalStore((state) => state.currentLanguage);
   const isKeyboardVisible = useGlobalStore((state) => state.isKeyboardVisible);
@@ -106,14 +106,15 @@ export const useVirtualKeyboard = (
         );
 
         let targetOnChange = globalOnChange;
-        let targetFieldType: "text" | "tel" | "number" | "phone-formatted" =
-          "text";
+        let targetFieldType: InputFieldType = "text";
 
         if (reactPropsKey) {
           const props = (targetField as any)[reactPropsKey];
           if (props?.onChange) targetOnChange = props.onChange;
           if (props?.type === "tel") targetFieldType = "tel";
           if (props?.type === "number") targetFieldType = "number";
+          if (props?.type === "email") targetFieldType = "email";
+          if (props?.type === "password") targetFieldType = "password";
           if (props?.dataVirtualType === "phone-formatted")
             targetFieldType = "phone-formatted";
         }
@@ -126,11 +127,15 @@ export const useVirtualKeyboard = (
 
   /**
    * Evaluates whether the element target supports text selection operations.
+   * With dynamic runtime switching to text fields, selection works cleanly globally.
    */
   const supportsSelection = (
     input: HTMLInputElement | HTMLTextAreaElement,
   ): boolean => {
     if (input.tagName.toLowerCase() === "textarea") return true;
+
+    // Explicitly reading current runtime state attribute rather than raw core schema property
+    const currentAttrType = (input as HTMLInputElement).type || "";
     return ![
       "email",
       "number",
@@ -138,7 +143,7 @@ export const useVirtualKeyboard = (
       "color",
       "checkbox",
       "radio",
-    ].includes((input as HTMLInputElement).type || "");
+    ].includes(currentAttrType);
   };
 
   /**
@@ -155,7 +160,6 @@ export const useVirtualKeyboard = (
     if (!changeCallback) return;
     const inputType = input.type || "";
 
-    // Always deliver a full ChangeEvent payload shape down to registered components to maintain schema compliance
     changeCallback({
       target: {
         id: input.id,

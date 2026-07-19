@@ -41,12 +41,13 @@ export const Metrics = ({ metrics, sx }: MetricsProps) => {
     <Strip
       items={stripItems}
       style={{
+        ...theme.typography.text5,
         padding: theme.boxSpacing(4, 0),
         [theme.breakpoints.down("md")]: {
           padding: theme.boxSpacing(4, 6),
         },
         borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
-        fontSize: "14px",
+
         ...sx,
       }}
     />

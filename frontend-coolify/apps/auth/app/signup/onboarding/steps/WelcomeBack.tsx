@@ -51,7 +51,7 @@ export const WelcomeBack: React.FC<{ onNext: () => void }> = ({ onNext }) => {
           />
           <TransText
             {...AUTH_FEEDBACK.resume_account_setup}
-            sx={{ ...theme.typography.body1, color: theme.palette.gray[300] }}
+            sx={{ ...theme.typography.text2, color: theme.palette.gray[300] }}
           />
         </Stack>
       </Stack>
@@ -63,7 +63,7 @@ export const WelcomeBack: React.FC<{ onNext: () => void }> = ({ onNext }) => {
       </AppButton>
       <TransText
         {...COMMON_FEEDBACK.progress_saved}
-        sx={{ ...theme.typography.caption, color: theme.palette.gray[200] }}
+        sx={{ ...theme.typography.text5, color: theme.palette.gray[200] }}
       />
     </Stack>
   );

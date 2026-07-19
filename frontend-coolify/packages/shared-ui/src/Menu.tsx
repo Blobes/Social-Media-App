@@ -278,7 +278,7 @@ export const DisplayList = <T extends IMenuItem>({
         <Box
           sx={{ width: "100%", p: theme.boxSpacing(4), textAlign: "center" }}>
           <TransText
-            sx={{ ...theme.typography.body3, color: theme.palette.gray[200] }}>
+            sx={{ ...theme.typography.text4, color: theme.palette.gray[200] }}>
             {feedback()}
             {isSearchEmpty && (
               <b style={{ display: "block" }}>"{currentQuery}"</b>

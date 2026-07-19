@@ -4,13 +4,14 @@ import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { Stack } from "@mui/material";
 import { VerifyOtp } from "./VerifyOtp";
-import { useCachedData } from "@repo/shared-hooks";
-import { OtpTransitData } from "@repo/core";
-import { RestrictedUI } from "@repo/features";
+import { useCachedData, useStaticTranslation } from "@repo/shared-hooks";
+import { AUTH_FEEDBACK, OtpTransitData } from "@repo/core";
+import { DisplayFeedbackUI } from "@repo/features";
 
 export default function OtpPage() {
   const theme = useTheme();
   const cachedEntries = useCachedData<OtpTransitData>(["transit_data"]);
+  const { translateTxtString } = useStaticTranslation();
 
   return (
     <Stack
@@ -25,10 +26,12 @@ export default function OtpPage() {
       {cachedEntries && cachedEntries.length > 0 ? (
         <VerifyOtp transitData={cachedEntries} />
       ) : (
-        <RestrictedUI
+        <DisplayFeedbackUI
           type="UNAUTHORIZED"
-          headline="No OTP verification session found"
-          tagline="Please return to the home page or the previous page"
+          headline={translateTxtString(
+            AUTH_FEEDBACK.no_verification_sesion_found,
+          )}
+          tagline={translateTxtString(AUTH_FEEDBACK.return_home)}
         />
       )}
     </Stack>

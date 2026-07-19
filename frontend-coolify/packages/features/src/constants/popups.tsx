@@ -4,13 +4,15 @@ import React from "react";
 import { DrawerProps, IDragResult, ModalProps } from "@repo/core";
 import { ComfirmLogout } from "../apps/auth/logout/Logout";
 import { Theme } from "@mui/material/styles";
+import { DisplayFeedbackUI } from "../components/DisplayFeedBackUI";
 
 export type PopupName =
   | "CONFIRM_LOGOUT"
   | "GIST_MEDIA_VIEW"
   | "CREATE_POST"
   | "WEB_MOBILE_MENU"
-  | "APP_MOBILE_MENU";
+  | "APP_MOBILE_MENU"
+  | "RESET_PASSWORD_SUCCESS";
 export type PopupType = "MODAL" | "DRAWER";
 
 export interface PopupConfig {
@@ -43,6 +45,14 @@ export const POPUP_CONFIG = ({
     CONFIRM_LOGOUT: {
       type: { baseScreen: "MODAL" },
       modal: { content: <ComfirmLogout />, onClose: closeModal },
+    },
+
+    RESET_PASSWORD_SUCCESS: {
+      type: { baseScreen: "MODAL" },
+      modal: {
+        content: <DisplayFeedbackUI type="PASSWORD_RESET" />,
+        onClose: closeModal,
+      },
     },
 
     GIST_MEDIA_VIEW: {

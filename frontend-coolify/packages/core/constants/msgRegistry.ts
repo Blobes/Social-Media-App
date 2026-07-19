@@ -29,7 +29,7 @@ export const common = {
       tKey: "common:button.browse_files",
       tValue: "Browse...",
     },
-    continue: { tKey: "auth:button.continue", tValue: "Continue" },
+    continue: { tKey: "common:button.continue", tValue: "Continue" },
     explore_funstakes: {
       tKey: "common:button.explore_funstakes",
       tValue: "Explore Funstakes",
@@ -90,6 +90,10 @@ export const common = {
     switch_mode: {
       tKey: "common:button.switch_mode",
       tValue: "Switch mode",
+    },
+    reset_password: {
+      tKey: "common:butto.reset_password",
+      tValue: "Reset password",
     },
     view_terms: {
       tKey: "common:button.view_terms",
@@ -179,6 +183,11 @@ export const common = {
     connection_unstable_tagline: {
       tKey: "common:feedback.connection_unstable_tagline",
       tValue: "Connection unstable.",
+    },
+    failed_to_translate_dynamic_text: {
+      tKey: "common:feedback.failed_to_translate_dynamic_text",
+      tValue:
+        "Failed to resolve text string from translation response payload. Try again later.",
     },
     file_permission_tagline: {
       tKey: "common:feedback.file_permission_tagline",
@@ -593,6 +602,10 @@ export const common = {
       tKey: "common:media.media_transfer_progress",
       tValue: "Transfer in Progress",
     },
+    media_video_optimization: {
+      tKey: "common:media.media_video_optimization",
+      tValue: "Please wait for video optimization processing to complete.",
+    },
     recently_viewed_media: {
       tKey: "common:media.remaining_count",
       tValue: "Recently Viewed Images & Videos",
@@ -720,6 +733,10 @@ export const auth = {
       tKey: "auth:button.retry_translation",
       tValue: "Retry translation",
     },
+    reset_password: {
+      tKey: "auth:button.reset_password",
+      tValue: "Reset password",
+    },
     see_original: {
       tKey: "auth:button.see_original",
       tValue: "See original",
@@ -733,6 +750,14 @@ export const auth = {
       tValue: "Set password",
     },
     signup: { tKey: "auth:button.signup", tValue: "Sign up" },
+    verify_with_authenticator: {
+      tKey: "auth:button.verify_with_authenticator",
+      tValue: "Verify with Authenticator",
+    },
+    verify_with_email_phone: {
+      tKey: "auth:button.verify_with_authenticator",
+      tValue: "Verify with Email/Phone",
+    },
   },
 
   feedback: {
@@ -767,6 +792,19 @@ export const auth = {
     confirm_identity: {
       tKey: "auth:feedback.confirm_identity",
       tValue: "Confirm your identity",
+    },
+    lets_confirm_its_you: {
+      tKey: "auth:feedback.lets_confirm_its_you",
+      tValue:
+        "Enter your email or phone number below to authorize a password reset.",
+    },
+    set_new_password_headline: {
+      tKey: "auth:feedback.set_new_password_headline",
+      tValue: "Set up a new password",
+    },
+    set_new_password_tagline: {
+      tKey: "auth:feedback.set_new_password_tagline",
+      tValue: "Now you can create up a new unique password for your account",
     },
     logout_confirmation: {
       tKey: "auth:feedback.logout_confirmation",
@@ -822,6 +860,22 @@ export const auth = {
       tKey: "auth:feedback.no_account_found_phone",
       tValue: "We couldn't find an account with the phone number.",
     },
+    no_verification_sesion_found: {
+      tKey: "auth:feedback.no_verification_sesion_found",
+      tValue: "No OTP verification session found",
+    },
+    no_required_onboarding_headline: {
+      tKey: "auth:feedback.no_required_onboarding_headline",
+      tValue: "No Required Onboarding",
+    },
+    no_required_onboarding_tagline: {
+      tKey: "auth:feedback.no_required_onboarding_tagline",
+      tValue: "You have already completed the onboarding step.",
+    },
+    return_home: {
+      tKey: "auth:feedback.return_home",
+      tValue: "Please return to the home page or the previous page",
+    },
     no_email_or_phone: (nextChannel: string) => ({
       tKey: "auth:feedback.no_email_or_phone",
       tValue: "No {{nextChannel}} found on your profile.",
@@ -862,6 +916,27 @@ export const auth = {
         "You've exceeded the maximum login attempts. Try again in <timer>{{timerValue}}</timer>. Or reset your password.",
       interpolations: { timerValue },
     }),
+    passwords_do_not_match: {
+      tKey: "auth:feedback.passwords_do_not_match",
+      tValue: "Passwords do not match",
+    },
+    password_reset_initiation_failed: {
+      tKey: "auth:feedback.password_reset_initiation_failed",
+      tValue: "Failed to initiate password reset.",
+    },
+    password_reset_finalization_failed: {
+      tKey: "auth:feedback.password_reset_finalization_failed",
+      tValue: "Failed to finalize password reset.",
+    },
+    password_reset_successful_headline: {
+      tKey: "auth:feedback.password_reset_successful_headline",
+      tValue: "Pasword reset successful",
+    },
+    password_reset_successful_tagline: {
+      tKey: "auth:feedback.password_reset_successful_tagline",
+      tValue:
+        "You have successfully reset your password. Login to start staking.",
+    },
     registration_failed: {
       tKey: "auth:feedback.registration_failed",
       tValue: "Registration failed. Please verify your entries.",
@@ -875,8 +950,16 @@ export const auth = {
       tKey: "auth:feedback.security_details_updated_tagline",
       tValue: "Security details updated successfully.",
     },
+    server_error: {
+      tKey: "auth:feedback.server_error",
+      tValue: "An unexpected error occurred during verification",
+    },
+    session_expired: {
+      tKey: "auth:feedback.security_details_updated_tagline",
+      tValue: "Your session has expired. Please log in again.",
+    },
     setup_legal_names_username: {
-      tKey: "auth:feedback.setup_legal_names_username",
+      tKey: "auth:feedback.session_expired",
       tValue: "Set up your legal names and unique username.",
     },
     unsupported_verification_method: {
@@ -901,6 +984,15 @@ export const auth = {
       tKey: "auth:feedback.verification_successful_tagline",
       tValue: "Verification successful!",
     },
+    verify_code_from_auth_app_headline: {
+      tKey: "auth:feedback.verify_code_from_auth_app_headline",
+      tValue: "Verify with app authenticator",
+    },
+    verify_code_from_auth_app_tagline: {
+      tKey: "auth:feedback.verify_code_from_auth_app_tagline",
+      tValue:
+        "Enter the 6-digit code displayed within your multi-factor authenticator application profile.",
+    },
     verify_your_credential: (credType: string) => ({
       tKey: "auth:feedback.verify_your_credential",
       tValue: "Verify your {{credType}}",
@@ -923,6 +1015,10 @@ export const auth = {
       },
     },
     label: {
+      confirm_password: {
+        tKey: "auth:input.label.confirm_password",
+        tValue: "Confirm Password",
+      },
       email_address: {
         tKey: "auth:input.label.email_address",
         tValue: "Email Address",
@@ -930,6 +1026,10 @@ export const auth = {
       email_phone_username: {
         tKey: "auth:input.label.email_phone_username",
         tValue: "Email, Phone or Username",
+      },
+      email__or_phone: {
+        tKey: "auth:input.label.email_or_phone",
+        tValue: "Email or Phone",
       },
       enter_code: {
         tKey: "auth:input.label.enter_code",
@@ -977,6 +1077,10 @@ export const auth = {
         tKey: "auth:input.placeholder.email_phone_username",
         tValue: "Email address, phone or username",
       },
+      email_or_phone: {
+        tKey: "auth:input.placeholder.email_or_phone",
+        tValue: "Email address, or phone number",
+      },
       enter_first_name: {
         tKey: "auth:input.placeholder.enter_first_name",
         tValue: "Enter first name",
@@ -997,6 +1101,10 @@ export const auth = {
         tKey: "auth:input.placeholder.phone_example",
         tValue: "e.g. +1234567890",
       },
+      re_enter_password: {
+        tKey: "auth:input.label.phone_optional",
+        tValue: "Re-enter your password",
+      },
     },
   },
 } as const;
@@ -1015,7 +1123,7 @@ export const post = {
     },
     post_back: { tKey: "post:button.post_back", tValue: "Back" },
     post_next: { tKey: "post:button.post_next", tValue: "Next" },
-    post_submit: (postType: string = "post") => ({
+    post_submit: (postType: string = "Post") => ({
       tKey: "post:button.post_submit",
       tValue: "Publish {{postType}}",
       interpolations: { postType },
@@ -1030,7 +1138,7 @@ export const post = {
       tKey: "post:feedback.categorization_taxonomy",
       tValue: "Categorization Taxonomy",
     },
-    compose_post: (postType: string) => ({
+    compose_post: (postType: string = "Post") => ({
       tKey: "post:feedback.compost_post",
       tValue: "Compose {{postType}}",
       interpolations: { postType },
@@ -1069,7 +1177,7 @@ export const post = {
       tKey: "post:feedback.network_mode_offline_tagline",
       tValue: "Post is offline.",
     },
-    no_post_found_tagline: (postType: string = "post") => ({
+    no_post_found_tagline: (postType: string = "Post") => ({
       tKey: "post:feedback.gist_empty_tagline",
       tValue: "No  {{postType}}s found in cache or online.",
       interpolations: { postType },
@@ -1086,12 +1194,16 @@ export const post = {
       tKey: "common:feedback.post_deleted_tagline",
       tValue: "Post deleted by author.",
     },
-    post_settings: (postType: string = "post") => ({
+    post_settings: (postType: string = "Post") => ({
       tKey: "post:feedback.post_settings",
       tValue: "{{postType}} Settings",
       interpolations: { postType },
     }),
-
+    post_content_validation: (postType: string = "Post") => ({
+      tKey: "post:feedback.post_content_validation",
+      tValue: "{{postType}} must contain either text content or media.",
+      interpolations: { postType },
+    }),
     post_type_not_found: {
       tKey: "post:feedback.post_type_not_found",
       tValue: "Post type not found.",

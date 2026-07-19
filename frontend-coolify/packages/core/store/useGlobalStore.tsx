@@ -3,18 +3,18 @@
 import { create } from "zustand";
 import { i18n as I18nInstance } from "i18next";
 import {
-  IUser,
-  ISnackBarMsgs,
   AuthStatus,
-  IPage,
-  NetworkStatus,
-  DrawerProps,
-  ModalProps,
-  CLIENT_ROUTES,
   IMessage,
-  AccountStatus,
-  SupportedIsoCode,
-} from "@repo/core";
+  InputFieldType,
+  IPage,
+  ISnackBarMsgs,
+  NetworkStatus,
+} from "../types/ui-state";
+import { IUser } from "../types/payloads/modified";
+import { SupportedIsoCode } from "../constants/languages";
+import { AccountStatus } from "../types/payloads/user";
+import { DrawerProps, ModalProps } from "../types/ui-props";
+import { CLIENT_ROUTES } from "../constants/routes";
 
 /** * Defines the shape and actions of the global application store.
  */
@@ -57,12 +57,12 @@ interface GlobalState {
     HTMLInputElement | HTMLTextAreaElement | null
   > | null;
   activeOnChange: ((event: any) => void) | null;
-  activeFieldType: "text" | "tel" | "number" | "phone-formatted" | null;
+  activeFieldType: InputFieldType | null;
   isKeyboardVisible: boolean;
   setActiveInput: (
     ref: React.RefObject<HTMLInputElement | HTMLTextAreaElement | null> | null,
     onChange: ((event: any) => void) | null,
-    fieldType?: "text" | "tel" | "number" | "phone-formatted" | null,
+    fieldType?: InputFieldType | null,
   ) => void;
   setKeyboardVisible: (visible: boolean) => void;
 

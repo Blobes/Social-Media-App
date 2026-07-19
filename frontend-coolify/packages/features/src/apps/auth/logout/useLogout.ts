@@ -3,7 +3,12 @@
 import { useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CLIENT_ROUTES, SERVER_API, useGlobalStore } from "@repo/core";
+import {
+  ApiError,
+  CLIENT_ROUTES,
+  SERVER_API,
+  useGlobalStore,
+} from "@repo/core";
 import { apiClient } from "@repo/helpers";
 import { useMisc, usePage, useSnackbar } from "@repo/shared-hooks";
 
@@ -39,9 +44,9 @@ export const useLogout = () => {
         router.refresh();
       }
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       setSBMessage({
-        msg: { tagline: error.message, msgStatus: "ERROR" },
+        msg: { tagline: error.localizedErrMsg, msgStatus: "ERROR" },
       });
       console.error("Logout failed:", error);
     },

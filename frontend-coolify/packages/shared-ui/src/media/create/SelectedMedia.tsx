@@ -122,7 +122,7 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
         <TransText
           {...COMMON_MEDIA.track_upload_progress(currentProgress)}
           sx={{
-            ...theme.typography.body3,
+            ...theme.typography.text4,
             color: theme.fixedColors.gray50,
             fontWeight: 500,
           }}

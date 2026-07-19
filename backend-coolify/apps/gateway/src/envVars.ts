@@ -1,12 +1,4 @@
-import {
-  createValidateInternalToken,
-  createVerifyAuthToken,
-  getEnv,
-  IAuthConfig,
-  IInternalTokenConfig,
-  IS3Config,
-  loadEnv,
-} from "@repo/shared";
+import { getEnv, IAuthConfig, loadEnv } from "@repo/shared";
 import { RequestHandler } from "express";
 
 if (process.env.NODE_ENV !== "production") {
@@ -35,8 +27,8 @@ export const env = {
   get POST_URL() {
     return getEnv("POST_URL");
   },
-  get ADMIN_URL() {
-    return getEnv("ADMIN_URL");
+  get PLATFORM_URL() {
+    return getEnv("PLATFORM_URL");
   },
   get WORKER_URL() {
     return getEnv("WORKER_URL");
@@ -47,54 +39,6 @@ export const env = {
   },
 };
 
-/**
- * Cloud Storage Configuration
- */
-export const s3Config: IS3Config = {
-  get REGION() {
-    return getEnv("CLOUDFLARE_REGION");
-  },
-  get ACCESS_KEY_ID() {
-    return getEnv("CLOUDFLARE_ACCESS_KEY");
-  },
-  get SECRET_ACCESS_KEY() {
-    return getEnv("CLOUDFLARE_SECRET_KEY");
-  },
-  get BUCKET_NAME() {
-    return getEnv("CLOUDFLARE_BUCKET_NAME");
-  },
-  get ENDPOINT_URL() {
-    return getEnv("CLOUDFLARE_ENDPOINT_URL");
-  },
-  get PUBLIC_URL() {
-    return getEnv("CLOUDFLARE_PUBLIC_MEDIA_URL");
-  },
-};
-
-/**
- * Authentication Middleware and Configuration
- */
-const authConfig: IAuthConfig = {
-  get ACCESS_TOKEN_SECRET() {
-    return getEnv("JWT_SECRET");
-  },
-  get REFRESH_TOKEN_SECRET() {
-    return getEnv("REFRESH_TOKEN_SECRET");
-  },
-};
-
-const internalTokenConfig: IInternalTokenConfig = {
-  get INTERNAL_TOKEN_SECRET() {
-    return getEnv("INTERNAL_SECRET_TOKEN");
-  },
-};
-
-export const verifyAuthToken: RequestHandler =
-  createVerifyAuthToken(authConfig);
-
-export const validateInternalToken: RequestHandler =
-  createValidateInternalToken(internalTokenConfig);
-
 // Legacy Compatibility Exports
 export const NODE_ENV = env.NODE_ENV;
 export const PORT = env.PORT;
@@ -102,6 +46,6 @@ export const MONGO_URI = env.MONGO_URI;
 export const GATEWAY_URL = env.GATEWAY_URL;
 export const ACCOUNT_URL = env.ACCOUNT_URL;
 export const POST_URL = env.POST_URL;
-export const ADMIN_URL = env.ADMIN_URL;
+export const PLATFORM_URL = env.PLATFORM_URL;
 export const WORKER_URL = env.WORKER_URL;
 export const FUNSTAKES_REDIS_URL = env.FUNSTAKES_REDIS_URL;

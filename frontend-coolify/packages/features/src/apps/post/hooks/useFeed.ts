@@ -1,6 +1,6 @@
 "use client";
 
-import { IPost, IStake, CACHE_KEYS, IListPayload } from "@repo/core";
+import { IPost, IStake, CACHE_KEYS, IListPayload, ApiError } from "@repo/core";
 import { PostService } from "../postService";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useStake } from "../../stake/useStake";
@@ -26,16 +26,10 @@ export const useFeed = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<FeedPage>({
+  } = useInfiniteQuery<FeedPage, ApiError>({
     queryKey: [CACHE_KEYS.POST.FEED],
     queryFn: async ({ pageParam = 1 }) => {
-      // Feed service now accepts page params
       const res = await fetchFeed(pageParam as number, 20);
-
-      if (res.status !== "SUCCESS") {
-        throw new Error(res.message || "Failed to fetch feed");
-      }
-
       const remotePayload = res.payload || [];
 
       /**
@@ -82,7 +76,8 @@ export const useFeed = () => {
   return {
     feed,
     rawData: data,
-    message: error instanceof Error ? error.message : null,
+    // Extract localized feedback safely, falling back to message context on structural omissions
+    message: error ? error.localizedErrMsg || error.message : null,
     isLoading,
     handleRefresh: refetch,
     fetchNextPage,

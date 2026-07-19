@@ -35,6 +35,10 @@ const nextConfig = {
           destination: `${authUrl}/otp`,
         },
         {
+          source: "/reset-password",
+          destination: `${authUrl}/password/reset`,
+        },
+        {
           source: "/onboarding",
           destination: `${authUrl}/signup/onboarding`,
         },

@@ -15,11 +15,35 @@ export interface OtpRequest {
   channel?: OtpChannel;
 }
 
+export type TFAPurpose = "AUTHENTICATE" | "TFA_SETUP";
+
+export interface TFAInitiationRequest {
+  purpose: TFAPurpose;
+  identifier?: string;
+}
+
+export interface TFAInitiationResponse {
+  qrCodeDataUrl: string | null;
+  manualEntryKey: string | null;
+  isMfaActive: boolean;
+}
+
+export interface TFAVerificationRequest {
+  purpose: TFAPurpose;
+  token: string;
+  identifier?: string;
+}
+
+export interface TFAVerificationResponse {
+  isRecovery?: boolean;
+  backupCodes?: string[];
+}
+
 export const OtpService = () => {
   const dispatchOtp = async (
     request: OtpRequest,
   ): Promise<ISinglePayload<OtpRequest>> => {
-    const { recipient, purpose = "LOGIN_VERIFICATION" } = request;
+    const { recipient, purpose = "ACCOUNT_VERIFICATION" } = request;
     return await apiClient<ISinglePayload<OtpRequest>>(SERVER_API.sendOtp, {
       method: "POST",
       body: JSON.stringify({ recipient, purpose }),
@@ -29,9 +53,9 @@ export const OtpService = () => {
   const verifyOtp = async (
     request: OtpRequest,
   ): Promise<ISinglePayload<any>> => {
-    const { code, recipient, purpose = "LOGIN_VERIFICATION" } = request;
+    const { code, recipient, purpose = "ACCOUNT_VERIFICATION" } = request;
     return await apiClient(SERVER_API.verifyOtp, {
-      method: "PUT",
+      method: "POST",
       body: JSON.stringify({ code, recipient, purpose }),
     });
   };
@@ -50,10 +74,44 @@ export const OtpService = () => {
     });
   };
 
+  /**
+   * Initializes a multi-factor authentication setup configuration session or login challenge context.
+   */
+  const initiateTFA = async (
+    request: TFAInitiationRequest,
+  ): Promise<ISinglePayload<TFAInitiationResponse>> => {
+    const { purpose, identifier } = request;
+    return await apiClient<ISinglePayload<TFAInitiationResponse>>(
+      SERVER_API.initiateTFA,
+      {
+        method: "POST",
+        body: JSON.stringify({ purpose, identifier }),
+      },
+    );
+  };
+
+  /**
+   * Validates safety codes during authentication checkpoints or finalized registration workflows.
+   */
+  const verifyTFA = async (
+    request: TFAVerificationRequest,
+  ): Promise<ISinglePayload<TFAVerificationResponse>> => {
+    const { purpose, token, identifier } = request;
+    return await apiClient<ISinglePayload<TFAVerificationResponse>>(
+      SERVER_API.verifyTFA,
+      {
+        method: "POST",
+        body: JSON.stringify({ purpose, token, identifier }),
+      },
+    );
+  };
+
   return {
     dispatchOtp,
     verifyOtp,
     verifyEmailOtp,
     verifyPhoneOtp,
+    initiateTFA,
+    verifyTFA,
   };
 };

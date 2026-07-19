@@ -1,85 +1,53 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  ISinglePayload,
   ITranslation,
-  SERVER_API,
   useGlobalStore,
+  ApiError,
+  DynamicTranslateArgs,
+  COMMON_FEEDBACK,
 } from "@repo/core";
-import { apiClient } from "@repo/helpers";
-
-export interface TranslateTextReq {
-  textId: string;
-  textToTranslate: string;
-  sourceLang: string;
-  targetLang: string;
-}
-
-interface TranslateTextResponse {
-  translatedText: string;
-}
-
-interface TranslationArgs<TResponse> {
-  textData: TranslateTextReq;
-  parentKey: string;
-  resolveTranslation: (response: TResponse) => string | undefined;
-}
+import { useSnackbar } from "./useSnackbar";
 
 /**
  * Universal state machine and cache coordinator for translating text fields across separate modules.
  */
-export const useDynamicTranslation = <TResponse>({
+export const useDynamicTranslation = ({
   textData,
   parentKey = "general_translation",
-  resolveTranslation,
-}: TranslationArgs<TResponse>) => {
+  transCb,
+}: DynamicTranslateArgs) => {
   const [shouldFetch, setShouldFetch] = useState(false);
   const [showingTranslation, setShowingTranslation] = useState(false);
+  const { setSBMessage } = useSnackbar();
+  const { translateTxtString } = useStaticTranslation();
 
-  /**
-   * Forwards a dynamic entity caption text block to the server for live engine translation.
-   */
-  const translateText = useCallback(
-    async (
-      data: TranslateTextReq,
-    ): Promise<ISinglePayload<TranslateTextResponse | null>> => {
-      try {
-        const url = SERVER_API.translateCaption;
-        const res = await apiClient<ISinglePayload<TranslateTextResponse>>(
-          url,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-          },
-        );
-        return res;
-      } catch (error) {
-        throw error;
-      }
-    },
-    [],
-  );
-
-  const query = useQuery({
-    // Combines custom contextual parameters directly into the unique caching array
+  const { data, isFetching, isError } = useQuery({
     queryKey: [parentKey, textData.textId, textData.targetLang],
     queryFn: async () => {
-      const response = await translateText(textData);
-      const extractedText = resolveTranslation(
-        response as unknown as TResponse,
-      );
+      try {
+        const response = await transCb.translateServiceFn(textData);
+        const extractedText = transCb.resolveTranslation?.(response);
 
-      if (!extractedText) {
-        throw new Error(
-          "Failed to resolve text string from translation response payload.",
-        );
+        if (!extractedText) {
+          throw new Error(
+            COMMON_FEEDBACK.failed_to_translate_dynamic_text.tValue,
+          );
+        }
+        return extractedText;
+      } catch (err) {
+        setSBMessage({
+          msg: {
+            tagline: translateTxtString(
+              COMMON_FEEDBACK.failed_to_translate_dynamic_text,
+            ),
+            msgStatus: "ERROR",
+            hasClose: true,
+          },
+        });
       }
-      return extractedText;
     },
     // Triggers the request layer only on active layout updates
     enabled: shouldFetch && !!textData.textToTranslate?.trim(),
@@ -97,10 +65,10 @@ export const useDynamicTranslation = <TResponse>({
   };
 
   return {
-    translatedText: query.data,
-    isFetching: query.isFetching,
-    isError: query.isError,
-    showingTranslation: showingTranslation && !!query.data,
+    translatedText: data,
+    isFetching: isFetching,
+    isError: isError,
+    showingTranslation: showingTranslation && !!data,
     toggleTranslation,
   };
 };

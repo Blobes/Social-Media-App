@@ -37,7 +37,7 @@ export const IsolatedHeader = ({
           <ChevronLeft />
         </IconButton>
         {sourceType && (
-          <TransText sx={{ ...theme.typography.subtitle1, fontWeight: 600 }}>
+          <TransText sx={{ ...theme.typography.text1, fontWeight: 600 }}>
             {capitalize(sourceType.toLowerCase())}
           </TransText>
         )}

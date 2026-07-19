@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
+  ApiError,
   COMMON_FEEDBACK,
   COMMON_MEDIA,
   MediaUploadPayload,
@@ -249,7 +250,9 @@ export const useGistContent = ({
           msg: {
             id: `gist-success-${Date.now()}`,
             msgStatus: "SUCCESS",
-            tagline: "Gist published successfully",
+            tagline: translateTxtString(
+              POST_FEEDBACK.published_success_tagline("Gist"),
+            ),
             behavior: "TIMED",
             duration: 5,
             hasClose: true,
@@ -267,9 +270,11 @@ export const useGistContent = ({
       setCaption("");
       setStep?.("CONTENT");
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       console.error("Post publication failed:", error);
-      setInlineErrMsg(error.message || COMMON_FEEDBACK.server_error);
+      const fallbackError = translateTxtString(COMMON_FEEDBACK.server_error);
+      const errorMsg = error.localizedErrMsg || error.message || fallbackError;
+      setInlineErrMsg(errorMsg);
     },
   });
 
@@ -282,7 +287,7 @@ export const useGistContent = ({
 
       if (compressingIds.length > 0) {
         setErrorMessage(
-          "Please wait for video optimization processing to complete.",
+          translateTxtString(COMMON_MEDIA.media_video_optimization),
         );
         return;
       }
@@ -291,7 +296,9 @@ export const useGistContent = ({
       const hasMedia = stagedFiles.length > 0;
 
       if (!hasCaption && !hasMedia) {
-        setErrorMessage("Gist must contain either text content or media.");
+        setErrorMessage(
+          translateTxtString(POST_FEEDBACK.post_content_validation("Gist")),
+        );
         return;
       }
       setErrorMessage(null);
@@ -306,7 +313,7 @@ export const useGistContent = ({
   const handleNext = useCallback(() => {
     if (compressingIds.length > 0) {
       setErrorMessage(
-        "Please wait for video optimization processing to complete.",
+        translateTxtString(COMMON_MEDIA.media_video_optimization),
       );
       return;
     }
@@ -315,7 +322,9 @@ export const useGistContent = ({
     const hasMedia = stagedFiles.length > 0;
 
     if (!hasCaption && !hasMedia) {
-      setErrorMessage("Gist must contain either text content or media.");
+      setErrorMessage(
+        translateTxtString(POST_FEEDBACK.post_content_validation("Gist")),
+      );
       return;
     }
     setErrorMessage(null);

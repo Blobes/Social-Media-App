@@ -1,12 +1,6 @@
 import type { RequestHandler } from "express";
-import {
-  createOptionalVerifyToken,
-  createVerifyAuthToken,
-  getEnv,
-  IAuthConfig,
-  IS3Config,
-  loadEnv,
-} from "@repo/shared";
+import { getEnv, IAuthConfig, IS3Config, loadEnv } from "@repo/shared";
+import { verifyAuthOptionally, verifyAuthTokens } from "@repo/security";
 
 if (process.env.NODE_ENV !== "production") {
   loadEnv();
@@ -75,11 +69,10 @@ export const s3Config: IS3Config = {
 /**
  * Middleware instances for strict and optional authentication
  */
-export const verifyAuthToken: RequestHandler =
-  createVerifyAuthToken(authConfig);
+export const authenticate: RequestHandler = verifyAuthTokens(authConfig);
 
-export const optionalAuth: RequestHandler =
-  createOptionalVerifyToken(authConfig);
+export const optionallyAuthenicate: RequestHandler =
+  verifyAuthOptionally(authConfig);
 
 /**
  * Legacy Compatibility Exports

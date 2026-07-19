@@ -2,12 +2,17 @@
 
 import { SystemStyleObject } from "@mui/system";
 import { Theme } from "@mui/material/styles";
-import { FetchStatus, IMedia, ITopicPayload, IUser } from "./payloads/modified";
+import {
+  FetchStatus,
+  IMedia,
+  ISinglePayload,
+  ITopicPayload,
+  IUser,
+} from "./payloads/modified";
 import { Direction, IStep } from "./ui-props";
 import { CSSProperties } from "react";
 import { Dimensions, MediaType, StorageProvider } from "./payloads/media";
 
-// Types
 export type AuthStatus =
   | "UNKNOWN"
   | "AUTHENTICATED"
@@ -24,10 +29,11 @@ export type OtpReason =
   | "STALE_DEVICE"
   | "UNTRUSTED_DEVICE"
   | "UNVERIFIED_ACCOUNT"
-  | "NEW_ACCOUNT";
+  | "NEW_ACCOUNT"
+  | "PASSWORD_RESET";
 
 export type PostStepName = "CONTENT" | "SETTINGS" | "MEDIA_PREVIEW";
-
+export type PasswordResetStepName = "CREDENTIAL" | "NEW_PASSWORD";
 export type AuthStepName =
   | "INTRO"
   | "WELCOME_BACK"
@@ -40,9 +46,15 @@ export type AuthStepName =
   | "RESTORE_ACCOUNT"
   | "PASSWORD";
 
-export type StepName = "FEED" | AuthStepName | PostStepName;
+export type StepName =
+  | "FEED"
+  | AuthStepName
+  | PostStepName
+  | PasswordResetStepName;
 
-export type OtpChannel = "EMAIL" | "PHONE";
+export type OtpVerificationMethod = "EMAIL_OR_SMS" | "AUTHENTICATOR_DEVICE";
+
+export type OtpChannel = "EMAIL" | "PHONE" | "AUTHENTICATOR";
 
 export type InputType =
   | OtpChannel
@@ -55,6 +67,14 @@ export type InputType =
 export type Action = "LOGIN" | "SIGNUP" | "ACCOUNT_UPDATE";
 
 export type InputStatus = "VALID" | "INVALID";
+
+export type InputFieldType =
+  | "text"
+  | "email"
+  | "tel"
+  | "number"
+  | "phone-formatted"
+  | "password";
 
 export type GenericStyle = SystemStyleObject<Theme> & {
   [key: string]: SystemStyleObject<Theme> | CSSProperties | any;
@@ -126,10 +146,13 @@ export interface QueueItem<T = any> {
 export type GenericQueue = Record<string, QueueItem>;
 
 export interface TransitPayloadMap {
-  LOGIN_VERIFICATION: IUser;
-  SIGNUP_VERIFICATION: IUser;
+  ACCOUNT_VERIFICATION: IUser;
   ACCOUNT_UPDATE: { field: string; oldValue: string }; // Example
   IDENTIFIER_UPDATE: { field: string; oldValue: string };
+  PASSWORD_RESET: {
+    currentStep?: PasswordResetStepName;
+    nextStep?: PasswordResetStepName;
+  };
 }
 
 export type TransitPurpose = keyof TransitPayloadMap;
@@ -137,7 +160,7 @@ export type TransitPurpose = keyof TransitPayloadMap;
 export interface TransitData<P extends TransitPurpose = TransitPurpose> {
   _id: string;
   purpose: P;
-  payload: TransitPayloadMap[P];
+  payload?: TransitPayloadMap[P];
 }
 
 export type OtpTransitData<P extends TransitPurpose = TransitPurpose> =
@@ -149,11 +172,11 @@ export type OtpTransitData<P extends TransitPurpose = TransitPurpose> =
     nextStep?: StepName;
   };
 
-export type OnboardingTransitData<P extends TransitPurpose = TransitPurpose> =
-  TransitData<P> & {
-    currentStep?: StepName;
-    nextStep: StepName;
-  };
+// export type GeneralTransitData<P extends TransitPurpose = TransitPurpose> =
+//   TransitData<P> & {
+//     currentStep?: StepName;
+//     nextStep?: StepName;
+//   };
 
 export interface IIdbData<T> {
   data: T;
@@ -221,4 +244,35 @@ export interface NavigateOptions {
   savePage?: boolean;
   loadPage?: boolean;
   event?: React.MouseEvent;
+}
+
+export interface DynamicTranslateReq {
+  textId: string;
+  textToTranslate: string;
+  sourceLang: string;
+  targetLang: string;
+}
+export interface DynamicTranslateRes {
+  translatedText: string;
+}
+export interface DynamicTranslateFns {
+  translateServiceFn: (
+    data: DynamicTranslateReq,
+  ) => Promise<ISinglePayload<DynamicTranslateRes | null>>;
+  resolveTranslation?: (
+    response: ISinglePayload<DynamicTranslateRes | null>,
+  ) => string | undefined;
+}
+export interface DynamicTranslateArgs {
+  textData: DynamicTranslateReq;
+  parentKey: string;
+  transCb: DynamicTranslateFns;
+}
+
+export interface ITfaData {
+  secret: string | null;
+  isEnabled: boolean;
+  backupCodes: string[];
+  tempSecret?: string | null;
+  tempBackupCodes?: string[];
 }

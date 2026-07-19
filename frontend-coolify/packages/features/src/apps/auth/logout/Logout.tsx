@@ -2,7 +2,7 @@
 
 import React from "react";
 import { AppButton, TransText } from "@repo/shared-ui";
-import { Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useMisc } from "@repo/shared-hooks";
 import { LogOut, LogOutIcon } from "lucide-react";
@@ -51,17 +51,13 @@ export const Logout = ({
   textStyle,
   iconStyle,
 }: LogoutProps) => {
-  const { closeDrawer } = useMisc();
   const theme = useTheme();
   const { openPopup } = usePopup();
 
   return (
     <AppButton
       variant="text"
-      onClick={() => {
-        closeDrawer();
-        openPopup("CONFIRM_LOGOUT");
-      }}
+      onClick={() => openPopup("CONFIRM_LOGOUT")}
       style={{
         width: "100%",
         gap: theme.gap(10),

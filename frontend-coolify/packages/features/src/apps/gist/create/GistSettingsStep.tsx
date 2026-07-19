@@ -51,7 +51,7 @@ export const GistSettingsStep: React.FC<SettingsStepProps> = ({
       <Stack sx={{ gap: theme.gap(2) }}>
         <TransText
           {...POST_FEEDBACK.post_settings}
-          sx={{ ...theme.typography.subtitle1, color: theme.palette.gray[300] }}
+          sx={{ ...theme.typography.text1, color: theme.palette.gray[300] }}
         />
         {!isProcessing && inlineErrMsg && (
           <InlineMsgUI msg={inlineErrMsg} type="ERROR" />
@@ -74,7 +74,7 @@ export const GistSettingsStep: React.FC<SettingsStepProps> = ({
           label={
             <TransText
               {...POST_INPUT.label.flag_sensitive_graphics}
-              sx={{ ...theme.typography.body2, color: theme.palette.gray[200] }}
+              sx={{ ...theme.typography.text3, color: theme.palette.gray[200] }}
             />
           }
         />

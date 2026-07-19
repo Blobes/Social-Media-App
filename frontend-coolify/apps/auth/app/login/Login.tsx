@@ -2,14 +2,14 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { IStep, AuthStepName, AUTH_FEEDBACK } from "@repo/core";
+import { IStep, AuthStepName } from "@repo/core";
 import { Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
 import Image from "next/image";
 import { asset } from "@repo/assets";
 import { PasswordStep } from "./PasswordStep";
 import { IdentifierStep } from "./IdentifierStep";
-import { RestoreAccount } from "@repo/features";
+import { DisplayFeedbackUI } from "@repo/features";
 import { LoginStepProps } from "../types";
 
 export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
@@ -35,12 +35,7 @@ export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
     },
     {
       name: "RESTORE_ACCOUNT",
-      element: (
-        <RestoreAccount
-          headline={AUTH_FEEDBACK.account_deactivated_headline}
-          textDesc={AUTH_FEEDBACK.user_account_deactivated_tagline}
-        />
-      ),
+      element: <DisplayFeedbackUI type="NEEDS_RESTORE" />,
     },
     {
       name: "PASSWORD",

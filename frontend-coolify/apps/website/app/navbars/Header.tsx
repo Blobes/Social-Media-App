@@ -91,7 +91,7 @@ export const Header: React.FC = () => {
             <AppButton
               href={CLIENT_ROUTES.home.path}
               variant="outlined"
-              style={{ fontSize: "14px" }}
+              style={{ ...theme.typography.text5 }}
               onClick={() =>
                 navigateTo(CLIENT_ROUTES.home, { type: "push", loadPage: true })
               }>
@@ -106,7 +106,7 @@ export const Header: React.FC = () => {
             <Stack direction="row" alignItems="center" spacing={theme.gap(0)}>
               <AppButton
                 href={CLIENT_ROUTES.signup.path}
-                style={{ fontSize: "14px" }}
+                style={{ ...theme.typography.text5 }}
                 onClick={() =>
                   navigateTo(CLIENT_ROUTES.signup, {
                     type: "push",
@@ -119,7 +119,7 @@ export const Header: React.FC = () => {
               <AppButton
                 href={CLIENT_ROUTES.login.path}
                 variant="outlined"
-                style={{ fontSize: "14px" }}
+                style={{ ...theme.typography.text5 }}
                 onClick={() =>
                   navigateTo(CLIENT_ROUTES.login, {
                     type: "push",

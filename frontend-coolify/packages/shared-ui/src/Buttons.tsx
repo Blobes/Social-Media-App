@@ -48,19 +48,22 @@ export const AppButton = ({
   const theme = useTheme();
 
   const defaultStyle = {
+    ...theme.typography.text3,
+    fontWeight: 600,
     minWidth: "fit-content",
     height: "unset",
     alignSelf: "unset",
-    fontSize: "16px",
+    textTransform: "unset",
     padding: theme.boxSpacing(1, 8, 2, 8),
     display: "flex",
     gap: theme.gap(2),
     alignItems: "center",
   };
   const textVarDefaultStyle = {
-    fontSize: "15px",
-    fontWeight: "600",
+    ...theme.typography.text4,
+    fontWeight: 600,
     height: "unset",
+    textTransform: "unset",
     color: theme.palette.primary.light,
     padding: theme.boxSpacing(0, 4),
     minWidth: "unset",
@@ -145,7 +148,7 @@ export const AnchorLink = ({
         component={isCrossZone ? "a" : NextLink}
         href={href}
         sx={{
-          ...theme.typography.body3,
+          ...theme.typography.text4,
           ...mergedStyle,
         }}
         onMouseEnter={() => handlePrefetch(href, isCrossZone, true)}

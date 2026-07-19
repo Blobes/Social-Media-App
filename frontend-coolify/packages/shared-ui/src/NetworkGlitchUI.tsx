@@ -46,13 +46,8 @@ export const NetworkGlitchUI = ({
         />
       ) : (
         <Feedback
-          transData={{
-            headline: COMMON_FEEDBACK.network_glitch_headline,
-            textDesc: COMMON_FEEDBACK.network_glitch_tagline,
-            primaryBtn: COMMON_BUTTON_LABELS.refresh,
-          }}
-          headline={COMMON_FEEDBACK.network_glitch_headline.tValue}
-          tagline={COMMON_FEEDBACK.network_glitch_tagline.tValue}
+          headline={translateTxtString(COMMON_FEEDBACK.network_glitch_headline)}
+          tagline={translateTxtString(COMMON_FEEDBACK.network_glitch_tagline)}
           icon={<Unplug />}
           primaryCta={{
             label: translateTxtString(COMMON_BUTTON_LABELS.refresh),

@@ -36,7 +36,7 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
       isLiveAlert
       ref={scrollRef}
       sx={{
-        ...theme.typography.body3,
+        ...theme.typography.text4,
         width: "100%",
         padding: theme.boxSpacing(4, 5),
         borderRadius: theme.radius[3],

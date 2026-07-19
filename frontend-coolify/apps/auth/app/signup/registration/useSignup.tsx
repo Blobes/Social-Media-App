@@ -2,30 +2,28 @@
 
 import React, { useState, useCallback, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { useTheme } from "@mui/material/styles";
-import { useGuides, useInputValidation, usePage } from "@repo/shared-hooks";
-import { Check } from "lucide-react";
-import { InputStatus, CLIENT_ROUTES } from "@repo/core";
-import { delay, sanitizePhoneNumber } from "@repo/helpers";
+import {
+  useInputValidation,
+  usePage,
+  usePasswordValidation,
+} from "@repo/shared-hooks";
+import { InputStatus, CLIENT_ROUTES, ApiError } from "@repo/core";
+import { sanitizePhoneNumber } from "@repo/helpers";
 import { SignupService } from "../service";
 import { useSignupFeedback } from "./useFeedback";
 
 /**
- * Hook managing structural field changes, error cleanups, and dynamic validation checks for registration.
+ * Coordinates form states, validation routines, and registration mutations for user account creation.
  */
 export const useSignup = () => {
-  const theme = useTheme();
   const { createAccount } = SignupService();
   const { navigateTo } = usePage();
-  const { validateEmail, validatePassword, validatePhone } =
-    useInputValidation();
-  const { INPUT_GUIDES } = useGuides();
+  const { validateEmail, validatePhone } = useInputValidation();
 
   const [inlineMsg, setInlineMsg] = useState<React.ReactNode | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
   const [emailValidity, setEmailValidity] = useState<InputStatus>();
   const [emailValidationMsg, setEmailValidationMsg] = useState("");
   const [phoneValidity, setPhoneValidity] = useState<InputStatus>();
@@ -33,69 +31,22 @@ export const useSignup = () => {
 
   const { handleSuccess, handleError } = useSignupFeedback({ email });
 
-  const passwordCriteria = useMemo(() => {
-    const hasAnyLetter = /\p{Letter}/u.test(password);
-    const containsCasedScript = /\p{Cased_Letter}/u.test(password);
+  const clearInlineMsg = useCallback(() => {
+    setInlineMsg(null);
+  }, []);
 
-    const isLowercaseValid = containsCasedScript
-      ? /\p{Lowercase_Letter}/u.test(password)
-      : hasAnyLetter;
-    const isUppercaseValid = containsCasedScript
-      ? /\p{Uppercase_Letter}/u.test(password)
-      : hasAnyLetter;
+  const {
+    password,
+    passwordVisualStates,
+    isPasswordValid,
+    handlePasswordChange,
+  } = usePasswordValidation();
 
-    return {
-      hasMinLength: password.length >= 8,
-      hasLowercase: isLowercaseValid,
-      hasUppercase: isUppercaseValid,
-      hasNumeric: /\p{Number}/u.test(password),
-      hasSpecial: /[\p{Punctuation}\p{Symbol}]/u.test(password),
-    };
-  }, [password]);
-
-  // Map real-time validation state directly to the original IDs from INPUT_GUIDES
-  const passwordVisualStates = useMemo(() => {
-    if (!password) return [];
-
-    const details = INPUT_GUIDES.PASSWORD.guideDetails;
-    const criteriaKeys: (keyof typeof passwordCriteria)[] = [
-      "hasMinLength",
-      "hasUppercase",
-      "hasNumeric",
-      "hasSpecial",
-    ];
-
-    return details.map((item, idx) => {
-      const key = criteriaKeys[idx] || "hasMinLength";
-      const pass = passwordCriteria[key];
-
-      return {
-        id: item.id, // Keeps 'pass-detail1', 'pass-detail2', etc.
-        icon: pass ? (
-          <Check size={16} stroke={theme.palette.success.dark} />
-        ) : undefined,
-        textColor: pass ? theme.palette.success.dark : undefined,
-      };
-    });
-  }, [password, passwordCriteria, theme]);
-
-  const isPasswordValid = useMemo(() => {
-    return validatePassword(password).status === "VALID";
-  }, [password]);
-
-  const isEmailValid = useMemo(() => {
-    return validateEmail(email).status === "VALID";
-  }, [email]);
-
-  const isFormValid = useMemo(() => {
-    const isPhoneValid =
-      phone === "" || validatePhone(phone).status === "VALID";
-    return isEmailValid && isPasswordValid && isPhoneValid;
-  }, [isEmailValid, isPasswordValid, phone]);
-
-  const { mutate, isPending } = useMutation({
+  /**
+   * TanStack Mutation handles server account provisioning.
+   */
+  const { mutate: executeSignup, isPending: isSignupPending } = useMutation({
     mutationFn: async () => {
-      await delay();
       const cleanedPhone = phone ? sanitizePhoneNumber(phone) : undefined;
       return await createAccount({
         email: email.toLowerCase().trim(),
@@ -107,15 +58,24 @@ export const useSignup = () => {
       setIsRedirecting(true);
       handleSuccess(res);
     },
-    onError: (err) => {
+    onError: (err: ApiError) => {
       setIsRedirecting(false);
       handleError(err, setInlineMsg);
     },
+    onMutate: () => {
+      clearInlineMsg();
+    },
   });
 
-  const clearInlineMsg = useCallback(() => {
-    setInlineMsg(null);
-  }, []);
+  const isEmailValid = useMemo(() => {
+    return validateEmail(email).status === "VALID";
+  }, [email, validateEmail]);
+
+  const isFormValid = useMemo(() => {
+    const isPhoneValid =
+      phone === "" || validatePhone(phone).status === "VALID";
+    return isEmailValid && isPasswordValid && isPhoneValid;
+  }, [isEmailValid, isPasswordValid, phone, validatePhone]);
 
   const handleEmailChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -129,15 +89,7 @@ export const useSignup = () => {
         result.status === "INVALID" ? (result.message ?? "") : "",
       );
     },
-    [],
-  );
-
-  const handlePasswordChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      clearInlineMsg();
-      setPassword(e.target.value);
-    },
-    [],
+    [clearInlineMsg, validateEmail],
   );
 
   const handleLoginClick = useCallback(
@@ -149,28 +101,30 @@ export const useSignup = () => {
         savePage: false,
       });
     },
-    [navigateTo],
+    [navigateTo, clearInlineMsg],
   );
 
-  const handlePhoneChange = useCallback((value: string) => {
-    setPhone(value);
-    if (value === "") {
-      setPhoneValidity(undefined);
-      setPhoneValidationMsg("");
-    } else {
-      const result = validatePhone(value);
-      setPhoneValidity(result.status === "VALID" ? "VALID" : "INVALID");
-      setPhoneValidationMsg(
-        result.status === "INVALID" ? (result.message ?? "") : "",
-      );
-    }
-  }, []);
+  const handlePhoneChange = useCallback(
+    (value: string) => {
+      setPhone(value);
+      if (value === "") {
+        setPhoneValidity(undefined);
+        setPhoneValidationMsg("");
+      } else {
+        const result = validatePhone(value);
+        setPhoneValidity(result.status === "VALID" ? "VALID" : "INVALID");
+        setPhoneValidationMsg(
+          result.status === "INVALID" ? (result.message ?? "") : "",
+        );
+      }
+    },
+    [validatePhone],
+  );
 
   const handleSubmit = (e: React.SubmitEvent) => {
-    clearInlineMsg();
     e.preventDefault();
     if (!isFormValid) return;
-    mutate();
+    executeSignup();
   };
 
   return {
@@ -181,17 +135,16 @@ export const useSignup = () => {
     emailValidationMsg,
     phoneValidity,
     phoneValidationMsg,
-    passwordCriteria,
     passwordVisualStates,
     isPasswordValid,
     handleEmailChange,
     handlePhoneChange,
     handlePasswordChange,
     handleSubmit,
-    isSubmitLoading: isPending || isRedirecting,
+    isSubmitLoading: isSignupPending || isRedirecting,
     isSubmitDisabled:
       !isFormValid ||
-      isPending ||
+      isSignupPending ||
       emailValidity === "INVALID" ||
       phoneValidity === "INVALID",
     inlineMsg,

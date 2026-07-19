@@ -5,7 +5,7 @@ import {
   type NextFunction,
 } from "express";
 import { createProxyMiddleware, type Options } from "http-proxy-middleware";
-import { ACCOUNT_URL, ADMIN_URL, POST_URL, WORKER_URL } from "./envVars";
+import { ACCOUNT_URL, PLATFORM_URL, POST_URL, WORKER_URL } from "./envVars";
 
 const router: Router = Router();
 
@@ -64,14 +64,23 @@ const createStaticProxy = (
 
 // ACCOUNT SERVICE
 router.use(createStaticProxy(["/account"], ACCOUNT_URL, true));
-router.use(createStaticProxy(["/auth", "/user"], ACCOUNT_URL));
+router.use(
+  createStaticProxy(["/auth", "/user", "/upload", "/audit"], ACCOUNT_URL),
+);
 
 // POST SERVICE
 router.use(createStaticProxy(["/post"], POST_URL, true));
 router.use(createStaticProxy(["/feed", "/gist"], POST_URL));
 
-// ADMIN SERVICE
-router.use(createStaticProxy(["/admin"], ADMIN_URL, true));
+// PLATFORM SERVICE
+router.use(createStaticProxy(["/platform"], PLATFORM_URL, true));
+router.use(
+  createStaticProxy(
+    ["/upload", "/notification", "/search", "/audit", "/moderation"],
+    PLATFORM_URL,
+    true,
+  ),
+);
 
 // WORKER SERVICE
 router.use(createStaticProxy(["/worker"], WORKER_URL, true));

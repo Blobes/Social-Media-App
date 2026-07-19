@@ -6,6 +6,8 @@ import {
   CACHE_KEYS,
   CLIENT_ROUTES,
   IUser,
+  TransitData,
+  TransitPurpose,
   useGlobalStore,
 } from "@repo/core";
 import { queryClient } from "@repo/helpers";
@@ -16,6 +18,7 @@ export const useFeedback = () => {
   const { translateTxtString } = useStaticTranslation();
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
+  const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
 
   /**
    * Success handler for Login flows. clears the transit cache.
@@ -29,26 +32,34 @@ export const useFeedback = () => {
       const userClone = { ...user };
       setAuthUser(userClone);
       setAuthStatus("AUTHENTICATED");
-    }
-    // Clear the transit cache now that the data is safely in Zustand
-    queryClient.removeQueries({ queryKey: CACHE_KEYS.AUTH_TRANSIT_DATA });
-    // Notify User
-    setSBMessage({
-      msg: {
-        tagline: translateTxtString(
-          AUTH_FEEDBACK.verification_successful_tagline,
-        ),
-        msgStatus: "SUCCESS",
-      },
-    });
 
-    // Handle Routing
-    if (onSuccessCallback) onSuccessCallback();
-    else
-      navigateTo(CLIENT_ROUTES.home, {
-        loadPage: true,
-        type: "replace",
+      // Clear the transit cache now that the data is safely in Zustand
+      queryClient.removeQueries({ queryKey: CACHE_KEYS.AUTH_TRANSIT_DATA });
+
+      // Notify User
+      setSBMessage({
+        msg: {
+          tagline: translateTxtString(
+            AUTH_FEEDBACK.verification_successful_tagline,
+          ),
+          msgStatus: "SUCCESS",
+        },
       });
+
+      // Handle Routing
+      if (onSuccessCallback) onSuccessCallback();
+
+      if (!userClone.isOnboarded) {
+        setAccountStatus("NOT_ONBOARDED");
+        navigateTo(CLIENT_ROUTES.onboarding, {
+          loadPage: true,
+          savePage: false,
+        });
+      }
+    } else {
+      setAccountStatus("ACTIVE");
+      navigateTo(CLIENT_ROUTES.home, { loadPage: true, type: "replace" });
+    }
   };
 
   /**
@@ -69,5 +80,38 @@ export const useFeedback = () => {
     navigateTo(CLIENT_ROUTES.settings, { loadPage: true, type: "replace" });
   };
 
-  return { handleAuthOtpSuccess, onUpdateSuccess };
+  /**
+   * Success handler for Account Update flows. Typically redirects to settings or profile.
+   */
+  const handlePassSuccess = () => {
+    queryClient.removeQueries({
+      queryKey: CACHE_KEYS.PASS_RESET_INIT_TRANSIT_DATA,
+    });
+
+    const transitData: TransitData<"PASSWORD_RESET"> = {
+      _id: "transit:otp-auth",
+      purpose: "PASSWORD_RESET",
+      payload: { nextStep: "NEW_PASSWORD" },
+    };
+    queryClient.setQueryData(
+      CACHE_KEYS.PASS_RESET_FINALIZED_TRANSIT_DATA,
+      transitData,
+    );
+
+    setSBMessage({
+      msg: {
+        tagline: translateTxtString(
+          AUTH_FEEDBACK.verification_successful_tagline,
+        ),
+        msgStatus: "SUCCESS",
+      },
+    });
+
+    navigateTo(CLIENT_ROUTES.resetPassword, {
+      loadPage: true,
+      type: "replace",
+    });
+  };
+
+  return { handleAuthOtpSuccess, onUpdateSuccess, handlePassSuccess };
 };

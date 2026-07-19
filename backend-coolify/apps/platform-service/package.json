@@ -1,0 +1,26 @@
+{
+  "name": "@repo/platform-service",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "NODE_ENV=development tsx watch src/index.ts",
+    "build": "tsup",
+    "start": "NODE_ENV=production node --import tsx dist/index.js"
+  },
+  "dependencies": {
+    "express": "catalog:",
+    "mongoose": "catalog:",
+    "cookie-parser": "catalog:",
+    "dotenv": "catalog:",
+    "@repo/database": "workspace:*",
+    "@repo/shared": "workspace:*",
+    "@repo/security": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "catalog:",
+    "typescript": "catalog:",
+    "tsx": "catalog:",
+    "@types/express": "catalog:",
+    "@types/cookie-parser": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

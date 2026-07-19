@@ -33,15 +33,10 @@ import {
   SupportedIsoCode,
   useGlobalStore,
 } from "@repo/core";
-import {
-  formatPhoneNumber,
-  processPhoneFormatting,
-  scrollBarStyle,
-} from "@repo/helpers";
+import { processPhoneFormatting, scrollBarStyle } from "@repo/helpers";
 import { DisplayList as CountryList } from "./Menu";
 import { TransText } from "./Text";
 import { useVirtualKeyboard } from "@repo/shared-hooks";
-import { VirtualKeyboard } from "./Keyboard";
 
 export interface InputProps {
   variant?: "outlined" | "filled";
@@ -51,6 +46,7 @@ export interface InputProps {
   placeholder?: string;
   label?: string;
   helperText?: string;
+  inputGuideUI?: React.ReactNode;
   required?: boolean;
   disabled?: boolean;
   error?: boolean;
@@ -190,7 +186,16 @@ export const TextInput = ({
                         registerAsActiveInput();
                         setShowKeyboard(!showKeyboard);
                       }}
-                      size="small">
+                      size="small"
+                      sx={{
+                        ...(isVirtualActive &&
+                          showKeyboard && {
+                            backgroundColor: theme.palette.gray.trans[1],
+                            "& svg": {
+                              stroke: theme.palette.primary.dark,
+                            },
+                          }),
+                      }}>
                       <Keyboard size={18} />
                     </IconButton>
                   )}
@@ -228,6 +233,7 @@ export const PasswordInput = ({
   placeholder = "Type here...",
   label = "Input Label",
   helperText = "",
+  inputGuideUI,
   required = false,
   disabled = false,
   error = false,
@@ -258,61 +264,31 @@ export const PasswordInput = ({
   };
 
   return (
-    <TextField
-      inputRef={inputRef}
-      variant={variant}
-      id={id}
-      type={showPassword ? "text" : "password"}
-      value={value}
-      placeholder={placeholder}
-      label={label}
-      helperText={helperText}
-      required={required}
-      disabled={disabled}
-      error={error}
-      size="small"
-      fullWidth
-      sx={{
-        ...sharedStyle({ theme, style, value, currLang }),
-        ...style,
-      }}
-      slotProps={{
-        input: {
-          // Manage the start adornment row position independently
-          ...(affixPosition === "start" && {
-            startAdornment: (
-              <InputAdornment position="start">
-                <IconButton
-                  aria-label={
-                    showPassword ? "hide the password" : "display the password"
-                  }
-                  onClick={toggleShowPassword}
-                  onMouseDown={handleMouseDown}
-                  onMouseUp={handleMouseUp}
-                  size="small">
-                  {showPassword ? <Eye size={22} /> : <EyeClosed size={22} />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }),
-          // Handle combination or standalone instances on the end adornment surface
-          endAdornment: (
-            <InputAdornment position="end">
-              <Stack
-                flexDirection="row"
-                alignItems="center"
-                gap={theme.gap(0.2)}>
-                {isVirtualActive && (
-                  <IconButton
-                    onClick={() => {
-                      registerAsActiveInput();
-                      setShowKeyboard(!showKeyboard);
-                    }}
-                    size="small">
-                    <Keyboard size={18} />
-                  </IconButton>
-                )}
-                {affixPosition === "end" && (
+    <Stack gap={theme.gap(4)}>
+      <TextField
+        inputRef={inputRef}
+        variant={variant}
+        id={id}
+        type={showPassword ? "text" : "password"}
+        value={value}
+        placeholder={placeholder}
+        label={label}
+        helperText={helperText}
+        required={required}
+        disabled={disabled}
+        error={error}
+        size="small"
+        fullWidth
+        sx={{
+          ...sharedStyle({ theme, style, value, currLang }),
+          ...style,
+        }}
+        slotProps={{
+          input: {
+            // Manage the start adornment row position independently
+            ...(affixPosition === "start" && {
+              startAdornment: (
+                <InputAdornment position="start">
                   <IconButton
                     aria-label={
                       showPassword
@@ -325,24 +301,72 @@ export const PasswordInput = ({
                     size="small">
                     {showPassword ? <Eye size={22} /> : <EyeClosed size={22} />}
                   </IconButton>
-                )}
-              </Stack>
-            </InputAdornment>
-          ),
-        },
-        htmlInput: {
-          inputMode: isVirtualActive && showKeyboard ? "none" : "text",
-        },
-      }}
-      onChange={(e) => onChange && onChange(e)}
-      onFocus={(e) => {
-        registerAsActiveInput();
-        onFocus && onFocus(e);
-      }}
-      onBlur={(e) => {
-        onBlur && onBlur(e);
-      }}
-    />
+                </InputAdornment>
+              ),
+            }),
+            // Handle combination or standalone instances on the end adornment surface
+            endAdornment: (
+              <InputAdornment position="end">
+                <Stack
+                  flexDirection="row"
+                  alignItems="center"
+                  gap={theme.gap(0.2)}>
+                  {isVirtualActive && (
+                    <IconButton
+                      onClick={() => {
+                        registerAsActiveInput();
+                        setShowKeyboard(!showKeyboard);
+                      }}
+                      size="small"
+                      sx={{
+                        ...(isVirtualActive &&
+                          showKeyboard && {
+                            backgroundColor: theme.palette.gray.trans[1],
+                            "& svg": {
+                              stroke: theme.palette.primary.dark,
+                            },
+                          }),
+                      }}>
+                      <Keyboard size={18} />
+                    </IconButton>
+                  )}
+                  {affixPosition === "end" && (
+                    <IconButton
+                      aria-label={
+                        showPassword
+                          ? "hide the password"
+                          : "display the password"
+                      }
+                      onClick={toggleShowPassword}
+                      onMouseDown={handleMouseDown}
+                      onMouseUp={handleMouseUp}
+                      size="small">
+                      {showPassword ? (
+                        <Eye size={22} />
+                      ) : (
+                        <EyeClosed size={22} />
+                      )}
+                    </IconButton>
+                  )}
+                </Stack>
+              </InputAdornment>
+            ),
+          },
+          htmlInput: {
+            inputMode: isVirtualActive && showKeyboard ? "none" : "text",
+          },
+        }}
+        onChange={(e) => onChange && onChange(e)}
+        onFocus={(e) => {
+          registerAsActiveInput();
+          onFocus && onFocus(e);
+        }}
+        onBlur={(e) => {
+          onBlur && onBlur(e);
+        }}
+      />
+      {inputGuideUI && inputGuideUI}
+    </Stack>
   );
 };
 
@@ -452,12 +476,24 @@ export const PhoneInput = ({
                       registerAsActiveInput();
                       setShowKeyboard(!showKeyboard);
                     }}
-                    size="small">
+                    size="small"
+                    sx={{
+                      ...(isVirtualActive &&
+                        showKeyboard && {
+                          backgroundColor: theme.palette.gray.trans[1],
+                          "& svg": {
+                            stroke: theme.palette.primary.dark,
+                          },
+                        }),
+                    }}>
                     <Keyboard size={18} />
                   </IconButton>
                 </InputAdornment>
               ),
             }),
+          },
+          htmlInput: {
+            inputMode: isVirtualActive && showKeyboard ? "none" : "text",
           },
         }}
         sx={{
@@ -643,9 +679,9 @@ export const OtpInput = ({
         <TransText
           {...(tLabel ?? AUTH_INPUT.label.enter_code)}
           sx={{
-            ...theme.typography.body2,
+            ...theme.typography.text5,
+
             color: theme.palette.gray[200],
-            fontSize: "14px",
           }}
         />
       )}
@@ -681,8 +717,8 @@ export const OtpInput = ({
                 maxLength: 1,
                 pattern: "[0-9]*",
                 style: {
+                  ...theme.typography.text2,
                   textAlign: "center",
-                  fontSize: "1.125rem",
                   fontWeight: 600,
                   width: "100%",
                   padding: 0,
@@ -694,6 +730,7 @@ export const OtpInput = ({
                 width: style?.input.width || 44,
                 height: 50,
                 minWidth: 38,
+                borderRadius: theme.radius[3],
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -763,7 +800,7 @@ export const FileInput = ({
           <TransText
             {...COMMON_INPUT.placeholder.media_files_selected(selectedCount)}
             sx={{
-              ...theme.typography.body2,
+              ...theme.typography.text3,
               color: theme.palette.gray[200],
               flexGrow: 1,
             }}
@@ -772,7 +809,7 @@ export const FileInput = ({
           <TransText
             {...(tPlaceholder ?? COMMON_INPUT.placeholder.choose_media_file)}
             sx={{
-              ...theme.typography.body2,
+              ...theme.typography.text3,
               color: theme.palette.gray[200],
               flexGrow: 1,
             }}
@@ -812,12 +849,10 @@ const StyledTextarea = styled(TextareaAutosize, {
 }) => {
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const styles = {
+    ...theme.typography.text3,
     width: "100%",
     padding: label ? theme.boxSpacing(10, 0, 2, 2) : theme.boxSpacing(3, 2, 2),
     boxSizing: "border-box",
-    fontFamily: "inherit",
-    fontSize: "17px",
-    lineHeight: 1.4,
     color: theme.palette.gray[300],
     backgroundColor: "unset",
     resize: "none",
@@ -840,10 +875,10 @@ const StyledTextarea = styled(TextareaAutosize, {
 const StyledLabel = styled("label")<{ shrink: boolean }>(
   ({ theme, shrink }) =>
     ({
+      ...(shrink ? theme.typography.text6 : theme.typography.text2),
       position: "absolute",
       left: theme.boxSpacing(2),
       top: shrink ? theme.boxSpacing(1) : theme.boxSpacing(3),
-      fontSize: shrink ? 12 : 17,
       color: theme.palette.gray[200],
       transition: "all 0.2s ease",
       pointerEvents: "none",
@@ -868,7 +903,6 @@ export const ResponsiveTextarea = ({
   onBlur,
 }: TextAreaProps) => {
   const [focused, setFocused] = useState(false);
-  // const [inputValue, setInputValue] = useState(value);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const theme = useTheme();
 
@@ -895,11 +929,14 @@ export const ResponsiveTextarea = ({
             setShowKeyboard(!showKeyboard);
           }}
           size="small"
-          style={{
-            position: "absolute",
-            top: theme.boxSpacing(2),
-            left: theme.boxSpacing(2),
-            zIndex: 2,
+          sx={{
+            ...(isVirtualActive &&
+              showKeyboard && {
+                backgroundColor: theme.palette.gray.trans[1],
+                "& svg": {
+                  stroke: theme.palette.primary.dark,
+                },
+              }),
           }}>
           <Keyboard size={18} />
         </IconButton>
@@ -916,14 +953,13 @@ export const ResponsiveTextarea = ({
         placeholder={label ? "" : placeholder}
         value={value}
         maxLength={maxLength ?? undefined}
-        onChange={(e: any) => onChange && onChange(e)}
-        onFocus={(e: any) => {
+        onChange={(e) => onChange && onChange(e)}
+        onFocus={(e) => {
           setFocused(true);
-          if (isVirtualActive) setShowKeyboard(true);
+          registerAsActiveInput();
           onFocus && onFocus(e);
         }}
-        onBlur={(e: any) => {
-          if (e.relatedTarget && e.relatedTarget.closest("[dir='rtl']")) return;
+        onBlur={(e) => {
           setFocused(false);
           onBlur && onBlur(e);
         }}

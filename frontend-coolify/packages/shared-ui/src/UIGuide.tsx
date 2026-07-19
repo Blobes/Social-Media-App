@@ -50,7 +50,7 @@ export const UIGuide = ({
         return (
           <Stack key={guide.id || guide.title} gap={theme.gap(2)}>
             {showTitle && guide.title && (
-              <TransText sx={{ ...theme.typography.body3, fontWeight: 600 }}>
+              <TransText sx={{ ...theme.typography.text4, fontWeight: 600 }}>
                 {guide.title}
               </TransText>
             )}
@@ -58,10 +58,10 @@ export const UIGuide = ({
             <Box
               component={containerComponent}
               sx={{
+                ...theme.typography.text5,
                 margin: 0,
                 padding: 0,
                 color: theme.palette.gray[200],
-                fontSize: "14px",
                 display: "flex",
                 flexDirection: "column",
                 gap: theme.gap(2),
@@ -105,13 +105,12 @@ export const UIGuide = ({
                               justifyContent: "center",
                               width: "16px",
                               height: "16px",
-                              fontSize: "10px",
                               lineHeight: 1,
                               flexShrink: 0,
                               userSelect: "none",
                               "&::before": {
                                 content: '"•"',
-                                fontSize: 20,
+                                ...theme.typography.text1,
                                 marginTop: theme.gap(2),
                               },
                             }}
@@ -122,7 +121,7 @@ export const UIGuide = ({
                       <TransText
                         component="p"
                         sx={{
-                          ...theme.typography.body3,
+                          ...theme.typography.text4,
                           width: "100%",
                           margin: 0,
                         }}>
@@ -256,7 +255,7 @@ export const UserTourGuide = ({
             alignItems="center">
             <TransText
               sx={{
-                ...theme.typography.caption,
+                ...theme.typography.text5,
                 fontWeight: 500,
                 opacity: 0.6,
               }}>
@@ -279,7 +278,7 @@ export const UserTourGuide = ({
                 variant="contained"
                 onClick={handleNext}
                 style={{
-                  fontSize: "14px",
+                  ...theme.typography.text5,
                   padding: theme.boxSpacing(6, 9),
                   width: "100%",
                 }}>

@@ -3,6 +3,7 @@
 import { usePage, useStaticTranslation } from "@repo/shared-hooks";
 import { getFromLocalStorage } from "@repo/helpers";
 import {
+  ApiError,
   AUTH_FEEDBACK,
   CLIENT_ROUTES,
   IPage,
@@ -20,7 +21,7 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
   const { navigateTo, isOnWeb } = usePage();
   const { handleSendOtp } = useOtp();
   const { inputType } = useIdentifier({ existingInput: identifier });
-  const { handleVerifyOtp: handleOtpRequired } = useAuthNavigation();
+  const { handleOtpNavigation } = useAuthNavigation();
   const { translateTxtString } = useStaticTranslation();
 
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
@@ -45,15 +46,15 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
         setAccountStatus("NOT_VERIFIED");
         handleSendOtp({
           recipient: user.email || user.phoneNumber || identifier,
-          purpose: "LOGIN_VERIFICATION",
+          purpose: "ACCOUNT_VERIFICATION",
           channel: (inputType as OtpChannel) || "EMAIL",
         });
-        handleOtpRequired(
+        handleOtpNavigation({
           user,
           identifier,
-          inputType as OtpChannel,
-          res.otpReason,
-        );
+          inputType: inputType as OtpChannel,
+          reason: res.otpReason,
+        });
         return;
       }
 
@@ -61,7 +62,7 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
       setAuthStatus("AUTHENTICATED");
 
       // Handling deactivated accounts immediately
-      if (user.isDeactivated) {
+      if (user.accountStatus === "DEACTIVATED") {
         setAccountStatus("DEACTIVATED");
         if (setStep) setStep("RESTORE_ACCOUNT");
         setGlobalLoading(false);
@@ -87,7 +88,7 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
    * Processes authentication failures and manages lockout messaging.
    */
   const handleError = (
-    error: any,
+    error: ApiError,
     handleFailedPassword: () => void,
     setMsg: React.Dispatch<React.SetStateAction<React.ReactNode | null>>,
   ) => {
@@ -95,7 +96,9 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
     if (isPasswordErr) {
       handleFailedPassword();
     } else {
-      setMsg(error.message || translateTxtString(AUTH_FEEDBACK.login_failed));
+      setMsg(
+        error.localizedErrMsg || translateTxtString(AUTH_FEEDBACK.login_failed),
+      );
     }
   };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CACHE_KEYS, IListPayload, ITopic } from "@repo/core";
+import { CACHE_KEYS, IListPayload, ITopic, ApiError } from "@repo/core";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { PostService } from "../postService";
 
@@ -24,21 +24,18 @@ export const useTopics = ({ topics, setTopics }: UseTopicsProps) => {
    */
   const {
     data,
+    error,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
     isLoading: isTopicsLoading,
-  } = useInfiniteQuery<TopicPage>({
+  } = useInfiniteQuery<TopicPage, ApiError>({
     queryKey: [CACHE_KEYS.POST.LOOKUP_TOPICS, topicSearchQuery, topics],
     queryFn: async ({ pageParam = 1 }) => {
       const res = await lookupTopics({
         keyword: topicSearchQuery,
         alreadySelected: topics,
       });
-
-      if (res.status !== "SUCCESS") {
-        throw new Error(res.message || "Failed to query server topics index.");
-      }
 
       const payload = res.payload || [];
 
@@ -86,5 +83,6 @@ export const useTopics = ({ topics, setTopics }: UseTopicsProps) => {
     fetchNextPage,
     handleTopics,
     handleRemoveTopic,
+    message: error ? error.localizedErrMsg || error.message : null,
   };
 };

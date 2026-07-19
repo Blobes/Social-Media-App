@@ -134,7 +134,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             ),
           }}
           sx={{
-            ...theme.typography.caption,
+            ...theme.typography.text5,
             color: theme.palette.gray[200],
             paddingBottom: theme.boxSpacing(2),
             textAlign: "center",
@@ -148,7 +148,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         <AppButton
           variant="outlined"
           style={{
-            ...theme.typography.button,
+            ...theme.typography.text3,
             padding: theme.boxSpacing(4.5, 9),
             gap: theme.gap(4),
             width: "100%",
@@ -160,7 +160,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         <AppButton
           variant="outlined"
           style={{
-            ...theme.typography.button,
+            ...theme.typography.text3,
             gap: theme.gap(4),
             padding: theme.boxSpacing(4.5, 9),
             width: "100%",
@@ -177,7 +177,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
 
       <Divider
         sx={{
-          ...theme.typography.caption,
+          ...theme.typography.text5,
           color: theme.palette.gray[200],
           width: "100%",
           margin: 0,
@@ -193,7 +193,8 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
       <Stack
         sx={{ gap: theme.gap(6), width: "100%" }}
         component="form"
-        onSubmit={handleSubmit}>
+        onSubmit={handleSubmit}
+        noValidate>
         <TextInput
           value={email}
           type="email"
@@ -217,30 +218,31 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           error={phone !== "" && phoneValidity === "INVALID"}
         />
 
-        <Stack gap={theme.gap(4)}>
-          <PasswordInput
-            label={translateTxtString(AUTH_INPUT.label.password)}
-            placeholder={translateTxtString(
-              AUTH_INPUT.placeholder.create_password,
-            )}
-            onChange={handlePasswordChange}
-            value={password}
-          />
-          <UIGuide
-            guides={[INPUT_GUIDES.PASSWORD]}
-            showTitle={false}
-            detailVisuals={passwordVisualStates}
-            containerStyle={{
-              backgroundColor: theme.palette.gray.trans[1],
-              borderRadius: theme.radius[2],
-            }}
-          />
-        </Stack>
+        <PasswordInput
+          label={translateTxtString(AUTH_INPUT.label.password)}
+          placeholder={translateTxtString(
+            AUTH_INPUT.placeholder.create_password,
+          )}
+          onChange={handlePasswordChange}
+          value={password}
+          inputGuideUI={
+            <UIGuide
+              guides={[INPUT_GUIDES.PASSWORD]}
+              showTitle={false}
+              detailVisuals={passwordVisualStates}
+              containerStyle={{
+                backgroundColor: theme.palette.gray.trans[1],
+                borderRadaius: theme.radius[2],
+              }}
+            />
+          }
+        />
+
         <AppButton
           variant="contained"
           submit
           style={{
-            ...theme.typography.button,
+            ...theme.typography.text3,
             padding: theme.boxSpacing(5.5, 9),
             width: "100%",
             marginTop: theme.gap(4),
@@ -265,7 +267,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           {...AUTH_FEEDBACK.already_have_an_account}
           component="p"
           sx={{
-            ...theme.typography.body3,
+            ...theme.typography.text4,
             textAlign: "center",
             width: "100%",
             ...style.tagline,

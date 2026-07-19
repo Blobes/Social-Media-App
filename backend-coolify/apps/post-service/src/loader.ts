@@ -1,10 +1,11 @@
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
-import feedRoutes from "./feed/feedRoutes";
-import postRoutes from "./shared/routes";
-import { errorHandlerMiddleware, healthRouter } from "@repo/shared";
-import { gistRouter } from "./gist/gistRoutes";
-import sharedRoutes from "./shared/routes";
+import feedRoutes from "./feed/routes";
+import postRoutes from "./post/routes";
+import { gistRouter } from "./gist/routes";
+import { healthRouter } from "./health";
+import { initErrorHandlerMiddleware } from "@repo/security";
+import { ErrorLogModel } from "@repo/database";
 
 export default (app: Express) => {
   // ====== Middlewares ======
@@ -24,8 +25,7 @@ export default (app: Express) => {
   app.use("/post", postRoutes);
   app.use("/feed", feedRoutes);
   app.use("/gist", gistRouter());
-  app.use("/", sharedRoutes);
 
-  app.use(errorHandlerMiddleware);
+  app.use(initErrorHandlerMiddleware(ErrorLogModel));
   return app;
 };

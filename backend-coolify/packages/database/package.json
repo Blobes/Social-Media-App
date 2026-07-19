@@ -1,9 +1,9 @@
 {
   "name": "@repo/database",
   "version": "0.0.0",
-  "main": "./index.ts",
+  "main": "./src/index.ts",
   "exports": {
-    ".": "./index.ts"
+    ".": "./src/index.ts"
   },
   "dependencies": {
     "mongoose": "catalog:"

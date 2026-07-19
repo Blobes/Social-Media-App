@@ -30,7 +30,7 @@ export const RightSidebar = () => {
       <ProfileCard />
       <TransText
         {...COMMON_FEEDBACK.those_following_you}
-        sx={{ ...theme.typography.subtitle1, width: "100%" }}
+        sx={{ ...theme.typography.text1, width: "100%" }}
       />
       <Followers />
     </Stack>

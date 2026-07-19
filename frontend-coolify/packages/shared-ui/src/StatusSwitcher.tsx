@@ -15,7 +15,7 @@ export const StatusSwitcher = () => {
       <CircleCheckBig style={{ width: "18px", height: "18px" }} />
       <TransText
         {...COMMON_BUTTON_LABELS.status_switcher}
-        sx={{ ...theme.typography.body2, fontWeight: "600" }}
+        sx={{ ...theme.typography.text3, fontWeight: "600" }}
       />
     </Stack>
   );

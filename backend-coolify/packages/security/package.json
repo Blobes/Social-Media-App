@@ -1,0 +1,28 @@
+{
+  "name": "@repo/security",
+  "version": "0.0.0",
+  "main": "./src/index.ts",
+  "type": "module",
+  "dependencies": {
+    "uuid": "catalog:",
+    "jsonwebtoken": "catalog:",
+    "cookie-parser": "catalog:",
+    "cors": "catalog:",
+    "dotenv": "catalog:",
+    "@upstash/redis": "catalog:",
+    "ua-parser-js": "catalog:",
+    "@repo/shared": "workspace:*"
+  },
+  "peerDependencies": {
+    "express": "catalog:"
+  },
+  "devDependencies": {
+    "mongoose": "catalog:",
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "@types/express": "catalog:",
+    "@types/jsonwebtoken": "catalog:",
+    "@types/cors": "catalog:",
+    "@types/uuid": "catalog:"
+  }
+}

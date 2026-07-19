@@ -21,6 +21,65 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "admin.moderation_record_not_found",
       message: "Moderation record not found.",
     },
+    MODERATION_CASE_RESOLVED: {
+      i18nKey: "admin.moderation_case_resolved",
+      message: "Moderation case resolved successfully",
+    },
+    MODERATION_RESOLUTION_THROWN_ERROR: (message: string) => ({
+      i18nKey: "admin.moderation_resolution_thrown_error",
+      message: "Moderation resolution failed: {{message}}",
+      interpolations: { message },
+    }),
+    MODERATION_RESOLUTION_FALLBACK_ERROR: {
+      i18nKey: "admin.moderation_resolution_fallback_error",
+      message: "An error occurred while resolving the moderation case",
+    },
+
+    MODERATION_DATA_ALREADY_REPORTED: (dataType: string) => ({
+      i18nKey: "admin.moderation_data_already_reported",
+      message:
+        "This {{dataType}} data has already been reported by your profile.",
+      interpolations: { dataType },
+    }),
+    MODERATION_DATA_SOURCE_NOT_FOUND: {
+      i18nKey: "admin.moderation_data_source_not_found",
+      message:
+        "The requested moderation data source could not be found or has been removed.",
+    },
+    MODERATION_DATA_BANNED: (dataType: string) => ({
+      i18nKey: "admin.moderation_data_banned",
+      message:
+        "Moderation {{dataType}} data has been automatically banned due to repeated policy infractions, and profile penalties have been enforced.",
+      interpolations: { dataType },
+    }),
+    MODERATION_DATA_PLACED_UNDER_REVIEW: {
+      i18nKey: "admin.moderation_data_placed_under_review",
+      message:
+        "The moderation data safety threshold has been exceeded. Data content has been placed under review.",
+    },
+    MODERATION_REPORT_RECEIVED: {
+      i18nKey: "admin.moderation_report_received",
+      message:
+        "Report successfully received and filed in the moderation queue.",
+    },
+    MODERATION_AUTOMATED_SUSPENSION_REASON: (caseCount: number) => ({
+      i18nKey: "admin.moderation_automated_suspension_reason",
+      message:
+        "Automated account suspension triggered following {{caseCount}} verified data/content moderation safety cases.",
+      interpolations: { caseCount },
+    }),
+    MODERATION_FLAGGING_SYNC_THROWN_ERROR: (reason: string) => ({
+      i18nKey: "admin.moderation_flagging_sync_thrown_error",
+      message:
+        "Moderation data content flagging pipeline encountered an operational fault: {{reason}}",
+      interpolations: { reason },
+    }),
+    MODERATION_FLAGGING_SYNC_FALLBACK_ERROR: {
+      i18nKey: "admin.moderation_flagging_sync_fallback_error",
+      message:
+        "Content flagging pipeline encountered an unexpected internal error.",
+    },
+
     RESOLUTION_FAILED: {
       i18nKey: "admin.resolution_failed",
       message: "Resolution failed.",
@@ -45,9 +104,73 @@ export const MESSAGES_REGISTRY = {
   },
 
   AUTH: {
+    ACCOUNT_ACTIVE: {
+      i18nKey: "auth.account_active",
+      message: "Account is currently active",
+    },
     ACCOUNT_DEACTIVATED: {
       i18nKey: "auth.account_deactivated",
       message: "This account is deactivated. Please restore it to continue.",
+    },
+    ACCOUNT_ALREADY_DEACTIVATED: {
+      i18nKey: "auth.account_already_deactivated",
+      message: "Account is already deactivated",
+    },
+    ACCOUNT_BANNED: {
+      i18nKey: "auth.account_banned",
+      message:
+        "This account has been banned for severely violating our commnunity policies",
+    },
+    ACCOUNT_INACTIVE: {
+      i18nKey: "auth.account_inactive",
+      message: "Account is currently not active",
+    },
+    ACCOUNT_RECORDS_UPDATED: {
+      i18nKey: "auth:feedback.ACCOUNT_RECORDS_UPDATED",
+      message: "Account records and status updated successfully.",
+    },
+    ACCOUNT_ALREADY_IN_STATE: {
+      i18nKey: "auth:feedback.ACCOUNT_ALREADY_IN_STATE",
+      message: "Account is already in the requested status.",
+    },
+    ACCOUNT_RECORDS_CLEARED: {
+      i18nKey: "auth.account_records_cleared",
+      message: "Account records successfully cleared.",
+    },
+    ACCOUNT_DELETED_SUCCESSFULLY: {
+      i18nKey: "auth.account_deleted_successfully",
+      message: "Account permanently deleted successfully",
+    },
+    ACCOUNT_DELETION_THROWN_ERROR: (message: string) => ({
+      i18nKey: "auth.account_deletion_thrown_error",
+      message: "Account permanent deletion failed: {{message}}",
+      interpolations: { message },
+    }),
+    ACCOUNT_DELETION_FALLBACK_ERROR: {
+      i18nKey: "auth.account_deletion_fallback_error",
+      message: "An error occurred during permanent account deletion",
+    },
+    ACCOUNT_RESTORE_FALLBACK_ERROR: {
+      i18nKey: "auth.account_restore_fallback_error",
+      message: "Failed to restore account.",
+    },
+    ACCOUNT_RESTORE_THROWN_ERROR: (message: string) => ({
+      i18nKey: "auth.account_restore_thrown_error",
+      message: "{{message}}",
+      interpolations: { message },
+    }),
+    ACCOUNT_DEACTIVATED_SELF: {
+      i18nKey: "auth.account_deactivated_self",
+      message: "You have successfully deactivated your account.",
+    },
+    ACCOUNT_DEACTIVATED_ADMIN: {
+      i18nKey: "auth.account_deactivated_admin",
+      message: "User account deactivated by you as an administrator.",
+    },
+    ACCOUNT_SUSPENDED: {
+      i18nKey: "auth.account_suspended",
+      message:
+        "This account is suspended for violating our terms of use. If you are the owner you can appeal to restore it.",
     },
     EMAIL_ALREADY_REGISTERED: {
       i18nKey: "auth.account_registered",
@@ -64,6 +187,10 @@ export const MESSAGES_REGISTRY = {
     EMAIL_REQUIRED: {
       i18nKey: "auth.email_required",
       message: "Email value is required.",
+    },
+    IDENTIFIER_REQUIRED: {
+      i18nKey: "auth.identifier_required",
+      message: "An email address or phone number is required.",
     },
     NOT_SIGNED_UP_WITH_EMAIL: (provider: string): TransInfo => ({
       i18nKey: "auth.not_signed_up_with_email",
@@ -95,6 +222,10 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.username_available",
       message: "Username is available.",
     },
+    USERNAME_INACTIVE: {
+      i18nKey: "auth.username_inactive",
+      message: "Username exists but not really active.",
+    },
     USERNAME_NOT_FOUND: {
       i18nKey: "auth.username_not_found",
       message: "Username not found.",
@@ -108,31 +239,6 @@ export const MESSAGES_REGISTRY = {
       message: "Username is already taken.",
     },
 
-    ACCOUNT_ALREADY_DEACTIVATED: {
-      i18nKey: "auth.account_already_deactivated",
-      message: "Account is already deactivated",
-    },
-    ACCOUNT_RECORDS_CLEARED: {
-      i18nKey: "auth.account_records_cleared",
-      message: "Account records successfully cleared.",
-    },
-    ACCOUNT_RESTORE_FALLBACK_ERROR: {
-      i18nKey: "auth.account_restore_fallback_error",
-      message: "Failed to restore account.",
-    },
-    ACCOUNT_RESTORE_THROWN_ERROR: (message: string) => ({
-      i18nKey: "auth.account_restore_thrown_error",
-      message: "{{message}}",
-      interpolations: { message },
-    }),
-    ACCOUNT_DEACTIVATED_SELF: {
-      i18nKey: "auth.account_deactivated_self",
-      message: "You have successfully deactivated your account.",
-    },
-    ACCOUNT_DEACTIVATED_ADMIN: {
-      i18nKey: "auth.account_deactivated_admin",
-      message: "User account deactivated by you as an administrator.",
-    },
     UPDATE_CANCELLATION_FALLBACK_ERROR: {
       i18nKey: "auth.update_cancellation_fallback_error",
       message: "Server error during cancellation.",
@@ -168,6 +274,17 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.deactivation_thrown_error",
       message: "{{message}}",
       interpolations: { message },
+    }),
+    ACCOUNT_STATUS_THROWN_ERROR: (message: string) => ({
+      i18nKey: "auth.account_status_thrown_error",
+      message: "Account status transition failed: {{message}}",
+      interpolations: { message },
+    }),
+    ACCOUNT_STATUS_FALLBACK_ERROR: (status: string) => ({
+      i18nKey: "auth.account_status_fallback_error",
+      message:
+        "An error occurred while updating the account status to: {{status}}",
+      interpolations: { status },
     }),
     DEVICES_RETRIEVED: {
       i18nKey: "auth.devices_retrieved",
@@ -225,7 +342,7 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.incorrect_current_password",
       message: "The current password you entered is incorrect.",
     },
-    INVALID_CODE: {
+    INVALID_i18nKey: {
       i18nKey: "auth.invalid_code",
       message: "Invalid verification code.",
     },
@@ -427,6 +544,40 @@ export const MESSAGES_REGISTRY = {
     SESSION_VALID: {
       i18nKey: "auth.session_valid",
       message: "Session is valid.",
+    },
+    TFA_NOT_ENABLED: {
+      i18nKey: "auth.tfa_not_enabled",
+      message:
+        "Authenticator verification is not active on this profile. Please authenticate using the alternative OTP method.",
+    },
+    TFA_RETRIEVAL_SUCCESS: {
+      i18nKey: "auth.tfa_retrieval_success",
+      message: "Authenticator session retrieved successfully.",
+    },
+    TFA_SETUP_SUCCESS: {
+      i18nKey: "auth.tfa_setup_success",
+      message: "Authenticator configuration vectors initialized successfully.",
+    },
+    MISSING_TOKEN: {
+      i18nKey: "auth.missing_token",
+      message: "A verification token is required to proceed.",
+    },
+    INVALID_LIFECYCLE_SEQUENCE: {
+      i18nKey: "auth.invalid_lifecycle_sequence",
+      message:
+        "Invalid activation sequence. Please restart the authenticator setup.",
+    },
+    TFA_SETUP_FINALIZED: {
+      i18nKey: "auth.tfa_setup_finalized",
+      message: "Multi-factor authenticator verified and enabled natively.",
+    },
+    TFA_VERIFICATION_SUCCESS: {
+      i18nKey: "auth.tfa_verification_success",
+      message: "Identity verified successfully.",
+    },
+    TFA_RECOVERY_SUCCESS: {
+      i18nKey: "auth.tfa_recovery_success",
+      message: "Identity validated successfully via recovery token fallback.",
     },
     UNAUTHORIZED: {
       i18nKey: "auth.unauthorized",
@@ -953,7 +1104,8 @@ export const MESSAGES_REGISTRY = {
     }),
     TRANSLATION_HTTP_ERROR: (status: number | string): TransInfo => ({
       i18nKey: "post.translation_http_error",
-      message: "Cloudflare edge API gateway returned status code: {{status}}",
+      message:
+        "Cloudflare edge API gateway returned status i18nKey: {{status}}",
       interpolations: { status },
     }),
     TRANSLATION_INVALID_CAPTION_ID: {

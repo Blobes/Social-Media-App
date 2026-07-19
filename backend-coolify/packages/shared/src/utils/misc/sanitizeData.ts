@@ -7,7 +7,6 @@ export const userSensitiveFields = (): string[] => {
     "verificationCode",
     "verificationExpiry",
     "lastEmailCodeSentAt",
-    "isDeactivated",
     "deactivatedAt",
     "role",
     "__v",
@@ -43,7 +42,7 @@ export const toJwtUser = (
     sessionId,
     email: user.email,
     username: user.username,
-    role: user.role,
+    // role: user.role,
     firstName: user.firstName,
     lastName: user.lastName,
   };

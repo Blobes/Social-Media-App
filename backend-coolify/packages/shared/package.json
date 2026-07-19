@@ -24,6 +24,8 @@
     "@socket.io/redis-emitter": "catalog:",
     "node-asynq": "catalog:",
     "franc-min": "catalog:",
+    "qrcode": "catalog:",
+    "otplib": "catalog:",
     "@repo/database": "workspace:*"
   },
   "peerDependencies": {
@@ -37,7 +39,8 @@
     "@types/jsonwebtoken": "catalog:",
     "@types/cors": "catalog:",
     "@types/uuid": "catalog:",
-    "@types/nodemailer": "^7.0.4",
-    "@types/fluent-ffmpeg": "catalog:"
+    "@types/nodemailer": "catalog:",
+    "@types/fluent-ffmpeg": "catalog:",
+    "@types/qrcode": "catalog:"
   }
 }

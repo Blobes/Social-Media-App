@@ -20,7 +20,7 @@ import {
   useSnackbar,
 } from "@repo/shared-hooks";
 import { AuthStatus, DrawerRef, ModalRef, useGlobalStore } from "@repo/core";
-import { useAuthVerification } from "../apps/auth/login/useAuthVerification";
+import { useAuthVerification } from "../apps/auth/session/useAuthVerification";
 
 export interface UIManagerProps {
   children: React.ReactNode;

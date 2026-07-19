@@ -1,8 +1,10 @@
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
-import authRoutes from "./auth/authRoutes";
-import userRoutes from "./user/userRoutes";
-import { errorHandlerMiddleware, healthRouter } from "@repo/shared";
+import authRoutes from "./auth/routes";
+import userRoutes from "./profile/routes";
+import { initErrorHandlerMiddleware } from "@repo/security";
+import { healthRouter } from "./health";
+import { ErrorLogModel } from "@repo/database";
 
 export default (app: Express) => {
   // ====== Middlewares ======
@@ -11,17 +13,18 @@ export default (app: Express) => {
   app.use(cookieParser());
 
   // Service health check: api.funstakes.net/account/health
-  app.use("/health", healthRouter("ACCOUNT_SERVICE"));
+  app.use("/health", healthRouter());
 
   // api.funstakes.net/account
   app.get("/", (req, res) => {
     res.json({ message: "Welcome to Funstakes Account Service API" });
   });
 
-  // ====== Use Routes ======
+  // ====== Routes ======
   app.use("/auth", authRoutes);
   app.use("/user", userRoutes);
+
   // Global Error handler
-  app.use(errorHandlerMiddleware);
+  app.use(initErrorHandlerMiddleware(ErrorLogModel));
   return app;
 };

@@ -39,7 +39,7 @@ export const MediaUploadTracker: React.FC<UploadTrackerProps> = ({
                       state.fileName,
                       state.error || "failed, something went wrong",
                     ))}
-              sx={{ ...theme.typography.body3, color: "inherit" }}
+              sx={{ ...theme.typography.text4, color: "inherit" }}
             />
             <ProgressIcon
               variant="determinate"

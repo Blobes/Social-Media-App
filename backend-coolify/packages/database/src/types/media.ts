@@ -1,6 +1,8 @@
+import { IContentModeration } from "./moderation";
+
 export type StorageProvider = "S3" | "CLOUDINARY" | "GCP";
 export type IMediaType = "IMAGE" | "VIDEO" | "GIF";
-export type IMediaStatus = "UPLOADING" | "READY" | "ERROR";
+export type IMediaStatus = "UPLOADING" | "READY" | "ERROR" | "BANNED";
 export type MediaSourceType = "GIST" | "STAKE" | "USER" | "VERIFICATION";
 
 export interface IMedia {
@@ -26,6 +28,8 @@ export interface IMediaModel extends IMedia {
   // UI/Performance
   order?: number;
   status?: IMediaStatus;
+
+  moderationCase?: IContentModeration;
 
   createdAt?: string | Date;
   updatedAt?: string | Date;

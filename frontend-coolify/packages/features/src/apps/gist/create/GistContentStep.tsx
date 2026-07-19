@@ -84,7 +84,7 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
       <Stack sx={{ gap: theme.gap(2) }}>
         <TransText
           {...POST_FEEDBACK.compose_post}
-          sx={{ ...theme.typography.subtitle1, color: theme.palette.gray[300] }}
+          sx={{ ...theme.typography.text1, color: theme.palette.gray[300] }}
         />
         {!isProcessing && inlineErrMsg && (
           <InlineMsgUI msg={inlineErrMsg} type="ERROR" />
@@ -112,7 +112,7 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
           <TransText
             {...COMMON_MEDIA.added_media(stagedFiles.length)}
             sx={{
-              ...theme.typography.body3,
+              ...theme.typography.text4,
               color: theme.palette.gray[200],
               fontWeight: 600,
             }}
@@ -124,7 +124,7 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
         <TransText
           {...POST_FEEDBACK.categorization_taxonomy}
           sx={{
-            ...theme.typography.body3,
+            ...theme.typography.text4,
             color: theme.palette.gray[200],
             fontWeight: 600,
           }}
@@ -136,8 +136,8 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
           }
           options={{ disabled: isProcessing }}
           style={{
+            ...theme.typography.text6,
             alignSelf: "flex-start",
-            fontSize: "13px",
             padding: "8px 16px",
           }}>
           <TransText {...POST_BUTTON_LABELS.post_add_topic} noComponent />

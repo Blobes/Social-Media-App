@@ -34,7 +34,7 @@ export const PreferencesPanel = () => {
 
       {/* Font Scale Selection */}
       <Stack sx={{ marginBottom: 3 }}>
-        <TransText sx={{ ...theme.typography.body2, marginBottom: 1 }}>
+        <TransText sx={{ ...theme.typography.text3, marginBottom: 1 }}>
           Text Zoom Profile
         </TransText>
         <ButtonGroup variant="outlined" size="small" fullWidth>
@@ -53,7 +53,7 @@ export const PreferencesPanel = () => {
 
       {/* Spacing Density Configurations */}
       <Stack sx={{ marginBottom: 3 }}>
-        <TransText sx={{ ...theme.typography.body2, marginBottom: 1 }}>
+        <TransText sx={{ ...theme.typography.text3, marginBottom: 1 }}>
           Layout Spacing Profile
         </TransText>
         <ButtonGroup variant="outlined" size="small" fullWidth>

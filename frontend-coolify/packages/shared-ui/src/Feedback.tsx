@@ -6,7 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import { AppButton } from "./Buttons";
 import { RefreshCcw } from "lucide-react";
 import { BasicTooltip } from "./Tooltips";
-import { GenericStyle, TransData } from "@repo/core";
+import { GenericStyle } from "@repo/core";
 import { TransText } from "./Text";
 
 interface CTA {
@@ -22,7 +22,6 @@ interface FeedbackProps {
   headline?: string;
   tagline?: string;
   icon?: React.ReactNode;
-  transData?: TransData;
   style?: {
     container?: GenericStyle;
     headline?: GenericStyle;
@@ -41,7 +40,6 @@ interface FeedbackProps {
 export const Feedback: React.FC<FeedbackProps> = ({
   headline,
   tagline,
-  transData,
   icon,
   style,
   primaryCta,
@@ -88,11 +86,9 @@ export const Feedback: React.FC<FeedbackProps> = ({
       {/* Headline */}
       {headline && (
         <TransText
-          tKey={transData?.headline?.tKey}
-          interpolations={transData?.headline?.interpolations}
           component="h6"
           sx={{
-            ...theme.typography.body1,
+            ...theme.typography.text2,
             fontWeight: "bold",
             ...style?.headline,
           }}>
@@ -103,10 +99,8 @@ export const Feedback: React.FC<FeedbackProps> = ({
       {/* Tagline */}
       {tagline && (
         <TransText
-          tKey={transData?.textDesc?.tKey}
-          interpolations={transData?.textDesc?.interpolations}
           sx={{
-            ...theme.typography.body3,
+            ...theme.typography.text4,
             ...style?.tagline,
           }}>
           {tagline}
@@ -119,7 +113,7 @@ export const Feedback: React.FC<FeedbackProps> = ({
             variant={primaryCta.variant || "contained"}
             {...primHref}
             style={{
-              fontSize: "15px",
+              ...theme.typography.text4,
               padding: theme.boxSpacing(3, 7),
               margin: theme.boxSpacing(10, 0, 2, 0),
               ...style?.primaryCta,

@@ -106,7 +106,7 @@ export const VirtualKeyboard = () => {
     if (showSymbols) {
       // Numbers are contained exclusively inside the symbols layout matrix layer
       if (currentLanguage === "ar") {
-        return [ARABIC_NUMBERS, ...SYMBOLS_MATRIX];
+        return [LATIN_NUMBERS, ARABIC_NUMBERS, ...SYMBOLS_MATRIX];
       }
       return [LATIN_NUMBERS, ...SYMBOLS_MATRIX];
     }
@@ -129,7 +129,7 @@ export const VirtualKeyboard = () => {
   const sharedStyle = {
     color: theme.palette.gray[300],
     backgroundColor: theme.palette.gray.trans[1],
-    borderRadius: theme.radius[3],
+    borderRadius: theme.radius[2],
     height: 38,
     "&:hover": {
       backgroundColor: theme.palette.gray[50],
@@ -174,7 +174,7 @@ export const VirtualKeyboard = () => {
         sx={{ padding: theme.boxSpacing(1) }}>
         <TransText
           sx={{
-            ...theme.typography.caption,
+            ...theme.typography.text5,
             color: theme.palette.gray[200],
             fontWeight: 600,
           }}>
@@ -221,11 +221,11 @@ export const VirtualKeyboard = () => {
           onClick={() => setShowSymbols(!showSymbols)}
           style={{
             minWidth: 55,
-            fontSize: "12px",
+            fontSize: "13px",
             fontWeight: 600,
             ...sharedStyle,
           }}>
-          {showSymbols ? <Globe size={18} /> : "#12"}
+          {showSymbols ? <Globe size={18} /> : "?12"}
         </AppButton>
 
         {hasCaseVariants && !showSymbols && (
@@ -238,7 +238,7 @@ export const VirtualKeyboard = () => {
                 ? theme.palette.gray[100]
                 : theme.palette.gray.trans[1],
             }}>
-            <ArrowUp size={18} />
+            <ArrowUp size={22} />
           </AppButton>
         )}
 

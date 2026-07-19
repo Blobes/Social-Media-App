@@ -1,7 +1,7 @@
 "use client";
 
 import { IPage } from "../types/ui-state";
-import { COMMON_LIST } from "./msgRegistry";
+import { COMMON_BUTTON_LABELS, COMMON_LIST } from "./msgRegistry";
 
 export const CLIENT_ROUTES = {
   // Web
@@ -27,6 +27,10 @@ export const CLIENT_ROUTES = {
   onboarding: {
     title: COMMON_LIST.nav.onboarding.tValue,
     path: "/onboarding",
+  },
+  resetPassword: {
+    title: COMMON_BUTTON_LABELS.reset_password.tValue,
+    path: "/reset-password",
   },
 
   // Shell
@@ -132,6 +136,8 @@ export const SERVER_API = {
   verifyOtp: `${API_BASE.auth}/verify-otp`,
   setPrimarySession: `${API_BASE.auth}/session/set-primary`,
   updateOnboarding: `${API_BASE.auth}/onboarding`,
+  initiateTFA: `${API_BASE.auth}/initiate-tfa`,
+  verifyTFA: `${API_BASE.auth}/verify-tfa-token`,
 
   // Media Standard Operations
   mediaUpload: `${API_BASE.upload}/get-upload-policy`,
@@ -160,6 +166,8 @@ export const SERVER_API = {
   verifyEmail: `${API_BASE.user}/verify-email`,
   verifyPhone: `${API_BASE.user}/verify-phone`,
   updateBasicInfo: `${API_BASE.user}/update-basic`,
+  resetPassword: `${API_BASE.user}/reset-password`,
+  setPassword: `${API_BASE.auth}/set-password`,
 
   // Topics
   lookupTopics: `${API_BASE.topic}/search`,

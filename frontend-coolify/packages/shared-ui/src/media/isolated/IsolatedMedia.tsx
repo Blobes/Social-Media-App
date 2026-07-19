@@ -110,7 +110,7 @@ export const IsolatedMedia = ({
                 activeIndex + 1,
                 mediaList.length,
               )}
-              sx={{ ...theme.typography.caption, fontWeight: 600 }}
+              sx={{ ...theme.typography.text5, fontWeight: 600 }}
             />
           </Box>
         )}

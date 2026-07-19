@@ -4,16 +4,17 @@ import { FinalizePostReq, IS3Config } from "../../types";
 import { hardDeleteMedia } from "../media/hardDelete";
 import { InternalSocketEmitter } from "../socket";
 import { createMediaBatch } from "../media/createBatch";
-import { executeTopicUpdate } from "../topic";
-import { executePostFlag } from "./executePostFlag";
+import { executeTopicUpdate } from "../topic/manage";
 import { franc } from "franc-min";
 import { topicsExtractor } from "../../utils/misc/topic";
 import { to2ISOCode } from "../../constants/others";
+import { executeCaseReport, IEvidenceSnapshot } from "../moderation/reportCase";
 
 interface Config {
   redisKey?: string;
   s3Config: IS3Config;
 }
+
 /**
  * Commits the finalized state from processing into MongoDB for initial post creation.
  */
@@ -24,7 +25,6 @@ export const finalizeGistCreation = async (
   const { postId, userId, caption, media, modResult, session } = params;
 
   if (modResult.status === "BANNED") {
-    // Flag user for explicit safety violations
     await UserModel.findByIdAndUpdate(
       userId,
       { $set: { hasFlaggedPost: true } },
@@ -65,25 +65,41 @@ export const finalizeGistCreation = async (
   }
 
   if (modResult.ruleViolated === "AI_ERROR") {
+    const evidenceList: IEvidenceSnapshot[] = [];
+
+    if (caption) {
+      evidenceList.push({
+        evidenceType: "TEXT",
+        title: "Gist Post Caption Snapshot",
+        content: caption,
+        metadata: { wordCount: caption.split(/\s+/).length },
+      });
+    }
+
     const mediaUrls =
       media?.map((item: IMedia) => item.url).filter(Boolean) || [];
+    if (mediaUrls.length > 0) {
+      evidenceList.push({
+        evidenceType: "URL",
+        title: "Gist Post Media URLs Snapshot",
+        content: JSON.stringify(mediaUrls),
+        metadata: { totalFiles: mediaUrls.length },
+      });
+    }
 
-    // Route infrastructure exceptions to shadowban matrix without pinning blame on the user record
-    await executePostFlag(
+    await executeCaseReport(
       {
-        postId,
+        targetId: postId,
+        targetType: "POST",
+        targetOwner: userId.toString(),
         postType: "GIST",
-        authorId: userId.toString(),
         source: "AI",
-        severity: modResult.severity,
-        ruleViolated: "AI_ERROR",
-        reason:
+        priority: modResult.severity || "MEDIUM",
+        reason: "OTHER",
+        description:
           modResult.reason ||
           "Automated escalation: AI processing pipeline experienced a terminal validation failure.",
-        contentSnapshot: {
-          text: caption || "",
-          mediaIds: mediaUrls,
-        },
+        evidence: evidenceList,
       },
       null,
     );
@@ -94,9 +110,8 @@ export const finalizeGistCreation = async (
   );
 
   const determinedSensitiveGraphic =
-    !!existingGistShell?.hasSensitiveGraphic || !!modResult.hasSensitiveGraphic;
+    !existingGistShell?.hasSensitiveGraphic || !modResult.hasSensitiveGraphic;
 
-  // Fallback to custom regex token extractor utility if the AI framework fails to populate metadata arrays
   let targetTopics = modResult.extractedTopics || [];
   if (targetTopics.length === 0 && caption) {
     targetTopics = topicsExtractor(caption);
@@ -165,12 +180,17 @@ export const finalizeGistCreation = async (
     );
   }
 
-  // Increment trust window metrics on clean completions
   await UserModel.findByIdAndUpdate(
     userId,
     { $inc: { postCountWindow: 1 } },
     { session },
   );
+
+  const freshlyEvaluatedGist = await GistModel.findById(postId).session(
+    session || null,
+  );
+  const dynamicActiveCaseId =
+    freshlyEvaluatedGist?.moderationCase?.caseId || null;
 
   return await GistModel.findByIdAndUpdate(
     postId,
@@ -187,6 +207,9 @@ export const finalizeGistCreation = async (
           ? "SHADOWBANNED"
           : modResult.status,
       hasSensitiveGraphic: determinedSensitiveGraphic,
+      ...(dynamicActiveCaseId
+        ? { "moderationCase.caseId": dynamicActiveCaseId }
+        : {}),
     },
     { session, new: true, lean: true },
   );
@@ -202,7 +225,6 @@ export const finalizeGistUpdate = async (
   const { postId, userId, caption, modResult, session } = params;
 
   if (modResult.status === "BANNED") {
-    // Flag user for explicit safety violations
     await UserModel.findByIdAndUpdate(
       userId,
       { $set: { hasFlaggedPost: true } },
@@ -245,7 +267,7 @@ export const finalizeGistUpdate = async (
   }
 
   const determinedSensitiveGraphic =
-    !!gist.hasSensitiveGraphic || !!modResult.hasSensitiveGraphic;
+    !gist.hasSensitiveGraphic || !modResult.hasSensitiveGraphic;
 
   let targetTopics = modResult.extractedTopics || [];
   if (targetTopics.length === 0 && caption) {
@@ -313,12 +335,57 @@ export const finalizeGistUpdate = async (
     );
   }
 
-  // Increment trust window metrics on clean updates
   await UserModel.findByIdAndUpdate(
     userId,
     { $inc: { postCountWindow: 1 } },
     { session },
   );
+
+  if (modResult.ruleViolated === "AI_ERROR") {
+    const evidenceList: IEvidenceSnapshot[] = [];
+
+    if (caption) {
+      evidenceList.push({
+        evidenceType: "TEXT",
+        title: "Gist Edited Caption Snapshot",
+        content: caption,
+        metadata: { version: nextVersion },
+      });
+    }
+
+    const activeMediaIds = gist.mediaIds?.map((id: any) => id.toString()) || [];
+    if (activeMediaIds.length > 0) {
+      evidenceList.push({
+        evidenceType: "SYSTEM_METADATA",
+        title: "Gist Active Media Attachment References",
+        content: JSON.stringify(activeMediaIds),
+        metadata: { totalFiles: activeMediaIds.length },
+      });
+    }
+
+    await executeCaseReport(
+      {
+        targetId: postId,
+        targetType: "POST",
+        targetOwner: userId.toString(),
+        postType: "GIST",
+        source: "AI",
+        priority: modResult.severity || "MEDIUM",
+        reason: "OTHER",
+        description:
+          modResult.reason ||
+          "Automated escalation: AI processing pipeline experienced a terminal validation failure during a text update cycle.",
+        evidence: evidenceList,
+      },
+      null,
+    );
+  }
+
+  const freshlyEvaluatedGist = await GistModel.findById(postId).session(
+    session || null,
+  );
+  const dynamicActiveCaseId =
+    freshlyEvaluatedGist?.moderationCase?.caseId || null;
 
   await GistModel.findByIdAndUpdate(
     postId,
@@ -333,33 +400,13 @@ export const finalizeGistUpdate = async (
         topics: targetTopics.map((t) => t.trim().toLowerCase()),
         status: modResult.status,
         hasSensitiveGraphic: determinedSensitiveGraphic,
+        ...(dynamicActiveCaseId
+          ? { "moderationCase.caseId": dynamicActiveCaseId }
+          : {}),
       },
     },
     { session, new: true, lean: true },
   );
 
-  if (modResult.ruleViolated === "AI_ERROR") {
-    const mediaIds = gist.mediaIds?.map((id: any) => id.toString()) || [];
-
-    // Process core shadowban rules without assigning penalty counters to the user's data model
-    await executePostFlag(
-      {
-        postId,
-        postType: "GIST",
-        authorId: userId.toString(),
-        source: "AI",
-        severity: modResult.severity,
-        ruleViolated: "AI_ERROR",
-        reason:
-          modResult.reason ||
-          "Automated escalation: AI processing pipeline experienced a terminal validation failure during a text update cycle.",
-        contentSnapshot: {
-          text: caption || "",
-          mediaIds,
-        },
-      },
-      null,
-    );
-  }
   return;
 };

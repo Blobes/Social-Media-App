@@ -27,7 +27,7 @@ export const ThemeSwitcher: React.FC = () => {
           "& svg": { width: "22px", height: "22px" },
         }}>
         {effectiveMode === "dark" ? <MoonStar /> : <Sun />}
-        <TransText sx={{ ...theme.typography.body2, fontWeight: "600" }}>
+        <TransText sx={{ ...theme.typography.text3, fontWeight: "600" }}>
           {effectiveMode === "dark" ? "Dark theme" : "Light theme"}
         </TransText>
       </Stack>

@@ -92,7 +92,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
         component="h5"
         trimCount={6}
         sx={{
-          ...theme.typography.subtitle1,
+          ...theme.typography.text1,
           zIndex: 2,
           position: "relative",
           color: "#FFFFFF",
@@ -136,7 +136,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
                       summarizeNum(data.post.likeCount),
                     ))}
                 sx={{
-                  ...theme.typography.body1,
+                  ...theme.typography.text2,
                   color: "inherit",
                 }}
               />
@@ -151,7 +151,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
                   adaptiveTime={useAdaptiveTime}
                   suffix="ago |"
                   sx={{
-                    ...theme.typography.body3,
+                    ...theme.typography.text4,
                     color: "inherit",
                   }}
                 />
@@ -165,7 +165,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
                       ))}
                   trimCount={1}
                   sx={{
-                    ...theme.typography.body3,
+                    ...theme.typography.text4,
                     color: "inherit",
                     width: "100%",
                   }}
@@ -175,7 +175,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
           ) : (
             <TransText
               sx={{
-                ...theme.typography.body3,
+                ...theme.typography.text4,
                 color: "inherit",
                 display: "block",
               }}>
@@ -276,7 +276,7 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
             />
             <TransText
               sx={{
-                ...theme.typography.body1,
+                ...theme.typography.text2,
                 fontWeight: "600",
                 width: "100%",
                 textAlign: "center",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useQueryClient, QueryKey } from "@tanstack/react-query";
+import { useQueryClient, QueryKey, useMutation } from "@tanstack/react-query";
 import { useRef, useEffect, useCallback } from "react";
 import { CACHE_KEYS, PostType } from "@repo/core";
 import { useIntersectionObserver } from "@repo/shared-hooks";
@@ -27,9 +27,35 @@ export const usePostSeen = (
     postId,
   ]);
 
-  /**
-   * Cleanup timer on unmount.
-   */
+  const { mutate } = useMutation({
+    mutationFn: async () => {
+      // Prevent further triggers in this session immediately
+      queryClient.setQueryData([CACHE_KEYS.POST.SEEN, postId], new Date());
+      return await markAsSeen(postId, postType);
+    },
+    onSuccess: (response) => {
+      if (response?.payload?.viewCount) {
+        const newCount = response.payload.viewCount;
+
+        // Iterate through all affected keys (Feed, Gists, Stakes, Profile, etc.) and update the viewCount in each.
+        affectedQueryKeys.forEach((key) => {
+          updateCacheItem(queryClient, key, postId, (oldPost: any) => ({
+            ...oldPost,
+            viewCount: newCount,
+          }));
+        });
+      }
+    },
+    onError: (error) => {
+      console.error(`[usePostSeen] Sync failed for ${postId}:`, error);
+      // Evict block trace from query memory on validation failure to allow future evaluation attempts
+      queryClient.invalidateQueries({
+        queryKey: [CACHE_KEYS.POST.SEEN, postId],
+      });
+    },
+  });
+
+  // Cleanup timer on unmount.
   useEffect(() => {
     return () => {
       if (viewTimerRef.current) clearTimeout(viewTimerRef.current);
@@ -40,39 +66,10 @@ export const usePostSeen = (
     if (viewTimerRef.current || hasBeenSeen) return;
 
     // Trigger update after 30 seconds of continuous visibility
-    viewTimerRef.current = setTimeout(async () => {
-      // Prevent further triggers in this session
-      queryClient.setQueryData([CACHE_KEYS.POST.SEEN, postId], new Date());
-
-      try {
-        const response = await markAsSeen(postId, postType);
-
-        if (response?.status === "SUCCESS" && response.payload?.viewCount) {
-          const newCount = response.payload.viewCount;
-
-          /**
-           * Iterate through all affected keys (Feed, Gists, Stakes, Profile, etc.)
-           * and update the viewCount in each.
-           */
-          affectedQueryKeys.forEach((key) => {
-            updateCacheItem(queryClient, key, postId, (oldPost: any) => ({
-              ...oldPost,
-              viewCount: newCount,
-            }));
-          });
-        }
-      } catch (error) {
-        console.error(`[usePostSeen] Sync failed for ${postId}:`, error);
-      }
+    viewTimerRef.current = setTimeout(() => {
+      mutate();
     }, 30000);
-  }, [
-    postId,
-    postType,
-    markAsSeen,
-    queryClient,
-    affectedQueryKeys,
-    hasBeenSeen,
-  ]);
+  }, [hasBeenSeen, mutate]);
 
   const handleLeave = useCallback(() => {
     if (viewTimerRef.current) {

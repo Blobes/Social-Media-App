@@ -3,7 +3,12 @@
 import React from "react";
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useAdaptiveTime, useSnackbar, useMisc } from "@repo/shared-hooks";
+import {
+  useAdaptiveTime,
+  useSnackbar,
+  useMisc,
+  useStaticTranslation,
+} from "@repo/shared-hooks";
 import {
   UIMode,
   IGist,
@@ -24,6 +29,7 @@ import { PostEngagement } from "../../post/components/engagement/Engagement";
 import { usePostLike as useGistLike } from "../../post/hooks/like/usePostLike";
 import { usePostSeen } from "../../post/hooks/usePostSeen";
 import { DynamicCaption } from "../../post/components/Caption";
+import { PostService } from "../../post/postService";
 
 interface GistProps {
   gist: IGist;
@@ -36,6 +42,8 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
   const { setSBMessage } = useSnackbar();
   const { fetchGistLike, getPendingLike, setPendingLike, clearPendingLike } =
     GistService();
+  const { translateText } = PostService();
+  const { translateTxtString } = useStaticTranslation();
 
   const authStatus = useGlobalStore((state) => state.authStatus);
   const setModalContent = useGlobalStore((state) => state.setModalContent);
@@ -93,10 +101,7 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
   if (gistData.status === "DELETED") {
     return (
       <Feedback
-        transData={{
-          textDesc: POST_FEEDBACK.post_deleted_tagline,
-        }}
-        tagline={POST_FEEDBACK.post_deleted_tagline.tValue}
+        tagline={translateTxtString(POST_FEEDBACK.post_deleted_tagline)}
       />
     );
   }
@@ -134,6 +139,7 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
         captionId={latestCaption.captionId}
         caption={latestCaption.caption}
         detectedLanguage={latestCaption.detectedLanguage}
+        transServiceFn={{ translateServiceFn: translateText }}
       />
       {/* <WordTrimmer
         text={latestCaption.caption}

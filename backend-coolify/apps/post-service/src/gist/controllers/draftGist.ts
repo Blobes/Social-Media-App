@@ -1,6 +1,6 @@
 import { Response, NextFunction } from "express";
 import { getClientIp, MESSAGES_REGISTRY, forwardError } from "@repo/shared";
-import { executeDraftPost } from "@/shared/services/draft";
+import { executeDraftPost } from "@/post/draft/draft";
 import { CreateRequest } from "./createGist";
 
 export interface DraftRequest extends CreateRequest {

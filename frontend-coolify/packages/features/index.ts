@@ -1,11 +1,10 @@
 // Auth
-export * from "./src/apps/auth/login/useAuthVerification";
+export * from "./src/apps/auth/session/useAuthVerification";
 export * from "./src/apps/auth/logout/useLogout";
 export * from "./src/apps/auth/logout/Logout";
-export * from "./src/apps/auth/login/service";
-export * from "./src/apps/auth/login/timer";
-export * from "./src/apps/auth/restore/RestoreAccount";
-export * from "./src/apps/auth/login/useAuthNavigation";
+export * from "./src/apps/auth/session/service";
+export * from "./src/apps/auth/session/timer";
+export * from "./src/apps/auth/session/useAuthNavigation";
 // Gist
 export * from "./src/apps/gist/view/hooks/useGists";
 export * from "./src/apps/gist/view/hooks/useGistState";
@@ -37,10 +36,10 @@ export * from "./src/apps/post/hooks/useCreatePost";
 
 // Constant
 export * from "./src/constants/posts";
-export * from "./src/constants/restricted";
+export * from "./src/constants/displayFeedback";
 
 // Stateful Shared items
 // Components
-export * from "./src/components/RestrictedUI";
+export * from "./src/components/DisplayFeedBackUI";
 // Hooks
 export * from "./src/hooks/usePopup";

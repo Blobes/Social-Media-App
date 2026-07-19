@@ -34,7 +34,7 @@ export const StakeCard = ({ stake, style = {} }: StakeProps) => {
       {/* Post content */}
       <TransText
         sx={{
-          ...theme.typography.body2,
+          ...theme.typography.text3,
           padding: theme.boxSpacing(6, 0),
           textAlign: "center",
           [theme.breakpoints.down("md")]: {

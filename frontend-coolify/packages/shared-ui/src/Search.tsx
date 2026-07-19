@@ -36,6 +36,7 @@ export const SearchBar = ({
   placeholder,
 }: InputProps) => {
   const { translateTxtString } = useStaticTranslation();
+  const theme = useTheme();
 
   return (
     <InputWrapper
@@ -56,9 +57,8 @@ export const SearchBar = ({
         inputProps={{ "aria-label": "search" }}
         onChange={onChange}
         sx={{
+          ...theme.typography.text4,
           width: "100%",
-          fontSize: "15px!important",
-          fontWeight: "500",
         }}
       />
     </InputWrapper>
@@ -73,10 +73,9 @@ export const SearchContainer = () => {
       <TransText
         component="p"
         sx={{
-          ...theme.typography.body3,
+          ...theme.typography.text4,
           color: theme.palette.gray[200],
           width: "100%",
-          fontWeight: "500",
         }}>
         Search & explore
       </TransText>

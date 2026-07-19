@@ -27,13 +27,10 @@ export const OfflinePromptUI = ({ handleOffline }: offlineProps) => {
         gap: theme.gap(6),
       }}>
       <Feedback
-        transData={{
-          headline: COMMON_FEEDBACK.seem_to_be_offline_headline,
-          textDesc: COMMON_FEEDBACK.seem_to_be_offline_tagline,
-          primaryBtn: COMMON_BUTTON_LABELS.switch_mode,
-        }}
-        headline={COMMON_FEEDBACK.seem_to_be_offline_headline.tValue}
-        tagline={COMMON_FEEDBACK.seem_to_be_offline_tagline.tValue}
+        headline={translateTxtString(
+          COMMON_FEEDBACK.seem_to_be_offline_headline,
+        )}
+        tagline={translateTxtString(COMMON_FEEDBACK.seem_to_be_offline_tagline)}
         icon={<ScreenShareOff />}
         primaryCta={{
           type: "BUTTON",
@@ -46,8 +43,8 @@ export const OfflinePromptUI = ({ handleOffline }: offlineProps) => {
             height: "100%",
             backgroundColor: "none",
           },
-          headline: { fontSize: "24px!important" },
-          tagline: { fontSize: "15px" },
+          headline: { ...theme.typography.h6 },
+          tagline: { ...theme.typography.text4 },
           icon: {
             width: "60px",
             height: "60px",

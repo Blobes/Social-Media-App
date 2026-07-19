@@ -37,6 +37,11 @@ export const CACHE_KEYS = {
   },
   OFFLINE_CACHE: "offline_cache",
   AUTH_TRANSIT_DATA: ["transit_data", "auth"],
+  PASS_RESET_INIT_TRANSIT_DATA: ["transit_data", "password_reset_init"],
+  PASS_RESET_FINALIZED_TRANSIT_DATA: [
+    "transit_data",
+    "password_reset_finalized",
+  ],
   ONBOARDING_TRANSIT_DATA: ["transit_data", "onboarding"],
   ACCOUNT_UPDATE_TRANSIT_DATA: ["transit_data", "account_update"],
   CACHE_PAGE: "cache_page",

@@ -1,5 +1,5 @@
 import { SupportedIsoCode } from "@repo/core/constants/languages";
-import { AuthStepName } from "../ui-state";
+import { AuthStepName, ITfaData } from "../ui-state";
 
 export type UserRole = "USER" | "ADMIN" | "MODERATOR";
 export type AccountStatus =
@@ -35,20 +35,43 @@ export interface ITrustedDevice {
 }
 
 export interface IUserPayload {
+  // --- CORE IDENTITY ---
   _id?: string;
-
-  // --- 1. CORE IDENTITY ---
   email?: string;
   username?: string;
+  usernameCanonical?: string;
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
 
-  // --- 2. VERIFICATION & NOTABILITY ---
+  // --- AUTHENTICATION & SECURITY ---
+  signedUpWith?: "EMAIL" | "GOOGLE" | "APPLE";
+  oAuthId?: string;
+  isEmailVerified?: boolean;
+  isPhoneVerified?: boolean;
+  lastPasswordVerifiedAt?: Date | null;
+  twoFactorAuth?: ITfaData;
+
+  // --- OTP VERIFICATION ---
+  lastEmailCodeSentAt?: Date | string | null;
+  lastPhoneCodeSentAt?: Date | string | null;
+
+  // --- IDENTITY UPDATES ---
+  pendingEmail?: string | null;
+  pendingPhoneNumber?: string | null;
+  lastEmailChangeAt?: Date | string | null;
+  lastPhoneChangeAt?: Date | string | null;
+  lastUsernameChangeAt?: Date | string | null;
+
+  // --- ROLES & AUTHORIZATION ---
+  role?: UserRole;
+
+  // --- VERIFICATION & NOTABILITY ---
   isVerified?: boolean;
   isPublicFigure?: boolean;
   meritsVerification?: boolean;
   isNotable?: boolean;
+  idVerificationRequest?: string | null;
   idVerificationStatus?: VerificationStatus;
   verificationSignals?: {
     hasWikipedia: boolean;
@@ -57,26 +80,19 @@ export interface IUserPayload {
   };
   isAgeVerified?: boolean;
 
-  // --- 3. AUTHENTICATION & SECURITY (Wire-safe) ---
-  role?: UserRole;
+  // --- ACCOUNT STATUS UPDATES ---
   accountStatus?: AccountStatus;
-  signedUpWith?: "EMAIL" | "GOOGLE" | "APPLE";
-  oAuthId?: string;
-  isEmailVerified?: boolean;
-  isPhoneVerified?: boolean;
-  lastEmailCodeSentAt?: Date | string | null;
+  statusChangedAt?: Date | string | null;
+  statusReason?: string;
+  statusChangedBy?: string | null;
+  lastActiveAt?: Date | string | null;
+  deactivatedAt?: string | null;
+
+  // --- USER DEVICES ---
   primaryDeviceId?: string | null;
   trustedDevices?: ITrustedDevice[];
 
-  // --- 4. IDENTITY UPDATES (NEWLY ADDED) ---
-  pendingEmail?: string | null;
-  lastEmailChangeAt?: Date | string | null;
-  pendingPhoneNumber?: string | null;
-  lastPhoneCodeSentAt?: Date | string | null;
-  lastPhoneChangeAt?: Date | string | null;
-  lastUsernameChangeAt?: Date | string | null;
-
-  // --- 5. PROFILE DETAILS ---
+  // --- PROFILE DETAILS ---
   gender?: string | null;
   dateOfBirth?: string | null;
   about?: string | null;
@@ -85,18 +101,18 @@ export interface IUserPayload {
   interests?: string[];
   website?: string | null;
 
-  // --- 6. ASSETS ---
-  profileImage?: string | null; // Usually returned as a URL string or ID string
+  // --- USER PROFILE ASSETS ---
+  profileImage?: string | null;
   coverImage?: string | null;
 
-  // --- 7. ONBOARDING & GEOGRAPHY (NEWLY ADDED) ---
+  // --- ONBOARDING & GEOGRAPHY ---
   isOnboarded?: boolean;
   onboardingStep?: AuthStepName | null;
   location?: string | null;
   country?: string | null;
   state?: string | null;
 
-  // --- 8. METRICS & PREFERENCES ---
+  // --- METRICS & PREFERENCES ---
   followersCount?: number;
   followingCount?: number;
   preferences?: {
@@ -109,13 +125,12 @@ export interface IUserPayload {
     }>;
   };
 
-  // --- 9. AUTOMATED AI MODERATION BYPASS FIELDS ---
+  // --- MODERATION FIELDS ---
+  policyBreachCount?: number;
   hasFlaggedPost?: boolean;
   postCountWindow?: number;
 
-  // --- 10. LIFECYCLE ---
-  isDeactivated?: boolean;
-  deactivatedAt?: string | null; // NEWLY ADDED
+  // --- LIFECYCLE ---
   createdAt?: Date | string | null;
   updatedAt?: Date | string | null;
 }

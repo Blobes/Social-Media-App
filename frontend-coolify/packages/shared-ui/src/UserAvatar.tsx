@@ -63,7 +63,7 @@ export const UserAvatar = ({
             bgcolor: textAvatar.bgColor,
             borderRadius: theme.radius[100],
             fontSize: dynamicFontSize,
-            fontWeight: "500",
+            fontWeight: 600,
             ...otherStyle,
           }}
           alt={`${firstName} ${lastName}`}

@@ -22,6 +22,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json turbo.json ts
 COPY ${APP_PATH}/package.json ./${APP_PATH}/
 COPY packages/shared/package.json ./packages/shared/
 COPY packages/database/package.json ./packages/database/
+COPY packages/security/package.json ./packages/security/
 
 RUN pnpm install --frozen-lockfile
 
@@ -31,6 +32,7 @@ COPY tsconfig.json turbo.json tsup.config.ts ./
 COPY ${APP_PATH} ./${APP_PATH}
 COPY packages/shared ./packages/shared
 COPY packages/database ./packages/database
+COPY packages/security ./packages/security
 
 RUN pnpm --filter=@repo/${SERVICE_NAME} build
 

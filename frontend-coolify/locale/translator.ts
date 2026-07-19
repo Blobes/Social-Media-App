@@ -16,6 +16,12 @@ interface HashCache {
   keys: Record<string, string>;
 }
 
+// Tracks translation counts and keys per language session without mixing with upload logs.
+interface TranslationMetrics {
+  totalKeysTranslated: number;
+  translatedKeysList: string[];
+}
+
 /**
  * Computes an MD5 checksum hash of a string layout payload.
  */
@@ -219,6 +225,7 @@ async function translateNode(
   namespace: string,
   pathString: string,
   keyCache: Record<string, string>,
+  metrics: TranslationMetrics,
   oldTranslations: Record<string, string> = {},
 ): Promise<any> {
   if (typeof node === "object" && node !== null) {
@@ -231,6 +238,7 @@ async function translateNode(
         namespace,
         currentPath,
         keyCache,
+        metrics,
         oldTranslations,
       );
     }
@@ -251,6 +259,11 @@ async function translateNode(
 
   const translationResult = await fetchCloudTranslation(node, targetLang);
   keyCache[cacheMapKey] = currentStringHash;
+
+  // Log track details for this translated instance
+  metrics.totalKeysTranslated += 1;
+  metrics.translatedKeysList.push(pathString);
+
   return translationResult;
 }
 
@@ -363,9 +376,10 @@ async function runLocalizationPipeline(): Promise<void> {
       let translatedDataPayload: any = null;
 
       if (mode === "translate-only" || mode === "translate-and-upload") {
-        console.log(
-          `Processing execution context translation: [${namespace}] -> [${targetLang}]`,
-        );
+        const metrics: TranslationMetrics = {
+          totalKeysTranslated: 0,
+          translatedKeysList: [],
+        };
 
         let oldFlatTranslations: Record<string, string> = {};
         if (fs.existsSync(targetFilePath)) {
@@ -384,8 +398,20 @@ async function runLocalizationPipeline(): Promise<void> {
           namespace,
           "",
           cacheData.keys,
+          metrics,
           oldFlatTranslations,
         );
+
+        // Isolated Translation Console Feedback Block
+        console.log(
+          `\n🌐 [Translation Engine] -> Module: [${namespace}] | Language: [${targetLang}]`,
+        );
+        console.log(
+          `   Count: ${metrics.totalKeysTranslated} key(s) processed.`,
+        );
+        if (metrics.translatedKeysList.length > 0) {
+          console.log(`   Keys:  [ ${metrics.translatedKeysList.join(", ")} ]`);
+        }
 
         fs.mkdirSync(targetLocalFolder, { recursive: true });
         fs.writeFileSync(
@@ -409,7 +435,7 @@ async function runLocalizationPipeline(): Promise<void> {
         }
 
         console.log(
-          `Syncing [${targetLang}] translation array payload for [${namespace}] to backend storage.`,
+          `🚀 Syncing [${targetLang}] translation array payload for [${namespace}] to backend storage.`,
         );
         await sendToBackend(namespace, targetLang, translatedDataPayload);
       }
@@ -420,7 +446,7 @@ async function runLocalizationPipeline(): Promise<void> {
 
   if (cacheUpdated) {
     saveHashCache(cacheData);
-    console.log("All pipeline actions successfully processed and tracked.");
+    console.log("\nAll pipeline actions successfully processed and tracked.");
   } else {
     console.log("Localization pipeline completed. Everything is up to date.");
   }

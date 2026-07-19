@@ -5,6 +5,7 @@ import {
   OAuthProvider,
 } from "./executeOAuth";
 import { getOrSetDeviceToken, MESSAGES_REGISTRY } from "@repo/shared";
+import { setAuthCookies } from "@repo/security";
 
 /**
  * Controller endpoint to exchange validated provider credentials for platform session JWTs.
@@ -63,7 +64,11 @@ export const oauthExchange = async (
       });
     }
 
-    if (result.status === "DEACTIVATED") {
+    if (
+      result.status === "ACCOUNT_DEACTIVATED" ||
+      result.status === "ACCOUNT_SUSPENDED" ||
+      result.status === "ACCOUNT_BANNED"
+    ) {
       return res.status(403).json({
         status: "ERROR",
         ...result.transInfo,
@@ -76,6 +81,13 @@ export const oauthExchange = async (
         status: "ERROR",
         ...result.transInfo,
         payload: null,
+      });
+    }
+
+    if (result.accessToken && result.refreshToken) {
+      setAuthCookies(res, {
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
       });
     }
 

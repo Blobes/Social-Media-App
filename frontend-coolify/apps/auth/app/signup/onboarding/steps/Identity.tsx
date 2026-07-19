@@ -48,7 +48,7 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
         />
         <TransText
           {...AUTH_FEEDBACK.setup_legal_names_username}
-          sx={{ ...theme.typography.body2, color: theme.palette.gray[200] }}
+          sx={{ ...theme.typography.text3, color: theme.palette.gray[200] }}
         />
       </Stack>
 
@@ -97,7 +97,7 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
                 key={sug}
                 onClick={() => setFormData({ ...formData, username: sug })}
                 sx={{
-                  ...theme.typography.caption,
+                  ...theme.typography.text5,
                   cursor: "pointer",
                   color: theme.palette.primary.main,
                 }}>
@@ -131,7 +131,7 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
           <AppButton
             variant="contained"
             style={{
-              ...theme.typography.button,
+              ...theme.typography.text3,
               padding: theme.boxSpacing(5.5, 9),
               width: "100%",
             }}

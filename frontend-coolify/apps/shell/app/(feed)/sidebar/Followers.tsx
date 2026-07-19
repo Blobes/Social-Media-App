@@ -8,11 +8,17 @@ import { ProgressIcon, Feedback } from "@repo/shared-ui";
 import { UserMinus } from "lucide-react";
 import { useUser } from "@repo/features";
 import { COMMON_FEEDBACK, useGlobalStore } from "@repo/core";
+import { useStaticTranslation } from "@repo/shared-hooks";
 
 export const Followers = () => {
   const theme = useTheme();
   const authUser = useGlobalStore((state) => state.authUser);
-  const { followers, isLoading, message } = useUser(authUser?._id);
+  const { translateTxtString } = useStaticTranslation();
+  const {
+    followers,
+    isLoading,
+    followersMessage: message,
+  } = useUser(authUser?._id);
 
   return (
     <>
@@ -26,12 +32,10 @@ export const Followers = () => {
         </Stack>
       ) : authUser && followers && followers.length < 1 ? (
         <Feedback
-          transData={{
-            textDesc: message
-              ? undefined
-              : COMMON_FEEDBACK.user_no_follower_tagline,
-          }}
-          tagline={message || COMMON_FEEDBACK.user_no_follower_tagline.tValue}
+          tagline={
+            message ||
+            translateTxtString(COMMON_FEEDBACK.user_no_follower_tagline)
+          }
           icon={<UserMinus />}
         />
       ) : followers && followers.length > 0 ? (
@@ -50,10 +54,7 @@ export const Followers = () => {
         </Stack>
       ) : (
         <Feedback
-          transData={{
-            textDesc: message ? undefined : COMMON_FEEDBACK.server_error,
-          }}
-          tagline={message || COMMON_FEEDBACK.server_error.tValue}
+          tagline={message || translateTxtString(COMMON_FEEDBACK.server_error)}
           icon={<UserMinus />}
         />
       )}

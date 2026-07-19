@@ -76,7 +76,7 @@ export const apiClient = async <T>(
       responseData = await response.json();
     }
 
-    // HANDLING LOCALIZATION ON FEEDBACK
+    // HANDLING LOCALIZATION ON FEEDBACK WITHOUT CRUSHING RAW STRINGS
     if (responseData) {
       const target = responseData.error || responseData;
       const { i18nKey, interpolations, message } = target;
@@ -88,14 +88,16 @@ export const apiClient = async <T>(
           { i18nKey, interpolations, message },
           fallback,
         );
-        responseData.message = localizedString;
-        if (responseData.error) responseData.error.message = localizedString;
+        // Keep message clean for tracking, route translation to distinct localized key
+        responseData.localizedSuccessMsg = localizedString;
+        if (responseData.error)
+          responseData.error.localizedErrMsg = localizedString;
       }
     }
 
     // --- ERROR HANDLING ROUTINE ---
     if (!response.ok) {
-      // Create a robust error object for TanStack's 'onError' to consume
+      // Use raw un-translated error message text for clean inspection logs
       const error = new Error(
         responseData?.message || response.statusText || "Request failed",
       ) as ApiError;
@@ -119,7 +121,7 @@ export const apiClient = async <T>(
 
     // Map network or timeout failures to a status 0 for checkNetworkError logic
     if (error.name === "AbortError" || error.message === "timeout") {
-      apiErr.message = resolveAPIMessage({
+      apiErr.localizedErrMsg = resolveAPIMessage({
         i18nKey: COMMON_FEEDBACK.network_connection_failed.tKey,
         message: COMMON_FEEDBACK.network_connection_failed.tValue,
       });
@@ -130,7 +132,7 @@ export const apiClient = async <T>(
       error.message === "Failed to fetch" ||
       error instanceof TypeError
     ) {
-      apiErr.message = resolveAPIMessage({
+      apiErr.localizedErrMsg = resolveAPIMessage({
         i18nKey: COMMON_FEEDBACK.server_error.tKey,
         message: COMMON_FEEDBACK.server_error.tValue,
       });
@@ -138,7 +140,7 @@ export const apiClient = async <T>(
       apiErr.status = "NETWORK_ERROR";
       apiErr.payload = null;
     } else {
-      apiErr.message = resolveAPIMessage({
+      apiErr.localizedErrMsg = resolveAPIMessage({
         i18nKey: COMMON_FEEDBACK.unknown_error.tKey,
         message: error.message,
       });
