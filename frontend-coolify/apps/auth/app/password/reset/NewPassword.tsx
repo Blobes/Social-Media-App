@@ -20,6 +20,7 @@ import { ResetStepProps } from "../../types";
  * Secure step component enforcing dynamic mutation updates inside authorized timeframes.
  */
 export const NewPasswordStep: React.FC<ResetStepProps> = ({
+  step,
   setStep,
   style = {},
 }) => {
@@ -33,14 +34,14 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
     isPasswordValid,
     confirmPassword,
     confirmPassErrMsg,
-    onPasswordChange,
-    onConfirmPasswordChange,
+    handlePasswordChange,
+    handleConfirmChange,
     isAuthLoading,
     inlineMsg,
     timeLeft,
     isNewPasswordSubmitDisabled,
     handleNewPasswordSubmit,
-  } = useReset({ setStep });
+  } = useReset({ step, setStep });
 
   return (
     <Stack sx={{ width: "100%" }}>
@@ -86,7 +87,7 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
           placeholder={translateTxtString(
             AUTH_INPUT.placeholder.create_password,
           )}
-          onChange={onPasswordChange}
+          onChange={handlePasswordChange}
           value={password}
           error={password !== "" && !isPasswordValid}
           inputGuideUI={
@@ -107,7 +108,7 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
           placeholder={translateTxtString(
             AUTH_INPUT.placeholder.re_enter_password,
           )}
-          onChange={onConfirmPasswordChange}
+          onChange={handleConfirmChange}
           helperText={confirmPassErrMsg}
           value={confirmPassword}
           error={confirmPassword !== "" && password !== confirmPassword}

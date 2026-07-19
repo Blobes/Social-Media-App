@@ -26,13 +26,13 @@ export const useRouteGuards = (
 
   return useMemo(() => {
     const isCurrentRoute = pathname === pendingPath;
-    const isExternalRoute = ROUTES_REGISTRY.external.includes(pathname);
-    const isInternalRoute = !isCurrentRoute && !isExternalRoute;
+    const isUnprotectedRoute = ROUTES_REGISTRY.unprotected.includes(pathname);
+    const isProtectedRoute = !isCurrentRoute && !isUnprotectedRoute;
     const isOnDisallowedRoute = DISALLOWED_ROUTES.includes(pathname);
 
     const needsLogin =
       authStatus === "UNAUTHENTICATED" &&
-      isInternalRoute &&
+      isProtectedRoute &&
       pathname !== CLIENT_ROUTES.home.path;
 
     const needsOtpVerification =
@@ -40,7 +40,7 @@ export const useRouteGuards = (
       (accountStatus === "NOT_VERIFIED" ||
         (authUser &&
           (!authUser.isEmailVerified || !authUser.isPhoneVerified))) &&
-      isInternalRoute &&
+      isProtectedRoute &&
       pathname !== CLIENT_ROUTES.verifyOtp.path;
 
     const needsOnboarding =
@@ -48,14 +48,14 @@ export const useRouteGuards = (
       !needsOtpVerification &&
       (accountStatus === "NOT_ONBOARDED" ||
         (authUser && !authUser.isOnboarded)) &&
-      isInternalRoute &&
+      isProtectedRoute &&
       pathname !== CLIENT_ROUTES.onboarding.path &&
       pathname !== CLIENT_ROUTES.verifyOtp.path;
 
     const needsRestoreAccount =
       !needsLogin &&
       accountStatus === "DEACTIVATED" &&
-      isInternalRoute &&
+      isProtectedRoute &&
       pathname !== CLIENT_ROUTES.restoreAccount.path;
 
     return {

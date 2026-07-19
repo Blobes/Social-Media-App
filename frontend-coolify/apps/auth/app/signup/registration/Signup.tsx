@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Divider, Stack, Typography } from "@mui/material";
+import { Divider, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
 import { asset } from "@repo/assets";

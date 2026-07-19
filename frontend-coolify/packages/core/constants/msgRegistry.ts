@@ -750,13 +750,13 @@ export const auth = {
       tValue: "Set password",
     },
     signup: { tKey: "auth:button.signup", tValue: "Sign up" },
-    verify_with_authenticator: {
-      tKey: "auth:button.verify_with_authenticator",
-      tValue: "Verify with Authenticator",
+    use_authenticator: {
+      tKey: "auth:button.use_authenticator",
+      tValue: "Use Authenticator",
     },
     verify_with_email_phone: {
-      tKey: "auth:button.verify_with_authenticator",
-      tValue: "Verify with Email/Phone",
+      tKey: "auth:button.verify_with_email_phone",
+      tValue: "Verify with Email / Phone",
     },
   },
 
@@ -1102,7 +1102,7 @@ export const auth = {
         tValue: "e.g. +1234567890",
       },
       re_enter_password: {
-        tKey: "auth:input.label.phone_optional",
+        tKey: "auth:input.label.re_enter_password",
         tValue: "Re-enter your password",
       },
     },

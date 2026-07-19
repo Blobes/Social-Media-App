@@ -4,7 +4,6 @@ import { green, grey, red } from "@mui/material/colors";
 import { createTheme, PaletteColor } from "@mui/material/styles";
 import defaultUIStyles from "./defaultUIStyles";
 
-// Build a static base theme instance. No dynamic language function parameters here.
 const baseTheme = createTheme({
   cssVariables: {
     colorSchemeSelector: "class",
@@ -46,7 +45,10 @@ const baseTheme = createTheme({
           light: "#FFF2F4",
           main: "#EF5350",
           dark: "#DF3848",
-          trans: "rgba(183, 14, 14, 0.06)",
+          trans: {
+            1: "rgba(183, 14, 14, 0.06)",
+            2: "rgba(208, 56, 56, 0.16)",
+          },
         },
         tonalOffset: 0.6,
         contrastThreshold: 4.5,
@@ -88,7 +90,10 @@ const baseTheme = createTheme({
           light: "#170808",
           main: red[300],
           dark: "#FFA0A9",
-          trans: "rgba(255, 173, 173, 0.08)",
+          trans: {
+            1: "rgba(255, 173, 173, 0.08)",
+            2: "rgba(255, 153, 153, 0.4)",
+          },
         },
         tonalOffset: 0.6,
         contrastThreshold: 4.5,
@@ -228,7 +233,10 @@ baseTheme.palette.error = {
   light: "var(--mui-palette-error-light)",
   main: "var(--mui-palette-error-main)",
   dark: "var(--mui-palette-error-dark)",
-  trans: "var(--mui-palette-error-trans)",
+  trans: {
+    1: "var(--mui-palette-error-trans-1)",
+    2: "var(--mui-palette-error-trans-2)",
+  },
 } as PaletteColor;
 
 baseTheme.components = defaultUIStyles.components as any;

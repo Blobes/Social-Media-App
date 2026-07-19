@@ -1,5 +1,5 @@
 import { Document } from "mongoose";
-import { IRole, IRolePermission, IUserRole } from "./authorize";
+import { IRole, IRolePermission, IUserRole } from "./authorization";
 
 export interface IRoleDocument
   extends Omit<IRole, "_id" | "createdAt" | "updatedAt">, Document {

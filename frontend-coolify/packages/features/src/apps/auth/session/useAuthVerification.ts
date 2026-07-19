@@ -67,16 +67,16 @@ export const useAuthVerification = () => {
           error.status === "UNAUTHORIZED"
         ) {
           setAuthStatus("UNAUTHENTICATED");
-          setSBMessage({
-            msg: {
-              tagline:
-                error.localizedErrMsg ||
-                translateTxtString(AUTH_FEEDBACK.session_expired) ||
-                error.message,
-              msgStatus: "ERROR",
-              hasClose: true,
-            },
-          });
+          // setSBMessage({
+          //   msg: {
+          //     tagline:
+          //       error.localizedErrMsg ||
+          //       translateTxtString(AUTH_FEEDBACK.session_expired) ||
+          //       error.message,
+          //     msgStatus: "ERROR",
+          //     hasClose: true,
+          //   },
+          // });
         } else {
           setAuthStatus("ERROR");
           const errorMsg =

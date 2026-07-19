@@ -1,5 +1,5 @@
 import { Document } from "mongoose";
-import { PermissionName } from "./authorize";
+import { PermissionName } from "./authorization";
 
 export interface IPermission {
   _id: string;

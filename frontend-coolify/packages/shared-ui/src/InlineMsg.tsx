@@ -40,7 +40,7 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
         width: "100%",
         padding: theme.boxSpacing(4, 5),
         borderRadius: theme.radius[3],
-        border: `1px solid ${type === "SUCCESS" ? theme.palette.gray.trans[1] : theme.palette.error.trans}`,
+        border: `1px solid ${type === "SUCCESS" ? theme.palette.gray.trans[1] : theme.palette.error.trans[1]}`,
         scrollMarginTop: theme.gap(70),
         display: "flex",
         flexDirection: "row",
@@ -53,7 +53,7 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
         backgroundColor:
           type === "SUCCESS"
             ? theme.palette.info.main
-            : theme.palette.error.trans,
+            : theme.palette.error.trans[1],
       }}>
       <AlertCircle
         size={20}

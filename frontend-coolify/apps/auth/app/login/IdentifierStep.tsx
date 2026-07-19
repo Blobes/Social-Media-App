@@ -45,7 +45,11 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
   const inlineTxtStyle = {
     color: theme.palette.primary.main,
     flex: "none",
-    "&:hover": { textDecoration: "underline", fontWeight: 600 },
+    "&:hover": {
+      color: theme.palette.primary.dark,
+      textDecoration: "underline",
+      fontWeight: 600,
+    },
   };
 
   // Use the controller
@@ -236,32 +240,34 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         </AppButton>
       </Stack>
 
-      {/* Footer */}
       <Divider />
-      <TransText
-        {...COMMON_FEEDBACK.new_to_funstakes}
-        component="p"
-        sx={{ ...theme.typography.text4, textAlign: "center" }}
-        inlineComponents={{
-          anchor: (
-            <AnchorLink
-              href={CLIENT_ROUTES.signup.path}
-              onClick={handleSignupClick}
-              style={{
-                ...inlineTxtStyle,
-              }}
-            />
-          ),
-        }}
-      />
-      <AnchorLink
-        href={CLIENT_ROUTES.resetPassword.path}
-        onClick={handleResetPassClick}
-        style={{
-          ...inlineTxtStyle,
-        }}>
-        <TransText {...COMMON_BUTTON_LABELS.reset_password} noComponent />
-      </AnchorLink>
+      {/* Footer */}
+      <Stack sx={{ gap: theme.gap(10), alignItems: "center" }}>
+        <AnchorLink
+          href={CLIENT_ROUTES.resetPassword.path}
+          onClick={handleResetPassClick}
+          style={{
+            ...inlineTxtStyle,
+          }}>
+          <TransText {...COMMON_BUTTON_LABELS.reset_password} noComponent />
+        </AnchorLink>
+        <TransText
+          {...COMMON_FEEDBACK.new_to_funstakes}
+          component="p"
+          sx={{ ...theme.typography.text4, textAlign: "center" }}
+          inlineComponents={{
+            anchor: (
+              <AnchorLink
+                href={CLIENT_ROUTES.signup.path}
+                onClick={handleSignupClick}
+                style={{
+                  ...inlineTxtStyle,
+                }}
+              />
+            ),
+          }}
+        />
+      </Stack>
     </Stack>
   );
 };

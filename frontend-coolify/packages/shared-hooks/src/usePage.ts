@@ -53,8 +53,8 @@ export const usePage = () => {
     (path: string) => DISALLOWED_ROUTES.includes(path),
     [],
   );
-  const isOnExternal = useCallback(
-    (path: string) => ROUTES_REGISTRY.external.includes(path),
+  const isOnUnprotected = useCallback(
+    (path: string) => ROUTES_REGISTRY.unprotected.includes(path),
     [],
   );
 
@@ -159,7 +159,7 @@ export const usePage = () => {
     isOnWeb,
     isOnAuth,
     isOnDisallowed,
-    isOnExternal,
+    isOnUnprotected,
     navigateTo,
     handlePageChange,
     ...routeGuards,

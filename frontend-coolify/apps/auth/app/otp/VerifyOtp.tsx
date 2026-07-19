@@ -186,7 +186,7 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
                 padding: theme.boxSpacing(3, 6),
               }}>
               <TransText
-                {...AUTH_BUTTON_LABELS.verify_with_authenticator}
+                {...AUTH_BUTTON_LABELS.use_authenticator}
                 noComponent
               />
             </AppButton>

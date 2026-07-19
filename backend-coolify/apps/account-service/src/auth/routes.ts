@@ -12,11 +12,11 @@ import { checkPhone } from "./check/controllers/phone";
 import { refreshSession } from "./session/controllers/refreshSession";
 import { getDevices } from "./device/getAllDevices";
 import { removeDevice } from "./device/removeDevice";
-import { authenticate } from "@/envVars";
+import { authenticate, optionallyAuthenicate } from "@/envVars";
 import { updateOnboarding } from "./registration/controllers/onboarding";
 import { oauthExchange } from "./oauth/oauthExchange";
 import { verifyTfaChallenge } from "./tfa-auth/verifyTFACode";
-import { initiateTFAChallenge } from "./tfa-auth/initiateTFa";
+import { initiateTFAChallenge } from "./tfa-auth/initiateTFA";
 
 const router: Router = express.Router();
 
@@ -47,8 +47,8 @@ router.get("/verify-session", authenticate, verifySession);
 // --- CODE VERIFICATION ---
 router.post("/send-otp", sendOtp);
 router.post("/verify-otp", verifyOtp);
-router.post("/initiate-tfa", authenticate, initiateTFAChallenge);
-router.post("/verify-tfa-token", authenticate, verifyTfaChallenge);
+router.post("/initiate-tfa", optionallyAuthenicate, initiateTFAChallenge);
+router.post("/verify-tfa-token", optionallyAuthenicate, verifyTfaChallenge);
 
 // --- DEVICE MANAGEMENT ---
 router.get("/devices", getDevices);

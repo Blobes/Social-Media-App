@@ -3,17 +3,23 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
 import { Check } from "lucide-react";
-import { useGuides, useInputValidation } from "@repo/shared-hooks";
+import { useInputValidation } from "./useInputValidation";
+import { useGuides } from "../useGuides";
+import { useStaticTranslation } from "../useTrans";
+import { AUTH_FEEDBACK } from "@repo/core";
 
 /**
- * Manages password value states, criteria verification, and UI helper visual states.
+ * Manages password value states, criteria verification, confirmation comparisons, and UI helper visual states.
  */
 export const usePasswordValidation = () => {
   const theme = useTheme();
   const { validatePassword } = useInputValidation();
   const { INPUT_GUIDES } = useGuides();
+  const { translateTxtString } = useStaticTranslation();
 
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [confirmPassErrMsg, setConfirmPassErrMsg] = useState<string>("");
 
   const passwordCriteria = useMemo(() => {
     const hasAnyLetter = /\p{Letter}/u.test(password);
@@ -64,19 +70,55 @@ export const usePasswordValidation = () => {
     return validatePassword(password).status === "VALID";
   }, [password, validatePassword]);
 
+  /**
+   * Updates base password and re-evaluates match status against existing confirmation value.
+   */
   const handlePasswordChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setPassword(e.target.value);
+      const val = e.target.value;
+      setPassword(val);
+
+      if (confirmPassword && val !== confirmPassword) {
+        setConfirmPassErrMsg(
+          translateTxtString(AUTH_FEEDBACK.passwords_do_not_match),
+        );
+      } else {
+        setConfirmPassErrMsg("");
+      }
     },
-    [],
+    [confirmPassword, translateTxtString],
+  );
+
+  /**
+   * Updates confirmation password and evaluates match status against current base password value.
+   */
+  const handleConfirmChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const val = e.target.value;
+      setConfirmPassword(val);
+
+      if (password && val !== password) {
+        setConfirmPassErrMsg(
+          translateTxtString(AUTH_FEEDBACK.passwords_do_not_match),
+        );
+      } else {
+        setConfirmPassErrMsg("");
+      }
+    },
+    [password, translateTxtString],
   );
 
   return {
     password,
     setPassword,
+    confirmPassword,
+    setConfirmPassword,
+    confirmPassErrMsg,
+    setConfirmPassErrMsg,
     passwordCriteria,
     passwordVisualStates,
     isPasswordValid,
     handlePasswordChange,
+    handleConfirmChange,
   };
 };

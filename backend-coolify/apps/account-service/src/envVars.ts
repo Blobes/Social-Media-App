@@ -8,7 +8,7 @@ import {
   getEnv,
   loadEnv,
 } from "@repo/shared";
-import { verifyAuthTokens } from "@repo/security";
+import { verifyAuthOptionally, verifyAuthTokens } from "@repo/security";
 
 if (process.env.NODE_ENV !== "production") {
   loadEnv();
@@ -158,6 +158,8 @@ export const codeDispatchTokens: ICodeDispatchTokens = {
 };
 
 export const authenticate: RequestHandler = verifyAuthTokens(authTokens);
+export const optionallyAuthenicate: RequestHandler =
+  verifyAuthOptionally(authTokens);
 
 // Legacy Compatibility Exports
 export const NODE_ENV = env.NODE_ENV;

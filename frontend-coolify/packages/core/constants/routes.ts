@@ -88,15 +88,17 @@ export const ROUTES_REGISTRY = {
     CLIENT_ROUTES.signup.path,
     CLIENT_ROUTES.restoreAccount.path,
     CLIENT_ROUTES.verifyOtp.path,
+    CLIENT_ROUTES.resetPassword.path,
     CLIENT_ROUTES.onboarding.path,
   ],
   web: WEB_ROUTES,
   shell: [CLIENT_ROUTES.home.path, ...OFFLINE_ROUTES],
   post: [CLIENT_ROUTES.gist.path, CLIENT_ROUTES.stakes.path],
   offline: OFFLINE_ROUTES,
-  external: [
+  unprotected: [
     CLIENT_ROUTES.login.path,
     CLIENT_ROUTES.signup.path,
+    CLIENT_ROUTES.resetPassword.path,
     ...OFFLINE_ROUTES,
     ...WEB_ROUTES,
   ],

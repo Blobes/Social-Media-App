@@ -9,10 +9,10 @@ interface OverlayObj {
 
 declare module "@mui/material/styles" {
   interface PaletteColor {
-    trans: string;
+    trans: { 1: string; 2: string };
   }
   interface SimplePaletteColorOptions {
-    trans?: string;
+    trans?: { 1: string; 2: string };
   }
   interface Palette {
     gray: {
@@ -31,7 +31,10 @@ declare module "@mui/material/styles" {
       light: string;
       main: string;
       dark: string;
-      trans: string;
+      trans: {
+        1: string;
+        2: string;
+      };
     };
   }
   interface PaletteOptions {
@@ -82,8 +85,6 @@ declare module "@mui/material/styles" {
     text6Caps: React.CSSProperties;
   }
   interface TypographyVariantsOptions {
-    text4?: React.CSSProperties;
-    text6?: React.CSSProperties;
     text1?: React.CSSProperties;
     text2?: React.CSSProperties;
     text3?: React.CSSProperties;

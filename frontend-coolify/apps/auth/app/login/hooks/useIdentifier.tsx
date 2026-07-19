@@ -143,7 +143,7 @@ export const useIdentifier = ({
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!isValidInput || !input) return;
     mutate(input);

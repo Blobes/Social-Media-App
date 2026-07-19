@@ -82,8 +82,8 @@ export const SnackBars = ({
                   border:
                     msg.msgStatus !== "ERROR"
                       ? "none"
-                      : `1px solid ${theme.palette.error.main}`,
-                  borderRadius: theme.radius[3],
+                      : `1px solid ${theme.palette.error.trans[2]}`,
+                  borderRadius: theme.radius[4],
                   overflow: "hidden",
                   gap: theme.gap(10),
                   "& svg": {
@@ -179,7 +179,7 @@ export const SnackBars = ({
                         backgroundColor:
                           msg.msgStatus !== "ERROR"
                             ? theme.fixedColors.pTrans
-                            : theme.palette.error.trans,
+                            : theme.palette.error.trans[1],
                         "&:hover": {
                           backgroundColor: theme.fixedColors.grayTrans(),
                         },

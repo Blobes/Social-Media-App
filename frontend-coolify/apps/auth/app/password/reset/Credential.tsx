@@ -31,6 +31,7 @@ import { ResetStepProps } from "../../types";
  * Primary identity resolution view checking credentials and binding target identifiers.
  */
 export const CredentialStep: React.FC<ResetStepProps> = ({
+  step,
   setStep,
   existingInput,
   setIdentifier,
@@ -54,7 +55,7 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
     handleStandardSubmit,
     handleTFASubmit,
     inlineMsg,
-  } = useReset({ existingInput, setStep });
+  } = useReset({ existingInput, step, setStep });
 
   return (
     <Stack gap={theme.gap(8)} sx={{ width: "100%" }}>
@@ -175,10 +176,7 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
               width: "100%",
             }}
             options={{ disabled: isSubmitDisabled }}>
-            <TransText
-              {...AUTH_BUTTON_LABELS.verify_with_authenticator}
-              noComponent
-            />
+            <TransText {...AUTH_BUTTON_LABELS.use_authenticator} noComponent />
           </AppButton>
         </Stack>
       </Stack>

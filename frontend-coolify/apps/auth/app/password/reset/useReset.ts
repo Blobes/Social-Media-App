@@ -36,7 +36,7 @@ import { ResetStepProps } from "../../types";
 /**
  * Orchestrates local view states, text transformations, input sanitization, and state engines for password modification.
  */
-export const useReset = ({ existingInput, setStep }: ResetStepProps) => {
+export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
   const { initiateReset, confirmReset } = ResetPasswordService();
   const { initiateTFA } = OtpService();
   const { handleSendOtp } = useOtp();
@@ -47,8 +47,6 @@ export const useReset = ({ existingInput, setStep }: ResetStepProps) => {
 
   const [inlineMsg, setInlineMsg] = useState<React.ReactNode | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(120);
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [confirmPassErrMsg, setConfirmPassErrMsg] = useState<string>("");
 
   const cachedEntries = useCachedData<TransitData<"PASSWORD_RESET">>(
     CACHE_KEYS.PASS_RESET_FINALIZED_TRANSIT_DATA,
@@ -66,16 +64,18 @@ export const useReset = ({ existingInput, setStep }: ResetStepProps) => {
   }, [resetTransitData, setStep]);
 
   useEffect(() => {
-    const expiry = getCookie("reset_session_expiry");
-    if (!expiry) {
-      deleteCookie("reset_session_expiry");
-      navigateTo(CLIENT_ROUTES.login);
+    const resetSession = getCookie("reset_session_expiry");
+    if (!resetSession) {
+      if (step === "NEW_PASSWORD") {
+        deleteCookie("reset_session_expiry");
+        navigateTo(CLIENT_ROUTES.login);
+      }
       return;
     }
     const interval = setInterval(() => {
       const diff = Math.max(
         0,
-        Math.round((parseInt(expiry, 10) - Date.now()) / 1000),
+        Math.round((parseInt(resetSession, 10) - Date.now()) / 1000),
       );
       setTimeLeft(diff);
 
@@ -107,46 +107,13 @@ export const useReset = ({ existingInput, setStep }: ResetStepProps) => {
 
   const {
     password,
+    confirmPassword,
+    confirmPassErrMsg,
     passwordVisualStates,
     isPasswordValid,
     handlePasswordChange,
+    handleConfirmChange,
   } = usePasswordValidation();
-
-  /**
-   * Evaluates confirmation field iterations against current base values.
-   */
-  const onConfirmPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const val = e.target.value;
-    setConfirmPassword(val);
-
-    if (password && val !== password) {
-      setConfirmPassErrMsg(
-        translateTxtString(AUTH_FEEDBACK.passwords_do_not_match),
-      );
-    } else {
-      setConfirmPassErrMsg("");
-    }
-  };
-
-  /**
-   * Overridden password handler to enforce structural validation changes downstream.
-   */
-  const onPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const val = e.target.value;
-    handlePasswordChange(e);
-
-    if (confirmPassword && val !== password) {
-      setConfirmPassErrMsg(
-        translateTxtString(AUTH_FEEDBACK.passwords_do_not_match),
-      );
-    } else {
-      setConfirmPassErrMsg("");
-    }
-  };
 
   /**
    * TanStack Mutation handles password reset finalized confirmations.
@@ -343,8 +310,8 @@ export const useReset = ({ existingInput, setStep }: ResetStepProps) => {
     countryMenuRef,
     handleChange,
     validateAndSet,
-    onPasswordChange,
-    onConfirmPasswordChange,
+    handlePasswordChange,
+    handleConfirmChange,
     handleStandardSubmit,
     handleTFASubmit,
     handleNewPasswordSubmit,
