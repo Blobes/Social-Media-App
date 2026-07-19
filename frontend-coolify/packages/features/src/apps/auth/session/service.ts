@@ -63,7 +63,6 @@ export const AuthService = () => {
         authExpiredError.localizedErrMsg = apiErr.localizedErrMsg;
         throw authExpiredError;
       }
-
       console.log("Bypassing auth handling, throwing generic error");
       throw apiErr;
     }
@@ -80,7 +79,7 @@ export const AuthService = () => {
       );
       return res.payload?.accessToken || null;
     } catch (err: any) {
-      console.error("Auth Refresh Failed unexpectedly:", err.message);
+      console.error("Auth Refresh Failed:", err.message);
       return null;
     }
   };

@@ -1228,20 +1228,20 @@ export const post = {
     }),
   },
   info: {
-    post_views_one: (views: string) => ({
+    post_views_one: (view: string) => ({
       tKey: "post:info.post_views_one",
-      tValue: "{{views}} view",
-      interpolations: { views },
+      tValue: "{{view}} view",
+      interpolations: { view },
     }),
     post_views_many: (views: string) => ({
       tKey: "post:info.post_views_many",
       tValue: "{{views}} views",
       interpolations: { views },
     }),
-    post_likes_one: (likes: string) => ({
+    post_likes_one: (like: string) => ({
       tKey: "post:info.post_likes_one",
-      tValue: "{{likes}} like",
-      interpolations: { likes },
+      tValue: "{{like}} like",
+      interpolations: { like },
     }),
     post_likes_many: (likes: string) => ({
       tKey: "post:info.post_likes_many",

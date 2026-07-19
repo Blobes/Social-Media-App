@@ -10,7 +10,6 @@ import {
   OtpReason,
   InputType,
   TransitPurpose,
-  useGlobalStore,
 } from "@repo/core";
 import { usePage } from "@repo/shared-hooks";
 
@@ -26,7 +25,6 @@ export interface OtpNavigation {
 
 export const useAuthNavigation = () => {
   const { navigateTo } = usePage();
-  const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
 
   /**
    * Prepares and routes user to the OTP verification flow.

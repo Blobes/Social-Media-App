@@ -121,7 +121,7 @@ async function sendToBackend(
 }
 
 /**
- * Requests contextual text transformations from the Cloudflare LLM infrastructure endpoint.
+ * Requests contextual text transformations from the Cloudflare LLM infrastructure endpoint using a Google Gemini model.
  */
 async function fetchCloudTranslation(
   text: string,
@@ -151,28 +151,43 @@ async function fetchCloudTranslation(
   CRITICAL CONSTRAINTS:
   1. Translate the provided input string completely and naturally into the target language.
   2. Maintain the exact professional tone and meaning of the source text.
-  3. Your output must contain only the characters of the target language. Exception: When translating into Arabic, you MUST preserve all English-script interpolation variables (e.g., {{channel}}, {{seconds}}) and all English HTML/XML markup tags (e.g., <strong>, <span>, <timer>) exactly as they are. Do not omit, translate, or strip them.
+  3. Only translate the plain text segments. Never translate, alter, or omit English-script variables (e.g., {{variable}}) or HTML/XML tags (e.g., <strong>, </span>). Preserve them exactly as written in the source text.
   4. Do NOT invent, add, or insert any formatting symbols, brackets, or code elements that are not explicitly present in the input text.
   5. Output ONLY the raw translated string. No markdown, no conversational text.`;
 
+  // Updated model path targeting the Cloudflare Workers AI Google ecosystem
   const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/meta/llama-3.3-70b-instruct-fp8-fast`,
+    `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/google/gemini-2.5-flash`,
     {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiToken}`,
         "Content-Type": "application/json",
       },
+      // Refactored payload schema to map natively to Google Gemini specs on Cloudflare
       body: JSON.stringify({
-        messages: [
-          { role: "system", content: systemPrompt },
+        contents: [
           {
             role: "user",
-            content: `Target Language: ${targetLang}\nSource Text: ${text}`,
+            parts: [
+              {
+                text: `Target Language: ${targetLang}\nSource Text: ${text}`,
+              },
+            ],
           },
         ],
-        temperature: 0.0,
-        max_tokens: 1024,
+        // System instructions are passed directly into the configuration parts structure
+        systemInstruction: {
+          parts: [
+            {
+              text: systemPrompt,
+            },
+          ],
+        },
+        generationConfig: {
+          temperature: 0.0,
+          maxOutputTokens: 1024,
+        },
       }),
     },
   );
@@ -191,6 +206,7 @@ async function fetchCloudTranslation(
     );
   }
 
+  // Cloudflare wraps the raw Gemini content text inside result.response
   let translatedOutput = payload.result?.response?.trim() || text;
 
   for (const variable of sourceVars) {

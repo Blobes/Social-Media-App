@@ -11,6 +11,7 @@ import {
 } from "@repo/core";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
+import { getCookie } from "@repo/helpers";
 
 /**
  * Manages user authentication state and session verification.
@@ -23,6 +24,9 @@ export const useAuthVerification = () => {
   const { translateTxtString } = useStaticTranslation();
   const { setSBMessage } = useSnackbar();
   const { verifyAndFetchUser } = AuthService();
+
+  const resetPassSession = getCookie("reset_session_expiry");
+  if (resetPassSession) return;
 
   const { refetch, isFetching } = useQuery<IUser | null, ApiError>({
     queryKey: [CACHE_KEYS.USER.SESSION],
@@ -60,16 +64,15 @@ export const useAuthVerification = () => {
         if (
           error.httpStatus === 401 ||
           error.httpStatus === 403 ||
-          error.status === "UNAUTHORIZED" ||
-          error.status === "NO_AUTH_FLAG"
+          error.status === "UNAUTHORIZED"
         ) {
           setAuthStatus("UNAUTHENTICATED");
           setSBMessage({
             msg: {
               tagline:
-                error.status === "NO_AUTH_FLAG"
-                  ? translateTxtString(AUTH_FEEDBACK.session_expired)
-                  : error.localizedErrMsg || error.message,
+                error.localizedErrMsg ||
+                translateTxtString(AUTH_FEEDBACK.session_expired) ||
+                error.message,
               msgStatus: "ERROR",
               hasClose: true,
             },
@@ -84,17 +87,13 @@ export const useAuthVerification = () => {
             msg: { tagline: errorMsg, msgStatus: "ERROR", hasClose: true },
           });
         }
-
         console.error("Critical Auth Hook Failure:", error);
-
-        // Return null instead of throwing so the query stops fetching cleanly
         return null;
       }
     },
     retry: false,
     refetchOnWindowFocus: true,
     refetchInterval: 1000 * 60 * 10,
-    // (Optional) Remove the meta object completely since it is no longer needed
   });
 
   const verifyAuth = useCallback(async () => {
