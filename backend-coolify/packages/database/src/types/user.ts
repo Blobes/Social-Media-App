@@ -1,40 +1,17 @@
 import { Document, Types } from "mongoose";
-
-export type AccountStatus =
-  | "ACTIVE"
-  | "INACTIVE"
-  | "DEACTIVATED"
-  | "SUSPENDED"
-  | "BANNED";
-// | "NOT_ONBOARDED";
-export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
-
-/**
- * Interface representing the trusted device registry entry.
- */
-export interface ITrustedDevice {
-  deviceId: string;
-  lastVerifiedAt: Date;
-  name: string;
-}
-
-export interface ITfaData {
-  secret: string | null; // Encrypted or plain secure base32 string
-  isEnabled: boolean; // Active status toggle
-  backupCodes: string[]; // Fallback recovery matrices
-  tempSecret: string | null;
-  tempBackupCodes: string[];
-}
+import { AccountStatus, ITfaData, VerificationStatus } from "./status";
 
 export interface IUserDocument extends Document {
   // --- CORE IDENTITY ---
   email: string;
+  emailHash?: string;
   username?: string;
   usernameCanonical?: string;
   password: string | null;
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
+  phoneNumberHash?: string;
 
   // --- AUTHENTICATION & SECURITY ---
   signedUpWith?: "EMAIL" | "GOOGLE" | "APPLE";
@@ -48,8 +25,8 @@ export interface IUserDocument extends Document {
   // --- OTP VERIFICATION ---
   otpCode?: string | null;
   otpCodeExpiresAt?: Date | null;
-  lastEmailCodeSentAt?: Date | null;
-  lastPhoneCodeSentAt: Date | null;
+  lastEmailOtpSentAt?: Date | null;
+  lastPhoneOtpSentAt: Date | null;
 
   // --- IDENTITY UPDATES ---
   pendingEmail?: string | null;

@@ -1,4 +1,4 @@
-import { AccountStatus, UserModel } from "@repo/database";
+import { AccountStatus, IUserDocument, UserModel } from "@repo/database";
 import {
   MESSAGES_REGISTRY,
   normalizeValue,
@@ -58,19 +58,33 @@ export const executeAccountCheck = async (
     };
   }
 
-  let query: any = {};
-  const formattedValue = normalizeValue(identifier);
-  if (type === "EMAIL") {
-    query = { email: formattedValue.toLowerCase() };
-  } else if (type === "PHONE") {
-    query = { phoneNumber: formattedValue.replace(/\D/g, "") };
-  } else {
-    query = { usernameCanonical: transformToASCII(formattedValue) };
-  }
+  // if (type === "EMAIL") {
+  //   query = { email: formattedValue.toLowerCase() };
+  // } else if (type === "PHONE") {
+  //   query = { phoneNumber: formattedValue.replace(/\D/g, "") };
+  // } else {
+  //   query = { usernameCanonical: transformToASCII(formattedValue) };
+  // }
+  // const existingUser = await UserModel.findOne(query).setOptions({
+  //   skipFilter: true,
+  // });
 
-  const existingUser = await UserModel.findOne(query).setOptions({
-    skipFilter: true,
-  });
+  const formattedValue = normalizeValue(identifier);
+  let existingUser: IUserDocument | null = null;
+
+  // Utilize the custom static helpers to check blind index hashes underneath
+  if (type === "EMAIL") {
+    existingUser = await UserModel.findByEmail(formattedValue.toLowerCase());
+  } else if (type === "PHONE") {
+    existingUser = await UserModel.findByPhone(
+      formattedValue.replace(/\D/g, ""),
+    );
+  } else {
+    const query = { usernameCanonical: transformToASCII(formattedValue) };
+    existingUser = await UserModel.findOne(query).setOptions({
+      skipFilter: true,
+    });
+  }
 
   const accountStatusMap = {
     DEACTIVATED: MESSAGES_REGISTRY.AUTH.ACCOUNT_DEACTIVATED,

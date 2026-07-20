@@ -1,10 +1,20 @@
 import { Schema, model, Model } from "mongoose";
 import { IUserDocument } from "../../types/user";
+import { encryptedFieldsPlugin } from "../../helpers/plugin";
+
+export interface IUserModelStatic extends Model<IUserDocument> {
+  findByEncryptedField(
+    fieldName: string,
+    plainValue: string,
+  ): Promise<IUserDocument | null>;
+  findByEmail(email: string): Promise<IUserDocument | null>;
+  findByPhone(phoneNumber: string): Promise<IUserDocument | null>;
+}
 
 /**
  * User schema & Model
  */
-const IUserSchema = new Schema<IUserDocument>(
+const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
   {
     // --- CORE IDENTITY ---
     email: {
@@ -62,8 +72,8 @@ const IUserSchema = new Schema<IUserDocument>(
     // --- OTP VERIFICATION ---
     otpCode: { type: String, default: null },
     otpCodeExpiresAt: { type: Date, default: null },
-    lastEmailCodeSentAt: { type: Date, default: null },
-    lastPhoneCodeSentAt: { type: Date, default: null },
+    lastEmailOtpSentAt: { type: Date, default: null },
+    lastPhoneOtpSentAt: { type: Date, default: null },
 
     // --- IDENTITY UPDATES ---
     pendingEmail: { type: String, default: null, lowercase: true },
@@ -171,15 +181,33 @@ const IUserSchema = new Schema<IUserDocument>(
       transform: (doc, ret: any) => {
         ret._id = ret._id.toString();
         delete ret.password;
-        delete ret.verificationCode;
+        delete ret.otpCode;
         return ret;
       },
     },
   },
 );
 
-export const UserModel: Model<IUserDocument> = model<IUserDocument>(
+// Register plugin to automate configuration transformations transparently
+UserSchema.plugin(encryptedFieldsPlugin, {
+  fields: [
+    { field: "email", searchable: true },
+    { field: "phoneNumber", searchable: true },
+  ],
+});
+
+// Model helper method lookup abstraction for profile email match operations.
+UserSchema.statics.findByEmail = function (email: string) {
+  return this.findByEncryptedField("email", email);
+};
+
+// Model helper method lookup abstraction for profile phone number match operations.
+UserSchema.statics.findByPhone = function (phoneNumber: string) {
+  return this.findByEncryptedField("phoneNumber", phoneNumber);
+};
+
+export const UserModel = model<IUserDocument, IUserModelStatic>(
   "User",
-  IUserSchema,
+  UserSchema,
   "users",
 );

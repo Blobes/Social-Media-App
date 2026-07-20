@@ -38,7 +38,7 @@ export const executeCancelEmailChange = async (
   user.pendingEmail = null;
   user.otpCode = null;
   user.otpCodeExpiresAt = null;
-  user.lastEmailCodeSentAt = null;
+  user.lastEmailOtpSentAt = null;
   user.isEmailVerified = true;
 
   await user.save();

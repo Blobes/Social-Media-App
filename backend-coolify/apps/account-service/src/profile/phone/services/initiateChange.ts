@@ -62,8 +62,8 @@ export const startPhoneChange = async (
   }
 
   // Enforce single-minute delay window on messaging gateways
-  if (user.lastPhoneCodeSentAt) {
-    const timeSinceLastSent = Date.now() - user.lastPhoneCodeSentAt.getTime();
+  if (user.lastPhoneOtpSentAt) {
+    const timeSinceLastSent = Date.now() - user.lastPhoneOtpSentAt.getTime();
     if (timeSinceLastSent < SEND_COOLDOWN) {
       const secondsToWait = Math.ceil(
         (SEND_COOLDOWN - timeSinceLastSent) / 1000,
@@ -110,7 +110,7 @@ export const startPhoneChange = async (
   user.pendingPhoneNumber = formattedPhone;
   user.otpCode = hashCode(code);
   user.otpCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
-  user.lastPhoneCodeSentAt = new Date();
+  user.lastPhoneOtpSentAt = new Date();
 
   user.meritsVerification = notability.isVIPCandidate;
   user.isNotable = notability.isVIPCandidate;

@@ -20,3 +20,12 @@ export interface IDevice extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+/**
+ * Interface representing the trusted device registry entry.
+ */
+export interface ITrustedDevice {
+  deviceId: string;
+  lastVerifiedAt: Date;
+  name: string;
+}

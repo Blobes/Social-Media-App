@@ -4,9 +4,10 @@ import { IJwtUser } from "../../types";
 export const userSensitiveFields = (): string[] => {
   return [
     "password",
-    "verificationCode",
-    "verificationExpiry",
-    "lastEmailCodeSentAt",
+    "otpCode",
+    "otpCodeExpiresAt",
+    "lastEmailOtpSentAt",
+    "lastPhoneOtpSentAt",
     "deactivatedAt",
     "role",
     "__v",
@@ -42,7 +43,6 @@ export const toJwtUser = (
     sessionId,
     email: user.email,
     username: user.username,
-    // role: user.role,
     firstName: user.firstName,
     lastName: user.lastName,
   };

@@ -99,8 +99,8 @@ export const startEmailChange = async (
   }
 
   // Prevent OTP resource exhaustion attacks
-  if (user.lastEmailCodeSentAt) {
-    const timeSinceLastSent = Date.now() - user.lastEmailCodeSentAt.getTime();
+  if (user.lastEmailOtpSentAt) {
+    const timeSinceLastSent = Date.now() - user.lastEmailOtpSentAt.getTime();
     if (timeSinceLastSent < EMAIL_COOLDOWN) {
       const secondsToWait = Math.ceil(
         (EMAIL_COOLDOWN - timeSinceLastSent) / 1000,
@@ -148,7 +148,7 @@ export const startEmailChange = async (
   user.pendingEmail = formattedEmail;
   user.otpCode = hashCode(code);
   user.otpCodeExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
-  user.lastEmailCodeSentAt = now;
+  user.lastEmailOtpSentAt = now;
 
   user.meritsVerification = notability.isVIPCandidate;
   user.isNotable = notability.isVIPCandidate;

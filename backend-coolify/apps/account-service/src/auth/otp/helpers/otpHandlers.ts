@@ -53,10 +53,10 @@ export const syncIdentifierStatus = async (
 ): Promise<any> => {
   if (channel === "EMAIL") {
     user.isEmailVerified = true;
-    user.lastEmailCodeSentAt = null;
+    user.lastEmailOtpSentAt = null;
   } else {
     user.isPhoneVerified = true;
-    user.lastPhoneCodeSentAt = null;
+    user.lastPhoneOtpSentAt = null;
   }
   return { channelVerified: channel };
 };

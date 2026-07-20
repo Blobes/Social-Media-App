@@ -77,7 +77,7 @@ export const executeEmailChange = async (
   user.pendingEmail = null;
   user.isEmailVerified = true;
   user.lastEmailChangeAt = new Date();
-  user.lastEmailCodeSentAt = null;
+  user.lastEmailOtpSentAt = null;
   user.otpCode = null;
   user.otpCodeExpiresAt = null;
 

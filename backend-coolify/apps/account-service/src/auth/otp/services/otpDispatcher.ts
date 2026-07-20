@@ -85,7 +85,7 @@ export const executeOtpDispatch = async (
   }
 
   const lastSentAt =
-    channel === "EMAIL" ? user.lastEmailCodeSentAt : user.lastPhoneCodeSentAt;
+    channel === "EMAIL" ? user.lastEmailOtpSentAt : user.lastPhoneOtpSentAt;
   if (lastSentAt) {
     const elapsed = (Date.now() - lastSentAt.getTime()) / 1000;
     if (elapsed < COOLDOWN_SECONDS) {
@@ -105,9 +105,9 @@ export const executeOtpDispatch = async (
   user.otpCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
   if (channel === "EMAIL") {
-    user.lastEmailCodeSentAt = new Date();
+    user.lastEmailOtpSentAt = new Date();
   } else {
-    user.lastPhoneCodeSentAt = new Date();
+    user.lastPhoneOtpSentAt = new Date();
   }
 
   await user.save();

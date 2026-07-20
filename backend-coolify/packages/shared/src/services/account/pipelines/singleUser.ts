@@ -8,8 +8,8 @@ export const getUserStaticData = (): PipelineStage[] => {
     {
       $project: {
         password: 0,
-        verificationCode: 0,
-        verificationExpiry: 0,
+        otpCode: 0,
+        otpCodeExpiresAt: 0,
         __v: 0,
       },
     },

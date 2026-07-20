@@ -1,6 +1,14 @@
 import { Types, Document } from "mongoose";
-import { AccountStatus } from "./user";
 import { ModeratorType } from "./moderation";
+
+export type AccountStatus =
+  | "ACTIVE"
+  | "INACTIVE"
+  | "DEACTIVATED"
+  | "SUSPENDED"
+  | "BANNED";
+// | "NOT_ONBOARDED";
+export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
 
 export type ChangedByType = ModeratorType | "OWNER";
 
@@ -14,4 +22,12 @@ export interface IAccountStatusHistory extends Document {
   suspensionExpiresAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ITfaData {
+  secret: string | null; // Encrypted or plain secure base32 string
+  isEnabled: boolean; // Active status toggle
+  backupCodes: string[]; // Fallback recovery matrices
+  tempSecret: string | null;
+  tempBackupCodes: string[];
 }

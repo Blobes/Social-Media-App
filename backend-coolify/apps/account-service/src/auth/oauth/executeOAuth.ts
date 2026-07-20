@@ -1,5 +1,10 @@
 import { authTokens } from "@/envVars";
-import { AccountStatus, ModerationDecision, UserModel } from "@repo/database";
+import {
+  AccountStatus,
+  IUserDocument,
+  ModerationDecision,
+  UserModel,
+} from "@repo/database";
 import {
   getAccountStatusMsg,
   MESSAGES_REGISTRY,
@@ -103,7 +108,7 @@ export const authenticateWithOAuth = async (
       };
     }
 
-    const newUser = new UserModel({
+    const newUser: IUserDocument = new UserModel({
       email: profile.email,
       oAuthId: profile.providerId,
       signedUpWith: provider,
@@ -131,7 +136,7 @@ export const authenticateWithOAuth = async (
       ipAddress,
     );
 
-    const safeData = newUser.toObject();
+    const safeData = newUser.toJSON();
     userSensitiveFields().forEach((field) => {
       delete (safeData as any)[field];
     });

@@ -1,5 +1,5 @@
 import { authTokens, FUNSTAKES_REDIS_URL } from "@/envVars";
-import { UserModel } from "@repo/database";
+import { IUserDocument, UserModel } from "@repo/database";
 import {
   genVerificationCode,
   getLocationFromIp,
@@ -73,23 +73,20 @@ export const registerUserAccount = async (
     }
   }
 
-  // const salt = await bcrypt.genSalt(10);
-  // const hashedPassword = await bcrypt.hash(password, salt);
-
   const hashedPassword = await encryptPass(password);
   const code = genVerificationCode();
   const userLocation = await getLocationFromIp(ipAddress);
   const sessionId = uuidv4();
 
-  const newUser = new UserModel({
+  const newUser: IUserDocument = new UserModel({
     email: normalizedEmail,
     password: hashedPassword,
     phoneNumber: phone,
     country: userLocation?.country,
     state: userLocation?.state,
-    verificationCode: hashCode(code),
-    verificationExpiry: new Date(Date.now() + 10 * 60 * 1000),
-    lastEmailCodeSentAt: new Date(),
+    otpCode: hashCode(code),
+    otpCodeExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
+    lastEmailOtpSentAt: new Date(),
     signedUpWith: "EMAIL",
   });
 
@@ -119,7 +116,7 @@ export const registerUserAccount = async (
     ipAddress,
   );
 
-  const safeData = newUser.toObject();
+  const safeData = newUser.toJSON();
   userSensitiveFields().forEach((field) => {
     delete (safeData as any)[field];
   });
