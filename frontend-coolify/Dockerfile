@@ -28,7 +28,8 @@ COPY packages ./packages
 RUN pnpm install --frozen-lockfile
 
 # Build the specific app
-RUN pnpm --filter $APP_NAME build
+RUN NODE_OPTIONS="--max-old-space-size=4096" CPUS=1 pnpm --filter $APP_NAME build
+# RUN pnpm --filter $APP_NAME build
 
 # =========================
 # 🚀 RUNTIME STAGE

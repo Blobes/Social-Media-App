@@ -19,6 +19,10 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
     ...appConfig,
     output: isProduction ? "standalone" : undefined,
     env: { ...appConfig.env, NEXT_PUBLIC_APP_VERSION: appVersion },
+    experimental: {
+      workerThreads: false,
+      cpus: 1,
+    },
     webpack(config) {
       // Add .lottie support
       config.module.rules.push({
