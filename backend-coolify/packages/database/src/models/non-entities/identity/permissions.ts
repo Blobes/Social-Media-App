@@ -1,6 +1,4 @@
 import { Schema, model, Model } from "mongoose";
-import { IPermissionDocument } from "../../../types/permissions";
-import { IRolePermissionDocument } from "../../../types/role";
 import {
   ADMIN_PERMISSIONS,
   ADS_PERMISSIONS,
@@ -10,6 +8,10 @@ import {
   USER_PERMISSIONS,
   WALLET_PERMISSIONS,
 } from "../../../constants/permissions";
+import {
+  IPermissionDocument,
+  IRolePermissionDocument,
+} from "../../../types/role-permission";
 
 const allPermissionNames = [
   ...Object.values(POST_PERMISSIONS),

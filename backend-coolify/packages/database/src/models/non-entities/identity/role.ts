@@ -1,6 +1,9 @@
 import { Schema, model, Model } from "mongoose";
-import { IRoleDocument, IUserRoleDocument } from "../../../types/role";
 import { COMMUNITY_ROLES, PLATFORM_ROLES } from "../../../constants/roles";
+import {
+  IRoleDocument,
+  IUserRoleDocument,
+} from "../../../types/role-permission";
 
 const allRoleNames = [
   ...Object.values(PLATFORM_ROLES),
