@@ -38,7 +38,7 @@ interface IInitiateEmailChangeResult {
 /**
  * Validates cooldown limits, checks password status, and enqueues confirmation codes to change profile emails.
  */
-export const initiateEmailChange = async (
+export const startEmailChange = async (
   input: IInitiateEmailChangeInput,
 ): Promise<IInitiateEmailChangeResult> => {
   const { userId, newEmail, password } = input;

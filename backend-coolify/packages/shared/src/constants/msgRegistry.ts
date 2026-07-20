@@ -342,9 +342,9 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.incorrect_current_password",
       message: "The current password you entered is incorrect.",
     },
-    INVALID_i18nKey: {
-      i18nKey: "auth.invalid_code",
-      message: "Invalid verification code.",
+    INVALID_OTP_CODE: {
+      i18nKey: "auth.invalid_otp_code",
+      message: "Invalid otp verification code.",
     },
     INVALID_EMAIL: {
       i18nKey: "auth.invalid_email",

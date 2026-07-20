@@ -27,9 +27,9 @@ router.get("/", (req, res) => {
 
 // --- DISCOVERY & AVAILABILITY ---
 // Public endpoints used during registration to check if data is unique
-router.post("/check-email", checkEmail);
-router.post("/check-phone", checkPhone);
-router.post("/check-username", checkUsername);
+router.post("/check/email", checkEmail);
+router.post("/check/phone", checkPhone);
+router.post("/check/username", checkUsername);
 
 // --- ACCOUNT ONBOARDING ---
 router.post("/signup", createAccount);
@@ -39,16 +39,16 @@ router.post("/onboarding", authenticate, updateOnboarding);
 router.post("/oauth-exchange", oauthExchange);
 
 // --- SESSION MANAGEMENT ---
-router.post("/login", loginUser);
-router.post("/refresh", refreshSession);
-router.post("/logout", authenticate, logoutUser);
-router.get("/verify-session", authenticate, verifySession);
+router.post("/session/login", loginUser);
+router.post("/session/refresh", refreshSession);
+router.post("/session/logout", authenticate, logoutUser);
+router.get("/session/verify", authenticate, verifySession);
 
 // --- CODE VERIFICATION ---
-router.post("/send-otp", sendOtp);
-router.post("/verify-otp", verifyOtp);
-router.post("/initiate-tfa", optionallyAuthenicate, initiateTFAChallenge);
-router.post("/verify-tfa-token", optionallyAuthenicate, verifyTfaChallenge);
+router.post("/otp/send", sendOtp);
+router.post("/otp/verify", verifyOtp);
+router.post("/tfa/initiate", optionallyAuthenicate, initiateTFAChallenge);
+router.post("/tfa/verify-token", optionallyAuthenicate, verifyTfaChallenge);
 
 // --- DEVICE MANAGEMENT ---
 router.get("/devices", getDevices);

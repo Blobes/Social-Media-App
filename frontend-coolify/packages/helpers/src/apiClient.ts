@@ -14,9 +14,9 @@ const DEFAULT_TIMEOUT = 60000; // Default timeout in milliseconds (1 minute)
 /**
  * Parses and translates structured feedback contracts sent directly from API nodes.
  */
-export const resolveAPIMessage = (
+export const translateAPIMessage = (
   payload: APITransMsg,
-  fallbackKey = "apimessage:auth.server_error",
+  fallbackKey: string = COMMON_FEEDBACK.server_error.tKey,
 ): string => {
   const storeState = useGlobalStore.getState();
   const I18nInstance = storeState.i18nInstance;
@@ -28,6 +28,7 @@ export const resolveAPIMessage = (
     return (
       payload?.message || I18nInstance.t(fallbackKey, { lng: currentLanguage })
     );
+
   // Route lookups to the isolated apimessage namespace file explicitly
   const translationKey = payload.i18nKey.includes(":")
     ? payload.i18nKey
@@ -81,12 +82,12 @@ export const apiClient = async <T>(
       const target = responseData.error || responseData;
       const { i18nKey, interpolations, message } = target;
       if (i18nKey || message) {
-        const fallback = response.ok
-          ? "apimessage:auth.logged_in_successfully"
-          : "apimessage:auth.server_error";
-        const localizedString = resolveAPIMessage(
+        const fallbackKey = response.ok
+          ? COMMON_FEEDBACK.server_request_successful.tKey
+          : COMMON_FEEDBACK.server_error.tKey;
+        const localizedString = translateAPIMessage(
           { i18nKey, interpolations, message },
-          fallback,
+          fallbackKey,
         );
         // Keep message clean for tracking, route translation to distinct localized key
         responseData.localizedSuccessMsg = localizedString;
@@ -121,7 +122,7 @@ export const apiClient = async <T>(
 
     // Map network or timeout failures to a status 0 for checkNetworkError logic
     if (error.name === "AbortError" || error.message === "timeout") {
-      apiErr.localizedErrMsg = resolveAPIMessage({
+      apiErr.localizedErrMsg = translateAPIMessage({
         i18nKey: COMMON_FEEDBACK.network_connection_failed.tKey,
         message: COMMON_FEEDBACK.network_connection_failed.tValue,
       });
@@ -132,7 +133,7 @@ export const apiClient = async <T>(
       error.message === "Failed to fetch" ||
       error instanceof TypeError
     ) {
-      apiErr.localizedErrMsg = resolveAPIMessage({
+      apiErr.localizedErrMsg = translateAPIMessage({
         i18nKey: COMMON_FEEDBACK.server_error.tKey,
         message: COMMON_FEEDBACK.server_error.tValue,
       });
@@ -140,7 +141,7 @@ export const apiClient = async <T>(
       apiErr.status = "NETWORK_ERROR";
       apiErr.payload = null;
     } else {
-      apiErr.localizedErrMsg = resolveAPIMessage({
+      apiErr.localizedErrMsg = translateAPIMessage({
         i18nKey: COMMON_FEEDBACK.unknown_error.tKey,
         message: error.message,
       });
@@ -166,7 +167,7 @@ export const checkNetworkError = (err: ApiError) => {
     return {
       payload: null,
       status: "ERROR" as FetchStatus,
-      message: resolveAPIMessage({
+      message: translateAPIMessage({
         i18nKey: COMMON_FEEDBACK.network_connection_failed.tKey,
         message: COMMON_FEEDBACK.network_connection_failed.tValue,
       }),

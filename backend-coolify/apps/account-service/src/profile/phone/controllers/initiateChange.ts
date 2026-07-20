@@ -1,26 +1,25 @@
 import { NextFunction, Response } from "express";
 import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
-import { initiateEmailChange } from "../services/initiateChange";
+import { startPhoneChange } from "../services/initiateChange";
 
-interface UserEmailRequest extends IAuthRequest {
+interface UserPhoneRequest extends IAuthRequest {
   body: {
-    newEmail: string;
-    password?: string;
+    newPhoneNumber: string;
   };
 }
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^\+?[1-9]\d{1,14}$/;
 
 /**
- * Controller endpoint to handle user profile identifier email transformation procedures.
+ * Controller endpoint to handle user profile identifier telephone transformation procedures.
  */
-export const changeEmail = async (
-  req: UserEmailRequest,
+export const initiatePhoneChange = async (
+  req: UserPhoneRequest,
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
   const userId = req.user?.id;
-  const { newEmail, password } = req.body;
+  const { newPhoneNumber } = req.body;
 
   if (!userId) {
     return res.status(401).json({
@@ -30,43 +29,30 @@ export const changeEmail = async (
     });
   }
 
-  if (!newEmail || !emailRegex.test(newEmail)) {
+  if (!newPhoneNumber || !phoneRegex.test(newPhoneNumber)) {
     return res.status(400).json({
       status: "ERROR",
-      ...MESSAGES_REGISTRY.AUTH.INVALID_EMAIL,
+      ...MESSAGES_REGISTRY.AUTH.INVALID_PHONE,
       payload: null,
     });
   }
 
   try {
-    const serviceResult = await initiateEmailChange({
+    const serviceResult = await startPhoneChange({
       userId,
-      newEmail,
-      password,
+      newPhoneNumber,
     });
 
     if (serviceResult.status === "NOT_FOUND") {
       return res.status(404).json({
-        status: "ERROR",
-        ...MESSAGES_REGISTRY.AUTH.USER_NOT_FOUND,
-        payload: null,
-      });
-    }
-
-    if (
-      serviceResult.status === "PASSWORD_REQUIRED" ||
-      serviceResult.status === "NO_USER_PASSWORD_SET" ||
-      serviceResult.status === "EMAIL_ALREADY_USED"
-    ) {
-      return res.status(400).json({
         status: "ERROR",
         ...serviceResult.transInfo,
         payload: null,
       });
     }
 
-    if (serviceResult.status === "INCORRECT_PASSWORD") {
-      return res.status(401).json({
+    if (serviceResult.status === "PHONE_ALREADY_USED") {
+      return res.status(400).json({
         status: "ERROR",
         ...serviceResult.transInfo,
         payload: null,
@@ -84,7 +70,7 @@ export const changeEmail = async (
       });
     }
 
-    if (serviceResult.status === "EMAIL_CONFLICT") {
+    if (serviceResult.status === "PHONE_CONFLICT") {
       return res.status(409).json({
         status: "ERROR",
         ...serviceResult.transInfo,
@@ -98,7 +84,7 @@ export const changeEmail = async (
       payload: serviceResult.payload,
     });
   } catch (error: any) {
-    console.error("Change Email Error:", error);
+    console.error("Change Phone Error:", error);
     return forwardError(
       next,
       error.message

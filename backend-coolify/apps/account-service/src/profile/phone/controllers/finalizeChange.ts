@@ -1,81 +1,74 @@
 import { NextFunction, Response } from "express";
 import { IAuthRequest, MESSAGES_REGISTRY, forwardError } from "@repo/shared";
-import { executeEmailUpdateVerification } from "../services/verifyChange";
+import { executePhoneChange } from "@/profile/phone/services/finalizeChange";
 import { clearAuthCookies } from "@repo/security";
 
 /**
- * Controller endpoint to verify email ownership changes and sign out stale sessions.
+ * Controller endpoint to confirm telephone authentication states and flush stale channels.
  */
-export const verifyEmailUpdate = async (
+export const finalizePhoneChange = async (
   req: IAuthRequest,
   res: Response,
   next: NextFunction,
-): Promise<void> => {
-  const { code } = req.body as { code?: string };
+): Promise<any> => {
+  const { code } = req.body;
   const userId = req.user?.id;
   const currentDeviceId = req.user?.deviceId;
 
   if (!userId) {
-    res.status(401).json({
+    return res.status(401).json({
       status: "ERROR",
       ...MESSAGES_REGISTRY.AUTH.UNAUTHORIZED,
       payload: null,
     });
-    return;
   }
 
   if (!code) {
-    res.status(400).json({
+    return res.status(400).json({
       status: "ERROR",
       ...MESSAGES_REGISTRY.AUTH.CODE_REQUIRED,
       payload: null,
     });
-    return;
   }
 
   try {
-    const serviceResult = await executeEmailUpdateVerification({
+    const serviceResult = await executePhoneChange({
       userId,
       currentDeviceId,
       code,
     });
 
     if (serviceResult.status === "NOT_FOUND") {
-      res.status(404).json({
+      return res.status(400).json({
         status: "ERROR",
         ...serviceResult.transInfo,
         payload: null,
       });
-      return;
     }
 
     if (
-      serviceResult.status === "NO_PENDING_CHANGE" ||
-      serviceResult.status === "NO_ACTIVE_PROCESS" ||
       serviceResult.status === "EXPIRED" ||
       serviceResult.status === "INVALID_CODE"
     ) {
-      res.status(400).json({
+      return res.status(400).json({
         status: "ERROR",
         ...serviceResult.transInfo,
         payload: null,
       });
-      return;
     }
 
-    // Nuke cookies immediately if identity update execution was forced from a non-primary link
+    // Terminate cookie lifetimes if transactional changes occur on non-primary links
     if (serviceResult.payload?.loggedOut) {
       clearAuthCookies(res);
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       status: "SUCCESS",
       ...serviceResult.transInfo,
       payload: serviceResult.payload,
     });
-    return;
   } catch (error: any) {
-    console.error("[verifyEmailUpdate] Error:", error);
+    console.error("Verify Phone Error:", error);
     return forwardError(
       next,
       error.message

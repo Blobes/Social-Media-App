@@ -25,9 +25,6 @@ export const useAuthVerification = () => {
   const { setSBMessage } = useSnackbar();
   const { verifyAndFetchUser } = AuthService();
 
-  const resetPassSession = getCookie("reset_session_expiry");
-  if (resetPassSession) return;
-
   const { refetch, isFetching } = useQuery<IUser | null, ApiError>({
     queryKey: [CACHE_KEYS.USER.SESSION],
     queryFn: async () => {
@@ -97,6 +94,9 @@ export const useAuthVerification = () => {
   });
 
   const verifyAuth = useCallback(async () => {
+    const resetPassSession = getCookie("reset_session_expiry");
+    if (resetPassSession) return;
+
     await refetch();
   }, [refetch]);
 

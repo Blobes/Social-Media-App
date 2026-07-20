@@ -37,7 +37,7 @@ import { ResetStepProps } from "../../types";
  * Orchestrates local view states, text transformations, input sanitization, and state engines for password modification.
  */
 export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
-  const { initiateReset, confirmReset } = ResetPasswordService();
+  const { initiateReset, setPassword } = ResetPasswordService();
   const { initiateTFA } = OtpService();
   const { handleSendOtp } = useOtp();
   const { handleOtpNavigation } = useAuthNavigation();
@@ -122,7 +122,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     useMutation({
       mutationFn: async () => {
         await delay();
-        return await confirmReset(password);
+        return await setPassword(password);
       },
       onSuccess: (res) => {
         if (res.status === "SUCCESS") {

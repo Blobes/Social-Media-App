@@ -26,8 +26,13 @@ export const useOtp = <P extends TransitPurpose>(
   transitData?: OtpTransitData<P>[],
   options: UseOtpOptions = { dispatchOnload: false },
 ) => {
-  const { verifyOtp, verifyEmailOtp, verifyPhoneOtp, dispatchOtp, verifyTFA } =
-    OtpService();
+  const {
+    verifyOtp,
+    finalizeEmailUpdateOtp,
+    finalizePhoneUpdateOtp,
+    dispatchOtp,
+    verifyTFA,
+  } = OtpService();
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
   const inlineMsg = useGlobalStore((state) => state.inlineMsg);
   const { setSBMessage } = useSnackbar();
@@ -194,8 +199,8 @@ export const useOtp = <P extends TransitPurpose>(
           return () => verifyOtp({ recipient: identifier, code: finalCode });
         if (purpose === "IDENTIFIER_UPDATE") {
           return channel === "EMAIL"
-            ? () => verifyEmailOtp(finalCode)
-            : () => verifyPhoneOtp(finalCode);
+            ? () => finalizeEmailUpdateOtp(finalCode)
+            : () => finalizePhoneUpdateOtp(finalCode);
         }
         return null;
       })();
@@ -213,8 +218,8 @@ export const useOtp = <P extends TransitPurpose>(
       isAuthPurpose,
       executeVerify,
       verifyOtp,
-      verifyEmailOtp,
-      verifyPhoneOtp,
+      finalizeEmailUpdateOtp,
+      finalizePhoneUpdateOtp,
       verifyTFA,
     ],
   );

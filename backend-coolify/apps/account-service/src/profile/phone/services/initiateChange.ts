@@ -31,7 +31,7 @@ interface IInitiatePhoneChangeResult {
 /**
  * Checks infrastructure change cooldowns, updates pending profile vectors, and registers a verification task inside Redis.
  */
-export const initiatePhoneChange = async (
+export const startPhoneChange = async (
   input: IInitiatePhoneChangeInput,
 ): Promise<IInitiatePhoneChangeResult> => {
   const { userId, newPhoneNumber } = input;

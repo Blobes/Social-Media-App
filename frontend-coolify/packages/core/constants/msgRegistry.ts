@@ -256,6 +256,10 @@ export const common = {
       tKey: "common:feedback.retrieving_connection",
       tValue: "Retrieving connection...",
     },
+    server_request_successful: {
+      tKey: "common:feedback.server_request_successful",
+      tValue: "Server request successful",
+    },
     those_following_you: {
       tKey: "common:feedback.those_following_you",
       tValue: "Those following you",

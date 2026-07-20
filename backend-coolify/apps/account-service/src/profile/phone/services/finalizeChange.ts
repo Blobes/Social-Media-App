@@ -8,13 +8,13 @@ import {
   MESSAGES_REGISTRY,
 } from "@repo/shared";
 
-interface IVerifyPhoneUpdateInput {
+interface IPhoneChangeInput {
   userId: string;
   currentDeviceId?: string;
   code: string;
 }
 
-interface IVerifyPhoneUpdateResult {
+interface IPhoneChnageResult {
   status: "SUCCESS" | "NOT_FOUND" | "EXPIRED" | "INVALID_CODE";
   transInfo: TransInfo;
   payload?: {
@@ -26,9 +26,9 @@ interface IVerifyPhoneUpdateResult {
 /**
  * Validates incoming telephone verification codes, overrides verified numbers, and flushes unauthorized sessions.
  */
-export const executePhoneUpdateVerification = async (
-  input: IVerifyPhoneUpdateInput,
-): Promise<IVerifyPhoneUpdateResult> => {
+export const executePhoneChange = async (
+  input: IPhoneChangeInput,
+): Promise<IPhoneChnageResult> => {
   const { userId, currentDeviceId, code } = input;
 
   const user = await UserModel.findById(userId);
@@ -49,7 +49,7 @@ export const executePhoneUpdateVerification = async (
       status: isExpired ? "EXPIRED" : "INVALID_CODE",
       transInfo: isExpired
         ? MESSAGES_REGISTRY.AUTH.EXPIRED
-        : MESSAGES_REGISTRY.AUTH.INVALID_CODE,
+        : MESSAGES_REGISTRY.AUTH.INVALID_OTP_CODE,
     };
   }
 

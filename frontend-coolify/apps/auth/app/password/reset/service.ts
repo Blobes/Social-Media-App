@@ -6,7 +6,7 @@ export interface InitiateResetResponse {
   destination: string;
 }
 
-export interface ConfirmResetResponse {
+export interface SetPasswordResponse {
   loggedOut: boolean;
 }
 
@@ -21,7 +21,7 @@ export const ResetPasswordService = () => {
     identifier: string,
   ): Promise<ISinglePayload<InitiateResetResponse>> => {
     return await apiClient<ISinglePayload<InitiateResetResponse>>(
-      SERVER_API.resetPassword,
+      SERVER_API.initiatePasswordReset,
       {
         method: "POST",
         body: JSON.stringify({ identifier }),
@@ -32,13 +32,13 @@ export const ResetPasswordService = () => {
   /**
    * Submits the newly provisioned password inside the active token session window.
    */
-  const confirmReset = async (
+  const setPassword = async (
     password: string,
-  ): Promise<ISinglePayload<ConfirmResetResponse>> => {
-    return await apiClient<ISinglePayload<ConfirmResetResponse>>(
+  ): Promise<ISinglePayload<SetPasswordResponse>> => {
+    return await apiClient<ISinglePayload<SetPasswordResponse>>(
       SERVER_API.setPassword,
       {
-        method: "POST",
+        method: "PATCH",
         body: JSON.stringify({
           purpose: "CREATE_PASSWORD",
           newPassword: password,
@@ -47,5 +47,5 @@ export const ResetPasswordService = () => {
     );
   };
 
-  return { initiateReset, confirmReset };
+  return { initiateReset, setPassword };
 };

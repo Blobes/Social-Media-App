@@ -1,6 +1,6 @@
 import { Response, RequestHandler, NextFunction } from "express";
 import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
-import { executeEmailChangeCancellation } from "@/profile/email/services/changeCancellation";
+import { executeCancelEmailChange } from "@/profile/email/services/changeCancellation";
 
 /**
  * Controller endpoint to terminate ongoing email update pipelines.
@@ -22,7 +22,7 @@ export const cancelEmailChange: RequestHandler = async (
   }
 
   try {
-    const serviceResult = await executeEmailChangeCancellation({ userId });
+    const serviceResult = await executeCancelEmailChange({ userId });
 
     if (serviceResult.status === "NOT_FOUND") {
       res.status(404).json({

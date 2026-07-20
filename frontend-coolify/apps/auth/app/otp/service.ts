@@ -60,16 +60,20 @@ export const OtpService = () => {
     });
   };
 
-  const verifyEmailOtp = async (code: string): Promise<ISinglePayload<any>> => {
-    return await apiClient(SERVER_API.verifyEmail, {
-      method: "POST",
+  const finalizeEmailUpdateOtp = async (
+    code: string,
+  ): Promise<ISinglePayload<any>> => {
+    return await apiClient(SERVER_API.finalizeEmailChange, {
+      method: "PATCH",
       body: JSON.stringify({ code }),
     });
   };
 
-  const verifyPhoneOtp = async (code: string): Promise<ISinglePayload<any>> => {
-    return await apiClient(SERVER_API.verifyPhone, {
-      method: "POST",
+  const finalizePhoneUpdateOtp = async (
+    code: string,
+  ): Promise<ISinglePayload<any>> => {
+    return await apiClient(SERVER_API.finalizePhoneChange, {
+      method: "PATCH",
       body: JSON.stringify({ code }),
     });
   };
@@ -109,8 +113,8 @@ export const OtpService = () => {
   return {
     dispatchOtp,
     verifyOtp,
-    verifyEmailOtp,
-    verifyPhoneOtp,
+    finalizeEmailUpdateOtp,
+    finalizePhoneUpdateOtp,
     initiateTFA,
     verifyTFA,
   };

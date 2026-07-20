@@ -13,7 +13,7 @@ interface ICancelEmailChangeResult {
 /**
  * Resets verification states and purges unverified pending email change sequences.
  */
-export const executeEmailChangeCancellation = async (
+export const executeCancelEmailChange = async (
   input: ICancelEmailChangeInput,
 ): Promise<ICancelEmailChangeResult> => {
   const { userId } = input;

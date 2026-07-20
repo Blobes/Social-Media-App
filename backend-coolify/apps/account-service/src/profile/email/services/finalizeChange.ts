@@ -8,13 +8,13 @@ import {
   MESSAGES_REGISTRY,
 } from "@repo/shared";
 
-interface IVerifyEmailUpdateInput {
+interface IEmailChangeInput {
   userId: string;
   currentDeviceId?: string;
   code: string;
 }
 
-interface IVerifyEmailUpdateResult {
+interface IEmailChangeResult {
   status:
     | "SUCCESS"
     | "NOT_FOUND"
@@ -31,9 +31,9 @@ interface IVerifyEmailUpdateResult {
 /**
  * Validates verification codes, updates active email state, and destroys secondary device sessions.
  */
-export const executeEmailUpdateVerification = async (
-  input: IVerifyEmailUpdateInput,
-): Promise<IVerifyEmailUpdateResult> => {
+export const executeEmailChange = async (
+  input: IEmailChangeInput,
+): Promise<IEmailChangeResult> => {
   const { userId, currentDeviceId, code } = input;
 
   const user = await UserModel.findById(userId);
@@ -68,7 +68,7 @@ export const executeEmailUpdateVerification = async (
   if (hashCode(code) !== user.otpCode) {
     return {
       status: "INVALID_CODE",
-      transInfo: MESSAGES_REGISTRY.AUTH.INVALID_CODE,
+      transInfo: MESSAGES_REGISTRY.AUTH.INVALID_OTP_CODE,
     };
   }
 
