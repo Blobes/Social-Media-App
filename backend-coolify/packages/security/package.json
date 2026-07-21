@@ -1,8 +1,11 @@
 {
   "name": "@repo/security",
   "version": "0.0.0",
-  "main": "./src/index.ts",
   "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "dependencies": {
     "uuid": "catalog:",
     "jsonwebtoken": "catalog:",
