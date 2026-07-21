@@ -16,14 +16,16 @@ import {
   AUTH_FEEDBACK,
   COMMON_FEEDBACK,
   ApiError,
+  GenericStyle,
 } from "@repo/core";
-import { AppButton, TransText } from "@repo/shared-ui";
+import { AnchorLink, AppButton, TransText } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 
 interface UseIdentifier {
   existingInput?: string;
   setStep?: (step: AuthStepName) => void;
   setIdentifier?: (credential: string) => void;
+  inlineTxtStyle?: GenericStyle;
 }
 
 /**
@@ -33,6 +35,7 @@ export const useIdentifier = ({
   existingInput,
   setStep,
   setIdentifier,
+  inlineTxtStyle,
 }: UseIdentifier) => {
   const { checkEmail, checkPhone, checkUsername } = LoginService();
   const { navigateTo } = usePage();
@@ -44,6 +47,30 @@ export const useIdentifier = ({
   const clearInlineMsg = useCallback(() => {
     setInlineMsg(null);
   }, []);
+
+  const handleSignupClick = useCallback(
+    (e: React.MouseEvent) => {
+      setInlineMsg(null);
+      navigateTo(CLIENT_ROUTES.signup, {
+        event: e,
+        loadPage: true,
+        savePage: false,
+      });
+    },
+    [navigateTo],
+  );
+
+  const handleResetPassClick = useCallback(
+    (e: React.MouseEvent) => {
+      setInlineMsg(null);
+      navigateTo(CLIENT_ROUTES.resetPassword, {
+        event: e,
+        loadPage: true,
+        savePage: false,
+      });
+    },
+    [navigateTo],
+  );
 
   const {
     input,
@@ -70,9 +97,7 @@ export const useIdentifier = ({
       if (resolvedType === "PHONE") return await checkPhone(cleaned);
       return await checkUsername(cleaned, "LOGIN");
     },
-    onSuccess: async (res) => {
-      const resolvedType = inputType ?? "UNKNOWN";
-
+    onSuccess: (res) => {
       if (res.status === "SUCCESS") {
         if (res.payload?.accountStatus === "DEACTIVATED") {
           setStep?.("RESTORE_ACCOUNT");
@@ -82,57 +107,57 @@ export const useIdentifier = ({
           setIdentifier?.(input);
           setStep?.("PASSWORD");
         }
-      } else if (res.status === "ERROR") {
-        if (res.httpStatus === 404) {
-          setInlineMsg(
-            <span>
-              <TransText
-                {...(resolvedType === "PHONE"
-                  ? AUTH_FEEDBACK.no_account_found_phone
-                  : AUTH_FEEDBACK.no_account_found_email)}
-                noComponent
-              />
-              {resolvedType === "EMAIL" && (
-                <AppButton
-                  variant="text"
-                  href={CLIENT_ROUTES.signup.path}
-                  onClick={handleSignupClick}
-                  style={{
-                    ...theme.typography.text5,
-                    color: theme.palette.primary.main,
-                    "&:hover": { textDecoration: "underline" },
-                  }}>
-                  <TransText
-                    {...AUTH_BUTTON_LABELS.create_account}
-                    noComponent
-                  />
-                </AppButton>
-              )}
-            </span>,
-          );
-        }
-      } else if (res.httpStatus === 403 && res.signedUpWith !== "EMAIL") {
-        setInlineMsg(
-          <span>
-            {res.localizedSuccessMsg || res.message}
-            <AppButton
-              variant="text"
-              href={CLIENT_ROUTES.signup.path}
-              onClick={handleSignupClick}
-              style={{
-                ...theme.typography.text5,
-                color: theme.palette.primary.main,
-                "&:hover": { textDecoration: "underline" },
-              }}>
-              <TransText {...AUTH_BUTTON_LABELS.set_password} noComponent />
-            </AppButton>
-          </span>,
-        );
-      } else {
-        setInlineMsg(res.localizedSuccessMsg || res.message);
       }
     },
     onError: (error: ApiError) => {
+      const resolvedType = inputType ?? "UNKNOWN";
+      const payload = error.payload;
+
+      if (error.httpStatus === 404) {
+        setInlineMsg(
+          <span>
+            <TransText
+              {...(resolvedType === "PHONE"
+                ? AUTH_FEEDBACK.no_account_found_phone
+                : AUTH_FEEDBACK.no_account_found_email)}
+              noComponent
+            />
+            {resolvedType === "EMAIL" && (
+              <AnchorLink
+                href={CLIENT_ROUTES.signup.path}
+                onClick={handleSignupClick}
+                style={{
+                  ...theme.typography.text5,
+                  marginLeft: theme.gap(2),
+                  ...inlineTxtStyle,
+                }}>
+                <TransText {...AUTH_BUTTON_LABELS.create_account} noComponent />
+              </AnchorLink>
+            )}
+          </span>,
+        );
+        return;
+      }
+
+      if (error.httpStatus === 403 && payload?.signedUpWith !== "EMAIL") {
+        setInlineMsg(
+          <span>
+            {error.localizedErrMsg || error.message}
+            <AnchorLink
+              href={CLIENT_ROUTES.resetPassword.path}
+              onClick={handleResetPassClick}
+              style={{
+                ...theme.typography.text5,
+                marginLeft: theme.gap(2),
+                ...inlineTxtStyle,
+              }}>
+              <TransText {...AUTH_BUTTON_LABELS.set_password} noComponent />
+            </AnchorLink>
+          </span>,
+        );
+        return;
+      }
+
       setInlineMsg(
         error.localizedErrMsg ||
           translateTxtString(COMMON_FEEDBACK.server_error),
@@ -148,30 +173,6 @@ export const useIdentifier = ({
     if (!isValidInput || !input) return;
     mutate(input);
   };
-
-  const handleSignupClick = useCallback(
-    (e: React.MouseEvent) => {
-      setInlineMsg(null);
-      navigateTo(CLIENT_ROUTES.signup, {
-        event: e,
-        loadPage: true,
-        savePage: false,
-      });
-    },
-    [navigateTo],
-  );
-
-  const handleResetPassClick = useCallback(
-    (e: React.MouseEvent) => {
-      setInlineMsg(null);
-      navigateTo(CLIENT_ROUTES.resetPassword, {
-        event: e,
-        loadPage: true,
-        savePage: false,
-      });
-    },
-    [navigateTo],
-  );
 
   return {
     input,

@@ -71,40 +71,65 @@ export const apiClient = async <T>(
     clearTimeout(timeoutId);
 
     // Parse response body once
-    let responseData;
+    let responseData: any = null;
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
       responseData = await response.json();
     }
 
-    // HANDLING LOCALIZATION ON FEEDBACK WITHOUT CRUSHING RAW STRINGS
+    // Extract message fields safely from root or nested error payloads
+    let localizedString = "";
     if (responseData) {
       const target = responseData.error || responseData;
-      const { i18nKey, interpolations, message } = target;
-      if (i18nKey || message) {
+      const i18nKey = target.i18nKey;
+      const interpolations = target.interpolations;
+      const rawMessage =
+        target.message || target.errMsg || responseData.message;
+
+      if (i18nKey || rawMessage) {
         const fallbackKey = response.ok
           ? COMMON_FEEDBACK.server_request_successful.tKey
           : COMMON_FEEDBACK.server_error.tKey;
-        const localizedString = translateAPIMessage(
-          { i18nKey, interpolations, message },
+
+        localizedString = translateAPIMessage(
+          { i18nKey, interpolations, message: rawMessage },
           fallbackKey,
         );
-        // Keep message clean for tracking, route translation to distinct localized key
+
         responseData.localizedSuccessMsg = localizedString;
-        if (responseData.error)
+        if (responseData.error) {
           responseData.error.localizedErrMsg = localizedString;
+        }
       }
     }
 
     // --- ERROR HANDLING ROUTINE ---
     if (!response.ok) {
-      // Use raw un-translated error message text for clean inspection logs
-      const error = new Error(
-        responseData?.message || response.statusText || "Request failed",
-      ) as ApiError;
+      // Retain the raw, un-translated server error message for dev console logs
+      const rawServerMessage =
+        responseData?.error?.message ||
+        responseData?.message ||
+        responseData?.error?.errMsg ||
+        response.statusText ||
+        "Request failed";
+
+      const error = new Error(rawServerMessage) as ApiError;
       error.httpStatus = response.status;
       error.status = responseData?.status || "ERROR";
       error.payload = responseData || null;
+
+      // Attach translated string exclusively to localizedErrMsg for UI consumers
+      error.localizedErrMsg =
+        localizedString ||
+        responseData?.error?.localizedErrMsg ||
+        translateAPIMessage(
+          {
+            i18nKey: responseData?.i18nKey || responseData?.error?.i18nKey,
+            message: rawServerMessage,
+          },
+          COMMON_FEEDBACK.server_error.tKey,
+        );
+
       throw error;
     }
 
@@ -118,6 +143,7 @@ export const apiClient = async <T>(
 
     if (error.httpStatus !== undefined) throw error;
 
+    // Retain original raw error message for console logging
     const apiErr = new Error(error.message) as ApiError;
 
     // Map network or timeout failures to a status 0 for checkNetworkError logic

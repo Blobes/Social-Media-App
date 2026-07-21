@@ -124,16 +124,3 @@ export function mapAppAssets(apps) {
       destination: `${url}/${name}-assets/_next/:path*`,
     }));
 }
-
-// export function mapAppAssets(apps) {
-//   // const isDev = process.env.NODE_ENV === "development";
-
-//   return Object.entries(apps)
-//     .filter(([_, url]) => !!url)
-//     .map(([name, url]) => ({
-//       // In Dev, we must ensure we don't catch HMR or other system paths
-//       // that might be accidentally prefixed.
-//       source: `/${name}-assets/_next/:path*`,
-//       destination: `${url}/_next/:path*`,
-//     }));
-// }

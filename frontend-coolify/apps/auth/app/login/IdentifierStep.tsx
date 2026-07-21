@@ -67,7 +67,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
     handleSignupClick,
     handleResetPassClick,
     inlineMsg,
-  } = useIdentifier({ existingInput, setStep, setIdentifier });
+  } = useIdentifier({ existingInput, setStep, setIdentifier, inlineTxtStyle });
 
   return (
     <Stack gap={theme.gap(8)}>
