@@ -72,6 +72,7 @@ RUN node -e " \
   const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); \
   delete pkg.dependencies['@repo/shared']; \
   delete pkg.dependencies['@repo/database']; \
+  delete pkg.dependencies['@repo/security']; \
   fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); \
 "
 
