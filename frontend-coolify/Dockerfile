@@ -28,7 +28,8 @@ COPY packages ./packages
 RUN pnpm install --frozen-lockfile
 
 # Build the specific app
-RUN NODE_OPTIONS="--max-old-space-size=4096" CPUS=1 pnpm --filter $APP_NAME build
+# Disables Next.js telemetry workers and sets memory constraints for monorepo builds
+RUN NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS="--max-old-space-size=4096" pnpm --filter $APP_NAME build
 # RUN pnpm --filter $APP_NAME build
 
 # =========================

@@ -19,17 +19,24 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
     ...appConfig,
     output: isProduction ? "standalone" : undefined,
     env: { ...appConfig.env, NEXT_PUBLIC_APP_VERSION: appVersion },
-    experimental: {
-      workerThreads: false,
-      cpus: 1,
+
+    // Configures native asset loader rules for Next.js 16 Turbopack
+    turbopack: {
+      rules: {
+        "*.lottie": {
+          loaders: ["file-loader"],
+          as: "*.lottie",
+        },
+      },
     },
+
     webpack(config) {
-      // Add .lottie support
+      // Retains support if building with --webpack flag
       config.module.rules.push({
         test: /\.lottie$/,
         type: "asset/resource",
       });
-      // Preserve existing webpack config if provided
+
       if (typeof appConfig.webpack === "function") {
         return appConfig.webpack(config);
       }
@@ -37,12 +44,11 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
     },
 
     async headers() {
-      // Execute and read any headers defined inside the passed appConfig
       const userHeaders =
         typeof appConfig.headers === "function"
           ? await appConfig.headers()
           : [];
-      // Define internal global cross-origin isolation parameters
+
       const baseHeaders = [
         {
           source: "/(.*)",
@@ -71,11 +77,12 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
       ];
       return [...baseHeaders, ...userHeaders];
     },
+
     async rewrites() {
       const baseRewrites = appConfig.rewrites
         ? await appConfig.rewrites()
         : { beforeFiles: [], afterFiles: [], fallback: [] };
-      // Ensure we handle both array and object rewrite formats
+
       const beforeFiles = Array.isArray(baseRewrites)
         ? []
         : baseRewrites.beforeFiles || [];

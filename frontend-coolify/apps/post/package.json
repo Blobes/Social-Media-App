@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev -p 3003",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "PORT=3003 node .next/standalone/apps/post/server.js"
   },
   "dependencies": {
