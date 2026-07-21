@@ -14,7 +14,6 @@ import { authenticate, optionallyAuthenicate } from "@/envVars";
 import { getUserProfile } from "./info/controllers/getProfile";
 import { reviewVerification } from "./id-doc/controllers/reviewID";
 import { submitIdDoc } from "./id-doc/controllers/docSubmission";
-import { isAdmin } from "@repo/security";
 import { changeAccountStatus } from "./account/accountStatus";
 import { deleteAccount } from "./account/deleteAccount";
 import { initiatePasswordReset } from "./password/controllers/initiateReset";
@@ -57,7 +56,7 @@ router.post("/:id/follow", authenticate, followUser);
 router.get("/:id/followers", authenticate, getFollowers);
 
 // ID Doc
-router.patch("/review-doc", authenticate, isAdmin, reviewVerification);
-router.patch("/submit-doc", authenticate, isAdmin, submitIdDoc);
+router.patch("/review-doc", authenticate, reviewVerification);
+router.patch("/submit-doc", authenticate, submitIdDoc);
 
 export default router;
