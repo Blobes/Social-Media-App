@@ -121,7 +121,11 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
             width: "100%",
           }}
           options={{ disabled: isAuthLoading }}>
-          <SVGWrapper src={asset.googleLogo} size={20} />
+          <SVGWrapper
+            src={asset.googleLogo}
+            size={20}
+            uiLoadertype="SKELETON"
+          />
           Google
         </AppButton>
         <AppButton
@@ -137,6 +141,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
             src={asset.appleLogo}
             size={20}
             color={theme.palette.gray[300]}
+            uiLoadertype="SKELETON"
           />
           Apple
         </AppButton>

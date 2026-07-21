@@ -28,9 +28,7 @@
     "packages/**/*.ts",
     "packages/**/*.tsx",
     "apps/**/*.ts",
-    "apps/**/*.tsx",
-    "packages/core/env-config/i18next.config.ts",
-    "locale/i18next.config.ts"
+    "apps/**/*.tsx"
   ],
   "exclude": ["**/node_modules", ".next"]
 }

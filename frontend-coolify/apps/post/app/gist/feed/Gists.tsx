@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { Box, Stack } from "@mui/material";
-import { Feedback, GistSkeleton, ProgressIcon } from "@repo/shared-ui";
+import { Feedback, PostSkeleton, ProgressIcon } from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import { autoScroll } from "@repo/helpers";
@@ -77,7 +77,7 @@ export const Gists = () => {
       <CreateGist />
 
       {isLoading ? (
-        <GistSkeleton />
+        <PostSkeleton />
       ) : gists.length < 1 ? (
         <Feedback
           tagline={message || translateTxtString(finalMsg)}

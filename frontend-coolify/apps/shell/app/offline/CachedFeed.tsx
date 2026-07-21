@@ -6,8 +6,8 @@ import { useTheme } from "@mui/material/styles";
 import { delay, autoScroll } from "@repo/helpers";
 import {
   Feedback,
-  GistSkeleton,
-  StakeSkeleton,
+  PostSkeleton,
+  BoxSkeleton,
   TransText,
 } from "@repo/shared-ui";
 import { CircleSlash2 } from "lucide-react";
@@ -69,8 +69,8 @@ export const CachedFeed = () => {
     <Stack sx={{ ...containerStyle }}>
       {isLoading ? (
         <>
-          <GistSkeleton />
-          <StakeSkeleton />
+          <PostSkeleton />
+          <BoxSkeleton />
         </>
       ) : feed.length < 1 ? (
         <Feedback

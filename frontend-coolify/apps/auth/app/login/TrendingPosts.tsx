@@ -6,7 +6,7 @@ import { useAdaptiveTime } from "@repo/shared-hooks";
 import { useTheme } from "@mui/material/styles";
 import {
   LinearCarousel,
-  GistSkeleton,
+  PostSkeleton,
   SmartDate,
   SVGWrapper,
   TransText,
@@ -116,6 +116,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
           src={data.avatar}
           size={42}
           preserveColor={true}
+          uiLoadertype="SKELETON"
           sx={{
             flex: "none",
             border: "2px solid #FFFFFF",
@@ -224,7 +225,7 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
         },
       }}>
       {isLoading ? (
-        <GistSkeleton
+        <PostSkeleton
           quantity={1}
           bgColor={theme.palette.gray.trans.overlay(0.08)}
         />

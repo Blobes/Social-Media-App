@@ -154,7 +154,11 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             width: "100%",
           }}
           options={{ disabled: isSubmitLoading }}>
-          <SVGWrapper src={asset.googleLogo} size={20} />
+          <SVGWrapper
+            src={asset.googleLogo}
+            size={20}
+            uiLoadertype="SKELETON"
+          />
           Google
         </AppButton>
         <AppButton
@@ -169,6 +173,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           <SVGWrapper
             src={asset.appleLogo}
             size={20}
+            uiLoadertype="SKELETON"
             color={theme.palette.gray[300]}
           />
           Apple

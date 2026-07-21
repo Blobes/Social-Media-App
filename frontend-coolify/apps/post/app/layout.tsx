@@ -1,11 +1,11 @@
 import React from "react";
 import { Metadata } from "next";
+import { BaseLayout, GlobalUIManager } from "@repo/features";
 import { baseMetadata } from "@repo/helpers";
-import { DefaultWrapper } from "@repo/features";
 
 export const metadata: Metadata = {
   ...baseMetadata,
-  title: "Gist",
+  title: "Post",
 };
 
 export default async function RootLayout({
@@ -13,5 +13,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <DefaultWrapper>{children}</DefaultWrapper>;
+  return (
+    <BaseLayout>
+      <GlobalUIManager>{children}</GlobalUIManager>
+    </BaseLayout>
+  );
 }

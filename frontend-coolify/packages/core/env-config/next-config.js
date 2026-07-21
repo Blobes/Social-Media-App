@@ -15,9 +15,13 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
 
   const appVersion = isProduction ? packageJson.version : `dev-${Date.now()}`;
 
+  const isShell = appName === "shell";
+  const assetPrefix = isShell ? undefined : `/${appName}-assets`;
+
   return {
     ...appConfig,
     output: isProduction ? "standalone" : undefined,
+    assetPrefix: appConfig.assetPrefix || assetPrefix,
     env: { ...appConfig.env, NEXT_PUBLIC_APP_VERSION: appVersion },
 
     // Configures native asset loader rules for Next.js 16 Turbopack
@@ -59,7 +63,7 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
             },
             {
               key: "Cross-Origin-Embedder-Policy",
-              value: "require-corp",
+              value: "unsafe-none",
             },
           ],
         },
@@ -91,10 +95,14 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
         ...baseRewrites,
         beforeFiles: [
           ...beforeFiles,
-          {
-            source: `/${appName}-assets/_next/:path*`,
-            destination: "/_next/:path*",
-          },
+          ...(assetPrefix
+            ? [
+                {
+                  source: `${assetPrefix}/_next/:path*`,
+                  destination: "/_next/:path*",
+                },
+              ]
+            : []),
           {
             source: "/api/:path*",
             destination: `${backendApi}/:path*`,
@@ -113,6 +121,19 @@ export function mapAppAssets(apps) {
     .filter(([_, url]) => !!url)
     .map(([name, url]) => ({
       source: `/${name}-assets/_next/:path*`,
-      destination: `${url}/_next/:path*`,
+      destination: `${url}/${name}-assets/_next/:path*`,
     }));
 }
+
+// export function mapAppAssets(apps) {
+//   // const isDev = process.env.NODE_ENV === "development";
+
+//   return Object.entries(apps)
+//     .filter(([_, url]) => !!url)
+//     .map(([name, url]) => ({
+//       // In Dev, we must ensure we don't catch HMR or other system paths
+//       // that might be accidentally prefixed.
+//       source: `/${name}-assets/_next/:path*`,
+//       destination: `${url}/_next/:path*`,
+//     }));
+// }

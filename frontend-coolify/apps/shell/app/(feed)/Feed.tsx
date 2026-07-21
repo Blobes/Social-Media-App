@@ -5,9 +5,9 @@ import { Box, Stack } from "@mui/material";
 import { UpdatesCarousel } from "./vibezSlider/Slider";
 import {
   Feedback,
-  GistSkeleton,
+  PostSkeleton,
   ProgressIcon,
-  StakeSkeleton,
+  BoxSkeleton,
   TransText,
 } from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
@@ -81,8 +81,8 @@ export const Feed = () => {
 
       {isLoading ? (
         <>
-          <GistSkeleton />
-          <StakeSkeleton />
+          <PostSkeleton />
+          <BoxSkeleton />
         </>
       ) : feed.length < 1 ? (
         <Feedback

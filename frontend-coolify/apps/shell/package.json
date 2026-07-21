@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev -p 3000",
-    "build": "next build --webpack",
+    "build": "next build",
     "start": "PORT=3000 node .next/standalone/apps/shell/server.js"
   },
   "dependencies": {

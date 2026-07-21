@@ -7,6 +7,7 @@ import { ProgressIcon } from "./LoadingUIs";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getFramerVariants } from "@repo/helpers";
+import { BoxSkeleton } from "./Skeletons";
 
 interface SVGWrapperProps extends BoxProps {
   src: any;
@@ -16,6 +17,7 @@ interface SVGWrapperProps extends BoxProps {
   loop?: boolean;
   autoplay?: boolean;
   fbSize?: number | string;
+  uiLoadertype?: "SPIN" | "SKELETON";
 }
 
 /**
@@ -30,6 +32,7 @@ export const SVGWrapper = ({
   preserveColor = false,
   loop = true,
   autoplay = true,
+  uiLoadertype = "SPIN",
   sx,
   ...props
 }: SVGWrapperProps) => {
@@ -99,6 +102,32 @@ export const SVGWrapper = ({
     },
   };
 
+  const renderDefaultLoader = () => {
+    if (uiLoadertype === "SPIN") {
+      return (
+        <Box
+          sx={{
+            width: fbSize,
+            height: fbSize,
+            padding: theme.boxSpacing(4),
+            backgroundColor: theme.palette.gray.trans[1],
+            borderRadius: theme.radius.full,
+            ...boxStyles,
+          }}>
+          <ProgressIcon />
+        </Box>
+      );
+    }
+    return (
+      <BoxSkeleton
+        variant="circular"
+        quantity={1}
+        width={fbSize}
+        height={fbSize}
+      />
+    );
+  };
+
   return (
     <AnimatePresence mode="wait">
       {loading ? (
@@ -112,17 +141,7 @@ export const SVGWrapper = ({
             // height: "100%",
             // width: "100%",
           }}>
-          <Box
-            sx={{
-              width: fbSize,
-              height: fbSize,
-              padding: theme.boxSpacing(4),
-              backgroundColor: theme.palette.gray.trans[1],
-              borderRadius: theme.radius.full,
-              ...boxStyles,
-            }}>
-            <ProgressIcon />
-          </Box>
+          {renderDefaultLoader()}
         </motion.div>
       ) : (
         <Box
@@ -146,16 +165,7 @@ export const SVGWrapper = ({
                 style={{ width: "100%", height: "100%", display: "block" }}
               />
             ) : (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "100%",
-                  height: "100%",
-                }}>
-                <ProgressIcon style={{ width: "50%", height: "50%" }} />
-              </Box>
+              renderDefaultLoader()
             )
           ) : (
             <Box

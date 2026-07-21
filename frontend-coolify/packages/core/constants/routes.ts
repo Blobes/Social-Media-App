@@ -60,6 +60,8 @@ export const CLIENT_ROUTES = {
 
   // Post
   gist: { title: "Gist", path: "/gist" },
+  gists: { title: "Gists", path: "/gists" },
+  stake: { title: "Stake", path: "/stake" },
   stakes: { title: "Stakes", path: "/stakes" },
   vibes: { title: "Vibes", path: "/vibes" },
   voices: { title: "Voices", path: "/voices" },
@@ -80,28 +82,36 @@ const WEB_ROUTES = [
   CLIENT_ROUTES.terms.path,
   CLIENT_ROUTES.news.path,
 ];
+const AUTH_ROUTES = [
+  CLIENT_ROUTES.login.path,
+  CLIENT_ROUTES.signup.path,
+  CLIENT_ROUTES.restoreAccount.path,
+  CLIENT_ROUTES.verifyOtp.path,
+  CLIENT_ROUTES.resetPassword.path,
+  CLIENT_ROUTES.onboarding.path,
+];
+const POST_ROUTES = [
+  CLIENT_ROUTES.gist.path,
+  CLIENT_ROUTES.gists.path,
+  CLIENT_ROUTES.stake.path,
+  CLIENT_ROUTES.stakes.path,
+];
+const UNPROTECTED_ROUTES = [
+  CLIENT_ROUTES.login.path,
+  CLIENT_ROUTES.signup.path,
+  CLIENT_ROUTES.resetPassword.path,
+  ...OFFLINE_ROUTES,
+  ...WEB_ROUTES,
+];
 export const DISALLOWED_ROUTES: string[] = [];
 
 export const ROUTES_REGISTRY = {
-  auth: [
-    CLIENT_ROUTES.login.path,
-    CLIENT_ROUTES.signup.path,
-    CLIENT_ROUTES.restoreAccount.path,
-    CLIENT_ROUTES.verifyOtp.path,
-    CLIENT_ROUTES.resetPassword.path,
-    CLIENT_ROUTES.onboarding.path,
-  ],
+  auth: AUTH_ROUTES,
   web: WEB_ROUTES,
   shell: [CLIENT_ROUTES.home.path, ...OFFLINE_ROUTES],
-  post: [CLIENT_ROUTES.gist.path, CLIENT_ROUTES.stakes.path],
+  post: POST_ROUTES,
   offline: OFFLINE_ROUTES,
-  unprotected: [
-    CLIENT_ROUTES.login.path,
-    CLIENT_ROUTES.signup.path,
-    CLIENT_ROUTES.resetPassword.path,
-    ...OFFLINE_ROUTES,
-    ...WEB_ROUTES,
-  ],
+  unprotected: UNPROTECTED_ROUTES,
 };
 
 /// Server Apis
@@ -123,7 +133,6 @@ export const API_BASE = {
   // Topic
   topic: "/topic",
 };
-
 export const SERVER_API = {
   // Auth
   login: `${API_BASE.auth}/login`,

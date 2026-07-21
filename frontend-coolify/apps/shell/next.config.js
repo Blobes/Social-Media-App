@@ -4,13 +4,8 @@ const nextConfig = {
   async rewrites() {
     const isDev = process.env.NODE_ENV === "development";
 
-    // Browsers need to see localhost:PORT, while Docker-to-Docker needs service:PORT
-    const authUrl =
-      process.env.AUTH_URL ||
-      (isDev ? "http://localhost:3002" : "http://auth-app:3002");
-    const postUrl =
-      process.env.POST_URL ||
-      (isDev ? "http://localhost:3003" : "http://post-app:3003");
+    const authUrl = isDev ? "http://localhost:3002" : "http://auth-app:3002";
+    const postUrl = isDev ? "http://localhost:3003" : "http://post-app:3003";
 
     return {
       beforeFiles: [
@@ -21,37 +16,19 @@ const nextConfig = {
         }),
       ],
       afterFiles: [
-        // Map the Shell's /login to the Auth Service
-        {
-          source: "/login",
-          destination: `${authUrl}/login`,
-        },
-        {
-          source: "/signup",
-          destination: `${authUrl}/signup`,
-        },
-        {
-          source: "/verify-otp",
-          destination: `${authUrl}/otp`,
-        },
-        {
-          source: "/reset-password",
-          destination: `${authUrl}/password/reset`,
-        },
-        {
-          source: "/onboarding",
-          destination: `${authUrl}/signup/onboarding`,
-        },
-        // Map everything under /gist to the Post Service
-        {
-          source: "/gist/:path*",
-          destination: `${postUrl}/gist/:path*`,
-        },
-        // Map everything under /stake to the Post Service
-        {
-          source: "/stake/:path*",
-          destination: `${postUrl}/stake/:path*`,
-        },
+        // Auth app
+        { source: "/login", destination: `${authUrl}/login` },
+        { source: "/signup", destination: `${authUrl}/signup` },
+        { source: "/verify-otp", destination: `${authUrl}/otp` },
+        { source: "/reset-password", destination: `${authUrl}/password/reset` },
+        { source: "/onboarding", destination: `${authUrl}/signup/onboarding` },
+        // Gist app
+        { source: "/gist", destination: `${postUrl}/gist/detail` },
+        { source: "/gists", destination: `${postUrl}/gist/feed` },
+        { source: "/gist/:path*", destination: `${postUrl}/gist/:path*` },
+        // Stake app
+        { source: "/stake", destination: `${postUrl}/stake/detail` },
+        { source: "/stake/:path*", destination: `${postUrl}/stake/:path*` },
       ],
     };
   },
