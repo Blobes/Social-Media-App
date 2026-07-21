@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || "";
+const ENCRYPTION_KEY = process.env.DATA_FIELD_ENCRYPTION_KEY || "";
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 12;
 const TAG_LENGTH = 16;
@@ -74,8 +74,7 @@ export const isEncryptedPattern = (value: string): boolean => {
   );
 };
 
-const LOOKUP_HASH_KEY = process.env.LOOKUP_HASH_KEY || "";
-
+const LOOKUP_HASH_KEY = process.env.DATA_FIELD_LOOKUP_HASH_KEY || "";
 /**
  * Computes a blind tracking index signature for a value using a secure keyed HMAC.
  */
