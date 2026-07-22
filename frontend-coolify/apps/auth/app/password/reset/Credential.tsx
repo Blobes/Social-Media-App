@@ -61,7 +61,7 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
     <Stack gap={theme.gap(8)} sx={{ width: "100%" }}>
       <Stack gap={theme.gap(8)} sx={{ paddingBottom: theme.boxSpacing(6) }}>
         <TransText
-          {...AUTH_FEEDBACK.confirm_identity}
+          {...AUTH_FEEDBACK.reset_your_password}
           component="h3"
           sx={{
             ...theme.typography.h5,

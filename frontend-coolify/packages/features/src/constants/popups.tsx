@@ -50,7 +50,7 @@ export const POPUP_CONFIG = ({
     RESET_PASSWORD_SUCCESS: {
       type: { baseScreen: "MODAL" },
       modal: {
-        content: <DisplayFeedbackUI type="PASSWORD_RESET" />,
+        content: <DisplayFeedbackUI type="PASSWORD_RESET_SUCCESS" />,
         onClose: closeModal,
       },
     },

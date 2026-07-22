@@ -65,14 +65,15 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
             component="p"
             sx={{ ...theme.typography.text3, color: theme.palette.gray[200] }}
           />
-          <strong
+          <span
             style={{
-              color: theme.palette.error.main,
               ...theme.typography.text3,
+              color: theme.palette.error.main,
+              fontWeight: 700,
             }}>
             {Math.floor(timeLeft / 60)}:
             {(timeLeft % 60).toString().padStart(2, "0")}
-          </strong>
+          </span>
         </Stack>
       </Stack>
 

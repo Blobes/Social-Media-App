@@ -6,13 +6,14 @@ import { clearAuthCookies } from "@repo/security";
 interface PassWordRequest extends IAuthRequest {
   body: {
     purpose: PasswordPurpose;
+    identifier?: string;
     currentPassword?: string;
     newPassword: string;
   };
 }
 
 /**
- * Controller endpoint to handle credential provisioning and security rotation strategies.
+ * Controller endpoint to handle credential provisioning, security rotations, and unauthenticated password resets.
  */
 export const setPassword = async (
   req: PassWordRequest,
@@ -21,9 +22,24 @@ export const setPassword = async (
 ): Promise<any> => {
   const userId = req.user?.id;
   const jwtDeviceId = req.user?.deviceId;
-  const { purpose, currentPassword, newPassword } = req.body;
+  const { purpose, identifier, currentPassword, newPassword } = req.body;
 
-  if (!userId || !jwtDeviceId) {
+  if (
+    !purpose ||
+    !["CREATE_PASSWORD", "CHANGE_PASSWORD", "PASSWORD_RESET"].includes(purpose)
+  ) {
+    return res.status(400).json({
+      status: "ERROR",
+      ...MESSAGES_REGISTRY.AUTH.INVALID_PASSWORD_PURPOSE,
+      payload: null,
+    });
+  }
+
+  // Validate JWT for authenticated password set paths
+  if (
+    (purpose === "CREATE_PASSWORD" || purpose === "CHANGE_PASSWORD") &&
+    (!userId || !jwtDeviceId)
+  ) {
     return res.status(401).json({
       status: "ERROR",
       ...MESSAGES_REGISTRY.AUTH.UNAUTHORIZED,
@@ -31,10 +47,11 @@ export const setPassword = async (
     });
   }
 
-  if (!purpose || !["CREATE_PASSWORD", "CHANGE_PASSWORD"].includes(purpose)) {
+  // Validate identifier for unauthenticated reset path
+  if (purpose === "PASSWORD_RESET" && !identifier) {
     return res.status(400).json({
       status: "ERROR",
-      ...MESSAGES_REGISTRY.AUTH.INVALID_PASSWORD_PURPOSE,
+      ...MESSAGES_REGISTRY.AUTH.IDENTIFIER_REQUIRED,
       payload: null,
     });
   }
@@ -59,6 +76,7 @@ export const setPassword = async (
     const serviceResult = await executePasswordUpdate({
       userId,
       jwtDeviceId,
+      identifier,
       purpose,
       newPassword,
       currentPassword,
@@ -72,7 +90,16 @@ export const setPassword = async (
       });
     }
 
+    if (serviceResult.status === "RESTRICTION") {
+      return res.status(403).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: null,
+      });
+    }
+
     if (
+      serviceResult.status === "MISSING_IDENTIFIER" ||
       serviceResult.status === "PASSWORD_ALREADY_EXISTS" ||
       serviceResult.status === "NO_PASSWORD_SET" ||
       serviceResult.status === "PASSWORD_REUSE_FORBIDDEN"
@@ -103,7 +130,7 @@ export const setPassword = async (
       payload: serviceResult.payload,
     });
   } catch (error: any) {
-    console.error("Change Password Error:", error);
+    console.error("Set Password Error:", error);
     return forwardError(
       next,
       MESSAGES_REGISTRY.AUTH.PASSWORD_UPDATE_ERROR,

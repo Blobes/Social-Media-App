@@ -9,7 +9,6 @@ import {
   DisplayType,
   useDisplayFBConfig,
 } from "../constants/displayFeedback";
-import { usePage } from "@repo/shared-hooks";
 
 interface RestrictedUIProps extends DisplayConfig {
   type: DisplayType;

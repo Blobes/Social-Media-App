@@ -7,9 +7,6 @@ import {
   CLIENT_ROUTES,
   COMMON_BUTTON_LABELS,
   COMMON_FEEDBACK,
-  IPage,
-  NavigateOptions,
-  TransData,
 } from "@repo/core";
 import {
   ShieldCheck,
@@ -31,7 +28,7 @@ export type DisplayType =
   | "NEEDS_ONBOARDING"
   | "NEEDS_OTP_VERIFICATION"
   | "NEEDS_RESTORE"
-  | "PASSWORD_RESET";
+  | "PASSWORD_RESET_SUCCESS";
 
 export interface DisplayConfig {
   headline?: string;
@@ -67,7 +64,7 @@ export const useDisplayFBConfig = (): Record<DisplayType, DisplayConfig> => {
         href: CLIENT_ROUTES.home.path,
       },
     },
-    PASSWORD_RESET: {
+    PASSWORD_RESET_SUCCESS: {
       headline: translateTxtString(
         AUTH_FEEDBACK.password_reset_successful_headline,
       ),

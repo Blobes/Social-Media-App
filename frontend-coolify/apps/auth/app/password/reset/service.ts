@@ -6,6 +6,13 @@ export interface InitiateResetResponse {
   destination: string;
 }
 
+export interface SetPasswordRequest {
+  newPassword: string;
+  purpose?: "CREATE_PASSWORD" | "CHANGE_PASSWORD" | "PASSWORD_RESET";
+  identifier?: string;
+  currentPassword?: string;
+}
+
 export interface SetPasswordResponse {
   loggedOut: boolean;
 }
@@ -33,15 +40,23 @@ export const ResetPasswordService = () => {
    * Submits the newly provisioned password inside the active token session window.
    */
   const setPassword = async (
-    password: string,
+    request: SetPasswordRequest,
   ): Promise<ISinglePayload<SetPasswordResponse>> => {
+    const {
+      newPassword,
+      purpose = "CREATE_PASSWORD",
+      identifier,
+      currentPassword,
+    } = request;
     return await apiClient<ISinglePayload<SetPasswordResponse>>(
       SERVER_API.setPassword,
       {
         method: "PATCH",
         body: JSON.stringify({
-          purpose: "CREATE_PASSWORD",
-          newPassword: password,
+          purpose,
+          newPassword,
+          identifier,
+          currentPassword,
         }),
       },
     );

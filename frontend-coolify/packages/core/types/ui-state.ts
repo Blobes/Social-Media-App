@@ -17,6 +17,7 @@ export type AuthStatus =
   | "UNKNOWN"
   | "AUTHENTICATED"
   | "UNAUTHENTICATED"
+  | "TEMPORARY"
   | "PENDING"
   | "ERROR";
 
@@ -152,6 +153,7 @@ export interface TransitPayloadMap {
   PASSWORD_RESET: {
     currentStep?: PasswordResetStepName;
     nextStep?: PasswordResetStepName;
+    identifier?: string;
   };
 }
 

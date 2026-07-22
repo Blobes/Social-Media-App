@@ -83,15 +83,11 @@ export const useFeedback = () => {
   /**
    * Success handler for Account Update flows. Typically redirects to settings or profile.
    */
-  const handlePassSuccess = () => {
-    queryClient.removeQueries({
-      queryKey: CACHE_KEYS.PASS_RESET_INIT_TRANSIT_DATA,
-    });
-
+  const handlePassSuccess = (identifier?: string) => {
     const transitData: TransitData<"PASSWORD_RESET"> = {
       _id: "transit:otp-auth",
       purpose: "PASSWORD_RESET",
-      payload: { nextStep: "NEW_PASSWORD" },
+      payload: { nextStep: "NEW_PASSWORD", identifier },
     };
     queryClient.setQueryData(
       CACHE_KEYS.PASS_RESET_FINALIZED_TRANSIT_DATA,
@@ -105,6 +101,10 @@ export const useFeedback = () => {
         ),
         msgStatus: "SUCCESS",
       },
+    });
+
+    queryClient.removeQueries({
+      queryKey: CACHE_KEYS.PASS_RESET_INIT_TRANSIT_DATA,
     });
 
     navigateTo(CLIENT_ROUTES.resetPassword, {

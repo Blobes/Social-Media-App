@@ -43,6 +43,15 @@ export const useOtp = <P extends TransitPurpose>(
   const [code, setCode] = useState("");
   const [timer, setTimer] = useState(0);
 
+  // Primary operational fallback values prioritized by active flow instance
+  const activeTransit = transitData?.[0];
+
+  const [channel, setChannel] = useState<OtpChannel>(
+    activeTransit?.channel || "EMAIL",
+  );
+  const [recipient, setRecipient] = useState(activeTransit?.identifier);
+  const hasDispatchedOnLoad = useRef(false);
+
   /**
    * Action map strategy execution routing.
    */
@@ -53,17 +62,8 @@ export const useOtp = <P extends TransitPurpose>(
       handleAuthOtpSuccess(payload, onSuccessCb),
     ACCOUNT_UPDATE: () => onUpdateSuccess(),
     IDENTIFIER_UPDATE: () => onUpdateSuccess(),
-    PASSWORD_RESET: () => handlePassSuccess(),
+    PASSWORD_RESET: () => handlePassSuccess(recipient),
   };
-
-  // Primary operational fallback values prioritized by active flow instance
-  const activeTransit = transitData?.[0];
-
-  const [channel, setChannel] = useState<OtpChannel>(
-    activeTransit?.channel || "EMAIL",
-  );
-  const [recipient, setRecipient] = useState(activeTransit?.identifier);
-  const hasDispatchedOnLoad = useRef(false);
 
   let isAuthPurpose =
     activeTransit?.purpose === "ACCOUNT_VERIFICATION" ||
@@ -120,14 +120,6 @@ export const useOtp = <P extends TransitPurpose>(
           activeTransit?.onVerificationSuccess,
         );
       }
-      // if (vars.purpose === "ACCOUNT_VERIFICATION")
-      //   handleAuthOtpSuccess(
-      //     activeTransit?.payload as IUser,
-      //     activeTransit?.onVerificationSuccess,
-      //   );
-      // if (vars.purpose === "ACCOUNT_UPDATE") onUpdateSuccess();
-
-      // if (vars.purpose === "PASSWORD_RESET") handlePassSuccess();
     },
     onError: (error: ApiError) =>
       setInlineMsg(

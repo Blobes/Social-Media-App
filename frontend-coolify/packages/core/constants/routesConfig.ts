@@ -182,9 +182,9 @@ export const SERVER_API = {
   changeUsername: `${API_BASE.user}/change-username`,
   updateBasicInfo: `${API_BASE.user}/update/basic`,
   initiatePasswordReset: `${API_BASE.user}/reset-password/initiate`,
-  setPassword: `${API_BASE.auth}/set-password`,
-  changeAccountStatus: `${API_BASE.auth}/account-status/change`,
-  deleteAccount: `${API_BASE.auth}/delete-account`,
+  setPassword: `${API_BASE.user}/set-password`,
+  changeAccountStatus: `${API_BASE.user}/account-status/change`,
+  deleteAccount: `${API_BASE.user}/delete-account`,
 
   // Topics
   lookupTopics: `${API_BASE.topic}/search`,

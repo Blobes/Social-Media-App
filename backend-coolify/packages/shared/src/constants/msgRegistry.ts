@@ -182,11 +182,11 @@ export const MESSAGES_REGISTRY = {
     },
     EMAIL_NOT_FOUND: {
       i18nKey: "auth.email_not_found",
-      message: "Email address not found.",
+      message: "Account not found with email address.",
     },
     EMAIL_REQUIRED: {
       i18nKey: "auth.email_required",
-      message: "Email value is required.",
+      message: "Email address is required.",
     },
     IDENTIFIER_REQUIRED: {
       i18nKey: "auth.identifier_required",
@@ -204,15 +204,15 @@ export const MESSAGES_REGISTRY = {
     },
     PHONE_NOT_FOUND: {
       i18nKey: "auth.phone_not_found",
-      message: "Phone number not found.",
+      message: "Account not found with phone number.",
     },
     PHONE_REGISTERED: {
       i18nKey: "auth.phone_registered",
-      message: "Phone number already in use.",
+      message: "Phone number is already in use.",
     },
     PHONE_REQUIRED: {
       i18nKey: "auth.phone_required",
-      message: "Phone value is required.",
+      message: "Phone number is required.",
     },
     USERNAME_ACTIVE: {
       i18nKey: "auth.username_active",
@@ -232,7 +232,7 @@ export const MESSAGES_REGISTRY = {
     },
     USERNAME_REQUIRED: {
       i18nKey: "auth.username_required",
-      message: "Username value is required.",
+      message: "Username is required.",
     },
     USERNAME_TAKEN: {
       i18nKey: "auth.username_taken",
@@ -466,7 +466,7 @@ export const MESSAGES_REGISTRY = {
     },
     PASSWORD_UPDATE_ERROR: {
       i18nKey: "auth.password_update_error",
-      message: "Failed to alter password due to server error.",
+      message: "Failed to update password due to server error.",
     },
     PHONE_CONFLICT: {
       i18nKey: "auth.phone_conflict",

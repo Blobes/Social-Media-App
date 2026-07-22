@@ -18,7 +18,7 @@ import {
   ApiError,
   GenericStyle,
 } from "@repo/core";
-import { AnchorLink, AppButton, TransText } from "@repo/shared-ui";
+import { AnchorLink, TransText } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 
 interface UseIdentifier {

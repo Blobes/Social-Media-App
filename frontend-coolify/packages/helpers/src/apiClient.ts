@@ -171,7 +171,7 @@ export const apiClient = async <T>(
         i18nKey: COMMON_FEEDBACK.unknown_error.tKey,
         message: error.message,
       });
-      apiErr.httpStatus = error.httpStatus || 500;
+      apiErr.httpStatus = 500;
       apiErr.status = "ERROR";
       apiErr.payload = null;
     }

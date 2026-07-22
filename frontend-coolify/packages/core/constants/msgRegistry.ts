@@ -797,6 +797,10 @@ export const auth = {
       tKey: "auth:feedback.confirm_identity",
       tValue: "Confirm your identity",
     },
+    reset_your_password: {
+      tKey: "auth:feedback.reset_your_password",
+      tValue: "Reset your password",
+    },
     lets_confirm_its_you: {
       tKey: "auth:feedback.lets_confirm_its_you",
       tValue:
@@ -804,11 +808,11 @@ export const auth = {
     },
     set_new_password_headline: {
       tKey: "auth:feedback.set_new_password_headline",
-      tValue: "Set up a new password",
+      tValue: "Set a new password",
     },
     set_new_password_tagline: {
       tKey: "auth:feedback.set_new_password_tagline",
-      tValue: "Now you can create up a new unique password for your account",
+      tValue: "Now you can create a new unique password for your account",
     },
     logout_confirmation: {
       tKey: "auth:feedback.logout_confirmation",
@@ -872,6 +876,10 @@ export const auth = {
       tKey: "auth:feedback.no_verification_sesion_found",
       tValue: "No OTP verification session found",
     },
+    no_password_reset_sesion_found: {
+      tKey: "auth:feedback.no_password_reset_sesion_found",
+      tValue: "No password reset session found",
+    },
     no_required_onboarding_headline: {
       tKey: "auth:feedback.no_required_onboarding_headline",
       tValue: "No Required Onboarding",
@@ -882,7 +890,7 @@ export const auth = {
     },
     return_home: {
       tKey: "auth:feedback.return_home",
-      tValue: "Please return to the home page or the previous page",
+      tValue: "Please return to Home or the previous page",
     },
     no_email_or_phone: (nextChannel: string) => ({
       tKey: "auth:feedback.no_email_or_phone",
@@ -931,6 +939,15 @@ export const auth = {
     password_reset_initiation_failed: {
       tKey: "auth:feedback.password_reset_initiation_failed",
       tValue: "Failed to initiate password reset.",
+    },
+    password_reset_not_allowed_headline: {
+      tKey: "auth:feedback.password_reset_not_allowed_headline",
+      tValue: "Password reset not allowed",
+    },
+    password_reset_not_allowed_tagline: {
+      tKey: "auth:feedback.password_reset_not_allowed_tagline",
+      tValue:
+        "Password reset is not allowed for users who are not logged out. Please log out to initiate a reset.",
     },
     password_reset_finalization_failed: {
       tKey: "auth:feedback.password_reset_finalization_failed",

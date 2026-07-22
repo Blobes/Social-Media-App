@@ -15,7 +15,7 @@ export * from "./src/useSocketListener";
 export * from "./src/useTrans";
 export * from "./src/input/useInputValue";
 export * from "./src/input/useInputField";
-export * from "./src/input/usePasswordField";
+export * from "./src/input/usePassword";
 export * from "./src/input/usePhoneField";
 export * from "./src/input/useOtpField";
 export * from "./src/useGuides";
