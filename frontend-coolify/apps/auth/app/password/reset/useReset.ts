@@ -3,9 +3,9 @@
 import React, { useState, useCallback, useEffect } from "react";
 import {
   useCachedData,
-  useMixedInputValidation,
+  useInputFieldValidation,
   usePage,
-  usePasswordValidation,
+  usePasswordFieldValidation,
   useStaticTranslation,
 } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
@@ -99,7 +99,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     countryMenuRef,
     handleChange,
     validateAndSet,
-  } = useMixedInputValidation({
+  } = useInputFieldValidation({
     initialValue: existingInput,
     allowedTypes: ["EMAIL", "PHONE"],
     onClearFeedback: clearInlineMsg,
@@ -113,7 +113,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     isPasswordValid,
     handlePasswordChange,
     handleConfirmChange,
-  } = usePasswordValidation();
+  } = usePasswordFieldValidation();
 
   /**
    * TanStack Mutation handles password reset finalized confirmations.

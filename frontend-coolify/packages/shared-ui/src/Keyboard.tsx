@@ -85,7 +85,7 @@ export const VirtualKeyboard = () => {
   const {
     showKeyboard,
     setShowKeyboard,
-    useVirtualKeyboard: isSupportedLanguage,
+    shouldUseVKeyboard: isSupportedLanguage,
     handleKeyInsert,
     handleBackspace,
     handleSpace,

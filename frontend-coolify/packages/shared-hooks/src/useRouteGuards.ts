@@ -38,8 +38,7 @@ export const useRouteGuards = (
     const needsOtpVerification =
       authStatus === "AUTHENTICATED" &&
       (accountStatus === "NOT_VERIFIED" ||
-        (authUser &&
-          (!authUser.isEmailVerified || !authUser.isPhoneVerified))) &&
+        (authUser && !authUser.isEmailVerified)) &&
       isProtectedRoute &&
       pathname !== CLIENT_ROUTES.verifyOtp.path;
 

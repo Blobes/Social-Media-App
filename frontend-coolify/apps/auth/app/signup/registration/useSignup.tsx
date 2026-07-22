@@ -3,9 +3,9 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
-  useInputValidation,
+  useInputValueValidation,
   usePage,
-  usePasswordValidation,
+  usePasswordFieldValidation,
 } from "@repo/shared-hooks";
 import { InputStatus, CLIENT_ROUTES, ApiError } from "@repo/core";
 import { sanitizePhoneNumber } from "@repo/helpers";
@@ -18,7 +18,7 @@ import { useSignupFeedback } from "./useFeedback";
 export const useSignup = () => {
   const { createAccount } = SignupService();
   const { navigateTo } = usePage();
-  const { validateEmail, validatePhone } = useInputValidation();
+  const { validateEmail, validatePhone } = useInputValueValidation();
 
   const [inlineMsg, setInlineMsg] = useState<React.ReactNode | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -40,7 +40,7 @@ export const useSignup = () => {
     passwordVisualStates,
     isPasswordValid,
     handlePasswordChange,
-  } = usePasswordValidation();
+  } = usePasswordFieldValidation();
 
   /**
    * TanStack Mutation handles server account provisioning.

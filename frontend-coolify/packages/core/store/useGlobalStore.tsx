@@ -14,7 +14,7 @@ import { IUser } from "../types/payloads/modified";
 import { SupportedIsoCode } from "../constants/languages";
 import { AccountStatus } from "../types/payloads/user";
 import { DrawerProps, ModalProps } from "../types/ui-props";
-import { CLIENT_ROUTES } from "../constants/routes";
+import { CLIENT_ROUTES } from "../constants/routesConfig";
 
 /** * Defines the shape and actions of the global application store.
  */

@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import {
-  useMixedInputValidation,
+  useInputFieldValidation,
   usePage,
   useStaticTranslation,
 } from "@repo/shared-hooks";
@@ -82,7 +82,7 @@ export const useIdentifier = ({
     countryMenuRef,
     handleChange,
     validateAndSet,
-  } = useMixedInputValidation({
+  } = useInputFieldValidation({
     initialValue: existingInput,
     onClearFeedback: clearInlineMsg,
   });
@@ -119,7 +119,9 @@ export const useIdentifier = ({
             <TransText
               {...(resolvedType === "PHONE"
                 ? AUTH_FEEDBACK.no_account_found_phone
-                : AUTH_FEEDBACK.no_account_found_email)}
+                : resolvedType === "EMAIL"
+                  ? AUTH_FEEDBACK.no_account_found_email
+                  : AUTH_FEEDBACK.no_account_found_username)}
               noComponent
             />
             {resolvedType === "EMAIL" && (

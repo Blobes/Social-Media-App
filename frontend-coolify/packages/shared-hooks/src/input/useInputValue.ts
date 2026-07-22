@@ -15,7 +15,7 @@ interface Input {
 /**
  * Validates text inputs, credentials, and password compliance across multiple supported international locales.
  */
-export const useInputValidation = () => {
+export const useInputValueValidation = () => {
   const { translateTxtString } = useStaticTranslation();
 
   /**

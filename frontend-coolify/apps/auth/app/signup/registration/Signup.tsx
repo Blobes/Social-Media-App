@@ -237,7 +237,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
               detailVisuals={passwordVisualStates}
               containerStyle={{
                 backgroundColor: theme.palette.gray.trans[1],
-                borderRadaius: theme.radius[2],
+                borderRadius: theme.radius[3],
               }}
             />
           }

@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import {
   useDebounce,
-  useInputValidation,
+  useInputValueValidation,
   useStaticTranslation,
 } from "@repo/shared-hooks";
 import { useCallback, useEffect, useState } from "react";
@@ -14,7 +14,7 @@ import { ApiError, COMMON_FEEDBACK, useGlobalStore } from "@repo/core";
  */
 export const useIdentity = (onSuccess?: () => void) => {
   const { checkUsername } = LoginService();
-  const { validateInputs, validateUsername } = useInputValidation();
+  const { validateInputs, validateUsername } = useInputValueValidation();
   const { syncIdentity, updateProgress } = OnboardingService();
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
   const { translateTxtString } = useStaticTranslation();

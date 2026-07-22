@@ -127,10 +127,10 @@ async function fetchCloudTranslation(
   text: string,
   targetLang: string,
 ): Promise<string> {
-  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-  const apiToken = process.env.CLOUDFLARE_AI_TOKEN;
+  const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
+  const API_TOKEN = process.env.CLOUDFLARE_AI_TOKEN;
 
-  if (!accountId || !apiToken) {
+  if (!ACCOUNT_ID || !API_TOKEN) {
     throw new Error(
       "Missing Cloudflare infrastructure authentication credentials.",
     );
@@ -157,37 +157,27 @@ async function fetchCloudTranslation(
 
   // Updated model path targeting the Cloudflare Workers AI Google ecosystem
   const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/google/gemini-2.5-flash`,
+    `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/ai/v1/chat/completions`,
     {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiToken}`,
+        Authorization: `Bearer ${API_TOKEN}`,
         "Content-Type": "application/json",
       },
-      // Refactored payload schema to map natively to Google Gemini specs on Cloudflare
       body: JSON.stringify({
-        contents: [
+        model: "google/gemini-2.5-flash",
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
           {
             role: "user",
-            parts: [
-              {
-                text: `Target Language: ${targetLang}\nSource Text: ${text}`,
-              },
-            ],
+            content: `Target Language: ${targetLang}\nSource Text: ${text}`,
           },
         ],
-        // System instructions are passed directly into the configuration parts structure
-        systemInstruction: {
-          parts: [
-            {
-              text: systemPrompt,
-            },
-          ],
-        },
-        generationConfig: {
-          temperature: 0.0,
-          maxOutputTokens: 1024,
-        },
+        temperature: 0.0,
+        max_tokens: 1024,
       }),
     },
   );

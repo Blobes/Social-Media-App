@@ -16,7 +16,7 @@ import {
   User,
   WalletMinimal,
 } from "lucide-react";
-import { CLIENT_ROUTES } from "./routes";
+import { CLIENT_ROUTES } from "./routesConfig";
 import { COUNTRIES } from "./countries";
 import { IMenuItem } from "../types/ui-state";
 import { ICountryItem, ITranslation, ListType } from "../types/ui-props";

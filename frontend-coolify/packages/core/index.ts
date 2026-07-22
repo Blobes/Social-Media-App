@@ -14,7 +14,7 @@ export * from "./types/ui-props";
 
 // Constants
 export * from "./constants/lists";
-export * from "./constants/routes";
+export * from "./constants/routesConfig";
 export * from "./constants/countries";
 export * from "./constants/keys";
 export * from "./constants/countries";

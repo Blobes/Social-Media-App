@@ -21,7 +21,14 @@ import {
   TextareaAutosize,
   useMediaQuery,
 } from "@mui/material";
-import { Eye, EyeClosed, FileUp, Keyboard } from "lucide-react";
+import {
+  CircleQuestionMark,
+  Eye,
+  EyeClosed,
+  FileUp,
+  Keyboard,
+  X,
+} from "lucide-react";
 import {
   AUTH_INPUT,
   COMMON_INPUT,
@@ -36,7 +43,13 @@ import {
 import { processPhoneFormatting, scrollBarStyle } from "@repo/helpers";
 import { DisplayList as CountryList } from "./Menu";
 import { TransText } from "./Text";
-import { useVirtualKeyboard } from "@repo/shared-hooks";
+import {
+  useInputFieldValidation,
+  useOtpFieldValidation,
+  usePhoneFieldValidation,
+  useVirtualKeyboard,
+} from "@repo/shared-hooks";
+import { BasicTooltip } from "./Tooltips";
 
 export interface InputProps {
   variant?: "outlined" | "filled";
@@ -47,6 +60,8 @@ export interface InputProps {
   label?: string;
   helperText?: string;
   inputGuideUI?: React.ReactNode;
+  tooltipGuide?: React.ReactNode;
+  allowReset?: boolean;
   required?: boolean;
   disabled?: boolean;
   error?: boolean;
@@ -127,6 +142,8 @@ export const TextInput = ({
   placeholder = "Type here...",
   label = "Input Label",
   helperText = "",
+  tooltipGuide,
+  allowReset = true,
   required = false,
   disabled = false,
   error = false,
@@ -141,10 +158,16 @@ export const TextInput = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const currLang = useGlobalStore((state) => state.currentLanguage);
 
+  const { handleClear } = useInputFieldValidation({
+    initialValue: value,
+    inputRef,
+    onChange,
+  });
+
   const {
     showKeyboard,
     setShowKeyboard,
-    useVirtualKeyboard: isVirtualActive,
+    shouldUseVKeyboard,
     registerAsActiveInput,
   } = useVirtualKeyboard(inputRef, onChange);
 
@@ -173,40 +196,68 @@ export const TextInput = ({
               ),
             }),
           // Consolidated end surface wrapper to handle overlaps seamlessly
-          ...((isVirtualActive || (affix && affixPosition === "end")) && {
-            endAdornment: (
-              <InputAdornment position="end">
-                <Stack
-                  flexDirection="row"
-                  alignItems="center"
-                  gap={theme.gap?.(1) || 0.5}>
-                  {isVirtualActive && (
-                    <IconButton
-                      onClick={() => {
-                        registerAsActiveInput();
-                        setShowKeyboard(!showKeyboard);
-                      }}
-                      size="small"
+          endAdornment: (
+            <InputAdornment position="end">
+              <Stack
+                flexDirection="row"
+                alignItems="center"
+                gap={theme.gap?.(1) || 0.5}>
+                {/* Virtual keyboard */}
+                {shouldUseVKeyboard && (
+                  <IconButton
+                    onClick={() => {
+                      registerAsActiveInput();
+                      setShowKeyboard(!showKeyboard);
+                    }}
+                    size="small"
+                    sx={{
+                      ...(shouldUseVKeyboard &&
+                        showKeyboard && {
+                          backgroundColor: theme.palette.gray.trans[1],
+                          "& svg": {
+                            stroke: theme.palette.primary.dark,
+                          },
+                        }),
+                    }}>
+                    <Keyboard size={18} />
+                  </IconButton>
+                )}
+
+                {/* Tooltip Guide */}
+                {tooltipGuide && (!value || value?.length === 0) && (
+                  <BasicTooltip title={tooltipGuide}>
+                    <Box
                       sx={{
-                        ...(isVirtualActive &&
-                          showKeyboard && {
-                            backgroundColor: theme.palette.gray.trans[1],
-                            "& svg": {
-                              stroke: theme.palette.primary.dark,
-                            },
-                          }),
+                        display: "flex",
+                        cursor: "pointer",
+                        borderRadius: theme.radius.full,
+                        alignSelf: "center",
+                        flex: "none",
+                        padding: theme.boxSpacing(1),
+                        "&:hover": {
+                          backgroundColor: theme.palette.gray.trans[1],
+                        },
                       }}>
-                      <Keyboard size={18} />
-                    </IconButton>
-                  )}
-                  {affix && affixPosition === "end" && affix}
-                </Stack>
-              </InputAdornment>
-            ),
-          }),
+                      <CircleQuestionMark size={18} />
+                    </Box>
+                  </BasicTooltip>
+                )}
+
+                {/* Clear field value */}
+                {allowReset && value && value?.length > 0 && (
+                  <IconButton onClick={handleClear}>
+                    <X size={18} />
+                  </IconButton>
+                )}
+
+                {/* Dynamic Affix */}
+                {affix && affixPosition === "end" && affix}
+              </Stack>
+            </InputAdornment>
+          ),
         },
         htmlInput: {
-          inputMode: isVirtualActive && showKeyboard ? "none" : "text",
+          inputMode: shouldUseVKeyboard && showKeyboard ? "none" : "text",
         },
       }}
       sx={{
@@ -251,7 +302,7 @@ export const PasswordInput = ({
   const {
     showKeyboard,
     setShowKeyboard,
-    useVirtualKeyboard: isVirtualActive,
+    shouldUseVKeyboard: isVirtualActive,
     registerAsActiveInput,
   } = useVirtualKeyboard(inputRef, onChange);
 
@@ -285,7 +336,7 @@ export const PasswordInput = ({
         }}
         slotProps={{
           input: {
-            // Manage the start adornment row position independently
+            // Value Visibility Toggle Start Position
             ...(affixPosition === "start" && {
               startAdornment: (
                 <InputAdornment position="start">
@@ -304,8 +355,9 @@ export const PasswordInput = ({
                 </InputAdornment>
               ),
             }),
-            // Handle combination or standalone instances on the end adornment surface
+
             endAdornment: (
+              // Virtual Keyboard
               <InputAdornment position="end">
                 <Stack
                   flexDirection="row"
@@ -330,6 +382,8 @@ export const PasswordInput = ({
                       <Keyboard size={18} />
                     </IconButton>
                   )}
+
+                  {/* Password Visibility End Position */}
                   {affixPosition === "end" && (
                     <IconButton
                       aria-label={
@@ -384,7 +438,9 @@ export const PhoneInput = ({
   value = "",
   placeholder = "e.g. +1234567890",
   label = "Phone Number",
+  tooltipGuide,
   helperText = "",
+  allowReset = true,
   required = false,
   disabled = false,
   error = false,
@@ -397,57 +453,31 @@ export const PhoneInput = ({
 }: PhoneInputProps) => {
   const theme = useTheme();
   const { COUNTRY_LIST } = LISTS();
-  const countryMenuRef = useRef<any>(null);
-  const isCountrySelectedRef = useRef<boolean>(false);
   const currLang = useGlobalStore((state) => state.currentLanguage);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleMenuClose = useCallback(() => {
-    if (includeCountryCode && !isCountrySelectedRef.current) {
-      onPhoneChange("");
-    }
-  }, [includeCountryCode, onPhoneChange]);
-
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const target = e.target as HTMLInputElement;
-      const isDeleting =
-        (e.nativeEvent as any)?.inputType === "deleteContentBackward";
-      const start = target.selectionStart || 0;
-
-      const result = processPhoneFormatting(
-        target.value,
-        start,
-        isDeleting,
-        includeCountryCode,
-        isCountrySelectedRef.current,
-      );
-
-      if (result.shouldReset) {
-        onClearInlineMsg?.();
-        onPhoneChange("");
-        isCountrySelectedRef.current = false;
-        return;
-      }
-      if (result.shouldOpenMenu) {
-        countryMenuRef.current?.openMenu(target);
-      }
-      onClearInlineMsg?.();
-
-      window.requestAnimationFrame(() => {
-        target.setSelectionRange(result.nextCursor, result.nextCursor);
-      });
-      onPhoneChange(result.nextVal);
-    },
-    [includeCountryCode, onPhoneChange, onClearInlineMsg],
-  );
+  const {
+    input,
+    countryMenuRef,
+    handlePhoneChange,
+    handleClear,
+    handleMenuClose,
+    handleCountrySelect,
+  } = usePhoneFieldValidation({
+    initialValue: value,
+    includeCountryCode,
+    onClearFeedback: onClearInlineMsg,
+    onPhoneChange,
+  });
 
   const {
     showKeyboard,
     setShowKeyboard,
-    useVirtualKeyboard: isVirtualActive,
+    shouldUseVKeyboard,
     registerAsActiveInput,
-  } = useVirtualKeyboard(inputRef, handleChange, "phone-formatted");
+  } = useVirtualKeyboard(inputRef, handlePhoneChange, "phone-formatted");
+
+  const displayValue = value !== undefined ? value : input;
 
   return (
     <Box sx={{ position: "relative", width: "100%" }}>
@@ -457,7 +487,7 @@ export const PhoneInput = ({
         id={id}
         type="tel"
         inputMode="tel"
-        value={value}
+        value={displayValue}
         placeholder={placeholder}
         label={label}
         helperText={helperText}
@@ -468,39 +498,68 @@ export const PhoneInput = ({
         fullWidth
         slotProps={{
           input: {
-            ...(isVirtualActive && {
+            ...((tooltipGuide || allowReset || shouldUseVKeyboard) && {
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => {
-                      registerAsActiveInput();
-                      setShowKeyboard(!showKeyboard);
-                    }}
-                    size="small"
-                    sx={{
-                      ...(isVirtualActive &&
-                        showKeyboard && {
+                  {/* Virtual Keyboard */}
+                  {shouldUseVKeyboard && (
+                    <IconButton
+                      onClick={() => {
+                        registerAsActiveInput();
+                        setShowKeyboard(!showKeyboard);
+                      }}
+                      size="small"
+                      sx={{
+                        ...(showKeyboard && {
                           backgroundColor: theme.palette.gray.trans[1],
                           "& svg": {
                             stroke: theme.palette.primary.dark,
                           },
                         }),
-                    }}>
-                    <Keyboard size={18} />
-                  </IconButton>
+                      }}>
+                      <Keyboard size={18} />
+                    </IconButton>
+                  )}
+
+                  {/* Tooltip Guide */}
+                  {tooltipGuide && (!value || value?.length === 0) && (
+                    <BasicTooltip title={tooltipGuide}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          cursor: "pointer",
+                          borderRadius: theme.radius.full,
+                          alignSelf: "center",
+                          flex: "none",
+                          padding: theme.boxSpacing(1),
+                          "&:hover": {
+                            backgroundColor: theme.palette.gray.trans[1],
+                          },
+                        }}>
+                        <CircleQuestionMark size={18} />
+                      </Box>
+                    </BasicTooltip>
+                  )}
+
+                  {/* Clear field value */}
+                  {allowReset && value && value?.length > 0 && (
+                    <IconButton onClick={handleClear}>
+                      <X size={18} />
+                    </IconButton>
+                  )}
                 </InputAdornment>
               ),
             }),
           },
           htmlInput: {
-            inputMode: isVirtualActive && showKeyboard ? "none" : "text",
+            inputMode: shouldUseVKeyboard && showKeyboard ? "none" : "text",
           },
         }}
         sx={{
           ...sharedStyle({ theme, style, value, currLang }),
           ...style,
         }}
-        onChange={handleChange}
+        onChange={handlePhoneChange}
         onFocus={(e) => {
           registerAsActiveInput();
           onFocus && onFocus(e);
@@ -532,11 +591,16 @@ export const PhoneInput = ({
           onMenuClose={handleMenuClose}
           onItemClick={(item) => {
             if (item?.code) {
-              isCountrySelectedRef.current = true;
-              const formattedPrefix = `(+${item.code.replace(/\+/g, "")}) `;
-              onPhoneChange(formattedPrefix);
+              handleCountrySelect(item.code);
             }
           }}
+          // onItemClick={(item) => {
+          //   if (item?.code) {
+          //     isCountrySelectedRef.current = true;
+          //     const formattedPrefix = `(+${item.code.replace(/\+/g, "")}) `;
+          //     onPhoneChange(formattedPrefix);
+          //   }
+          // }}
         />
       )}
     </Box>
@@ -568,110 +632,21 @@ export const OtpInput = ({
   autoSubmit = true,
   style,
 }: OtpInputProps) => {
-  const [digits, setDigits] = useState<string[]>(Array(length).fill(""));
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const theme = useTheme();
 
-  /** Derive complete code string from digits array. */
-  const getCode = (arr: string[]) => arr.join("");
-
-  /** Focus the input at the given index, clamped to valid range. */
-  const focusIndex = useCallback(
-    (index: number) => {
-      const clamped = Math.max(0, Math.min(index, length - 1));
-      inputRefs.current[clamped]?.focus();
-    },
-    [length],
-  );
-
-  /** Handle single character entry and advance focus. */
-  const handleChange = useCallback(
-    (index: number, e: ChangeEvent<HTMLInputElement>) => {
-      const char = e.target.value.replace(/\D/g, "").slice(-1);
-      const next = [...digits];
-      next[index] = char;
-      setDigits(next);
-
-      const code = getCode(next);
-      onChange?.(code);
-
-      if (char) {
-        if (index < length - 1) {
-          focusIndex(index + 1);
-        } else if (autoSubmit && next.every((d) => d !== "")) {
-          onComplete?.(code);
-        }
-      }
-    },
-    [digits, length, autoSubmit, onChange, onComplete, focusIndex],
-  );
-
-  /** Handle backspace, arrow navigation, and delete. */
-  const handleKeyDown = useCallback(
-    (index: number, e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Backspace") {
-        e.preventDefault();
-        const next = [...digits];
-        if (next[index]) {
-          next[index] = "";
-          setDigits(next);
-          onChange?.(getCode(next));
-        } else {
-          focusIndex(index - 1);
-          if (index > 0) {
-            next[index - 1] = "";
-            setDigits(next);
-            onChange?.(getCode(next));
-          }
-        }
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        focusIndex(index - 1);
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        focusIndex(index + 1);
-      } else if (e.key === "Delete") {
-        e.preventDefault();
-        const next = [...digits];
-        next[index] = "";
-        setDigits(next);
-        onChange?.(getCode(next));
-      }
-    },
-    [digits, onChange, focusIndex],
-  );
-
-  /** Distribute pasted digits across cells starting from the focused index. */
-  const handlePaste = useCallback(
-    (index: number, e: ClipboardEvent<HTMLInputElement>) => {
-      e.preventDefault();
-      const pasted = e.clipboardData
-        .getData("text")
-        .replace(/\D/g, "")
-        .slice(0, length - index);
-      if (!pasted) return;
-
-      const next = [...digits];
-      for (let i = 0; i < pasted.length; i++) {
-        next[index + i] = pasted[i];
-      }
-      setDigits(next);
-
-      const code = getCode(next);
-      onChange?.(code);
-      focusIndex(Math.min(index + pasted.length, length - 1));
-
-      if (autoSubmit && next.every((d) => d !== "")) {
-        onComplete?.(code);
-      }
-    },
-    [digits, length, autoSubmit, onChange, onComplete, focusIndex],
-  );
-
-  /** Select existing digit on focus for instant overwrite. */
-  const handleFocus = useCallback((index: number) => {
-    inputRefs.current[index]?.select();
-  }, []);
+  const {
+    digits,
+    inputRefs,
+    handleChange,
+    handleKeyDown,
+    handlePaste,
+    handleFocus,
+  } = useOtpFieldValidation({
+    length,
+    autoSubmit,
+    onChange,
+    onComplete,
+  });
 
   return (
     <Stack sx={{ flexDirection: "column", gap: theme.gap(4), ...style }}>
@@ -838,7 +813,6 @@ interface TextAreaProps extends InputProps {
     hover: GenericStyle;
   };
 }
-
 // TextArea Styled Input
 const StyledTextarea = styled(TextareaAutosize, {
   shouldForwardProp: (prop) => prop !== "customStyle",
@@ -909,7 +883,7 @@ export const ResponsiveTextarea = ({
   const {
     showKeyboard,
     setShowKeyboard,
-    useVirtualKeyboard: isVirtualActive,
+    shouldUseVKeyboard: isVirtualActive,
     registerAsActiveInput,
   } = useVirtualKeyboard(textareaRef, onChange);
 

@@ -30,14 +30,16 @@ const GistSchema = new Schema<IGistDocument>(
     // Discovery & Categorization
     topics: { type: [{ type: String }], default: [] },
     location: {
-      name: { type: String },
+      name: { type: String, default: null },
       type: {
         type: String,
         enum: ["Point"],
+        default: "Point",
       },
       coordinates: {
         type: [Number],
         index: "2dsphere",
+        default: [],
       },
     },
 

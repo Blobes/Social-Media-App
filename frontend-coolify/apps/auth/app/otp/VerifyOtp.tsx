@@ -79,8 +79,8 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
             ? AUTH_FEEDBACK.verify_code_from_auth_app_tagline
             : AUTH_FEEDBACK.otp_code_sent(
                 recipient || isEmail
-                  ? "The Email address"
-                  : " The Phone number",
+                  ? " your Email address"
+                  : " your Phone number",
               ))}
           style={{
             ...theme.typography.text3,

@@ -8,7 +8,6 @@ import {
   InlineMsgUI,
   ProgressIcon,
   DisplayList as CountryList,
-  BasicTooltip,
   UIGuide as CredentialGuide,
   SVGWrapper,
   AnchorLink,
@@ -25,7 +24,6 @@ import {
   LISTS,
   ListType,
 } from "@repo/core";
-import { CircleQuestionMark } from "lucide-react";
 import { useIdentifier } from "./hooks/useIdentifier";
 import { LoginStepProps } from "../types";
 import { asset } from "@repo/assets";
@@ -173,33 +171,15 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
           onChange={handleChange}
           helperText={validationMsg}
           error={input !== "" && validity === "INVALID"}
-          affix={
-            <BasicTooltip
-              title={
-                <CredentialGuide
-                  guides={[
-                    INPUT_GUIDES.EMAIL,
-                    INPUT_GUIDES.PHONE,
-                    INPUT_GUIDES.USERNAME,
-                  ]}
-                />
-              }>
-              <Stack
-                sx={{
-                  cursor: "pointer",
-                  borderRadius: theme.radius.full,
-                  alignSelf: "center",
-                  flex: "none",
-                  padding: theme.boxSpacing(1),
-                  "&:hover": {
-                    backgroundColor: theme.palette.gray.trans[1],
-                  },
-                }}>
-                <CircleQuestionMark size={18} />
-              </Stack>
-            </BasicTooltip>
+          tooltipGuide={
+            <CredentialGuide
+              guides={[
+                INPUT_GUIDES.EMAIL,
+                INPUT_GUIDES.PHONE,
+                INPUT_GUIDES.USERNAME,
+              ]}
+            />
           }
-          affixPosition="end"
         />
         {/* Country list popup */}
         <CountryList<ICountryItem>

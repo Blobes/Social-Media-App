@@ -864,6 +864,10 @@ export const auth = {
       tKey: "auth:feedback.no_account_found_phone",
       tValue: "We couldn't find an account with the phone number.",
     },
+    no_account_found_username: {
+      tKey: "auth:feedback.no_account_found_username",
+      tValue: "We couldn't find an account with the username.",
+    },
     no_verification_sesion_found: {
       tKey: "auth:feedback.no_verification_sesion_found",
       tValue: "No OTP verification session found",

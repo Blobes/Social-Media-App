@@ -22,19 +22,19 @@ export const useVirtualKeyboard = (
   const globalOnChange = useGlobalStore((state) => state.activeOnChange);
   const globalFieldType = useGlobalStore((state) => state.activeFieldType);
 
-  const useVirtualKeyboard = ["ar", "ru", "zh", "ja"].includes(
+  const shouldUseVKeyboard = ["ar", "ru", "zh", "ja"].includes(
     currentLanguage || "",
   );
 
   useEffect(() => {
-    if (!useVirtualKeyboard) {
+    if (!shouldUseVKeyboard) {
       setKeyboardVisible(false);
       setActiveInput(null, null, null);
     }
-  }, [currentLanguage, useVirtualKeyboard, setKeyboardVisible, setActiveInput]);
+  }, [currentLanguage, shouldUseVKeyboard, setKeyboardVisible, setActiveInput]);
 
   useEffect(() => {
-    if (!useVirtualKeyboard || !isKeyboardVisible) return;
+    if (!shouldUseVKeyboard || !isKeyboardVisible) return;
 
     /**
      * Handles closing the keyboard when clicking completely away from inputs or keyboard nodes.
@@ -58,7 +58,7 @@ export const useVirtualKeyboard = (
       document.removeEventListener("mousedown", handleOutsideClick);
     };
   }, [
-    useVirtualKeyboard,
+    shouldUseVKeyboard,
     isKeyboardVisible,
     setKeyboardVisible,
     setActiveInput,
@@ -68,7 +68,7 @@ export const useVirtualKeyboard = (
    * Explicit action trigger to safely declare this field as the active target for any key emissions.
    */
   const registerAsActiveInput = () => {
-    if (useVirtualKeyboard && elementRef) {
+    if (shouldUseVKeyboard && elementRef) {
       setActiveInput(elementRef, onChange || null, fieldType);
     }
   };
@@ -286,7 +286,7 @@ export const useVirtualKeyboard = (
   return {
     showKeyboard: isKeyboardVisible,
     setShowKeyboard: setKeyboardVisible,
-    useVirtualKeyboard,
+    shouldUseVKeyboard,
     registerAsActiveInput,
     handleKeyInsert,
     handleBackspace,

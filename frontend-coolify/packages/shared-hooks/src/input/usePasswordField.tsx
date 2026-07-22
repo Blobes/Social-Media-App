@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
 import { Check } from "lucide-react";
-import { useInputValidation } from "./useInputValidation";
+import { useInputValueValidation } from "./useInputValue";
 import { useGuides } from "../useGuides";
 import { useStaticTranslation } from "../useTrans";
 import { AUTH_FEEDBACK } from "@repo/core";
@@ -11,9 +11,9 @@ import { AUTH_FEEDBACK } from "@repo/core";
 /**
  * Manages password value states, criteria verification, confirmation comparisons, and UI helper visual states.
  */
-export const usePasswordValidation = () => {
+export const usePasswordFieldValidation = () => {
   const theme = useTheme();
-  const { validatePassword } = useInputValidation();
+  const { validatePassword } = useInputValueValidation();
   const { INPUT_GUIDES } = useGuides();
   const { translateTxtString } = useStaticTranslation();
 

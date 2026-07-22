@@ -55,7 +55,7 @@ declare module "@mui/material/styles" {
 
   interface Theme {
     fixedColors: Record<string, any>;
-    radius: Record<string | number, string>;
+    radius: Record<string | number, string | number>;
     boxSpacing: (
       top: number,
       right?: number,
@@ -66,7 +66,7 @@ declare module "@mui/material/styles" {
   }
   interface ThemeOptions {
     fixedColors?: Record<string, any>;
-    radius?: Record<string | number, string>;
+    radius?: Record<string | number, string | number>;
     boxSpacing?: (
       top: number,
       right?: number,

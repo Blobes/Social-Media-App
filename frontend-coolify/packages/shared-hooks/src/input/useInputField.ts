@@ -1,27 +1,37 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  RefObject,
+} from "react";
 import { formatPhoneNumber } from "@repo/helpers";
 import { InputStatus, MenuRef } from "@repo/core";
-import { useInputValidation } from "./useInputValidation";
+import { useInputValueValidation } from "./useInputValue";
 
 export type CredentialType = "EMAIL" | "PHONE" | "USERNAME" | "UNKNOWN";
 
-interface UseMixedInputOptions {
+interface UseInputFieldOptions {
   initialValue?: string;
   allowedTypes?: CredentialType[];
+  inputRef?: RefObject<HTMLInputElement | null>;
   onClearFeedback?: () => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 /**
  * Manages validation, real-time phone formatting, and selection range alignment for polymorphic input string credentials.
  */
-export const useMixedInputValidation = ({
+export const useInputFieldValidation = ({
   initialValue = "",
   allowedTypes,
   onClearFeedback,
-}: UseMixedInputOptions = {}) => {
-  const { getInputValidity } = useInputValidation();
+  inputRef,
+  onChange,
+}: UseInputFieldOptions = {}) => {
+  const { getInputValidity } = useInputValueValidation();
   const countryMenuRef = useRef<MenuRef>(null);
 
   const [input, setInput] = useState(initialValue);
@@ -96,6 +106,33 @@ export const useMixedInputValidation = ({
     [onClearFeedback, validateAndSet],
   );
 
+  /**
+   * Dispatches native input events to sync state and trigger external change listeners.
+   */
+  const handleClear = useCallback(() => {
+    setInput("");
+    setValidity(undefined);
+    setValidationMsg("");
+    onClearFeedback?.();
+
+    if (inputRef?.current) {
+      const nativeSetter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        "value",
+      )?.set;
+      nativeSetter?.call(inputRef.current, "");
+
+      const event = new Event("input", { bubbles: true });
+      inputRef.current.dispatchEvent(event);
+    } else if (onChange) {
+      const syntheticEvent = {
+        target: { value: "" },
+        currentTarget: { value: "" },
+      } as React.ChangeEvent<HTMLInputElement>;
+      onChange(syntheticEvent);
+    }
+  }, [inputRef, onChange, onClearFeedback]);
+
   return {
     input,
     setInput,
@@ -105,6 +142,7 @@ export const useMixedInputValidation = ({
     isValidInput,
     countryMenuRef,
     handleChange,
+    handleClear,
     validateAndSet,
   };
 };
