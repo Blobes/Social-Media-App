@@ -6,6 +6,7 @@ import {
   finalizePasswordReset,
   guardIdentifierPending,
 } from "./otpHandlers";
+import { OtpType } from "@repo/shared";
 
 export type Lifecycle = "DISPATCH_REQUEST" | "VERIFICATION";
 
@@ -13,6 +14,7 @@ export interface IWorkflowContext {
   userAgent: string;
   deviceToken: string;
   recipient: string;
+  channel: OtpType;
 }
 
 /**
@@ -29,18 +31,18 @@ export const otpWorkflowRegistry: Record<
   LOGIN_VERIFICATION: async (user, context, lifecycle = "VERIFICATION") => {
     if (lifecycle === "DISPATCH_REQUEST") return null;
     await authorizeDeviceTrust(user, context.deviceToken, context.userAgent);
-    return await syncIdentifierStatus(user, context.recipient);
+    return await syncIdentifierStatus(user, context.channel);
   },
   SIGNUP_VERIFICATION: async (user, context, lifecycle = "VERIFICATION") => {
     if (lifecycle === "DISPATCH_REQUEST") return null;
     await authorizeDeviceTrust(user, context.deviceToken, context.userAgent);
-    return await syncIdentifierStatus(user, context.recipient);
+    return await syncIdentifierStatus(user, context.channel);
   },
   IDENTIFIER_UPDATE: async (user, context, lifecycle = "VERIFICATION") => {
     if (lifecycle === "VERIFICATION") {
-      return await commitIdentifierChange(user, context.recipient);
+      return await commitIdentifierChange(user, context.channel);
     }
-    guardIdentifierPending(user, context.recipient);
+    guardIdentifierPending(user, context.channel);
     return null;
   },
   PASSWORD_RESET_VERIFICATION: async (
@@ -49,6 +51,6 @@ export const otpWorkflowRegistry: Record<
     lifecycle = "VERIFICATION",
   ) => {
     if (lifecycle === "DISPATCH_REQUEST") return null;
-    return await finalizePasswordReset(user);
+    return await finalizePasswordReset(user, context.channel);
   },
 };

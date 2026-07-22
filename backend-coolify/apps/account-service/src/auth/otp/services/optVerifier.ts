@@ -96,7 +96,7 @@ export const executeOtpVerification = async (
   if (workflow) {
     actionPayload = await workflow(
       user,
-      { userAgent, deviceToken, recipient: normalized },
+      { userAgent, deviceToken, recipient: normalized, channel: otpChannel },
       "VERIFICATION",
     );
   }

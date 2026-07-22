@@ -2,6 +2,7 @@ import { IUserDocument } from "@repo/database";
 import {
   cleanDeviceSessions,
   MESSAGES_REGISTRY,
+  OtpType,
   upsertDevice,
 } from "@repo/shared";
 
@@ -10,7 +11,7 @@ import {
  */
 export const guardIdentifierPending = (
   user: IUserDocument,
-  channel: string,
+  channel: OtpType,
 ): void => {
   const hasPending =
     channel === "EMAIL" ? !!user.pendingEmail : !!user.pendingPhoneNumber;
@@ -29,10 +30,16 @@ export const guardIdentifierPending = (
  */
 export const finalizePasswordReset = async (
   user: IUserDocument,
+  channel: OtpType,
 ): Promise<any> => {
-  if (user.password) {
-    user.password = null;
+  if (channel === "EMAIL") {
+    user.isEmailVerified = true;
+    user.lastEmailOtpSentAt = null;
+  } else {
+    user.isPhoneVerified = true;
+    user.lastPhoneOtpSentAt = null;
   }
+
   await cleanDeviceSessions(String(user._id), undefined, {
     clearAll: true,
     preservePrimary: false,
@@ -49,7 +56,7 @@ export const finalizePasswordReset = async (
  */
 export const syncIdentifierStatus = async (
   user: IUserDocument,
-  channel: string,
+  channel: OtpType,
 ): Promise<any> => {
   if (channel === "EMAIL") {
     user.isEmailVerified = true;
@@ -77,7 +84,7 @@ export const authorizeDeviceTrust = async (
  */
 export const commitIdentifierChange = async (
   user: IUserDocument,
-  channel: string,
+  channel: OtpType,
 ): Promise<any> => {
   let updatedField = null;
   if (channel === "EMAIL" && user.pendingEmail) {
