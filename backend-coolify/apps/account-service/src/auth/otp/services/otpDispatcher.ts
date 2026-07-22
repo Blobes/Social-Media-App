@@ -1,5 +1,5 @@
 import { emailDispatchTokens, phoneDispatchTokens } from "@/envVars";
-import { UserModel } from "@repo/database";
+import { IUserDocument, UserModel } from "@repo/database";
 import {
   dispatchEmailCode,
   dispatchWhatsAppCode,
@@ -52,9 +52,12 @@ export const executeOtpDispatch = async (
     throw error;
   }
 
-  const user = await UserModel.findOne(
-    channel === "EMAIL" ? { email: normalized } : { phoneNumber: normalized },
-  );
+  let user: IUserDocument | null = null;
+  if (channel === "EMAIL") {
+    user = await UserModel.findByEmail({ email: normalized });
+  } else {
+    user = await UserModel.findByPhone({ phoneNumber: normalized });
+  }
 
   if (!user) {
     const error = new Error(

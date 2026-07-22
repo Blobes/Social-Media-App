@@ -1,4 +1,6 @@
+import { Document } from "mongoose";
 import { IContentModeration } from "./moderation";
+import { Types } from "mongoose";
 
 export type PostVisibility =
   | "PUBLIC"
@@ -15,18 +17,17 @@ export type IPostStatus =
   | "BANNED"
   | "DRAFT";
 
-export interface IGist {
-  _id: string;
-  authorId: string;
-  mediaIds: string[];
+export interface IGistDocument extends Document {
+  authorId: Types.ObjectId | string;
+  mediaIds: Types.ObjectId[];
   status: IPostStatus;
 
   latestCaption: {
     captionId?: string | null;
     caption: string;
-    createdAt?: string;
     detectedLanguage?: string;
-    detectedLanguageShort?: string;
+    //  detectedLanguageShort?: string;
+    createdAt?: Date;
   };
   editCount: number;
 

@@ -1,28 +1,5 @@
-import { Schema, model, Document, Model, Types } from "mongoose";
-import { IGist } from "../../types/posts";
-
-export interface IGistDocument
-  extends
-    Omit<
-      IGist,
-      | "_id"
-      | "authorId"
-      | "mediaIds"
-      | "createdAt"
-      | "updatedAt"
-      | "latestCaption"
-      | "moderationLogId"
-    >,
-    Document {
-  authorId: Types.ObjectId;
-  mediaIds: Types.ObjectId[];
-  latestCaption: {
-    captionId?: Types.ObjectId | null;
-    caption: string;
-    createdAt?: Date;
-  };
-  moderationLogId?: Types.ObjectId | null;
-}
+import { Schema, model, Model } from "mongoose";
+import { IGistDocument } from "../../types/posts";
 
 const GistSchema = new Schema<IGistDocument>(
   {
@@ -51,7 +28,7 @@ const GistSchema = new Schema<IGistDocument>(
     viewCount: { type: Number, default: 0, min: 0 },
 
     // Discovery & Categorization
-    topics: [{ type: String }],
+    topics: { type: [{ type: String }], default: [] },
     location: {
       name: { type: String },
       type: {

@@ -85,10 +85,11 @@ export const startPhoneChange = async (
   }
 
   // Cross-reference registry records across soft-delete criteria bounds
-  const existingPhoneUser = await UserModel.findOne({
+  const existingPhoneUser = await UserModel.findByPhone({
     phoneNumber: formattedPhone,
-    _id: { $ne: userId },
-  }).setOptions({ skipFilter: true });
+    filter: { _id: { $ne: userId } },
+    options: { skipFilter: true },
+  });
 
   if (existingPhoneUser) {
     return {

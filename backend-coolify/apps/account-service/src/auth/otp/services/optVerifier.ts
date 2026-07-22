@@ -1,4 +1,4 @@
-import { DeviceModel, UserModel } from "@repo/database";
+import { DeviceModel, IUserDocument, UserModel } from "@repo/database";
 import {
   CACHE_KEYS,
   ensurePrimaryDevice,
@@ -49,11 +49,18 @@ export const executeOtpVerification = async (
     throw error;
   }
 
-  const user = await UserModel.findOne(
-    otpChannel === "EMAIL"
-      ? { email: normalized }
-      : { phoneNumber: normalized },
-  ).setOptions({ skipFilter: true });
+  let user: IUserDocument | null = null;
+  if (otpChannel === "EMAIL") {
+    user = await UserModel.findByEmail({
+      email: normalized,
+      options: { skipFilter: true },
+    });
+  } else {
+    user = await UserModel.findByPhone({
+      phoneNumber: normalized,
+      options: { skipFilter: true },
+    });
+  }
 
   if (!user) {
     return {
@@ -76,7 +83,7 @@ export const executeOtpVerification = async (
   if (hashCode(code) !== user.otpCode) {
     return {
       status: "INVALID_CODE",
-      transInfo: MESSAGES_REGISTRY.AUTH.INVALID_CODE,
+      transInfo: MESSAGES_REGISTRY.AUTH.INVALID_OTP_CODE,
     };
   }
 

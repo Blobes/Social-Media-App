@@ -58,27 +58,20 @@ export const executeAccountCheck = async (
     };
   }
 
-  // if (type === "EMAIL") {
-  //   query = { email: formattedValue.toLowerCase() };
-  // } else if (type === "PHONE") {
-  //   query = { phoneNumber: formattedValue.replace(/\D/g, "") };
-  // } else {
-  //   query = { usernameCanonical: transformToASCII(formattedValue) };
-  // }
-  // const existingUser = await UserModel.findOne(query).setOptions({
-  //   skipFilter: true,
-  // });
-
   const formattedValue = normalizeValue(identifier);
   let existingUser: IUserDocument | null = null;
-
-  // Utilize the custom static helpers to check blind index hashes underneath
   if (type === "EMAIL") {
-    existingUser = await UserModel.findByEmail(formattedValue.toLowerCase());
+    existingUser = await UserModel.findByEmail({
+      email: formattedValue.toLowerCase(),
+      options: {
+        skipFilter: true,
+      },
+    });
   } else if (type === "PHONE") {
-    existingUser = await UserModel.findByPhone(
-      formattedValue.replace(/\D/g, ""),
-    );
+    existingUser = await UserModel.findByPhone({
+      phoneNumber: formattedValue.replace(/\D/g, ""),
+      options: { skipFilter: true },
+    });
   } else {
     const query = { usernameCanonical: transformToASCII(formattedValue) };
     existingUser = await UserModel.findOne(query).setOptions({

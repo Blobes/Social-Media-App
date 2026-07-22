@@ -1,4 +1,4 @@
-import { UserModel } from "@repo/database";
+import { IUserDocument, UserModel } from "@repo/database";
 import {
   MESSAGES_REGISTRY,
   normalizeValue,
@@ -42,11 +42,19 @@ export const executeResetInitiation = async (
   const formattedValue = normalizeValue(identifier);
   const isEmail = formattedValue.includes("@");
 
-  const query = isEmail
-    ? { email: formattedValue.toLowerCase() }
-    : { phoneNumber: formattedValue.replace(/\D/g, "") };
-
-  const user = await UserModel.findOne(query).setOptions({ skipFilter: true });
+  const user = isEmail
+    ? await UserModel.findByEmail({
+        email: formattedValue.toLowerCase(),
+        options: {
+          skipFilter: true,
+        },
+      })
+    : await UserModel.findByPhone({
+        phoneNumber: formattedValue.replace(/\D/g, ""),
+        options: {
+          skipFilter: true,
+        },
+      });
 
   if (!user) {
     return {

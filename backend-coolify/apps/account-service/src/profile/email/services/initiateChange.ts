@@ -122,10 +122,11 @@ export const startEmailChange = async (
   }
 
   // Scan database registry index records, bypassing global soft delete scoping rules
-  const existingEmailUser = await UserModel.findOne({
+  const existingEmailUser = await UserModel.findByEmail({
     email: formattedEmail,
-    _id: { $ne: userId },
-  }).setOptions({ skipFilter: true });
+    filter: { _id: { $ne: userId } },
+    options: { skipFilter: true },
+  });
 
   if (existingEmailUser) {
     return {

@@ -1,18 +1,10 @@
-import { Schema, model, Model } from "mongoose";
-import { IUserDocument } from "../../types/user";
-import { encryptedFieldsPlugin } from "../../helpers/plugin";
-
-export interface IUserModelStatic extends Model<IUserDocument> {
-  findByEncryptedField(
-    fieldName: string,
-    plainValue: string,
-  ): Promise<IUserDocument | null>;
-  findByEmail(email: string): Promise<IUserDocument | null>;
-  findByPhone(phoneNumber: string): Promise<IUserDocument | null>;
-}
+import { Schema, model } from "mongoose";
+import { IUserDocument, IUserModelStatic, QueryConfig } from "../../types/user";
+import { encryptedFieldsPlugin } from "../../helpers/encryptionPlugin";
+import { schemaSyncPlugin } from "../../migration/schemaSyncPlugin";
 
 /**
- * User schema & Model
+ * User schema
  */
 const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
   {
@@ -162,13 +154,16 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     followersCount: { type: Number, default: 0 },
     followingCount: { type: Number, default: 0 },
     preferences: {
-      preferredTopics: [
-        {
-          topicId: { type: Schema.Types.ObjectId, ref: "Topic" },
-          title: String,
-          lastViewed: Date,
-        },
-      ],
+      preferredTopics: {
+        type: [
+          {
+            topicId: { type: Schema.Types.ObjectId, ref: "Topic" },
+            title: String,
+            lastViewed: Date,
+          },
+        ],
+        default: [],
+      },
       showSensitiveGraphic: { type: Boolean, default: false },
       preferredLanguage: { type: String, default: "en" },
     },
@@ -188,6 +183,9 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
   },
 );
 
+// Register the new schema sync plugin BEFORE any other plugins that might modify fields based on defaults
+UserSchema.plugin(schemaSyncPlugin);
+
 // Register plugin to automate configuration transformations transparently
 UserSchema.plugin(encryptedFieldsPlugin, {
   fields: [
@@ -196,14 +194,24 @@ UserSchema.plugin(encryptedFieldsPlugin, {
   ],
 });
 
-// Model helper method lookup abstraction for profile email match operations.
-UserSchema.statics.findByEmail = function (email: string) {
-  return this.findByEncryptedField("email", email);
+/**
+ * Model helper method lookup abstraction for profile email match operations.
+ */
+UserSchema.statics.findByEmail = function (
+  this: IUserModelStatic,
+  config: QueryConfig & { email: string },
+) {
+  const { email, filter, options } = config;
+  return this.findByEncryptedField("email", email, filter, options);
 };
 
 // Model helper method lookup abstraction for profile phone number match operations.
-UserSchema.statics.findByPhone = function (phoneNumber: string) {
-  return this.findByEncryptedField("phoneNumber", phoneNumber);
+UserSchema.statics.findByPhone = function (
+  this: IUserModelStatic,
+  config: QueryConfig & { phoneNumber: string },
+) {
+  const { phoneNumber, filter, options } = config;
+  return this.findByEncryptedField("phoneNumber", phoneNumber, filter, options);
 };
 
 export const UserModel = model<IUserDocument, IUserModelStatic>(

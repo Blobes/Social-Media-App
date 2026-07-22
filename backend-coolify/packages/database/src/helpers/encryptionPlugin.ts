@@ -1,5 +1,6 @@
-import { Schema } from "mongoose";
+import { Schema, Query, QueryOptions } from "mongoose";
 import { decrypt, encrypt, hashLookup, isEncryptedPattern } from "./encrypt";
+import { QFilter } from "../types/user";
 
 export interface IEncryptedFieldConfig {
   field: string;
@@ -72,7 +73,6 @@ export const encryptedFieldsPlugin = (
     const update: any = this.getUpdate();
     if (!update) return;
 
-    // Check raw operations or standard tracking objects
     const target = update.$set || update;
 
     fields.forEach(({ field, searchable }) => {
@@ -98,10 +98,14 @@ export const encryptedFieldsPlugin = (
     decryptDocumentFields(doc);
   });
 
-  // Register generalized custom query helper method binding
-  schema.statics.findByEncryptedField = async function (
+  /**
+   * Executes lookup using blind hash query chain, supporting standard Mongoose query methods.
+   */
+  schema.statics.findByEncryptedField = function (
     fieldName: string,
     plainValue: string,
+    filter?: QFilter,
+    options?: QueryOptions,
   ) {
     const isSearchable = fields.some(
       (f) => f.field === fieldName && f.searchable,
@@ -114,25 +118,13 @@ export const encryptedFieldsPlugin = (
 
     const blindHash = hashLookup(plainValue);
 
-    //  First, try to find the user using the blind hash (for already encrypted data)
-    let user = await this.findOne({ [`${fieldName}Hash`]: blindHash });
-
-    if (!user) {
-      //  If not found by hash, try finding by the plain value (for legacy/unencrypted data)
-      user = await this.findOne({ [fieldName]: plainValue });
-
-      if (user) {
-        // If a user is found by plain value, it means this record is unencrypted.
-        // We should encrypt this field and save the document to migrate it on access.
-        console.warn(
-          `[Encryption Plugin] Migrating unencrypted field '${fieldName}' for user ID: ${user._id}`,
-        );
-        // The pre('save') hook will handle the encryption and hashing.
-        user.set(fieldName, plainValue); // Re-set the field to trigger the pre-save hook
-        await user.save(); // Save the document to persist the encrypted value and hash
-        // The post('save') hook will immediately decrypt it back for the current retrieval
-      }
-    }
-    return user;
+    return this.findOne(
+      {
+        [`${fieldName}Hash`]: blindHash,
+        ...filter,
+      },
+      null,
+      options,
+    );
   };
 };

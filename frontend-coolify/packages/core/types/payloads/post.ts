@@ -27,6 +27,11 @@ export interface IPostAuthor {
   followsMe?: boolean;
 }
 
+export interface IContentModeration {
+  caseId: string;
+  caseCount: number | null;
+}
+
 export interface IGistPayload {
   _id: string;
   authorId: string;
@@ -64,8 +69,7 @@ export interface IGistPayload {
 
   // Moderation
   status: PostStatus;
-  moderationLogId?: string | null;
-  moderationCount: number;
+  moderationCase?: IContentModeration;
 
   // UI State Flags
   isEdited: boolean;

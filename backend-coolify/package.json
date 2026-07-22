@@ -12,7 +12,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "clean": "pnpm -r exec rm -rf dist out",
     "clean:workspaces": "pnpm -r exec rm -rf node_modules dist out && rm -rf node_modules",
-    "sync:api-messages": "pnpm dlx tsx sync-api-msg.ts"
+    "sync:api-messages": "pnpm dlx tsx sync-api-msg.ts",
+    "db:migrate": "dotenv -e .env.production -- pnpm dlx tsx packages/database/src/migrations/index.ts"
   },
   "devDependencies": {
     "@types/node": "catalog:",

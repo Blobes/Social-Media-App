@@ -1,4 +1,11 @@
-import { Document, Types } from "mongoose";
+import {
+  Document,
+  Model,
+  Query,
+  Types,
+  QueryOptions,
+  QueryFilter,
+} from "mongoose";
 import { AccountStatus, ITfaData, VerificationStatus } from "./status";
 
 export interface IUserDocument extends Document {
@@ -98,4 +105,25 @@ export interface IUserDocument extends Document {
   // --- LIFECYCLE ---
   createdAt: Date | null;
   updatedAt: Date | null;
+}
+
+export type QFilter = QueryFilter<IUserDocument>;
+
+export interface QueryConfig {
+  filter?: QFilter;
+  options?: QueryOptions;
+}
+export interface IUserModelStatic extends Model<IUserDocument> {
+  findByEncryptedField(
+    fieldName: string,
+    plainValue: string,
+    filter?: QFilter,
+    options?: QueryOptions,
+  ): Query<IUserDocument | null, IUserDocument>;
+  findByEmail(
+    config: QueryConfig & { email: string },
+  ): Query<IUserDocument | null, IUserDocument>;
+  findByPhone(
+    config: QueryConfig & { phoneNumber: string },
+  ): Query<IUserDocument | null, IUserDocument>;
 }
