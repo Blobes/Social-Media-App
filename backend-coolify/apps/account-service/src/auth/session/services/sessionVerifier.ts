@@ -3,10 +3,14 @@ import {
   CACHE_KEYS,
   validateHardwareTrust,
   upsertDevice,
-  upstashClient,
   userSensitiveFields,
   MESSAGES_REGISTRY,
   TransInfo,
+  getCache,
+  deleteCache,
+  existsInCache,
+  setCache,
+  CACHE_EXPIRY,
 } from "@repo/shared";
 
 interface IVerifySessionInput {
@@ -59,7 +63,7 @@ export const executeSessionVerification = async (
 
   const user = await UserModel.findById(userId);
   if (!user) {
-    await upstashClient.del(CACHE_KEYS.USER_SESSION(userId, sessionId));
+    await deleteCache(CACHE_KEYS.USER_SESSION(userId, sessionId));
     return {
       status: "USER_NOT_FOUND",
       transInfo: MESSAGES_REGISTRY.AUTH.USER_NOT_FOUND,
@@ -67,7 +71,7 @@ export const executeSessionVerification = async (
   }
 
   const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
-  const sessionData: any = await upstashClient.get(sessionKey);
+  const sessionData: any = await getCache(sessionKey);
 
   if (!sessionData || sessionData.deviceId !== jwtDeviceId) {
     return {
@@ -84,7 +88,7 @@ export const executeSessionVerification = async (
     };
   }
 
-  const sessionExists = await upstashClient.exists(sessionKey);
+  const sessionExists = await existsInCache(sessionKey);
   if (!sessionExists) {
     return {
       status: "ANCHOR_ROTATED",
@@ -92,13 +96,13 @@ export const executeSessionVerification = async (
     };
   }
 
-  await upstashClient.set(
+  await setCache(
     sessionKey,
     {
       ...sessionData,
       lastActive: new Date(),
     },
-    { ex: 20 * 24 * 60 * 60 },
+    CACHE_EXPIRY.DAY_20,
   );
 
   user.lastActiveAt = new Date();

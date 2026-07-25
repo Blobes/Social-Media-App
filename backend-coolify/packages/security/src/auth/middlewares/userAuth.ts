@@ -7,8 +7,8 @@ import {
   IAuthRequest,
   IJwtUser,
   MESSAGES_REGISTRY,
-  upstashClient,
   validateHardwareTrust,
+  getCache,
 } from "@repo/shared";
 import { clearAuthCookies } from "../jwt";
 
@@ -70,7 +70,7 @@ export const verifyAuthTokens = (config: IAuthConfig): RequestHandler => {
 
       const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
 
-      const sessionData: any = await upstashClient.get(sessionKey);
+      const sessionData: any = await getCache(sessionKey);
 
       if (!sessionData || sessionData.deviceId !== payload.deviceId) {
         clearAuthCookies(res);
@@ -125,7 +125,7 @@ export const verifyAuthOptionally = (config: IAuthConfig): RequestHandler => {
 
       const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
 
-      const sessionData: any = await upstashClient.get(sessionKey);
+      const sessionData: any = await getCache(sessionKey);
 
       if (sessionData && sessionData.deviceId === payload.deviceId) {
         req.user = payload;

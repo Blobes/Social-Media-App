@@ -176,9 +176,6 @@ importers:
       '@repo/shared':
         specifier: workspace:*
         version: link:../../packages/shared
-      '@types/jsonwebtoken':
-        specifier: 'catalog:'
-        version: 9.0.10
       bcrypt:
         specifier: 'catalog:'
         version: 6.0.0
@@ -194,6 +191,9 @@ importers:
       google-auth-library:
         specifier: 'catalog:'
         version: 10.7.0
+      ioredis:
+        specifier: 'catalog:'
+        version: 5.10.1
       jsonwebtoken:
         specifier: 'catalog:'
         version: 9.0.3
@@ -216,6 +216,9 @@ importers:
       '@types/express':
         specifier: 'catalog:'
         version: 5.0.6
+      '@types/jsonwebtoken':
+        specifier: 'catalog:'
+        version: 9.0.10
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.19
@@ -323,6 +326,9 @@ importers:
       '@repo/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@socket.io/redis-emitter':
+        specifier: 'catalog:'
+        version: 5.1.0
       bullmq:
         specifier: 'catalog:'
         version: 5.71.0
@@ -485,6 +491,9 @@ importers:
       '@repo/database':
         specifier: workspace:*
         version: link:../database
+      '@socket.io/redis-adapter':
+        specifier: 'catalog:'
+        version: 8.3.0(socket.io-adapter@2.5.7)
       '@socket.io/redis-emitter':
         specifier: 'catalog:'
         version: 5.1.0
@@ -530,6 +539,9 @@ importers:
       resend:
         specifier: 'catalog:'
         version: 6.12.3
+      socket.io:
+        specifier: 'catalog:'
+        version: 4.8.3
       ua-parser-js:
         specifier: 'catalog:'
         version: 2.0.9

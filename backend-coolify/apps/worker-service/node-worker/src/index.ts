@@ -1,15 +1,16 @@
 import express from "express";
-import { connectDB, initUpstash, monitorProcess } from "@repo/shared";
+import { connectDB, initCacheClient, monitorProcess } from "@repo/shared";
 import { otpDispatchWorker } from "./processors/otpDispatcher";
 import appLoader from "./loader";
 import { startDeviceCleanupTask } from "./automations/deviceCleanup";
-import { MONGO_URI, NODE_ENV, PORT } from "./envVars";
+import { FUNSTAKES_REDIS_URL, MONGO_URI, NODE_ENV, PORT } from "./envVars";
 import { startUserMetricsReset } from "./automations/resetUseMetrics";
 import { startErrorLogCleanupTask } from "./automations/errorLogsCleanup";
 
 const startServer = async () => {
   const app = express();
-  initUpstash(); // Load redis
+
+  initCacheClient(FUNSTAKES_REDIS_URL); // Initialize Redis cache pool
 
   try {
     monitorProcess();

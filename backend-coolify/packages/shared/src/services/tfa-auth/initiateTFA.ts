@@ -1,8 +1,8 @@
 import { UserModel } from "@repo/database";
 import { TransInfo } from "../../types";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
-import { normalizeValue } from "../../utils/misc/hash";
-import { getAccountStatusMsg } from "../../utils/misc/status";
+import { normalizeValue } from "../../utils/hash";
+import { getAccountStatusMsg } from "../../utils/status";
 import { authenticatorService } from "./authenticator";
 
 export type TFAPurpose = "AUTHENTICATE" | "TFA_SETUP";

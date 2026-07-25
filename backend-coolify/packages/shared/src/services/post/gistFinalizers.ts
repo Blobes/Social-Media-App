@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 import { GistModel, IMedia, PostCaptionModel, UserModel } from "@repo/database";
 import { FinalizePostReq, IS3Config } from "../../types";
 import { hardDeleteMedia } from "../media/hardDelete";
-import { InternalSocketEmitter } from "../socket";
 import { createMediaBatch } from "../media/createBatch";
 import { executeTopicUpdate } from "../topic/manage";
 import { franc } from "franc-min";
-import { topicsExtractor } from "../../utils/misc/topic";
+import { topicsExtractor } from "../../utils/topic";
 import { to2ISOCode } from "../../constants/others";
 import { executeCaseReport, IEvidenceSnapshot } from "../moderation/reportCase";
+import { notifyUser } from "../redis/socket";
 
 interface Config {
   redisKey?: string;
@@ -46,7 +46,7 @@ export const finalizeGistCreation = async (
     });
 
     try {
-      await InternalSocketEmitter.notifyUser(
+      await notifyUser(
         userId,
         "CONTENT_REJECTED",
         {
@@ -156,7 +156,7 @@ export const finalizeGistCreation = async (
   ]);
 
   try {
-    await InternalSocketEmitter.notifyUser(
+    await notifyUser(
       userId,
       "GIST_STATUS_UPDATE",
       {
@@ -232,7 +232,7 @@ export const finalizeGistUpdate = async (
     );
 
     try {
-      await InternalSocketEmitter.notifyUser(
+      await notifyUser(
         userId,
         "CONTENT_REJECTED",
         {
@@ -312,7 +312,7 @@ export const finalizeGistUpdate = async (
   );
 
   try {
-    await InternalSocketEmitter.notifyUser(
+    await notifyUser(
       userId,
       "GIST_STATUS_UPDATE",
       {

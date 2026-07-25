@@ -5,7 +5,8 @@ import {
   invalidateCache,
   MESSAGES_REGISTRY,
   TransInfo,
-  upstashClient,
+  setCache,
+  getCache,
 } from "@repo/shared";
 
 export type OnboardingStep =
@@ -50,10 +51,7 @@ export const syncOnboarding = async (
   if (!user.primaryDeviceId) {
     await ensurePrimaryDevice(user, jwtDeviceId);
 
-    await upstashClient.set(
-      CACHE_KEYS.USER_PRIMARY_DEVICE(userId),
-      jwtDeviceId,
-    );
+    await setCache(CACHE_KEYS.USER_PRIMARY_DEVICE(userId), jwtDeviceId);
   }
 
   // Persist pipeline metrics
@@ -63,15 +61,15 @@ export const syncOnboarding = async (
 
   // Refresh structural session state expiration parameters
   const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
-  const sessionData: any = await upstashClient.get(sessionKey);
+  const sessionData: any = await getCache(sessionKey);
 
-  await upstashClient.set(
+  await setCache(
     sessionKey,
     {
       ...sessionData,
       lastActive: new Date(),
     },
-    { ex: 20 * 24 * 60 * 60 },
+    20 * 24 * 60 * 60,
   );
 
   // Invalidate stale user queries

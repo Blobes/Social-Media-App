@@ -1,4 +1,4 @@
-import { TransInfo } from "../../types";
+import { TransInfo } from "../types";
 import { NextFunction } from "express";
 
 /**

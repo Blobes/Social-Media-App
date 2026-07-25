@@ -1,7 +1,7 @@
 import { Queue, QueueOptions } from "bullmq";
 import { Redis } from "ioredis";
 import { Client as AsynqClient, Task as AsynqTask } from "node-asynq";
-import { OtpJobPayload } from "../types";
+import { OtpJobPayload } from "../../types";
 
 export interface AsynqTaskOptions {
   queue?: string;
@@ -10,18 +10,45 @@ export interface AsynqTaskOptions {
 }
 
 export class QueueService {
+  private static defaultRedisUrl: string | null = null;
   private static redisConnection: Redis | null = null;
   private static asynqClientInstance: AsynqClient | null = null;
   private static bullInstances: Map<string, Queue> = new Map();
 
   /**
+   * Initializes the queue service with a default Redis URL pool.
+   */
+  public static init(redisUrl?: string): void {
+    const targetUrl = redisUrl || process.env.FUNSTAKES_REDIS_URL;
+    if (!targetUrl) {
+      throw new Error("FUNSTAKES_REDIS_URL is missing");
+    }
+    this.defaultRedisUrl = targetUrl;
+    this.getConnection(targetUrl);
+  }
+
+  /**
+   * Helper to resolve the explicitly provided or stored default Redis connection URL.
+   */
+  private static resolveUrl(redisUrl?: string): string {
+    const url =
+      redisUrl || this.defaultRedisUrl || process.env.FUNSTAKES_REDIS_URL;
+    if (!url) {
+      throw new Error(
+        "FUNSTAKES_REDIS_URL is missing. Call initQueueClient first.",
+      );
+    }
+    return url;
+  }
+
+  /**
    * Get or create a unified, persistent connection pool for all queue architectures.
    */
-  public static getConnection(redisUrl: string): Redis {
-    if (!this.redisConnection) {
-      if (!redisUrl) throw new Error("FUNSTAKES_REDIS_URL is missing");
+  public static getConnection(redisUrl?: string): Redis {
+    const targetUrl = this.resolveUrl(redisUrl);
 
-      this.redisConnection = new Redis(redisUrl, {
+    if (!this.redisConnection) {
+      this.redisConnection = new Redis(targetUrl, {
         maxRetriesPerRequest: null,
         connectTimeout: 10000,
       });
@@ -38,20 +65,18 @@ export class QueueService {
   /**
    * Get or create a unified Asynq client instance wrapper.
    */
-  public static getAsynqClient(redisUrl: string): AsynqClient {
-    if (!this.asynqClientInstance) {
-      if (!redisUrl) throw new Error("FUNSTAKES_REDIS_URL is missing");
+  public static getAsynqClient(redisUrl?: string): AsynqClient {
+    const targetUrl = this.resolveUrl(redisUrl);
 
+    if (!this.asynqClientInstance) {
       try {
-        // Parse the redis:// connection string into explicit ioredis fields to satisfy the client initialization mapping rules
-        const parsedUrl = new URL(redisUrl);
+        const parsedUrl = new URL(targetUrl);
         const redisOptions: any = {
           host: parsedUrl.hostname,
           port: parseInt(parsedUrl.port || "6379", 10),
           db: parseInt(parsedUrl.pathname.replace("/", "") || "0", 10),
         };
 
-        // Inject password safely if explicitly provided inside the authorization segments
         if (parsedUrl.password) {
           redisOptions.password = decodeURIComponent(parsedUrl.password);
         } else if (parsedUrl.username && !parsedUrl.password) {
@@ -80,12 +105,14 @@ export class QueueService {
     NameType extends string = string,
   >(
     queueName: string,
-    redisUrl: string,
+    redisUrl?: string,
   ): Queue<DataType, ResultType, NameType> {
+    const targetUrl = this.resolveUrl(redisUrl);
+
     if (!this.bullInstances.has(queueName)) {
       const queue = new Queue(queueName, {
         connection: this.getConnection(
-          redisUrl,
+          targetUrl,
         ) as unknown as QueueOptions["connection"],
         defaultJobOptions: {
           attempts: 3,
@@ -104,14 +131,13 @@ export class QueueService {
   }
 
   /**
-   * Enqueues a payload using the exact structural protocol the Go Asynq engine evaluates,
-   * supporting both immediate and scheduled runtime operations.
+   * Enqueues a payload using the exact structural protocol the Go Asynq engine evaluates.
    */
   public static async enqueueAsynqTask(
-    redisUrl: string,
     typename: string,
     payload: Record<string, any>,
     options: AsynqTaskOptions = {},
+    redisUrl?: string,
   ): Promise<void> {
     const queue = options.queue || "default";
     const maxRetry = options.maxRetry ?? 3;
@@ -124,8 +150,6 @@ export class QueueService {
 
     try {
       const client = this.getAsynqClient(redisUrl);
-
-      // Define the payload contract directly within the native task factory structure
       const task = new AsynqTask(typename, payload);
 
       const taskOptions: any = {
@@ -134,7 +158,6 @@ export class QueueService {
       };
 
       if (processAt && processAt > Math.floor(Date.now() / 1000)) {
-        // Enqueue using strict millisecond timestamp formatting offsets matching library expectations
         taskOptions.processAt = processAt * 1000;
       }
 
@@ -151,25 +174,39 @@ export class QueueService {
 }
 
 /**
+ * Initializes the Queue Engine once at the entry point of the app server.
+ */
+export const initQueueClient = (redisUrl?: string): void =>
+  QueueService.init(redisUrl);
+
+export const getQueueConnection = (redisUrl?: string) =>
+  QueueService.getConnection(redisUrl);
+
+/**
  * Pushes heavy media assets directly into the Go Asynq protocol matrix.
  */
 export const enqueueModerationTask = (
-  redisUrl: string,
   typename: string,
   payload: Record<string, any>,
   options: Omit<AsynqTaskOptions, "queue"> = {},
+  redisUrl?: string,
 ) =>
-  QueueService.enqueueAsynqTask(redisUrl, typename, payload, {
-    ...options,
-    queue: "moderation",
-  });
+  QueueService.enqueueAsynqTask(
+    typename,
+    payload,
+    {
+      ...options,
+      queue: "moderation",
+    },
+    redisUrl,
+  );
 
 /**
  * Dispatches high-priority auth verification tasks cleanly into native BullMQ engines.
  */
 export const enqueueOtpTask = async (
-  redisUrl: string,
   payload: OtpJobPayload,
+  redisUrl?: string,
 ): Promise<void> => {
   const queue = QueueService.getBullQueue<OtpJobPayload, any, "send_otp">(
     "otp_queue",

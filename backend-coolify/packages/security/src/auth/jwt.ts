@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { Response } from "express";
-import { CACHE_KEYS, IJwtUser, upstashClient } from "@repo/shared";
+import { CACHE_EXPIRY, CACHE_KEYS, IJwtUser, setCache } from "@repo/shared";
 
 /**
  * Generates an Access Token and embeds session/device mapping.
@@ -46,7 +46,7 @@ export const signRefreshJwt = async (
   );
   // Mapping the session ID to the physical hardware fingerprint in Redis
   const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
-  await upstashClient.set(
+  await setCache(
     sessionKey,
     {
       deviceId,
@@ -54,7 +54,7 @@ export const signRefreshJwt = async (
       ip: ipAddress,
       lastActive: new Date(),
     },
-    { ex: 20 * 24 * 60 * 60 },
+    CACHE_EXPIRY.DAY_20,
   );
   return refreshToken;
 };

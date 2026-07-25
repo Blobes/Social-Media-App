@@ -16,8 +16,9 @@ import {
 import { IS3Config, TransInfo } from "../../types";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { cleanDeviceSessions } from "../session";
-import { CACHE_KEYS, invalidatePattern } from "../../utils/redis/cache";
+import { invalidatePattern } from "../redis/cache";
 import { hardDeleteMedia } from "../media/hardDelete";
+import { CACHE_KEYS } from "../../constants/cacheKeys";
 
 export interface IAccountDeletionInput {
   targetUserId: string;

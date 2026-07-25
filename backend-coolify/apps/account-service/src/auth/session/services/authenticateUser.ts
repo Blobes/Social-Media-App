@@ -1,13 +1,7 @@
 import { authTokens } from "@/envVars";
-import {
-  AccountStatus,
-  IUserDocument,
-  ModerationDecision,
-  UserModel,
-} from "@repo/database";
+import { IUserDocument, ModerationDecision, UserModel } from "@repo/database";
 import {
   userSensitiveFields,
-  upstashClient,
   CACHE_KEYS,
   toJwtUser,
   upsertDevice,
@@ -15,6 +9,7 @@ import {
   MESSAGES_REGISTRY,
   TransInfo,
   getAccountStatusMsg,
+  setCache,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
 import { CheckType, executeAccountCheck } from "../../check/service";
@@ -133,7 +128,7 @@ export const authenticateUser = async (
   const deviceIdString = device._id.toString();
   const sessionId = uuidv4();
 
-  await upstashClient.set(
+  await setCache(
     CACHE_KEYS.USER_PRIMARY_DEVICE(userId),
     user.primaryDeviceId?.toString(),
   );

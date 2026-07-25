@@ -3,7 +3,8 @@ import { UAParser } from "ua-parser-js";
 import { Request } from "express";
 import { Types } from "mongoose";
 import { cleanDeviceSessions } from "./session";
-import { CACHE_KEYS, getOrSetCache } from "../utils/redis/cache";
+import { getOrSetCache } from "./redis/cache";
+import { CACHE_KEYS } from "../constants/cacheKeys";
 
 const TRUST_WINDOW = 15 * 24 * 60 * 60 * 1000;
 

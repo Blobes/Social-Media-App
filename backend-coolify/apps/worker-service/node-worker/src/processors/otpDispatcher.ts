@@ -5,6 +5,7 @@ import {
   OtpType,
   dispatchWhatsAppCode,
   OtpJobPayload,
+  getQueueConnection,
 } from "@repo/shared";
 import {
   codeDispatchTokens,
@@ -16,7 +17,7 @@ import {
  * Initializes the BullMQ background worker loop for high-priority OTP generation.
  */
 export const otpDispatchWorker = () => {
-  const redisConnection = QueueService.getConnection(FUNSTAKES_REDIS_URL);
+  const redisConnection = getQueueConnection(FUNSTAKES_REDIS_URL);
 
   const worker = new Worker<OtpJobPayload, any, "send_otp">(
     "otp_queue",

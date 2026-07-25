@@ -17,12 +17,13 @@
     "mongoose": "catalog:",
     "uuid": "catalog:",
     "jsonwebtoken": "catalog:",
-    "@types/jsonwebtoken": "catalog:",
     "google-auth-library": "catalog:",
-    "jwks-rsa": "catalog:"
+    "jwks-rsa": "catalog:",
+    "ioredis": "catalog:"
   },
   "devDependencies": {
     "tsup": "catalog:",
+    "@types/jsonwebtoken": "catalog:",
     "@types/bcrypt": "catalog:",
     "@types/cookie-parser": "catalog:",
     "@types/express": "catalog:",

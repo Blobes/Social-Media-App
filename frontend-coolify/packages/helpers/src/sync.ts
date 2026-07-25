@@ -1,10 +1,7 @@
 "use client";
 
-import { GenericQueue, QueueItem } from "@repo/core";
+import { QueueItem } from "@repo/core";
 
-// // POST LIKE HANDLING HELPERS
-// const pendingLikesKey = "pendingLikes";
-// const likeQueueKey = QueueKeys.POST.like;
 /**
  * Generic helper to manage pending/optimistic states in localStorage
  */
@@ -40,13 +37,6 @@ export const removeQueueItem = (key: string, id: string) => {
     localStorage.setItem(key, JSON.stringify(queue));
   }
 };
-// // --- Offline queue ---
-// export const enqueueLike = (postId: string, finalState: boolean) => {
-//   const queue = JSON.parse(localStorage.getItem(likeQueueKey) || "{}");
-//   // Overwrites any previous pending action for this specific post
-//   queue[postId] = { liked: finalState, timestamp: Date.now() };
-//   localStorage.setItem(likeQueueKey, JSON.stringify(queue));
-// };
 
 const getOrSetQueue = (key: string) => {
   if (typeof window === "undefined") return null;

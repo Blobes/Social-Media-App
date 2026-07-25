@@ -1,5 +1,5 @@
 import express, { Express } from "express";
-import { corsConfig, upstashClient } from "@repo/shared";
+import { corsConfig } from "@repo/shared";
 import { rateLimiter } from "./middleware/rateLimiter";
 import gatewayRoutes from "./proxy";
 import { healthRouter } from "./health";
@@ -16,14 +16,6 @@ export default async (app: Express) => {
   // These will now only process requests intended for the Gateway's own routes
   app.use(express.json({ limit: "30mb" }));
   app.use(express.urlencoded({ limit: "30mb", extended: true }));
-
-  // Verify Upstash connectivity
-  try {
-    const status = await upstashClient.ping();
-    console.log(`✅ Redis connected: ${status}`);
-  } catch (err) {
-    console.error("⚠️ Redis Connectivity Check Failed:", err);
-  }
 
   // Gateway's own shared routes (these need the body parser above)
   app.use("/health", healthRouter());

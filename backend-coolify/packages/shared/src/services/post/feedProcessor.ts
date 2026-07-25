@@ -1,6 +1,7 @@
 import { IBasePost, IUserPreferences } from "../../types";
 import { UserModel, BlockedModel } from "@repo/database";
-import { CACHE_KEYS, getOrSetCacheSet } from "../../utils/redis/cache";
+import { getOrSetCacheSet } from "../redis/cache";
+import { CACHE_KEYS } from "../../constants/cacheKeys";
 
 /**
  * personalizeFeed: A generic ranking engine for all post types.

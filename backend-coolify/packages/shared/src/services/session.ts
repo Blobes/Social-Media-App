@@ -1,5 +1,10 @@
-import { upstashClient } from "./upstash";
-import { CACHE_KEYS } from "../utils/redis/cache";
+import { CACHE_KEYS } from "../constants/cacheKeys";
+import {
+  deleteCache,
+  getCache,
+  pipelineGetCache,
+  scanCache,
+} from "./redis/cache";
 
 interface SessionCleanupOptions {
   userId: string;
@@ -45,7 +50,7 @@ export const cleanUserSessions = async ({
 
     // 3. Perform batch deletion
     if (keysToDelete.length > 0) {
-      await upstashClient.del(...keysToDelete);
+      await deleteCache(keysToDelete);
     }
 
     return keptCurrentSession;
@@ -59,7 +64,7 @@ export const removeSession = async (
   userId: string,
   targetSessionId: string,
 ) => {
-  await upstashClient.del(CACHE_KEYS.USER_SESSION(userId, targetSessionId));
+  await deleteCache(CACHE_KEYS.USER_SESSION(userId, targetSessionId));
 };
 
 /**
@@ -74,17 +79,12 @@ export const findUserSessions = async (
   const matches: { key: string; sessionId: string; data: any }[] = [];
 
   do {
-    const [nextCursor, keys] = await upstashClient.scan(cursor, {
-      match: pattern,
-      count: 100,
-    });
+    const [nextCursor, keys] = await scanCache(cursor, pattern, 100);
 
     if (keys.length > 0) {
-      const pipeline = upstashClient.pipeline();
-      keys.forEach((key) => pipeline.get(key));
-      const results = await pipeline.exec();
+      const sessions = await pipelineGetCache(keys);
 
-      results.forEach((session: any, index: number) => {
+      sessions.forEach((session, index) => {
         if (session) {
           const include = filter ? filter(session) : true;
           if (include) {
@@ -136,7 +136,7 @@ export const cleanDeviceSessions = async (
       allSessions.map(async (s) => ({
         key: s.key,
         sessionId: s.sessionId,
-        data: (await upstashClient.get(s.key)) as any,
+        data: (await getCache(s.key)) as any,
       })),
     );
 
@@ -165,7 +165,7 @@ export const cleanDeviceSessions = async (
     }
 
     if (keysToDelete.length > 0) {
-      await upstashClient.del(...keysToDelete);
+      await deleteCache(keysToDelete);
     }
     return wasPrimaryPreserved;
   } catch (error) {

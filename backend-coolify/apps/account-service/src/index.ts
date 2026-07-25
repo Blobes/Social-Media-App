@@ -1,12 +1,18 @@
 import express from "express";
-import { connectDB, initUpstash, monitorProcess } from "@repo/shared";
+import {
+  connectDB,
+  initCacheClient,
+  initQueueClient,
+  monitorProcess,
+} from "@repo/shared";
 import appLoader from "./loader";
-import { MONGO_URI, NODE_ENV, PORT } from "./envVars";
+import { FUNSTAKES_REDIS_URL, MONGO_URI, NODE_ENV, PORT } from "./envVars";
 
 const startServer = async () => {
   const app = express();
 
-  initUpstash(); // Initialize Redis configuration
+  initCacheClient(FUNSTAKES_REDIS_URL); // Initialize Redis cache pool
+  initQueueClient(FUNSTAKES_REDIS_URL); // Initialize Queue engine pool
 
   try {
     monitorProcess();

@@ -6,9 +6,12 @@ import {
   IJwtUser,
   toJwtUser,
   upsertDevice,
-  upstashClient,
   MESSAGES_REGISTRY,
   TransInfo,
+  setCache,
+  CACHE_EXPIRY,
+  existsInCache,
+  getCache,
 } from "@repo/shared";
 import jwt from "jsonwebtoken";
 
@@ -44,7 +47,7 @@ export const executeSessionRefresh = async (
     ) as IJwtUser;
 
     const sessionKey = CACHE_KEYS.USER_SESSION(payload.id, payload.sessionId);
-    const sessionData = (await upstashClient.get(sessionKey)) as any;
+    const sessionData = (await getCache(sessionKey)) as any;
 
     if (!sessionData || sessionData.deviceId !== payload.deviceId) {
       return {
@@ -71,7 +74,7 @@ export const executeSessionRefresh = async (
       };
     }
 
-    const sessionExists = await upstashClient.exists(sessionKey);
+    const sessionExists = await existsInCache(sessionKey);
     if (!sessionExists) {
       return {
         status: "ANCHOR_ROTATED",
@@ -80,7 +83,7 @@ export const executeSessionRefresh = async (
     }
 
     sessionData.lastActive = new Date();
-    await upstashClient.set(sessionKey, sessionData, { ex: 20 * 24 * 60 * 60 });
+    await setCache(sessionKey, sessionData, CACHE_EXPIRY.DAY_20);
 
     const jwtUser = toJwtUser(
       user as IUserDocument,

@@ -11,10 +11,10 @@ export * from "./services/account/publicStatus";
 export * from "./services/account/accountStatus";
 export * from "./services/account/deleteAccount";
 export * from "./services/s3";
-export * from "./services/upstash";
+export * from "./services/redis/cache";
 export * from "./services/ip";
-export * from "./services/socket";
-export * from "./services/enqueue";
+export * from "./services/redis/socket";
+export * from "./services/redis/enqueue";
 export * from "./services/device";
 export * from "./services/post/gistFinalizers";
 export * from "./services/post/pipelines/postList";
@@ -37,25 +37,25 @@ export * from "./services/tfa-auth/initiateTFA";
 export * from "./services/tfa-auth/verifyTFACode";
 
 // Routes
-export * from "./utils/misc/status";
+export * from "./utils/status";
 
 // Utility
-export * from "./utils/misc/calculations";
-export * from "./utils/misc/checkNotability";
-export * from "./utils/misc/sanitizeData";
+export * from "./utils/calculations";
+export * from "./utils/checkNotability";
+export * from "./utils/sanitizeData";
 export * from "./services/post/feedProcessor";
-export * from "./utils/misc/hash";
+export * from "./utils/hash";
 export * from "./services/session";
-export * from "./utils/misc/topic";
-export * from "./utils/redis/cache";
-export * from "./utils/redis/ratelimit";
-export * from "./utils/misc/device";
-export * from "./utils/misc/topic";
-export * from "./utils/misc/error";
+export * from "./utils/topic";
+export * from "./services/redis/cache";
+export * from "./utils/device";
+export * from "./utils/topic";
+export * from "./utils/error";
 
 // Costants
 export * from "./constants/msgRegistry";
 export * from "./constants/others";
+export * from "./constants/cacheKeys";
 
 // Environment config
 export * from "../env-config/corsConfig";

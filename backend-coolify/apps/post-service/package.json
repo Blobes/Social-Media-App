@@ -13,6 +13,7 @@
     "dotenv": "catalog:",
     "bullmq": "catalog:",
     "ioredis": "catalog:",
+    "@socket.io/redis-emitter": "catalog:",
     "@repo/database": "workspace:*",
     "@repo/shared": "workspace:*",
     "@repo/security": "workspace:*"

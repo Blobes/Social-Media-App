@@ -18,10 +18,8 @@
     "cors": "catalog:",
     "dotenv": "catalog:",
     "@upstash/redis": "catalog:",
-    "ioredis": "catalog:",
     "bullmq": "catalog:",
     "ua-parser-js": "catalog:",
-    "@socket.io/redis-emitter": "catalog:",
     "node-asynq": "catalog:",
     "franc-min": "catalog:",
     "qrcode": "catalog:",
@@ -29,7 +27,11 @@
     "@repo/database": "workspace:*"
   },
   "peerDependencies": {
-    "express": "catalog:"
+    "express": "catalog:",
+    "@socket.io/redis-emitter": "catalog:",
+    "socket.io": "catalog:",
+    "ioredis": "catalog:",
+    "@socket.io/redis-adapter": "catalog:"
   },
   "devDependencies": {
     "mongoose": "catalog:",

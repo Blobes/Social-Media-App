@@ -9,7 +9,8 @@ import {
 import { TransInfo } from "../../types";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { cleanDeviceSessions } from "../session";
-import { CACHE_KEYS, invalidatePattern } from "../../utils/redis/cache";
+import { invalidatePattern } from "../redis/cache";
+import { CACHE_KEYS } from "../../constants/cacheKeys";
 
 export interface IStatusSwitchInput {
   targetUserId: string;

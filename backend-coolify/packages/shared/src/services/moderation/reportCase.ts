@@ -13,7 +13,7 @@ import {
   ModerationEvidenceModel,
   ModerationEvidenceType,
 } from "@repo/database";
-import { calculateThreshold } from "../../utils/misc/calculations";
+import { calculateThreshold } from "../../utils/calculations";
 import { PostType, TransInfo } from "../../types";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { switchAccountStatus } from "../account/accountStatus";

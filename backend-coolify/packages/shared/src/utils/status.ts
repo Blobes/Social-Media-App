@@ -1,6 +1,6 @@
 import { AccountStatus, ModerationDecision } from "@repo/database";
-import { AppName, TransInfo } from "../../types";
-import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
+import { AppName, TransInfo } from "../types";
+import { MESSAGES_REGISTRY } from "../constants/msgRegistry";
 
 export const healthCheck = (serviceName: AppName) => {
   console.log(`${serviceName} is Live"`);

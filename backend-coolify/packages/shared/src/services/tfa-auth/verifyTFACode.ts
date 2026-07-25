@@ -1,7 +1,7 @@
 import { UserModel } from "@repo/database";
 import { TransInfo } from "../../types";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
-import { normalizeValue } from "../../utils/misc/hash";
+import { normalizeValue } from "../../utils/hash";
 import { authenticatorService } from "./authenticator";
 import { TFAPurpose } from "./initiateTFA";
 

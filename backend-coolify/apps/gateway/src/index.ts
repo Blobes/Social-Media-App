@@ -1,14 +1,30 @@
 import express from "express";
 import appLoader from "./loader";
 import { createServer } from "http";
-import { initUpstash } from "@repo/shared";
-import { initRedisSocket } from "./initSocket";
-import { FUNSTAKES_REDIS_URL, NODE_ENV, PORT, GATEWAY_URL } from "./envVars";
+import {
+  initCacheClient,
+  initQueueClient,
+  initSocketReceiver,
+} from "@repo/shared";
+import {
+  FUNSTAKES_REDIS_URL,
+  NODE_ENV,
+  PORT,
+  GATEWAY_URL,
+  JWT_SECRET,
+} from "./envVars";
+import { registerSocketListeners } from "./socket";
 
 const startGateway = async () => {
   const app = express();
+  const httpServer = createServer(app);
 
-  initUpstash(); // Initialize Upstash Redis configuration
+  initCacheClient(FUNSTAKES_REDIS_URL); // Initialize Redis cache pool
+  initQueueClient(FUNSTAKES_REDIS_URL); // Initialize Queue engine pool
+
+  // Mount Socket.IO server onto the HTTP server instance
+  const io = initSocketReceiver(httpServer, FUNSTAKES_REDIS_URL, JWT_SECRET);
+  registerSocketListeners(io);
 
   app.set("trust proxy", 1); // Essential for getting real User IPs
 
@@ -19,9 +35,6 @@ const startGateway = async () => {
   app.get("/", (req, res) => {
     res.json({ message: "Welcome to Funstakes API Gateway" });
   });
-
-  const httpServer = createServer(app);
-  initRedisSocket(httpServer, FUNSTAKES_REDIS_URL);
 
   httpServer.listen(PORT, () => {
     console.log(`🚀 Gateway [${NODE_ENV}] running on port ${PORT}`);

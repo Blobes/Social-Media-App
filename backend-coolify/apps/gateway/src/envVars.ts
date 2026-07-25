@@ -1,5 +1,4 @@
-import { getEnv, IAuthConfig, loadEnv } from "@repo/shared";
-import { RequestHandler } from "express";
+import { getEnv, loadEnv } from "@repo/shared";
 
 if (process.env.NODE_ENV !== "production") {
   loadEnv();
@@ -34,6 +33,10 @@ export const env = {
     return getEnv("WORKER_URL");
   },
 
+  get JWT_SECRET() {
+    return getEnv("JWT_SECRET");
+  },
+
   get FUNSTAKES_REDIS_URL() {
     return getEnv("FUNSTAKES_REDIS_URL");
   },
@@ -48,4 +51,5 @@ export const ACCOUNT_URL = env.ACCOUNT_URL;
 export const POST_URL = env.POST_URL;
 export const PLATFORM_URL = env.PLATFORM_URL;
 export const WORKER_URL = env.WORKER_URL;
+export const JWT_SECRET = env.JWT_SECRET;
 export const FUNSTAKES_REDIS_URL = env.FUNSTAKES_REDIS_URL;
