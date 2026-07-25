@@ -49,10 +49,10 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
         background: data.bgColor,
         ...(!hasMedia && applyBGPattern({ url: asset.bgNoise, contain: true })),
         gap: theme.gap(18),
-        padding: theme.boxSpacing(18),
+        padding: theme.boxSpacing(18, 20),
         [theme.breakpoints.down("sm")]: {
           gap: theme.gap(14),
-          padding: theme.boxSpacing(16),
+          padding: theme.boxSpacing(16, 20),
         },
       }}>
       {/* Background Visual Rendering Block */}
@@ -218,7 +218,7 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
         ...style?.container,
         [theme.breakpoints.down("md")]: {
           width: "100%",
-          height: "100vh",
+          height: "100svh",
           minHeight: "fit-content",
           scrollSnapAlign: "start",
           flex: "none",

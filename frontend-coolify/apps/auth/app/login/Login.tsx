@@ -68,16 +68,6 @@ export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
           width: style.container?.smScreen,
         },
       }}>
-      {/* <Image
-        alt="logo"
-        src={asset.logo}
-        width={50}
-        height={50}
-        style={{
-          borderRadius: `${theme.radius.full}`,
-          flex: "none",
-        }}
-      /> */}
       <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />
     </Stack>
   );

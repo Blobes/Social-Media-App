@@ -158,13 +158,13 @@ export const auth = {
     incorrect_password_attempts_many: (count: number) => ({
       tKey: "auth:feedback.incorrect_password_attempts_many",
       tValue:
-        "<strong>Incorrect password. </strong>You have <span>{{count}}</span> attempts left before your login is temporarily locked.",
+        "<strong>Incorrect password. </strong>You have <counter>{{count}}</counter> attempts left before your login is temporarily locked.",
       interpolations: { count },
     }),
     incorrect_password_attempts_one: (count: number) => ({
       tKey: "auth:feedback.incorrect_password_attempts_one",
       tValue:
-        "<strong>Incorrect password. </strong>You have <span>{{count}}</span> attempt left before your login is temporarily locked.",
+        "<strong>Incorrect password. </strong>You have <counter>{{count}}</counter> attempt left before your login is temporarily locked.",
       interpolations: { count },
     }),
     lets_confirm_its_you: {
