@@ -133,22 +133,27 @@ export const API_BASE = {
   // Topic
   topic: "/topic",
 };
+
 export const SERVER_API = {
   // Auth
-  login: `${API_BASE.auth}/login`,
-  logout: `${API_BASE.auth}/logout`,
+  login: `${API_BASE.auth}/session/login`,
+  logout: `${API_BASE.auth}/session/logout`,
+  verifyUserSession: `${API_BASE.auth}/session/verify`,
+  refreshToken: `${API_BASE.auth}/session/refresh`,
   signup: `${API_BASE.auth}/signup`,
   checkEmail: `${API_BASE.auth}/check/email`,
   checkPhone: `${API_BASE.auth}/check/phone`,
   checkUsername: `${API_BASE.auth}/check/username`,
-  verifyUserSession: `${API_BASE.auth}/session/verify`,
-  refreshToken: `${API_BASE.auth}/session/refresh`,
   sendOtp: `${API_BASE.auth}/otp/send`,
   verifyOtp: `${API_BASE.auth}/otp/verify`,
-  setPrimarySession: `${API_BASE.auth}/session/set-primary`,
   updateOnboarding: `${API_BASE.auth}/onboarding`,
   initiateTFA: `${API_BASE.auth}/tfa/initiate`,
   verifyTFA: `${API_BASE.auth}/tfa/verify-token`,
+  // Device
+  getDevices: `${API_BASE.auth}/devices/`,
+  setPrimaryDevice: (userId: string) =>
+    `${API_BASE.auth}/devices/${userId}/primary`,
+  removeDevice: (userId: string) => `${API_BASE.auth}/devices/${userId}`,
 
   // Media Standard Operations
   mediaUpload: `${API_BASE.upload}/get-upload-policy`,
