@@ -17,10 +17,11 @@ export const guardIdentifierPending = (
     channel === "EMAIL" ? !!user.pendingEmail : !!user.pendingPhoneNumber;
 
   if (!hasPending) {
-    const error = new Error(
-      MESSAGES_REGISTRY.AUTH.NO_PENDING_CHANNEL_CHANGE(channel).message,
-    ) as any;
+    const transMsg = MESSAGES_REGISTRY.AUTH.NO_PENDING_CHANNEL_CHANGE(channel);
+    const error = new Error(transMsg.message) as any;
     error.status = 400;
+    error.i18nKey = transMsg.i18nKey;
+    error.interpolations = transMsg.interpolations;
     throw error;
   }
 };

@@ -53,11 +53,7 @@ export const LocalizationUpload = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.UPLOAD.LOCALIZATION_UPLOAD_THROWN_ERROR(
-            error.message,
-          )
-        : MESSAGES_REGISTRY.SYSTEM.INTERNAL_SERVER_ERROR,
+      MESSAGES_REGISTRY.UPLOAD.LOCALIZATION_UPLOAD_THROWN_ERROR,
       error,
     );
   }

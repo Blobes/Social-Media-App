@@ -141,7 +141,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
             <CreatePostMenuDesktop postRef={createPostRef} />
             <AppButton
               variant="outlined"
-              style={{ ...theme.typography.text5 }}
+              size="small"
               onClick={handleCreatePost}>
               <TransText {...POST_BUTTON_LABELS.create_post} noComponent />
             </AppButton>
@@ -151,9 +151,9 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
         {/* Login Button */}
         {authStatus === "UNAUTHENTICATED" && (
           <AppButton
-            href={CLIENT_ROUTES.login.path}
             variant="outlined"
-            style={{ ...theme.typography.text5 }}
+            size="small"
+            href={CLIENT_ROUTES.login.path}
             onClick={() =>
               navigateTo(CLIENT_ROUTES.login, { savePage: false })
             }>

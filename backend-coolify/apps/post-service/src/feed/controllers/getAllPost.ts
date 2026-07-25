@@ -33,9 +33,7 @@ export const getAllPost = async (
     console.error("[getAllPost] Error:", error);
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.POST.GLOBAL_FEED_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.POST.GLOBAL_FEED_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.POST.GLOBAL_FEED_FALLBACK_ERROR,
       error,
     );
   }

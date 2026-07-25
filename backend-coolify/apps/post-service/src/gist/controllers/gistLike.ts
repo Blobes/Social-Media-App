@@ -53,9 +53,7 @@ export const gistLike = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.POST.POST_LIKE_THROWN_ERROR(error.message, "Gist")
-        : MESSAGES_REGISTRY.POST.POST_LIKE_FALLBACK_ERROR("Gist"),
+      MESSAGES_REGISTRY.POST.POST_LIKE_FALLBACK_ERROR("Gist"),
       error,
     );
   }

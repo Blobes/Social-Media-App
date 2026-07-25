@@ -86,7 +86,7 @@ export const WordTrimmer = ({
             "aria-controls": textContentId,
           }}
           style={{
-            p: 0,
+            padding: 0,
             color: "inherit",
             borderRadius: 0,
             textDecoration: "underline",

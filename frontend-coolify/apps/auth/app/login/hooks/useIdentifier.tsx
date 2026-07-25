@@ -27,7 +27,6 @@ interface UseIdentifier {
   setIdentifier?: (credential: string) => void;
   inlineTxtStyle?: GenericStyle;
 }
-
 /**
  * Coordinates server verification and routing workflows based on user account status.
  */
@@ -129,7 +128,6 @@ export const useIdentifier = ({
                 href={CLIENT_ROUTES.signup.path}
                 onClick={handleSignupClick}
                 style={{
-                  ...theme.typography.text5,
                   marginLeft: theme.gap(2),
                   ...inlineTxtStyle,
                 }}>
@@ -149,7 +147,6 @@ export const useIdentifier = ({
               href={CLIENT_ROUTES.resetPassword.path}
               onClick={handleResetPassClick}
               style={{
-                ...theme.typography.text5,
                 marginLeft: theme.gap(2),
                 ...inlineTxtStyle,
               }}>

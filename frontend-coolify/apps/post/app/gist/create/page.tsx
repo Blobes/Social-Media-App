@@ -68,9 +68,7 @@ export default function CreateGistPage() {
         <AppButton
           variant="contained"
           style={{
-            ...theme.typography.text3,
             backgroundColor: theme.palette.gray.trans[1],
-            borderRadius: theme.radius.full,
             "&:hover": {
               backgroundColor: theme.palette.gray.trans[2],
             },
@@ -81,9 +79,7 @@ export default function CreateGistPage() {
         <AppButton
           variant="contained"
           style={{
-            ...theme.typography.text3,
             backgroundColor: theme.palette.gray.trans[1],
-            borderRadius: theme.radius.full,
             "&:hover": {
               backgroundColor: theme.palette.gray.trans[2],
             },

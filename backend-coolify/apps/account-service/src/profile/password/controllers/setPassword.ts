@@ -51,7 +51,7 @@ export const setPassword = async (
   if (purpose === "PASSWORD_RESET" && !identifier) {
     return res.status(400).json({
       status: "ERROR",
-      ...MESSAGES_REGISTRY.AUTH.IDENTIFIER_REQUIRED,
+      ...MESSAGES_REGISTRY.AUTH.EMAIL_OR_PHONE_REQUIRED,
       payload: null,
     });
   }

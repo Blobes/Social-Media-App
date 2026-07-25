@@ -8,13 +8,15 @@ import React, {
   RefObject,
 } from "react";
 import { formatPhoneNumber } from "@repo/helpers";
-import { InputStatus, MenuRef } from "@repo/core";
-import { useInputValueValidation } from "./useInputValue";
+import { COMMON_INPUT_VALIDATION, InputStatus, MenuRef } from "@repo/core";
+import { useInputValidationMsg } from "./useValMsg";
+import { useStaticTranslation } from "../useTrans";
 
 export type CredentialType = "EMAIL" | "PHONE" | "USERNAME" | "UNKNOWN";
 
 interface UseInputFieldOptions {
   initialValue?: string;
+  isRequired?: boolean;
   allowedTypes?: CredentialType[];
   inputRef?: RefObject<HTMLInputElement | null>;
   onClearFeedback?: () => void;
@@ -26,13 +28,15 @@ interface UseInputFieldOptions {
  */
 export const useInputFieldValidation = ({
   initialValue = "",
-  allowedTypes,
+  isRequired = true,
+  allowedTypes = ["EMAIL", "PHONE", "USERNAME", "UNKNOWN"],
   onClearFeedback,
   inputRef,
   onChange,
 }: UseInputFieldOptions = {}) => {
-  const { getInputValidity } = useInputValueValidation();
+  const { getInputValidity } = useInputValidationMsg();
   const countryMenuRef = useRef<MenuRef>(null);
+  const { translateTxtString } = useStaticTranslation();
 
   const [input, setInput] = useState(initialValue);
   const [validity, setValidity] = useState<InputStatus>();
@@ -45,24 +49,37 @@ export const useInputFieldValidation = ({
     !allowedTypes || allowedTypes.includes(resolvedType as CredentialType);
   const isValidInput = rawValidity.status === "VALID" && isTypeAllowed;
 
+  /**
+   * Synchronizes internal input state when external initialValue changes.
+   */
   useEffect(() => {
-    if (input !== "" && isValidInput) {
-      setValidity("VALID");
+    if (initialValue !== undefined) {
+      setInput(initialValue);
     }
-  }, [initialValue, isValidInput]);
+  }, [initialValue]);
 
+  /**
+   * Evaluates input value against allowed credential types and sets state along with validation feedback messages.
+   */
   const validateAndSet = useCallback(
     (value: string) => {
       setInput(value);
+
+      if (!isRequired && value === "") {
+        setValidationMsg("");
+        return;
+      }
+
       const result = getInputValidity(value);
       const currentType = result.type ?? "UNKNOWN";
       const currentTypeAllowed =
         !allowedTypes || allowedTypes.includes(currentType as CredentialType);
 
       if (!currentTypeAllowed) {
-        // Fall back to invalid without displaying an explicit message
         setValidity("INVALID");
-        setValidationMsg("");
+        setValidationMsg(
+          translateTxtString(COMMON_INPUT_VALIDATION.invalid_input_value),
+        );
       } else {
         setValidity(result.status === "VALID" ? "VALID" : "INVALID");
         setValidationMsg(
@@ -73,11 +90,28 @@ export const useInputFieldValidation = ({
     [getInputValidity, allowedTypes],
   );
 
+  /**
+   * Triggers field validation on blur to provide immediate visual feedback when an empty or incomplete field loses focus.
+   */
+  const handleBlur = useCallback(() => {
+    if (input.trim() === "") {
+      setValidity("INVALID");
+      setValidationMsg(
+        translateTxtString(COMMON_INPUT_VALIDATION.field_is_required),
+      );
+      return;
+    }
+    validateAndSet(input);
+  }, [input, validateAndSet]);
+
+  /**
+   * Handles user change events, manages phone formatting adjustments, and preserves cursor positioning.
+   */
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const target = e.target as HTMLInputElement;
-      const isDeleting =
-        (e.nativeEvent as any).inputType === "deleteContentBackward";
+      const nativeEvent = e.nativeEvent as InputEvent | undefined;
+      const isDeleting = nativeEvent?.inputType === "deleteContentBackward";
       let start = target.selectionStart || 0;
       let inputValue = target.value;
 
@@ -142,6 +176,7 @@ export const useInputFieldValidation = ({
     isValidInput,
     countryMenuRef,
     handleChange,
+    handleBlur,
     handleClear,
     validateAndSet,
   };

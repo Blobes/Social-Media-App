@@ -24,6 +24,7 @@ export const useAuthVerification = () => {
   const { translateTxtString } = useStaticTranslation();
   const { setSBMessage } = useSnackbar();
   const { verifyAndFetchUser } = AuthService();
+  const resetPassSession = getCookie("reset_session_expiry");
 
   const { refetch, isFetching } = useQuery<IUser | null, ApiError>({
     queryKey: [CACHE_KEYS.USER.SESSION],
@@ -88,14 +89,18 @@ export const useAuthVerification = () => {
         return null;
       }
     },
+    enabled: !resetPassSession,
     retry: false,
     refetchOnWindowFocus: true,
     refetchInterval: 1000 * 60 * 10,
   });
 
   const verifyAuth = useCallback(async () => {
-    const resetPassSession = getCookie("reset_session_expiry");
-    if (resetPassSession) return;
+    const currentResetSession = getCookie("reset_session_expiry");
+    if (currentResetSession) {
+      setAuthStatus("TEMPORARY");
+      return;
+    }
 
     await refetch();
   }, [refetch]);

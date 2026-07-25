@@ -30,9 +30,6 @@ export const env = {
   get FUNSTAKES_REDIS_URL() {
     return getEnv("FUNSTAKES_REDIS_URL");
   },
-  get OPENAI_API_KEY() {
-    return getEnv("OPENAI_API_KEY");
-  },
 };
 
 /**
@@ -149,4 +146,3 @@ export const PORT = env.PORT;
 export const MONGO_URI = env.MONGO_URI;
 export const SERVICE_URL = env.SERVICE_URL;
 export const FUNSTAKES_REDIS_URL = env.FUNSTAKES_REDIS_URL;
-export const OPENAI_API_KEY = env.OPENAI_API_KEY;

@@ -58,7 +58,7 @@ export const WelcomeBack: React.FC<{ onNext: () => void }> = ({ onNext }) => {
       <AppButton
         variant="contained"
         onClick={handleResume}
-        style={{ width: "100%", py: 1.5 }}>
+        style={{ width: "100%" }}>
         <TransText {...AUTH_BUTTON_LABELS.resume} noComponent />
       </AppButton>
       <TransText

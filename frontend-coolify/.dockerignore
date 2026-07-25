@@ -10,7 +10,9 @@ docker-compose.yml
 dist
 coverage
 
+locale
 **/locale/versions/**/*.json
+
 
 project-plan.md
 archive.md

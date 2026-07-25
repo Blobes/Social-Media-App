@@ -15,7 +15,7 @@ interface Input {
 /**
  * Validates text inputs, credentials, and password compliance across multiple supported international locales.
  */
-export const useInputValueValidation = () => {
+export const useInputValidationMsg = () => {
   const { translateTxtString } = useStaticTranslation();
 
   /**
@@ -269,7 +269,7 @@ export const useInputValueValidation = () => {
         type: "UNKNOWN",
         status: "INVALID",
         message: !value
-          ? translateTxtString(COMMON_INPUT_VALIDATION.credential_required)
+          ? translateTxtString(COMMON_INPUT_VALIDATION.field_is_required)
           : translateTxtString(COMMON_INPUT_VALIDATION.credential_too_short),
       };
     }

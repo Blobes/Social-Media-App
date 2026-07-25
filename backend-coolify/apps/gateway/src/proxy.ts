@@ -64,9 +64,7 @@ const createStaticProxy = (
 
 // ACCOUNT SERVICE
 router.use(createStaticProxy(["/account"], ACCOUNT_URL, true));
-router.use(
-  createStaticProxy(["/auth", "/user", "/upload", "/audit"], ACCOUNT_URL),
-);
+router.use(createStaticProxy(["/auth", "/user"], ACCOUNT_URL));
 
 // POST SERVICE
 router.use(createStaticProxy(["/post"], POST_URL, true));

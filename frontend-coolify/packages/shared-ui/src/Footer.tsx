@@ -33,6 +33,7 @@ export const Footer = ({ navList, navigateTo }: footerProps) => {
       {navList.map((item, index) => (
         <Fragment key={index}>
           <AnchorLink
+            size="x-small"
             href={item.url ?? "#"}
             onClick={() => {
               if (item.title && item.url)
@@ -42,7 +43,6 @@ export const Footer = ({ navList, navigateTo }: footerProps) => {
                 );
             }}
             style={{
-              ...theme.typography.text6,
               color: theme.palette.gray[200],
               "&:hover": { color: theme.palette.gray[300] },
             }}>

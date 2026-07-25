@@ -7,6 +7,7 @@ import NextLink from "next/link";
 import { crossZoneCheck, debouncedPrefetch, prefetchPage } from "@repo/helpers";
 import { GenericStyle } from "@repo/core";
 import { A11y } from "./A11y";
+import { Theme } from "@mui/material/styles";
 
 /**
  * Prefetches cross-zone asset bundles on relevant navigation user intents.
@@ -21,9 +22,12 @@ const handlePrefetch = (
   else prefetchPage(href, isCrossZone);
 };
 
+type ButtonSize = "x-small" | "small" | "medium" | "large";
+
 interface ButtonProps {
   variant?: "text" | "contained" | "outlined";
   children?: React.ReactNode;
+  size?: ButtonSize;
   style?: GenericStyle;
   overrideStyle?: "full" | "partial";
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
@@ -32,11 +36,39 @@ interface ButtonProps {
   submit?: boolean;
 }
 
+const getButtonSize = (size: ButtonSize = "medium", theme: Theme) => {
+  const xSmallSize = {
+    ...theme.typography.text6,
+    padding: theme.boxSpacing(2, 5),
+  };
+  const smallSize = {
+    ...theme.typography.text4,
+    padding: theme.boxSpacing(4, 8),
+  };
+  const mediumSize = {
+    ...theme.typography.text3,
+    padding: theme.boxSpacing(6, 12),
+  };
+  const largeSize = {
+    ...theme.typography.text2,
+    padding: theme.boxSpacing(8, 16),
+  };
+
+  return size === "x-small"
+    ? xSmallSize
+    : size === "small"
+      ? smallSize
+      : size === "medium"
+        ? mediumSize
+        : largeSize;
+};
+
 /**
  * Global application button offering unified routing capabilities and internationalization.
  */
 export const AppButton = ({
   variant = "contained",
+  size = "medium",
   children,
   style = {},
   overrideStyle = "partial",
@@ -46,26 +78,25 @@ export const AppButton = ({
   submit = false,
 }: ButtonProps) => {
   const theme = useTheme();
+  const btnSize = getButtonSize(size, theme);
 
   const defaultStyle = {
-    ...theme.typography.text3,
+    ...btnSize,
     fontWeight: 600,
     minWidth: "fit-content",
     height: "unset",
     alignSelf: "unset",
     textTransform: "unset",
-    padding: theme.boxSpacing(1, 8, 2, 8),
     display: "flex",
-    gap: theme.gap(2),
+    gap: theme.gap(4),
     alignItems: "center",
   };
   const textVarDefaultStyle = {
-    ...theme.typography.text4,
+    ...btnSize,
     fontWeight: 600,
     height: "unset",
     textTransform: "unset",
     color: theme.palette.primary.light,
-    padding: theme.boxSpacing(0, 4),
     minWidth: "unset",
     alignSelf: "unset",
     "&:hover": {
@@ -122,17 +153,21 @@ export const AnchorLink = ({
   children,
   href,
   style = {},
+  size = "small",
   overrideStyle = "partial",
   ...rest
 }: AnchorLinkProps) => {
   const theme = useTheme();
+  const btnSize = getButtonSize(size, theme);
 
   const defaultStyle = {
+    ...btnSize,
+    width: "fit-content",
     display: "inline-flex",
     textAlign: "center",
     textDecoration: "none",
     color: theme.palette.gray[300],
-    width: "fit-content",
+    padding: 0,
     transition:
       "background-color 0.3s linear, color 0.2s linear, stroke 0.2s linear",
   };
@@ -148,7 +183,6 @@ export const AnchorLink = ({
         component={isCrossZone ? "a" : NextLink}
         href={href}
         sx={{
-          ...theme.typography.text4,
           ...mergedStyle,
         }}
         onMouseEnter={() => handlePrefetch(href, isCrossZone, true)}

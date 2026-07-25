@@ -18,7 +18,7 @@ export type AuthStatus =
   | "AUTHENTICATED"
   | "UNAUTHENTICATED"
   | "TEMPORARY"
-  | "PENDING"
+  | "LOADING"
   | "ERROR";
 
 export type NetworkStatus = "STABLE" | "UNSTABLE" | "OFFLINE" | "UNKNOWN";
@@ -173,12 +173,6 @@ export type OtpTransitData<P extends TransitPurpose = TransitPurpose> =
     onVerificationSuccess?: () => void;
     nextStep?: StepName;
   };
-
-// export type GeneralTransitData<P extends TransitPurpose = TransitPurpose> =
-//   TransitData<P> & {
-//     currentStep?: StepName;
-//     nextStep?: StepName;
-//   };
 
 export interface IIdbData<T> {
   data: T;

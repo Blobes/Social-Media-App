@@ -13,14 +13,12 @@ import {
 } from "@repo/core";
 import { usePage, useStaticTranslation } from "@repo/shared-hooks";
 import { DisplayFeedbackUI, usePopup } from "@repo/features";
-import { getCookie } from "@repo/helpers";
 
 export default function ResetPage() {
   const authStatus = useGlobalStore((state) => state.authStatus);
   const { translateTxtString } = useStaticTranslation();
   const { openPopup } = usePopup();
   const { navigateTo } = usePage();
-  const resetSession = getCookie("reset_session_expiry");
   const theme = useTheme();
 
   return (
@@ -33,9 +31,7 @@ export default function ResetPage() {
         padding: theme.boxSpacing(10),
         minHeight: "fit-content",
       }}>
-      {authStatus === "TEMPORARY" ||
-      authStatus === "UNAUTHENTICATED" ||
-      resetSession ? (
+      {authStatus === "TEMPORARY" || authStatus === "UNAUTHENTICATED" ? (
         <Reset />
       ) : (
         <DisplayFeedbackUI

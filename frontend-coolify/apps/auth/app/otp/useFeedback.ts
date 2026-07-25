@@ -83,7 +83,7 @@ export const useFeedback = () => {
   /**
    * Success handler for Account Update flows. Typically redirects to settings or profile.
    */
-  const handlePassSuccess = (identifier?: string) => {
+  const handlePassResetSuccess = (identifier?: string) => {
     const transitData: TransitData<"PASSWORD_RESET"> = {
       _id: "transit:otp-auth",
       purpose: "PASSWORD_RESET",
@@ -110,8 +110,9 @@ export const useFeedback = () => {
     navigateTo(CLIENT_ROUTES.resetPassword, {
       loadPage: true,
       type: "replace",
+      savePage: false,
     });
   };
 
-  return { handleAuthOtpSuccess, onUpdateSuccess, handlePassSuccess };
+  return { handleAuthOtpSuccess, onUpdateSuccess, handlePassResetSuccess };
 };

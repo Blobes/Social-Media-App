@@ -131,14 +131,13 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
         />
         <AppButton
           variant="outlined"
+          size="x-small"
           onClick={(e) =>
             topicsMenuRef.current?.openMenu(e as unknown as HTMLElement)
           }
           options={{ disabled: isProcessing }}
           style={{
-            ...theme.typography.text6,
             alignSelf: "flex-start",
-            padding: "8px 16px",
           }}>
           <TransText {...POST_BUTTON_LABELS.post_add_topic} noComponent />
         </AppButton>
@@ -213,10 +212,6 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
         onClick={handleNext}
         options={{
           disabled: isProcessing,
-        }}
-        style={{
-          padding: theme.boxSpacing(6, 0),
-          gap: "10px",
         }}>
         <TransText {...POST_BUTTON_LABELS.post_next} noComponent />
       </AppButton>

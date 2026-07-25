@@ -30,7 +30,7 @@ export default function LoginPage() {
           minHeight: "unset",
         },
       }}>
-      {authStatus === "UNAUTHENTICATED" ? (
+      {authStatus === "UNAUTHENTICATED" || authStatus === "TEMPORARY" ? (
         <Stack
           sx={{
             width: "75%",
@@ -64,7 +64,7 @@ export default function LoginPage() {
               container: {
                 width: "50%",
                 borderRadius: 0,
-                padding: theme.boxSpacing(18, 20),
+                padding: theme.boxSpacing(24, 24),
                 mdScreen: {
                   height: "100svh",
                   width: "70%",

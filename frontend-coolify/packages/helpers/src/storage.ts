@@ -101,6 +101,13 @@ export const deleteCookie = (name: string) => {
   document.cookie = `${name}=; Max-Age=0; path=/`;
 };
 
+/**
+ * Removes multiple cookies from storage by key array.
+ */
+export const clearCookies = (keys: string[]): void => {
+  keys.forEach((key) => deleteCookie(key));
+};
+
 export const saveToLocalStorage = <T>(key: string, value: T): void => {
   try {
     const valueToStore = JSON.stringify(value);

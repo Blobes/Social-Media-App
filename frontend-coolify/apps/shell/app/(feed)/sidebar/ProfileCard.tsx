@@ -105,11 +105,10 @@ export const ProfileCard = () => {
         <Divider />
         <AppButton
           variant="outlined"
+          size="small"
           style={{
-            ...theme.typography.text5,
             alignSelf: "center",
             width: "100%",
-            padding: theme.boxSpacing(2, 5),
             borderColor: theme.palette.gray.trans[2],
           }}>
           <TransText {...COMMON_BUTTON_LABELS.my_profile} noComponent />

@@ -40,7 +40,7 @@ import {
   SupportedIsoCode,
   useGlobalStore,
 } from "@repo/core";
-import { processPhoneFormatting, scrollBarStyle } from "@repo/helpers";
+import { scrollBarStyle } from "@repo/helpers";
 import { DisplayList as CountryList } from "./Menu";
 import { TransText } from "./Text";
 import {
@@ -77,6 +77,7 @@ export interface InputProps {
   onBlur?: (
     event: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) => void;
+  onClear?: () => void;
   style?: GenericStyle;
 }
 
@@ -152,6 +153,7 @@ export const TextInput = ({
   onChange,
   onFocus,
   onBlur,
+  onClear,
   style,
 }: InputProps) => {
   const theme = useTheme();
@@ -163,6 +165,14 @@ export const TextInput = ({
     inputRef,
     onChange,
   });
+
+  const resolveClear = () => {
+    if (onClear) {
+      onClear();
+      return;
+    }
+    handleClear();
+  };
 
   const {
     showKeyboard,
@@ -245,7 +255,7 @@ export const TextInput = ({
 
                 {/* Clear field value */}
                 {allowReset && value && value?.length > 0 && (
-                  <IconButton onClick={handleClear}>
+                  <IconButton onClick={resolveClear}>
                     <X size={18} />
                   </IconButton>
                 )}
@@ -460,7 +470,7 @@ export const PhoneInput = ({
     input,
     countryMenuRef,
     handlePhoneChange,
-    handleClear,
+    handleClearPhone,
     handleMenuClose,
     handleCountrySelect,
   } = usePhoneFieldValidation({
@@ -543,7 +553,7 @@ export const PhoneInput = ({
 
                   {/* Clear field value */}
                   {allowReset && value && value?.length > 0 && (
-                    <IconButton onClick={handleClear}>
+                    <IconButton onClick={handleClearPhone}>
                       <X size={18} />
                     </IconButton>
                   )}
@@ -685,11 +695,12 @@ export const OtpInput = ({
             onFocus={() => handleFocus(index)}
             slotProps={{
               input: {
+                type: "tel",
                 inputMode: "numeric",
                 autoComplete: index === 0 ? "one-time-code" : "off",
               },
               htmlInput: {
-                maxLength: 1,
+                //  maxLength: 1,
                 pattern: "[0-9]*",
                 style: {
                   ...theme.typography.text2,

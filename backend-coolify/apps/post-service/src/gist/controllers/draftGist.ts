@@ -65,9 +65,7 @@ export const draftGist = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.POST.DRAFT_THROWN_ERROR(error.message, msgPostType)
-        : MESSAGES_REGISTRY.POST.DRAFT_FALLBACK_ERROR(msgPostType),
+      MESSAGES_REGISTRY.POST.DRAFT_FALLBACK_ERROR(msgPostType),
       error,
     );
   }

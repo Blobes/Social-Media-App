@@ -27,6 +27,7 @@ import {
   CACHE_KEYS,
   TransitData,
   useGlobalStore,
+  CLIENT_ROUTES,
 } from "@repo/core";
 import { ResetPasswordService } from "./service";
 import { OtpService } from "../../otp/service";
@@ -43,6 +44,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
   const { translateTxtString } = useStaticTranslation();
   const { openPopup } = usePopup();
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
+  const { navigateTo } = usePage();
 
   const [inlineMsg, setInlineMsg] = useState<React.ReactNode | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(120);
@@ -58,28 +60,32 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     setInlineMsg(null);
   }, []);
 
+  /**
+   * Clears active password reset cookies, purges cached transit data, and restores default view state.
+   */
+  const clearResetSession = useCallback(() => {
+    deleteCookie("reset_session_expiry");
+    queryClient.removeQueries({
+      queryKey: CACHE_KEYS.PASS_RESET_FINALIZED_TRANSIT_DATA,
+    });
+    setAuthStatus("UNAUTHENTICATED");
+    if (step !== "CREDENTIAL") {
+      setStep?.("CREDENTIAL");
+    }
+  }, [step, setStep, setAuthStatus]);
+
   useEffect(() => {
     const resetSession = getCookie("reset_session_expiry");
-
     if (!resetSession) {
-      if (step !== "CREDENTIAL") {
-        setAuthStatus("UNAUTHENTICATED");
-        setStep?.("CREDENTIAL");
-      }
-      if (transitNextStep)
-        queryClient.removeQueries({
-          queryKey: CACHE_KEYS.PASS_RESET_FINALIZED_TRANSIT_DATA,
-        });
+      clearResetSession();
       return;
     }
-
     if (transitNextStep) setStep?.(transitNextStep);
-  }, [resetTransitData, setStep]);
+  }, [[transitNextStep, setStep, clearResetSession]]);
 
   useEffect(() => {
     const resetSession = getCookie("reset_session_expiry");
     if (!resetSession) return;
-
     const interval = setInterval(() => {
       const diff = Math.max(
         0,
@@ -88,20 +94,14 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
       setTimeLeft(diff);
 
       if (diff <= 0) {
-        setAuthStatus("UNAUTHENTICATED");
         clearInterval(interval);
-        deleteCookie("reset_session_expiry");
-
-        queryClient.removeQueries({
-          queryKey: CACHE_KEYS.PASS_RESET_FINALIZED_TRANSIT_DATA,
-        });
-        if (step !== "CREDENTIAL") setStep?.("CREDENTIAL");
+        clearResetSession();
         return;
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [setStep]);
+  }, [clearResetSession]);
 
   const {
     input,
@@ -132,7 +132,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
   /**
    * TanStack Mutation handles password reset finalized confirmations.
    */
-  const { mutate: submitNewPassword, isPending: isConfirmLoading } =
+  const { mutate: submitNewPassword, isPending: isNewPasswordLoading } =
     useMutation({
       mutationFn: async () => {
         await delay();
@@ -145,9 +145,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
       },
       onSuccess: (res) => {
         if (res.status === "SUCCESS") {
-          queryClient.removeQueries({
-            queryKey: CACHE_KEYS.PASS_RESET_FINALIZED_TRANSIT_DATA,
-          });
+          clearResetSession();
           openPopup("RESET_PASSWORD_SUCCESS");
         }
       },
@@ -298,7 +296,10 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
 
   const passwordsMatch = password !== "" && password === confirmPassword;
   const isNewPasswordSubmitDisabled =
-    isConfirmLoading || !isPasswordValid || !passwordsMatch || timeLeft <= 0;
+    isNewPasswordLoading ||
+    !isPasswordValid ||
+    !passwordsMatch ||
+    timeLeft <= 0;
 
   /**
    * Dispatches payload updates on valid data validation thresholds.
@@ -308,6 +309,23 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     if (isNewPasswordSubmitDisabled) return;
     submitNewPassword();
   };
+
+  const handleResetCancel = useCallback(() => {
+    setInlineMsg(null);
+    clearResetSession();
+  }, [clearResetSession]);
+
+  const handleBack = useCallback(
+    (e: React.MouseEvent) => {
+      setInlineMsg(null);
+      navigateTo(CLIENT_ROUTES.login, {
+        event: e,
+        loadPage: true,
+        savePage: false,
+      });
+    },
+    [navigateTo],
+  );
 
   return {
     input,
@@ -323,8 +341,10 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     isPasswordValid,
     confirmPassword,
     confirmPassErrMsg,
-    isAuthLoading: isStandardLoading || isConfirmLoading || isTFALoading,
-    isSubmitDisabled:
+    isStandardLoading,
+    isTFALoading,
+    isNewPasswordLoading,
+    isResetInitSubmitDisabled:
       validity === "INVALID" ||
       input === "" ||
       isStandardLoading ||
@@ -338,5 +358,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     handleStandardSubmit,
     handleTFASubmit,
     handleNewPasswordSubmit,
+    handleResetCancel,
+    handleBack,
   };
 };

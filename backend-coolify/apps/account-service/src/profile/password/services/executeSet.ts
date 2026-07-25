@@ -62,7 +62,7 @@ export const executePasswordUpdate = async (
     if (!identifier) {
       return {
         status: "MISSING_IDENTIFIER",
-        transInfo: MESSAGES_REGISTRY.AUTH.IDENTIFIER_REQUIRED,
+        transInfo: MESSAGES_REGISTRY.AUTH.EMAIL_OR_PHONE_REQUIRED,
       };
     }
 

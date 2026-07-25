@@ -46,7 +46,7 @@ export const executeTFAVerification = async (
     if (!identifier) {
       return {
         status: "MISSING_INPUT",
-        transInfo: MESSAGES_REGISTRY.AUTH.IDENTIFIER_REQUIRED,
+        transInfo: MESSAGES_REGISTRY.AUTH.EMAIL_OR_PHONE_REQUIRED,
         payload: null,
       };
     }

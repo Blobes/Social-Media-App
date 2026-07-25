@@ -31,8 +31,8 @@ export type DisplayType =
   | "PASSWORD_RESET_SUCCESS";
 
 export interface DisplayConfig {
-  headline?: string;
-  tagline?: string;
+  headline?: React.ReactNode;
+  tagline?: React.ReactNode;
   icon?: React.ReactNode;
   primaryCta?: {
     label: string;

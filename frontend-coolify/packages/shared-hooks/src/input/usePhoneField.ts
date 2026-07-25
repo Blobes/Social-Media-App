@@ -1,14 +1,19 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { processPhoneFormatting } from "@repo/helpers";
 import { InputStatus, MenuRef } from "@repo/core";
-import { useInputValueValidation } from "./useInputValue";
-import { CredentialType } from "./useInputField";
+import { useInputValidationMsg } from "./useValMsg";
 
 export interface UsePhoneFieldOptions {
   initialValue?: string;
-  allowedTypes?: CredentialType[];
+  isRequired?: boolean;
   includeCountryCode?: boolean;
   onClearFeedback?: () => void;
   onPhoneChange?: (value: string) => void;
@@ -19,12 +24,12 @@ export interface UsePhoneFieldOptions {
  */
 export const usePhoneFieldValidation = ({
   initialValue = "",
-  allowedTypes = ["PHONE"],
+  isRequired = true,
   includeCountryCode = true,
   onClearFeedback,
   onPhoneChange,
 }: UsePhoneFieldOptions = {}) => {
-  const { getInputValidity } = useInputValueValidation();
+  const { getInputValidity } = useInputValidationMsg();
   const countryMenuRef = useRef<MenuRef>(null);
   const isCountrySelectedRef = useRef<boolean>(false);
 
@@ -33,52 +38,63 @@ export const usePhoneFieldValidation = ({
   const [validationMsg, setValidationMsg] = useState("");
 
   const rawValidity = getInputValidity(input);
-  const resolvedType = rawValidity.type ?? "UNKNOWN";
-
-  const isTypeAllowed =
-    !allowedTypes || allowedTypes.includes(resolvedType as CredentialType);
-  const isValidInput = rawValidity.status === "VALID" && isTypeAllowed;
-
-  useEffect(() => {
-    if (input !== "" && isValidInput) {
-      setValidity("VALID");
-    }
-  }, [initialValue, isValidInput]);
+  const isValidInput = rawValidity.status === "VALID";
 
   /**
-   * Updates state, validates current input against allowed credential types, and propagates changes.
+   * Evaluates if phone field is empty or holds a valid phone number.
+   */
+  const isPhoneValid = useMemo(() => {
+    return input === "" || isValidInput;
+  }, [input, isValidInput]);
+
+  /**
+   * Synchronizes internal input state when external initialValue changes.
+   */
+  useEffect(() => {
+    if (initialValue !== undefined) {
+      setInput(initialValue);
+    }
+  }, [initialValue]);
+
+  /**
+   * Updates state, validates current input against phone validation rules, and propagates changes.
    */
   const validateAndSet = useCallback(
     (value: string) => {
       setInput(value);
       onPhoneChange?.(value);
 
-      const result = getInputValidity(value);
-      const currentType = result.type ?? "UNKNOWN";
-      const currentTypeAllowed =
-        !allowedTypes || allowedTypes.includes(currentType as CredentialType);
-
-      if (!currentTypeAllowed) {
-        setValidity("INVALID");
+      if (!isRequired && value === "") {
         setValidationMsg("");
-      } else {
-        setValidity(result.status === "VALID" ? "VALID" : "INVALID");
-        setValidationMsg(
-          result.status === "INVALID" ? (result.message ?? "") : "",
-        );
+        return;
       }
+
+      const result = getInputValidity(value);
+      setValidity(result.status === "VALID" ? "VALID" : "INVALID");
+      setValidationMsg(
+        result.status === "INVALID" ? (result.message ?? "") : "",
+      );
     },
-    [getInputValidity, allowedTypes, onPhoneChange],
+    [getInputValidity, onPhoneChange],
   );
 
   /**
-   * Processes phone input events, applies formatting rules, controls menu display, and preserves selection range.
+   * Processes phone input value updates across raw string payloads and native change events.
    */
   const handlePhoneChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const target = e.target as HTMLInputElement;
-      const isDeleting =
-        (e.nativeEvent as any)?.inputType === "deleteContentBackward";
+    (
+      valueOrEvent:
+        | string
+        | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    ) => {
+      if (typeof valueOrEvent === "string") {
+        validateAndSet(valueOrEvent);
+        return;
+      }
+
+      const target = valueOrEvent.target as HTMLInputElement;
+      const nativeEvent = valueOrEvent.nativeEvent as InputEvent | undefined;
+      const isDeleting = nativeEvent?.inputType === "deleteContentBackward";
       const start = target.selectionStart || 0;
 
       const result = processPhoneFormatting(
@@ -102,11 +118,13 @@ export const usePhoneFieldValidation = ({
 
       onClearFeedback?.();
 
-      window.requestAnimationFrame(() => {
-        target.setSelectionRange(result.nextCursor, result.nextCursor);
-      });
-
       validateAndSet(result.nextVal);
+
+      window.requestAnimationFrame(() => {
+        if (target && document.activeElement === target) {
+          target.setSelectionRange(result.nextCursor, result.nextCursor);
+        }
+      });
     },
     [includeCountryCode, onClearFeedback, validateAndSet],
   );
@@ -114,7 +132,7 @@ export const usePhoneFieldValidation = ({
   /**
    * Clears phone input value, resets selection state, and clears validation feedback.
    */
-  const handleClear = useCallback(() => {
+  const handleClearPhone = useCallback(() => {
     setInput("");
     setValidity(undefined);
     setValidationMsg("");
@@ -128,9 +146,9 @@ export const usePhoneFieldValidation = ({
    */
   const handleMenuClose = useCallback(() => {
     if (includeCountryCode && !isCountrySelectedRef.current) {
-      handleClear();
+      handleClearPhone();
     }
-  }, [includeCountryCode, handleClear]);
+  }, [includeCountryCode, handleClearPhone]);
 
   /**
    * Formats and sets phone prefix when a country item is selected from the menu.
@@ -149,14 +167,14 @@ export const usePhoneFieldValidation = ({
   return {
     input,
     setInput,
-    inputType: resolvedType,
     validity,
     validationMsg,
     isValidInput,
+    isPhoneValid,
     countryMenuRef,
     isCountrySelectedRef,
     handlePhoneChange,
-    handleClear,
+    handleClearPhone,
     handleMenuClose,
     handleCountrySelect,
     validateAndSet,

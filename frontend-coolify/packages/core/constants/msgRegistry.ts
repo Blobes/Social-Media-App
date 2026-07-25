@@ -12,6 +12,479 @@ export type TranslationRegistry = {
 };
 
 /**
+ * Authentication handling structures. Extracts to ../../../locale/versions/en/auth.json
+ */
+export const auth = {
+  button: {
+    back_to_login: {
+      tKey: "auth:button.back_to_login",
+      tValue: "Back to Login",
+    },
+    change_credential: {
+      tKey: "auth:button.change_credential",
+      tValue: "Change credential",
+    },
+    create_account: {
+      tKey: "auth:button.create_account",
+      tValue: "Create account",
+    },
+    login: { tKey: "auth:button.login", tValue: "Login" },
+    login_now: {
+      tKey: "auth:button.login_now",
+      tValue: "Login Now",
+    },
+    logout: { tKey: "auth:button.logout", tValue: "Logout" },
+    logout_not_really: {
+      tKey: "auth:button.logout_not_really",
+      tValue: "Not really",
+    },
+    logout_sure_i_do: {
+      tKey: "auth:button.logout_sure_i_do",
+      tValue: "Sure I do",
+    },
+    otp_resend_code_in_seconds: (seconds: number) => ({
+      tKey: "auth:button.otp_resend_code_in_seconds",
+      tValue: "Resend in {{seconds}}s",
+      interpolations: { seconds },
+    }),
+    otp_resend_code_now: {
+      tKey: "auth:button.otp_resend_code_now",
+      tValue: "Resend",
+    },
+    otp_switch_channel: (channel: string) => ({
+      tKey: "auth:button.otp_switch_channel",
+      tValue: "Send via {{channel}}",
+      interpolations: { channel },
+    }),
+    otp_verify_code: {
+      tKey: "auth:button.otp_verify_code",
+      tValue: "Verify code",
+    },
+    proceed: { tKey: "auth:button.proceed", tValue: "Proceed" },
+    reset_password: {
+      tKey: "auth:button.reset_password",
+      tValue: "Reset password",
+    },
+    restore_account: {
+      tKey: "auth:button.restore_account",
+      tValue: "Restore Account",
+    },
+    resume: {
+      tKey: "auth:button.resume",
+      tValue: "Resume",
+    },
+    retry_translation: {
+      tKey: "auth:button.retry_translation",
+      tValue: "Retry translation",
+    },
+    see_original: {
+      tKey: "auth:button.see_original",
+      tValue: "See original",
+    },
+    see_translation: {
+      tKey: "auth:button.see_translation",
+      tValue: "See Translation",
+    },
+    set_password: {
+      tKey: "auth:button.set_password",
+      tValue: "Set password",
+    },
+    signup: { tKey: "auth:button.signup", tValue: "Sign up" },
+    use_authenticator: {
+      tKey: "auth:button.use_authenticator",
+      tValue: "Use Authenticator",
+    },
+    verify_with_email_phone: {
+      tKey: "auth:button.verify_with_email_phone",
+      tValue: "Verify with Email / Phone",
+    },
+  },
+
+  feedback: {
+    account_deactivated_headline: {
+      tKey: "auth:feedback.account_deactivated_headline",
+      tValue: "Account is Deactivated",
+    },
+    account_deactivated_tagline: {
+      tKey: "auth:feedback.account_deactivated_tagline",
+      tValue: "To restore it, click the 'Restore account' button",
+    },
+    account_suspended_headline: {
+      tKey: "auth:feedback.account_suspended_headline",
+      tValue: "Account Suspended",
+    },
+    account_suspended_tagline: {
+      tKey: "auth:feedback.account_suspended_tagline",
+      tValue: "Your account has been suspended for violating our terms.",
+    },
+    already_have_an_account: {
+      tKey: "auth:feedback.already_have_an_account",
+      tValue: "Already have an account?",
+    },
+    already_signed_in_headline: {
+      tKey: "auth:feedback.already_signed_in_headline",
+      tValue: "You are already signed in",
+    },
+    already_signed_in_tagline: {
+      tKey: "auth:feedback.already_signed_in_tagline",
+      tValue: "Return to funstakes.com or logout",
+    },
+    confirm_identity: {
+      tKey: "auth:feedback.confirm_identity",
+      tValue: "Confirm your identity",
+    },
+    enter_password_to_login: (
+      attemptCount: number = 3,
+      lockTime: number = 2,
+    ) => ({
+      tKey: "auth:feedback.enter_password_to_login",
+      tValue:
+        "Enter your password to login. After {{attemptCount}} incorrect entries, your access will be locked for <strong>{{lockTime}}</strong> minutes.",
+      interpolations: { lockTime, attemptCount },
+    }),
+    few_minutes_to_setup_account: {
+      tKey: "auth:feedback.few_minutes_to_setup_account",
+      tValue: "It only takes a few minutes to set up your account.",
+    },
+    finish_setting_up_headline: {
+      tKey: "auth:feedback.finish_setting_up_headline",
+      tValue: "Finish Setting Up",
+    },
+    finish_setting_up_tagline: {
+      tKey: "auth:feedback.finish_setting_up_tagline",
+      tValue:
+        "You're almost there! Complete your profile setup to unlock full access to all features.",
+    },
+    incorrect_password_attempts_many: (count: number) => ({
+      tKey: "auth:feedback.incorrect_password_attempts_many",
+      tValue:
+        "<strong>Incorrect password. </strong>You have <span>{{count}}</span> attempts left before your login is temporarily locked.",
+      interpolations: { count },
+    }),
+    incorrect_password_attempts_one: (count: number) => ({
+      tKey: "auth:feedback.incorrect_password_attempts_one",
+      tValue:
+        "<strong>Incorrect password. </strong>You have <span>{{count}}</span> attempt left before your login is temporarily locked.",
+      interpolations: { count },
+    }),
+    lets_confirm_its_you: {
+      tKey: "auth:feedback.lets_confirm_its_you",
+      tValue:
+        "Enter your email or phone number below to authorize a password reset.",
+    },
+    login_activated_tagline: {
+      tKey: "auth:feedback.login_activated_tagline",
+      tValue: "Login Activated",
+    },
+    login_failed: {
+      tKey: "auth:feedback.login_failed",
+      tValue: "Login failed. Please verify your entries.",
+    },
+    logout_confirmation: {
+      tKey: "auth:feedback.logout_confirmation",
+      tValue: "Do you really want to logout?",
+    },
+    new_code_sent_tagline: (channel: string) => ({
+      tKey: "auth:feedback.new_code_sent_tagline",
+      tValue: "A new code has been sent to your {{channel}}.",
+      interpolations: { channel },
+    }),
+    no_account_found_email: {
+      tKey: "auth:feedback.no_account_found_email",
+      tValue: "We couldn't find an account with the email address.",
+    },
+    no_account_found_phone: {
+      tKey: "auth:feedback.no_account_found_phone",
+      tValue: "We couldn't find an account with the phone number.",
+    },
+    no_account_found_username: {
+      tKey: "auth:feedback.no_account_found_username",
+      tValue: "We couldn't find an account with the username.",
+    },
+    no_email_or_phone: (nextChannel: string) => ({
+      tKey: "auth:feedback.no_email_or_phone",
+      tValue: "No {{nextChannel}} found on your profile.",
+      interpolations: { nextChannel },
+    }),
+    no_password_reset_sesion_found: {
+      tKey: "auth:feedback.no_password_reset_sesion_found",
+      tValue: "No password reset session found",
+    },
+    no_required_onboarding_headline: {
+      tKey: "auth:feedback.no_required_onboarding_headline",
+      tValue: "No Required Onboarding",
+    },
+    no_required_onboarding_tagline: {
+      tKey: "auth:feedback.no_required_onboarding_tagline",
+      tValue: "You have already completed the onboarding step.",
+    },
+    no_verification_sesion_found: {
+      tKey: "auth:feedback.no_verification_sesion_found",
+      tValue: "No OTP verification session found",
+    },
+    or_sign_in_with: {
+      tKey: "auth:feedback.or_sign_in_with",
+      tValue: "Or sign in with",
+    },
+    or_sign_up_with: {
+      tKey: "auth:feedback.or_sign_up_with",
+      tValue: "Or sign up with",
+    },
+    otp_code_sent: (recipient: string) => ({
+      tKey: "auth:feedback.otp_code_sent",
+      tValue: "We sent a 6-digit code to <strong>{{recipient}}</strong>",
+      interpolations: { recipient },
+    }),
+    otp_didnt_receive_code: {
+      tKey: "auth:feedback.otp_didnt_receive_code",
+      tValue: "Didn't receive a code?",
+    },
+    otp_invalid_code: {
+      tKey: "auth:feedback.otp_invalid_code",
+      tValue: "Invalid code.",
+    },
+    otp_missing_session: {
+      tKey: "auth:feedback.otp_missing_session",
+      tValue: "Missing otp session data.",
+    },
+    otp_send_code_failed: {
+      tKey: "auth:feedback.otp_send_code_failed",
+      tValue: "Failed to send code.",
+    },
+    password_locked_headline: {
+      tKey: "auth:feedback.password_locked_headline",
+      tValue: "Password Access Locked?",
+    },
+    password_locked_tagline: (timerValue: string) => ({
+      tKey: "auth:feedback.password_locked_tagline",
+      tValue:
+        "You've exceeded the maximum password attempts. Try again in <timer>{{timerValue}}</timer>. Proceed to password reset if you can't remember.",
+      interpolations: { timerValue },
+    }),
+    password_reset_finalization_failed: {
+      tKey: "auth:feedback.password_reset_finalization_failed",
+      tValue: "Failed to finalize password reset.",
+    },
+    password_reset_initiation_failed: {
+      tKey: "auth:feedback.password_reset_initiation_failed",
+      tValue: "Failed to initiate password reset.",
+    },
+    password_reset_not_allowed_headline: {
+      tKey: "auth:feedback.password_reset_not_allowed_headline",
+      tValue: "Password reset not allowed",
+    },
+    password_reset_not_allowed_tagline: {
+      tKey: "auth:feedback.password_reset_not_allowed_tagline",
+      tValue:
+        "Password reset is not allowed for users who are not logged out. Please log out to initiate a reset.",
+    },
+    password_reset_successful_headline: {
+      tKey: "auth:feedback.password_reset_successful_headline",
+      tValue: "Pasword reset successful",
+    },
+    password_reset_successful_tagline: {
+      tKey: "auth:feedback.password_reset_successful_tagline",
+      tValue:
+        "You have successfully reset your password. Login to start staking.",
+    },
+    passwords_do_not_match: {
+      tKey: "auth:feedback.passwords_do_not_match",
+      tValue: "Passwords do not match",
+    },
+    passwords_is_required: {
+      tKey: "auth:feedback.passwords_is_required",
+      tValue: "Password is required.",
+    },
+    registration_failed: {
+      tKey: "auth:feedback.registration_failed",
+      tValue: "Registration failed. Please verify your entries.",
+    },
+    reset_your_password: {
+      tKey: "auth:feedback.reset_your_password",
+      tValue: "Reset your password",
+    },
+    resume_account_setup: {
+      tKey: "auth:feedback.resume_account_setup",
+      tValue:
+        "It looks like you didn't finish setting up your account. Pick up right where you left off to get started with Funstakes.",
+    },
+    return_home: {
+      tKey: "auth:feedback.return_home",
+      tValue: "Please return to Home or the previous page",
+    },
+    security_details_updated_tagline: {
+      tKey: "auth:feedback.security_details_updated_tagline",
+      tValue: "Security details updated successfully.",
+    },
+    server_error: {
+      tKey: "auth:feedback.server_error",
+      tValue: "An unexpected error occurred during verification",
+    },
+    session_expired: {
+      tKey: "auth:feedback.security_details_updated_tagline",
+      tValue: "Your session has expired. Please log in again.",
+    },
+    set_new_password_headline: {
+      tKey: "auth:feedback.set_new_password_headline",
+      tValue: "Set a new password",
+    },
+    set_new_password_tagline: {
+      tKey: "auth:feedback.set_new_password_tagline",
+      tValue: "Now you can create a new unique password for your account",
+    },
+    setup_legal_names_username: {
+      tKey: "auth:feedback.session_expired",
+      tValue: "Set up your legal names and unique username.",
+    },
+    unsupported_verification_method: {
+      tKey: "auth:feedback.unsupported_verification_method",
+      tValue: "Unsupported verification method.",
+    },
+    user_account_deactivated_tagline: {
+      tKey: "auth:feedback.user_account_deactivated_tagline",
+      tValue:
+        "Your account is currently inactive. Please proceed to the restoration page to recover your access.",
+    },
+    verification_successful_tagline: {
+      tKey: "auth:feedback.verification_successful_tagline",
+      tValue: "Verification successful!",
+    },
+    verify_code_from_auth_app_headline: {
+      tKey: "auth:feedback.verify_code_from_auth_app_headline",
+      tValue: "Verify via Authenticator",
+    },
+    verify_code_from_auth_app_tagline: {
+      tKey: "auth:feedback.verify_code_from_auth_app_tagline",
+      tValue:
+        "Enter the 6-digit code displayed in your authenticator application. Please note that you can only use this method if you've set up Multi-factor Authentication (MFA) for your {{Funstakes}} account",
+    },
+    verify_via_credential: (credType: string) => ({
+      tKey: "auth:feedback.verify_your_credential",
+      tValue: "Verify code via {{credType}}",
+      interpolations: { credType },
+    }),
+    verify_your_account_headline: {
+      tKey: "auth:feedback.verify_your_account_headline",
+      tValue: "Verify your account",
+    },
+    verify_your_account_tagline: {
+      tKey: "auth:feedback.verify_your_account_tagline",
+      tValue:
+        "You're almost there! Complete your verification process to unlock full access to Funstakes.",
+    },
+  },
+
+  input: {
+    helper_text: {
+      first_name_required: {
+        tKey: "auth:input.helper_text.first_name_required",
+        tValue: "First name is required",
+      },
+      last_name_required: {
+        tKey: "auth:input.helper_text.last_name_required",
+        tValue: "Last name is required",
+      },
+      otp_verify_code: {
+        tKey: "auth:input.helper_text.otp_verify_code",
+        tValue: "",
+      },
+    },
+    label: {
+      confirm_password: {
+        tKey: "auth:input.label.confirm_password",
+        tValue: "Confirm Password",
+      },
+      email__or_phone: {
+        tKey: "auth:input.label.email_or_phone",
+        tValue: "Email or Phone",
+      },
+      email_address: {
+        tKey: "auth:input.label.email_address",
+        tValue: "Email Address",
+      },
+      email_phone_username: {
+        tKey: "auth:input.label.email_phone_username",
+        tValue: "Email, Phone or Username",
+      },
+      enter_code: {
+        tKey: "auth:input.label.enter_code",
+        tValue: "Enter code",
+      },
+      first_name: {
+        tKey: "auth:input.label.first_name",
+        tValue: "First name",
+      },
+      last_name: {
+        tKey: "auth:input.label.last_name",
+        tValue: "Last name",
+      },
+      otp_verify_code: {
+        tKey: "auth:input.label.otp_verify_code",
+        tValue: "",
+      },
+      password: {
+        tKey: "auth:input.label.password",
+        tValue: "Password",
+      },
+      phone_number: {
+        tKey: "auth:input.label.phone_number",
+        tValue: "Phone number",
+      },
+      phone_optional: {
+        tKey: "auth:input.label.phone_optional",
+        tValue: "Phone number (Optional)",
+      },
+      username: {
+        tKey: "auth:input.label.username",
+        tValue: "Username",
+      },
+    },
+    placeholder: {
+      create_password: {
+        tKey: "auth:input.placeholder.create_password",
+        tValue: "Create password",
+      },
+      create_username: {
+        tKey: "auth:input.placeholder.create_username",
+        tValue: "Create username",
+      },
+      email_or_phone: {
+        tKey: "auth:input.placeholder.email_or_phone",
+        tValue: "Email address, or phone number",
+      },
+      email_phone_username: {
+        tKey: "auth:input.placeholder.email_phone_username",
+        tValue: "Email address, phone or username",
+      },
+      enter_first_name: {
+        tKey: "auth:input.placeholder.enter_first_name",
+        tValue: "Enter first name",
+      },
+      enter_last_name: {
+        tKey: "auth:input.placeholder.enter_last_name",
+        tValue: "Enter last name",
+      },
+      enter_password: {
+        tKey: "auth:input.placeholder.enter_password",
+        tValue: "Password",
+      },
+      enter_your_email: {
+        tKey: "auth:input.placeholder.enter_your_email",
+        tValue: "Enter your email",
+      },
+      phone_example: {
+        tKey: "auth:input.placeholder.phone_example",
+        tValue: "e.g. +1234567890",
+      },
+      re_enter_password: {
+        tKey: "auth:input.label.re_enter_password",
+        tValue: "Re-enter your password",
+      },
+    },
+  },
+} as const;
+
+/**
  * Common layout structures. Extracts to ../../../locale/versions/en/common.json
  */
 export const common = {
@@ -25,10 +498,12 @@ export const common = {
       tKey: "common:button.add_selected_media",
       tValue: "Add",
     },
+    back: { tKey: "common:button.back", tValue: "Back" },
     browse_files: {
       tKey: "common:button.browse_files",
       tValue: "Browse...",
     },
+    cancel: { tKey: "common:button.back", tValue: "Cancel" },
     continue: { tKey: "common:button.continue", tValue: "Continue" },
     explore_funstakes: {
       tKey: "common:button.explore_funstakes",
@@ -39,14 +514,6 @@ export const common = {
       tValue: "{{value}}",
       interpolations: { value },
     }),
-    go_home: {
-      tKey: "common:button.go_home",
-      tValue: "Go Home",
-    },
-    go_to_funstakes: {
-      tKey: "common:button.go_to_funstakes",
-      tValue: "Go to funstakes.com",
-    },
     gallery_folder_fallback: {
       tKey: "common:input.label.gallery_folder_fallback",
       tValue: "Gallery",
@@ -54,6 +521,14 @@ export const common = {
     get_started: {
       tKey: "common:button.get_started",
       tValue: "Get Started",
+    },
+    go_home: {
+      tKey: "common:button.go_home",
+      tValue: "Go Home",
+    },
+    go_to_funstakes: {
+      tKey: "common:button.go_to_funstakes",
+      tValue: "Go to funstakes.com",
     },
     grant_permission: {
       tKey: "common:button.grant_permission",
@@ -71,13 +546,17 @@ export const common = {
       tKey: "common:button.request_access",
       tValue: "Access",
     },
-    show_more: {
-      tKey: "common:button.show_more",
-      tValue: "Show more",
+    reset_password: {
+      tKey: "common:button.reset_password",
+      tValue: "Reset password",
     },
     show_less: {
       tKey: "common:button.show_less",
       tValue: "Show less",
+    },
+    show_more: {
+      tKey: "common:button.show_more",
+      tValue: "Show more",
     },
     skip: {
       tKey: "common:button.skip",
@@ -90,10 +569,6 @@ export const common = {
     switch_mode: {
       tKey: "common:button.switch_mode",
       tValue: "Switch mode",
-    },
-    reset_password: {
-      tKey: "common:butto.reset_password",
-      tValue: "Reset password",
     },
     view_terms: {
       tKey: "common:button.view_terms",
@@ -211,13 +686,13 @@ export const common = {
       tValue: "Join millions of stakers on {{name}}",
       interpolations: { name: "Funstakes" },
     },
-    network_error_tagline: {
-      tKey: "common:feedback.network_error_tagline",
-      tValue: "Something went wrong, check your network and retry",
-    },
     network_connection_failed: {
       tKey: "common:feedback.network_error",
       tValue: "Network connection failed, try again.",
+    },
+    network_error_tagline: {
+      tKey: "common:feedback.network_error_tagline",
+      tValue: "Something went wrong, check your network and retry",
     },
     network_glitch_headline: {
       tKey: "common:feedback.network_glitch_headline",
@@ -256,18 +731,6 @@ export const common = {
       tKey: "common:feedback.retrieving_connection",
       tValue: "Retrieving connection...",
     },
-    server_request_successful: {
-      tKey: "common:feedback.server_request_successful",
-      tValue: "Server request successful",
-    },
-    those_following_you: {
-      tKey: "common:feedback.those_following_you",
-      tValue: "Those following you",
-    },
-    trends_missed: {
-      tKey: "common:feedback.trends_missed",
-      tValue: "Trends you might have missed while away.",
-    },
     seem_to_be_offline_headline: {
       tKey: "common:feedback.seem_to_be_offline_headline",
       tValue: "You seem to be offline",
@@ -280,13 +743,25 @@ export const common = {
       tKey: "common:feedback.server_error",
       tValue: "An error occurred. Please try again.",
     },
-    sign_up_to_funstakes: {
-      tKey: "common:feedback.sign_up_to_funstake",
-      tValue: "Sign up to Funstakes",
+    server_request_successful: {
+      tKey: "common:feedback.server_request_successful",
+      tValue: "Server request successful",
+    },
+    sign_in_to_funstakes: {
+      tKey: "common:feedback.sign_in_to_funstakes",
+      tValue: "Sign in to Funstakes",
     },
     sync_error: {
       tKey: "common:feedback.sync_error",
       tValue: "An error occurred during sync",
+    },
+    those_following_you: {
+      tKey: "common:feedback.those_following_you",
+      tValue: "Those following you",
+    },
+    trends_missed: {
+      tKey: "common:feedback.trends_missed",
+      tValue: "Get up to speed",
     },
     under_maintenance_headline: {
       tKey: "common:feedback.under_maintenance_headline",
@@ -326,22 +801,49 @@ export const common = {
     }),
   },
 
+  input: {
+    helper_text: {
+      gist_add_caption: {
+        tKey: "common:input.helper_text.gist_add_caption",
+        tValue: "Type here...",
+      },
+    },
+    label: {
+      gist_add_caption: {
+        tKey: "common:input.label.gist_add_caption",
+        tValue: "What's happening?",
+      },
+    },
+    placeholder: {
+      choose_media_file: {
+        tKey: "common:input.placeholder.choose_media_file",
+        tValue: "Choose media file dependencies...",
+      },
+      gist_add_caption: {
+        tKey: "common:input.placeholder.gist_add_caption",
+        tValue: "Share your social discovery or insights...",
+      },
+      media_files_selected: (count: number) => ({
+        tKey: "common:input.placeholder.media_files_selected",
+        tValue: "{{count}} files selected",
+        interpolations: { count },
+      }),
+      search: { tKey: "common:input.placeholder.search", tValue: "Explore" },
+    },
+  },
+
   input_validation: {
     atleast_one_digit: {
       tKey: "common:input_validation.atleast_one_digit",
       tValue: "Must contain at least one numeric digit",
     },
-    atleast_one_uppercase: {
-      tKey: "common:input_validation.atleast_one_uppercase",
-      tValue: "Include at least one uppercase letter",
-    },
     atleast_one_special_character: {
       tKey: "common:input_validation.atleast_one_special_character",
       tValue: "Include one special character (e.g., @, $, !)",
     },
-    credential_required: {
-      tKey: "common:input_validation.credential_required",
-      tValue: "Credential is required",
+    atleast_one_uppercase: {
+      tKey: "common:input_validation.atleast_one_uppercase",
+      tValue: "Include at least one uppercase letter",
     },
     credential_too_short: {
       tKey: "common:input_validation.credential_too_short",
@@ -358,7 +860,7 @@ export const common = {
     },
     email_invalid_format: {
       tKey: "common:input_validation.email_invalid_format",
-      tValue: "Enter a valid email address (user@example.com).",
+      tValue: "Must be a valid email address (user@example.com).",
     },
     email_local_too_long: {
       tKey: "common:input_validation.email_local_too_long",
@@ -376,7 +878,14 @@ export const common = {
       tKey: "common:input_validation.email_valid",
       tValue: "Valid email address.",
     },
-
+    field_is_required: {
+      tKey: "common:input_validation.field_is_required",
+      tValue: "This field is required.",
+    },
+    invalid_input_value: {
+      tKey: "common:input_validation.invalid_input_value",
+      tValue: "Enter a valid value",
+    },
     length_range_3_to_25: {
       tKey: "common:input_validation.length_range_3_to_25",
       tValue: "Length must be between 3 and 25 characters",
@@ -481,38 +990,41 @@ export const common = {
     },
   },
 
-  input: {
-    helper_text: {
-      gist_add_caption: {
-        tKey: "common:input.helper_text.gist_add_caption",
-        tValue: "Type here...",
-      },
-    },
-    label: {
-      gist_add_caption: {
-        tKey: "common:input.label.gist_add_caption",
-        tValue: "What's happening?",
-      },
-    },
-    placeholder: {
-      choose_media_file: {
-        tKey: "common:input.placeholder.choose_media_file",
-        tValue: "Choose media file dependencies...",
-      },
-      gist_add_caption: {
-        tKey: "common:input.placeholder.gist_add_caption",
-        tValue: "Share your social discovery or insights...",
-      },
-      media_files_selected: (count: number) => ({
-        tKey: "common:input.placeholder.media_files_selected",
-        tValue: "{{count}} files selected",
-        interpolations: { count },
-      }),
-      search: { tKey: "common:input.placeholder.search", tValue: "Explore" },
-    },
-  },
-
   list_item: {
+    msg: {
+      country_empty: {
+        tKey: "common:list_item.msg.country_empty",
+        tValue: "No country found.",
+      },
+      country_no_match: {
+        tKey: "common:list_item.msg.country_no_match",
+        tValue: "No country matches your search.",
+      },
+      default_empty: {
+        tKey: "common:list_item.msg.default_empty",
+        tValue: "No items found.",
+      },
+      default_no_match: {
+        tKey: "common:list_item.msg.default_no_match",
+        tValue: "No results match your search.",
+      },
+      navigation_empty: {
+        tKey: "common:list_item.msg.navigation_empty",
+        tValue: "Navigation menu is empty.",
+      },
+      navigation_no_match: {
+        tKey: "common:list_item.msg.navigation_no_match",
+        tValue: "No menu items found.",
+      },
+      topics_empty: {
+        tKey: "common:list_item.msg.topics_empty",
+        tValue: "Add topics to this post.",
+      },
+      topics_no_match: {
+        tKey: "common:list_item.msg.topics_no_match",
+        tValue: "No matching topics.",
+      },
+    },
     nav: {
       about: { tKey: "common:list_item.nav.about", tValue: "About" },
       blogs: { tKey: "common:list_item.nav.blogs", tValue: "Blogs" },
@@ -550,40 +1062,6 @@ export const common = {
         tValue: "Verify Otp",
       },
       wallet: { tKey: "common:list_item.nav.wallet", tValue: "Wallet" },
-    },
-    msg: {
-      country_empty: {
-        tKey: "common:list_item.msg.country_empty",
-        tValue: "No country found.",
-      },
-      country_no_match: {
-        tKey: "common:list_item.msg.country_no_match",
-        tValue: "No country matches your search.",
-      },
-      navigation_empty: {
-        tKey: "common:list_item.msg.navigation_empty",
-        tValue: "Navigation menu is empty.",
-      },
-      navigation_no_match: {
-        tKey: "common:list_item.msg.navigation_no_match",
-        tValue: "No menu items found.",
-      },
-      topics_empty: {
-        tKey: "common:list_item.msg.topics_empty",
-        tValue: "Add topics to this post.",
-      },
-      topics_no_match: {
-        tKey: "common:list_item.msg.topics_no_match",
-        tValue: "No matching topics.",
-      },
-      default_empty: {
-        tKey: "common:list_item.msg.default_empty",
-        tValue: "No items found.",
-      },
-      default_no_match: {
-        tKey: "common:list_item.msg.default_no_match",
-        tValue: "No results match your search.",
-      },
     },
   },
 
@@ -660,476 +1138,21 @@ export const common = {
   },
 
   tour_guides: {
-    new_user_begin_label: {
-      tKey: "common:tour_guides.new_user_begin_label",
-      tValue: "Welcome to the platform!",
-    },
     new_user_begin_desc: {
       tKey: "common:tour_guides.new_user_begin_desc",
       tValue: "Let's get you started",
     },
-    new_user_post_label: {
-      tKey: "common:tour_guides.new_user_post_label",
-      tValue: "Create a post",
+    new_user_begin_label: {
+      tKey: "common:tour_guides.new_user_begin_label",
+      tValue: "Welcome to the platform!",
     },
     new_user_post_desc: {
       tKey: "common:tour_guides.new_user_post_desc",
       tValue: "To create a post, simply use the icon in the sidebar.",
     },
-  },
-} as const;
-
-/**
- * Authentication handling structures. Extracts to ../../../locale/versions/en/auth.json
- */
-export const auth = {
-  button: {
-    change_credential: {
-      tKey: "auth:button.change_credential",
-      tValue: "Change credential",
-    },
-    create_account: {
-      tKey: "auth:button.create_account",
-      tValue: "Create account",
-    },
-    login: { tKey: "auth:button.login", tValue: "Login" },
-    login_now: {
-      tKey: "auth:button.login_now",
-      tValue: "Login Now",
-    },
-    logout: { tKey: "auth:button.logout", tValue: "Logout" },
-    logout_not_really: {
-      tKey: "auth:button.logout_not_really",
-      tValue: "Not really",
-    },
-    logout_sure_i_do: {
-      tKey: "auth:button.logout_sure_i_do",
-      tValue: "Sure I do",
-    },
-    otp_switch_channel: (channel: string) => ({
-      tKey: "auth:button.otp_switch_channel",
-      tValue: "Send code via {{channel}}",
-      interpolations: { channel },
-    }),
-    otp_resend_code_in_seconds: (seconds: number) => ({
-      tKey: "auth:button.otp_resend_code_in_seconds",
-      tValue: "Resend in {{seconds}}s",
-      interpolations: { seconds },
-    }),
-    otp_resend_code_now: {
-      tKey: "auth:button.otp_resend_code_now",
-      tValue: "Resend Now",
-    },
-    otp_verify_code: {
-      tKey: "auth:button.otp_verify_code",
-      tValue: "Verify code",
-    },
-    proceed: { tKey: "auth:button.proceed", tValue: "Proceed" },
-    restore_account: {
-      tKey: "auth:button.restore_account",
-      tValue: "Restore Account",
-    },
-    resume: {
-      tKey: "auth:button.resume",
-      tValue: "Resume",
-    },
-    retry_translation: {
-      tKey: "auth:button.retry_translation",
-      tValue: "Retry translation",
-    },
-    reset_password: {
-      tKey: "auth:button.reset_password",
-      tValue: "Reset password",
-    },
-    see_original: {
-      tKey: "auth:button.see_original",
-      tValue: "See original",
-    },
-    see_translation: {
-      tKey: "auth:button.see_translation",
-      tValue: "See Translation",
-    },
-    set_password: {
-      tKey: "auth:button.set_password",
-      tValue: "Set password",
-    },
-    signup: { tKey: "auth:button.signup", tValue: "Sign up" },
-    use_authenticator: {
-      tKey: "auth:button.use_authenticator",
-      tValue: "Use Authenticator",
-    },
-    verify_with_email_phone: {
-      tKey: "auth:button.verify_with_email_phone",
-      tValue: "Verify with Email / Phone",
-    },
-  },
-
-  feedback: {
-    account_deactivated_headline: {
-      tKey: "auth:feedback.account_deactivated_headline",
-      tValue: "Account is Deactivated",
-    },
-    account_deactivated_tagline: {
-      tKey: "auth:feedback.account_deactivated_tagline",
-      tValue: "To restore it, click the 'Restore account' button",
-    },
-    account_suspended_headline: {
-      tKey: "auth:feedback.account_suspended_headline",
-      tValue: "Account Suspended",
-    },
-    account_suspended_tagline: {
-      tKey: "auth:feedback.account_suspended_tagline",
-      tValue: "Your account has been suspended for violating our terms.",
-    },
-    already_have_an_account: {
-      tKey: "auth:feedback.already_have_an_account",
-      tValue: "Already have an account?",
-    },
-    already_signed_in_headline: {
-      tKey: "auth:feedback.already_signed_in_headline",
-      tValue: "You are already signed in",
-    },
-    already_signed_in_tagline: {
-      tKey: "auth:feedback.already_signed_in_tagline",
-      tValue: "Return to funstakes.com or logout",
-    },
-    confirm_identity: {
-      tKey: "auth:feedback.confirm_identity",
-      tValue: "Confirm your identity",
-    },
-    reset_your_password: {
-      tKey: "auth:feedback.reset_your_password",
-      tValue: "Reset your password",
-    },
-    lets_confirm_its_you: {
-      tKey: "auth:feedback.lets_confirm_its_you",
-      tValue:
-        "Enter your email or phone number below to authorize a password reset.",
-    },
-    set_new_password_headline: {
-      tKey: "auth:feedback.set_new_password_headline",
-      tValue: "Set a new password",
-    },
-    set_new_password_tagline: {
-      tKey: "auth:feedback.set_new_password_tagline",
-      tValue: "Now you can create a new unique password for your account",
-    },
-    logout_confirmation: {
-      tKey: "auth:feedback.logout_confirmation",
-      tValue: "Do you really want to logout?",
-    },
-    enter_password_to_login: {
-      tKey: "auth:feedback.enter_password_to_login",
-      tValue: "Enter your password to login.",
-    },
-    few_minutes_to_setup_account: {
-      tKey: "auth:feedback.few_minutes_to_setup_account",
-      tValue: "It only takes a few minutes to set up your account.",
-    },
-    finish_setting_up_headline: {
-      tKey: "auth:feedback.finish_setting_up_headline",
-      tValue: "Finish Setting Up",
-    },
-    finish_setting_up_tagline: {
-      tKey: "auth:feedback.finish_setting_up_tagline",
-      tValue:
-        "You're almost there! Complete your profile setup to unlock full access to all features.",
-    },
-    incorrect_password_attempts_one: (count: number) => ({
-      tKey: "auth:feedback.incorrect_password_attempts_one",
-      tValue:
-        "<strong>Incorrect password. </strong>You have <span>{{count}}</span> attempt left before your login is temporarily locked.",
-      interpolations: { count },
-    }),
-    incorrect_password_attempts_many: (count: number) => ({
-      tKey: "auth:feedback.incorrect_password_attempts_many",
-      tValue:
-        "<strong>Incorrect password. </strong>You have <span>{{count}}</span> attempts left before your login is temporarily locked.",
-      interpolations: { count },
-    }),
-    login_activated_tagline: {
-      tKey: "auth:feedback.login_activated_tagline",
-      tValue: "Login Activated",
-    },
-    login_failed: {
-      tKey: "auth:feedback.login_failed",
-      tValue: "Login failed. Please verify your entries.",
-    },
-    new_code_sent_tagline: (channel: string) => ({
-      tKey: "auth:feedback.new_code_sent_tagline",
-      tValue: "A new code has been sent to your {{channel}}.",
-      interpolations: { channel },
-    }),
-    no_account_found_email: {
-      tKey: "auth:feedback.no_account_found_email",
-      tValue: "We couldn't find an account with the email address.",
-    },
-    no_account_found_phone: {
-      tKey: "auth:feedback.no_account_found_phone",
-      tValue: "We couldn't find an account with the phone number.",
-    },
-    no_account_found_username: {
-      tKey: "auth:feedback.no_account_found_username",
-      tValue: "We couldn't find an account with the username.",
-    },
-    no_verification_sesion_found: {
-      tKey: "auth:feedback.no_verification_sesion_found",
-      tValue: "No OTP verification session found",
-    },
-    no_password_reset_sesion_found: {
-      tKey: "auth:feedback.no_password_reset_sesion_found",
-      tValue: "No password reset session found",
-    },
-    no_required_onboarding_headline: {
-      tKey: "auth:feedback.no_required_onboarding_headline",
-      tValue: "No Required Onboarding",
-    },
-    no_required_onboarding_tagline: {
-      tKey: "auth:feedback.no_required_onboarding_tagline",
-      tValue: "You have already completed the onboarding step.",
-    },
-    return_home: {
-      tKey: "auth:feedback.return_home",
-      tValue: "Please return to Home or the previous page",
-    },
-    no_email_or_phone: (nextChannel: string) => ({
-      tKey: "auth:feedback.no_email_or_phone",
-      tValue: "No {{nextChannel}} found on your profile.",
-      interpolations: { nextChannel },
-    }),
-    or_sign_up_with: {
-      tKey: "auth:feedback.or_sign_up_with",
-      tValue: "Or sign up with",
-    },
-    or_sign_in_with: {
-      tKey: "auth:feedback.or_sign_in_with",
-      tValue: "Or sign in with",
-    },
-    otp_code_sent: (recipient: string) => ({
-      tKey: "auth:feedback.otp_code_sent",
-      tValue: "We sent a 6-digit code to <strong>{{recipient}}</strong>",
-      interpolations: { recipient },
-    }),
-    otp_didnt_receive_code: {
-      tKey: "auth:feedback.otp_didnt_receive_code",
-      tValue: "Didn't receive a code?",
-    },
-    otp_invalid_code: {
-      tKey: "auth:feedback.otp_invalid_code",
-      tValue: "Invalid code.",
-    },
-    otp_missing_session: {
-      tKey: "auth:feedback.otp_missing_session",
-      tValue: "Missing otp session data.",
-    },
-    otp_send_code_failed: {
-      tKey: "auth:feedback.otp_send_code_failed",
-      tValue: "Failed to send code.",
-    },
-    password_locked: (timerValue: string) => ({
-      tKey: "auth:feedback.password_locked",
-      tValue:
-        "You've exceeded the maximum login attempts. Try again in <timer>{{timerValue}}</timer>. Or reset your password.",
-      interpolations: { timerValue },
-    }),
-    passwords_do_not_match: {
-      tKey: "auth:feedback.passwords_do_not_match",
-      tValue: "Passwords do not match",
-    },
-    password_reset_initiation_failed: {
-      tKey: "auth:feedback.password_reset_initiation_failed",
-      tValue: "Failed to initiate password reset.",
-    },
-    password_reset_not_allowed_headline: {
-      tKey: "auth:feedback.password_reset_not_allowed_headline",
-      tValue: "Password reset not allowed",
-    },
-    password_reset_not_allowed_tagline: {
-      tKey: "auth:feedback.password_reset_not_allowed_tagline",
-      tValue:
-        "Password reset is not allowed for users who are not logged out. Please log out to initiate a reset.",
-    },
-    password_reset_finalization_failed: {
-      tKey: "auth:feedback.password_reset_finalization_failed",
-      tValue: "Failed to finalize password reset.",
-    },
-    password_reset_successful_headline: {
-      tKey: "auth:feedback.password_reset_successful_headline",
-      tValue: "Pasword reset successful",
-    },
-    password_reset_successful_tagline: {
-      tKey: "auth:feedback.password_reset_successful_tagline",
-      tValue:
-        "You have successfully reset your password. Login to start staking.",
-    },
-    registration_failed: {
-      tKey: "auth:feedback.registration_failed",
-      tValue: "Registration failed. Please verify your entries.",
-    },
-    resume_account_setup: {
-      tKey: "auth:feedback.resume_account_setup",
-      tValue:
-        "It looks like you didn't finish setting up your account. Pick up right where you left off to get started with Funstakes.",
-    },
-    security_details_updated_tagline: {
-      tKey: "auth:feedback.security_details_updated_tagline",
-      tValue: "Security details updated successfully.",
-    },
-    server_error: {
-      tKey: "auth:feedback.server_error",
-      tValue: "An unexpected error occurred during verification",
-    },
-    session_expired: {
-      tKey: "auth:feedback.security_details_updated_tagline",
-      tValue: "Your session has expired. Please log in again.",
-    },
-    setup_legal_names_username: {
-      tKey: "auth:feedback.session_expired",
-      tValue: "Set up your legal names and unique username.",
-    },
-    unsupported_verification_method: {
-      tKey: "auth:feedback.unsupported_verification_method",
-      tValue: "Unsupported verification method.",
-    },
-    user_account_deactivated_tagline: {
-      tKey: "auth:feedback.user_account_deactivated_tagline",
-      tValue:
-        "Your account is currently inactive. Please proceed to the restoration page to recover your access.",
-    },
-    verify_your_account_headline: {
-      tKey: "auth:feedback.verify_your_account_headline",
-      tValue: "Verify your account",
-    },
-    verify_your_account_tagline: {
-      tKey: "auth:feedback.verify_your_account_tagline",
-      tValue:
-        "You're almost there! Complete your verification process to unlock full access to Funstakes.",
-    },
-    verification_successful_tagline: {
-      tKey: "auth:feedback.verification_successful_tagline",
-      tValue: "Verification successful!",
-    },
-    verify_code_from_auth_app_headline: {
-      tKey: "auth:feedback.verify_code_from_auth_app_headline",
-      tValue: "Verify with app authenticator",
-    },
-    verify_code_from_auth_app_tagline: {
-      tKey: "auth:feedback.verify_code_from_auth_app_tagline",
-      tValue:
-        "Enter the 6-digit code displayed within your multi-factor authenticator application profile.",
-    },
-    verify_your_credential: (credType: string) => ({
-      tKey: "auth:feedback.verify_your_credential",
-      tValue: "Verify your {{credType}}",
-      interpolations: { credType },
-    }),
-  },
-  input: {
-    helper_text: {
-      first_name_required: {
-        tKey: "auth:input.helper_text.first_name_required",
-        tValue: "First name is required",
-      },
-      last_name_required: {
-        tKey: "auth:input.helper_text.last_name_required",
-        tValue: "Last name is required",
-      },
-      otp_verify_code: {
-        tKey: "auth:input.helper_text.otp_verify_code",
-        tValue: "",
-      },
-    },
-    label: {
-      confirm_password: {
-        tKey: "auth:input.label.confirm_password",
-        tValue: "Confirm Password",
-      },
-      email_address: {
-        tKey: "auth:input.label.email_address",
-        tValue: "Email Address",
-      },
-      email_phone_username: {
-        tKey: "auth:input.label.email_phone_username",
-        tValue: "Email, Phone or Username",
-      },
-      email__or_phone: {
-        tKey: "auth:input.label.email_or_phone",
-        tValue: "Email or Phone",
-      },
-      enter_code: {
-        tKey: "auth:input.label.enter_code",
-        tValue: "Enter code",
-      },
-      first_name: {
-        tKey: "auth:input.label.first_name",
-        tValue: "First name",
-      },
-      last_name: {
-        tKey: "auth:input.label.last_name",
-        tValue: "Last name",
-      },
-      otp_verify_code: {
-        tKey: "auth:input.label.otp_verify_code",
-        tValue: "",
-      },
-      password: {
-        tKey: "auth:input.label.password",
-        tValue: "Password",
-      },
-      phone_number: {
-        tKey: "auth:input.label.phone_number",
-        tValue: "Phone number",
-      },
-      phone_optional: {
-        tKey: "auth:input.label.phone_optional",
-        tValue: "Phone number (Optional)",
-      },
-      username: {
-        tKey: "auth:input.label.username",
-        tValue: "Username",
-      },
-    },
-    placeholder: {
-      create_password: {
-        tKey: "auth:input.placeholder.create_password",
-        tValue: "Create password",
-      },
-      create_username: {
-        tKey: "auth:input.placeholder.create_username",
-        tValue: "Create username",
-      },
-      email_phone_username: {
-        tKey: "auth:input.placeholder.email_phone_username",
-        tValue: "Email address, phone or username",
-      },
-      email_or_phone: {
-        tKey: "auth:input.placeholder.email_or_phone",
-        tValue: "Email address, or phone number",
-      },
-      enter_first_name: {
-        tKey: "auth:input.placeholder.enter_first_name",
-        tValue: "Enter first name",
-      },
-      enter_last_name: {
-        tKey: "auth:input.placeholder.enter_last_name",
-        tValue: "Enter last name",
-      },
-      enter_password: {
-        tKey: "auth:input.placeholder.enter_password",
-        tValue: "Password",
-      },
-      enter_your_email: {
-        tKey: "auth:input.placeholder.enter_your_email",
-        tValue: "Enter your email",
-      },
-      phone_example: {
-        tKey: "auth:input.placeholder.phone_example",
-        tValue: "e.g. +1234567890",
-      },
-      re_enter_password: {
-        tKey: "auth:input.label.re_enter_password",
-        tValue: "Re-enter your password",
-      },
+    new_user_post_label: {
+      tKey: "common:tour_guides.new_user_post_label",
+      tValue: "Create a post",
     },
   },
 } as const;
@@ -1158,6 +1181,7 @@ export const post = {
       tValue: "Syncing post...",
     },
   },
+
   feedback: {
     categorization_taxonomy: {
       tKey: "post:feedback.categorization_taxonomy",
@@ -1215,6 +1239,11 @@ export const post = {
       tKey: "common:feedback.offline_feed_empty_tagline",
       tValue: "Can't find any post at this time.",
     },
+    post_content_validation: (postType: string = "Post") => ({
+      tKey: "post:feedback.post_content_validation",
+      tValue: "{{postType}} must contain either text content or media.",
+      interpolations: { postType },
+    }),
     post_deleted_tagline: {
       tKey: "common:feedback.post_deleted_tagline",
       tValue: "Post deleted by author.",
@@ -1222,11 +1251,6 @@ export const post = {
     post_settings: (postType: string = "Post") => ({
       tKey: "post:feedback.post_settings",
       tValue: "{{postType}} Settings",
-      interpolations: { postType },
-    }),
-    post_content_validation: (postType: string = "Post") => ({
-      tKey: "post:feedback.post_content_validation",
-      tValue: "{{postType}} must contain either text content or media.",
       interpolations: { postType },
     }),
     post_type_not_found: {
@@ -1252,26 +1276,27 @@ export const post = {
       interpolations: { postType },
     }),
   },
+
   info: {
-    post_views_one: (view: string) => ({
-      tKey: "post:info.post_views_one",
-      tValue: "{{view}} view",
-      interpolations: { view },
-    }),
-    post_views_many: (views: string) => ({
-      tKey: "post:info.post_views_many",
-      tValue: "{{views}} views",
-      interpolations: { views },
+    post_likes_many: (likes: string) => ({
+      tKey: "post:info.post_likes_many",
+      tValue: "{{likes}} likes",
+      interpolations: { likes },
     }),
     post_likes_one: (like: string) => ({
       tKey: "post:info.post_likes_one",
       tValue: "{{like}} like",
       interpolations: { like },
     }),
-    post_likes_many: (likes: string) => ({
-      tKey: "post:info.post_likes_many",
-      tValue: "{{likes}} likes",
-      interpolations: { likes },
+    post_views_many: (views: string) => ({
+      tKey: "post:info.post_views_many",
+      tValue: "{{views}} views",
+      interpolations: { views },
+    }),
+    post_views_one: (view: string) => ({
+      tKey: "post:info.post_views_one",
+      tValue: "{{view}} view",
+      interpolations: { view },
     }),
     topic_post_count: (count: string) => ({
       tKey: "post:info.topic_post_count",
@@ -1279,6 +1304,7 @@ export const post = {
       interpolations: { count },
     }),
   },
+
   input: {
     label: {
       create_post: (name: string = "") => ({
@@ -1286,13 +1312,13 @@ export const post = {
         tValue: "{{name}} express yourself today...",
         interpolations: { name },
       }),
-      whats_happening: {
-        tKey: "post:input.label.whats_happening",
-        tValue: "What's happening?",
-      },
       flag_sensitive_graphics: {
         tKey: "post:input.label.flag_sensitive_graphics",
         tValue: "Flag sensitive graphics (blur preview)",
+      },
+      whats_happening: {
+        tKey: "post:input.label.whats_happening",
+        tValue: "What's happening?",
       },
     },
     placeholder: {

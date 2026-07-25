@@ -43,9 +43,7 @@ export const getUserPosts = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.POST.USER_POSTS_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.POST.USER_POSTS_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.POST.USER_POSTS_FALLBACK_ERROR,
       error,
     );
   }

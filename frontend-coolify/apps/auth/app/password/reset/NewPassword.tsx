@@ -11,7 +11,12 @@ import {
   UIGuide,
 } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
-import { AUTH_INPUT, AUTH_BUTTON_LABELS, AUTH_FEEDBACK } from "@repo/core";
+import {
+  AUTH_INPUT,
+  AUTH_BUTTON_LABELS,
+  AUTH_FEEDBACK,
+  COMMON_BUTTON_LABELS,
+} from "@repo/core";
 import { useStaticTranslation, useGuides } from "@repo/shared-hooks";
 import { useReset } from "./useReset";
 import { ResetStepProps } from "../../types";
@@ -36,53 +41,84 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
     confirmPassErrMsg,
     handlePasswordChange,
     handleConfirmChange,
-    isAuthLoading,
+    isNewPasswordLoading,
     inlineMsg,
     timeLeft,
     isNewPasswordSubmitDisabled,
+    handleResetCancel,
     handleNewPasswordSubmit,
   } = useReset({ step, setStep });
 
   return (
-    <Stack sx={{ width: "100%" }}>
-      <Stack>
+    <Stack sx={{ gap: theme.gap(10), alignItems: "center" }}>
+      <Stack
+        sx={{
+          width: "100%",
+          gap: theme.gap(8),
+          paddingBottom: theme.boxSpacing(8),
+        }}>
         <TransText
           {...AUTH_FEEDBACK.set_new_password_headline}
           component="h3"
           sx={{
-            ...theme.typography.h5,
+            ...theme.typography.h6,
             textAlign: "center",
             ...style.headline,
           }}
         />
+        <TransText
+          {...AUTH_FEEDBACK.set_new_password_tagline}
+          component="p"
+          sx={{
+            ...theme.typography.text3,
+            textAlign: "center",
+            color: theme.palette.gray[200],
+          }}
+        />
+      </Stack>
+
+      {inlineMsg && <InlineMsgUI msg={inlineMsg} type="ERROR" />}
+
+      {/* Form */}
+      <Stack
+        sx={{ gap: theme.gap(8), width: "100%" }}
+        component="form"
+        onSubmit={handleNewPasswordSubmit}>
         <Stack
-          direction="row"
-          justifyContent="center"
-          gap={1}
-          sx={{ paddingBottom: theme.boxSpacing(8) }}>
-          <TransText
-            {...AUTH_FEEDBACK.set_new_password_tagline}
-            component="p"
-            sx={{ ...theme.typography.text3, color: theme.palette.gray[200] }}
-          />
+          sx={{
+            gap: theme.gap(8),
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}>
+          {/* Cancel CTA */}
+          <AppButton
+            variant="text"
+            size="small"
+            onClick={handleResetCancel}
+            options={{ disabled: isNewPasswordLoading }}
+            style={{
+              color: theme.palette.error.dark,
+            }}>
+            <TransText {...COMMON_BUTTON_LABELS.cancel} noComponent />
+          </AppButton>
+          {/* Timer */}
           <span
             style={{
-              ...theme.typography.text3,
-              color: theme.palette.error.main,
+              ...theme.typography.text4,
+              color: theme.palette.primary.dark,
+              background: theme.fixedColors.pTrans,
+              alignSelf: "center",
+              padding: theme.boxSpacing(3, 5),
+              borderRadius: theme.radius[2],
+              textAlign: "center",
               fontWeight: 700,
             }}>
             {Math.floor(timeLeft / 60)}:
             {(timeLeft % 60).toString().padStart(2, "0")}
           </span>
         </Stack>
-      </Stack>
 
-      {inlineMsg && <InlineMsgUI msg={inlineMsg} type="ERROR" />}
-
-      <Stack
-        sx={{ gap: theme.gap(18) }}
-        component="form"
-        onSubmit={handleNewPasswordSubmit}>
+        {/* Password */}
         <PasswordInput
           label={translateTxtString(AUTH_INPUT.label.password)}
           placeholder={translateTxtString(
@@ -103,7 +139,7 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
             />
           }
         />
-
+        {/* Confirm Password */}
         <PasswordInput
           label={translateTxtString(AUTH_INPUT.label.confirm_password)}
           placeholder={translateTxtString(
@@ -114,25 +150,24 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
           value={confirmPassword}
           error={confirmPassword !== "" && password !== confirmPassword}
         />
-
-        <AppButton
-          variant="contained"
-          submit
-          style={{
-            ...theme.typography.text3,
-            padding: theme.boxSpacing(6, 9),
-            width: "100%",
-          }}
-          options={{
-            disabled: isNewPasswordSubmitDisabled,
-          }}>
-          {isAuthLoading ? (
-            <ProgressIcon otherProps={{ size: 25 }} />
-          ) : (
-            <TransText {...AUTH_BUTTON_LABELS.reset_password} noComponent />
-          )}
-        </AppButton>
       </Stack>
+
+      {/* Submit CTA */}
+      <AppButton
+        variant="contained"
+        submit
+        style={{
+          width: "100%",
+        }}
+        options={{
+          disabled: isNewPasswordSubmitDisabled,
+        }}>
+        {isNewPasswordLoading ? (
+          <ProgressIcon otherProps={{ size: 25 }} />
+        ) : (
+          <TransText {...AUTH_BUTTON_LABELS.reset_password} noComponent />
+        )}
+      </AppButton>
     </Stack>
   );
 };

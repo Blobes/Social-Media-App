@@ -80,11 +80,7 @@ export const resolveCase = async (
     console.error("Moderation Case Resolution Error:", error);
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.ADMIN.MODERATION_RESOLUTION_THROWN_ERROR(
-            error.message,
-          )
-        : MESSAGES_REGISTRY.ADMIN.MODERATION_RESOLUTION_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.ADMIN.MODERATION_RESOLUTION_FALLBACK_ERROR,
       error,
     );
   }

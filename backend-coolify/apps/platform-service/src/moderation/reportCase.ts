@@ -55,14 +55,9 @@ export const reportCase = async (
     });
   } catch (error: any) {
     console.error("Content Flagging Operational Fault:", error);
-
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.ADMIN.MODERATION_FLAGGING_SYNC_THROWN_ERROR(
-            error.message,
-          )
-        : MESSAGES_REGISTRY.ADMIN.MODERATION_FLAGGING_SYNC_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.ADMIN.MODERATION_FLAGGING_SYNC_FALLBACK_ERROR,
       error,
     );
   }

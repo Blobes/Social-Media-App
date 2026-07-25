@@ -67,9 +67,7 @@ export const manageTopics = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.POST.POST_TOPICS_UPDATE_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.POST.POST_TOPICS_UPDATE_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.POST.POST_TOPICS_UPDATE_FALLBACK_ERROR,
       error,
     );
   }

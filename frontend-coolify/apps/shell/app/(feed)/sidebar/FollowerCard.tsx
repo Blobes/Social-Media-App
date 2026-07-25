@@ -75,10 +75,9 @@ export const FollowerCard = ({ follower }: FollowerProps) => {
 
       <AppButton
         variant="outlined"
+        size="x-small"
         options={{ disabled: isLoading }}
         style={{
-          ...theme.typography.text6,
-          padding: theme.boxSpacing(1, 5),
           borderColor: theme.palette.gray.trans[2],
         }}
         onClick={() => handleFollow(follower)}>

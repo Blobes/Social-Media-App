@@ -107,7 +107,7 @@ export const GlobalUIManager = ({
   // Determining if the app is still in its initial boot state
   const showLoaderUI =
     !isMounted.current ||
-    authStatus === "PENDING" ||
+    authStatus === "LOADING" ||
     networkStatus === "UNKNOWN" ||
     isNavigating ||
     isGlobalLoading;

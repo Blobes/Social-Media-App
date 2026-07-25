@@ -55,16 +55,22 @@ export const Reset: React.FC<ResetStepProps> = ({ style = {} }) => {
       sx={{
         backgroundColor: theme.palette.gray[0],
         borderRadius: theme.radius[5],
+        paddingY: theme.boxSpacing(14),
         justifyContent: "center",
         alignItems: "center",
         gap: theme.gap(10),
+        width: "40%",
+        maxWidth: 400,
         ...style.container,
         [theme.breakpoints.down("md")]: {
+          width: "60%",
+          maxWidth: "unset",
           flex: "none",
           ...style.container?.mdScreen,
         },
         [theme.breakpoints.down("sm")]: {
-          width: style.container?.smScreen,
+          width: "100%",
+          maxWidth: "unset",
         },
       }}>
       <Image

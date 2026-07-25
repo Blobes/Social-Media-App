@@ -52,12 +52,9 @@ export const initiatePasswordReset = async (
     });
   } catch (error: any) {
     console.error("Initiate Password Reset Instance Failure:", error);
-
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
       error,
     );
   }

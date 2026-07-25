@@ -77,6 +77,7 @@ export const LanguageSelector: React.FC = () => {
     <>
       <AppButton
         variant="text"
+        size="small"
         onClick={handleButtonClick}
         options={{
           disabled: isPending,

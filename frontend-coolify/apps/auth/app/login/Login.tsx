@@ -5,8 +5,6 @@ import { useTheme } from "@mui/material/styles";
 import { IStep, AuthStepName } from "@repo/core";
 import { Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
-import Image from "next/image";
-import { asset } from "@repo/assets";
 import { PasswordStep } from "./PasswordStep";
 import { IdentifierStep } from "./IdentifierStep";
 import { DisplayFeedbackUI } from "@repo/features";
@@ -70,7 +68,7 @@ export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
           width: style.container?.smScreen,
         },
       }}>
-      <Image
+      {/* <Image
         alt="logo"
         src={asset.logo}
         width={50}
@@ -79,7 +77,7 @@ export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
           borderRadius: `${theme.radius.full}`,
           flex: "none",
         }}
-      />
+      /> */}
       <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />
     </Stack>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSnackbar, useStaticTranslation } from "@repo/shared-hooks";
 import {
   TransitPurpose,
@@ -14,13 +14,18 @@ import { OtpRequest, OtpService, TFAPurpose } from "./service";
 import { useMutation } from "@tanstack/react-query";
 import { useFeedback } from "./useFeedback";
 import { stripToNumbers } from "@repo/helpers";
+import {
+  createVerificationStrategies,
+  executeVerificationStrategy,
+  resolveChannelRecipient,
+} from "./strategies";
 
 interface UseOtpOptions {
   dispatchOnload?: boolean;
 }
 
 /**
- * Manages OTP logic by decoupling the "Dumb" API calls from the "Smart" orchestration.
+ * Manages OTP logic by decoupling API mutations from orchestration strategies.
  */
 export const useOtp = <P extends TransitPurpose>(
   transitData?: OtpTransitData<P>[],
@@ -36,48 +41,64 @@ export const useOtp = <P extends TransitPurpose>(
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
   const inlineMsg = useGlobalStore((state) => state.inlineMsg);
   const { setSBMessage } = useSnackbar();
-  const { handleAuthOtpSuccess, onUpdateSuccess, handlePassSuccess } =
+  const { handleAuthOtpSuccess, onUpdateSuccess, handlePassResetSuccess } =
     useFeedback();
   const { translateTxtString } = useStaticTranslation();
 
   const [code, setCode] = useState("");
   const [timer, setTimer] = useState(0);
 
-  // Primary operational fallback values prioritized by active flow instance
   const activeTransit = transitData?.[0];
 
   const [channel, setChannel] = useState<OtpChannel>(
     activeTransit?.channel || "EMAIL",
   );
-  const [recipient, setRecipient] = useState(activeTransit?.identifier);
+  const [recipient, setRecipient] = useState<string | undefined>(
+    activeTransit?.identifier,
+  );
+
   const hasDispatchedOnLoad = useRef(false);
+  const initialIdentifierRef = useRef(activeTransit?.identifier);
 
   /**
-   * Action map strategy execution routing.
+   * Preserves initial identifier reference across modal state renders.
    */
-  const verificationStrategies: {
-    [K in TransitPurpose]: (payload: any, onSuccessCb?: () => void) => void;
-  } = {
-    ACCOUNT_VERIFICATION: (payload, onSuccessCb) =>
-      handleAuthOtpSuccess(payload, onSuccessCb),
-    ACCOUNT_UPDATE: () => onUpdateSuccess(),
-    IDENTIFIER_UPDATE: () => onUpdateSuccess(),
-    PASSWORD_RESET: () => handlePassSuccess(recipient),
-  };
+  useEffect(() => {
+    if (activeTransit?.identifier) {
+      initialIdentifierRef.current = activeTransit.identifier;
+    }
+  }, [activeTransit?.identifier]);
 
-  let isAuthPurpose =
+  /**
+   * Strategy lookup object created with dependency scope.
+   */
+  const verificationStrategies = useMemo(
+    () =>
+      createVerificationStrategies({
+        handleAuthOtpSuccess,
+        onUpdateSuccess,
+        handlePassResetSuccess,
+        recipient: recipient || initialIdentifierRef.current,
+      }),
+    [handleAuthOtpSuccess, onUpdateSuccess, handlePassResetSuccess, recipient],
+  );
+
+  const isAuthPurpose =
     activeTransit?.purpose === "ACCOUNT_VERIFICATION" ||
     activeTransit?.purpose === "PASSWORD_RESET";
 
   /**
-   * Hydrates state from transitData when available.
+   * Hydrates state from transitData without overriding user channel switches.
    */
   useEffect(() => {
-    if (activeTransit) {
-      setChannel(activeTransit.channel);
+    if (activeTransit?.identifier && !recipient) {
       setRecipient(activeTransit.identifier);
     }
-  }, [activeTransit]);
+    // Only hydrate channel if user has NOT switched to AUTHENTICATOR
+    if (activeTransit?.channel && channel !== "AUTHENTICATOR") {
+      setChannel(activeTransit.channel);
+    }
+  }, [activeTransit?.identifier, activeTransit?.channel, channel, recipient]);
 
   useEffect(() => {
     if (timer > 0) {
@@ -86,7 +107,7 @@ export const useOtp = <P extends TransitPurpose>(
     } else {
       setInlineMsg(null);
     }
-  }, [timer]);
+  }, [timer, setInlineMsg]);
 
   // Auto-dispatch logic on load
   useEffect(() => {
@@ -98,35 +119,7 @@ export const useOtp = <P extends TransitPurpose>(
         handleSendOtp();
       });
     }
-  }, [activeTransit?.identifier, options.dispatchOnload]);
-
-  /**
-   * Execution Layer: Dumb Verification Mutation
-   */
-  const { mutateAsync: executeVerify, isPending: isVerifying } = useMutation({
-    mutationFn: async (params: {
-      purpose: TransitPurpose;
-      method: () => Promise<any>;
-    }) => {
-      return await params.method();
-    },
-    onSuccess: (_, vars) => {
-      if (!activeTransit) return;
-
-      const executeStrategy = verificationStrategies[vars.purpose];
-      if (executeStrategy) {
-        executeStrategy(
-          activeTransit.payload,
-          activeTransit?.onVerificationSuccess,
-        );
-      }
-    },
-    onError: (error: ApiError) =>
-      setInlineMsg(
-        error.localizedErrMsg ||
-          translateTxtString(AUTH_FEEDBACK.otp_invalid_code),
-      ),
-  });
+  }, [activeTransit, options.dispatchOnload]);
 
   /**
    * Execution Layer: Dumb Dispatch Mutation
@@ -159,6 +152,27 @@ export const useOtp = <P extends TransitPurpose>(
   });
 
   /**
+   * Execution Layer: Dumb Verification Mutation
+   */
+  const { mutateAsync: executeVerify, isPending: isVerifying } = useMutation({
+    mutationFn: async (params: {
+      purpose: TransitPurpose;
+      method: () => Promise<any>;
+    }) => {
+      return await params.method();
+    },
+    onSuccess: () => {
+      if (!activeTransit) return;
+      executeVerificationStrategy(activeTransit, verificationStrategies);
+    },
+    onError: (error: ApiError) =>
+      setInlineMsg(
+        error.localizedErrMsg ||
+          translateTxtString(AUTH_FEEDBACK.otp_invalid_code),
+      ),
+  });
+
+  /**
    * Orchestration Layer: Verification
    */
   const handleVerify = useCallback(
@@ -173,7 +187,12 @@ export const useOtp = <P extends TransitPurpose>(
         );
       if (finalCode.length < 6) return;
 
-      const { purpose, identifier } = activeTransit;
+      const { purpose } = activeTransit;
+      const targetIdentifier =
+        activeTransit.identifier ||
+        recipient ||
+        initialIdentifierRef.current ||
+        "";
 
       const method = (() => {
         if (channel === "AUTHENTICATOR") {
@@ -184,11 +203,12 @@ export const useOtp = <P extends TransitPurpose>(
             verifyTFA({
               purpose: tFAPurpose,
               token: finalCode,
-              identifier,
+              identifier: targetIdentifier,
             });
         }
         if (isAuthPurpose)
-          return () => verifyOtp({ recipient: identifier, code: finalCode });
+          return () =>
+            verifyOtp({ recipient: targetIdentifier, code: finalCode });
         if (purpose === "IDENTIFIER_UPDATE") {
           return channel === "EMAIL"
             ? () => finalizeEmailUpdateOtp(finalCode)
@@ -208,11 +228,14 @@ export const useOtp = <P extends TransitPurpose>(
       code,
       channel,
       isAuthPurpose,
+      recipient,
       executeVerify,
       verifyOtp,
       finalizeEmailUpdateOtp,
       finalizePhoneUpdateOtp,
       verifyTFA,
+      setInlineMsg,
+      translateTxtString,
     ],
   );
 
@@ -223,56 +246,80 @@ export const useOtp = <P extends TransitPurpose>(
     (customRequest?: OtpRequest) => {
       if (channel === "AUTHENTICATOR") return;
       setInlineMsg(null);
+
       if (customRequest) {
+        setRecipient(customRequest?.recipient);
         return executeDispatch(customRequest);
       }
-      if (!recipient || !channel) return;
+
+      const targetRecipient =
+        recipient || activeTransit?.identifier || initialIdentifierRef.current;
+      if (!targetRecipient || !channel) return;
+
       executeDispatch({
-        recipient,
+        recipient: targetRecipient,
         purpose: activeTransit?.purpose ?? "ACCOUNT_VERIFICATION",
         channel,
       });
     },
-    [recipient, channel, timer, activeTransit, executeDispatch],
+    [recipient, channel, activeTransit, executeDispatch, setInlineMsg],
   );
 
   /**
    * Switches the active channel and immediately triggers a new OTP.
-   * This bypasses the 60s timer to allow immediate switching.
    */
-  const switchChannel = useCallback(() => {
-    if (!activeTransit?.payload) return;
-    const nextChannel: OtpChannel = channel === "EMAIL" ? "PHONE" : "EMAIL";
-
-    const nextDest = (() => {
-      if (isAuthPurpose) {
-        const user = activeTransit.payload as any;
-        return nextChannel === "PHONE" ? user.phoneNumber : user.email;
+  const switchChannel = useCallback(
+    (targetChannel?: OtpChannel) => {
+      if (!activeTransit) {
+        setInlineMsg(translateTxtString(AUTH_FEEDBACK.otp_send_code_failed));
+        return;
       }
-      return undefined;
-    })();
 
-    if (!nextDest) {
-      setSBMessage({
-        msg: {
-          tagline: translateTxtString(
-            AUTH_FEEDBACK.no_email_or_phone(nextChannel.toLowerCase()),
-          ),
-        },
+      const nextChannel: OtpChannel =
+        targetChannel ||
+        (channel === "AUTHENTICATOR"
+          ? activeTransit.channel || "EMAIL"
+          : channel === "EMAIL"
+            ? "PHONE"
+            : "EMAIL");
+
+      const nextDest = resolveChannelRecipient(
+        activeTransit,
+        nextChannel,
+        recipient || initialIdentifierRef.current,
+      );
+
+      if (!nextDest) {
+        setSBMessage({
+          msg: {
+            tagline: translateTxtString(
+              AUTH_FEEDBACK.no_email_or_phone(nextChannel.toLowerCase()),
+            ),
+          },
+        });
+        return;
+      }
+
+      setTimer(0);
+      setChannel(nextChannel);
+      setRecipient(nextDest);
+
+      handleSendOtp({
+        recipient: nextDest,
+        purpose: activeTransit.purpose,
+        channel: nextChannel,
       });
-      return;
-    }
-
-    setTimer(0);
-    setChannel(nextChannel);
-    setRecipient(nextDest);
-
-    handleSendOtp({
-      recipient: nextDest,
-      purpose: activeTransit.purpose,
-      channel: nextChannel,
-    });
-  }, [channel, activeTransit, isAuthPurpose, handleSendOtp, setSBMessage]);
+    },
+    [
+      channel,
+      activeTransit,
+      recipient,
+      handleSendOtp,
+      setSBMessage,
+      translateTxtString,
+      setInlineMsg,
+    ],
+  );
 
   /**
    * Explicitly switches the verification channel into Authenticator device mode.
@@ -281,7 +328,7 @@ export const useOtp = <P extends TransitPurpose>(
     setTimer(0);
     setChannel("AUTHENTICATOR");
     setInlineMsg(null);
-  }, []);
+  }, [setInlineMsg]);
 
   return {
     code,

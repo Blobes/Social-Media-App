@@ -93,7 +93,7 @@ interface GlobalState {
  */
 export const useGlobalStore = create<GlobalState>((set) => ({
   // Initial States
-  authStatus: "PENDING",
+  authStatus: "LOADING",
   authUser: null,
   isAuthLoading: false,
   accountStatus: "PENDING",

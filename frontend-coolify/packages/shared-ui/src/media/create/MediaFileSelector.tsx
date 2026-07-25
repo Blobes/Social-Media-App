@@ -274,6 +274,7 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
 
             <AppButton
               variant="text"
+              size="small"
               onClick={handleOpenFolderMenu}
               options={{
                 "aria-expanded": isMenuOpen,
@@ -281,7 +282,6 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
                 endIcon: <ChevronDown size={16} />,
               }}
               style={{
-                ...theme.typography.text5,
                 color: theme.palette.gray[300],
                 textTransform: "none",
               }}>
@@ -329,13 +329,6 @@ export const MediaFileSelector: React.FC<MediaFileSelectorProps> = ({
               onClick={handleConfirmSelection}
               options={{
                 disabled: selectedFiles.length === 0,
-              }}
-              style={{
-                borderRadius: theme.radius[4],
-                textTransform: "none",
-                fontWeight: "600",
-                padding: theme.boxSpacing(1, 6, 2, 6),
-                boxShadow: "none",
               }}>
               <TransText
                 {...COMMON_BUTTON_LABELS.add_selected_media}

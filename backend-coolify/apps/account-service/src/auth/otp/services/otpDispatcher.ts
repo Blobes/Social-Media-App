@@ -21,9 +21,9 @@ interface ISendOtpInput {
 }
 
 interface ISendOtpResult {
-  status: "SUCCESS";
+  status: "SUCCESS" | "USER_NOT_FOUND" | "INVALID_CHANNEL" | "COOLDOWN_ACTIVE";
   transInfo?: TransInfo;
-  payload: {
+  payload?: {
     recipient: string;
     channel: OtpType;
     purpose: VerificationPurpose;
@@ -44,12 +44,10 @@ export const executeOtpDispatch = async (
   const channel = setOtpChannel(normalized);
 
   if (!channel) {
-    const error = new Error(
-      MESSAGES_REGISTRY.AUTH.INVALID_EMAIL.message,
-    ) as any;
-    error.status = 400;
-    error.i18nKey = MESSAGES_REGISTRY.AUTH.INVALID_EMAIL.i18nKey;
-    throw error;
+    return {
+      status: "INVALID_CHANNEL",
+      transInfo: MESSAGES_REGISTRY.AUTH.INVALID_OTP_CHANNEL,
+    };
   }
 
   let user: IUserDocument | null = null;
@@ -60,17 +58,14 @@ export const executeOtpDispatch = async (
   }
 
   if (!user) {
-    const error = new Error(
+    const transMsg =
       channel === "EMAIL"
-        ? MESSAGES_REGISTRY.AUTH.EMAIL_NOT_FOUND.message
-        : MESSAGES_REGISTRY.AUTH.PHONE_NOT_FOUND.message,
-    ) as any;
-    error.status = 404;
-    error.i18nKey =
-      channel === "EMAIL"
-        ? MESSAGES_REGISTRY.AUTH.EMAIL_NOT_FOUND.message
-        : MESSAGES_REGISTRY.AUTH.PHONE_NOT_FOUND.i18nKey;
-    throw error;
+        ? MESSAGES_REGISTRY.AUTH.EMAIL_NOT_FOUND
+        : MESSAGES_REGISTRY.AUTH.PHONE_NOT_FOUND;
+    return {
+      status: "USER_NOT_FOUND",
+      transInfo: transMsg,
+    };
   }
 
   console.log(
@@ -82,7 +77,7 @@ export const executeOtpDispatch = async (
   if (workflow) {
     actionPayload = await workflow(
       user,
-      { userAgent, deviceToken, recipient: normalized },
+      { userAgent, deviceToken, recipient: normalized, channel },
       "DISPATCH_REQUEST",
     );
   }
@@ -93,13 +88,12 @@ export const executeOtpDispatch = async (
     const elapsed = (Date.now() - lastSentAt.getTime()) / 1000;
     if (elapsed < COOLDOWN_SECONDS) {
       const secondsLeft = Math.ceil(COOLDOWN_SECONDS - elapsed);
-      const error = new Error(
-        MESSAGES_REGISTRY.AUTH.RATE_LIMIT_ACTIVE(secondsLeft).message,
-      ) as any;
-      error.status = 429;
-      error.i18nKey =
-        MESSAGES_REGISTRY.AUTH.RATE_LIMIT_ACTIVE(secondsLeft).i18nKey;
-      throw error;
+      const transMsg = MESSAGES_REGISTRY.AUTH.RATE_LIMIT_ACTIVE(secondsLeft);
+      return {
+        status: "COOLDOWN_ACTIVE",
+        transInfo: transMsg,
+      };
+      // error.status = 429;
     }
   }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { DateType } from "@repo/core";
+import { clearCookies } from "./storage";
 
 export const formatDate = (
   dateValue: string | number | Date,
@@ -51,4 +52,29 @@ export const formatDate = (
     return `${Math.floor(diffInSeconds / 2592000)}mo`;
 
   return `${Math.floor(diffInSeconds / 31536000)}y`;
+};
+
+export const getLockRemaining = (
+  lockTimestamp: string | number | null,
+  maxMinutes: number,
+) => {
+  if (!lockTimestamp) return 0;
+  const timestamp =
+    typeof lockTimestamp === "string" ? Number(lockTimestamp) : lockTimestamp;
+  const elapsed = Date.now() - timestamp;
+  const remaining = maxMinutes * 60 * 1000 - elapsed;
+  return Math.max(0, Math.ceil(remaining / 1000)); // in seconds
+};
+
+/**
+ * Resets authentication lockout timestamps and attempt records.
+ */
+export const clearLoginLock = (): void => {
+  clearCookies(["loginLockTime", "loginAttempts"]);
+};
+
+export const formatRemainingTime = (seconds: number) => {
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+  return `${min}m ${sec}s`;
 };

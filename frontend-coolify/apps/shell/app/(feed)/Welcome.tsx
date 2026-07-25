@@ -35,6 +35,7 @@ export const Welcome = () => {
           sx={{ ...theme.typography.h5, textAlign: "center" }}
         />
         <AppButton
+          variant="contained"
           href={CLIENT_ROUTES.signup.path}
           onClick={() => navigateTo(CLIENT_ROUTES.signup, { savePage: false })}>
           <TransText {...COMMON_BUTTON_LABELS.get_started} noComponent />

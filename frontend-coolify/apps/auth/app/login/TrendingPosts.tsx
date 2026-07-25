@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { IPost, GenericStyle, COMMON_FEEDBACK, POST_INFO } from "@repo/core";
 import { useAdaptiveTime } from "@repo/shared-hooks";
 import { useTheme } from "@mui/material/styles";
@@ -44,14 +45,14 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
         minHeight: 300,
         alignItems: "flex-start",
         justifyContent: "flex-end",
-        borderRadius: theme.radius[5] || "24px",
+        borderRadius: 0,
         background: data.bgColor,
         ...(!hasMedia && applyBGPattern({ url: asset.bgNoise, contain: true })),
         gap: theme.gap(18),
-        padding: theme.boxSpacing(18, 16, 16, 16),
+        padding: theme.boxSpacing(18),
         [theme.breakpoints.down("sm")]: {
           gap: theme.gap(14),
-          padding: theme.boxSpacing(16, 14, 14, 14),
+          padding: theme.boxSpacing(16),
         },
       }}>
       {/* Background Visual Rendering Block */}
@@ -205,11 +206,12 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
       sx={{
         width: "50%",
         display: "flex",
+        position: "relative",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         gap: theme.gap(16),
-        padding: theme.boxSpacing(18, 20),
+        paddingBottom: theme.boxSpacing(5),
         margin: "0 auto",
         backgroundColor: theme.palette.gray[300],
         overflow: "hidden",
@@ -219,52 +221,51 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
           height: "100vh",
           minHeight: "fit-content",
           scrollSnapAlign: "start",
-          padding: theme.boxSpacing(20, 10),
           flex: "none",
           ...style?.container?.smallScreen,
         },
       }}>
+      <Image
+        alt="logo"
+        src={asset.logo}
+        width={44}
+        height={44}
+        style={{
+          borderRadius: `${theme.radius.full}`,
+          flex: "none",
+          position: "absolute",
+          zIndex: 5,
+          top: theme.gap(10),
+          left: theme.gap(18),
+        }}
+      />
       {isLoading ? (
         <PostSkeleton
           quantity={1}
           bgColor={theme.palette.gray.trans.overlay(0.08)}
         />
       ) : carouselItems.length > 0 ? (
-        <>
-          <TransText
-            {...COMMON_FEEDBACK.trends_missed}
-            component="h5"
-            sx={{
-              ...theme.typography.h6,
-              width: "100%",
-              color: theme.palette.primary.light,
-              textAlign: "center",
-            }}
-          />
-          <LinearCarousel
-            items={carouselItems}
-            autoPlay
-            pauseOnHover
-            interval={7000}
-            style={{
-              container: {
-                width: "35cqw",
-                height: "76%",
-                [theme.breakpoints.only("md")]: {
-                  width: "40cqw",
-                  height: "60%",
-                },
-                [theme.breakpoints.down("md")]: {
-                  width: "100cqw",
-                },
-              },
-            }}
-          />
-        </>
+        <LinearCarousel
+          items={carouselItems}
+          autoPlay
+          pauseOnHover
+          interval={7000}
+          style={{
+            viewport: {
+              paddingX: theme.gap(0),
+              gap: theme.gap(0),
+            },
+          }}
+        />
       ) : (
         <>
           <Quote size={50} />
-          <Stack gap={theme.gap(8)} alignItems="center">
+          <Stack
+            sx={{
+              gap: theme.gap(8),
+              alignItems: "center",
+              padding: theme.boxSpacing(18),
+            }}>
             <TransText
               {...COMMON_FEEDBACK.quote1}
               component="h6"

@@ -71,9 +71,7 @@ export const deleteAccount = async (
     console.error("Account Deletion Error:", error);
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.AUTH.ACCOUNT_DELETION_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.AUTH.ACCOUNT_DELETION_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.AUTH.ACCOUNT_DELETION_FALLBACK_ERROR,
       error,
     );
   }

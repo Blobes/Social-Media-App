@@ -76,7 +76,7 @@ export const LinearCarousel = ({
         flexDirection: "column",
         width: "100%",
         height: "100%",
-        gap: theme.gap(8),
+        gap: theme.gap(5),
         flex: "none",
         userSelect: "none",
         ...style?.container,

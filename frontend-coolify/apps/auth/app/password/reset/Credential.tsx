@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Stack } from "@mui/material";
+import { Divider, Stack } from "@mui/material";
 import {
   AppButton,
   TextInput,
@@ -22,7 +22,7 @@ import {
   LISTS,
   ListType,
 } from "@repo/core";
-import { CircleQuestionMark } from "lucide-react";
+import { ArrowLeft, CircleQuestionMark } from "lucide-react";
 import { useGuides, useStaticTranslation } from "@repo/shared-hooks";
 import { useReset } from "./useReset";
 import { ResetStepProps } from "../../types";
@@ -47,24 +47,33 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
     setInput,
     validity,
     validationMsg,
-    isAuthLoading,
+    isStandardLoading,
+    isTFALoading,
     handleChange,
-    isSubmitDisabled,
+    isResetInitSubmitDisabled: isSubmitDisabled,
     countryMenuRef,
+    inlineMsg,
     validateAndSet,
     handleStandardSubmit,
     handleTFASubmit,
-    inlineMsg,
+    handleBack,
   } = useReset({ existingInput, step, setStep });
 
   return (
-    <Stack gap={theme.gap(8)} sx={{ width: "100%" }}>
-      <Stack gap={theme.gap(8)} sx={{ paddingBottom: theme.boxSpacing(6) }}>
+    <Stack
+      sx={{
+        gap: theme.gap(10),
+      }}>
+      <Stack
+        sx={{
+          paddingBottom: theme.boxSpacing(18),
+          gap: theme.gap(8),
+        }}>
         <TransText
           {...AUTH_FEEDBACK.reset_your_password}
           component="h3"
           sx={{
-            ...theme.typography.h5,
+            ...theme.typography.h6,
             color: theme.palette.gray[300],
             textAlign: "center",
             ...style.headline,
@@ -84,8 +93,9 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
 
       {inlineMsg && <InlineMsgUI msg={inlineMsg} type="ERROR" />}
 
+      {/* Form */}
       <Stack
-        sx={{ gap: theme.gap(10) }}
+        sx={{ gap: theme.gap(20) }}
         component="form"
         onSubmit={handleStandardSubmit}>
         <TextInput
@@ -97,33 +107,12 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
           onChange={handleChange}
           helperText={validationMsg}
           error={input !== "" && validity === "INVALID"}
-          affix={
-            <BasicTooltip
-              title={
-                <CredentialGuide
-                  guides={[
-                    INPUT_GUIDES.EMAIL,
-                    INPUT_GUIDES.PHONE,
-                    INPUT_GUIDES.USERNAME,
-                  ]}
-                />
-              }>
-              <Stack
-                sx={{
-                  cursor: "pointer",
-                  borderRadius: theme.radius.full,
-                  alignSelf: "center",
-                  flex: "none",
-                  padding: theme.boxSpacing(1),
-                  "&:hover": { backgroundColor: theme.palette.gray.trans[1] },
-                }}>
-                <CircleQuestionMark size={18} />
-              </Stack>
-            </BasicTooltip>
+          tooltipGuide={
+            <CredentialGuide
+              guides={[INPUT_GUIDES.EMAIL, INPUT_GUIDES.PHONE]}
+            />
           }
-          affixPosition="end"
         />
-
         <CountryList<ICountryItem>
           menuRef={countryMenuRef}
           list={COUNTRY_LIST}
@@ -150,33 +139,57 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
           }}
         />
 
-        <Stack gap={theme.gap(4)}>
+        <Stack sx={{ gap: theme.gap(10), alignItems: "center" }}>
+          {/* OTP Submit CTA */}
           <AppButton
             variant="contained"
             submit
             style={{
-              ...theme.typography.text3,
-              padding: theme.boxSpacing(5.5, 9),
               width: "100%",
             }}
             options={{ disabled: isSubmitDisabled }}>
-            {isAuthLoading ? (
+            {isStandardLoading ? (
               <ProgressIcon otherProps={{ size: 25 }} />
             ) : (
               <TransText {...COMMON_BUTTON_LABELS.continue} noComponent />
             )}
           </AppButton>
 
+          {/*  TFA Submit CTA */}
           <AppButton
             variant="outlined"
             onClick={handleTFASubmit}
             style={{
-              ...theme.typography.text3,
-              padding: theme.boxSpacing(5.5, 9),
               width: "100%",
             }}
             options={{ disabled: isSubmitDisabled }}>
-            <TransText {...AUTH_BUTTON_LABELS.use_authenticator} noComponent />
+            {isTFALoading ? (
+              <ProgressIcon otherProps={{ size: 25 }} />
+            ) : (
+              <TransText
+                {...AUTH_BUTTON_LABELS.use_authenticator}
+                noComponent
+              />
+            )}
+          </AppButton>
+
+          {/* Back to Login CTA */}
+
+          <AppButton
+            variant="text"
+            size="small"
+            onClick={handleBack}
+            options={{ disabled: isStandardLoading || isTFALoading }}
+            style={{
+              color: theme.palette.primary.dark,
+              marginTop: theme.boxSpacing(6),
+              gap: theme.gap(3),
+            }}>
+            <ArrowLeft
+              size={20}
+              style={{ stroke: theme.palette.primary.dark }}
+            />
+            <TransText {...AUTH_BUTTON_LABELS.back_to_login} noComponent />
           </AppButton>
         </Stack>
       </Stack>

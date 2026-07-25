@@ -57,9 +57,7 @@ export const lookupTopics = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.POST.POST_TOPIC_LOOKUP_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.POST.POST_TOPIC_LOOKUP_FAILED,
+      MESSAGES_REGISTRY.POST.POST_TOPIC_LOOKUP_FAILED,
       error,
     );
   }

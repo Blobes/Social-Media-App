@@ -68,12 +68,7 @@ export const markPostAsSeen = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.POST.CREATION_THROWN_ERROR(
-            error.message,
-            msgPostType,
-          )
-        : MESSAGES_REGISTRY.POST.CREATION_FALLBACK_ERROR(msgPostType),
+      MESSAGES_REGISTRY.POST.CREATION_FALLBACK_ERROR(msgPostType),
       error,
     );
   }

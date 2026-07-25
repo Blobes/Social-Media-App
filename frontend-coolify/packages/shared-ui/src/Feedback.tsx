@@ -19,8 +19,8 @@ interface CTA {
 }
 
 interface FeedbackProps {
-  headline?: string;
-  tagline?: string;
+  headline?: React.ReactNode;
+  tagline?: React.ReactNode;
   icon?: React.ReactNode;
   style?: {
     container?: GenericStyle;
@@ -111,10 +111,9 @@ export const Feedback: React.FC<FeedbackProps> = ({
         (primaryCtaType === "BUTTON" ? (
           <AppButton
             variant={primaryCta.variant || "contained"}
+            size="small"
             {...primHref}
             style={{
-              ...theme.typography.text4,
-              padding: theme.boxSpacing(3, 7),
               margin: theme.boxSpacing(10, 0, 2, 0),
               ...style?.primaryCta,
             }}
@@ -133,9 +132,10 @@ export const Feedback: React.FC<FeedbackProps> = ({
         (secondaryCtaType === "BUTTON" ? (
           <AppButton
             variant="text"
+            size="small"
             onClick={secondaryCta.action}
             {...secHref}
-            style={{ padding: theme.boxSpacing(2, 6), ...style?.secondaryCta }}>
+            style={{ ...style?.secondaryCta }}>
             {secondaryCta.label}
           </AppButton>
         ) : (

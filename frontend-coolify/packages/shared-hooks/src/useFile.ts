@@ -169,20 +169,35 @@ export const useFileProcessingProgress = (files: File[]) => {
     >
   >({});
 
+  // Stable dependency mapping by extracting tracking details explicitly
+  const fileTrackers = useMemo(() => {
+    return files
+      .map((f) => ({
+        trackingId: (f as any).trackingId as string | undefined,
+        fileName: f.name,
+      }))
+      .filter((f): f is { trackingId: string; fileName: string } =>
+        Boolean(f.trackingId),
+      );
+  }, [files]);
+
+  const trackerKey = useMemo(() => {
+    return fileTrackers.map((t) => t.trackingId).join(",");
+  }, [fileTrackers]);
+
   useEffect(() => {
     const activeListeners: Array<{
       eventName: string;
       handler: (e: Event) => void;
     }> = [];
 
-    // Pre-initialize tracking structures for newly appended files in a single pass
+    // Pre-initialize tracking records for active IDs in a single pass
     setProcessingStates((prev) => {
       let currentMapHasChanges = false;
       const updatedMap = { ...prev };
 
-      files.forEach((file) => {
-        const trackingId = (file as any).trackingId;
-        if (trackingId && !updatedMap[trackingId]) {
+      fileTrackers.forEach(({ trackingId }) => {
+        if (!updatedMap[trackingId]) {
           updatedMap[trackingId] = {
             compression: undefined,
             upload: undefined,
@@ -194,11 +209,8 @@ export const useFileProcessingProgress = (files: File[]) => {
       return currentMapHasChanges ? updatedMap : prev;
     });
 
-    // Attach native event listeners to capture isolated pipeline steps per tracking ID
-    files.forEach((file) => {
-      const trackingId = (file as any).trackingId;
-      if (!trackingId) return;
-
+    // Register active event listeners explicitly with clean removal handlers
+    fileTrackers.forEach(({ trackingId, fileName }) => {
       const channels = [
         {
           name: `${QUEUE_KEYS.MEDIA_COMPRESSION}-${trackingId}`,
@@ -221,7 +233,7 @@ export const useFileProcessingProgress = (files: File[]) => {
               [trackingId]: {
                 ...currentRecord,
                 [key]: {
-                  fileName: file.name,
+                  fileName,
                   ...customEvent.detail,
                 },
               },
@@ -234,12 +246,13 @@ export const useFileProcessingProgress = (files: File[]) => {
       });
     });
 
+    // Guaranteed teardown cleanup function
     return () => {
       activeListeners.forEach(({ eventName, handler }) => {
         window.removeEventListener(eventName, handler);
       });
     };
-  }, [files]);
+  }, [trackerKey, fileTrackers]);
 
   return { processingStates };
 };
@@ -314,7 +327,7 @@ export const useMediaFileSelector = ({
         },
       ]);
       setPermissionStatus("granted");
-    } catch (error) {
+    } catch {
       setPermissionStatus("denied");
     }
   };
@@ -335,7 +348,7 @@ export const useMediaFileSelector = ({
 
       directoryHandleRef.current = handle;
       await readDirectoryAssets(handle);
-    } catch (err) {
+    } catch {
       setPermissionStatus("denied");
     }
   };

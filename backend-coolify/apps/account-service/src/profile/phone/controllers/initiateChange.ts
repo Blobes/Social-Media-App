@@ -87,9 +87,7 @@ export const initiatePhoneChange = async (
     console.error("Change Phone Error:", error);
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
       error,
     );
   }

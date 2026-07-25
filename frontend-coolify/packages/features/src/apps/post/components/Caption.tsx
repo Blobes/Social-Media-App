@@ -131,9 +131,9 @@ export const DynamicCaption: React.FC<DynamicCaptionProps> = ({
         <Stack direction="row" justifyContent="flex-start" sx={{ mt: 1 }}>
           <AppButton
             variant="text"
+            size="x-small"
             onClick={toggleTranslation}
             style={{
-              ...theme.typography.text6,
               padding: 0,
               minWidth: "unset",
               width: "auto",

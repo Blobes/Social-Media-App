@@ -85,7 +85,7 @@ export const GistSettingsStep: React.FC<SettingsStepProps> = ({
           variant="outlined"
           onClick={() => setStep?.("CONTENT")}
           options={{ disabled: isProcessing }}
-          style={{ flex: 1, padding: theme.boxSpacing(6, 0) }}>
+          style={{ flex: 1 }}>
           <TransText {...POST_BUTTON_LABELS.post_back} noComponent />
         </AppButton>
 
@@ -97,8 +97,6 @@ export const GistSettingsStep: React.FC<SettingsStepProps> = ({
           }}
           style={{
             flex: 2,
-            padding: theme.boxSpacing(6, 0),
-            gap: "10px",
           }}>
           {isProcessing ? (
             <>

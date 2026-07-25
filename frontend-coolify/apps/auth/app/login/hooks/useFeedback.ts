@@ -1,7 +1,7 @@
 "use client";
 
 import { usePage, useStaticTranslation } from "@repo/shared-hooks";
-import { getFromLocalStorage } from "@repo/helpers";
+import { clearLoginLock, getFromLocalStorage } from "@repo/helpers";
 import {
   ApiError,
   AUTH_FEEDBACK,
@@ -11,7 +11,7 @@ import {
   OtpChannel,
   useGlobalStore,
 } from "@repo/core";
-import { clearLoginLock, useAuthNavigation } from "@repo/features";
+import { useAuthNavigation } from "@repo/features";
 import { UseLogin } from "./useLogin";
 import { LoginResponse } from "../service";
 import { useIdentifier } from "./useIdentifier";
@@ -89,12 +89,12 @@ export const useLoginFeedback = ({ identifier, setStep }: UseLogin) => {
    */
   const handleError = (
     error: ApiError,
-    handleFailedPassword: () => void,
+    handleFailedAttempts: () => void,
     setMsg: React.Dispatch<React.SetStateAction<React.ReactNode | null>>,
   ) => {
     const isPasswordErr = error.status === "UNAUTHORIZED";
     if (isPasswordErr) {
-      handleFailedPassword();
+      handleFailedAttempts();
     } else {
       setMsg(
         error.localizedErrMsg || translateTxtString(AUTH_FEEDBACK.login_failed),

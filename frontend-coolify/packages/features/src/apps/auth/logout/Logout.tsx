@@ -32,7 +32,7 @@ export const ComfirmLogout = () => {
         <AppButton variant="outlined" onClick={closeModal}>
           <TransText {...AUTH_BUTTON_LABELS.logout_not_really} noComponent />
         </AppButton>
-        <AppButton onClick={async () => handleLogout()}>
+        <AppButton variant="contained" onClick={async () => handleLogout()}>
           <TransText {...AUTH_BUTTON_LABELS.logout_sure_i_do} noComponent />
         </AppButton>
       </Stack>
@@ -77,8 +77,8 @@ export const Logout = ({
       <LogOut />
       <TransText
         {...AUTH_BUTTON_LABELS.logout}
-        variant="body2"
         sx={{
+          ...theme.typography.text2,
           fontWeight: "600",
           color: theme.palette.gray[300],
           textAlign: "left",

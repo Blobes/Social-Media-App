@@ -43,6 +43,7 @@ next-env.d.ts
 
 locale/versions/**/*.json
 
+
 .git
 .gitignore
 .github

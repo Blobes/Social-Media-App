@@ -131,8 +131,6 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
           <AppButton
             variant="contained"
             style={{
-              ...theme.typography.text3,
-              padding: theme.boxSpacing(5.5, 9),
               width: "100%",
             }}
             submit

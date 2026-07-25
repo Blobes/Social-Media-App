@@ -5,12 +5,14 @@ import { useTheme } from "@mui/material/styles";
 import { Stack } from "@mui/material";
 import { VerifyOtp } from "./VerifyOtp";
 import { useCachedData, useStaticTranslation } from "@repo/shared-hooks";
-import { AUTH_FEEDBACK, OtpTransitData } from "@repo/core";
+import { AUTH_FEEDBACK, OtpTransitData, TransitPurpose } from "@repo/core";
 import { DisplayFeedbackUI } from "@repo/features";
 
 export default function OtpPage() {
   const theme = useTheme();
-  const cachedEntries = useCachedData<OtpTransitData>(["transit_data"]);
+  const cachedEntries = useCachedData<OtpTransitData<TransitPurpose>>([
+    "transit_data",
+  ]);
   const { translateTxtString } = useStaticTranslation();
 
   return (

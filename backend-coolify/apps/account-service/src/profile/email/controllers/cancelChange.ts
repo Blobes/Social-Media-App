@@ -52,9 +52,7 @@ export const cancelEmailChange: RequestHandler = async (
     console.error("Email Change Cancellation Error:", error);
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.AUTH.UPDATE_CANCELLATION_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.AUTH.UPDATE_CANCELLATION_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.AUTH.UPDATE_CANCELLATION_FALLBACK_ERROR,
       error,
     );
   }

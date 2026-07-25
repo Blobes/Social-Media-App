@@ -121,20 +121,48 @@ async function sendToBackend(
 }
 
 /**
- * Requests contextual text transformations from the Cloudflare LLM infrastructure endpoint using a Google Gemini model.
+ * Executes a deterministic translation request via DeepL API.
+ */
+async function translateWithDeepL(
+  text: string,
+  targetLang: string,
+): Promise<string> {
+  const DEEPL_AUTH_KEY = process.env.NEXT_PUBLIC_DEEPL_API_KEY;
+
+  const response = await fetch("https://api-free.deepl.com/v2/translate", {
+    method: "POST",
+    headers: {
+      Authorization: `DeepL-Auth-Key ${DEEPL_AUTH_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      text: [text],
+      target_lang: targetLang.toUpperCase(), // e.g., "ES", "DE", "FR"
+      formality: "prefer_less",
+    }),
+  });
+
+  const data = await response.json();
+  return data.translations[0].text;
+}
+
+/**
+ * Translates source text using an AI API with timeout guardrails.
  */
 async function fetchCloudTranslation(
   text: string,
   targetLang: string,
 ): Promise<string> {
-  const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
-  const API_TOKEN = process.env.CLOUDFLARE_AI_TOKEN;
+  const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
 
-  if (!ACCOUNT_ID || !API_TOKEN) {
+  if (!OPENROUTER_API_KEY) {
     throw new Error(
-      "Missing Cloudflare infrastructure authentication credentials.",
+      "Missing OpenRouter authentication credentials in environment setup.",
     );
   }
+
+  // Visual debugging log tracking active key
+  // console.log(`[Translating to ${targetLang}]: key -> "${key}"`);
 
   const tagRegex = /<([a-zA-Z0-9_]+)>/g;
   const sourceTags: string[] = [];
@@ -155,17 +183,21 @@ async function fetchCloudTranslation(
   4. Do NOT invent, add, or insert any formatting symbols, brackets, or code elements that are not explicitly present in the input text.
   5. Output ONLY the raw translated string. No markdown, no conversational text.`;
 
-  // Updated model path targeting the Cloudflare Workers AI Google ecosystem
+  //"google/gemini-2.0-flash-exp:free"
+
   const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/ai/v1/chat/completions`,
+    "https://openrouter.ai/api/v1/chat/completions",
     {
       method: "POST",
+      signal: AbortSignal.timeout(90000), // Force 30s timeout so script never hangs
       headers: {
-        Authorization: `Bearer ${API_TOKEN}`,
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://funstakes.com",
+        "X-Title": "Funstakes Translator",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "openrouter/free",
         messages: [
           {
             role: "system",
@@ -177,32 +209,25 @@ async function fetchCloudTranslation(
           },
         ],
         temperature: 0.0,
-        max_tokens: 1024,
+        max_tokens: 150, // Reduced from 1024 to prevent credit cap errors on short text
       }),
     },
   );
 
   if (!response.ok) {
+    const errorText = await response.text();
     throw new Error(
-      `Cloudflare API responded with status code ${response.status}`,
+      `OpenRouter API failure [Status ${response.status}]: ${errorText}`,
     );
   }
 
   const payload = await response.json();
-  if (!payload.success) {
-    throw new Error(
-      payload.errors?.[0]?.message ||
-        "Cloudflare internal inference execution failure.",
-    );
-  }
-
-  // Cloudflare wraps the raw Gemini content text inside result.response
-  let translatedOutput = payload.result?.response?.trim() || text;
+  let translatedOutput = payload.choices?.[0]?.message?.content?.trim() || text;
 
   for (const variable of sourceVars) {
     if (!translatedOutput.includes(variable)) {
       console.warn(
-        `Dynamic tag or variable detected: "${variable}". Falling back to source text.`,
+        `Dynamic variable missing: "${variable}". Falling back to source text.`,
       );
       return text;
     }
@@ -213,12 +238,11 @@ async function fetchCloudTranslation(
     const hasClosing = translatedOutput.includes(`</${tag}>`);
     if (!hasOpening || !hasClosing) {
       console.warn(
-        `Translation Guardrail Alert: Mangled tag structure for "<${tag}>". Falling back to source text.`,
+        `Guardrail Alert: Mangled tag structure for "<${tag}>". Falling back to source text.`,
       );
       return text;
     }
   }
-
   return translatedOutput.replace(/\s+/g, " ").trim();
 }
 
@@ -263,7 +287,7 @@ async function translateNode(
     return oldTranslations[pathString];
   }
 
-  const translationResult = await fetchCloudTranslation(node, targetLang);
+  const translationResult = await translateWithDeepL(node, targetLang);
   keyCache[cacheMapKey] = currentStringHash;
 
   // Log track details for this translated instance

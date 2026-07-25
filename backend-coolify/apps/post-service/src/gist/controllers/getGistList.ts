@@ -33,9 +33,7 @@ export const getGistList = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.POST.CREATION_THROWN_ERROR(error.message, "Gist")
-        : MESSAGES_REGISTRY.POST.CREATION_FALLBACK_ERROR("Gist"),
+      MESSAGES_REGISTRY.POST.CREATION_FALLBACK_ERROR("Gist"),
       error,
     );
   }

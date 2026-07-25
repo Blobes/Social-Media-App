@@ -50,9 +50,7 @@ export const getUserDraftPosts = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.POST.USER_DRAFTS_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.POST.USER_DRAFTS_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.POST.USER_DRAFTS_FALLBACK_ERROR,
       error,
     );
   }

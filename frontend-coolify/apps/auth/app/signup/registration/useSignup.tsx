@@ -3,11 +3,12 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
-  useInputValueValidation,
   usePage,
   usePasswordFieldValidation,
+  useEmailFieldValidation,
+  usePhoneFieldValidation,
 } from "@repo/shared-hooks";
-import { InputStatus, CLIENT_ROUTES, ApiError } from "@repo/core";
+import { CLIENT_ROUTES, ApiError } from "@repo/core";
 import { sanitizePhoneNumber } from "@repo/helpers";
 import { SignupService } from "../service";
 import { useSignupFeedback } from "./useFeedback";
@@ -18,22 +19,41 @@ import { useSignupFeedback } from "./useFeedback";
 export const useSignup = () => {
   const { createAccount } = SignupService();
   const { navigateTo } = usePage();
-  const { validateEmail, validatePhone } = useInputValueValidation();
 
   const [inlineMsg, setInlineMsg] = useState<React.ReactNode | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [emailValidity, setEmailValidity] = useState<InputStatus>();
-  const [emailValidationMsg, setEmailValidationMsg] = useState("");
-  const [phoneValidity, setPhoneValidity] = useState<InputStatus>();
-  const [phoneValidationMsg, setPhoneValidationMsg] = useState("");
 
-  const { handleSuccess, handleError } = useSignupFeedback({ email });
-
+  /**
+   * Clears inline alert/feedback banners on form interaction.
+   */
   const clearInlineMsg = useCallback(() => {
     setInlineMsg(null);
   }, []);
+
+  const {
+    email,
+    emailValidity,
+    emailValidationMsg,
+    isEmailValid,
+    handleEmailChange,
+    handleClearEmail,
+  } = useEmailFieldValidation({
+    onClearFeedback: clearInlineMsg,
+  });
+
+  const {
+    input: phone,
+    validity: phoneValidity,
+    validationMsg: phoneValidationMsg,
+    isPhoneValid,
+    handlePhoneChange,
+  } = usePhoneFieldValidation({
+    includeCountryCode: true,
+    isRequired: false,
+    onClearFeedback: clearInlineMsg,
+  });
+
+  const { handleSuccess, handleError } = useSignupFeedback({ email });
 
   const {
     password,
@@ -67,31 +87,13 @@ export const useSignup = () => {
     },
   });
 
-  const isEmailValid = useMemo(() => {
-    return validateEmail(email).status === "VALID";
-  }, [email, validateEmail]);
-
   const isFormValid = useMemo(() => {
-    const isPhoneValid =
-      phone === "" || validatePhone(phone).status === "VALID";
     return isEmailValid && isPasswordValid && isPhoneValid;
-  }, [isEmailValid, isPasswordValid, phone, validatePhone]);
+  }, [isEmailValid, isPasswordValid, isPhoneValid]);
 
-  const handleEmailChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const value = e.target.value;
-      clearInlineMsg();
-      setEmail(value);
-
-      const result = validateEmail(value);
-      setEmailValidity(result.status === "VALID" ? "VALID" : "INVALID");
-      setEmailValidationMsg(
-        result.status === "INVALID" ? (result.message ?? "") : "",
-      );
-    },
-    [clearInlineMsg, validateEmail],
-  );
-
+  /**
+   * Navigates user to login route.
+   */
   const handleLoginClick = useCallback(
     (e: React.MouseEvent) => {
       clearInlineMsg();
@@ -104,23 +106,9 @@ export const useSignup = () => {
     [navigateTo, clearInlineMsg],
   );
 
-  const handlePhoneChange = useCallback(
-    (value: string) => {
-      setPhone(value);
-      if (value === "") {
-        setPhoneValidity(undefined);
-        setPhoneValidationMsg("");
-      } else {
-        const result = validatePhone(value);
-        setPhoneValidity(result.status === "VALID" ? "VALID" : "INVALID");
-        setPhoneValidationMsg(
-          result.status === "INVALID" ? (result.message ?? "") : "",
-        );
-      }
-    },
-    [validatePhone],
-  );
-
+  /**
+   * Validates form state and submits account registration request.
+   */
   const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!isFormValid) return;
@@ -138,6 +126,7 @@ export const useSignup = () => {
     passwordVisualStates,
     isPasswordValid,
     handleEmailChange,
+    handleClearEmail,
     handlePhoneChange,
     handlePasswordChange,
     handleSubmit,

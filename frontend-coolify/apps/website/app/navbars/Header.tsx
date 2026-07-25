@@ -89,9 +89,9 @@ export const Header: React.FC = () => {
 
           {isLoggedIn && (
             <AppButton
-              href={CLIENT_ROUTES.home.path}
               variant="outlined"
-              style={{ ...theme.typography.text5 }}
+              size="small"
+              href={CLIENT_ROUTES.home.path}
               onClick={() =>
                 navigateTo(CLIENT_ROUTES.home, { type: "push", loadPage: true })
               }>
@@ -105,8 +105,9 @@ export const Header: React.FC = () => {
           {authStatus === "UNAUTHENTICATED" && (
             <Stack direction="row" alignItems="center" spacing={theme.gap(0)}>
               <AppButton
+                variant="contained"
+                size="small"
                 href={CLIENT_ROUTES.signup.path}
-                style={{ ...theme.typography.text5 }}
                 onClick={() =>
                   navigateTo(CLIENT_ROUTES.signup, {
                     type: "push",
@@ -117,9 +118,9 @@ export const Header: React.FC = () => {
                 <TransText {...AUTH_BUTTON_LABELS.signup} noComponent />
               </AppButton>
               <AppButton
-                href={CLIENT_ROUTES.login.path}
                 variant="outlined"
-                style={{ ...theme.typography.text5 }}
+                size="small"
+                href={CLIENT_ROUTES.login.path}
                 onClick={() =>
                   navigateTo(CLIENT_ROUTES.login, {
                     type: "push",

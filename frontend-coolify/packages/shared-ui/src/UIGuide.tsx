@@ -276,10 +276,9 @@ export const UserTourGuide = ({
               )}
               <AppButton
                 variant="contained"
+                size="small"
                 onClick={handleNext}
                 style={{
-                  ...theme.typography.text5,
-                  padding: theme.boxSpacing(6, 9),
                   width: "100%",
                 }}>
                 <TransText

@@ -54,7 +54,7 @@ export const switchAccountStatus = async (
   if (previousStatus === targetStatus) {
     return {
       status: "NO_OP",
-      ...MESSAGES_REGISTRY.AUTH.ACCOUNT_ALREADY_IN_STATE,
+      ...MESSAGES_REGISTRY.AUTH.ACCOUNT_ALREADY_IN_STATUS,
     };
   }
 

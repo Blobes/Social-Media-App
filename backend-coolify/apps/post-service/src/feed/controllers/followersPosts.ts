@@ -52,9 +52,7 @@ export const getFollowersPosts = async (
     // Explicitly utilizing direct forwardError mapping per execution design requirements
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.POST.FOLLOWERS_FEED_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.POST.FOLLOWERS_FEED_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.POST.FOLLOWERS_FEED_FALLBACK_ERROR,
       error,
     );
   }

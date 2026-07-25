@@ -65,8 +65,6 @@ export const OnboardingIntro: React.FC<StepperProps<AuthStepName>> = ({
         variant="contained"
         onClick={handleStart}
         style={{
-          ...theme.typography.text3,
-          padding: theme.boxSpacing(5.5, 9),
           width: "100%",
         }}>
         <TransText {...COMMON_BUTTON_LABELS.get_started} noComponent />

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Divider, Stack } from "@mui/material";
 import {
   AppButton,
@@ -40,15 +40,18 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
   const { translateTxtString } = useStaticTranslation();
   const { INPUT_GUIDES } = useGuides();
 
-  const inlineTxtStyle = {
-    color: theme.palette.primary.main,
-    flex: "none",
-    "&:hover": {
-      color: theme.palette.primary.dark,
-      textDecoration: "underline",
-      fontWeight: 600,
-    },
-  };
+  const inlineTxtStyle = useMemo(
+    () => ({
+      color: theme.palette.primary.main,
+      flex: "none",
+      "&:hover": {
+        color: theme.palette.primary.dark,
+        textDecoration: "underline",
+        fontWeight: 600,
+      },
+    }),
+    [theme],
+  );
 
   // Use the controller
   const {
@@ -78,10 +81,10 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
           },
         }}>
         <TransText
-          {...COMMON_FEEDBACK.predict_stake_win}
+          {...COMMON_FEEDBACK.sign_in_to_funstakes}
           component="h3"
           sx={{
-            ...theme.typography.h5,
+            ...theme.typography.h6,
             color: theme.palette.gray[300],
             textAlign: "center",
             ...style.headline,
@@ -89,7 +92,6 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         />
         <TransText
           {...COMMON_FEEDBACK.user_terms_agreement}
-          component="p"
           inlineComponents={{
             agreement: (
               <AnchorLink href="/user-agreement" style={inlineTxtStyle} />
@@ -113,8 +115,6 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         <AppButton
           variant="outlined"
           style={{
-            ...theme.typography.text3,
-            padding: theme.boxSpacing(4.5, 9),
             gap: theme.gap(4),
             width: "100%",
           }}
@@ -129,9 +129,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         <AppButton
           variant="outlined"
           style={{
-            ...theme.typography.text3,
             gap: theme.gap(4),
-            padding: theme.boxSpacing(4.5, 9),
             width: "100%",
           }}
           options={{ disabled: isAuthLoading }}>
@@ -149,7 +147,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         sx={{
           ...theme.typography.text5,
           color: theme.palette.gray[200],
-          margin: 0,
+          margin: theme.gap(4),
         }}>
         <TransText {...AUTH_FEEDBACK.or_sign_in_with} noComponent />
       </Divider>
@@ -159,7 +157,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
 
       {/* In app sign in */}
       <Stack
-        sx={{ gap: theme.gap(10) }}
+        sx={{ gap: theme.gap(10), paddingBottom: theme.boxSpacing(8) }}
         component="form"
         onSubmit={handleSubmit}>
         <TextInput
@@ -212,8 +210,6 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
           variant="contained"
           submit
           style={{
-            ...theme.typography.text3,
-            padding: theme.boxSpacing(5.5, 9),
             width: "100%",
           }}
           options={{ disabled: isSubmitDisabled }}>
@@ -225,17 +221,8 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         </AppButton>
       </Stack>
 
-      <Divider />
       {/* Footer */}
       <Stack sx={{ gap: theme.gap(10), alignItems: "center" }}>
-        <AnchorLink
-          href={CLIENT_ROUTES.resetPassword.path}
-          onClick={handleResetPassClick}
-          style={{
-            ...inlineTxtStyle,
-          }}>
-          <TransText {...COMMON_BUTTON_LABELS.reset_password} noComponent />
-        </AnchorLink>
         <TransText
           {...COMMON_FEEDBACK.new_to_funstakes}
           component="p"
@@ -252,6 +239,14 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
             ),
           }}
         />
+        <AnchorLink
+          href={CLIENT_ROUTES.resetPassword.path}
+          onClick={handleResetPassClick}
+          style={{
+            ...inlineTxtStyle,
+          }}>
+          <TransText {...COMMON_BUTTON_LABELS.reset_password} noComponent />
+        </AnchorLink>
       </Stack>
     </Stack>
   );

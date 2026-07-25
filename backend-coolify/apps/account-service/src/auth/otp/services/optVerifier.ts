@@ -21,7 +21,12 @@ interface IVerifyOtpInput {
 }
 
 interface IVerifyOtpResult {
-  status: "SUCCESS" | "EXPIRED_CODE" | "INVALID_CODE" | "USER_NOT_FOUND";
+  status:
+    | "SUCCESS"
+    | "EXPIRED_CODE"
+    | "INVALID_CODE"
+    | "USER_NOT_FOUND"
+    | "INVALID_CHANNEL";
   transInfo?: TransInfo;
   payload?: {
     purpose: VerificationPurpose;
@@ -41,12 +46,11 @@ export const executeOtpVerification = async (
   const otpChannel = setOtpChannel(normalized);
 
   if (!otpChannel) {
-    const error = new Error(
-      MESSAGES_REGISTRY.AUTH.INVALID_EMAIL.message,
-    ) as any;
-    error.status = 400;
-    error.i18nKey = MESSAGES_REGISTRY.AUTH.INVALID_EMAIL.i18nKey;
-    throw error;
+    return {
+      status: "INVALID_CHANNEL",
+      transInfo: MESSAGES_REGISTRY.AUTH.INVALID_OTP_CHANNEL,
+    };
+    //  error.status = 400;
   }
 
   let user: IUserDocument | null = null;

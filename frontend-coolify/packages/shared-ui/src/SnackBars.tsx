@@ -145,9 +145,9 @@ export const SnackBars = ({
                       {msg.cta && (
                         <AppButton
                           variant="text"
+                          size="small"
                           onClick={msg.cta.action}
                           style={{
-                            ...theme.typography.text5,
                             padding: 0,
                             borderRadius: 0,
                             minWidth: "unset",

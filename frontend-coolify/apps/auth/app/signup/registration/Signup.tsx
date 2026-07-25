@@ -52,6 +52,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
     phoneValidity,
     phoneValidationMsg,
     handleEmailChange,
+    handleClearEmail,
     handlePhoneChange,
     handlePasswordChange,
     passwordVisualStates,
@@ -68,7 +69,11 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
   const inlineLinkStyle = {
     color: theme.palette.primary.main,
     flex: "none",
-    "&:hover": { textDecoration: "underline", fontWeight: 600 },
+    "&:hover": {
+      color: theme.palette.primary.dark,
+      textDecoration: "underline",
+      fontWeight: 600,
+    },
   };
 
   return (
@@ -112,11 +117,11 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           },
         }}>
         <TransText
-          {...COMMON_FEEDBACK.sign_up_to_funstakes}
+          {...COMMON_FEEDBACK.predict_stake_win}
           component="h3"
           breakWord
           sx={{
-            ...theme.typography.h5,
+            ...theme.typography.h6,
             color: theme.palette.gray[300],
             textAlign: "center",
             ...style.headline,
@@ -148,8 +153,6 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         <AppButton
           variant="outlined"
           style={{
-            ...theme.typography.text3,
-            padding: theme.boxSpacing(4.5, 9),
             gap: theme.gap(4),
             width: "100%",
           }}
@@ -164,9 +167,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         <AppButton
           variant="outlined"
           style={{
-            ...theme.typography.text3,
             gap: theme.gap(4),
-            padding: theme.boxSpacing(4.5, 9),
             width: "100%",
           }}
           options={{ disabled: isSubmitLoading }}>
@@ -208,6 +209,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             AUTH_INPUT.placeholder.enter_your_email,
           )}
           onChange={handleEmailChange}
+          onClear={handleClearEmail}
           helperText={emailValidationMsg}
           error={email !== "" && emailValidity === "INVALID"}
         />
@@ -247,8 +249,6 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           variant="contained"
           submit
           style={{
-            ...theme.typography.text3,
-            padding: theme.boxSpacing(5.5, 9),
             width: "100%",
             marginTop: theme.gap(4),
           }}

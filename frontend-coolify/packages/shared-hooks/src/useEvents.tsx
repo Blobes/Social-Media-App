@@ -65,7 +65,9 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
     setSBMessage({
       msg: {
         id: "offline-notification",
-        tagline: translateTxtString(COMMON_FEEDBACK.no_internet_tagline),
+        tagline:
+          // translateTxtString(COMMON_FEEDBACK.no_internet_tagline) +
+          "Why is it thehdnsnf shshd hssnsjnsx  ajxanxanx wsuuuuuuu hdhdhhe cndndj xabxahbxahxb dubcsuchs wudgwudw",
         msgStatus: "INFO",
         behavior: "FIXED",
         hasClose: true,

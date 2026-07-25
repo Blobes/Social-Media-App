@@ -81,9 +81,7 @@ export const createGist = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.POST.CREATION_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.POST.CREATION_FALLBACK_ERROR(),
+      MESSAGES_REGISTRY.POST.CREATION_FALLBACK_ERROR(),
       error,
     );
   }

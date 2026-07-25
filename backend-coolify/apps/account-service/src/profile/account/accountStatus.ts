@@ -93,9 +93,7 @@ export const changeAccountStatus = async (
     console.error("Account Status Change Error:", error);
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.AUTH.ACCOUNT_STATUS_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.AUTH.ACCOUNT_STATUS_FALLBACK_ERROR(targetStatus),
+      MESSAGES_REGISTRY.AUTH.ACCOUNT_STATUS_FALLBACK_ERROR(targetStatus),
       error,
     );
   }

@@ -81,11 +81,7 @@ export const MediaUploadPolicyHandler = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.UPLOAD.PRE_SIGNED_POST_POLICY_THROWN_ERROR(
-            error.message,
-          )
-        : MESSAGES_REGISTRY.SYSTEM.INTERNAL_SERVER_ERROR,
+      MESSAGES_REGISTRY.UPLOAD.PRE_SIGNED_POST_POLICY_THROWN_ERROR,
       error,
     );
   }
@@ -146,9 +142,7 @@ export const MediaUploadUrlHandler = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.UPLOAD.PRE_SIGNED_URL_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.SYSTEM.INTERNAL_SERVER_ERROR,
+      MESSAGES_REGISTRY.UPLOAD.PRE_SIGNED_URL_THROWN_ERROR,
       error,
     );
   }
@@ -191,9 +185,7 @@ export const InitMultipartHandler = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.UPLOAD.MULTIPART_SESSION_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.SYSTEM.INTERNAL_SERVER_ERROR,
+      MESSAGES_REGISTRY.UPLOAD.MULTIPART_SESSION_THROWN_ERROR,
       error,
     );
   }
@@ -227,9 +219,7 @@ export const SignPartHandler = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.UPLOAD.PART_SEGMENT_LINK_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.SYSTEM.INTERNAL_SERVER_ERROR,
+      MESSAGES_REGISTRY.UPLOAD.PART_SEGMENT_LINK_THROWN_ERROR,
       error,
     );
   }
@@ -260,11 +250,7 @@ export const CompleteMultipartHandler = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.UPLOAD.MULTIPART_ASSET_ASSEMBLED_THROWN_ERROR(
-            error.message,
-          )
-        : MESSAGES_REGISTRY.SYSTEM.INTERNAL_SERVER_ERROR,
+      MESSAGES_REGISTRY.UPLOAD.MULTIPART_ASSET_ASSEMBLED_THROWN_ERROR,
       error,
     );
   }

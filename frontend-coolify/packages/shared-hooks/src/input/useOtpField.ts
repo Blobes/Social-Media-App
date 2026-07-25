@@ -45,11 +45,42 @@ export const useOtpFieldValidation = ({
   );
 
   /**
-   * Handle single character entry and advance focus.
+   * Handle single character entry, SMS auto-fill strings, and advance focus.
    */
   const handleChange = useCallback(
     (index: number, e: ChangeEvent<HTMLInputElement>) => {
-      const char = e.target.value.replace(/\D/g, "").slice(-1);
+      const rawValue = e.target.value;
+      const cleaned = rawValue.replace(/\D/g, "");
+
+      if (!cleaned) {
+        const next = [...digits];
+        next[index] = "";
+        setDigits(next);
+        onChange?.(getCode(next));
+        return;
+      }
+
+      if (cleaned.length > 1) {
+        const pastedDigits = cleaned.slice(0, length);
+        const next = [...digits];
+
+        for (let i = 0; i < pastedDigits.length; i++) {
+          next[i] = pastedDigits[i];
+        }
+
+        setDigits(next);
+        const code = getCode(next);
+        onChange?.(code);
+
+        focusIndex(Math.min(pastedDigits.length, length - 1));
+
+        if (autoSubmit && next.every((d) => d !== "")) {
+          onComplete?.(code);
+        }
+        return;
+      }
+
+      const char = cleaned.slice(-1);
       const next = [...digits];
       next[index] = char;
       setDigits(next);
@@ -115,6 +146,7 @@ export const useOtpFieldValidation = ({
         .getData("text")
         .replace(/\D/g, "")
         .slice(0, length - index);
+
       if (!pasted) return;
 
       const next = [...digits];

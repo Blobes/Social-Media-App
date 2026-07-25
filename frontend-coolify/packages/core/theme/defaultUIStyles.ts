@@ -105,12 +105,16 @@ const defaultUIStyles: BaseStylesContainer = {
             borderColor: "var(--mui-fixedColors-pTrans)",
           },
           "&:disabled": {
-            opacity: 0.7,
+            color: "var(--mui-palette-gray-300)",
+            backgroundColor: "var(--mui-palette-gray-trans-2)",
+            borderColor: "transparent",
+            opacity: 0.6,
           },
         }),
         text: () => ({
           "&:disabled": {
-            opacity: 0.6,
+            color: "var(--mui-palette-gray-300)",
+            opacity: 0.7,
           },
         }),
       },

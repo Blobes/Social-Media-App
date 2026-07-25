@@ -23,9 +23,6 @@ export const env = {
   get PORT() {
     return parseInt(getEnv("ADMIN_PORT", false) || "8084", 10);
   },
-  get OPENAI_API_KEY() {
-    return getEnv("OPENAI_API_KEY");
-  },
 };
 
 // Authentication Configuration for Admin routes
@@ -77,4 +74,3 @@ export const authenticateInternal: RequestHandler =
 export const NODE_ENV = env.NODE_ENV;
 export const PORT = env.PORT;
 export const MONGO_URI = env.MONGO_URI;
-export const OPENAI_API_KEY = env.OPENAI_API_KEY;

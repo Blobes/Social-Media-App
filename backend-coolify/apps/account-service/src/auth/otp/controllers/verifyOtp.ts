@@ -66,18 +66,8 @@ export const verifyOtp = async (
     console.error(`[OTP_ERROR] ${purpose}:`, error);
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
       error,
-      error.status || 500,
     );
-    // res.status(error.status || 500).json({
-    //   status: "ERROR",
-    //   ...(error.message
-    //     ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
-    //     : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR),
-    //   payload: null,
-    // });
   }
 };

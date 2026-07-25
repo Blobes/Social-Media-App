@@ -27,7 +27,7 @@ export const sendOtp = async (
   if (!recipient) {
     res.status(400).json({
       status: "ERROR",
-      ...MESSAGES_REGISTRY.AUTH.EMAIL_REQUIRED,
+      ...MESSAGES_REGISTRY.AUTH.EMAIL_OR_PHONE_REQUIRED,
       payload: null,
     });
     return;
@@ -53,8 +53,23 @@ export const sendOtp = async (
       deviceToken,
     });
 
+    if (serviceResult.status !== "SUCCESS") {
+      const errorCode =
+        serviceResult.status === "USER_NOT_FOUND"
+          ? 404
+          : serviceResult.status === "COOLDOWN_ACTIVE"
+            ? 429
+            : 400;
+      res.status(errorCode).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: null,
+      });
+      return;
+    }
+
     // Check if the service execution requested client cookie eviction
-    if (serviceResult.payload.actionPayload?.clearLocalCookies) {
+    if (serviceResult.payload?.actionPayload?.clearLocalCookies) {
       clearAuthCookies(res);
       delete serviceResult.payload.actionPayload.clearLocalCookies;
     }
@@ -68,9 +83,7 @@ export const sendOtp = async (
     console.error("[sendCode] Error:", error);
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
       error,
     );
   }

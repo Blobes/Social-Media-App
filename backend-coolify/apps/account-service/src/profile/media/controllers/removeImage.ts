@@ -1,13 +1,11 @@
 import { NextFunction, Response } from "express";
 import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
-import {
-  executeUserImageRemoval,
-  ContextType,
-} from "@/profile/media/services/imageRemove";
+import { executeUserImageRemoval } from "@/profile/media/services/imageRemove";
+import { UserImageType } from "../services/imageChange";
 
 interface RemoveRequest extends IAuthRequest {
   body: {
-    imageType: ContextType;
+    imageType: UserImageType;
   };
 }
 

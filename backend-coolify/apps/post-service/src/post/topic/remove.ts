@@ -59,11 +59,7 @@ export const handleUserTopicRemoval = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.POST.POST_USER_TOPICS_REMOVAL_THROWN_ERROR(
-            error.message,
-          )
-        : MESSAGES_REGISTRY.POST.POST_USER_TOPICS_REMOVAL_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.POST.POST_USER_TOPICS_REMOVAL_FALLBACK_ERROR,
       error,
     );
   }

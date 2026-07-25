@@ -126,11 +126,11 @@ export const MESSAGES_REGISTRY = {
       message: "Account is currently not active",
     },
     ACCOUNT_RECORDS_UPDATED: {
-      i18nKey: "auth:feedback.ACCOUNT_RECORDS_UPDATED",
+      i18nKey: "auth.account_records_cleared_updated",
       message: "Account records and status updated successfully.",
     },
-    ACCOUNT_ALREADY_IN_STATE: {
-      i18nKey: "auth:feedback.ACCOUNT_ALREADY_IN_STATE",
+    ACCOUNT_ALREADY_IN_STATUS: {
+      i18nKey: "auth.account_already_in_status",
       message: "Account is already in the requested status.",
     },
     ACCOUNT_RECORDS_CLEARED: {
@@ -188,8 +188,8 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.email_required",
       message: "Email address is required.",
     },
-    IDENTIFIER_REQUIRED: {
-      i18nKey: "auth.identifier_required",
+    EMAIL_OR_PHONE_REQUIRED: {
+      i18nKey: "auth.email_or_phone_required",
       message: "An email address or phone number is required.",
     },
     NOT_SIGNED_UP_WITH_EMAIL: (provider: string): TransInfo => ({
@@ -345,6 +345,10 @@ export const MESSAGES_REGISTRY = {
     INVALID_OTP_CODE: {
       i18nKey: "auth.invalid_otp_code",
       message: "Invalid otp verification code.",
+    },
+    INVALID_OTP_CHANNEL: {
+      i18nKey: "auth.invalid_otp_channel",
+      message: "Invalid otp dispatch channel.",
     },
     INVALID_EMAIL: {
       i18nKey: "auth.invalid_email",
@@ -642,20 +646,18 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "upload.localization_persisted_successfully",
       message: "Localization block persisted successfully.",
     },
-    LOCALIZATION_UPLOAD_THROWN_ERROR: (reason: string) => ({
+    LOCALIZATION_UPLOAD_THROWN_ERROR: {
       i18nKey: "upload.localization_upload_thrown_error",
-      message: "System localization R2 push failed: {{reason}}",
-      interpolations: { reason },
-    }),
+      message: "System localization R2 push failed",
+    },
     PRE_SIGNED_POST_POLICY_SUCCESS: {
       i18nKey: "upload.pre_signed_post_policy_success",
       message: "Pre-signed POST policy generated successfully",
     },
-    PRE_SIGNED_POST_POLICY_THROWN_ERROR: (reason: string) => ({
+    PRE_SIGNED_POST_POLICY_THROWN_ERROR: {
       i18nKey: "upload.pre_signed_post_policy_thrown_error",
-      message: "S3 Presign Policy Error: {{reason}}",
-      interpolations: { reason },
-    }),
+      message: "S3 Presign Policy Error",
+    },
     PUBLIC_DELIVERY_LINK_RESOLVED: {
       i18nKey: "upload.public_delivery_link_resolved",
       message: "Public delivery link resolved successfully",
@@ -664,38 +666,34 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "upload.pre_signed_url_success",
       message: "Pre-signed URL generated successfully",
     },
-    PRE_SIGNED_URL_THROWN_ERROR: (reason: string) => ({
+    PRE_SIGNED_URL_THROWN_ERROR: {
       i18nKey: "upload.pre_signed_url_thrown_error",
-      message: "S3 Presign PUT URL Error: {{reason}}",
-      interpolations: { reason },
-    }),
+      message: "S3 Presign PUT URL Error",
+    },
     MULTIPART_SESSION_INITIALIZED: {
       i18nKey: "upload.multipart_session_initialized",
       message: "Multipart session initialized",
     },
-    MULTIPART_SESSION_THROWN_ERROR: (reason: string) => ({
+    MULTIPART_SESSION_THROWN_ERROR: {
       i18nKey: "upload.multipart_session_thrown_error",
-      message: "Init Multipart Error: {{reason}}",
-      interpolations: { reason },
-    }),
+      message: "Init Multipart Error",
+    },
     PART_SEGMENT_LINK_GENERATED: {
       i18nKey: "upload.part_segment_link_generated",
       message: "Part segment link generated",
     },
-    PART_SEGMENT_LINK_THROWN_ERROR: (reason: string) => ({
+    PART_SEGMENT_LINK_THROWN_ERROR: {
       i18nKey: "upload.part_segment_link_thrown_error",
-      message: "Sign Part Error: {{reason}}",
-      interpolations: { reason },
-    }),
+      message: "Sign Part Error",
+    },
     MULTIPART_ASSET_ASSEMBLED: {
       i18nKey: "upload.multipart_asset_assembled",
       message: "Multipart asset successfully assembled",
     },
-    MULTIPART_ASSET_ASSEMBLED_THROWN_ERROR: (reason: string) => ({
+    MULTIPART_ASSET_ASSEMBLED_THROWN_ERROR: {
       i18nKey: "upload.multipart_asset_assembled_thrown_error",
       message: "Complete Multipart Error: {{reason}}",
-      interpolations: { reason },
-    }),
+    },
   },
 
   ONBOARDING: {
@@ -742,14 +740,6 @@ export const MESSAGES_REGISTRY = {
       message: "Failed to create {{msgPostType}} due to a server error.",
       interpolations: { msgPostType },
     }),
-    CREATION_THROWN_ERROR: (
-      message: string,
-      msgPostType: MsgPostType = "Post",
-    ): TransInfo => ({
-      i18nKey: "post.creation_thrown_error",
-      message: "{{msgPostType}}: {{message}}",
-      interpolations: { message, msgPostType },
-    }),
     DRAFT_FALLBACK_ERROR: (msgPostType: MsgPostType = "Post"): TransInfo => ({
       i18nKey: "post.draft_fallback_error",
       message:
@@ -770,14 +760,6 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "post.draft_saved_successfully",
       message: "{{msgPostType}} successfully saved as a draft.",
       interpolations: { msgPostType },
-    }),
-    DRAFT_THROWN_ERROR: (
-      message: string,
-      msgPostType: MsgPostType = "Post",
-    ): TransInfo => ({
-      i18nKey: "post.draft_thrown_error",
-      message: "{{msgPostType}}: {{message}}",
-      interpolations: { message, msgPostType },
     }),
     DRAFT_UPDATED_SUCCESSFULLY: (
       msgPostType: MsgPostType = "Post",
@@ -809,11 +791,6 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "post.followers_feed_fetched_successfully",
       message: "Followers feed fetched successfully",
     },
-    FOLLOWERS_FEED_THROWN_ERROR: (message: string): TransInfo => ({
-      i18nKey: "post.followers_feed_thrown_error",
-      message: "{{message}}",
-      interpolations: { message },
-    }),
     FOLLOW_MORE_USERS_MESSAGE: {
       i18nKey: "post.follow_more_users_message",
       message: "Follow more users to see posts here!",
@@ -826,11 +803,6 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "post.global_feed_fetched_successfully",
       message: "Global feed fetched successfully",
     },
-    GLOBAL_FEED_THROWN_ERROR: (message: string): TransInfo => ({
-      i18nKey: "post.global_feed_thrown_error",
-      message: "{{message}}",
-      interpolations: { message },
-    }),
     INITIATE_POST_FAILED: (msgPostType: MsgPostType = "Post"): TransInfo => ({
       i18nKey: "post.initiate_post_failed",
       message: "Failed to initiate {{msgPostType}}",
@@ -974,15 +946,6 @@ export const MESSAGES_REGISTRY = {
       message: "Server error while toggling {{msgPostType}} like",
       interpolations: { msgPostType },
     }),
-    POST_LIKE_THROWN_ERROR: (
-      message: string,
-      msgPostType: MsgPostType = "Post",
-    ): TransInfo => ({
-      i18nKey: "post.post_like_thrown_error",
-      message: "{{msgPostType}}: {{message}}",
-      interpolations: { message, msgPostType },
-    }),
-
     POST_MUST_CONTAIN_TEXT_OR_MEDIA: (
       msgPostType: MsgPostType = "Post",
     ): TransInfo => ({
@@ -1026,20 +989,10 @@ export const MESSAGES_REGISTRY = {
       message: "Removed {{count}} topics.",
       interpolations: { count },
     }),
-    POST_TOPICS_PRUNED_THROWN_ERROR: (reason: string) => ({
-      i18nKey: "post.topics_pruned_thrown_error",
-      message: "Topics pruning failure: {{reason}}",
-      interpolations: { reason },
-    }),
     POST_TOPICS_PRUNED_FALLBACK_ERROR: {
       i18nKey: "post.post_topics_pruned_fallback_error",
       message: "Error processing unused post topic cleanup directory.",
     },
-    POST_TOPIC_LOOKUP_THROWN_ERROR: (reason: string) => ({
-      i18nKey: "post.topic_lookup_thrown_error",
-      message: "Post topic lookup failure: {{reason}}",
-      interpolations: { reason },
-    }),
     POST_TOPICS_LIST_REQUIRED: {
       i18nKey: "post.post_topics_list_required",
       message: "A list of topics is required.",
@@ -1048,11 +1001,6 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "post.topics_processed_successfully",
       message: "Topics processed successfully.",
     },
-    POST_TOPICS_UPDATE_THROWN_ERROR: (reason: string) => ({
-      i18nKey: "post.post_topics_update_thrown_error",
-      message: "Topics update failure: {{reason}}",
-      interpolations: { reason },
-    }),
     POST_TOPICS_UPDATE_FALLBACK_ERROR: {
       i18nKey: "post.post_post_topics_update_fallback_error",
       message: "Error processing taxonomy routing execution graph.",
@@ -1075,11 +1023,6 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "post.post_user_topics_removed_successfully",
       message: "Topics removed from preferences successfully.",
     },
-    POST_USER_TOPICS_REMOVAL_THROWN_ERROR: (reason: string) => ({
-      i18nKey: "post.post_user_topics_removal_thrown_error",
-      message: "Topics removal failure: {{reason}}",
-      interpolations: { reason },
-    }),
     POST_USER_TOPICS_REMOVAL_FALLBACK_ERROR: {
       i18nKey: "post.post_user_topics_removal_fallback_error",
       message: "Error updating target user taxonomy preference indices.",
@@ -1165,11 +1108,6 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "post.user_drafts_retrieved_successfully",
       message: "User drafts retrieved successfully",
     },
-    USER_DRAFTS_THROWN_ERROR: (message: string): TransInfo => ({
-      i18nKey: "post.user_drafts_thrown_error",
-      message: "{{message}}",
-      interpolations: { message },
-    }),
     USER_POSTS_FALLBACK_ERROR: {
       i18nKey: "post.user_posts_fallback_error",
       message: "Failed to load user profile posts due to a server error.",
@@ -1178,11 +1116,6 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "post.user_posts_retrieved_successfully",
       message: "User posts retrieved successfully",
     },
-    USER_POSTS_THROWN_ERROR: (message: string): TransInfo => ({
-      i18nKey: "post.user_posts_thrown_error",
-      message: "{{message}}",
-      interpolations: { message },
-    }),
     VIEW_ALREADY_RECORDED: {
       i18nKey: "post.view_already_recorded",
       message: "View already recorded",

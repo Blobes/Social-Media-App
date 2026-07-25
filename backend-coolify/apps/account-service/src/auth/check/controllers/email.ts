@@ -60,17 +60,8 @@ export const checkEmail = async (
 
     return forwardError(
       next,
-      error.message
-        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
       error,
     );
-    // return res.status(500).json({
-    //   status: "ERROR",
-    //   ...(error.message
-    //     ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
-    //     : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR),
-    //   payload: null,
-    // });
   }
 };

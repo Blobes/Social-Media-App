@@ -12,7 +12,12 @@ import {
 } from "@repo/shared-ui";
 import { useOtp } from "./useOtp";
 import { ShieldCheckIcon, SquareAsterisk } from "lucide-react";
-import { AUTH_BUTTON_LABELS, AUTH_FEEDBACK, OtpTransitData } from "@repo/core";
+import {
+  AUTH_BUTTON_LABELS,
+  AUTH_FEEDBACK,
+  OtpTransitData,
+  useGlobalStore,
+} from "@repo/core";
 import { Logout } from "@repo/features";
 
 interface VerifyOtpProps {
@@ -21,6 +26,7 @@ interface VerifyOtpProps {
 
 export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
   const theme = useTheme();
+  const authStatus = useGlobalStore((state) => state.authStatus);
 
   const {
     code,
@@ -40,12 +46,14 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
   const isEmail = channel === "EMAIL";
   const isAuthenticator = channel === "AUTHENTICATOR";
 
+  const targetDestination =
+    recipient || (isEmail ? "your Email address" : "your Phone number");
+
   return (
     <Stack
       sx={{
         gap: theme.gap(20),
         width: "70cqh",
-        // [theme.breakpoints.only("sm")]: { width: "70cqh" },
         [theme.breakpoints.down("sm")]: { width: "100%" },
         alignItems: "center",
       }}>
@@ -69,19 +77,13 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
         <TransText
           {...(isAuthenticator
             ? AUTH_FEEDBACK.verify_code_from_auth_app_headline
-            : AUTH_FEEDBACK.verify_your_credential(
-                isEmail ? "Email" : "Phone",
-              ))}
+            : AUTH_FEEDBACK.verify_via_credential(isEmail ? "Email" : "Phone"))}
           sx={{ ...theme.typography.h5, fontWeight: 500, textAlign: "center" }}
         />
         <TransText
           {...(isAuthenticator
             ? AUTH_FEEDBACK.verify_code_from_auth_app_tagline
-            : AUTH_FEEDBACK.otp_code_sent(
-                recipient || isEmail
-                  ? " your Email address"
-                  : " your Phone number",
-              ))}
+            : AUTH_FEEDBACK.otp_code_sent(targetDestination))}
           style={{
             ...theme.typography.text3,
             color: theme.palette.gray[200],
@@ -94,7 +96,6 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
       <Stack
         sx={{
           width: "58cqh",
-          //  [theme.breakpoints.only("sm")]: { width: "56cqh" },
           [theme.breakpoints.down("sm")]: { width: "100%" },
           gap: theme.gap(16),
           alignItems: "center",
@@ -114,7 +115,7 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
         <AppButton
           variant="contained"
           onClick={() => handleVerify()}
-          style={{ width: "100%", paddingY: theme.boxSpacing(4) }}
+          style={{ width: "100%" }}
           options={{ disabled: code.length < 6 || isVerifying }}>
           {isVerifying ? (
             <ProgressIcon otherProps={{ size: 24 }} />
@@ -126,8 +127,12 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
 
       {/* Footer */}
       <Stack
-        gap={theme.gap(10)}
-        sx={{ width: "100%", flexDirection: "column", alignItems: "center" }}>
+        sx={{
+          width: "100%",
+          gap: theme.gap(10),
+          flexDirection: "column",
+          alignItems: "center",
+        }}>
         {!isAuthenticator ? (
           <>
             <Stack direction="row" alignItems="center" gap={0}>
@@ -137,6 +142,7 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
               />
               <AppButton
                 variant="text"
+                size="small"
                 onClick={() => handleSendOtp()}
                 style={{
                   color: theme.palette.primary.dark,
@@ -157,49 +163,65 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
                 )}
               </AppButton>
             </Stack>
-
-            <AppButton
-              variant="text"
-              onClick={switchChannel}
-              options={{ disabled: timer > 0 }}
-              style={{
-                color: theme.palette.primary.dark,
-                padding: theme.boxSpacing(3, 6),
+            <Stack
+              sx={{
+                width: "100%",
+                flexDirection: "row",
+                gap: theme.gap(1),
+                alignItems: "center",
+                justifyContent: "center",
               }}>
-              {isSending ? (
-                <ProgressIcon otherProps={{ size: 14 }} />
-              ) : (
+              <AppButton
+                variant="text"
+                size="small"
+                onClick={() => switchChannel(isEmail ? "PHONE" : "EMAIL")}
+                options={{ disabled: timer > 0 }}
+                style={{
+                  color: theme.palette.primary.dark,
+                }}>
+                {isSending ? (
+                  <ProgressIcon otherProps={{ size: 14 }} />
+                ) : (
+                  <TransText
+                    {...AUTH_BUTTON_LABELS.otp_switch_channel(
+                      isEmail ? "SMS" : "email",
+                    )}
+                    noComponent
+                  />
+                )}
+              </AppButton>
+
+              <Divider
+                orientation="vertical"
+                sx={{
+                  height: "14px",
+                  width: "unset",
+                }}
+              />
+
+              <AppButton
+                variant="text"
+                size="small"
+                onClick={switchToAuthenticator}
+                style={{
+                  color: theme.palette.primary.dark,
+                }}>
                 <TransText
-                  {...AUTH_BUTTON_LABELS.otp_switch_channel(
-                    isEmail ? "SMS" : "email",
-                  )}
+                  {...AUTH_BUTTON_LABELS.use_authenticator}
                   noComponent
                 />
-              )}
-            </AppButton>
-
-            <AppButton
-              variant="text"
-              onClick={switchToAuthenticator}
-              style={{
-                color: theme.palette.primary.dark,
-                padding: theme.boxSpacing(3, 6),
-              }}>
-              <TransText
-                {...AUTH_BUTTON_LABELS.use_authenticator}
-                noComponent
-              />
-            </AppButton>
+              </AppButton>
+            </Stack>
           </>
         ) : (
           // Only show switch option if the other channel exists on the user profile
           <AppButton
             variant="text"
-            onClick={switchChannel}
+            size="small"
+            onClick={() => switchChannel(isEmail ? "PHONE" : "EMAIL")}
             options={{ disabled: timer > 0 }}
             style={{
               color: theme.palette.primary.dark,
-              padding: theme.boxSpacing(3, 6),
             }}>
             {isSending ? (
               <ProgressIcon otherProps={{ size: 14 }} />
@@ -212,23 +234,27 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
           </AppButton>
         )}
 
-        <Divider sx={{ width: "100%" }} />
-        <Logout
-          containerStyle={{
-            gap: theme.gap(4),
-            hover: {
-              "& svg": { stroke: theme.palette.primary.dark },
-            },
-          }}
-          textStyle={{
-            width: "fit-content",
-            textAlign: "center",
-            color: theme.palette.gray[200],
-          }}
-          iconStyle={{
-            size: 18,
-          }}
-        />
+        {authStatus === "AUTHENTICATED" && (
+          <>
+            <Divider sx={{ width: "100%" }} />
+            <Logout
+              containerStyle={{
+                gap: theme.gap(4),
+                hover: {
+                  "& svg": { stroke: theme.palette.primary.dark },
+                },
+              }}
+              textStyle={{
+                width: "fit-content",
+                textAlign: "center",
+                color: theme.palette.gray[200],
+              }}
+              iconStyle={{
+                size: 18,
+              }}
+            />
+          </>
+        )}
       </Stack>
     </Stack>
   );

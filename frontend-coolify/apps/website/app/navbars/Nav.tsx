@@ -73,9 +73,9 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
       <Divider />
       {authStatus === "AUTHENTICATED" && (
         <AppButton
-          href={CLIENT_ROUTES.home.path}
           variant="outlined"
-          style={{ ...theme.typography.text5 }}
+          size="small"
+          href={CLIENT_ROUTES.home.path}
           onClick={() =>
             navigateTo(CLIENT_ROUTES.home, { type: "push", loadPage: true })
           }>
@@ -86,8 +86,9 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
       {authStatus === "UNAUTHENTICATED" && (
         <>
           <AppButton
+            variant="contained"
+            size="small"
             href={CLIENT_ROUTES.signup.path}
-            style={{ ...theme.typography.text5 }}
             onClick={() =>
               navigateTo(CLIENT_ROUTES.signup, {
                 type: "push",
@@ -99,9 +100,9 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
             Sign up
           </AppButton>
           <AppButton
-            href={CLIENT_ROUTES.login.path}
             variant="outlined"
-            style={{ ...theme.typography.text5 }}
+            size="small"
+            href={CLIENT_ROUTES.login.path}
             onClick={() =>
               navigateTo(CLIENT_ROUTES.login, {
                 type: "push",

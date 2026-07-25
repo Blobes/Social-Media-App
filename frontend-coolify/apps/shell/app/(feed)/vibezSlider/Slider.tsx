@@ -62,10 +62,9 @@ export const UpdatesCarousel = () => {
         }}>
         <AppButton
           variant="contained"
+          size="small"
           style={{
-            ...theme.typography.text5,
             backgroundColor: theme.palette.gray.trans[1],
-            borderRadius: theme.radius.full,
             "&:hover": {
               backgroundColor: theme.palette.gray.trans[2],
             },
@@ -75,10 +74,9 @@ export const UpdatesCarousel = () => {
         </AppButton>
         <AppButton
           variant="contained"
+          size="small"
           style={{
-            ...theme.typography.text5,
             backgroundColor: theme.palette.gray.trans[1],
-            borderRadius: theme.radius.full,
             "&:hover": {
               backgroundColor: theme.palette.gray.trans[2],
             },
