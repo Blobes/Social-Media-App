@@ -76,7 +76,6 @@ router.use(
   createStaticProxy(
     ["/upload", "/notification", "/search", "/audit", "/moderation"],
     PLATFORM_URL,
-    true,
   ),
 );
 
