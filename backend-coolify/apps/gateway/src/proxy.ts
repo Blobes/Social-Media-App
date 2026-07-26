@@ -60,7 +60,7 @@ const createStaticProxy = (
   };
 };
 
-// ====== Static Route Mappings ======
+// ====== Static Microservice Mappings ======
 
 // ACCOUNT SERVICE
 router.use(createStaticProxy(["/account"], ACCOUNT_URL, true));
