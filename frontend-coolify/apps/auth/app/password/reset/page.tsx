@@ -12,7 +12,8 @@ import {
   useGlobalStore,
 } from "@repo/core";
 import { usePage, useStaticTranslation } from "@repo/shared-hooks";
-import { DisplayFeedbackUI, usePopup } from "@repo/features";
+import { usePopup } from "@repo/features";
+import { DisplayFeedbackUI } from "@repo/shared-ui";
 
 export default function ResetPage() {
   const authStatus = useGlobalStore((state) => state.authStatus);

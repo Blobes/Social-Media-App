@@ -3,11 +3,10 @@
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { IStep, AuthStepName } from "@repo/core";
-import { Stepper } from "@repo/shared-ui";
+import { DisplayFeedbackUI, Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
 import { PasswordStep } from "./PasswordStep";
 import { IdentifierStep } from "./IdentifierStep";
-import { DisplayFeedbackUI } from "@repo/features";
 import { LoginStepProps } from "../types";
 
 export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {

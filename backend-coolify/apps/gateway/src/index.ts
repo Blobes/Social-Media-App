@@ -1,40 +1,39 @@
 import express from "express";
-import appLoader from "./loader";
 import { createServer } from "http";
 import {
   initCacheClient,
   initQueueClient,
   initSocketReceiver,
 } from "@repo/shared";
+import appLoader from "./loader";
+import { registerSocketListeners } from "./socket";
 import {
   FUNSTAKES_REDIS_URL,
-  NODE_ENV,
-  PORT,
   GATEWAY_URL,
   JWT_SECRET,
+  NODE_ENV,
+  PORT,
 } from "./envVars";
-import { registerSocketListeners } from "./socket";
 
-const startGateway = async () => {
+/**
+ * Bootstraps the API Gateway server, socket engine, and service proxies.
+ */
+const startGateway = async (): Promise<void> => {
   const app = express();
   const httpServer = createServer(app);
 
-  initCacheClient(FUNSTAKES_REDIS_URL); // Initialize Redis cache pool
-  initQueueClient(FUNSTAKES_REDIS_URL); // Initialize Queue engine pool
+  // Configure reverse proxy trust setting before rate limiters and proxies read req.ip
+  app.set("trust proxy", 1);
 
-  // Mount Socket.IO server onto the HTTP server instance
+  // Initialize background services and sockets
+  await initCacheClient(FUNSTAKES_REDIS_URL);
+  initQueueClient(FUNSTAKES_REDIS_URL);
+
   const io = initSocketReceiver(httpServer, FUNSTAKES_REDIS_URL, JWT_SECRET);
   registerSocketListeners(io);
 
-  app.set("trust proxy", 1); // Essential for getting real User IPs
-
-  // Load Global Middleware (CORS, Parsers, etc.)
-  appLoader(app);
-
-  // api.funstake.net
-  app.get("/", (req, res) => {
-    res.json({ message: "Welcome to Funstakes API Gateway" });
-  });
+  // Load middlewares, health check, and route proxies
+  await appLoader(app);
 
   httpServer.listen(PORT, () => {
     console.log(`🚀 Gateway [${NODE_ENV}] running on port ${PORT}`);

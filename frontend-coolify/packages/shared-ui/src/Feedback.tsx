@@ -1,13 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { IconButton, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AppButton } from "./Buttons";
 import { RefreshCcw } from "lucide-react";
 import { BasicTooltip } from "./Tooltips";
-import { GenericStyle } from "@repo/core";
+import {
+  DisplayFeedbackUIConfig,
+  DisplayFeedbackUIType,
+  GenericStyle,
+} from "@repo/core";
 import { TransText } from "./Text";
+import { useDisplayFBConfig } from "@repo/shared-hooks";
 
 interface CTA {
   type?: "BUTTON" | "ICON";
@@ -146,5 +151,62 @@ export const Feedback: React.FC<FeedbackProps> = ({
           </BasicTooltip>
         ))}
     </Stack>
+  );
+};
+
+interface DisplayUIProps extends DisplayFeedbackUIConfig {
+  type: DisplayFeedbackUIType;
+  showCta?: boolean;
+  style?: GenericStyle;
+}
+/**
+ * A generic UI for restricted access states.
+ */
+export const DisplayFeedbackUI = ({
+  type,
+  headline,
+  tagline,
+  primaryCta,
+  secondaryCta,
+  showCta = true,
+}: DisplayUIProps) => {
+  const theme = useTheme();
+
+  const config: DisplayFeedbackUIConfig = useDisplayFBConfig()[type];
+
+  const handlePrimaryCta = useMemo(() => {
+    if (!showCta) return undefined;
+    return primaryCta ?? config.primaryCta;
+  }, [config.primaryCta, primaryCta]);
+
+  const handleSecondaryCta = useMemo(() => {
+    if (!showCta || (!secondaryCta && !config.secondaryCta)) return undefined;
+    return secondaryCta ?? config.secondaryCta;
+  }, [config.secondaryCta, secondaryCta]);
+
+  return (
+    <Feedback
+      headline={headline ?? config.headline}
+      tagline={tagline ?? config.tagline}
+      icon={config.icon}
+      primaryCta={handlePrimaryCta}
+      secondaryCta={handleSecondaryCta}
+      style={{
+        container: {
+          padding: theme.boxSpacing(18),
+          backgroundColor: theme.palette.gray[0],
+          border: `1px solid ${theme.fixedColors.pTrans}`,
+        },
+        tagline: { color: theme.palette.gray[200] },
+        icon: {
+          width: 50,
+          height: 50,
+          svg: {
+            stroke: theme.palette.primary.dark,
+            strokeWidth: 1.5,
+          },
+        },
+      }}
+    />
   );
 };

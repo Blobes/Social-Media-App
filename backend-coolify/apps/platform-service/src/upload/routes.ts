@@ -11,6 +11,11 @@ import { LocalizationUpload } from "./controllers/localization";
 
 const router: Router = Router();
 
+// api.funstakes.net/upload
+router.get("/", (req, res) => {
+  res.json({ message: "Welcome to Funstakes Upload API" });
+});
+
 // --- Group 1: Standard Client Media Endpoints (Protected by User JWT) ---
 router.post("/get-upload-policy", authenticate, MediaUploadPolicyHandler);
 router.post("/get-upload-url", authenticate, MediaUploadUrlHandler);

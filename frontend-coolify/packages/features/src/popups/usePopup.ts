@@ -1,7 +1,7 @@
 "use client";
 
 import { useDragClose, useMisc } from "@repo/shared-hooks";
-import { POPUP_CONFIG, PopupName } from "../constants/popups";
+import { POPUP_CONFIG, PopupName } from "./config";
 import { useCallback } from "react";
 import { useTheme } from "@mui/material/styles";
 import { dragToCloseConfig } from "@repo/helpers";

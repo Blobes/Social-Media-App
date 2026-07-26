@@ -4,7 +4,7 @@ import { internalRouter } from "./internal-api/routes";
 import { healthRouter } from "./health";
 
 export default (app: Express) => {
-  // ====== Middlewares ======
+  // Body parsers and cookies
   app.use(express.json({ limit: "30mb" }));
   app.use(express.urlencoded({ limit: "30mb", extended: true }));
   app.use(cookieParser());

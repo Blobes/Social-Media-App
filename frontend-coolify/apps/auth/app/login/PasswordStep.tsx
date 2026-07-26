@@ -10,6 +10,7 @@ import {
   ProgressIcon,
   TransText,
   AnchorLink,
+  DisplayFeedbackUI,
 } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 import { Lock, Pencil } from "lucide-react";
@@ -25,7 +26,6 @@ import {
 } from "@repo/core";
 import { useStaticTranslation } from "@repo/shared-hooks";
 import { useIdentifier } from "./hooks/useIdentifier";
-import { DisplayFeedbackUI } from "@repo/features";
 
 interface StepProps extends LoginStepProps {
   credential: string;

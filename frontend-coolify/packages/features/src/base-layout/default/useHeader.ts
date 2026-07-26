@@ -4,7 +4,7 @@ import React, { useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { CLIENT_ROUTES, MenuRef, useGlobalStore } from "@repo/core";
 import { useMisc, usePage, usePageScroll } from "@repo/shared-hooks";
-import { usePopup } from "../../hooks/usePopup";
+import { usePopup } from "../../popups/usePopup";
 
 /** * Parameters for handling avatar interactions on different screen sizes.
  */

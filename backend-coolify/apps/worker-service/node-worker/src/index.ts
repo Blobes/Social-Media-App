@@ -10,7 +10,7 @@ import { startErrorLogCleanupTask } from "./automations/errorLogsCleanup";
 const startServer = async () => {
   const app = express();
 
-  initCacheClient(FUNSTAKES_REDIS_URL); // Initialize Redis cache pool
+  await initCacheClient(FUNSTAKES_REDIS_URL); // Initialize Redis cache pool
 
   try {
     monitorProcess();

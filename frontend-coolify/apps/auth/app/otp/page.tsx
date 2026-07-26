@@ -6,7 +6,7 @@ import { Stack } from "@mui/material";
 import { VerifyOtp } from "./VerifyOtp";
 import { useCachedData, useStaticTranslation } from "@repo/shared-hooks";
 import { AUTH_FEEDBACK, OtpTransitData, TransitPurpose } from "@repo/core";
-import { DisplayFeedbackUI } from "@repo/features";
+import { DisplayFeedbackUI } from "@repo/shared-ui";
 
 export default function OtpPage() {
   const theme = useTheme();

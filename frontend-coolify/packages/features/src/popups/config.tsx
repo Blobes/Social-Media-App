@@ -4,7 +4,7 @@ import React from "react";
 import { DrawerProps, IDragResult, ModalProps } from "@repo/core";
 import { ComfirmLogout } from "../apps/auth/logout/Logout";
 import { Theme } from "@mui/material/styles";
-import { DisplayFeedbackUI } from "../components/DisplayFeedBackUI";
+import { DisplayFeedbackUI } from "@repo/shared-ui";
 
 export type PopupName =
   | "CONFIRM_LOGOUT"

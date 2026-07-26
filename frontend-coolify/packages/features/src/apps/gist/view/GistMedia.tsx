@@ -8,7 +8,7 @@ import { useCallback, useMemo } from "react";
 import { applyBGEffects } from "@repo/helpers";
 import { IGist, UIMode } from "@repo/core";
 import { GistMediaView } from "./GistMediaView";
-import { usePopup } from "@repo/features/src/hooks/usePopup";
+import { usePopup } from "@repo/features/src/popups/usePopup";
 
 export interface LikeState {
   likedByMe: boolean;

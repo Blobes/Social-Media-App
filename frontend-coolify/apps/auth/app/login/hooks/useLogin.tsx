@@ -29,12 +29,9 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
 
   const inlineMsgStyle = useMemo(
     () => ({
-      ...theme.typography.text5,
-      color: theme.palette.gray[0],
-      background: theme.palette.error.main,
-      padding: theme.boxSpacing(0, 3),
-      margin: theme.boxSpacing(0, 3, 1, 3),
-      borderRadius: theme.radius[1],
+      color: theme.palette.error.dark,
+      fontWeight: 700,
+      margin: theme.boxSpacing(0, 1),
     }),
     [theme],
   );
@@ -65,9 +62,10 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
 
     setInlineMsg(
       <TransText
-        component="span"
+        //  component="span"
         {...attemptFeedback.feedbackConfig}
         inlineComponents={{ counter: <strong style={inlineMsgStyle} /> }}
+        sx={{ ...theme.typography.text5 }}
       />,
     );
   }, [attemptFeedback, inlineMsgStyle, setInlineMsg]);

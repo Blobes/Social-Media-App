@@ -11,7 +11,7 @@ import { FUNSTAKES_REDIS_URL, MONGO_URI, NODE_ENV, PORT } from "./envVars";
 const startServer = async () => {
   const app = express();
 
-  initCacheClient(FUNSTAKES_REDIS_URL); // Initialize Redis cache pool
+  await initCacheClient(FUNSTAKES_REDIS_URL); // Initialize Redis cache pool
   initQueueClient(FUNSTAKES_REDIS_URL); // Initialize Queue engine pool
 
   try {

@@ -7,6 +7,8 @@ import {
   CLIENT_ROUTES,
   COMMON_BUTTON_LABELS,
   COMMON_FEEDBACK,
+  DisplayFeedbackUIConfig,
+  DisplayFeedbackUIType,
 } from "@repo/core";
 import {
   ShieldCheck,
@@ -17,38 +19,16 @@ import {
   UserPlus,
   RefreshCw,
 } from "lucide-react";
-import { usePage, useStaticTranslation } from "@repo/shared-hooks";
-
-export type DisplayType =
-  | "ALREADY_LOGGED_IN"
-  | "UNAUTHORIZED"
-  | "MAINTENANCE"
-  | "BANNED"
-  | "NEEDS_LOGIN"
-  | "NEEDS_ONBOARDING"
-  | "NEEDS_OTP_VERIFICATION"
-  | "NEEDS_RESTORE"
-  | "PASSWORD_RESET_SUCCESS";
-
-export interface DisplayConfig {
-  headline?: React.ReactNode;
-  tagline?: React.ReactNode;
-  icon?: React.ReactNode;
-  primaryCta?: {
-    label: string;
-    action: () => void;
-    href?: string;
-  };
-  secondaryCta?: {
-    label: string;
-    action: () => void;
-  };
-}
+import { usePage } from "./usePage";
+import { useStaticTranslation } from "./useTrans";
 
 /**
  * Custom hook providing structured configuration contexts for application level restricted views.
  */
-export const useDisplayFBConfig = (): Record<DisplayType, DisplayConfig> => {
+export const useDisplayFBConfig = (): Record<
+  DisplayFeedbackUIType,
+  DisplayFeedbackUIConfig
+> => {
   const { navigateTo } = usePage();
   const { translateTxtString } = useStaticTranslation();
 

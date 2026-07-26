@@ -180,3 +180,29 @@ export interface IBGFadeSlideData {
   tagline: string;
   media: IMedia;
 }
+
+export type DisplayFeedbackUIType =
+  | "ALREADY_LOGGED_IN"
+  | "UNAUTHORIZED"
+  | "MAINTENANCE"
+  | "BANNED"
+  | "NEEDS_LOGIN"
+  | "NEEDS_ONBOARDING"
+  | "NEEDS_OTP_VERIFICATION"
+  | "NEEDS_RESTORE"
+  | "PASSWORD_RESET_SUCCESS";
+
+export interface DisplayFeedbackUIConfig {
+  headline?: React.ReactNode;
+  tagline?: React.ReactNode;
+  icon?: React.ReactNode;
+  primaryCta?: {
+    label: string;
+    action: () => void;
+    href?: string;
+  };
+  secondaryCta?: {
+    label: string;
+    action: () => void;
+  };
+}
