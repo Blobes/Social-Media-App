@@ -1,4 +1,5 @@
-import { IMedia } from "./modified";
+import { IMedia } from "../media";
+import { IContentModeration } from "./modified";
 
 export type PostVisibility =
   | "PUBLIC"
@@ -25,11 +26,6 @@ export interface IPostAuthor {
   profileImage: string | null;
   isFollowing?: boolean;
   followsMe?: boolean;
-}
-
-export interface IContentModeration {
-  caseId: string;
-  caseCount: number | null;
 }
 
 export interface IGistPayload {

@@ -17,6 +17,7 @@ export type CredentialType = "EMAIL" | "PHONE" | "USERNAME" | "UNKNOWN";
 interface UseInputFieldOptions {
   initialValue?: string;
   isRequired?: boolean;
+  needsValidation?: boolean;
   allowedTypes?: CredentialType[];
   inputRef?: RefObject<HTMLInputElement | null>;
   onClearFeedback?: () => void;
@@ -26,9 +27,10 @@ interface UseInputFieldOptions {
 /**
  * Manages validation, real-time phone formatting, and selection range alignment for polymorphic input string credentials.
  */
-export const useInputFieldValidation = ({
+export const useMultiFieldValidation = ({
   initialValue = "",
   isRequired = true,
+  needsValidation = true,
   allowedTypes = ["EMAIL", "PHONE", "USERNAME", "UNKNOWN"],
   onClearFeedback,
   inputRef,
@@ -65,7 +67,7 @@ export const useInputFieldValidation = ({
     (value: string) => {
       setInput(value);
 
-      if (!isRequired && value === "") {
+      if ((!isRequired && value === "") || !needsValidation) {
         setValidationMsg("");
         return;
       }
@@ -135,6 +137,7 @@ export const useInputFieldValidation = ({
       window.requestAnimationFrame(() => {
         target.setSelectionRange(start, start);
       });
+
       validateAndSet(inputValue);
     },
     [onClearFeedback, validateAndSet],

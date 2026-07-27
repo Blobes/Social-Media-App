@@ -5,6 +5,7 @@ import {
   ApiError,
   COMMON_FEEDBACK,
   COMMON_MEDIA,
+  CustomizedMedia,
   MediaUploadPayload,
   MenuRef,
   POST_FEEDBACK,
@@ -15,6 +16,7 @@ import {
 import { uploadMediaToCloud } from "@repo/helpers";
 import {
   useFileProcessing,
+  useMediaFileTransform,
   useSnackbar,
   useStaticTranslation,
 } from "@repo/shared-hooks";
@@ -64,12 +66,24 @@ export const useGistContent = ({
   const [inlineErrMsg, setInlineErrMsg] = useState<React.ReactNode | null>(
     null,
   );
+  const [customizationsMap, setCustomizationsMap] = useState<
+    Record<string, CustomizedMedia>
+  >({});
+  const [editingFileIndex, setEditingFileIndex] = useState<number | null>(null);
 
   const [moderationTrackingId, setModerationTrackingId] = useState<
     string | null
   >(null);
 
   const topicOperations = useTopics({ topics, setTopics });
+
+  /**
+   * Transforms raw browser files into structured IMedia models.
+   */
+  const transformedMediaList = useMediaFileTransform({
+    files: stagedFiles,
+    customizationsMap,
+  });
 
   // Hook handles compression tracking, file mapping selection, and unified pipeline metrics internally
   const {
@@ -83,6 +97,10 @@ export const useGistContent = ({
     setErrorMessage,
     shouldCompress: true,
   });
+
+  const userHasFlags = authUser?.hasFlaggedPost ?? false;
+  const userWindowCount = authUser?.postCountWindow ?? 0;
+  const skipModeration = !userHasFlags && userWindowCount >= 6;
 
   /**
    * Listens for real-time moderation processing updates broadcasted by the backend worker architecture.
@@ -215,9 +233,27 @@ export const useGistContent = ({
     });
   }, [moderationTrackingId, setSBMessage]);
 
-  const userHasFlags = authUser?.hasFlaggedPost ?? false;
-  const userWindowCount = authUser?.postCountWindow ?? 0;
-  const skipModeration = !userHasFlags && userWindowCount >= 6;
+  /**
+   * Updates customization data for a specific file index and returns to content view.
+   */
+  const handleSaveCustomization = useCallback(
+    (fileIndex: number, customizedData: CustomizedMedia) => {
+      const targetFile = stagedFiles[fileIndex];
+      if (!targetFile) return;
+
+      const trackingId =
+        (targetFile as any).trackingId || `${fileIndex}-${targetFile.name}`;
+
+      setCustomizationsMap((prev) => ({
+        ...prev,
+        [trackingId]: customizedData,
+      }));
+
+      setStep?.("CONTENT");
+      setEditingFileIndex(null);
+    },
+    [stagedFiles, setStep],
+  );
 
   const { mutate, isPending: isMutationLoading } = useMutation({
     mutationFn: async () => {
@@ -225,7 +261,10 @@ export const useGistContent = ({
       let uploadedAssets: MediaUploadPayload[] = [];
 
       if (hasMedia) {
-        uploadedAssets = await uploadMediaToCloud(stagedFiles);
+        uploadedAssets = await uploadMediaToCloud(
+          stagedFiles,
+          customizationsMap,
+        );
         console.log(
           "Cloud asset transfers completed successfully:",
           uploadedAssets,
@@ -265,6 +304,7 @@ export const useGistContent = ({
       }
 
       setStagedFiles([]);
+      setCustomizationsMap({});
       setTopics([]);
       setHasSensitiveGraphic?.(false);
       setCaption("");
@@ -335,6 +375,11 @@ export const useGistContent = ({
     caption,
     setCaption,
     stagedFiles,
+    transformedMediaList,
+    customizationsMap,
+    editingFileIndex,
+    setEditingFileIndex,
+    handleSaveCustomization,
     topics,
     setTopics,
     hasSensitiveGraphic,

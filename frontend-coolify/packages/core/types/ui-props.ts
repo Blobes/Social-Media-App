@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { IMedia } from "./payloads/modified";
 import { GenericStyle, IMenuItem } from "./ui-state";
+import { IMedia } from "./media";
 
 export type Direction = "left" | "right" | "up" | "down";
 export type TransitionType = "fade" | "grow" | "slide" | "zoom" | "collapse";
@@ -33,22 +33,36 @@ export interface TransData {
   secondaryBtn?: ITranslation;
 }
 
-// Transition
+export interface ElementPosition {
+  x: number;
+  y: number;
+}
+
+// Drag Event
 export interface IDragConfig {
-  axis: "X" | "Y";
+  axis?: "X" | "Y";
   dragOrigin?: "LTR" | "RTL";
   threshold?: number;
   closeAtMiddle?: boolean;
+  containerRef?: React.RefObject<HTMLDivElement | null>;
+  onPositionChange?: (position: ElementPosition) => void;
 }
 export interface IDragResult {
   axis: "X" | "Y";
   dragOffset: number;
+  resolveDragConfig: (dir?: Direction) => IDragConfig;
   handlers: {
     onTouchStart: (e: React.TouchEvent) => void;
     onTouchMove: (e: React.TouchEvent) => void;
     onTouchEnd: (onDragEnd?: () => void) => void;
+    onElementDragStart: (
+      e: React.MouseEvent<HTMLDivElement>,
+      itemId: string,
+      onFocus?: (id: string) => void,
+    ) => void;
   };
 }
+
 export interface MenuRef {
   openMenu: (anchor: HTMLElement) => void;
   closeMenu: () => void;
@@ -95,7 +109,7 @@ export interface DrawerProps {
     base?: Direction;
     mobile?: Direction;
   };
-  useDragConfig?: () => IDragResult;
+  dragConfig?: IDragConfig;
   blurOverlayBG?: boolean;
   source?: string;
   style?: {
@@ -112,21 +126,6 @@ export interface DrawerProps {
   };
 }
 
-// Media
-export interface UseMedia {
-  useMisc: () => { isDesktop: boolean };
-}
-export interface MediaStyle {
-  container?: { base?: GenericStyle; smallScreen?: GenericStyle };
-  content?: GenericStyle;
-}
-export interface MediaProps extends IMedia {
-  style?: MediaStyle;
-  onSingleTap?: (media?: IMedia) => void;
-  onDoubleTap?: (media?: IMedia) => void;
-  useMedia?: UseMedia;
-}
-
 export interface ICountryItem extends IMenuItem {
   name?: string;
   code?: string;
@@ -137,12 +136,6 @@ export interface ICountryItem extends IMenuItem {
   isoCode?: string;
   codeFlag?: string;
   fullInfo?: string;
-}
-
-export interface AnalyzedImage {
-  height: number;
-  width: number;
-  isPortrait: boolean;
 }
 
 export interface IStep<T> {

@@ -2,7 +2,12 @@
 
 import React from "react";
 import { IconButton, Stack, Typography } from "@mui/material";
-import { AppButton, TextInput, ProgressIcon, TransText } from "@repo/shared-ui";
+import {
+  AppButton,
+  DynamicInput,
+  ProgressIcon,
+  TransText,
+} from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 import { useIdentity } from "../hooks/useIdentity";
 import { ChevronLeft } from "lucide-react";
@@ -59,7 +64,7 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
           e.preventDefault();
           submitIdentity();
         }}>
-        <TextInput
+        <DynamicInput
           placeholder={translateTxtString(
             AUTH_INPUT.placeholder.enter_first_name,
           )}
@@ -68,7 +73,7 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
           onChange={handleChange}
         />
 
-        <TextInput
+        <DynamicInput
           placeholder={translateTxtString(
             AUTH_INPUT.placeholder.enter_last_name,
           )}
@@ -77,7 +82,7 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
           onChange={handleChange}
         />
 
-        <TextInput
+        <DynamicInput
           placeholder={translateTxtString(
             AUTH_INPUT.placeholder.create_username,
           )}

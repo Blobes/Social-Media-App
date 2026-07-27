@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import {
   useCachedData,
-  useInputFieldValidation,
+  useMultiFieldValidation,
   usePage,
   usePasswordFieldValidation,
   useStaticTranslation,
@@ -113,7 +113,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     countryMenuRef,
     handleChange,
     validateAndSet,
-  } = useInputFieldValidation({
+  } = useMultiFieldValidation({
     initialValue: existingInput,
     allowedTypes: ["EMAIL", "PHONE"],
     onClearFeedback: clearInlineMsg,

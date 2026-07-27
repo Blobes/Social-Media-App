@@ -4,14 +4,13 @@ import { SystemStyleObject } from "@mui/system";
 import { Theme } from "@mui/material/styles";
 import {
   FetchStatus,
-  IMedia,
   ISinglePayload,
   ITopicPayload,
   IUser,
 } from "./payloads/modified";
 import { Direction, IStep } from "./ui-props";
 import { CSSProperties } from "react";
-import { Dimensions, MediaType, StorageProvider } from "./payloads/media";
+import { IMedia } from "./media";
 
 export type AuthStatus =
   | "UNKNOWN"
@@ -33,7 +32,11 @@ export type OtpReason =
   | "NEW_ACCOUNT"
   | "PASSWORD_RESET";
 
-export type PostStepName = "CONTENT" | "SETTINGS" | "MEDIA_PREVIEW";
+export type PostStepName =
+  | "CONTENT"
+  | "SETTINGS"
+  | "MEDIA_PREVIEW"
+  | "MEDIA_CUSTOMIZATION";
 export type PasswordResetStepName = "CREDENTIAL" | "NEW_PASSWORD";
 export type AuthStepName =
   | "INTRO"
@@ -200,37 +203,8 @@ export interface TourGuide extends Omit<IStep<TourStepName>, "element"> {
   desc?: React.ReactNode;
 }
 
-export type MediaProcessingStatus =
-  | "IDLE"
-  | "LOADING_ENGINE"
-  | "OPTIMIZING"
-  | "SUCCESS"
-  | "ERROR"
-  | "UPLOADING"
-  | "FAILED";
-
-export interface MediaProcessingProgress {
-  i18nKey?: string;
-  fileName?: string;
-  status: MediaProcessingStatus;
-  progress: number;
-  error?: string;
-}
-
 export interface TrackedFile extends File {
   trackingId: string;
-}
-
-export interface MediaUploadPayload {
-  url: string;
-  fileKey: string;
-  type: MediaType;
-  thumbnailUrl: string | null;
-  mimeType: string;
-  size: number;
-  dimensions: Dimensions;
-  blurHash: string;
-  storageProvider: StorageProvider;
 }
 
 export type ITopic = IMenuItem & ITopicPayload;

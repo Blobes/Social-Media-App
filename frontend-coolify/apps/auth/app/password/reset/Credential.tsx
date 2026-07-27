@@ -4,7 +4,7 @@ import React from "react";
 import { Divider, Stack } from "@mui/material";
 import {
   AppButton,
-  TextInput,
+  DynamicInput,
   InlineMsgUI,
   ProgressIcon,
   DisplayList as CountryList,
@@ -98,7 +98,7 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
         sx={{ gap: theme.gap(20) }}
         component="form"
         onSubmit={handleStandardSubmit}>
-        <TextInput
+        <DynamicInput
           value={input}
           label={translateTxtString(AUTH_INPUT.label.email__or_phone)}
           placeholder={translateTxtString(

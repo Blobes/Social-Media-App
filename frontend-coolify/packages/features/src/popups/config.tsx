@@ -26,7 +26,6 @@ interface ConfigContext {
   header?: React.ReactNode;
   closeModal: () => void;
   closeDrawer: () => void;
-  dragConfig: () => IDragResult;
   theme: Theme;
 }
 
@@ -38,7 +37,6 @@ export const POPUP_CONFIG = ({
   header,
   closeModal,
   closeDrawer,
-  dragConfig,
   theme,
 }: ConfigContext): Record<PopupName, PopupConfig> => {
   return {
@@ -104,7 +102,7 @@ export const POPUP_CONFIG = ({
         header,
         source: "navbar",
         onClose: closeDrawer,
-        useDragConfig: dragConfig,
+
         style: {
           base: {
             overlay: { padding: theme.boxSpacing(6), display: "none" },

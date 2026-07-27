@@ -1,16 +1,67 @@
-import { Schema, model, Document, Model, Types } from "mongoose";
-import { IMediaModel } from "../../types/media";
+import { Schema, model, Model } from "mongoose";
+import { IMediaDocument } from "../../types/media";
 
-export interface IMediaDocument
-  extends
-    Omit<
-      IMediaModel,
-      "_id" | "ownerId" | "sourceId" | "createdAt" | "updatedAt"
-    >,
-    Document {
-  ownerId: Types.ObjectId;
-  sourceId?: Types.ObjectId | null;
-}
+const ElementPositionSchema = new Schema(
+  {
+    x: { type: Number, required: true },
+    y: { type: Number, required: true },
+  },
+  { _id: false },
+);
+
+const TextOnMediaSchema = new Schema(
+  {
+    id: { type: String, required: true },
+    content: { type: String, required: true },
+    position: { type: ElementPositionSchema, required: true },
+    fontType: { type: String, required: true },
+    colorType: { type: String, required: true },
+    size: { type: Number, required: true },
+    textAlign: {
+      type: String,
+      enum: ["left", "center", "right"],
+      default: "center",
+    },
+  },
+  { _id: false },
+);
+
+const StickerOnMediaSchema = new Schema(
+  {
+    id: { type: String, required: true },
+    content: { type: String, required: true },
+    position: { type: ElementPositionSchema, required: true },
+    size: { type: Number, required: true },
+    category: {
+      type: String,
+      enum: ["STICKER", "EMOJI"],
+      default: "STICKER",
+    },
+  },
+  { _id: false },
+);
+
+const CustomizedMediaSchema = new Schema(
+  {
+    textsOnMedia: { type: [TextOnMediaSchema], default: [] },
+    filter: {
+      type: String,
+      enum: [
+        "ORIGINAL",
+        "CLARENDON",
+        "GINGHAM",
+        "MOON",
+        "LARK",
+        "REYES",
+        "JUNO",
+        "SLUMBER",
+      ],
+      default: "ORIGINAL",
+    },
+    stickersOnMedia: { type: [StickerOnMediaSchema], default: [] },
+  },
+  { _id: false },
+);
 
 const MediaSchema = new Schema<IMediaDocument>(
   {
@@ -52,9 +103,12 @@ const MediaSchema = new Schema<IMediaDocument>(
     order: { type: Number, default: 0 },
     status: {
       type: String,
-      enum: ["UPLOADING", "READY", "ERROR"],
+      enum: ["UPLOADING", "READY", "ERROR", "BANNED"],
       default: "READY",
     },
+
+    // Embedded Media Customizations
+    customizations: { type: CustomizedMediaSchema, default: null },
 
     // Moderation log
     moderationCase: {

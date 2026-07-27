@@ -1,5 +1,7 @@
+import { CustomizedMedia, MediaType } from "../media";
+import { IContentModeration } from "./modified";
+
 export type StorageProvider = "S3" | "CLOUDINARY" | "GCP";
-export type MediaType = "IMAGE" | "VIDEO" | "GIF";
 export type MediaStatus = "UPLOADING" | "READY" | "ERROR";
 export type MediaSourceType = "GIST" | "STAKE" | "USER" | "VERIFICATION";
 
@@ -34,6 +36,10 @@ export interface IMediaPayload {
   blurHash?: string | null;
   order?: number;
   status?: MediaStatus;
+
+  customizations?: CustomizedMedia;
+
+  moderationCase?: IContentModeration;
 
   createdAt?: string | Date;
   updatedAt?: string | Date;

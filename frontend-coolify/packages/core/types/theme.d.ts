@@ -7,6 +7,14 @@ interface OverlayObj {
   adaptive: string;
 }
 
+export interface FixedColors {
+  gray50: string;
+  gray800: string;
+  grayTrans: (opacity?: number, type?: "light" | "dark") => string;
+  primary: string;
+  pTrans: string;
+}
+
 declare module "@mui/material/styles" {
   interface PaletteColor {
     trans: { 1: string; 2: string };
@@ -54,7 +62,7 @@ declare module "@mui/material/styles" {
   }
 
   interface Theme {
-    fixedColors: Record<string, any>;
+    fixedColors: FixedColors;
     radius: Record<string | number, string | number>;
     boxSpacing: (
       top: number,
@@ -65,7 +73,7 @@ declare module "@mui/material/styles" {
     gap: (value: number) => string;
   }
   interface ThemeOptions {
-    fixedColors?: Record<string, any>;
+    fixedColors?: FixedColors;
     radius?: Record<string | number, string | number>;
     boxSpacing?: (
       top: number,
@@ -105,4 +113,9 @@ declare module "@mui/material/Typography" {
     text6: true;
     text6Caps: true;
   }
+}
+
+declare module "*.lottie" {
+  const src: string;
+  export default src;
 }

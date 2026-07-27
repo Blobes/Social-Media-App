@@ -8,7 +8,7 @@ import {
   InlineMsgUI,
   MediaFileSelector,
   SelectedMediaFiles,
-  TextInput,
+  DynamicInput,
   DisplayList as TopicList,
   TransText,
 } from "@repo/shared-ui";
@@ -89,7 +89,7 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
         {!isProcessing && inlineErrMsg && (
           <InlineMsgUI msg={inlineErrMsg} type="ERROR" />
         )}
-        <TextInput
+        <DynamicInput
           variant="outlined"
           label={translateTxtString(POST_INPUT.label.whats_happening)}
           placeholder={translateTxtString(

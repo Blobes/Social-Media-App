@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useMemo, useEffect, useRef } from "react";
+import React, { useMemo, useCallback } from "react";
 import { Box, IconButton, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { X } from "lucide-react";
+import { X, SlidersHorizontal } from "lucide-react";
 import { applyBGEffects } from "@repo/helpers";
 import { MediaProps, MediaProcessingProgress, COMMON_MEDIA } from "@repo/core";
-import { useMisc } from "@repo/shared-hooks";
 import { ProgressIcon } from "../../LoadingUIs";
 import { TransText } from "../../Text";
-import { Media } from "../Media";
-import { MediaGrid, MediaScroll } from "../MediaGallery";
+import { Media } from "../view/Media";
+import { MediaGrid, MediaScroll } from "../view/MediaGallery";
+import { useMediaFileTransform } from "@repo/shared-hooks";
 
 interface SelectedMediaFilesProps {
   stagedFiles: File[];
@@ -20,6 +20,7 @@ interface SelectedMediaFilesProps {
   >;
   onRemoveFile: (index: number) => void;
   onPreviewClick?: (objectUrl: string, index: number) => void;
+  onCustomizeMedia?: (file: File, index: number) => void;
 }
 
 /**
@@ -30,44 +31,25 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
   processingStates = {},
   onRemoveFile,
   onPreviewClick,
+  onCustomizeMedia,
 }) => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const previousUrlsRef = useRef<string[]>([]);
 
-  // Map files to local URLs while tracking references to prevent memory bloat
-  const formattedMediaList = useMemo(() => {
-    previousUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+  const handleSingleTap = useCallback(
+    (media: MediaProps, index: number) => {
+      if (onPreviewClick) {
+        onPreviewClick(media.url, index);
+      }
+    },
+    [onPreviewClick],
+  );
 
-    const newUrls: string[] = [];
-    const mediaMapped = stagedFiles.map((file, index) => {
-      const objectUrl = URL.createObjectURL(file);
-      newUrls.push(objectUrl);
-
-      const isVideo = file.type.startsWith("video/");
-
-      return {
-        _id: `${index}-${file.name}`,
-        url: objectUrl,
-        type: isVideo ? "VIDEO" : "IMAGE",
-        alt: file.name,
-        onSingleTap: () => {
-          if (onPreviewClick) {
-            onPreviewClick(objectUrl, index);
-          }
-        },
-      } as MediaProps;
-    });
-
-    previousUrlsRef.current = newUrls;
-    return mediaMapped;
-  }, [stagedFiles, onPreviewClick]);
-
-  useEffect(() => {
-    return () => {
-      previousUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, []);
+  // Consume shared hook for formatting media list
+  const formattedMediaList = useMediaFileTransform({
+    files: stagedFiles,
+    onSingleTap: handleSingleTap,
+  });
 
   const mediaStyle = useMemo(
     () => ({
@@ -79,6 +61,22 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
         width: "100%",
         height: "100%",
         objectFit: "cover",
+      },
+    }),
+    [theme],
+  );
+
+  const actionButtonStyle = useMemo(
+    () => ({
+      position: "absolute",
+      top: "8px",
+      zIndex: 10,
+      backgroundColor: theme.palette.gray.trans.overlay(0.6),
+      color: theme.fixedColors.gray50,
+      backdropFilter: "blur(4px)",
+      padding: "6px",
+      "&:hover": {
+        backgroundColor: theme.palette.gray.trans.overlay(0.8),
       },
     }),
     [theme],
@@ -132,9 +130,9 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
   };
 
   /**
-   * Helper utility rendering a floating delete choice and processing metrics directly above layout slots.
+   * Helper utility rendering floating customization/delete actions and processing metrics directly above layout slots.
    */
-  const renderWithDeleteAction = (node: React.ReactNode, index: number) => {
+  const renderWithActions = (node: React.ReactNode, index: number) => {
     const file = stagedFiles[index];
     if (!file) return null;
 
@@ -149,22 +147,37 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
         }}>
         {node}
         {renderCompressionOverlay(file)}
+
+        {/* Customizer Action */}
+        {onCustomizeMedia && (
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              onCustomizeMedia(file, index);
+            }}
+            sx={{
+              ...actionButtonStyle,
+              left: "8px",
+              "&:hover": {
+                ...actionButtonStyle["&:hover"],
+                color: theme.palette.primary.main,
+              },
+            }}>
+            <SlidersHorizontal size={16} />
+          </IconButton>
+        )}
+
+        {/* Delete action */}
         <IconButton
           onClick={(e) => {
             e.stopPropagation();
             onRemoveFile(index);
           }}
           sx={{
-            position: "absolute",
-            top: "8px",
+            ...actionButtonStyle,
             right: "8px",
-            zIndex: 10,
-            backgroundColor: theme.palette.gray.trans.overlay(0.6),
-            color: theme.fixedColors.gray50,
-            backdropFilter: "blur(4px)",
-            padding: "6px",
             "&:hover": {
-              backgroundColor: theme.palette.gray.trans.overlay(0.8),
+              ...actionButtonStyle["&:hover"],
               color: theme.palette.error.main,
             },
           }}>
@@ -177,11 +190,11 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
   if (stagedFiles.length === 0) return null;
 
   if (stagedFiles.length === 1) {
-    return renderWithDeleteAction(
+    return renderWithActions(
       <Media
         {...formattedMediaList[0]}
+        includeCustomizations
         style={{ container: mediaStyle.container }}
-        useMedia={{ useMisc }}
       />,
       0,
     );
@@ -197,7 +210,7 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
             ...applyBGEffects(theme),
             overlay: {
               children: formattedMediaList.map((_, index) =>
-                renderWithDeleteAction(null, index),
+                renderWithActions(null, index),
               ),
             },
           })}
@@ -207,7 +220,7 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
           mediaList={formattedMediaList.map((media, index) => ({
             ...media,
             customContainerWrapper: (node: React.ReactNode) =>
-              renderWithDeleteAction(node, index),
+              renderWithActions(node, index),
           }))}
           style={mediaStyle}
           bgEffects={() => ({

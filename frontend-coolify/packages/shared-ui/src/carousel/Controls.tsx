@@ -160,9 +160,9 @@ export const CarouselDots = ({
               height: 8,
               borderRadius: theme.radius.full,
               cursor: "pointer",
-              bgcolor: theme.fixedColors.grayTrans(0.6),
+              bgcolor: theme.fixedColors.grayTrans(0.6, "dark"),
               "&:hover": {
-                bgcolor: theme.fixedColors.grayTrans(1),
+                bgcolor: theme.fixedColors.grayTrans(1, "dark"),
               },
               overflow: "hidden",
               transform: `scale(${dotScale})`,

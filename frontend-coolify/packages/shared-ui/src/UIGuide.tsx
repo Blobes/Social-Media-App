@@ -12,7 +12,7 @@ import {
   Guide,
   TourGuide,
 } from "@repo/core";
-import { Media } from "./media/Media";
+import { Media } from "./media/view/Media";
 import { AppButton } from "./Buttons";
 import { TransText } from "./Text";
 

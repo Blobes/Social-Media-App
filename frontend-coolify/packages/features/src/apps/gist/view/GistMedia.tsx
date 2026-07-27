@@ -89,8 +89,8 @@ export const GistMedia = ({
   return mediaList.length < 2 ? (
     <Media
       {...singleMedia}
+      includeCustomizations
       style={{ container: mediaStyle.container }}
-      useMedia={{ useMisc }}
     />
   ) : (
     <MediaGrid

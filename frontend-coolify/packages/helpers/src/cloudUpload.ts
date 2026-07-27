@@ -9,6 +9,7 @@ import {
   TrackedFile,
   MediaUploadPayload,
   QUEUE_KEYS,
+  CustomizedMedia,
 } from "@repo/core";
 import { apiClient } from "./apiClient";
 import {
@@ -178,9 +179,6 @@ const fetchUploadUrl = async (
 
   const bgFetchInstance = await queueBgUpload(uploadUrl, file, mimeType);
   if (bgFetchInstance) {
-    console.log(
-      `Upload offloaded to browser service worker background context: ${bgFetchInstance.id}`,
-    );
     emitUploadProgress(trackingId, "SUCCESS", 100);
     return { uploadUrl, fileKey, publicUrl };
   }
@@ -320,7 +318,10 @@ export const executeMultipartUpload = async (
 /**
  * Main processing orchestrator for a single media asset file pipeline.
  */
-const processSingleFile = async (file: File): Promise<MediaUploadPayload> => {
+const processSingleFile = async (
+  file: File,
+  customizations?: CustomizedMedia,
+): Promise<MediaUploadPayload> => {
   const MAX_SINGLE_SIZE = 100 * 1024 * 1024;
   if (file.size > MAX_SINGLE_SIZE) {
     throw new Error(`File ${file.name} size exceeds the 100MB limit.`);
@@ -403,6 +404,7 @@ const processSingleFile = async (file: File): Promise<MediaUploadPayload> => {
         dimensions,
         blurHash,
         storageProvider: "S3",
+        ...(customizations && { customizations }),
       };
     }
 
@@ -425,6 +427,7 @@ const processSingleFile = async (file: File): Promise<MediaUploadPayload> => {
       dimensions: imgDimensions,
       blurHash: imgBlurHash,
       storageProvider: "S3",
+      ...(customizations && { customizations }),
     };
   } catch (err: any) {
     emitUploadProgress(
@@ -442,6 +445,7 @@ const processSingleFile = async (file: File): Promise<MediaUploadPayload> => {
  */
 export const uploadMediaToCloud = async (
   files: File | File[],
+  customizationsMap?: Record<string, CustomizedMedia>,
 ): Promise<MediaUploadPayload[]> => {
   const fileList = Array.isArray(files) ? files : [files];
   const MAX_COMBINED_SIZE = 150 * 1024 * 1024;
@@ -453,6 +457,12 @@ export const uploadMediaToCloud = async (
     );
   }
 
-  const uploadPromises = fileList.map((file) => processSingleFile(file));
+  const uploadPromises = fileList.map((file, idx) => {
+    const trackingId = (file as any).trackingId || `${idx}-${file.name}`;
+    const customData = customizationsMap?.[trackingId];
+
+    return processSingleFile(file, customData);
+  });
+
   return Promise.all(uploadPromises);
 };

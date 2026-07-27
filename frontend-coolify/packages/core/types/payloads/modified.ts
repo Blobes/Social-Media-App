@@ -1,8 +1,12 @@
 "use client";
 
-import { IMediaPayload } from "./media";
 import { IGistPayload, IStakePayload } from "./post";
 import { IUserPayload } from "./user";
+
+export interface IContentModeration {
+  caseId?: string;
+  caseCount?: number;
+}
 
 export type FetchStatus =
   | "SUCCESS"
@@ -50,10 +54,6 @@ export interface IListPayload<T> {
   status: FetchStatus;
   httpStatus?: number;
   metaData?: ListMetaData;
-}
-
-export interface IMedia extends IMediaPayload {
-  viewMode?: "LIST" | "ISOLATED";
 }
 
 export interface IUser extends IUserPayload {

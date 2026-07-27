@@ -4,9 +4,9 @@ import React from "react";
 import { Stack, useTheme } from "@mui/material";
 import { applyBGPattern } from "@repo/helpers";
 import { Onboarding } from "./Onboarding";
-import { DisplayFeedbackUI } from "@repo/features";
 import { AUTH_FEEDBACK, useGlobalStore } from "@repo/core";
 import { useStaticTranslation } from "@repo/shared-hooks";
+import { DisplayFeedbackUI } from "@repo/shared-ui";
 
 export default function OnboardingPage() {
   const theme = useTheme();

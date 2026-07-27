@@ -52,7 +52,7 @@ export const SearchBar = ({
       <SearchIcon size="20" />
       <InputBase
         placeholder={
-          placeholder ?? translateTxtString(COMMON_INPUT.placeholder.search)
+          placeholder ?? translateTxtString(COMMON_INPUT.placeholder.explore)
         }
         inputProps={{ "aria-label": "search" }}
         onChange={onChange}

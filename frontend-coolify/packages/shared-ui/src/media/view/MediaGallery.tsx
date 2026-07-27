@@ -3,11 +3,12 @@
 import React, { CSSProperties, useMemo } from "react";
 import { Box, ImageList, ImageListItem } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { ElementTap } from "../ElementTap";
+import { ElementTap } from "../../ElementTap";
 import Image from "next/image";
 import { VideoMedia } from "./VideoMedia";
 import { COMMON_MEDIA, MediaProps, MediaStyle } from "@repo/core";
-import { TransText } from "../Text";
+import { TransText } from "../../Text";
+import { MediaRenderer } from "./MediaRenderer";
 
 export interface GalleryProps {
   mediaList: MediaProps[];
@@ -19,7 +20,7 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
   const theme = useTheme();
 
   // 1. Define patterns to ensure the 4-column grid is always full
-  const LAYOUT_PATTERNS: Record<number, { cols: number; rows: number }[]> = {
+  const LAYOUT_CONFIG: Record<number, { cols: number; rows: number }[]> = {
     1: [{ cols: 4, rows: 2 }],
     2: [
       { cols: 2, rows: 2 },
@@ -59,7 +60,7 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
     );
     const count = Math.min(mediaItems.length, 5);
     const sliced = mediaItems.slice(0, count);
-    const pattern = LAYOUT_PATTERNS[count];
+    const pattern = LAYOUT_CONFIG[count];
 
     return sliced.map((item, index) => ({
       ...item,
@@ -89,18 +90,8 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
       rowHeight={150}>
       {displayMedia.map((media, index) => {
         const isLastItem = index === 4 && remainingCount > 0;
-        const {
-          _id,
-          ownerId,
-          url,
-          type,
-          alt,
-          onSingleTap,
-          onDoubleTap,
-          cols,
-          rows,
-        } = media;
-        const mediaType = type ?? "IMAGE";
+        const { _id, onSingleTap, onDoubleTap, cols, rows } = media;
+        // const mediaType = type ?? "IMAGE";
 
         return (
           <ImageListItem
@@ -117,7 +108,31 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
               onSingleTap={() => onSingleTap && onSingleTap()}
               onDoubleTap={() => onDoubleTap && onDoubleTap()}
               style={{ ...(!isLastItem && bgEffects(theme).overlay) }}>
-              {mediaType === "VIDEO" ? (
+              <MediaRenderer
+                media={media}
+                width={0}
+                height={0}
+                excludeBlurHash
+                style={{
+                  content: {
+                    // width: "100%",
+                    // height: "100%",
+                    // maxHeight: "none",
+                    // maxWidth: "none",
+                    // objectFit: "cover",
+                    ...style?.content,
+                  },
+                  container: {
+                    base: {
+                      width: "100%",
+                      height: "100%",
+                      aspectRatio: "unset",
+                    },
+                  },
+                }}
+              />
+
+              {/* {mediaType === "VIDEO" ? (
                 <VideoMedia
                   _id={_id}
                   ownerId={ownerId}
@@ -134,7 +149,7 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
                   alt={alt || "Post image"}
                   style={{ ...(style?.content as CSSProperties) }}
                 />
-              )}
+              )} */}
               {isLastItem && (
                 <Box
                   sx={{

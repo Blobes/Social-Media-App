@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { IStep, PostStepName, StepperProps } from "@repo/core";
-import { IsolatedMedia, Stepper } from "@repo/shared-ui";
+import { MediaCustomizer, Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
 import { GistContentStep } from "./GistContentStep";
 import { GistSettingsStep } from "./GistSettingsStep";
@@ -11,6 +11,7 @@ import { useGistContent } from "./useGistContent";
 import { CreatePostMediaPreview } from "../../post/components/MediaPreview";
 
 export type GistContext = ReturnType<typeof useGistContent>;
+
 /**
  * Handles workflow routing and multi-step state allocation for compiling a Gist.
  */
@@ -41,6 +42,12 @@ export const CreateGist: React.FC<StepperProps<PostStepName>> = ({
     hasSensitiveGraphic,
     setHasSensitiveGraphic,
   });
+
+  const { transformedMediaList, editingFileIndex, handleSaveCustomization } =
+    gistContentContext;
+
+  const currentMediaToCustomize =
+    editingFileIndex !== null ? transformedMediaList[editingFileIndex] : null;
 
   const steps: IStep<PostStepName>[] = [
     {
@@ -76,6 +83,19 @@ export const CreateGist: React.FC<StepperProps<PostStepName>> = ({
     {
       name: "MEDIA_PREVIEW",
       element: <CreatePostMediaPreview stagedFiles={stagedFiles} />,
+    },
+    {
+      name: "MEDIA_CUSTOMIZATION",
+      element: currentMediaToCustomize ? (
+        <MediaCustomizer
+          media={currentMediaToCustomize}
+          onSave={(customizedMedia) => {
+            if (editingFileIndex !== null) {
+              handleSaveCustomization(editingFileIndex, customizedMedia);
+            }
+          }}
+        />
+      ) : null,
     },
   ];
 

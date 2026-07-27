@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import { Divider, Stack } from "@mui/material";
 import {
   AppButton,
-  TextInput,
+  DynamicInput,
   InlineMsgUI,
   ProgressIcon,
   DisplayList as CountryList,
@@ -160,7 +160,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         sx={{ gap: theme.gap(10), paddingBottom: theme.boxSpacing(8) }}
         component="form"
         onSubmit={handleSubmit}>
-        <TextInput
+        <DynamicInput
           value={input}
           label={translateTxtString(AUTH_INPUT.label.email_phone_username)}
           placeholder={translateTxtString(

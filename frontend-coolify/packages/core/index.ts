@@ -1,5 +1,4 @@
 /// <reference path="./types/theme.d.ts" />
-/// <reference path="./types/global.d.ts" />
 
 // Theme
 export * from "./theme/ThemeProvider";
@@ -11,6 +10,7 @@ export * from "./types/payloads/media";
 export * from "./types/payloads/modified";
 export * from "./types/ui-state";
 export * from "./types/ui-props";
+export * from "./types/media";
 
 // Constants
 export * from "./constants/lists";

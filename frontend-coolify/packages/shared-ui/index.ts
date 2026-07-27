@@ -1,6 +1,3 @@
-export * from "./src/media/MediaGallery";
-export * from "./src/media/VideoMedia";
-export * from "./src/media/Media";
 export * from "./src/AnimatedWrapper";
 export * from "./src/BlurEffect";
 export * from "./src/Buttons";
@@ -31,17 +28,23 @@ export * from "./src/Footer";
 export * from "./src/SvgWrapper";
 export * from "./src/StatusSwitcher";
 export * from "./src/Skeletons";
-export * from "./src/carousel/Controls";
-export * from "./src/media/isolated/IsolatedMedia";
 export * from "./src/WordTrimmer";
 export * from "./src/StepperProgress";
 export * from "./src/UIGuide";
-export * from "./src/media/UploadTracker";
+export * from "./src/Localize";
+export * from "./src/Text";
+export * from "./src/Keyboard";
+// Carousels
 export * from "./src/carousel/Linear";
 export * from "./src/carousel/Stacked";
 export * from "./src/carousel/BGFade";
-export * from "./src/Localize";
-export * from "./src/Text";
+export * from "./src/carousel/Controls";
+// Media
+export * from "./src/media/view/UploadTracker";
+export * from "./src/media/isolated/IsolatedMedia";
 export * from "./src/media/create/SelectedMedia";
 export * from "./src/media/create/MediaFileSelector";
-export * from "./src/Keyboard";
+export * from "./src/media/view/MediaGallery";
+export * from "./src/media/view/VideoMedia";
+export * from "./src/media/view/Media";
+export * from "./src/media/customizer/Customizer";

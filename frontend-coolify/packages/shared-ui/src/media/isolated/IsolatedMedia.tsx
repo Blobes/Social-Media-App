@@ -9,13 +9,13 @@ import {
   IMedia,
   MediaSourceType,
 } from "@repo/core";
-import { MediaRenderer } from "../MediaRenderer";
+import { MediaRenderer } from "../view/MediaRenderer";
 import { ElementTap } from "../../ElementTap";
 import { IsolatedHeader } from "./Header";
 import { IsolatedFooter } from "./Footer";
-import { useIsolatedMedia } from "./useIsolated";
 import { LinearCarousel } from "../../carousel/Linear";
 import { TransText } from "../../Text";
+import { useIsolatedMedia } from "@repo/shared-hooks";
 
 export interface IsolatedProps {
   mediaList?: IMedia[];
@@ -99,8 +99,8 @@ export const IsolatedMedia = ({
               top: isDesktop ? 80 : 70, // Adjust based on Header height
               right: 20,
               zIndex: 10,
-              bgcolor: "rgba(0,0,0,0.6)",
-              color: "white",
+              backgroundColor: "rgba(0,0,0,0.6)",
+              color: theme.palette.gray[0],
               px: 1.5,
               py: 0.5,
               borderRadius: 10,

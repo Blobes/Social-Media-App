@@ -15,7 +15,7 @@ import {
 } from "@repo/core";
 import {
   AppButton,
-  TextInput,
+  DynamicInput,
   PasswordInput,
   InlineMsgUI,
   ProgressIcon,
@@ -201,7 +201,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         component="form"
         onSubmit={handleSubmit}
         noValidate>
-        <TextInput
+        <DynamicInput
           value={email}
           type="email"
           label={translateTxtString(AUTH_INPUT.label.email_address)}

@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import {
-  useInputFieldValidation,
+  useMultiFieldValidation,
   usePage,
   useStaticTranslation,
 } from "@repo/shared-hooks";
@@ -81,7 +81,7 @@ export const useIdentifier = ({
     countryMenuRef,
     handleChange,
     validateAndSet,
-  } = useInputFieldValidation({
+  } = useMultiFieldValidation({
     initialValue: existingInput,
     onClearFeedback: clearInlineMsg,
   });

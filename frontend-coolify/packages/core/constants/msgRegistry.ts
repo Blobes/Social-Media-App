@@ -494,6 +494,11 @@ export const common = {
       tValue: "{{view}}",
       interpolations: { view },
     }),
+    add: (count: number) => ({
+      tKey: "common:button.add",
+      tValue: "Add {{count}}",
+      interpolations: { count },
+    }),
     add_selected_media: {
       tKey: "common:button.add_selected_media",
       tValue: "Add",
@@ -505,9 +510,19 @@ export const common = {
     },
     cancel: { tKey: "common:button.back", tValue: "Cancel" },
     continue: { tKey: "common:button.continue", tValue: "Continue" },
+    done: { tKey: "common:button.done", tValue: "Done" },
+    edit: { tKey: "common:button.edit", tValue: "Edit" },
+    emojis: {
+      tKey: "common:button.emojis",
+      tValue: "Emojis",
+    },
     explore_funstakes: {
       tKey: "common:button.explore_funstakes",
       tValue: "Explore Funstakes",
+    },
+    filter_mode: {
+      tKey: "common:button.text_mode",
+      tValue: "Filter",
     },
     follow_toggle: (value: string) => ({
       tKey: "common:button.follow_toggle",
@@ -538,6 +553,7 @@ export const common = {
       tKey: "common:button.my_profile",
       tValue: "My profile",
     },
+    preview: { tKey: "common:button.preview", tValue: "Preview" },
     refresh: {
       tKey: "common:button.refresh",
       tValue: "Refresh",
@@ -566,9 +582,25 @@ export const common = {
       tKey: "common:button.status_switcher",
       tValue: "Active now",
     },
+    sticker_mode: {
+      tKey: "common:button.sticker_mode",
+      tValue: "Sticker",
+    },
+    stickers: {
+      tKey: "common:button.stickers",
+      tValue: "Stickers",
+    },
     switch_mode: {
       tKey: "common:button.switch_mode",
       tValue: "Switch mode",
+    },
+    text_mode: {
+      tKey: "common:button.text_mode",
+      tValue: "Text",
+    },
+    unselect_all: {
+      tKey: "common:button.unselect_all",
+      tValue: "Unselect all",
     },
     view_terms: {
       tKey: "common:button.view_terms",
@@ -715,6 +747,11 @@ export const common = {
       tKey: "common:feedback.no_internet_tagline",
       tValue: "You are not connected to the internet",
     },
+    no_sticker_or_emoji_found: (activeTab: string) => ({
+      tKey: "common:feedback.no_sticke_or_emoji_found",
+      tValue: " No {{type}} found",
+      interpolations: { type: activeTab === "STICKER" ? "stickers" : "emojis" },
+    }),
     predict_stake_win: {
       tKey: "common:feedback.predict_stake_win",
       tValue: "Predict. Stake. Win.",
@@ -828,7 +865,18 @@ export const common = {
         tValue: "{{count}} files selected",
         interpolations: { count },
       }),
-      search: { tKey: "common:input.placeholder.search", tValue: "Explore" },
+      explore: { tKey: "common:input.placeholder.explore", tValue: "Explore" },
+      type_here: {
+        tKey: "common:input.placeholder.type_here",
+        tValue: "Type here...",
+      },
+      search_library: (activeTab: string) => ({
+        tKey: "common:input.placeholder.search_library",
+        tValue: "Search {{type}}",
+        interpolations: {
+          type: activeTab === "STICKER" ? "stickers" : "emojis",
+        },
+      }),
     },
   },
 
@@ -1088,6 +1136,42 @@ export const common = {
       tKey: "common:media.media_video_optimization",
       tValue: "Please wait for video optimization processing to complete.",
     },
+
+    media_filter: {
+      original: {
+        tKey: "common:media.media_filter.original",
+        tValue: "Original",
+      },
+      clarendon: {
+        tKey: "common:media.media_filter.clarendon",
+        tValue: "Clarendon",
+      },
+      gingham: {
+        tKey: "common:media.media_filter.gingham",
+        tValue: "Gingham",
+      },
+      moon: {
+        tKey: "common:media.media_filter.moon",
+        tValue: "Moon",
+      },
+      reyes: {
+        tKey: "common:media.media_filter.reyes",
+        tValue: "Reyes",
+      },
+      juno: {
+        tKey: "common:media.media_filter.juno",
+        tValue: "Juno",
+      },
+      slumber: {
+        tKey: "common:media.media_filter.slumber",
+        tValue: "Slumber",
+      },
+      lark: {
+        tKey: "common:media.media_filter.lark",
+        tValue: "Lark",
+      },
+    },
+
     recently_viewed_media: {
       tKey: "common:media.remaining_count",
       tValue: "Recently Viewed Images & Videos",

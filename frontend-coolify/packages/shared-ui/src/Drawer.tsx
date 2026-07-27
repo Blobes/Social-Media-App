@@ -10,9 +10,13 @@ import { Box, IconButton, Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { X } from "lucide-react";
 import { DrawerProps, DrawerRef } from "@repo/core";
+import { useDrag } from "@repo/shared-hooks";
 import { Transition } from "./Transition";
 import { applyBGEffects, scrollBarStyle } from "@repo/helpers";
 
+/**
+ * Renders slide-out drawer container with configurable swipe-to-close touch bindings.
+ */
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
   (
     {
@@ -22,9 +26,9 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       transDirection,
       clickToClose = true,
       onClose,
-      style,
-      useDragConfig,
       blurOverlayBG,
+      dragConfig,
+      style,
     },
     ref,
   ) => {
@@ -38,26 +42,32 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     const [isOpen, setOpen] = useState(false);
     const [shouldRemove, setShouldRemove] = useState(true);
 
-    // Transition properties
     const baseDir = transDirection?.base || "left";
     const mobileDir = transDirection?.mobile ?? baseDir;
     const transDir = isDesktop ? baseDir : mobileDir;
 
-    const dragConfig = useDragConfig ? useDragConfig() : null;
-    const dragOffset = dragConfig?.dragOffset ?? 0;
-    const axis = dragConfig?.axis;
-    const handlers = dragConfig?.handlers;
+    const { dragOffset, handlers, resolveDragConfig } = useDrag(dragConfig);
+    const dragInfo = resolveDragConfig(transDir);
 
     useImperativeHandle(ref, () => ({
+      /**
+       * Shows drawer overlay and triggers entry transitions.
+       */
       openDrawer: () => {
         setShouldRemove(false);
         setOpen(true);
       },
+      /**
+       * Triggers exit animations before hiding drawer DOM element.
+       */
       closeDrawer: () => {
         setOpen(false);
       },
     }));
 
+    /**
+     * Evaluates backdrop click targets to dismiss drawer state.
+     */
     const handleClose = (e: React.MouseEvent) => {
       if (
         (containerRef.current && e.target === containerRef.current) ||
@@ -69,7 +79,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     };
 
     return (
-      <Stack //Overlay container
+      <Stack
         ref={containerRef}
         {...(clickToClose ? { onClick: handleClose } : {})}
         sx={{
@@ -88,7 +98,6 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           ...applyBGEffects(theme).opaque(isOpen, dragOffset),
           ...(blurOverlayBG && applyBGEffects(theme).blur(isOpen, dragOffset)),
 
-          // Alignment
           alignItems:
             transDir === "right"
               ? "flex-start"
@@ -104,13 +113,11 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
                 : "center",
           ...style?.base?.overlay,
 
-          // Mobile styling
           [theme.breakpoints.down("md")]: {
             padding: theme.boxSpacing(4, 2),
             ...style?.smallScreen?.overlay,
           },
         }}>
-        {/* Drawer Content Container */}
         <Transition
           show={isOpen}
           timeout={200}
@@ -118,7 +125,6 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           direction={transDir}
           onExited={() => setShouldRemove(true)}>
           <Stack
-            // Drag event on X axis
             {...(isMobile &&
               handlers && {
                 onTouchStart: handlers.onTouchStart,
@@ -135,10 +141,9 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               maxWidth: style?.base?.content?.maxWidth ?? "400px",
               touchAction: "none",
 
-              // Drag styling
               ...(dragOffset !== 0 && {
                 transform:
-                  axis === "X"
+                  dragInfo.axis === "X"
                     ? `translateX(${dragOffset}px) !important`
                     : `translateY(${dragOffset}px) !important`,
                 transition: "none !important",
@@ -152,69 +157,62 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 
               ...style?.base?.content,
 
-              // Medium screen
               [theme.breakpoints.down("md")]: {
                 width: style?.mediumScreen?.content?.width ?? "80%",
                 maxWidth: style?.mediumScreen?.content?.maxWidth ?? "350px",
                 ...style?.mediumScreen?.content,
               },
-              // Small screen
               [theme.breakpoints.down("sm")]: {
                 width: style?.smallScreen?.content?.width ?? "89%",
                 maxWidth: style?.smallScreen?.content?.maxWidth ?? "100%",
                 ...style?.smallScreen?.content,
               },
             }}>
-            {
-              /* Drawer with Header*/
-              showHeader && (
-                <Stack
-                  sx={{
-                    position: "sticky",
-                    alignItems: "center",
-                    gap: theme.gap(0),
-                  }}>
-                  {/* Drag Handle UI */}
-                  {dragConfig && isMobile && axis === "Y" && (
-                    <Box
-                      sx={{
-                        width: "50px",
-                        height: "6px",
-                        borderRadius: theme.radius.full,
-                        marginTop: theme.boxSpacing(8),
-                        backgroundColor: theme.palette.gray.trans[2],
-                      }}
-                    />
-                  )}
-                  {(header || clickToClose) && (
-                    <Stack
-                      direction={"row"}
-                      sx={{
-                        width: "100%",
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        gap: theme.gap(2),
-                        padding: theme.boxSpacing(2),
-                        ...style?.header,
-                        borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
-                      }}>
-                      {header && header}
-                      {clickToClose && (
-                        <IconButton
-                          aria-label="Drawer closer"
-                          aria-controls="close-drawer"
-                          aria-haspopup="true"
-                          ref={closeRef}
-                          onClick={handleClose}>
-                          <X size={22} />
-                        </IconButton>
-                      )}
-                    </Stack>
-                  )}
-                </Stack>
-              )
-            }
-            {/* Drawer Body */}
+            {showHeader && (
+              <Stack
+                sx={{
+                  position: "sticky",
+                  alignItems: "center",
+                  gap: theme.gap(0),
+                }}>
+                {isMobile && dragInfo.axis === "Y" && (
+                  <Box
+                    sx={{
+                      width: "50px",
+                      height: "6px",
+                      borderRadius: theme.radius.full,
+                      marginTop: theme.boxSpacing(8),
+                      backgroundColor: theme.palette.gray.trans[2],
+                    }}
+                  />
+                )}
+                {(header || clickToClose) && (
+                  <Stack
+                    direction={"row"}
+                    sx={{
+                      width: "100%",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      gap: theme.gap(2),
+                      padding: theme.boxSpacing(2),
+                      ...style?.header,
+                      borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
+                    }}>
+                    {header && header}
+                    {clickToClose && (
+                      <IconButton
+                        aria-label="Drawer closer"
+                        aria-controls="close-drawer"
+                        aria-haspopup="true"
+                        ref={closeRef}
+                        onClick={handleClose}>
+                        <X size={22} />
+                      </IconButton>
+                    )}
+                  </Stack>
+                )}
+              </Stack>
+            )}
             <Stack
               sx={{
                 height: "100%",

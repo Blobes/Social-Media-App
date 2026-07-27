@@ -11,7 +11,6 @@ export * from "./src/apiClient";
 export * from "./src/queryClient";
 export * from "./src/styles";
 export * from "./src/metadata";
-export * from "./src/dragConfig";
 export * from "./src/cloudUpload";
 export * from "./src/formatter";
 export * from "./src/page";

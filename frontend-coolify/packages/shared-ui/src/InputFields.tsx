@@ -44,7 +44,7 @@ import { scrollBarStyle } from "@repo/helpers";
 import { DisplayList as CountryList } from "./Menu";
 import { TransText } from "./Text";
 import {
-  useInputFieldValidation,
+  useMultiFieldValidation,
   useOtpFieldValidation,
   usePhoneFieldValidation,
   useVirtualKeyboard,
@@ -59,6 +59,7 @@ export interface InputProps {
   placeholder?: string;
   label?: string;
   helperText?: string;
+  needsValidation?: boolean;
   inputGuideUI?: React.ReactNode;
   tooltipGuide?: React.ReactNode;
   allowReset?: boolean;
@@ -88,7 +89,7 @@ interface SharedStyle {
   currLang?: SupportedIsoCode;
 }
 
-export const sharedStyle = (styleOptions: SharedStyle) => {
+export const styleConfig = (styleOptions: SharedStyle) => {
   const { style, theme, value, currLang } = styleOptions;
 
   const rtlLabel = {
@@ -135,14 +136,15 @@ export const sharedStyle = (styleOptions: SharedStyle) => {
   };
 };
 
-export const TextInput = ({
+export const DynamicInput = ({
   variant = "outlined",
   id = "",
   type = "text",
   value,
   placeholder = "Type here...",
-  label = "Input Label",
+  label,
   helperText = "",
+  needsValidation,
   tooltipGuide,
   allowReset = true,
   required = false,
@@ -160,7 +162,8 @@ export const TextInput = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const currLang = useGlobalStore((state) => state.currentLanguage);
 
-  const { handleClear } = useInputFieldValidation({
+  const { handleClear } = useMultiFieldValidation({
+    needsValidation,
     initialValue: value,
     inputRef,
     onChange,
@@ -271,7 +274,7 @@ export const TextInput = ({
         },
       }}
       sx={{
-        ...sharedStyle({ theme, style, value, currLang }),
+        ...styleConfig({ theme, style, value, currLang }),
         ...style,
       }}
       onChange={(e) => onChange && onChange(e)}
@@ -341,7 +344,7 @@ export const PasswordInput = ({
         size="small"
         fullWidth
         sx={{
-          ...sharedStyle({ theme, style, value, currLang }),
+          ...styleConfig({ theme, style, value, currLang }),
           ...style,
         }}
         slotProps={{
@@ -566,7 +569,7 @@ export const PhoneInput = ({
           },
         }}
         sx={{
-          ...sharedStyle({ theme, style, value, currLang }),
+          ...styleConfig({ theme, style, value, currLang }),
           ...style,
         }}
         onChange={handlePhoneChange}

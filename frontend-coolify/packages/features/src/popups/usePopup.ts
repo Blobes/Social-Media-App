@@ -1,10 +1,9 @@
 "use client";
 
-import { useDragClose, useMisc } from "@repo/shared-hooks";
+import { useMisc } from "@repo/shared-hooks";
 import { POPUP_CONFIG, PopupName } from "./config";
 import { useCallback } from "react";
 import { useTheme } from "@mui/material/styles";
-import { dragToCloseConfig } from "@repo/helpers";
 
 /**
  * Handles presentation logic layer routing parameters across modalities like dialog modals or drawers.
@@ -27,7 +26,6 @@ export const usePopup = () => {
         header: popupHeader,
         closeModal,
         closeDrawer,
-        dragConfig: () => useDragClose(dragToCloseConfig()),
         theme,
       });
 

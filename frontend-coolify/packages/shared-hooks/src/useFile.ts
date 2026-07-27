@@ -14,6 +14,9 @@ import {
   MenuRef,
   QUEUE_KEYS,
   TrackedFile,
+  IMedia,
+  CustomizedMedia,
+  MediaProps,
 } from "@repo/core";
 import { checkDeviceCapability, compressVideoAsync } from "@repo/helpers";
 import { useStaticTranslation } from "./useTrans";
@@ -40,6 +43,12 @@ interface UseMediaFileSelectorProps {
   initialMaximized?: boolean;
   allowDrag?: boolean;
   onFilesSelected?: (files: MockMediaFile[]) => void;
+}
+
+interface UseMediaTransform {
+  files: File[];
+  customizationsMap?: Record<string, CustomizedMedia>;
+  onSingleTap?: (media: IMedia, index: number) => void;
 }
 
 /**
@@ -483,4 +492,55 @@ export const useMediaFileSelector = ({
     handleRequestPermission,
     handleDragEnd,
   };
+};
+
+/**
+ * Transforms raw browser File objects into structural IMedia models with automatic Object URL memory cleanup.
+ */
+export const useMediaFileTransform = ({
+  files,
+  customizationsMap = {},
+  onSingleTap,
+}: UseMediaTransform): MediaProps[] => {
+  const previousUrlsRef = useRef<string[]>([]);
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      previousUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, []);
+
+  const transformedMediaList = useMemo(() => {
+    // Revoke previous URLs before generating new ones to prevent memory bloat
+    previousUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+
+    const newUrls: string[] = [];
+
+    const mediaObjects = files.map((file, index) => {
+      const trackingId = (file as any).trackingId || `${index}-${file.name}`;
+      const objectUrl = URL.createObjectURL(file);
+      newUrls.push(objectUrl);
+
+      const isVideo = file.type.startsWith("video/");
+
+      const media: MediaProps = {
+        _id: trackingId,
+        url: objectUrl,
+        type: isVideo ? "VIDEO" : "IMAGE",
+        alt: file.name,
+        customizations: customizationsMap[trackingId],
+      };
+
+      if (onSingleTap) {
+        media.onSingleTap = () => onSingleTap(media, index);
+      }
+      return media;
+    });
+
+    previousUrlsRef.current = newUrls;
+    return mediaObjects;
+  }, [files, customizationsMap, onSingleTap]);
+
+  return transformedMediaList;
 };

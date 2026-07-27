@@ -2,8 +2,8 @@
 
 import { Stack } from "@mui/material";
 import { COMMON_MEDIA, MediaProcessingProgress } from "@repo/core";
-import { ProgressIcon } from "../LoadingUIs";
-import { TransText } from "../Text";
+import { ProgressIcon } from "../../LoadingUIs";
+import { TransText } from "../../Text";
 import { useTheme } from "@mui/material/styles";
 
 interface UploadTrackerProps {
