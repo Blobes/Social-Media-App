@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { IPost, GenericStyle, COMMON_FEEDBACK, POST_INFO } from "@repo/core";
 import { useAdaptiveTime } from "@repo/shared-hooks";
 import { useTheme } from "@mui/material/styles";
@@ -37,9 +36,6 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
   const theme = useTheme();
   const hasMedia = data.post.media && data.post.media.length > 0;
   const targetMedia = hasMedia ? data.post.media[0] : null;
-  const isVideo =
-    targetMedia?.mimeType?.startsWith("video/") ||
-    targetMedia?.url?.endsWith(".mp4");
 
   return (
     <Stack
@@ -54,10 +50,10 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
         background: data.bgColor,
         ...(!hasMedia && applyBGPattern({ url: asset.bgNoise, contain: true })),
         gap: theme.gap(18),
-        padding: theme.boxSpacing(18, 20),
+        padding: theme.boxSpacing(18),
         [theme.breakpoints.down("sm")]: {
           gap: theme.gap(14),
-          padding: theme.boxSpacing(16, 20),
+          padding: theme.boxSpacing(16),
         },
       }}>
       {/* Background Visual Rendering Block */}
@@ -68,24 +64,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
           ) : (
             <MediaRenderer media={targetMedia} />
           )}
-          {/*isVideo ? (
-            <Box
-              component="video"
-              src={targetMedia.url}
-              autoPlay
-              loop
-              muted
-              playsInline
-              sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-          ) : (
-            <Box
-              component="img"
-              src={targetMedia.url}
-              alt="Post asset background"
-              sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-          )*/}
+
           {/* Overlay to preserve text contrast readability */}
           <Box
             sx={{
@@ -240,8 +219,11 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
         sx={{
           position: "absolute",
           zIndex: 5,
-          top: theme.gap(10),
-          left: theme.gap(18),
+          top: 28,
+          left: 36,
+          [theme.breakpoints.down("sm")]: {
+            left: 32,
+          },
         }}
       />
 
