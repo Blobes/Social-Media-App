@@ -19,6 +19,12 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "paths": {
+      "@repo/assets": ["./packages/assets/*"],
+      "@repo/core": ["./packages/core/*"],
+      "@repo/features": ["./packages/features/*"],
+      "@repo/helpers": ["./packages/helpers/*"],
+      "@repo/shared-hooks": ["./packages/shared-hooks/*"],
+      "@repo/shared-ui": ["./packages/shared-ui/*"],
       "@repo/*": ["./packages/*"]
     }
   },

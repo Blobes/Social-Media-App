@@ -3,8 +3,8 @@
 import React, { useEffect } from "react";
 import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { autoScroll, scrollBarStyle } from "@repo/helpers";
 import { GenericStyle } from "@repo/core";
+import { autoScroll, scrollBarStyle } from "@repo/helpers";
 
 interface UIProps {
   children: React.ReactNode;

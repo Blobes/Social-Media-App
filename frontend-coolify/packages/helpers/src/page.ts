@@ -14,11 +14,6 @@ export const matchPaths = (pathA: string, pageB: string) => {
   );
 };
 
-// const getPathZone = (p: string) => {
-//   const segment = p.split("/").filter(Boolean)[0];
-//   return segment ? `/${segment.toLowerCase()}` : "/";
-// };
-
 const normalize = (p: string) => {
   const low = p.toLowerCase().trim();
   if (low === "/" || !low) return "/";
@@ -37,20 +32,6 @@ const getZoneFromRegistry = (path: string): string | null => {
   });
   return entry ? entry[0] : null;
 };
-
-// /** * Checks if two paths belong to the same group in the registry.
-//  */
-// const isSameRegistryGroup = (pathA: string, pathB: string): boolean => {
-//   return Object.values(ROUTES_REGISTRY).some((group) => {
-//     const hasPathA = group.some(
-//       (route) => route.toLowerCase() === pathA.toLowerCase(),
-//     );
-//     const hasPathB = group.some(
-//       (route) => route.toLowerCase() === pathB.toLowerCase(),
-//     );
-//     return hasPathA && hasPathB;
-//   });
-// };
 
 /** * Determines if a navigation target requires a hard reload (Cross-Zone)
  * or if it can be handled by the current app's SPA router.
