@@ -16,6 +16,8 @@ import {
   AppButton,
   SearchBar,
   TransText,
+  SVGWrapper,
+  AppLogo,
 } from "@repo/shared-ui";
 import { asset } from "@repo/assets";
 import { useHeader } from "./useHeader";
@@ -69,16 +71,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
         href={CLIENT_ROUTES.home.path}
         onClick={handleLogo}
         style={{ display: "inline-flex" }}>
-        <Image
-          src={asset.logo}
-          alt="logo"
-          width={34}
-          height={34}
-          priority
-          style={{
-            borderRadius: theme.radius.full,
-          }}
-        />
+        <AppLogo />
       </AnchorLink>
 
       {/* Search */}

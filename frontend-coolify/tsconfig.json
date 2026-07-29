@@ -16,11 +16,10 @@
     "customConditions": ["development"],
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "baseUrl": ".",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "paths": {
-      "@repo/*": ["packages/*"]
+      "@repo/*": ["./packages/*"]
     }
   },
 

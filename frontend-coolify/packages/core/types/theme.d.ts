@@ -10,7 +10,7 @@ interface OverlayObj {
 export interface FixedColors {
   gray50: string;
   gray800: string;
-  grayTrans: (opacity?: number, type?: "light" | "dark") => string;
+  grayTrans: (opacity?: number, type?: "light" | "dark" | "mixed") => string;
   primary: string;
   pTrans: string;
 }

@@ -222,10 +222,7 @@ export const useGistContent = ({
         behavior: "FIXED",
         customContent: (
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <ProgressIcon
-              variant="indeterminate"
-              style={{ width: "24px", height: "24px" }}
-            />
+            <ProgressIcon options={{ size: 24 }} />
             <span>Analyzing text and attachments against system rules...</span>
           </div>
         ),

@@ -9,7 +9,7 @@ export default function OfflineLayout({
 }>) {
   return (
     <BaseLayout>
-      <GlobalUIManager showOfflineUI={false} showNetworkErrorUI={false}>
+      <GlobalUIManager includesOfflineUI={false} includesNetworkErrorUI={false}>
         <Wrapper>{children}</Wrapper>
       </GlobalUIManager>
     </BaseLayout>

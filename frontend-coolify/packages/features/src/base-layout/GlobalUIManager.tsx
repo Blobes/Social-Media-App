@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Drawer,
   Modal,
@@ -9,6 +9,7 @@ import {
   OfflinePromptUI,
   NetworkGlitchUI,
   VirtualKeyboard,
+  SplashUI,
 } from "@repo/shared-ui";
 import { usePathname } from "next/navigation";
 import { registerSW, delay, getFromLocalStorage } from "@repo/helpers";
@@ -24,8 +25,8 @@ import { useAuthVerification } from "../apps/auth/session/useAuthVerification";
 
 export interface UIManagerProps {
   children: React.ReactNode;
-  showOfflineUI?: boolean;
-  showNetworkErrorUI?: boolean;
+  includesOfflineUI?: boolean;
+  includesNetworkErrorUI?: boolean;
 }
 
 /** * Manages the global UI state, including modals, drawers, snackbars, and system-level screens.
@@ -33,12 +34,9 @@ export interface UIManagerProps {
  */
 export const GlobalUIManager = ({
   children,
-  showOfflineUI = true,
-  showNetworkErrorUI = true,
+  includesOfflineUI = true,
+  includesNetworkErrorUI = true,
 }: UIManagerProps) => {
-  const drawerRef = useRef<DrawerRef>(null);
-  const modalRef = useRef<ModalRef>(null);
-
   // Destructuring state and actions from the Zustand store
   const snackBarMsg = useGlobalStore((state) => state.snackBarMsgs);
   const drawerContent = useGlobalStore((state) => state.drawerContent);
@@ -57,16 +55,47 @@ export const GlobalUIManager = ({
   const { verifyAuth } = useAuthVerification();
   const { setSBTimer, removeSBMessages } = useSnackbar();
   const { switchToOfflineMode } = useOffline();
-  const isMounted = useRef(false);
+
+  const drawerRef = useRef<DrawerRef>(null);
+  const modalRef = useRef<ModalRef>(null);
+
+  // Tracks whether a browser reload occurred.
+  const [isReload, setIsReload] = useState(false);
+  //Tracks completion of minimum splash duration.
+  const [isSplashTimerDone, setIsSplashTimerDone] = useState(false);
+  const SPLASH_DURATION = 4500;
 
   // Registering global events on mount
   useEventListener(verifyAuth);
 
+  // Detects browser refresh and controls splash visibility duration.
+  useEffect(() => {
+    let isMounted = true;
+
+    const handleSplashDelay = async () => {
+      const navEntries = performance.getEntriesByType(
+        "navigation",
+      ) as PerformanceNavigationTiming[];
+      const reloaded =
+        navEntries.length > 0 && navEntries[0]?.type === "reload";
+
+      if (reloaded) {
+        setIsReload(true);
+        await delay(SPLASH_DURATION);
+        if (isMounted) {
+          setIsSplashTimerDone(true);
+        }
+      }
+    };
+    handleSplashDelay();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Handles the application initialization sequence.
   useEffect(() => {
     const init = async () => {
-      if (isMounted.current) return;
-      isMounted.current = true;
       try {
         setGlobalLoading(true);
         registerSW();
@@ -80,11 +109,11 @@ export const GlobalUIManager = ({
     init();
   }, [verifyAuth, verifySignal]);
 
-  // Global timer
+  // Runs heart-beat update for time-dependent state.
   useEffect(() => {
     const heartbeat = setInterval(() => {
       useGlobalStore.getState().updateNow();
-    }, 60000); // The "Pulse"
+    }, 60000);
     return () => clearInterval(heartbeat);
   }, []);
 
@@ -104,9 +133,16 @@ export const GlobalUIManager = ({
     handlePageChange();
   }, [pathname, authStatus, accountStatus]);
 
+  // Determines if splash should remain active on reload until auth/boot finishes.
+  const isAuthInitializing = authStatus === "LOADING";
+  const showSplashUI = isReload && (!isSplashTimerDone || isAuthInitializing);
+
+  if (showSplashUI) {
+    return <SplashUI duration={SPLASH_DURATION} />;
+  }
+
   // Determining if the app is still in its initial boot state
   const showLoaderUI =
-    !isMounted.current ||
     authStatus === "LOADING" ||
     networkStatus === "UNKNOWN" ||
     isNavigating ||
@@ -117,11 +153,9 @@ export const GlobalUIManager = ({
     key: "last_auth_status",
   });
   const wasLoggedIn = savedLoginStatus === "AUTHENTICATED";
-  // Update the condition
-  const shouldShowOffline =
-    showOfflineUI && isOffline && !offlineMode && wasLoggedIn;
-
-  if (shouldShowOffline) {
+  const showOffline =
+    includesOfflineUI && isOffline && !offlineMode && wasLoggedIn;
+  if (showOffline) {
     return <OfflinePromptUI handleOffline={switchToOfflineMode} />;
   }
 
@@ -130,10 +164,11 @@ export const GlobalUIManager = ({
   const hasAuthError = authStatus === "ERROR";
   const isGuestOffline = isOffline && !wasLoggedIn;
 
-  if (
-    showNetworkErrorUI &&
-    (hasNetworkGlitch || hasAuthError || isGuestOffline)
-  ) {
+  const showNetworkGlitchUI =
+    includesNetworkErrorUI &&
+    (hasNetworkGlitch || hasAuthError || isGuestOffline);
+
+  if (showNetworkGlitchUI) {
     return (
       <NetworkGlitchUI
         checkingSignal={checkingSignal}

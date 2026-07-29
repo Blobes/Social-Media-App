@@ -113,9 +113,12 @@ export const SelectedMediaFiles: React.FC<SelectedMediaFilesProps> = ({
           borderRadius: "inherit",
         }}>
         <ProgressIcon
-          variant={isIdle ? "indeterminate" : "determinate"}
           value={isIdle ? undefined : currentProgress}
-          style={{ width: "24px", height: "24px", flexShrink: 0 }}
+          options={{
+            variant: isIdle ? "indeterminate" : "determinate",
+            size: 24,
+          }}
+          style={{ flexShrink: 0 }}
         />
         <TransText
           {...COMMON_MEDIA.track_upload_progress(currentProgress)}

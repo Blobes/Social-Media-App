@@ -118,7 +118,7 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
           style={{ width: "100%" }}
           options={{ disabled: code.length < 6 || isVerifying }}>
           {isVerifying ? (
-            <ProgressIcon otherProps={{ size: 24 }} />
+            <ProgressIcon options={{ size: 24 }} />
           ) : (
             <TransText {...AUTH_BUTTON_LABELS.otp_verify_code} noComponent />
           )}
@@ -152,7 +152,7 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
                 }}
                 options={{ disabled: timer > 0 }}>
                 {isSending ? (
-                  <ProgressIcon otherProps={{ size: 14 }} />
+                  <ProgressIcon options={{ size: 14 }} />
                 ) : (
                   <TransText
                     {...(timer > 0
@@ -180,7 +180,7 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
                   color: theme.palette.primary.dark,
                 }}>
                 {isSending ? (
-                  <ProgressIcon otherProps={{ size: 14 }} />
+                  <ProgressIcon options={{ size: 14 }} />
                 ) : (
                   <TransText
                     {...AUTH_BUTTON_LABELS.otp_switch_channel(
@@ -224,7 +224,7 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
               color: theme.palette.primary.dark,
             }}>
             {isSending ? (
-              <ProgressIcon otherProps={{ size: 14 }} />
+              <ProgressIcon options={{ size: 14 }} />
             ) : (
               <TransText
                 {...AUTH_BUTTON_LABELS.verify_with_email_phone}

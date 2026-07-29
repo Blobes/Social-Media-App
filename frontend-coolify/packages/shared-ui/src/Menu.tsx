@@ -12,7 +12,7 @@ import { Box, Menu } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { MenuRef, GenericStyle, IMenuItem, ListType, LISTS } from "@repo/core";
 import { RenderItemList, RenderListProps } from "./RenderItems";
-import { SearchBar } from "./Search";
+import { SearchBar } from "./input/Search";
 import { scrollBarStyle } from "@repo/helpers";
 import { ProgressIcon } from "./LoadingUIs";
 import { useStaticTranslation } from "@repo/shared-hooks";
@@ -311,7 +311,7 @@ export const DisplayList = <T extends IMenuItem>({
                 justifyContent: "center",
                 minHeight: "40px",
               }}>
-              {isFetchingNextPage && <ProgressIcon otherProps={{ size: 24 }} />}
+              {isFetchingNextPage && <ProgressIcon options={{ size: 24 }} />}
             </Box>
           ),
         ]

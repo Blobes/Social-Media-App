@@ -19,7 +19,7 @@ export interface UseOtpOptions {
 /**
  * Manages state, focused cell movement, keyboard navigation, and paste distribution for segmented OTP inputs.
  */
-export const useOtpFieldValidation = ({
+export const useOtpInputValidation = ({
   length = 6,
   autoSubmit = true,
   onChange,

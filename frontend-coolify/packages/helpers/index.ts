@@ -16,3 +16,4 @@ export * from "./src/formatter";
 export * from "./src/page";
 export * from "./src/media";
 export * from "./src/translation";
+export * from "./src/saveLogin";

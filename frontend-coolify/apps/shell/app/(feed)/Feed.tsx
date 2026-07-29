@@ -9,6 +9,7 @@ import {
   ProgressIcon,
   BoxSkeleton,
   TransText,
+  DisplayFeedbackUI,
 } from "@repo/shared-ui";
 import { Milestone } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
@@ -85,7 +86,8 @@ export const Feed = () => {
           <BoxSkeleton />
         </>
       ) : feed.length < 1 ? (
-        <Feedback
+        <DisplayFeedbackUI
+          type="UNKNOWN"
           tagline={
             message || translateTxtString(POST_FEEDBACK.no_post_found_tagline())
           }
@@ -96,27 +98,6 @@ export const Feed = () => {
             label: translateTxtString(COMMON_BUTTON_LABELS.refresh),
             action: () => {
               handleRefresh();
-            },
-          }}
-          style={{
-            container: {
-              height: "100%",
-              backgroundColor: "none",
-              gap: theme.gap(6),
-            },
-            tagline: { ...theme.typography.text3 },
-            icon: {
-              width: "50px",
-              height: "50px",
-              [theme.breakpoints.down("md")]: {
-                width: "40px",
-                height: "40px",
-              },
-              svg: {
-                fill: "none",
-                stroke: theme.palette.gray[200],
-                strokeWidth: "1.5px",
-              },
             },
           }}
         />
@@ -146,7 +127,7 @@ export const Feed = () => {
                 justifyContent: "center",
                 minHeight: "40px",
               }}>
-              {isFetchingNextPage && <ProgressIcon otherProps={{ size: 24 }} />}
+              {isFetchingNextPage && <ProgressIcon options={{ size: 24 }} />}
             </Box>
           )}
         </>

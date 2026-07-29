@@ -1,7 +1,7 @@
 "use client";
 
 import { del, get, set } from "idb-keyval";
-import { IIdbData } from "packages/core";
+import { IIdbData } from "@repo/core";
 
 /**
  * Safe wrapper for indexedDB operations to prevent SSR crashes.

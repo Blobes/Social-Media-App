@@ -6,38 +6,9 @@ import { useTheme } from "@mui/material/styles";
 import { AppButton } from "./Buttons";
 import { RefreshCcw } from "lucide-react";
 import { BasicTooltip } from "./Tooltips";
-import {
-  DisplayFeedbackUIConfig,
-  DisplayFeedbackUIType,
-  GenericStyle,
-} from "@repo/core";
+import { DisplayFeedbackUIType, FeedbackProps } from "@repo/core";
 import { TransText } from "./Text";
 import { useDisplayFBConfig } from "@repo/shared-hooks";
-
-interface CTA {
-  type?: "BUTTON" | "ICON";
-  variant?: "contained" | "outlined";
-  label?: React.ReactNode;
-  toolTip?: string;
-  action: () => void | Promise<void>;
-  href?: string;
-}
-
-interface FeedbackProps {
-  headline?: React.ReactNode;
-  tagline?: React.ReactNode;
-  icon?: React.ReactNode;
-  style?: {
-    container?: GenericStyle;
-    headline?: GenericStyle;
-    tagline?: GenericStyle;
-    icon?: GenericStyle;
-    primaryCta?: GenericStyle;
-    secondaryCta?: GenericStyle;
-  };
-  primaryCta?: CTA;
-  secondaryCta?: CTA;
-}
 
 /**
  * Standardized empty-state, success, and contextual user action feedback layouts.
@@ -58,70 +29,29 @@ export const Feedback: React.FC<FeedbackProps> = ({
   const secHref = secondaryCta?.href ? { href: secondaryCta?.href } : {};
 
   return (
-    <Stack
-      sx={{
-        backgroundColor: theme.palette.gray.trans[1],
-        padding: theme.boxSpacing(12, 8),
-        textAlign: "center",
-        borderRadius: theme.radius[3],
-        alignItems: "center",
-        justifyContent: "center",
-        ...style?.container,
-      }}>
+    <Stack sx={style?.container}>
       {/* Icon */}
-      {icon && (
-        <Stack
-          sx={{
-            width: "32px",
-            height: "32px",
-            "& svg": {
-              width: "100%",
-              height: "100%",
-              stroke: theme.palette.gray[200],
-              strokeWidth: "1.2px",
-              fill: "none",
-              ...style?.icon?.svg,
-            },
-            ...style?.icon,
-          }}>
-          {icon}
-        </Stack>
-      )}
+      {icon && <Stack sx={style?.icon}>{icon}</Stack>}
 
-      {/* Headline */}
-      {headline && (
-        <TransText
-          component="h6"
-          sx={{
-            ...theme.typography.text2,
-            fontWeight: "bold",
-            ...style?.headline,
-          }}>
-          {headline}
-        </TransText>
-      )}
+      <Stack sx={{ gap: theme.gap(5) }}>
+        {/* Headline */}
+        {headline && (
+          <TransText component="h6" sx={style?.headline}>
+            {headline}
+          </TransText>
+        )}
+        {/* Tagline */}
+        {tagline && <TransText sx={style?.tagline}>{tagline}</TransText>}
+      </Stack>
 
-      {/* Tagline */}
-      {tagline && (
-        <TransText
-          sx={{
-            ...theme.typography.text4,
-            ...style?.tagline,
-          }}>
-          {tagline}
-        </TransText>
-      )}
-      {/* CTAs */}
+      {/* Primary CTA */}
       {primaryCta &&
         (primaryCtaType === "BUTTON" ? (
           <AppButton
             variant={primaryCta.variant || "contained"}
             size="small"
             {...primHref}
-            style={{
-              margin: theme.boxSpacing(10, 0, 2, 0),
-              ...style?.primaryCta,
-            }}
+            style={style?.primaryCta}
             onClick={primaryCta.action}>
             {primaryCta.label}
           </AppButton>
@@ -133,6 +63,7 @@ export const Feedback: React.FC<FeedbackProps> = ({
           </BasicTooltip>
         ))}
 
+      {/* Secondary CTA */}
       {secondaryCta &&
         (secondaryCtaType === "BUTTON" ? (
           <AppButton
@@ -140,7 +71,7 @@ export const Feedback: React.FC<FeedbackProps> = ({
             size="small"
             onClick={secondaryCta.action}
             {...secHref}
-            style={{ ...style?.secondaryCta }}>
+            style={style?.secondaryCta}>
             {secondaryCta.label}
           </AppButton>
         ) : (
@@ -154,10 +85,9 @@ export const Feedback: React.FC<FeedbackProps> = ({
   );
 };
 
-interface DisplayUIProps extends DisplayFeedbackUIConfig {
+interface DisplayUIProps extends FeedbackProps {
   type: DisplayFeedbackUIType;
   showCta?: boolean;
-  style?: GenericStyle;
 }
 /**
  * A generic UI for restricted access states.
@@ -166,13 +96,14 @@ export const DisplayFeedbackUI = ({
   type,
   headline,
   tagline,
+  icon,
   primaryCta,
   secondaryCta,
   showCta = true,
+  style,
 }: DisplayUIProps) => {
   const theme = useTheme();
-
-  const config: DisplayFeedbackUIConfig = useDisplayFBConfig()[type];
+  const config = useDisplayFBConfig()[type];
 
   const handlePrimaryCta = useMemo(() => {
     if (!showCta) return undefined;
@@ -180,7 +111,7 @@ export const DisplayFeedbackUI = ({
   }, [config.primaryCta, primaryCta]);
 
   const handleSecondaryCta = useMemo(() => {
-    if (!showCta || (!secondaryCta && !config.secondaryCta)) return undefined;
+    if (!showCta) return undefined;
     return secondaryCta ?? config.secondaryCta;
   }, [config.secondaryCta, secondaryCta]);
 
@@ -188,22 +119,44 @@ export const DisplayFeedbackUI = ({
     <Feedback
       headline={headline ?? config.headline}
       tagline={tagline ?? config.tagline}
-      icon={config.icon}
+      icon={icon ?? config.icon}
       primaryCta={handlePrimaryCta}
       secondaryCta={handleSecondaryCta}
       style={{
         container: {
           padding: theme.boxSpacing(18),
           backgroundColor: theme.palette.gray[0],
+          borderRadius: theme.radius[3],
+          alignItems: "center",
+          justifyContent: "center",
+          gap: theme.gap(14),
           border: `1px solid ${theme.fixedColors.pTrans}`,
+          ...(style?.container ?? config.style?.container),
         },
-        tagline: { color: theme.palette.gray[200] },
+        headline: {
+          ...theme.typography.text2,
+          textAlign: "center",
+          fontWeight: 700,
+          ...(style?.headline ?? config.style?.headline),
+        },
+        tagline: {
+          ...theme.typography.text4,
+          textAlign: "center",
+          color: theme.palette.gray[200],
+          ...(style?.tagline ?? config.style?.tagline),
+        },
         icon: {
-          width: 50,
-          height: 50,
-          svg: {
-            stroke: theme.palette.primary.dark,
+          width: style?.icon?.size || config.style?.icon?.size || 48,
+          height: style?.icon?.size || config.style?.icon?.size || 48,
+          alignItems: "center",
+          justifyContent: "center",
+          ...(style?.icon ?? config.style?.icon),
+          "& svg": {
+            width: "100%",
+            height: "100%",
+            stroke: theme.palette.gray[200],
             strokeWidth: 1.5,
+            ...(style?.icon?.svg || config.style?.icon?.svg),
           },
         },
       }}

@@ -139,7 +139,7 @@ export const auth = {
     ) => ({
       tKey: "auth:feedback.enter_password_to_login",
       tValue:
-        "Enter your password to login. After {{attemptCount}} incorrect entries, your access will be locked for <strong>{{lockTime}}</strong> minutes.",
+        "Enter your password to login. After <strong>{{attemptCount}}</strong> incorrect entries, your access will be locked for <strong>{{lockTime}}</strong> minutes.",
       interpolations: { lockTime, attemptCount },
     }),
     few_minutes_to_setup_account: {
@@ -253,7 +253,7 @@ export const auth = {
     },
     password_locked_headline: {
       tKey: "auth:feedback.password_locked_headline",
-      tValue: "Password Access Locked?",
+      tValue: "Password Access Locked",
     },
     password_locked_tagline: (timerValue: string) => ({
       tKey: "auth:feedback.password_locked_tagline",
@@ -764,6 +764,11 @@ export const common = {
       tKey: "common:feedback.quote1",
       tValue: "Something Must Be Unique About You",
     },
+    remember_me_guide: {
+      tKey: "common:feedback.remember_me_guide",
+      tValue:
+        "Saves your credentials on this device for quick access. Only use on trusted devices.",
+    },
     retrieving_connection: {
       tKey: "common:feedback.retrieving_connection",
       tValue: "Retrieving connection...",
@@ -849,6 +854,10 @@ export const common = {
       gist_add_caption: {
         tKey: "common:input.label.gist_add_caption",
         tValue: "What's happening?",
+      },
+      remember_me: {
+        tKey: "common:input.label.remember_me",
+        tValue: "Remember me",
       },
     },
     placeholder: {
@@ -1135,41 +1144,6 @@ export const common = {
     media_video_optimization: {
       tKey: "common:media.media_video_optimization",
       tValue: "Please wait for video optimization processing to complete.",
-    },
-
-    media_filter: {
-      original: {
-        tKey: "common:media.media_filter.original",
-        tValue: "Original",
-      },
-      clarendon: {
-        tKey: "common:media.media_filter.clarendon",
-        tValue: "Clarendon",
-      },
-      gingham: {
-        tKey: "common:media.media_filter.gingham",
-        tValue: "Gingham",
-      },
-      moon: {
-        tKey: "common:media.media_filter.moon",
-        tValue: "Moon",
-      },
-      reyes: {
-        tKey: "common:media.media_filter.reyes",
-        tValue: "Reyes",
-      },
-      juno: {
-        tKey: "common:media.media_filter.juno",
-        tValue: "Juno",
-      },
-      slumber: {
-        tKey: "common:media.media_filter.slumber",
-        tValue: "Slumber",
-      },
-      lark: {
-        tKey: "common:media.media_filter.lark",
-        tValue: "Lark",
-      },
     },
 
     recently_viewed_media: {

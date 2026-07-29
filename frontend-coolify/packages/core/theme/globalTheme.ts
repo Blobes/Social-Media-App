@@ -103,8 +103,8 @@ const baseTheme = createTheme({
   fixedColors: {
     gray50: grey[50],
     gray800: "#121421",
-    grayTrans: (opacity = 0.12, type: "light" | "dark" = "light") =>
-      `rgba( ${type === "light" ? "255, 255, 255" : "3, 6, 19"} ${opacity})`,
+    grayTrans: (opacity = 0.12, type: "light" | "dark" | "mixed" = "light") =>
+      `rgba( ${type === "light" ? "255, 255, 255" : type === "dark" ? "3, 6, 19" : "72, 107, 246"}, ${opacity})`,
     primary: "#9FAEFF",
     pTrans: "rgba(72, 107, 246, 0.12)",
   } as const,

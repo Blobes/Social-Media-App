@@ -2,12 +2,13 @@
 
 import React, { useEffect } from "react";
 import { useTheme } from "@mui/material";
-import { Feedback } from "./Feedback";
-import { Unplug } from "lucide-react";
+import { DisplayFeedbackUI } from "./Feedback";
 import { ProgressIcon } from "./LoadingUIs";
 import { RootUIContainer } from "./Containers";
-import { COMMON_BUTTON_LABELS, COMMON_FEEDBACK } from "@repo/core";
+import { COMMON_FEEDBACK } from "@repo/core";
 import { useStaticTranslation } from "@repo/shared-hooks";
+import { SVGWrapper } from "./SvgWrapper";
+import { asset } from "@repo/assets";
 
 interface Props {
   checkingSignal: boolean;
@@ -40,35 +41,20 @@ export const NetworkGlitchUI = ({
       }}>
       {isUnstableNetwork && checkingSignal ? (
         <ProgressIcon
-          otherProps={{ size: "30px" }}
-          tKey={COMMON_FEEDBACK.retrieving_connection.tKey}
-          info={COMMON_FEEDBACK.retrieving_connection.tValue}
+          label={translateTxtString(COMMON_FEEDBACK.retrieving_connection)}
+          options={{ size: 30 }}
         />
       ) : (
-        <Feedback
-          headline={translateTxtString(COMMON_FEEDBACK.network_glitch_headline)}
-          tagline={translateTxtString(COMMON_FEEDBACK.network_glitch_tagline)}
-          icon={<Unplug />}
-          primaryCta={{
-            label: translateTxtString(COMMON_BUTTON_LABELS.refresh),
-            variant: "outlined",
-            action: () => window.location.reload(),
-          }}
-          style={{
-            container: {
-              padding: theme.boxSpacing(16),
-              background: "none",
-              [theme.breakpoints.up("md")]: {
-                maxWidth: "40%",
-              },
-            },
-            tagline: { color: theme.palette.gray[200], textAlign: "center" },
-            icon: {
-              width: "60px",
-              height: "60px",
-              marginBottom: theme.boxSpacing(10),
-            },
-          }}
+        <DisplayFeedbackUI
+          type="NETWORK_GLITCH"
+          icon={
+            <SVGWrapper
+              src={asset.networkGlitch}
+              size={100}
+              color={theme.palette.gray[200]}
+            />
+          }
+          style={{ icon: { size: "unset", svg: { stroke: "none" } } }}
         />
       )}
     </RootUIContainer>

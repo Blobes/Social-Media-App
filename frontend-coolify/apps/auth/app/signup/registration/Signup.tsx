@@ -24,6 +24,7 @@ import {
   UIGuide,
   PhoneInput,
   TransText,
+  AppLogo,
 } from "@repo/shared-ui";
 import { useSignup } from "./useSignup";
 import { useGuides, useStaticTranslation } from "@repo/shared-hooks";
@@ -96,17 +97,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           width: style.container?.smScreen,
         },
       }}>
-      <Image
-        alt="logo"
-        src={asset.logo}
-        width={50}
-        height={50}
-        style={{
-          borderRadius: `${theme.radius.full}`,
-          flex: "none",
-        }}
-      />
-
+      <AppLogo size={50} />
       <Stack
         gap={theme.gap(4)}
         sx={{
@@ -160,7 +151,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           <SVGWrapper
             src={asset.googleLogo}
             size={20}
-            uiLoadertype="SKELETON"
+            fallbackUIType="SKELETON"
           />
           Google
         </AppButton>
@@ -174,7 +165,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           <SVGWrapper
             src={asset.appleLogo}
             size={20}
-            uiLoadertype="SKELETON"
+            fallbackUIType="SKELETON"
             color={theme.palette.gray[300]}
           />
           Apple
@@ -202,6 +193,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         onSubmit={handleSubmit}
         noValidate>
         <DynamicInput
+          required
           value={email}
           type="email"
           label={translateTxtString(AUTH_INPUT.label.email_address)}
@@ -226,6 +218,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         />
 
         <PasswordInput
+          required
           label={translateTxtString(AUTH_INPUT.label.password)}
           placeholder={translateTxtString(
             AUTH_INPUT.placeholder.create_password,
@@ -254,7 +247,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           }}
           options={{ disabled: isSubmitDisabled }}>
           {isSubmitLoading ? (
-            <ProgressIcon otherProps={{ size: 25 }} />
+            <ProgressIcon options={{ size: 25 }} />
           ) : (
             <TransText {...AUTH_BUTTON_LABELS.signup} noComponent />
           )}

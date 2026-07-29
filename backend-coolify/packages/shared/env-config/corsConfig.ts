@@ -11,7 +11,7 @@ export const corsConfig = (): any => {
     "http://localhost:8080", // Account
     "http://localhost:8081", // Post
     "http://localhost:8083", // Worker
-    "http://localhost:8084", // Admin
+    "http://localhost:8084", // Platform
 
     // Frontend Production Deployments
     "https://funstakes.net", // Main frontend

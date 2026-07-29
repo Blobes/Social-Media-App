@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { Stepper } from "@repo/shared-ui";
+import { AppLogo, Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
 import Image from "next/image";
 import { asset } from "@repo/assets";
@@ -73,16 +73,7 @@ export const Reset: React.FC<ResetStepProps> = ({ style = {} }) => {
           maxWidth: "unset",
         },
       }}>
-      <Image
-        alt="logo"
-        src={asset.logo}
-        width={50}
-        height={50}
-        style={{
-          borderRadius: `${theme.radius.full}`,
-          flex: "none",
-        }}
-      />
+      <AppLogo size={50} />
       <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />
     </Stack>
   );

@@ -163,7 +163,7 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
           disabled: isNewPasswordSubmitDisabled,
         }}>
         {isNewPasswordLoading ? (
-          <ProgressIcon otherProps={{ size: 25 }} />
+          <ProgressIcon options={{ size: 25 }} />
         ) : (
           <TransText {...AUTH_BUTTON_LABELS.reset_password} noComponent />
         )}

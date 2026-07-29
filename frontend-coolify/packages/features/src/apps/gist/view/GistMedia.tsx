@@ -2,13 +2,12 @@
 
 import React from "react";
 import { useTheme } from "@mui/material/styles";
-import { useMisc } from "@repo/shared-hooks";
 import { GalleryProps, MediaGrid, Media } from "@repo/shared-ui";
 import { useCallback, useMemo } from "react";
 import { applyBGEffects } from "@repo/helpers";
 import { IGist, UIMode } from "@repo/core";
 import { GistMediaView } from "./GistMediaView";
-import { usePopup } from "@repo/features/src/popups/usePopup";
+import { usePopup } from "../../../popups/usePopup";
 
 export interface LikeState {
   likedByMe: boolean;

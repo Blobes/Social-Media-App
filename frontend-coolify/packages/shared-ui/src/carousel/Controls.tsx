@@ -29,16 +29,16 @@ export const CarouselArrows = ({
 
   const sharedStyle = {
     position: "absolute",
-    top: "70%",
+    bottom: "1.5%",
     zIndex: 10,
-    bgcolor: theme.palette.gray.trans.overlay(0.3),
+    backgroundColor: theme.fixedColors.grayTrans(0.5, "dark"),
     transition: "stroke 0.3s ease, background-color 0.3s ease",
     "& svg": {
       stroke: "#ffffff",
     },
     "&:hover": {
       opacity: 0.8,
-      bgcolor: theme.fixedColors.gray800,
+      backgroundColor: theme.fixedColors.gray800,
       "& svg": {
         stroke: theme.fixedColors.gray50,
       },
@@ -160,9 +160,9 @@ export const CarouselDots = ({
               height: 8,
               borderRadius: theme.radius.full,
               cursor: "pointer",
-              bgcolor: theme.fixedColors.grayTrans(0.6, "dark"),
+              bgcolor: theme.fixedColors.grayTrans(0.4, "mixed"),
               "&:hover": {
-                bgcolor: theme.fixedColors.grayTrans(1, "dark"),
+                bgcolor: theme.fixedColors.grayTrans(0.8, "mixed"),
               },
               overflow: "hidden",
               transform: `scale(${dotScale})`,

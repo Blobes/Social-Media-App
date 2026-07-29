@@ -8,7 +8,8 @@ import { ColorType, FontType, TextOnMedia } from "@repo/core";
 import { FONT_TYPES, useTextMode } from "@repo/shared-hooks";
 import { COLOR_CONFIGS } from "@repo/shared-hooks";
 import { AppButton } from "../../Buttons";
-import { DynamicInput } from "../../InputFields";
+import { DynamicInput } from "../../input/Dynamic";
+
 export interface TextModeProps {
   texts: TextOnMedia[];
   focusedTextId: string | null;

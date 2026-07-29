@@ -15,7 +15,7 @@ import { usePage } from "@repo/shared-hooks";
 
 export interface OtpNavigation {
   user: IUser;
-  identifier: string;
+  identifier?: string;
   inputType: InputType;
   reason: OtpReason;
   purpose?: TransitPurpose;

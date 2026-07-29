@@ -1,6 +1,6 @@
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
-import { internalRouter } from "./internal-api/routes";
+import { internalRouter } from "./api/routes";
 import { healthRouter } from "./health";
 
 export default (app: Express) => {

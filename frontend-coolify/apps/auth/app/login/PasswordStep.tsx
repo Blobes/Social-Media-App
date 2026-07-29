@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Divider, IconButton, Stack } from "@mui/material";
+import { IconButton, Stack } from "@mui/material";
 import {
   AppButton,
   PasswordInput,
@@ -11,9 +11,11 @@ import {
   TransText,
   AnchorLink,
   DisplayFeedbackUI,
+  ChoiceInput,
+  SVGWrapper,
 } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
-import { Lock, Pencil } from "lucide-react";
+import { Lock, Pencil, ScanLine, ScanText, ShieldHalfIcon } from "lucide-react";
 import { useLogin } from "./hooks/useLogin";
 import { LoginStepProps } from "../types";
 import {
@@ -23,9 +25,10 @@ import {
   CLIENT_ROUTES,
   COMMON_BUTTON_LABELS,
   COMMON_FEEDBACK,
+  COMMON_INPUT,
 } from "@repo/core";
 import { useStaticTranslation } from "@repo/shared-hooks";
-import { useIdentifier } from "./hooks/useIdentifier";
+import { asset } from "@repo/assets";
 
 interface StepProps extends LoginStepProps {
   credential: string;
@@ -38,14 +41,14 @@ export const PasswordStep: React.FC<StepProps> = ({
 }) => {
   const theme = useTheme();
   const { translateTxtString } = useStaticTranslation();
-  const { handleResetPassClick } = useIdentifier({});
 
   // Consuming the controller
   const {
     password,
     passwordValidity,
     errorMsg,
-    onPasswordChange,
+    handlePasswordChange,
+    handleResetPassClick,
     handleSubmit,
     isAuthLoading,
     inlineMsg,
@@ -55,6 +58,8 @@ export const PasswordStep: React.FC<StepProps> = ({
     MAX_ATTEMPTS,
     LOCKOUT_MIN,
     formattedSec,
+    rememberMe,
+    handleRememberMe,
   } = useLogin({ identifier, setStep });
 
   return !isLocked ? (
@@ -66,7 +71,17 @@ export const PasswordStep: React.FC<StepProps> = ({
           width: "100%",
         },
       }}>
-      <Lock size={40} style={{ alignSelf: "center" }} />
+      {/* <ShieldHalfIcon size={40} style={{ alignSelf: "center" }} /> */}
+      <SVGWrapper
+        src={asset.moonRocket}
+        size={70}
+        color={theme.palette.primary.dark}
+        fallbackUIType="SKELETON"
+        sx={{
+          flex: "none",
+          alignSelf: "center",
+        }}
+      />
       {/* Headline & Tagline */}
       <Stack sx={{}}>
         <TransText
@@ -141,14 +156,24 @@ export const PasswordStep: React.FC<StepProps> = ({
           </Stack>
           {/* Password Input Field */}
           <PasswordInput
+            required
             label={translateTxtString(AUTH_INPUT.label.password)}
             placeholder={translateTxtString(
               AUTH_INPUT.placeholder.enter_password,
             )}
-            onChange={onPasswordChange}
+            onChange={handlePasswordChange}
             helperText={errorMsg}
             value={password}
             error={password === "" && passwordValidity === "INVALID"}
+          />
+
+          {/* Remember Me Option */}
+          <ChoiceInput
+            choiceType="checkbox"
+            label={translateTxtString(COMMON_INPUT.label.remember_me)}
+            checked={rememberMe}
+            onChoiceChange={handleRememberMe}
+            tooltipGuide={translateTxtString(COMMON_FEEDBACK.remember_me_guide)}
           />
         </Stack>
 
@@ -168,7 +193,7 @@ export const PasswordStep: React.FC<StepProps> = ({
                 isAuthLoading,
             }}>
             {isAuthLoading ? (
-              <ProgressIcon otherProps={{ size: 25 }} />
+              <ProgressIcon options={{ size: 25 }} />
             ) : (
               <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
             )}
@@ -206,7 +231,9 @@ export const PasswordStep: React.FC<StepProps> = ({
       }
       primaryCta={{
         label: translateTxtString(AUTH_BUTTON_LABELS.reset_password),
-        action: () => handleResetPassClick,
+        action: () => {
+          handleResetPassClick;
+        },
       }}
       secondaryCta={{
         label: translateTxtString(COMMON_BUTTON_LABELS.back),

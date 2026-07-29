@@ -45,7 +45,7 @@ interface CountdownResult {
 /**
  * Manages password value states, criteria verification, lock countdowns, and field validation across creation and auth flows.
  */
-export const usePasswordFieldValidation = (
+export const usePasswordInputValidation = (
   options: UseValidationOptions = {},
 ) => {
   const { mode = "CREATE", onLockComplete } = options;

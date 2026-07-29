@@ -2,8 +2,7 @@
 
 import React, { useMemo } from "react";
 import { Box, Stack } from "@mui/material";
-import { Feedback, PostSkeleton, ProgressIcon } from "@repo/shared-ui";
-import { Milestone } from "lucide-react";
+import { DisplayFeedbackUI, PostSkeleton, ProgressIcon } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 import { autoScroll } from "@repo/helpers";
 import { GistCard, useGists } from "@repo/features";
@@ -19,7 +18,7 @@ import {
   POST_FEEDBACK,
   COMMON_BUTTON_LABELS,
 } from "@repo/core";
-import { CreateGist } from "@repo/features/src/apps/gist/create/CreateGist";
+import { CreateGist } from "../create/CreateGist";
 
 /**
  * Main Gists feed component.
@@ -79,36 +78,15 @@ export const Gists = () => {
       {isLoading ? (
         <PostSkeleton />
       ) : gists.length < 1 ? (
-        <Feedback
+        <DisplayFeedbackUI
+          type="UNKNOWN"
           tagline={message || translateTxtString(finalMsg)}
-          icon={<Milestone />}
           primaryCta={{
             type: "BUTTON",
             variant: "outlined",
             label: translateTxtString(COMMON_BUTTON_LABELS.explore_funstakes),
             action: () => {
               handleRefresh();
-            },
-          }}
-          style={{
-            container: {
-              height: "100%",
-              backgroundColor: "none",
-              gap: theme.gap(6),
-            },
-            tagline: { ...theme.typography.text3 },
-            icon: {
-              width: "50px",
-              height: "50px",
-              [theme.breakpoints.down("md")]: {
-                width: "40px",
-                height: "40px",
-              },
-              svg: {
-                fill: "none",
-                stroke: theme.palette.gray[200],
-                strokeWidth: "1.5px",
-              },
             },
           }}
         />
@@ -128,7 +106,7 @@ export const Gists = () => {
                 justifyContent: "center",
                 minHeight: "40px",
               }}>
-              {isFetchingNextPage && <ProgressIcon otherProps={{ size: 24 }} />}
+              {isFetchingNextPage && <ProgressIcon options={{ size: 24 }} />}
             </Box>
           )}
         </>

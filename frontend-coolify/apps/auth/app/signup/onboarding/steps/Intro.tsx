@@ -40,7 +40,7 @@ export const OnboardingIntro: React.FC<StepperProps<AuthStepName>> = ({
           src={asset.Illustration2}
           size={140}
           preserveColor={true}
-          uiLoadertype="SKELETON"
+          fallbackUIType="SKELETON"
           // sx={{
           //   [theme.breakpoints.down("md")]: {
           //     width: 28,

@@ -1,17 +1,24 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { delay, formatRemainingTime } from "@repo/helpers";
-import { AuthStepName, ApiError } from "@repo/core";
+import {
+  clearSavedPassword,
+  delay,
+  formatRemainingTime,
+  getSavedPassword,
+  saveIdentifier,
+  savePassword,
+} from "@repo/helpers";
+import { AuthStepName, ApiError, CLIENT_ROUTES } from "@repo/core";
 import { LoginService } from "../service";
 import { useLoginFeedback } from "./useFeedback";
-import { usePasswordFieldValidation } from "@repo/shared-hooks";
+import { usePage, usePasswordInputValidation } from "@repo/shared-hooks";
 import { TransText } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 
 export interface UseLogin {
-  identifier: string;
+  identifier?: string;
   setStep?: (step: AuthStepName) => void;
 }
 
@@ -20,12 +27,17 @@ export interface UseLogin {
  */
 export const useLogin = ({ identifier, setStep }: UseLogin) => {
   const { login } = LoginService();
+  const { navigateTo } = usePage();
   const { handleSuccess, handleError } = useLoginFeedback({
     identifier,
     setStep,
   });
   const theme = useTheme();
   const [isRedirecting, setIsRedirecting] = useState(false);
+
+  const [rememberMe, setRememberMe] = useState<boolean>(() => {
+    return Boolean(getSavedPassword());
+  });
 
   const inlineMsgStyle = useMemo(
     () => ({
@@ -36,12 +48,13 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     [theme],
   );
 
-  const passwordValidation = usePasswordFieldValidation({
+  const passwordValidation = usePasswordInputValidation({
     mode: "AUTHENTICATE",
   });
   const {
     password,
     handlePasswordChange,
+    setPassword,
     isLocked,
     remainingSec,
     inlineMsg,
@@ -53,6 +66,14 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     MAX_ATTEMPTS,
     LOCKOUT_MIN,
   } = passwordValidation;
+
+  /**
+   * Autofills saved password on mount if it exists in local storage.
+   */
+  useEffect(() => {
+    const savedPassword = getSavedPassword();
+    if (password.length > 0 && savedPassword) setPassword(savedPassword);
+  }, []);
 
   /**
    * Syncs attempt error descriptor objects into UI translation component tree.
@@ -70,17 +91,48 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     );
   }, [attemptFeedback, inlineMsgStyle, setInlineMsg]);
 
+  const handleResetPassClick = useCallback(
+    (e: React.MouseEvent) => {
+      setInlineMsg(null);
+      navigateTo(CLIENT_ROUTES.resetPassword, {
+        event: e,
+        loadPage: true,
+        savePage: false,
+      });
+    },
+    [navigateTo],
+  );
+
+  /**
+   * Handles remember me toggle switch state.
+   */
+  const handleRememberMe = (
+    _event: React.ChangeEvent<HTMLInputElement>,
+    checked: boolean,
+  ) => {
+    setRememberMe(checked);
+  };
+
   /**
    * Executes authentication mutation request.
    */
   const { mutate, isPending: isMutationLoading } = useMutation({
     mutationFn: async () => {
+      if (!identifier) return;
       await delay();
       return await login({ identifier, password });
     },
     onSuccess: (res) => {
       setIsRedirecting(true);
-      handleSuccess(res);
+
+      if (identifier) saveIdentifier(identifier);
+      if (rememberMe) {
+        savePassword(password);
+      } else {
+        clearSavedPassword();
+      }
+
+      if (res) handleSuccess(res);
     },
     onError: (err: ApiError) => {
       setIsRedirecting(false);
@@ -100,7 +152,8 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
   return {
     password,
     passwordValidity,
-    onPasswordChange: handlePasswordChange,
+    handlePasswordChange,
+    handleResetPassClick,
     handleSubmit,
     isLocked,
     remainingSec,
@@ -112,5 +165,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     errorMsg,
     MAX_ATTEMPTS,
     LOCKOUT_MIN,
+    rememberMe,
+    handleRememberMe,
   };
 };

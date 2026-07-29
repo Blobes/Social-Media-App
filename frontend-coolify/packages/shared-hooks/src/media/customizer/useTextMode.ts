@@ -9,7 +9,6 @@ import {
   TextAlignment,
 } from "@repo/core";
 import { useDrag } from "../../useDrag";
-
 export interface UseTextModeOptions {
   texts?: TextOnMedia[];
   onTextsChange?: (texts: TextOnMedia[]) => void;

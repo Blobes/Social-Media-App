@@ -22,7 +22,7 @@ export interface UsePhoneFieldOptions {
 /**
  * Manages validation, real-time formatting, country selector menus, and cursor alignment for phone input fields.
  */
-export const usePhoneFieldValidation = ({
+export const usePhoneInputValidation = ({
   initialValue = "",
   isRequired = true,
   includeCountryCode = true,

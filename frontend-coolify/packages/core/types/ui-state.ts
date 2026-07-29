@@ -170,7 +170,7 @@ export interface TransitData<P extends TransitPurpose = TransitPurpose> {
 
 export type OtpTransitData<P extends TransitPurpose = TransitPurpose> =
   TransitData<P> & {
-    identifier: string;
+    identifier?: string;
     channel: OtpChannel;
     reason: OtpReason;
     onVerificationSuccess?: () => void;

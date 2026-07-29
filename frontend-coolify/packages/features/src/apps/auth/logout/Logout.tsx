@@ -8,7 +8,7 @@ import { useMisc } from "@repo/shared-hooks";
 import { LogOut, LogOutIcon } from "lucide-react";
 import { useLogout } from "./useLogout";
 import { AUTH_BUTTON_LABELS, AUTH_FEEDBACK, GenericStyle } from "@repo/core";
-import { usePopup } from "@repo/features/src/popups/usePopup";
+import { usePopup } from "../../../popups/usePopup";
 
 export const ComfirmLogout = () => {
   const { closeModal } = useMisc();

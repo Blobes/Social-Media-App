@@ -10,7 +10,7 @@ import {
 
 export interface OtpRequest {
   code?: string;
-  recipient: string;
+  recipient?: string;
   purpose?: TransitPurpose;
   channel?: OtpChannel;
 }

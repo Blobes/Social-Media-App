@@ -5,11 +5,11 @@ import { useTheme } from "@mui/material/styles";
 import { useAdaptiveTime, useMisc } from "@repo/shared-hooks";
 import { IsolatedMedia } from "@repo/shared-ui";
 import { IGist, MediaProps, UIMode } from "@repo/core";
-import { PostEngagement } from "../../post/components/engagement/Engagement";
-import { PostHeader } from "../../post/components/header/PostHeader";
 import { LikeState } from "./GistMedia";
 import { useGistLikeState } from "./hooks/useGistState";
 import { DynamicCaption } from "../../post/components/Caption";
+import { PostHeader } from "../../post/components/header/PostHeader";
+import { PostEngagement } from "../../post/components/engagement/Engagement";
 import { PostService } from "../../post/postService";
 
 interface ViewProps {

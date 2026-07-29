@@ -47,7 +47,7 @@ func LoadConfig(ctx context.Context) (*AppConfig, error) {
 
 	redisURL := os.Getenv("FUNSTAKES_REDIS_URL")
 	if redisURL == "" {
-		redisURL = "redis://62.171.158.199:3100/0"
+		redisURL = "redis://62.171.158.199:6379/0"
 	}
 
 	parsedOpts, err := asynq.ParseRedisURI(redisURL)

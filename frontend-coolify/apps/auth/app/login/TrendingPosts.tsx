@@ -6,6 +6,7 @@ import { IPost, GenericStyle, COMMON_FEEDBACK, POST_INFO } from "@repo/core";
 import { useAdaptiveTime } from "@repo/shared-hooks";
 import { useTheme } from "@mui/material/styles";
 import {
+  AppLogo,
   LinearCarousel,
   PostSkeleton,
   SmartDate,
@@ -17,6 +18,10 @@ import { Box, Stack } from "@mui/material";
 import { applyBGPattern, summarizeNum } from "@repo/helpers";
 import { Quote } from "lucide-react";
 import { asset } from "@repo/assets";
+import {
+  CustomizedMediaRenderer,
+  MediaRenderer,
+} from "@repo/shared-ui/src/media/view/MediaRenderer";
 
 interface TrendingPost {
   post: IPost;
@@ -58,7 +63,12 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
       {/* Background Visual Rendering Block */}
       {hasMedia && targetMedia && (
         <Box sx={{ position: "absolute", inset: 0, zIndex: 1 }}>
-          {isVideo ? (
+          {targetMedia.customizations ? (
+            <CustomizedMediaRenderer media={targetMedia} />
+          ) : (
+            <MediaRenderer media={targetMedia} />
+          )}
+          {/*isVideo ? (
             <Box
               component="video"
               src={targetMedia.url}
@@ -75,7 +85,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
               alt="Post asset background"
               sx={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
-          )}
+          )*/}
           {/* Overlay to preserve text contrast readability */}
           <Box
             sx={{
@@ -117,7 +127,7 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
           src={data.avatar}
           size={42}
           preserveColor={true}
-          uiLoadertype="SKELETON"
+          fallbackUIType="SKELETON"
           sx={{
             flex: "none",
             border: "2px solid #FFFFFF",
@@ -225,20 +235,16 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
           ...style?.container?.smallScreen,
         },
       }}>
-      <Image
-        alt="logo"
-        src={asset.logo}
-        width={44}
-        height={44}
-        style={{
-          borderRadius: `${theme.radius.full}`,
-          flex: "none",
+      <AppLogo
+        color={theme.palette.gray[300]}
+        sx={{
           position: "absolute",
           zIndex: 5,
           top: theme.gap(10),
           left: theme.gap(18),
         }}
       />
+
       {isLoading ? (
         <PostSkeleton
           quantity={1}

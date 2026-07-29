@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
-  useMultiFieldValidation,
+  useDynamicInputValidation,
   usePage,
   useStaticTranslation,
 } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { LoginService } from "../service";
-import { delay, sanitizePhoneNumber } from "@repo/helpers";
+import { delay, getSavedIdentifier, sanitizePhoneNumber } from "@repo/helpers";
 import {
   CLIENT_ROUTES,
   AuthStepName,
@@ -26,6 +26,7 @@ interface UseIdentifier {
   setStep?: (step: AuthStepName) => void;
   setIdentifier?: (credential: string) => void;
   inlineTxtStyle?: GenericStyle;
+  handleResetPassClick?: (e: React.MouseEvent<Element, MouseEvent>) => void;
 }
 /**
  * Coordinates server verification and routing workflows based on user account status.
@@ -35,12 +36,12 @@ export const useIdentifier = ({
   setStep,
   setIdentifier,
   inlineTxtStyle,
+  handleResetPassClick,
 }: UseIdentifier) => {
   const { checkEmail, checkPhone, checkUsername } = LoginService();
   const { navigateTo } = usePage();
   const { translateTxtString } = useStaticTranslation();
   const theme = useTheme();
-
   const [inlineMsg, setInlineMsg] = useState<React.ReactNode | null>(null);
 
   const clearInlineMsg = useCallback(() => {
@@ -59,18 +60,6 @@ export const useIdentifier = ({
     [navigateTo],
   );
 
-  const handleResetPassClick = useCallback(
-    (e: React.MouseEvent) => {
-      setInlineMsg(null);
-      navigateTo(CLIENT_ROUTES.resetPassword, {
-        event: e,
-        loadPage: true,
-        savePage: false,
-      });
-    },
-    [navigateTo],
-  );
-
   const {
     input,
     setInput,
@@ -81,10 +70,18 @@ export const useIdentifier = ({
     countryMenuRef,
     handleChange,
     validateAndSet,
-  } = useMultiFieldValidation({
+  } = useDynamicInputValidation({
     initialValue: existingInput,
     onClearFeedback: clearInlineMsg,
   });
+
+  /**
+   * Autofills saved password on mount if it exists in local storage.
+   */
+  useEffect(() => {
+    const savedIdentifier = getSavedIdentifier();
+    if (input.length > 0 && savedIdentifier) setIdentifier?.(savedIdentifier);
+  }, []);
 
   const { mutate, isPending: isAuthLoading } = useMutation({
     mutationFn: async (val: string) => {
@@ -145,7 +142,7 @@ export const useIdentifier = ({
             {error.localizedErrMsg || error.message}
             <AnchorLink
               href={CLIENT_ROUTES.resetPassword.path}
-              onClick={handleResetPassClick}
+              {...(handleResetPassClick && { onClick: handleResetPassClick })}
               style={{
                 marginLeft: theme.gap(2),
                 ...inlineTxtStyle,
@@ -186,7 +183,6 @@ export const useIdentifier = ({
     countryMenuRef,
     validateAndSet,
     handleSignupClick,
-    handleResetPassClick,
     inlineMsg,
   };
 };

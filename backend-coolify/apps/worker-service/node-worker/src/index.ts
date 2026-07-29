@@ -10,11 +10,21 @@ import { startErrorLogCleanupTask } from "./automations/errorLogsCleanup";
 const startServer = async () => {
   const app = express();
 
-  await initCacheClient(FUNSTAKES_REDIS_URL); // Initialize Redis cache pool
-
   try {
     monitorProcess();
+
+    await initCacheClient(FUNSTAKES_REDIS_URL); // Initialize Redis cache pool
     await connectDB(MONGO_URI);
+
+    // Background workers
+    otpDispatchWorker();
+    startDeviceCleanupTask();
+    startErrorLogCleanupTask();
+    startUserMetricsReset();
+    // initUserCleanup()
+    // initTopicCleanup();
+    // initUserTopicCleanup();
+    // startEligibilityWorker()
 
     appLoader(app);
 
@@ -28,14 +38,3 @@ const startServer = async () => {
 };
 
 startServer();
-
-// Background workers
-otpDispatchWorker();
-startDeviceCleanupTask();
-startErrorLogCleanupTask();
-startUserMetricsReset();
-
-// initUserCleanup()
-// initTopicCleanup();
-// initUserTopicCleanup();
-// startEligibilityWorker()

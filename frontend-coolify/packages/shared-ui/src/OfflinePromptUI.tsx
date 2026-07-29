@@ -4,7 +4,7 @@ import React from "react";
 import { useTheme } from "@mui/material/styles";
 import { ScreenShareOff } from "lucide-react";
 import { RootUIContainer } from "./Containers";
-import { Feedback } from "./Feedback";
+import { DisplayFeedbackUI } from "./Feedback";
 import { COMMON_BUTTON_LABELS, COMMON_FEEDBACK } from "@repo/core";
 import { useStaticTranslation } from "@repo/shared-hooks";
 
@@ -26,7 +26,8 @@ export const OfflinePromptUI = ({ handleOffline }: offlineProps) => {
         padding: theme.boxSpacing(12),
         gap: theme.gap(6),
       }}>
-      <Feedback
+      <DisplayFeedbackUI
+        type="NETWORK_GLITCH"
         headline={translateTxtString(
           COMMON_FEEDBACK.seem_to_be_offline_headline,
         )}
@@ -39,22 +40,7 @@ export const OfflinePromptUI = ({ handleOffline }: offlineProps) => {
           action: () => handleOffline(),
         }}
         style={{
-          container: {
-            height: "100%",
-            backgroundColor: "none",
-          },
           headline: { ...theme.typography.h6 },
-          tagline: { ...theme.typography.text4 },
-          icon: {
-            width: "60px",
-            height: "60px",
-            marginBottom: theme.boxSpacing(8),
-            svg: {
-              fill: "none",
-              stroke: theme.palette.gray[200],
-              strokeWidth: "1.5px",
-            },
-          },
         }}
       />
     </RootUIContainer>

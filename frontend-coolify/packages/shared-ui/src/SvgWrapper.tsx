@@ -17,7 +17,7 @@ interface SVGWrapperProps extends BoxProps {
   loop?: boolean;
   autoplay?: boolean;
   fbSize?: number | string;
-  uiLoadertype?: "SPIN" | "SKELETON";
+  fallbackUIType?: "SPIN" | "SKELETON";
 }
 
 /**
@@ -32,7 +32,7 @@ export const SVGWrapper = ({
   preserveColor = false,
   loop = true,
   autoplay = true,
-  uiLoadertype = "SPIN",
+  fallbackUIType = "SPIN",
   sx,
   ...props
 }: SVGWrapperProps) => {
@@ -103,7 +103,7 @@ export const SVGWrapper = ({
   };
 
   const renderDefaultLoader = () => {
-    if (uiLoadertype === "SPIN") {
+    if (fallbackUIType === "SPIN") {
       return (
         <Box
           sx={{
@@ -138,8 +138,6 @@ export const SVGWrapper = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            // height: "100%",
-            // width: "100%",
           }}>
           {renderDefaultLoader()}
         </motion.div>

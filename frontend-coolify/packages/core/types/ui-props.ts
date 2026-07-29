@@ -177,25 +177,37 @@ export interface IBGFadeSlideData {
 export type DisplayFeedbackUIType =
   | "ALREADY_LOGGED_IN"
   | "UNAUTHORIZED"
+  | "NETWORK_GLITCH"
   | "MAINTENANCE"
   | "BANNED"
   | "NEEDS_LOGIN"
   | "NEEDS_ONBOARDING"
   | "NEEDS_OTP_VERIFICATION"
   | "NEEDS_RESTORE"
-  | "PASSWORD_RESET_SUCCESS";
+  | "PASSWORD_RESET_SUCCESS"
+  | "UNKNOWN";
 
-export interface DisplayFeedbackUIConfig {
+export interface FeedbackCTA {
+  type?: "BUTTON" | "ICON";
+  variant?: "contained" | "outlined";
+  label?: React.ReactNode;
+  toolTip?: string;
+  action?: () => void | Promise<void>;
+  href?: string;
+}
+export interface FeedbackStyle {
+  container?: GenericStyle;
+  headline?: GenericStyle;
+  tagline?: GenericStyle;
+  icon?: GenericStyle;
+  primaryCta?: GenericStyle;
+  secondaryCta?: GenericStyle;
+}
+export interface FeedbackProps {
   headline?: React.ReactNode;
   tagline?: React.ReactNode;
   icon?: React.ReactNode;
-  primaryCta?: {
-    label: string;
-    action: () => void;
-    href?: string;
-  };
-  secondaryCta?: {
-    label: string;
-    action: () => void;
-  };
+  style?: FeedbackStyle;
+  primaryCta?: FeedbackCTA;
+  secondaryCta?: FeedbackCTA;
 }

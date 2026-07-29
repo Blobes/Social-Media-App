@@ -28,6 +28,7 @@ import { useIdentifier } from "./hooks/useIdentifier";
 import { LoginStepProps } from "../types";
 import { asset } from "@repo/assets";
 import { useGuides, useStaticTranslation } from "@repo/shared-hooks";
+import { useLogin } from "./hooks/useLogin";
 
 export const IdentifierStep: React.FC<LoginStepProps> = ({
   setStep,
@@ -39,6 +40,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
   const { COUNTRY_LIST } = LISTS();
   const { translateTxtString } = useStaticTranslation();
   const { INPUT_GUIDES } = useGuides();
+  const { handleResetPassClick } = useLogin({});
 
   const inlineTxtStyle = useMemo(
     () => ({
@@ -66,9 +68,14 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
     countryMenuRef,
     validateAndSet,
     handleSignupClick,
-    handleResetPassClick,
     inlineMsg,
-  } = useIdentifier({ existingInput, setStep, setIdentifier, inlineTxtStyle });
+  } = useIdentifier({
+    existingInput,
+    setStep,
+    setIdentifier,
+    inlineTxtStyle,
+    handleResetPassClick,
+  });
 
   return (
     <Stack gap={theme.gap(8)}>
@@ -122,7 +129,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
           <SVGWrapper
             src={asset.googleLogo}
             size={20}
-            uiLoadertype="SKELETON"
+            fallbackUIType="SKELETON"
           />
           Google
         </AppButton>
@@ -137,7 +144,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
             src={asset.appleLogo}
             size={20}
             color={theme.palette.gray[300]}
-            uiLoadertype="SKELETON"
+            fallbackUIType="SKELETON"
           />
           Apple
         </AppButton>
@@ -161,6 +168,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
         component="form"
         onSubmit={handleSubmit}>
         <DynamicInput
+          required
           value={input}
           label={translateTxtString(AUTH_INPUT.label.email_phone_username)}
           placeholder={translateTxtString(
@@ -214,7 +222,7 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
           }}
           options={{ disabled: isSubmitDisabled }}>
           {isAuthLoading ? (
-            <ProgressIcon otherProps={{ size: 25 }} />
+            <ProgressIcon options={{ size: 25 }} />
           ) : (
             <TransText {...COMMON_BUTTON_LABELS.continue} noComponent />
           )}

@@ -4,10 +4,10 @@ import React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import { InputBase, Stack } from "@mui/material";
 import { Search as SearchIcon } from "lucide-react";
-import { InputProps } from "./InputFields";
 import { COMMON_INPUT } from "@repo/core";
 import { useStaticTranslation } from "@repo/shared-hooks";
-import { TransText } from "./Text";
+import { TransText } from "../Text";
+import { InputEventHandlers, InputProps } from "./Dynamic";
 
 const InputWrapper = styled(Stack)(({ theme }) => ({
   flexDirection: "row",
@@ -30,11 +30,11 @@ const InputWrapper = styled(Stack)(({ theme }) => ({
 }));
 
 export const SearchBar = ({
-  onChange,
+  onChange: onChange,
   focusResizeWidth = true,
   style,
   placeholder,
-}: InputProps) => {
+}: InputProps & InputEventHandlers) => {
   const { translateTxtString } = useStaticTranslation();
   const theme = useTheme();
 

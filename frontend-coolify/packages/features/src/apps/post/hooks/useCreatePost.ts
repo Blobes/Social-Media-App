@@ -1,6 +1,6 @@
 "use client";
 
-import { usePopup } from "@repo/features/src/popups/usePopup";
+import { usePopup } from "../../../popups/usePopup";
 import React, { useCallback } from "react";
 
 export const useCreatePost = () => {

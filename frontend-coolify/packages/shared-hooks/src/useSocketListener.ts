@@ -1,7 +1,7 @@
 "use client";
 
+import { useSocketStore } from "@repo/core";
 import { useEffect, useRef } from "react";
-import { useSocketStore } from "../../core/store/useSocketStore";
 
 /**
  * Attaches a persistent event listener to the active WebSocket gateway session.

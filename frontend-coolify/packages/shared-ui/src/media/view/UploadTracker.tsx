@@ -42,9 +42,12 @@ export const MediaUploadTracker: React.FC<UploadTrackerProps> = ({
               sx={{ ...theme.typography.text4, color: "inherit" }}
             />
             <ProgressIcon
-              variant="determinate"
               value={state.progress}
-              style={{ width: "24px", height: "24px", flexShrink: 0 }}
+              options={{
+                variant: "determinate",
+                size: 24,
+              }}
+              style={{ flexShrink: 0 }}
             />
           </Stack>
         );

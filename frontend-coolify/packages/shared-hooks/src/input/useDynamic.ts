@@ -27,7 +27,7 @@ interface UseInputFieldOptions {
 /**
  * Manages validation, real-time phone formatting, and selection range alignment for polymorphic input string credentials.
  */
-export const useMultiFieldValidation = ({
+export const useDynamicInputValidation = ({
   initialValue = "",
   isRequired = true,
   needsValidation = true,

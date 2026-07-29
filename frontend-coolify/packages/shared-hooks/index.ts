@@ -18,11 +18,11 @@ export * from "./src/useKeyboard";
 export * from "./src/useFeedbackUI";
 // Input fields
 export * from "./src/input/useValMsg";
-export * from "./src/input/useDynamicField";
+export * from "./src/input/useDynamic";
 export * from "./src/input/usePassword";
 export * from "./src/input/usePhoneField";
-export * from "./src/input/useOtpField";
-export * from "./src/input/useEmailField";
+export * from "./src/input/useOtp";
+export * from "./src/input/useEmail";
 // Carousel
 export * from "./src/carousel/useBGFade";
 export * from "./src/carousel/useLinear";

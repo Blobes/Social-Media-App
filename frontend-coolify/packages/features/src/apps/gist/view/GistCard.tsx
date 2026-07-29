@@ -20,7 +20,7 @@ import {
   useGistStore,
 } from "@repo/core";
 import { mediaData } from "@repo/assets";
-import { Feedback, TransText } from "@repo/shared-ui";
+import { DisplayFeedbackUI, TransText } from "@repo/shared-ui";
 import { GistService } from "../gistService";
 import { GistMedia } from "./GistMedia";
 import { PostHeader } from "../../post/components/header/PostHeader";
@@ -100,7 +100,8 @@ export const GistCard = ({ gist, style = {}, mode = "ONLINE" }: GistProps) => {
 
   if (gistData.status === "DELETED") {
     return (
-      <Feedback
+      <DisplayFeedbackUI
+        type="UNKNOWN"
         tagline={translateTxtString(POST_FEEDBACK.post_deleted_tagline)}
       />
     );

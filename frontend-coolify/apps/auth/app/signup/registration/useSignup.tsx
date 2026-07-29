@@ -4,9 +4,9 @@ import React, { useState, useCallback, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
   usePage,
-  usePasswordFieldValidation,
-  useEmailFieldValidation,
-  usePhoneFieldValidation,
+  usePasswordInputValidation,
+  useEmailInputValidation,
+  usePhoneInputValidation,
 } from "@repo/shared-hooks";
 import { CLIENT_ROUTES, ApiError } from "@repo/core";
 import { sanitizePhoneNumber } from "@repo/helpers";
@@ -37,7 +37,7 @@ export const useSignup = () => {
     isEmailValid,
     handleEmailChange,
     handleClearEmail,
-  } = useEmailFieldValidation({
+  } = useEmailInputValidation({
     onClearFeedback: clearInlineMsg,
   });
 
@@ -47,7 +47,7 @@ export const useSignup = () => {
     validationMsg: phoneValidationMsg,
     isPhoneValid,
     handlePhoneChange,
-  } = usePhoneFieldValidation({
+  } = usePhoneInputValidation({
     includeCountryCode: true,
     isRequired: false,
     onClearFeedback: clearInlineMsg,
@@ -60,7 +60,7 @@ export const useSignup = () => {
     passwordVisualStates,
     isPasswordValid,
     handlePasswordChange,
-  } = usePasswordFieldValidation();
+  } = usePasswordInputValidation();
 
   /**
    * TanStack Mutation handles server account provisioning.

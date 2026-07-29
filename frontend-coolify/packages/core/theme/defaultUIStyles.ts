@@ -1,6 +1,7 @@
 "use client";
 
 import { Components, Theme } from "@mui/material/styles";
+import { display, fontWeight, width } from "@mui/system";
 
 interface BaseStylesContainer {
   components: Components<Omit<Theme, "components">>;
@@ -232,7 +233,7 @@ const defaultUIStyles: BaseStylesContainer = {
           borderRadius: theme.radius[0],
           boxShadow: "none",
           minHeight: "44px",
-          padding: theme.boxSpacing(4, 18),
+          padding: theme.boxSpacing(8, 18),
           [theme.breakpoints.down("md")]: {
             minHeight: "32px",
             padding: theme.boxSpacing(5),
@@ -274,27 +275,50 @@ const defaultUIStyles: BaseStylesContainer = {
 
           "& .MuiInputBase-input": {
             fontSize: "var(--TextField-fontSize)",
-            fontWeight: "501",
+            fontWeight: "600",
             textAlign: "var(--ui-text-align, inherit)" as any,
           },
 
           "& .MuiInputLabel-root": {
-            maxWidth: "calc(90% - 24px)",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            overflow: "unset",
+            width: "100%",
+            maxWidth: "calc(97% - 24px)",
             fontSize: "var(--TextField-fontSize)",
             transform: "translate(16px, 17px)",
             fontWeight: "500",
             color: "var(--TextField-default)",
           },
+
+          "&:has(.MuiInputBase-adornedEnd .MuiInputAdornment-positionEnd) .MuiInputLabel-root":
+            {
+              maxWidth: "calc(100% - 60px)",
+            },
+
           "& label.Mui-focused, & label.MuiInputLabel-shrink": {
+            position: "absolute",
             color: "var(--TextField-default)",
             transform: "translate(16px, 7px) scale(0.83)",
             borderRadius: theme.radius[1],
             padding: 0,
+            "& .MuiInputLabel-asterisk": {
+              display: "none",
+            },
           },
           "& label.MuiInputLabel-root.Mui-error.Mui-focused, & label.MuiInputLabel-root.Mui-error":
             {
               color: "var(--TextField-error)",
             },
+
+          "& .MuiInputLabel-asterisk": {
+            fontSize: 26,
+            fontWeight: 600,
+            color: "var(--TextField-error)",
+            transform: "translateY(6px)",
+          },
+
           "& .MuiFormHelperText-root": {
             fontSize: "calc(0.875rem * var(--ui-font-scale, 1))",
             lineHeight: "1.2em",

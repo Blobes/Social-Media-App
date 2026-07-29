@@ -7,36 +7,40 @@ import {
   CLIENT_ROUTES,
   COMMON_BUTTON_LABELS,
   COMMON_FEEDBACK,
-  DisplayFeedbackUIConfig,
   DisplayFeedbackUIType,
+  FeedbackProps,
 } from "@repo/core";
 import {
   ShieldCheck,
   Lock,
   Construction,
   Ban,
-  ShieldX,
   UserPlus,
   RefreshCw,
+  LucideShieldOff,
+  Milestone,
+  Unplug,
 } from "lucide-react";
 import { usePage } from "./usePage";
 import { useStaticTranslation } from "./useTrans";
+import { useTheme } from "@mui/material/styles";
 
 /**
  * Custom hook providing structured configuration contexts for application level restricted views.
  */
 export const useDisplayFBConfig = (): Record<
   DisplayFeedbackUIType,
-  DisplayFeedbackUIConfig
+  FeedbackProps
 > => {
   const { navigateTo } = usePage();
   const { translateTxtString } = useStaticTranslation();
+  const theme = useTheme();
 
   return {
     ALREADY_LOGGED_IN: {
       headline: translateTxtString(AUTH_FEEDBACK.already_signed_in_headline),
       tagline: translateTxtString(AUTH_FEEDBACK.already_signed_in_tagline),
-      icon: <ShieldCheck size={48} />,
+      icon: <ShieldCheck />,
       primaryCta: {
         label: translateTxtString(COMMON_BUTTON_LABELS.go_home),
         action: () =>
@@ -51,7 +55,7 @@ export const useDisplayFBConfig = (): Record<
       tagline: translateTxtString(
         AUTH_FEEDBACK.password_reset_successful_tagline,
       ),
-      icon: <ShieldCheck size={48} />,
+      icon: <ShieldCheck />,
       primaryCta: {
         label: AUTH_BUTTON_LABELS.login.tValue,
         action: () => navigateTo(CLIENT_ROUTES.login, { loadPage: true }),
@@ -60,16 +64,51 @@ export const useDisplayFBConfig = (): Record<
     UNAUTHORIZED: {
       headline: translateTxtString(COMMON_FEEDBACK.access_denied_headline),
       tagline: translateTxtString(COMMON_FEEDBACK.access_denied_tagline),
-      icon: <ShieldX size={48} />,
+      icon: <LucideShieldOff />,
       primaryCta: {
         label: translateTxtString(COMMON_BUTTON_LABELS.go_home),
         action: () => navigateTo(CLIENT_ROUTES.home, { loadPage: true }),
       },
     },
+    NETWORK_GLITCH: {
+      headline: translateTxtString(COMMON_FEEDBACK.network_glitch_headline),
+      tagline: translateTxtString(COMMON_FEEDBACK.network_glitch_tagline),
+      primaryCta: {
+        label: translateTxtString(COMMON_BUTTON_LABELS.refresh),
+        variant: "outlined",
+        action: () => window.location.reload(),
+      },
+      icon: <Unplug />,
+      style: {
+        container: {
+          backgroundColor: "transparent",
+          border: "none",
+          [theme.breakpoints.up("md")]: {
+            maxWidth: "40%",
+          },
+        },
+        icon: {
+          width: 60,
+        },
+      },
+    },
+    UNKNOWN: {
+      icon: <Milestone />,
+      style: {
+        container: {
+          backgroundColor: "transparent",
+          border: "none",
+          gap: theme.gap(6),
+          [theme.breakpoints.up("md")]: {
+            maxWidth: "40%",
+          },
+        },
+      },
+    },
     MAINTENANCE: {
       headline: translateTxtString(COMMON_FEEDBACK.under_maintenance_headline),
       tagline: translateTxtString(COMMON_FEEDBACK.under_maintenance_tagline),
-      icon: <Construction size={48} />,
+      icon: <Construction />,
       primaryCta: {
         label: translateTxtString(COMMON_BUTTON_LABELS.go_home),
         action: () => navigateTo(CLIENT_ROUTES.home, { loadPage: true }),
@@ -78,7 +117,7 @@ export const useDisplayFBConfig = (): Record<
     BANNED: {
       headline: translateTxtString(AUTH_FEEDBACK.account_suspended_headline),
       tagline: translateTxtString(AUTH_FEEDBACK.account_suspended_tagline),
-      icon: <Ban size={48} />,
+      icon: <Ban />,
       primaryCta: {
         label: translateTxtString(COMMON_BUTTON_LABELS.view_terms),
         action: () => navigateTo(CLIENT_ROUTES.terms, { loadPage: true }),
@@ -87,7 +126,7 @@ export const useDisplayFBConfig = (): Record<
     NEEDS_LOGIN: {
       headline: translateTxtString(COMMON_FEEDBACK.access_restricted_headline),
       tagline: translateTxtString(COMMON_FEEDBACK.access_restricted_tagline),
-      icon: <Lock size={48} />,
+      icon: <Lock />,
       primaryCta: {
         label: translateTxtString(AUTH_BUTTON_LABELS.login_now),
         action: () => navigateTo(CLIENT_ROUTES.login, { loadPage: true }),
@@ -100,7 +139,7 @@ export const useDisplayFBConfig = (): Record<
     NEEDS_OTP_VERIFICATION: {
       headline: translateTxtString(AUTH_FEEDBACK.verify_your_account_headline),
       tagline: translateTxtString(AUTH_FEEDBACK.verify_your_account_tagline),
-      icon: <UserPlus size={48} />,
+      icon: <UserPlus />,
       primaryCta: {
         label: translateTxtString(AUTH_BUTTON_LABELS.otp_verify_code),
         action: () => navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true }),
@@ -109,7 +148,7 @@ export const useDisplayFBConfig = (): Record<
     NEEDS_ONBOARDING: {
       headline: translateTxtString(AUTH_FEEDBACK.finish_setting_up_headline),
       tagline: translateTxtString(AUTH_FEEDBACK.finish_setting_up_tagline),
-      icon: <UserPlus size={48} />,
+      icon: <UserPlus />,
       primaryCta: {
         label: translateTxtString(AUTH_BUTTON_LABELS.resume),
         action: () => navigateTo(CLIENT_ROUTES.onboarding, { loadPage: true }),
@@ -120,7 +159,7 @@ export const useDisplayFBConfig = (): Record<
       tagline: translateTxtString(
         AUTH_FEEDBACK.user_account_deactivated_tagline,
       ),
-      icon: <RefreshCw size={48} />,
+      icon: <RefreshCw />,
       primaryCta: {
         label: translateTxtString(AUTH_BUTTON_LABELS.restore_account),
         action: () =>

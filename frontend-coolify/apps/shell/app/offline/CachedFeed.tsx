@@ -5,10 +5,10 @@ import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { delay, autoScroll } from "@repo/helpers";
 import {
-  Feedback,
   PostSkeleton,
   BoxSkeleton,
   TransText,
+  DisplayFeedbackUI,
 } from "@repo/shared-ui";
 import { CircleSlash2 } from "lucide-react";
 import {
@@ -73,7 +73,8 @@ export const CachedFeed = () => {
           <BoxSkeleton />
         </>
       ) : feed.length < 1 ? (
-        <Feedback
+        <DisplayFeedbackUI
+          type="UNKNOWN"
           headline={translateTxtString(
             POST_FEEDBACK.offline_feed_empty_headline,
           )}
@@ -89,29 +90,6 @@ export const CachedFeed = () => {
                 savePage: false,
                 loadPage: true,
               }),
-          }}
-          style={{
-            container: {
-              height: "100%",
-              backgroundColor: "none",
-              alignItems: "center",
-              justifyContent: "center",
-            },
-            tagline: { ...theme.typography.text4 },
-            icon: {
-              width: "50px",
-              height: "50px",
-              marginBottom: theme.boxSpacing(4),
-              [theme.breakpoints.down("md")]: {
-                width: "40px",
-                height: "40px",
-              },
-              svg: {
-                fill: "none",
-                stroke: theme.palette.gray[200],
-                strokeWidth: "1.5px",
-              },
-            },
           }}
         />
       ) : (

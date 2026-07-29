@@ -100,7 +100,7 @@ export const GistSettingsStep: React.FC<SettingsStepProps> = ({
           }}>
           {isProcessing ? (
             <>
-              <ProgressIcon style={{ width: "20px", height: "20px" }} />
+              <ProgressIcon options={{ size: 20 }} />
               <TransText {...POST_BUTTON_LABELS.syncing_post} noComponent />
             </>
           ) : (

@@ -1,14 +1,13 @@
 "use client";
 
 import React from "react";
-import { Divider, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import {
   AppButton,
   DynamicInput,
   InlineMsgUI,
   ProgressIcon,
   DisplayList as CountryList,
-  BasicTooltip,
   UIGuide as CredentialGuide,
   TransText,
 } from "@repo/shared-ui";
@@ -22,7 +21,7 @@ import {
   LISTS,
   ListType,
 } from "@repo/core";
-import { ArrowLeft, CircleQuestionMark } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useGuides, useStaticTranslation } from "@repo/shared-hooks";
 import { useReset } from "./useReset";
 import { ResetStepProps } from "../../types";
@@ -149,7 +148,7 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
             }}
             options={{ disabled: isSubmitDisabled }}>
             {isStandardLoading ? (
-              <ProgressIcon otherProps={{ size: 25 }} />
+              <ProgressIcon options={{ size: 25 }} />
             ) : (
               <TransText {...COMMON_BUTTON_LABELS.continue} noComponent />
             )}
@@ -164,7 +163,7 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
             }}
             options={{ disabled: isSubmitDisabled }}>
             {isTFALoading ? (
-              <ProgressIcon otherProps={{ size: 25 }} />
+              <ProgressIcon options={{ size: 25 }} />
             ) : (
               <TransText
                 {...AUTH_BUTTON_LABELS.use_authenticator}

@@ -3,6 +3,9 @@
   "compilerOptions": {
     "target": "ES2017"
   },
+  "paths": {
+    "@/*": ["./app/*"]
+  },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",

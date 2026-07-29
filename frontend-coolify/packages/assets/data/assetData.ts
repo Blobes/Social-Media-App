@@ -30,4 +30,10 @@ export const asset = {
   googleLogo: "/svgs/google-logo.svg",
   appleLogo: "/svgs/apple-logo.svg",
   bgNoise: "/svgs/bg-noise.svg",
+  shield: "/svgs/shield.svg",
+  moonRocket: "/svgs/moon-rocket.svg",
+  logoSymbol: "/svgs/logo-symbol.svg",
+  brandLogo: "/svgs/brand-logo.svg",
+  logoName: "/svgs/logo-name.svg",
+  networkGlitch: "/svgs/network-glitch.svg",
 };

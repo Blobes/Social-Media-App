@@ -14,7 +14,7 @@ export interface UseEmailFieldOptions {
 /**
  * Manages email input state, synchronous pattern validation, and validation messages.
  */
-export const useEmailFieldValidation = ({
+export const useEmailInputValidation = ({
   initialValue = "",
   isRequired = true,
   onClearFeedback,

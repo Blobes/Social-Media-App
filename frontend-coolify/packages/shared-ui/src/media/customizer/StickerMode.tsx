@@ -20,7 +20,7 @@ import {
 import { AppButton } from "../../Buttons";
 import { TabUI } from "../../TabUI";
 import { Drawer } from "../../Drawer";
-import { SearchBar } from "../../Search";
+import { SearchBar } from "../../input/Search";
 import { TransText } from "../../Text";
 
 export interface StickerModeProps {

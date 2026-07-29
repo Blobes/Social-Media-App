@@ -1,5 +1,5 @@
 import React from "react";
-import { BaseLayout, GlobalUIManager, LanguageProvider } from "@repo/features";
+import { BaseLayout, GlobalUIManager } from "@repo/features";
 import { Wrapper } from "./Wrapper";
 
 export default function RootLayout({
@@ -9,7 +9,7 @@ export default function RootLayout({
 }>) {
   return (
     <BaseLayout>
-      <GlobalUIManager showOfflineUI={false} showNetworkErrorUI={false}>
+      <GlobalUIManager includesOfflineUI={false} includesNetworkErrorUI={false}>
         <Wrapper>{children}</Wrapper>
       </GlobalUIManager>
     </BaseLayout>

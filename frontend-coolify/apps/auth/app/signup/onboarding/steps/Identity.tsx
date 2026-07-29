@@ -141,7 +141,7 @@ export const Identity: React.FC<StepperProps<AuthStepName>> = ({
             submit
             options={{ disabled: !isFormValid || isPending }}>
             {isPending ? (
-              <ProgressIcon otherProps={{ size: 24 }} />
+              <ProgressIcon options={{ size: 24 }} />
             ) : (
               <TransText {...AUTH_BUTTON_LABELS.proceed} noComponent />
             )}
