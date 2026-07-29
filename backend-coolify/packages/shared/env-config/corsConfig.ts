@@ -16,6 +16,7 @@ export const corsConfig = (): any => {
     // Frontend Production Deployments
     "https://funstakes.net", // Main frontend
     "https://www.funstakes.net", // www version
+    "https://dev.funstakes.net", // Staging environment for frontend
 
     // Frontend Local Deployments
     "http://localhost:3000",
