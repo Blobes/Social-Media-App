@@ -71,7 +71,7 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
         href={CLIENT_ROUTES.home.path}
         onClick={handleLogo}
         style={{ display: "inline-flex" }}>
-        <AppLogo />
+        <AppLogo size={isDesktop ? 40 : 34} />
       </AnchorLink>
 
       {/* Search */}

@@ -48,6 +48,9 @@ const getButtonSize = (size: ButtonSize = "medium", theme: Theme) => {
   const mediumSize = {
     ...theme.typography.text3,
     padding: theme.boxSpacing(6, 12),
+    // [theme.breakpoints.down("md")]: {
+    //   padding: theme.boxSpacing(6, 12),
+    // },
   };
   const largeSize = {
     ...theme.typography.text2,
@@ -170,6 +173,9 @@ export const AnchorLink = ({
     padding: 0,
     transition:
       "background-color 0.3s linear, color 0.2s linear, stroke 0.2s linear",
+    [theme.breakpoints.down("md")]: {
+      padding: 0,
+    },
   };
   const mergedStyle =
     overrideStyle === "full" ? style : { ...defaultStyle, ...style };

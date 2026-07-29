@@ -24,7 +24,7 @@ export const AppLogo = ({
   return withName ? (
     <SVGWrapper
       src={asset.logoName}
-      //  fallbackUIType="SKELETON"
+      fallbackUIType="SKELETON"
       color={color ?? theme.palette.primary.dark}
       sx={{ width: size, ...sx }}
     />
@@ -33,7 +33,7 @@ export const AppLogo = ({
       src={asset.logoSymbol}
       color={color ?? theme.palette.primary.dark}
       size={size}
-      // fallbackUIType="SKELETON"
+      fallbackUIType="SKELETON"
       sx={{
         flex: "none",
         ...sx,
