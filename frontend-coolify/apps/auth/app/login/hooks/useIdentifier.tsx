@@ -75,9 +75,7 @@ export const useIdentifier = ({
     onClearFeedback: clearInlineMsg,
   });
 
-  /**
-   * Autofills saved password on mount if it exists in local storage.
-   */
+  // Autofills saved credential on mount if it exists in local storage.
   useEffect(() => {
     const savedIdentifier = getSavedIdentifier();
     if (input.length > 0 && savedIdentifier) setIdentifier?.(savedIdentifier);

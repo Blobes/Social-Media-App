@@ -67,17 +67,13 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     LOCKOUT_MIN,
   } = passwordValidation;
 
-  /**
-   * Autofills saved password on mount if it exists in local storage.
-   */
+  // Autofills saved password on mount if it exists in local storage.
   useEffect(() => {
     const savedPassword = getSavedPassword();
     if (password.length > 0 && savedPassword) setPassword(savedPassword);
   }, []);
 
-  /**
-   * Syncs attempt error descriptor objects into UI translation component tree.
-   */
+  // Syncs attempt error descriptor objects into UI translation component tree.
   useEffect(() => {
     if (!attemptFeedback) return;
 
