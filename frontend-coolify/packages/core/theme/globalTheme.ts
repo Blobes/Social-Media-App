@@ -114,61 +114,63 @@ const baseTheme = createTheme({
     h1: { fontWeight: 600, textAlign: "var(--ui-text-align, inherit)" as any },
     h2: { fontWeight: 600, textAlign: "var(--ui-text-align, inherit)" as any },
     h4: {
-      fontSize: "calc(2.5rem * var(--ui-font-scale, 1))", // 40px
+      fontSize: "clamp(2rem, 5vw, calc(2.5rem * var(--ui-font-scale, 1)))", // sm: 2rem 32px | lg: 2.5rem 40px
       fontWeight: 700,
       lineHeight: 1.2,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     h5: {
       fontWeight: 700,
-      fontSize: "calc(2rem * var(--ui-font-scale, 1))", // 32px
+      fontSize: "clamp(1.625rem, 4vw, calc(2rem * var(--ui-font-scale, 1)))", // sm: 1.625rem 26px | lg: 2rem 32px
       lineHeight: 1.4,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     h6: {
       fontWeight: 700,
-      fontSize: "calc(1.625rem * var(--ui-font-scale, 1))", // 26px
+      fontSize:
+        "clamp(1.375rem, 3.5vw, calc(1.625rem * var(--ui-font-scale, 1)))", // sm: 1.375rem 22px | lg: 1.625rem 26px
       lineHeight: 1.4,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     text1: {
-      fontSize: "calc(1.375rem * var(--ui-font-scale, 1))", // 22px
+      fontSize:
+        "clamp(1.25rem, 2.8vw, calc(1.375rem * var(--ui-font-scale, 1)))", // sm: 1.25rem 20px | lg: 1.375rem 22px
       fontWeight: 700,
       lineHeight: 1.4,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     text2: {
-      fontSize: "calc(1.125rem * var(--ui-font-scale, 1))", // 18px
+      fontSize: "calc(1.125rem * var(--ui-font-scale, 1))", // 1.125rem 18px
       fontWeight: 600,
       lineHeight: 1.3,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     text3: {
-      fontSize: "calc(1rem * var(--ui-font-scale, 1))", // 16px
+      fontSize: "calc(1rem * var(--ui-font-scale, 1))", // 1rem 16px
       fontWeight: 500,
       lineHeight: 1.4,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     text4: {
-      fontSize: "calc(0.9375rem * var(--ui-font-scale, 1))", // 15px
+      fontSize: "calc(0.9375rem * var(--ui-font-scale, 1))", // 0.9375rem 15px
       fontWeight: 500,
       lineHeight: 1.4,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     text5: {
-      fontSize: "calc(0.875rem * var(--ui-font-scale, 1))", // 14px
+      fontSize: "calc(0.875rem * var(--ui-font-scale, 1))", // 0.875rem 14px
       fontWeight: 500,
       lineHeight: 1.4,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     text6: {
-      fontSize: "calc(0.8125rem * var(--ui-font-scale, 1))", // 13px
+      fontSize: "calc(0.8125rem * var(--ui-font-scale, 1))", // 0.8125rem 13px
       fontWeight: 600,
       letterSpacing: 0.05,
       textAlign: "var(--ui-text-align, inherit)" as any,
     },
     text6Caps: {
-      fontSize: "calc(0.8125rem * var(--ui-font-scale, 1))", // 13px
+      fontSize: "calc(0.8125rem * var(--ui-font-scale, 1))", // 0.8125rem 13px
       fontWeight: 600,
       textTransform: "uppercase",
       letterSpacing: 0.05,

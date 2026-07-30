@@ -15,11 +15,11 @@ import { ShieldCheckIcon, SquareAsterisk } from "lucide-react";
 import {
   AUTH_BUTTON_LABELS,
   AUTH_FEEDBACK,
-  OtpTransitData,
   TransitPurpose,
   useGlobalStore,
 } from "@repo/core";
 import { Logout } from "@repo/features";
+import { useMisc } from "@repo/shared-hooks";
 
 export const VerifyOtp = <P extends TransitPurpose>({
   transitData,
@@ -27,6 +27,7 @@ export const VerifyOtp = <P extends TransitPurpose>({
 }: OtpOptions<P>) => {
   const theme = useTheme();
   const authStatus = useGlobalStore((state) => state.authStatus);
+  const { isDesktop } = useMisc();
 
   const {
     code,
@@ -141,10 +142,17 @@ export const VerifyOtp = <P extends TransitPurpose>({
         }}>
         {!isAuthenticator ? (
           <>
-            <Stack direction="row" alignItems="center" gap={0}>
+            <Stack
+              sx={{
+                width: "100%",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 0,
+              }}>
               <TransText
                 {...AUTH_FEEDBACK.otp_didnt_receive_code}
-                sx={{ ...theme.typography.text3 }}
+                sx={{ ...theme.typography.text3, width: "fit-content" }}
               />
               <AppButton
                 variant="text"
@@ -177,6 +185,9 @@ export const VerifyOtp = <P extends TransitPurpose>({
                 gap: theme.gap(1),
                 alignItems: "center",
                 justifyContent: "center",
+                [theme.breakpoints.down("sm")]: {
+                  flexDirection: "column",
+                },
               }}>
               <AppButton
                 variant="text"
@@ -198,13 +209,15 @@ export const VerifyOtp = <P extends TransitPurpose>({
                 )}
               </AppButton>
 
-              <Divider
-                orientation="vertical"
-                sx={{
-                  height: "14px",
-                  width: "unset",
-                }}
-              />
+              {isDesktop && (
+                <Divider
+                  orientation="vertical"
+                  sx={{
+                    height: "14px",
+                    width: "unset",
+                  }}
+                />
+              )}
 
               <AppButton
                 variant="text"
@@ -252,8 +265,9 @@ export const VerifyOtp = <P extends TransitPurpose>({
                 },
               }}
               textStyle={{
+                ...theme.typography.text3,
                 width: "fit-content",
-                textAlign: "center",
+                fontWeight: 600,
                 color: theme.palette.gray[200],
               }}
               iconStyle={{
