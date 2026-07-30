@@ -14,6 +14,12 @@ export type AccountStatus =
   | "NOT_VERIFIED";
 export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
 
+interface PreferredTopics {
+  topicId: string;
+  title: string;
+  lastViewed?: string | null;
+}
+
 /**
  * Interface representing the Device document in MongoDB.
  */
@@ -120,11 +126,7 @@ export interface IUserPayload {
   preferences?: {
     showSensitiveGraphic: boolean;
     preferredLanguage: SupportedIsoCode;
-    preferredTopics: Array<{
-      topicId: string;
-      title: string;
-      lastViewed?: string | null;
-    }>;
+    preferredTopics: PreferredTopics[];
   };
 
   // --- MODERATION FIELDS ---
