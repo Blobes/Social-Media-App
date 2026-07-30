@@ -10,25 +10,21 @@ import {
   saveIdentifier,
   savePassword,
 } from "@repo/helpers";
-import { AuthStepName, ApiError, CLIENT_ROUTES } from "@repo/core";
+import { ApiError, CLIENT_ROUTES } from "@repo/core";
 import { LoginService } from "../service";
 import { useLoginFeedback } from "./useFeedback";
 import { usePage, usePasswordInputValidation } from "@repo/shared-hooks";
 import { TransText } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
-
-export interface UseLogin {
-  identifier?: string;
-  setStep?: (step: AuthStepName) => void;
-}
+import { LoginProps } from "../../types";
 
 /**
  * Coordinates user login mutation state and handles feedback delegation.
  */
-export const useLogin = ({ identifier, setStep }: UseLogin) => {
+export const useLogin = ({ identifier, setStep, inputType }: LoginProps) => {
   const { login } = LoginService();
   const { navigateTo } = usePage();
-  const { handleSuccess, handleError } = useLoginFeedback({
+  const { handleLoginSuccess, handleLoginError } = useLoginFeedback({
     identifier,
     setStep,
   });
@@ -70,7 +66,7 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
   // Autofills saved password on mount if it exists in local storage.
   useEffect(() => {
     const savedPassword = getSavedPassword();
-    if (password.length > 0 && savedPassword) setPassword(savedPassword);
+    if (password.length === 0 && savedPassword) setPassword(savedPassword);
   }, []);
 
   // Syncs attempt error descriptor objects into UI translation component tree.
@@ -79,35 +75,36 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
 
     setInlineMsg(
       <TransText
-        //  component="span"
         {...attemptFeedback.feedbackConfig}
         inlineComponents={{ counter: <strong style={inlineMsgStyle} /> }}
         sx={{ ...theme.typography.text5 }}
       />,
     );
-  }, [attemptFeedback, inlineMsgStyle, setInlineMsg]);
+  }, [attemptFeedback, inlineMsgStyle, setInlineMsg, theme.typography.text5]);
 
+  /**
+   * Navigates user to reset password page.
+   */
   const handleResetPassClick = useCallback(
     (e: React.MouseEvent) => {
       setInlineMsg(null);
       navigateTo(CLIENT_ROUTES.resetPassword, {
         event: e,
         loadPage: true,
-        savePage: false,
       });
     },
-    [navigateTo],
+    [navigateTo, setInlineMsg],
   );
 
   /**
    * Handles remember me toggle switch state.
    */
-  const handleRememberMe = (
-    _event: React.ChangeEvent<HTMLInputElement>,
-    checked: boolean,
-  ) => {
-    setRememberMe(checked);
-  };
+  const handleRememberMe = useCallback(
+    (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+      setRememberMe(checked);
+    },
+    [],
+  );
 
   /**
    * Executes authentication mutation request.
@@ -120,30 +117,35 @@ export const useLogin = ({ identifier, setStep }: UseLogin) => {
     },
     onSuccess: (res) => {
       setIsRedirecting(true);
-
       if (identifier) saveIdentifier(identifier);
       if (rememberMe) {
         savePassword(password);
       } else {
         clearSavedPassword();
       }
-
-      if (res) handleSuccess(res);
+      if (res) handleLoginSuccess({ loginResponse: res, inputType });
     },
     onError: (err: ApiError) => {
       setIsRedirecting(false);
-      handleError(err, handleFailedAttempts, setInlineMsg);
+      handleLoginError({
+        error: err,
+        handleFailedAttempts,
+        setMsg: setInlineMsg,
+      });
     },
   });
 
   /**
    * Handles authentication form submission event.
    */
-  const handleSubmit = (e: React.SubmitEvent) => {
-    e.preventDefault();
-    if (isLocked) return;
-    mutate();
-  };
+  const handleSubmit = useCallback(
+    (e: React.SubmitEvent) => {
+      e.preventDefault();
+      if (isLocked) return;
+      mutate();
+    },
+    [isLocked, mutate],
+  );
 
   return {
     password,

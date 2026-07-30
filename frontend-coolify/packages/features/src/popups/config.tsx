@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { DrawerProps, IDragResult, ModalProps } from "@repo/core";
+import { DrawerProps, ModalProps } from "@repo/core";
 import { ComfirmLogout } from "../apps/auth/logout/Logout";
 import { Theme } from "@mui/material/styles";
 import { DisplayFeedbackUI } from "@repo/shared-ui";
@@ -102,7 +102,6 @@ export const POPUP_CONFIG = ({
         header,
         source: "navbar",
         onClose: closeDrawer,
-
         style: {
           base: {
             overlay: { padding: theme.boxSpacing(6), display: "none" },

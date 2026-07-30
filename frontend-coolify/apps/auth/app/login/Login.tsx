@@ -2,16 +2,17 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { IStep, AuthStepName } from "@repo/core";
+import { IStep, AuthStepName, OtpChannel, InputType } from "@repo/core";
 import { DisplayFeedbackUI, Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
 import { PasswordStep } from "./PasswordStep";
 import { IdentifierStep } from "./IdentifierStep";
-import { LoginStepProps } from "../types";
+import { LoginProps } from "../types";
 
-export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
+export const Login: React.FC<LoginProps> = ({ style = {} }) => {
   const theme = useTheme();
   const [input, setInput] = useState("");
+  const [inputType, setInputType] = useState<InputType>("UNKNOWN");
   const [currStep, setCurrStep] = useState<AuthStepName>("IDENTIFIER");
 
   const steps: IStep<AuthStepName>[] = [
@@ -22,6 +23,7 @@ export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
           step={currStep}
           setStep={setCurrStep}
           existingInput={input}
+          setInputType={setInputType}
           setIdentifier={setInput}
           style={{
             headline: style?.headline,
@@ -40,7 +42,8 @@ export const Login: React.FC<LoginStepProps> = ({ style = {} }) => {
         <PasswordStep
           step={currStep}
           setStep={setCurrStep}
-          credential={input}
+          identifier={input}
+          inputType={inputType}
           style={{
             headline: style?.headline,
             tagline: style?.tagline,

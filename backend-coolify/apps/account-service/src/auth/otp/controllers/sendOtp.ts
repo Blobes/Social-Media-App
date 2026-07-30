@@ -36,7 +36,7 @@ export const sendOtp = async (
   if (!purpose || !VALID_PURPOSES.includes(purpose)) {
     res.status(400).json({
       status: "ERROR",
-      ...MESSAGES_REGISTRY.AUTH.INVALID_PASSWORD_PURPOSE,
+      ...MESSAGES_REGISTRY.AUTH.INVALID_OTP_DISPATCH_PURPOSE,
       payload: null,
     });
     return;

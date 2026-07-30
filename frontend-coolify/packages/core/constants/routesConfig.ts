@@ -70,8 +70,7 @@ export const CLIENT_ROUTES = {
   offline: { title: COMMON_LIST.nav.offline.tValue, path: "/offline" },
 } satisfies Record<string, IPage>;
 
-/** * Registry mapping logical application zones to their respective route paths.
- */
+/**  Registry mapping logical application zones to their respective route paths. */
 const OFFLINE_ROUTES = [CLIENT_ROUTES.offline.path];
 const WEB_ROUTES = [
   CLIENT_ROUTES.about.path,
@@ -103,6 +102,11 @@ const UNPROTECTED_ROUTES = [
   ...OFFLINE_ROUTES,
   ...WEB_ROUTES,
 ];
+const DO_NOT_SAVE_ROUTES = [
+  CLIENT_ROUTES.login.path,
+  CLIENT_ROUTES.signup.path,
+  ...OFFLINE_ROUTES,
+];
 export const DISALLOWED_ROUTES: string[] = [];
 
 export const ROUTES_REGISTRY = {
@@ -112,9 +116,10 @@ export const ROUTES_REGISTRY = {
   post: POST_ROUTES,
   offline: OFFLINE_ROUTES,
   unprotected: UNPROTECTED_ROUTES,
+  doNotSave: DO_NOT_SAVE_ROUTES,
 };
 
-/// Server Apis
+// Server Api base routes
 export const API_BASE = {
   auth: "/auth",
   user: "/user",
@@ -122,18 +127,16 @@ export const API_BASE = {
   post: "/post",
   feed: "/feed",
   gist: "/gist",
-
   // Upload
   upload: "/upload",
   // Report
   report: "/report",
   // Admin
   admin: "/admin",
-
   // Topic
   topic: "/topic",
 };
-
+// Server Api paths routes
 export const SERVER_API = {
   // Auth
   login: `${API_BASE.auth}/session/login`,

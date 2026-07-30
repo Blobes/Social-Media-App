@@ -35,7 +35,7 @@ export const useAuthNavigation = () => {
       identifier,
       inputType,
       reason,
-      purpose = "ACCOUNT_VERIFICATION",
+      purpose = "LOGIN_VERIFICATION",
       transitKey = CACHE_KEYS.AUTH_TRANSIT_DATA,
       method,
     } = navOptions;
@@ -53,7 +53,7 @@ export const useAuthNavigation = () => {
       reason,
     };
     queryClient.setQueryData(transitKey, otpTransitData);
-    navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true, savePage: false });
+    navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true });
   };
 
   return { handleOtpNavigation };

@@ -65,7 +65,7 @@ export const Header: React.FC = () => {
       {/* Logo */}
       <AnchorLink
         href={CLIENT_ROUTES.about.path}
-        onClick={() => navigateTo(CLIENT_ROUTES.about)}>
+        onClick={() => navigateTo(CLIENT_ROUTES.about, { loadPage: true })}>
         <Image
           src={asset.logo}
           alt="logo"

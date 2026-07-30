@@ -40,7 +40,7 @@ export const OfflinePromptUI = ({ handleOffline }: offlineProps) => {
           action: () => handleOffline(),
         }}
         style={{
-          headline: { ...theme.typography.h6 },
+          headline: { ...theme.typography.h6, textAlign: "center" },
         }}
       />
     </RootUIContainer>

@@ -49,14 +49,23 @@ export const usePage = () => {
     (path: string) => ROUTES_REGISTRY.offline.includes(path),
     [],
   );
-  const isOnDisallowed = useCallback(
-    (path: string) => DISALLOWED_ROUTES.includes(path),
-    [],
-  );
   const isOnUnprotected = useCallback(
     (path: string) => ROUTES_REGISTRY.unprotected.includes(path),
     [],
   );
+  const isOnDoNotSave = useCallback(
+    (path: string) => ROUTES_REGISTRY.doNotSave.includes(path),
+    [],
+  );
+  const isOnDisallowed = useCallback(
+    (path: string) => DISALLOWED_ROUTES.includes(path),
+    [],
+  );
+
+  const isAuthRoute = isOnAuth(pathname);
+  const isOfflineRoute = isOnOffline(pathname);
+  const isDoNotSaveRoute = isOnDoNotSave(pathname);
+  const routeGuards = useRouteGuards(pathname, pendingPath);
 
   /**
    * Persists the last visited page to state and local storage.
@@ -69,10 +78,6 @@ export const usePage = () => {
     },
     [setPage],
   );
-
-  const isAuthRoute = isOnAuth(pathname);
-  const isOfflineRoute = isOnOffline(pathname);
-  const routeGuards = useRouteGuards(pathname, pendingPath);
 
   /**
    * Core navigation handler managing SPA transitions and cross-zone jumps.
@@ -96,7 +101,7 @@ export const usePage = () => {
       if (drawerContent) closeDrawer();
       if (modalContent) closeModal();
 
-      if (savePage) setLastPage(page);
+      if (savePage && !isOnDoNotSave(page.path)) setLastPage(page);
 
       // EXTERNAL: Cross-zone or Root dynamic navigation
       if (isCrossZone) {
@@ -120,6 +125,7 @@ export const usePage = () => {
       closeModal,
       setLastPage,
       setGlobalLoading,
+      setPendingPath,
       router,
     ],
   );
@@ -135,10 +141,13 @@ export const usePage = () => {
     if (routeGuards.isRedirecting) {
       const redirect = REDIRECT_MAP.find(({ guard }) => routeGuards[guard]);
       if (redirect)
-        navigateTo(redirect.target, { loadPage: true, savePage: false });
+        navigateTo(redirect.target, {
+          loadPage: true,
+          savePage: isOnDoNotSave(redirect.target.path) ? false : true,
+        });
       return;
     }
-    if (isAuthRoute || isOfflineRoute) return;
+    if (isDoNotSaveRoute) return;
 
     const savedPage = getFromLocalStorage<IPage>();
     setLastPage(
@@ -152,6 +161,7 @@ export const usePage = () => {
     setLastPage,
     setInlineMsg,
     navigateTo,
+    setPendingPath,
   ]);
 
   return {
@@ -160,6 +170,7 @@ export const usePage = () => {
     isOnAuth,
     isOnDisallowed,
     isOnUnprotected,
+    isOnDoNotSave,
     navigateTo,
     handlePageChange,
     ...routeGuards,

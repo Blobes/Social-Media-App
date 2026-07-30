@@ -68,43 +68,58 @@ export interface MenuRef {
   closeMenu: () => void;
 }
 
-// Modal
-export interface ModalRef {
-  openModal: () => void;
-  closeModal: () => void;
+/**
+ * Imperative controls for overlay instances.
+ */
+export interface OverlayRef {
+  openOverlay: () => void;
+  closeOverlay: () => void;
 }
-export interface ModalProps {
-  content: React.ReactNode;
-  showHeader?: boolean;
-  header?: React.ReactNode;
-  canBeClosed?: boolean;
-  onClose?: () => void;
-  transition?: { type: TransitionType; direction?: Direction };
-  style?: {
-    base?: { overlay?: GenericStyle; content?: GenericStyle };
-    smallScreen?: {
-      overlay?: GenericStyle;
-      content?: GenericStyle;
-    };
-    header?: GenericStyle;
+/**
+ * Common responsive styling configuration across overlay variants.
+ */
+export interface OverlayStyleProps {
+  base?: {
+    overlay?: GenericStyle;
+    content?: GenericStyle;
   };
+  smallScreen?: {
+    overlay?: GenericStyle;
+    content?: GenericStyle;
+  };
+  mediumScreen?: {
+    overlay?: GenericStyle;
+    content?: GenericStyle;
+  };
+  header?: GenericStyle;
 }
 
-// Drawer
-export interface DrawerRef {
-  openDrawer: () => void;
-  closeDrawer: () => void;
-}
-export interface DrawerHooks {
-  closeDrawer?: () => any;
-  useDragClose?: any;
-}
-export interface DrawerProps {
+/**
+ * Shared layout, accessibility, and event properties for overlay components.
+ */
+export interface BaseOverlayProps {
   content: React.ReactNode;
   showHeader?: boolean;
   header?: React.ReactNode;
-  clickToClose?: boolean;
   onClose?: () => void;
+  style?: OverlayStyleProps;
+}
+
+/**
+ * Properties for centered modal views.
+ */
+export interface ModalProps extends BaseOverlayProps {
+  canBeClosed?: boolean;
+  transition?: {
+    type: TransitionType;
+    direction?: Direction;
+  };
+}
+/**
+ * Properties for slide-out drawer views.
+ */
+export interface DrawerProps extends BaseOverlayProps {
+  clickToClose?: boolean;
   transDirection?: {
     base?: Direction;
     mobile?: Direction;
@@ -112,18 +127,6 @@ export interface DrawerProps {
   dragConfig?: IDragConfig;
   blurOverlayBG?: boolean;
   source?: string;
-  style?: {
-    base?: { overlay?: GenericStyle; content?: GenericStyle };
-    smallScreen?: {
-      overlay?: GenericStyle;
-      content?: GenericStyle;
-    };
-    mediumScreen?: {
-      overlay?: GenericStyle;
-      content?: GenericStyle;
-    };
-    header?: GenericStyle;
-  };
 }
 
 export interface ICountryItem extends IMenuItem {
@@ -160,7 +163,7 @@ export interface StepperStyle {
 }
 
 export interface StepperProps<T> extends NavigationProps {
-  modalRef?: React.RefObject<DrawerRef>;
+  modalRef?: React.RefObject<OverlayRef>;
   redirectTo?: string;
   style?: StepperStyle;
   setStep?: (step: T) => void;

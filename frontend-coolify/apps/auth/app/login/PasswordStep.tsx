@@ -15,9 +15,9 @@ import {
   SVGWrapper,
 } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
-import { Lock, Pencil, ScanLine, ScanText, ShieldHalfIcon } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { useLogin } from "./hooks/useLogin";
-import { LoginStepProps } from "../types";
+import { LoginProps } from "../types";
 import {
   AUTH_BUTTON_LABELS,
   AUTH_FEEDBACK,
@@ -30,12 +30,9 @@ import {
 import { useStaticTranslation } from "@repo/shared-hooks";
 import { asset } from "@repo/assets";
 
-interface StepProps extends LoginStepProps {
-  credential: string;
-}
-
-export const PasswordStep: React.FC<StepProps> = ({
-  credential: identifier,
+export const PasswordStep: React.FC<LoginProps> = ({
+  identifier,
+  inputType,
   setStep,
   style = {},
 }) => {
@@ -60,7 +57,7 @@ export const PasswordStep: React.FC<StepProps> = ({
     formattedSec,
     rememberMe,
     handleRememberMe,
-  } = useLogin({ identifier, setStep });
+  } = useLogin({ identifier, inputType, setStep });
 
   return !isLocked ? (
     <Stack

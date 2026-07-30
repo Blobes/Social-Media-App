@@ -20,7 +20,7 @@ import {
   usePage,
   useSnackbar,
 } from "@repo/shared-hooks";
-import { AuthStatus, DrawerRef, ModalRef, useGlobalStore } from "@repo/core";
+import { AuthStatus, OverlayRef, useGlobalStore } from "@repo/core";
 import { useAuthVerification } from "../apps/auth/session/useAuthVerification";
 
 export interface UIManagerProps {
@@ -56,8 +56,8 @@ export const GlobalUIManager = ({
   const { setSBTimer, removeSBMessages } = useSnackbar();
   const { switchToOfflineMode } = useOffline();
 
-  const drawerRef = useRef<DrawerRef>(null);
-  const modalRef = useRef<ModalRef>(null);
+  const drawerRef = useRef<OverlayRef>(null);
+  const modalRef = useRef<OverlayRef>(null);
 
   // Tracks whether a browser reload occurred.
   const [isReload, setIsReload] = useState(false);
@@ -117,21 +117,23 @@ export const GlobalUIManager = ({
     return () => clearInterval(heartbeat);
   }, []);
 
-  // Syncs the local refs for Drawer and Modal with the global Zustand state.
+  // Syncs the local refs for Drawer overlays with the global Zustand state.
   useEffect(() => {
-    if (!drawerContent) drawerRef.current?.closeDrawer();
-    if (!modalContent) modalRef.current?.closeModal();
-
-    requestAnimationFrame(() => {
-      if (drawerContent) drawerRef.current?.openDrawer();
-      if (modalContent) modalRef.current?.openModal();
-    });
-  }, [drawerContent, modalContent]);
+    if (drawerContent) {
+      drawerRef.current?.openOverlay();
+    }
+  }, [drawerContent]);
+  // Syncs the local refs for  Modal overlays with the global Zustand state.
+  useEffect(() => {
+    if (modalContent) {
+      modalRef.current?.openOverlay();
+    }
+  }, [modalContent]);
 
   // Responds to route changes to update internal page tracking and act as route guard.
   useEffect(() => {
     handlePageChange();
-  }, [pathname, authStatus, accountStatus]);
+  }, [pathname, authStatus, accountStatus, handlePageChange, isNavigating]);
 
   // Determines if splash should remain active on reload until auth/boot finishes.
   const isAuthInitializing = authStatus === "LOADING";

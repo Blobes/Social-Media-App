@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import globalTheme from "./globalTheme";
-import { useAccessibilityStore } from "../store/useAccessibilityStore";
+import { useAccessibilityStore } from "../store/accessibility";
 
 /**
  * Root wrapper delivering theme design tokens and updating user preference properties.

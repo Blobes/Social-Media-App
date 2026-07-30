@@ -24,8 +24,8 @@
       "@repo/features": ["./packages/features/*"],
       "@repo/helpers": ["./packages/helpers/*"],
       "@repo/shared-hooks": ["./packages/shared-hooks/*"],
-      "@repo/shared-ui": ["./packages/shared-ui/*"],
-      "@repo/*": ["./packages/*"]
+      "@repo/shared-ui": ["./packages/shared-ui/*"]
+      // "@repo/*": ["./packages/src/*"]
     }
   },
 

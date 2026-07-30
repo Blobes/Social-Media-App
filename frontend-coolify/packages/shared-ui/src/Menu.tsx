@@ -138,7 +138,6 @@ interface MenuListProps<T extends IMenuItem> extends RenderListProps<T> {
 export const DisplayList = <T extends IMenuItem>({
   list,
   listName = ListType.DEFAULT,
-  usePage: hook,
   onItemClick,
   onMenuClose,
   style,
@@ -296,7 +295,6 @@ export const DisplayList = <T extends IMenuItem>({
               menuRef.current?.closeMenu();
               if (onItemClick) onItemClick(item as any);
             }}
-            usePage={hook}
             style={itemStyle}
             showActiveItem={showActiveItem}
             activeItem={activeItem}

@@ -35,11 +35,13 @@ export function createVerificationStrategies(
   deps: StrategyDependencies,
 ): VerificationStrategyMap {
   return {
-    ACCOUNT_VERIFICATION: (payload, onSuccessCb) =>
+    LOGIN_VERIFICATION: (payload, onSuccessCb) =>
       deps.handleAuthOtpSuccess(payload as IUser, onSuccessCb),
+    SIGNUP_VERIFICATION: (payload, onSuccessCb) =>
+      deps.handleAuthOtpSuccess(payload as IUser, onSuccessCb),
+    PASSWORD_RESET: () => deps.handlePassResetSuccess(deps.recipient),
     ACCOUNT_UPDATE: () => deps.onUpdateSuccess(),
     IDENTIFIER_UPDATE: () => deps.onUpdateSuccess(),
-    PASSWORD_RESET: () => deps.handlePassResetSuccess(deps.recipient),
   };
 }
 

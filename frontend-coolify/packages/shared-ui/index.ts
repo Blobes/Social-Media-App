@@ -46,7 +46,9 @@ export * from "./src/media/create/MediaFileSelector";
 export * from "./src/media/view/MediaGallery";
 export * from "./src/media/view/VideoMedia";
 export * from "./src/media/view/Media";
+export * from "./src/media/view/MediaRenderer";
 export * from "./src/media/customizer/Customizer";
+
 // Input
 export * from "./src/input/Dynamic";
 export * from "./src/input/Password";

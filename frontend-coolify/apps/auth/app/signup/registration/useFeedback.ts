@@ -42,7 +42,7 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
       setAccountStatus("NOT_VERIFIED");
       handleSendOtp({
         recipient: user.email || email,
-        purpose: "ACCOUNT_VERIFICATION",
+        purpose: "SIGNUP_VERIFICATION",
         channel: "EMAIL",
       });
       handleOtpNavigation({
@@ -50,7 +50,7 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
         identifier: user.email || email,
         inputType: "EMAIL",
         reason: "NEW_ACCOUNT",
-        purpose: "ACCOUNT_VERIFICATION",
+        purpose: "SIGNUP_VERIFICATION",
         transitKey: CACHE_KEYS.AUTH_TRANSIT_DATA,
       });
       return;

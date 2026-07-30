@@ -10,21 +10,21 @@ import {
   ProgressIcon,
   TransText,
 } from "@repo/shared-ui";
-import { useOtp } from "./useOtp";
+import { OtpOptions, useOtp } from "./useOtp";
 import { ShieldCheckIcon, SquareAsterisk } from "lucide-react";
 import {
   AUTH_BUTTON_LABELS,
   AUTH_FEEDBACK,
   OtpTransitData,
+  TransitPurpose,
   useGlobalStore,
 } from "@repo/core";
 import { Logout } from "@repo/features";
 
-interface VerifyOtpProps {
-  transitData: OtpTransitData[];
-}
-
-export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
+export const VerifyOtp = <P extends TransitPurpose>({
+  transitData,
+  setShouldRestrict,
+}: OtpOptions<P>) => {
   const theme = useTheme();
   const authStatus = useGlobalStore((state) => state.authStatus);
 
@@ -41,7 +41,7 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
     recipient,
     inlineMsg,
     isSending,
-  } = useOtp(transitData);
+  } = useOtp({ transitData, setShouldRestrict });
 
   const isEmail = channel === "EMAIL";
   const isAuthenticator = channel === "AUTHENTICATOR";
@@ -53,8 +53,14 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
     <Stack
       sx={{
         gap: theme.gap(20),
-        width: "70cqh",
-        [theme.breakpoints.down("sm")]: { width: "100%" },
+        width: "30%",
+        minWidth: 300,
+        maxWidth: 600,
+        [theme.breakpoints.down("sm")]: {
+          width: "100%",
+          minWidth: "unset",
+          maxWidth: "unset",
+        },
         alignItems: "center",
       }}>
       <Stack
@@ -95,8 +101,8 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
       {/* OTP Field and CTA */}
       <Stack
         sx={{
-          width: "58cqh",
-          [theme.breakpoints.down("sm")]: { width: "100%" },
+          width: "80%",
+          [theme.breakpoints.down("lg")]: { width: "100%" },
           gap: theme.gap(16),
           alignItems: "center",
         }}>
@@ -146,6 +152,7 @@ export const VerifyOtp = ({ transitData }: VerifyOtpProps) => {
                 onClick={() => handleSendOtp()}
                 style={{
                   color: theme.palette.primary.dark,
+                  paddingX: theme.boxSpacing(6),
                   "&:disabled": {
                     color: theme.palette.primary.dark,
                   },

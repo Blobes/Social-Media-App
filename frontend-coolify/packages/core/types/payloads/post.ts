@@ -1,3 +1,5 @@
+"use client";
+
 import { IMedia } from "../media";
 import { IContentModeration } from "./modified";
 

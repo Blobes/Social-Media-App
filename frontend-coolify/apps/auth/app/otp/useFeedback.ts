@@ -53,7 +53,6 @@ export const useFeedback = () => {
         setAccountStatus("NOT_ONBOARDED");
         navigateTo(CLIENT_ROUTES.onboarding, {
           loadPage: true,
-          savePage: false,
         });
       }
     } else {
@@ -110,7 +109,6 @@ export const useFeedback = () => {
     navigateTo(CLIENT_ROUTES.resetPassword, {
       loadPage: true,
       type: "replace",
-      savePage: false,
     });
   };
 

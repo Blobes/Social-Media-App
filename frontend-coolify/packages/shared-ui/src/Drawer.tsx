@@ -1,23 +1,18 @@
 "use client";
 
-import React, {
-  useImperativeHandle,
-  forwardRef,
-  useRef,
-  useState,
-} from "react";
-import { Box, IconButton, Stack, useMediaQuery } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import React, { forwardRef } from "react";
+import { Box, IconButton, Stack } from "@mui/material";
 import { X } from "lucide-react";
-import { DrawerProps, DrawerRef } from "@repo/core";
-import { useDrag } from "@repo/shared-hooks";
+import { DrawerProps, OverlayRef } from "@repo/core";
 import { Transition } from "./Transition";
 import { applyBGEffects, scrollBarStyle } from "@repo/helpers";
+import { useUnifiedOverlay } from "@repo/shared-hooks";
+import { A11y } from "./A11y";
 
 /**
  * Renders slide-out drawer container with configurable swipe-to-close touch bindings.
  */
-export const Drawer = forwardRef<DrawerRef, DrawerProps>(
+export const Drawer = forwardRef<OverlayRef, DrawerProps>(
   (
     {
       showHeader = true,
@@ -32,51 +27,29 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     },
     ref,
   ) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const closeRef = useRef<HTMLButtonElement>(null);
-
-    const theme = useTheme();
-    const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
-    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
-    const [isOpen, setOpen] = useState(false);
-    const [shouldRemove, setShouldRemove] = useState(true);
+    const {
+      isOpen,
+      shouldRemove,
+      containerRef,
+      closeRef,
+      isMobile,
+      transDir,
+      dragOffset,
+      dragInfo,
+      handleClose,
+      handleExited,
+      touchHandlers,
+      theme,
+    } = useUnifiedOverlay({
+      type: "DRAWER",
+      ref,
+      canClose: clickToClose,
+      onClose,
+      transDirection,
+      dragConfig,
+    });
 
     const baseDir = transDirection?.base || "left";
-    const mobileDir = transDirection?.mobile ?? baseDir;
-    const transDir = isDesktop ? baseDir : mobileDir;
-
-    const { dragOffset, handlers, resolveDragConfig } = useDrag(dragConfig);
-    const dragInfo = resolveDragConfig(transDir);
-
-    useImperativeHandle(ref, () => ({
-      /**
-       * Shows drawer overlay and triggers entry transitions.
-       */
-      openDrawer: () => {
-        setShouldRemove(false);
-        setOpen(true);
-      },
-      /**
-       * Triggers exit animations before hiding drawer DOM element.
-       */
-      closeDrawer: () => {
-        setOpen(false);
-      },
-    }));
-
-    /**
-     * Evaluates backdrop click targets to dismiss drawer state.
-     */
-    const handleClose = (e: React.MouseEvent) => {
-      if (
-        (containerRef.current && e.target === containerRef.current) ||
-        (closeRef.current && closeRef.current.contains(e.target as HTMLElement))
-      ) {
-        setOpen(false);
-        if (onClose) onClose();
-      }
-    };
 
     return (
       <Stack
@@ -120,18 +93,22 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
         }}>
         <Transition
           show={isOpen}
-          timeout={200}
+          timeout={250}
           type="slide"
           direction={transDir}
-          onExited={() => setShouldRemove(true)}>
-          <Stack
-            {...(isMobile &&
-              handlers && {
-                onTouchStart: handlers.onTouchStart,
-                onTouchMove: handlers.onTouchMove,
-                onTouchEnd: () => handlers.onTouchEnd(() => setOpen(false)),
-              })}
+          onExited={handleExited}>
+          <A11y
+            {...touchHandlers}
+            useCase="dialog"
+            isOpen={isOpen}
+            onClose={() => {
+              handleClose({} as React.MouseEvent);
+            }}
+            label={
+              typeof header === "string" ? header : "Drawer Dialog View Window"
+            }
             sx={{
+              flexDirection: "column",
               maxHeight: "100%",
               gap: theme.gap(0),
               backgroundColor: theme.palette.gray[0],
@@ -168,51 +145,47 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
                 ...style?.smallScreen?.content,
               },
             }}>
-            {showHeader && (
-              <Stack
+            {/* Header */}
+
+            {showHeader && isMobile && dragInfo.axis === "Y" && (
+              <Box
                 sx={{
+                  width: "50px",
+                  height: "6px",
+                  borderRadius: theme.radius.full,
+                  marginTop: theme.boxSpacing(8),
+                  backgroundColor: theme.palette.gray.trans[2],
+                }}
+              />
+            )}
+            {/* Header */}
+            {(header || clickToClose) && (
+              <Stack
+                direction={"row"}
+                sx={{
+                  width: "100%",
                   position: "sticky",
                   alignItems: "center",
-                  gap: theme.gap(0),
+                  justifyContent: "flex-end",
+                  gap: theme.gap(2),
+                  padding: theme.boxSpacing(2),
+                  ...style?.header,
+                  borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
                 }}>
-                {isMobile && dragInfo.axis === "Y" && (
-                  <Box
-                    sx={{
-                      width: "50px",
-                      height: "6px",
-                      borderRadius: theme.radius.full,
-                      marginTop: theme.boxSpacing(8),
-                      backgroundColor: theme.palette.gray.trans[2],
-                    }}
-                  />
-                )}
-                {(header || clickToClose) && (
-                  <Stack
-                    direction={"row"}
-                    sx={{
-                      width: "100%",
-                      justifyContent: "flex-end",
-                      alignItems: "center",
-                      gap: theme.gap(2),
-                      padding: theme.boxSpacing(2),
-                      ...style?.header,
-                      borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
-                    }}>
-                    {header && header}
-                    {clickToClose && (
-                      <IconButton
-                        aria-label="Drawer closer"
-                        aria-controls="close-drawer"
-                        aria-haspopup="true"
-                        ref={closeRef}
-                        onClick={handleClose}>
-                        <X size={22} />
-                      </IconButton>
-                    )}
-                  </Stack>
+                {header && header}
+                {clickToClose && (
+                  <IconButton
+                    aria-label="Drawer closer"
+                    aria-controls="close-drawer"
+                    aria-haspopup="true"
+                    ref={closeRef}
+                    onClick={handleClose}>
+                    <X size={22} />
+                  </IconButton>
                 )}
               </Stack>
             )}
+            {/* Content */}
             <Stack
               sx={{
                 height: "100%",
@@ -226,7 +199,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               }}>
               {content}
             </Stack>
-          </Stack>
+          </A11y>
         </Transition>
       </Stack>
     );

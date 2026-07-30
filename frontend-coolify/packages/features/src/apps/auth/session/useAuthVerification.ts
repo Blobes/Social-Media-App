@@ -101,7 +101,6 @@ export const useAuthVerification = () => {
       setAuthStatus("TEMPORARY");
       return;
     }
-
     await refetch();
   }, [refetch]);
 

@@ -22,13 +22,11 @@ export const DesktopNav: React.FC<NavProps> = ({ style }) => {
   const theme = useTheme();
   const { translateTxtString } = useStaticTranslation();
   const { HEADER_NAV_LIST } = LISTS(translateTxtString);
-  const menuRef = useRef<MenuRef>(null);
 
   return (
     <Stack sx={{ ...style }}>
       <RenderItemList
         list={HEADER_NAV_LIST}
-        usePage={usePage}
         style={{
           padding: theme.boxSpacing(2.5, 6, 2.5, 6),
           fontWeight: "500",
@@ -54,7 +52,6 @@ export const MobileNav: React.FC<NavProps> = ({ style }) => {
     <Stack sx={{ ...style }}>
       <RenderItemList
         list={HEADER_NAV_LIST}
-        usePage={usePage}
         onItemClick={() => {
           menuRef.current?.closeMenu();
           closeDrawer();

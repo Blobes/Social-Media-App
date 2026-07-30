@@ -1,4 +1,6 @@
-import { SupportedIsoCode } from "@repo/core/constants/languages";
+"use client";
+
+import { SupportedIsoCode } from "@repo/core";
 import { AuthStepName, ITfaData } from "../ui-state";
 
 export type UserRole = "USER" | "ADMIN" | "MODERATOR";

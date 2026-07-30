@@ -83,6 +83,5 @@ export const AuthService = () => {
       return null;
     }
   };
-
   return { verifyAndFetchUser };
 };

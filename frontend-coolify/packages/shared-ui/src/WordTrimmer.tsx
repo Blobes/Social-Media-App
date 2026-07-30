@@ -64,10 +64,12 @@ export const WordTrimmer = ({
     : showMoreLabel || translateTxtString(COMMON_BUTTON_LABELS.show_more);
 
   return (
-    <Stack sx={{ width: "100%", ...style?.container }}>
+    <Stack
+      sx={{ width: "100%", alignItems: "flex-start", ...style?.container }}>
       <TransText
         component={motion[component as keyof typeof motion] || motion.p}
         sx={{
+          ...theme.typography.text4,
           ...style?.textContent,
           color: "inherit",
           wordBreak: "break-word",

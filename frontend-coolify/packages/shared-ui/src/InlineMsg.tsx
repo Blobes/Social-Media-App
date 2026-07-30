@@ -1,34 +1,57 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { AlertCircle } from "lucide-react";
+import { IconButton } from "@mui/material";
+import { AlertCircle, X } from "lucide-react";
 import { TransText } from "./Text";
 
 interface MsgProps {
   msg: React.ReactNode;
   type?: "SUCCESS" | "ERROR";
   scrollIntoView?: boolean;
+  showClose?: boolean;
+  onClose?: () => void;
 }
 
+/**
+ * Displays contextual inline state messages with structured severity styling and optional dismissal control.
+ */
 export const InlineMsgUI: React.FC<MsgProps> = ({
   msg,
   type = "ERROR",
   scrollIntoView = false,
+  showClose = true,
+  onClose,
 }) => {
-  if (!msg) return null;
+  const [isVisible, setIsVisible] = useState(true);
   const theme = useTheme();
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Sync internal visibility state whenever a new message prop is passed
+  useEffect(() => {
+    setIsVisible(true);
+  }, [msg]);
+
   // Monitor store messages to trigger viewport positioning recalculations
   useEffect(() => {
-    if (scrollIntoView) {
+    if (scrollIntoView && isVisible && msg) {
       scrollRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "nearest",
       });
     }
-  }, [scrollIntoView]);
+  }, [scrollIntoView, isVisible, msg]);
+
+  /**
+   * Dismisses the inline message interface and executes external callback if available.
+   */
+  const handleClose = () => {
+    setIsVisible(false);
+    onClose?.();
+  };
+
+  if (!msg || !isVisible) return null;
 
   return (
     <TransText
@@ -45,6 +68,7 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
+        justifyContent: "space-between",
         gap: theme.gap(6),
         color:
           type === "SUCCESS"
@@ -55,16 +79,38 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
             ? theme.palette.info.main
             : theme.palette.error.trans[1],
       }}>
-      <AlertCircle
-        size={20}
+      <div
         style={{
-          stroke:
-            type === "SUCCESS"
-              ? theme.palette.primary.main
-              : theme.palette.error.main,
-        }}
-      />
-      {msg}
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: theme.gap(6),
+          flex: 1,
+        }}>
+        <AlertCircle
+          size={20}
+          style={{
+            flexShrink: 0,
+            stroke:
+              type === "SUCCESS"
+                ? theme.palette.primary.main
+                : theme.palette.error.main,
+          }}
+        />
+        {msg}
+      </div>
+
+      {showClose && (
+        <IconButton
+          size="small"
+          onClick={handleClose}
+          sx={{
+            padding: theme.boxSpacing(2),
+            flexShrink: 0,
+          }}>
+          <X size={16} />
+        </IconButton>
+      )}
     </TransText>
   );
 };

@@ -25,12 +25,12 @@ import {
   ListType,
 } from "@repo/core";
 import { useIdentifier } from "./hooks/useIdentifier";
-import { LoginStepProps } from "../types";
+import { LoginProps } from "../types";
 import { asset } from "@repo/assets";
 import { useGuides, useStaticTranslation } from "@repo/shared-hooks";
 import { useLogin } from "./hooks/useLogin";
 
-export const IdentifierStep: React.FC<LoginStepProps> = ({
+export const IdentifierStep: React.FC<LoginProps> = ({
   setStep,
   existingInput,
   setIdentifier,
@@ -44,10 +44,9 @@ export const IdentifierStep: React.FC<LoginStepProps> = ({
 
   const inlineTxtStyle = useMemo(
     () => ({
-      color: theme.palette.primary.main,
+      color: theme.palette.primary.dark,
       flex: "none",
       "&:hover": {
-        color: theme.palette.primary.dark,
         textDecoration: "underline",
         fontWeight: 600,
       },

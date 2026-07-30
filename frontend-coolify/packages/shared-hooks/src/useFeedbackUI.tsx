@@ -58,7 +58,8 @@ export const useDisplayFBConfig = (): Record<
       icon: <ShieldCheck />,
       primaryCta: {
         label: AUTH_BUTTON_LABELS.login.tValue,
-        action: () => navigateTo(CLIENT_ROUTES.login, { loadPage: true }),
+        action: () =>
+          navigateTo(CLIENT_ROUTES.login, { loadPage: true, savePage: false }),
       },
     },
     UNAUTHORIZED: {
@@ -129,7 +130,8 @@ export const useDisplayFBConfig = (): Record<
       icon: <Lock />,
       primaryCta: {
         label: translateTxtString(AUTH_BUTTON_LABELS.login_now),
-        action: () => navigateTo(CLIENT_ROUTES.login, { loadPage: true }),
+        action: () =>
+          navigateTo(CLIENT_ROUTES.login, { loadPage: true, savePage: false }),
       },
       secondaryCta: {
         label: translateTxtString(AUTH_BUTTON_LABELS.proceed),

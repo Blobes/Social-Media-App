@@ -44,7 +44,7 @@ export const useHeader = (scrollRef?: React.RefObject<HTMLElement | null>) => {
   /** * Returns user to the home dashboard.
    */
   const handleLogo = () => {
-    navigateTo(CLIENT_ROUTES.home);
+    navigateTo(CLIENT_ROUTES.home, { loadPage: true });
   };
 
   /** * Triggers the appropriate menu based on device type.

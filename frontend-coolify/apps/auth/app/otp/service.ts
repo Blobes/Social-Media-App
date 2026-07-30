@@ -43,7 +43,7 @@ export const OtpService = () => {
   const dispatchOtp = async (
     request: OtpRequest,
   ): Promise<ISinglePayload<OtpRequest>> => {
-    const { recipient, purpose = "ACCOUNT_VERIFICATION" } = request;
+    const { recipient, purpose = "LOGIN_VERIFICATION" } = request;
     return await apiClient<ISinglePayload<OtpRequest>>(SERVER_API.sendOtp, {
       method: "POST",
       body: JSON.stringify({ recipient, purpose }),
@@ -53,7 +53,7 @@ export const OtpService = () => {
   const verifyOtp = async (
     request: OtpRequest,
   ): Promise<ISinglePayload<any>> => {
-    const { code, recipient, purpose = "ACCOUNT_VERIFICATION" } = request;
+    const { code, recipient, purpose = "LOGIN_VERIFICATION" } = request;
     return await apiClient(SERVER_API.verifyOtp, {
       method: "POST",
       body: JSON.stringify({ code, recipient, purpose }),

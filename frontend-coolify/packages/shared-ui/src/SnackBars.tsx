@@ -67,7 +67,7 @@ export const SnackBars = ({
                     width: "100%",
                   },
                   pointerEvents: "auto",
-                  padding: theme.boxSpacing(6, 8),
+                  padding: theme.boxSpacing(8),
                   display: "flex",
                   alignItems: isExpanded ? "flex-start" : "center",
                   flexDirection: "row",
@@ -91,28 +91,21 @@ export const SnackBars = ({
                       msg.msgStatus !== "ERROR"
                         ? theme.palette.gray[0]
                         : theme.palette.error.main,
-                    width: "24px",
-                    height: "24px",
                   },
                 }}>
-                {!isExpanded && (
-                  <Stack
-                    component={motion.span}
-                    sx={{ width: "24px", height: "24px", flexShrink: 0 }}>
-                    {msg.icon ??
-                      (msg.msgStatus === "SUCCESS" ? (
-                        <CircleCheck />
-                      ) : msg.msgStatus === "INFO" ? (
-                        !msg.icon ? (
-                          <Info />
-                        ) : (
-                          msg.icon
-                        )
+                {!isExpanded &&
+                  (msg.icon ??
+                    (msg.msgStatus === "SUCCESS" ? (
+                      <CircleCheck size={24} />
+                    ) : msg.msgStatus === "INFO" ? (
+                      !msg.icon ? (
+                        <Info size={24} />
                       ) : (
-                        <CircleAlert />
-                      ))}
-                  </Stack>
-                )}
+                        msg.icon
+                      )
+                    ) : (
+                      <CircleAlert size={24} />
+                    )))}
 
                 <Stack
                   sx={{
@@ -122,7 +115,7 @@ export const SnackBars = ({
                   }}>
                   {msg.headline && (
                     <TransText
-                      sx={{ ...theme.typography.text3, fontWeight: 501 }}>
+                      sx={{ ...theme.typography.text3, fontWeight: 600 }}>
                       {msg.headline}
                     </TransText>
                   )}
@@ -165,36 +158,33 @@ export const SnackBars = ({
                   {msg.customContent && msg.customContent}
                 </Stack>
 
-                <Stack
-                  sx={{
-                    height: "fit-content",
-                    width: "fit-content",
-                    flexShrink: 0,
-                  }}>
-                  {msg.hasClose && msg.id && (
-                    <IconButton
-                      onClick={() => removeMessage(msg.id!)}
-                      sx={{
-                        cursor: "pointer",
-                        backgroundColor:
-                          msg.msgStatus !== "ERROR"
-                            ? theme.fixedColors.pTrans
-                            : theme.palette.error.trans[1],
-                        "&:hover": {
-                          backgroundColor: theme.fixedColors.grayTrans(),
-                        },
-                      }}>
-                      <X
-                        style={{
-                          width: "16px",
-                          height: "16px",
-                          stroke: `${msg.msgStatus !== "ERROR" ? theme.palette.gray[0] : theme.palette.error.main}`,
-                          strokeWidth: "2px",
-                        }}
-                      />
-                    </IconButton>
-                  )}
-                </Stack>
+                {/* Close Icon */}
+                {msg.hasClose && msg.id && (
+                  <IconButton
+                    onClick={() => removeMessage(msg.id!)}
+                    sx={{
+                      flexShrink: 0,
+                      cursor: "pointer",
+                      backgroundColor:
+                        msg.msgStatus !== "ERROR"
+                          ? theme.fixedColors.pTrans
+                          : theme.palette.error.trans,
+                      "&:hover": {
+                        backgroundColor: theme.fixedColors.grayTrans(
+                          0.08,
+                          "dark",
+                        ),
+                      },
+                    }}>
+                    <X
+                      size={18}
+                      style={{
+                        stroke: theme.palette.gray[0],
+                        strokeWidth: 2.5,
+                      }}
+                    />
+                  </IconButton>
+                )}
               </Paper>
             </Transition>
           );

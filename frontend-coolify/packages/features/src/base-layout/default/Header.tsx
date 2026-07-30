@@ -2,7 +2,6 @@
 
 import React from "react";
 import { AppBar, Stack, IconButton } from "@mui/material";
-import Image from "next/image";
 import { Bell } from "lucide-react";
 import { useTheme } from "@mui/material/styles";
 import {
@@ -16,10 +15,8 @@ import {
   AppButton,
   SearchBar,
   TransText,
-  SVGWrapper,
   AppLogo,
 } from "@repo/shared-ui";
-import { asset } from "@repo/assets";
 import { useHeader } from "./useHeader";
 import {
   AUTH_BUTTON_LABELS,
@@ -148,7 +145,10 @@ export const AppHeader: React.FC<HeaderProps> = ({ scrollRef }) => {
             size="small"
             href={CLIENT_ROUTES.login.path}
             onClick={() =>
-              navigateTo(CLIENT_ROUTES.login, { savePage: false })
+              navigateTo(CLIENT_ROUTES.login, {
+                loadPage: true,
+                savePage: false,
+              })
             }>
             <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
           </AppButton>

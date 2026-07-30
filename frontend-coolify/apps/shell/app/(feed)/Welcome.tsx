@@ -41,7 +41,7 @@ export const Welcome = () => {
           <TransText {...COMMON_BUTTON_LABELS.get_started} noComponent />
         </AppButton>
       </Stack>
-      <Footer navList={FOOTER_NAV_LIST} navigateTo={navigateTo} />
+      <Footer navList={FOOTER_NAV_LIST} />
     </>
   );
 };

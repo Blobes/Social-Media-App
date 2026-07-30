@@ -11,13 +11,13 @@
     "@repo/assets": "workspace:*",
     "@repo/helpers": "workspace:*",
     "@repo/core": "workspace:*",
+    "@repo/shared-hooks": "workspace:*",
     "framer-motion": "catalog:",
     "react-blurhash": "catalog:",
     "html-react-parser": "catalog:",
     "react-aria": "catalog:"
   },
   "peerDependencies": {
-    "@repo/shared-hooks": "workspace:*",
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "@mui/material": "catalog:",

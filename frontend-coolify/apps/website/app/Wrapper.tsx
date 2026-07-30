@@ -7,7 +7,6 @@ import { usePage, useStaticTranslation } from "@repo/shared-hooks";
 import { LISTS } from "@repo/core";
 
 export const Wrapper = ({ children }: { children: React.ReactNode }) => {
-  const { navigateTo } = usePage();
   const { translateTxtString } = useStaticTranslation();
   const { FOOTER_NAV_LIST } = LISTS(translateTxtString);
 
@@ -16,7 +15,7 @@ export const Wrapper = ({ children }: { children: React.ReactNode }) => {
       <BlurEffect />
       <Header />
       {children}
-      <Footer navList={FOOTER_NAV_LIST} navigateTo={navigateTo} />
+      <Footer navList={FOOTER_NAV_LIST} />
     </RootUIContainer>
   );
 };

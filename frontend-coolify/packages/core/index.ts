@@ -23,7 +23,7 @@ export * from "./constants/languages";
 export * from "./constants/msgRegistry";
 
 // Stores
-export * from "./store/useGlobalStore";
-export * from "./store/useGistStore";
-export * from "./store/useSocketStore";
-export * from "./store/useAccessibilityStore";
+export * from "./store/global";
+export * from "./store/post";
+export * from "./store/socket";
+export * from "./store/accessibility";

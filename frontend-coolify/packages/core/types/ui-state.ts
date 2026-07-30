@@ -150,7 +150,8 @@ export interface QueueItem<T = any> {
 export type GenericQueue = Record<string, QueueItem>;
 
 export interface TransitPayloadMap {
-  ACCOUNT_VERIFICATION: IUser;
+  LOGIN_VERIFICATION: IUser;
+  SIGNUP_VERIFICATION: IUser;
   ACCOUNT_UPDATE: { field: string; oldValue: string }; // Example
   IDENTIFIER_UPDATE: { field: string; oldValue: string };
   PASSWORD_RESET: {

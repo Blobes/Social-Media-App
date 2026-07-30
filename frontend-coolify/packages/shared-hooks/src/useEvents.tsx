@@ -23,10 +23,10 @@ import { useStaticTranslation } from "./useTrans";
  */
 export const useEventListener = (verifyAuth: () => Promise<void>) => {
   const { setSBMessage, removeSBMessages: removeSBMessages } = useSnackbar();
+  const { translateTxtString } = useStaticTranslation();
   const setNetworkStatus = useGlobalStore((state) => state.setNetworkStatus);
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const authStatus = useGlobalStore((state) => state.authStatus);
-  const { translateTxtString } = useStaticTranslation();
 
   const { switchToOnlineMode } = useOffline();
   const { navigateTo } = usePage();
@@ -65,9 +65,7 @@ export const useEventListener = (verifyAuth: () => Promise<void>) => {
     setSBMessage({
       msg: {
         id: "offline-notification",
-        tagline:
-          // translateTxtString(COMMON_FEEDBACK.no_internet_tagline) +
-          "Why is it thehdnsnf shshd hssnsjnsx  ajxanxanx wsuuuuuuu hdhdhhe cndndj xabxahbxahxb dubcsuchs wudgwudw",
+        tagline: translateTxtString(COMMON_FEEDBACK.no_internet_tagline),
         msgStatus: "INFO",
         behavior: "FIXED",
         hasClose: true,

@@ -7,17 +7,18 @@ import { AnchorLink } from "./Buttons";
 import { Fragment } from "react";
 import { IMenuItem, IPage } from "@repo/core";
 import { LanguageSelector } from "./Localize";
+import { usePage } from "@repo/shared-hooks";
 
 interface footerProps {
   navList: IMenuItem[];
-  navigateTo: (savePage: IPage, options: any) => void;
 }
 
 /**
  * Renders the application footer link ecosystem with dynamic localization routing.
  */
-export const Footer = ({ navList, navigateTo }: footerProps) => {
+export const Footer = ({ navList }: footerProps) => {
   const theme = useTheme();
+  const { isOnDoNotSave, navigateTo } = usePage();
 
   return (
     <Stack
@@ -39,7 +40,10 @@ export const Footer = ({ navList, navigateTo }: footerProps) => {
               if (item.title && item.url)
                 navigateTo(
                   { title: item.title, path: item.url },
-                  { loadPage: true },
+                  {
+                    loadPage: true,
+                    savePage: isOnDoNotSave(item.url) ? false : true,
+                  },
                 );
             }}
             style={{

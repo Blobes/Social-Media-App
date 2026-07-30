@@ -11,16 +11,14 @@ import {
   SmartDate,
   SVGWrapper,
   TransText,
+  CustomizedMediaRenderer,
+  MediaRenderer,
 } from "@repo/shared-ui";
 import { useTrendingData } from "./hooks/usePostTrends";
 import { Box, Stack } from "@mui/material";
 import { applyBGPattern, summarizeNum } from "@repo/helpers";
 import { Quote } from "lucide-react";
 import { asset } from "@repo/assets";
-import {
-  CustomizedMediaRenderer,
-  MediaRenderer,
-} from "@repo/shared-ui/src/media/view/MediaRenderer";
 
 interface TrendingPost {
   post: IPost;

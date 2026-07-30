@@ -1,20 +1,18 @@
 "use client";
 
-import React, {
-  useImperativeHandle,
-  forwardRef,
-  useRef,
-  useState,
-} from "react";
-import { IconButton, Stack, useMediaQuery } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import { ModalProps, ModalRef } from "@repo/core";
+import React, { forwardRef } from "react";
+import { IconButton, Stack } from "@mui/material";
+import { ModalProps, OverlayRef } from "@repo/core";
 import { Transition } from "./Transition";
 import { scrollBarStyle } from "@repo/helpers";
 import { X } from "lucide-react";
 import { A11y } from "./A11y";
+import { useUnifiedOverlay } from "@repo/shared-hooks";
 
-export const Modal = forwardRef<ModalRef, ModalProps>(
+/**
+ * Displays modal overlay windows with configurable transitions and focus management.
+ */
+export const Modal = forwardRef<OverlayRef, ModalProps>(
   (
     {
       header,
@@ -27,44 +25,26 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
     },
     ref,
   ) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const closeRef = useRef<HTMLButtonElement>(null);
+    const {
+      isOpen,
+      shouldRemove,
+      containerRef,
+      closeRef,
+      handleClose,
+      handleExited,
+      theme,
+    } = useUnifiedOverlay({
+      type: "MODAL",
+      ref,
+      canClose: canBeClosed,
+      onClose,
+    });
 
-    const theme = useTheme();
-    const [isOpen, setOpen] = useState(false);
-    const [shouldRemove, setShouldRemove] = useState(true);
-    const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
-
-    // Transition properties
-    const trans = {
-      type: transition?.type || "zoom",
-      direction: transition?.direction || "left",
-    };
-    const transType = trans.type;
-    const transDir = trans.direction;
-
-    useImperativeHandle(ref, () => ({
-      openModal: () => {
-        setShouldRemove(false);
-        setOpen(true);
-      },
-      closeModal: () => {
-        setOpen(false);
-      },
-    }));
-
-    const handleClose = (e: React.MouseEvent) => {
-      if (
-        (containerRef.current && e.target === containerRef.current) ||
-        (closeRef.current && closeRef.current.contains(e.target as HTMLElement))
-      ) {
-        setOpen(false);
-        if (onClose) onClose();
-      }
-    };
+    const transType = transition?.type || "zoom";
+    const transDir = transition?.direction || "left";
 
     return (
-      <Stack //Overlay container
+      <Stack
         ref={containerRef}
         {...(canBeClosed ? { onClick: handleClose } : {})}
         sx={{
@@ -81,7 +61,6 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
           backdropFilter: `blur(12px)`,
           marginLeft: "0!important",
           padding: theme.boxSpacing(12),
-          // Alignment
           alignItems:
             transType === "slide"
               ? transDir === "right"
@@ -100,30 +79,28 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
               : "center",
           ...style?.base?.overlay,
 
-          // Small screen styling
           [theme.breakpoints.down("md")]: {
             padding: theme.boxSpacing(4, 2),
             ...style?.smallScreen?.overlay,
           },
         }}>
-        {/* Modal Content Container */}
         <Transition
           show={isOpen}
           timeout={200}
-          {...trans}
-          onExited={() => setShouldRemove(true)}>
-          {/* Wraps the modal inner card cleanly to trap keyboard focus loops when visible */}
+          type={transType}
+          direction={transDir}
+          onExited={handleExited}>
           <A11y
             useCase="dialog"
             isOpen={isOpen}
             onClose={() => {
-              setOpen(false);
-              if (onClose) onClose();
+              handleClose({} as React.MouseEvent);
             }}
             label={
               typeof header === "string" ? header : "Modal Dialog View Window"
             }
             sx={{
+              flexDirection: "column",
               maxHeight: "100%",
               gap: theme.gap(0),
               backgroundColor: theme.palette.gray[0],
@@ -134,58 +111,46 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
               touchAction: "none",
               ...style?.base?.content,
 
-              // Medium screen
               [theme.breakpoints.down("md")]: {
                 width: "60%",
                 maxWidth: "350px",
               },
-              // Small screen
               [theme.breakpoints.down("sm")]: {
                 width: style?.smallScreen?.content?.width ?? "89%",
                 maxWidth: style?.smallScreen?.content?.maxWidth ?? "100%",
                 ...style?.smallScreen?.content,
               },
             }}>
-            {
-              /* Modal with Header*/
-              showHeader && (
-                <Stack
-                  sx={{
-                    position: "sticky",
-                    alignItems: "center",
-                    gap: theme.gap(0),
-                    touchAction: "none",
-                  }}>
-                  {(header || canBeClosed) && (
-                    <Stack
-                      direction={"row"}
-                      sx={{
-                        width: "100%",
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        gap: theme.gap(2),
-                        padding: theme.boxSpacing(2),
-                        ...style?.header,
-                        borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
-                      }}>
-                      {header && header}
-                      {canBeClosed && (
-                        <IconButton
-                          aria-label="Close modal window context"
-                          aria-controls="close-modal"
-                          aria-haspopup="true"
-                          ref={closeRef}
-                          onClick={handleClose}>
-                          <X size={22} />
-                        </IconButton>
-                      )}
-                    </Stack>
-                  )}
-                </Stack>
-              )
-            }
+            {/* Header */}
+            {showHeader && (header || canBeClosed) && (
+              <Stack
+                direction={"row"}
+                sx={{
+                  width: "100%",
+                  position: "sticky",
+                  touchAction: "none",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  gap: theme.gap(2),
+                  padding: theme.boxSpacing(2),
+                  ...style?.header,
+                  borderBottom: `1px solid ${theme.palette.gray.trans[1]}`,
+                }}>
+                {header && header}
+                {canBeClosed && (
+                  <IconButton
+                    aria-label="Close modal window context"
+                    aria-controls="close-modal"
+                    aria-haspopup="true"
+                    ref={closeRef}
+                    onClick={handleClose}>
+                    <X size={22} />
+                  </IconButton>
+                )}
+              </Stack>
+            )}
 
-            {/* Modal Body */}
+            {/* Content */}
             <Stack
               sx={{
                 height: "100%",

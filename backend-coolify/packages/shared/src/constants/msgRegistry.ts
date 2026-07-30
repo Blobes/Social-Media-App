@@ -384,9 +384,13 @@ export const MESSAGES_REGISTRY = {
       message:
         "Invalid phone number format. Please use E.164 format (e.g., +234...).",
     },
+    INVALID_OTP_DISPATCH_PURPOSE: {
+      i18nKey: "auth.invalid_password_purpose",
+      message: "A valid otp dispatch purpose strategy is required.",
+    },
     INVALID_PASSWORD_PURPOSE: {
       i18nKey: "auth.invalid_password_purpose",
-      message: "A valid password purpose strategy is required.",
+      message: "A valid password reset purpose strategy is required.",
     },
     LOGGED_IN_SUCCESSFULLY: {
       i18nKey: "auth.logged_in_successfully",

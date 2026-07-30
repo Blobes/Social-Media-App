@@ -6,7 +6,7 @@ import { Box, Grid, IconButton, Stack, useMediaQuery } from "@mui/material";
 import { Check, X, ChevronUp } from "lucide-react";
 import {
   StickerOnMedia,
-  DrawerRef,
+  OverlayRef,
   COMMON_BUTTON_LABELS,
   COMMON_INPUT,
   COMMON_FEEDBACK,
@@ -31,7 +31,7 @@ export interface StickerModeProps {
 }
 
 interface StickerLibraryProps {
-  drawerRef: React.RefObject<DrawerRef | null>;
+  drawerRef: React.RefObject<OverlayRef | null>;
   activeTab: StickerTab;
   setActiveTab: (tab: StickerTab) => void;
   searchQuery: string;
@@ -212,7 +212,7 @@ export const StickerMode = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const drawerRef = useRef<DrawerRef | null>(null);
+  const drawerRef = useRef<OverlayRef | null>(null);
 
   const {
     isMaximized,
@@ -257,9 +257,9 @@ export const StickerMode = ({
    */
   useEffect(() => {
     if (isMaximized) {
-      drawerRef.current?.openDrawer();
+      drawerRef.current?.openOverlay();
     } else {
-      drawerRef.current?.closeDrawer();
+      drawerRef.current?.closeOverlay();
     }
   }, [isMaximized]);
 

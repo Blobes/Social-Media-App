@@ -16,6 +16,7 @@ export * from "./src/useTrans";
 export * from "./src/useGuides";
 export * from "./src/useKeyboard";
 export * from "./src/useFeedbackUI";
+export * from "./src/useOverlay";
 // Input fields
 export * from "./src/input/useValMsg";
 export * from "./src/input/useDynamic";

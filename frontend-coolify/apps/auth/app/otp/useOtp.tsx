@@ -13,24 +13,46 @@ import {
 import { OtpRequest, OtpService, TFAPurpose } from "./service";
 import { useMutation } from "@tanstack/react-query";
 import { useFeedback } from "./useFeedback";
-import { stripToNumbers } from "@repo/helpers";
+import {
+  getFromLocalStorage,
+  saveToLocalStorage,
+  stripToNumbers,
+} from "@repo/helpers";
 import {
   createVerificationStrategies,
   executeVerificationStrategy,
   resolveChannelRecipient,
 } from "./strategies";
 
-interface UseOtpOptions {
+export interface OtpOptions<P extends TransitPurpose> {
   dispatchOnload?: boolean;
+  setShouldRestrict?: (value: boolean) => void;
+  transitData?: OtpTransitData<P>[];
 }
+
+const ONE_HOUR_IN_MS = 60 * 60 * 1000;
+const LAST_DISPATCH_STORAGE_KEY = "otp_last_dispatch_time";
+
+/**
+ * Checks whether the required one-hour elapsed duration has passed since the last dispatch.
+ */
+const isDispatchAllowed = (): boolean => {
+  const lastDispatchTime = getFromLocalStorage<number>({
+    key: LAST_DISPATCH_STORAGE_KEY,
+  });
+  if (!lastDispatchTime) return true;
+  const timeElapsed = Date.now() - Number(lastDispatchTime);
+  return timeElapsed >= ONE_HOUR_IN_MS;
+};
 
 /**
  * Manages OTP logic by decoupling API mutations from orchestration strategies.
  */
 export const useOtp = <P extends TransitPurpose>(
-  transitData?: OtpTransitData<P>[],
-  options: UseOtpOptions = { dispatchOnload: false },
+  options: OtpOptions<P> = {},
 ) => {
+  const { transitData, dispatchOnload = true, setShouldRestrict } = options;
+
   const {
     verifyOtp,
     finalizeEmailUpdateOtp,
@@ -40,6 +62,7 @@ export const useOtp = <P extends TransitPurpose>(
   } = OtpService();
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
   const inlineMsg = useGlobalStore((state) => state.inlineMsg);
+  const authUser = useGlobalStore((state) => state.authUser);
   const { setSBMessage } = useSnackbar();
   const { handleAuthOtpSuccess, onUpdateSuccess, handlePassResetSuccess } =
     useFeedback();
@@ -59,15 +82,8 @@ export const useOtp = <P extends TransitPurpose>(
 
   const hasDispatchedOnLoad = useRef(false);
   const initialIdentifierRef = useRef(activeTransit?.identifier);
-
-  /**
-   * Preserves initial identifier reference across modal state renders.
-   */
-  useEffect(() => {
-    if (activeTransit?.identifier) {
-      initialIdentifierRef.current = activeTransit.identifier;
-    }
-  }, [activeTransit?.identifier]);
+  const hasUserCtx =
+    authUser && !authUser.isEmailVerified && !authUser.isPhoneVerified;
 
   /**
    * Strategy lookup object created with dependency scope.
@@ -84,8 +100,18 @@ export const useOtp = <P extends TransitPurpose>(
   );
 
   const isAuthPurpose =
-    activeTransit?.purpose === "ACCOUNT_VERIFICATION" ||
-    activeTransit?.purpose === "PASSWORD_RESET";
+    activeTransit?.purpose === "LOGIN_VERIFICATION" ||
+    activeTransit?.purpose === "SIGNUP_VERIFICATION";
+  activeTransit?.purpose === "PASSWORD_RESET";
+
+  /**
+   * Preserves initial identifier reference across modal state renders.
+   */
+  useEffect(() => {
+    if (activeTransit?.identifier) {
+      initialIdentifierRef.current = activeTransit.identifier;
+    }
+  }, [activeTransit?.identifier]);
 
   /**
    * Hydrates state from transitData without overriding user channel switches.
@@ -111,15 +137,22 @@ export const useOtp = <P extends TransitPurpose>(
 
   // Auto-dispatch logic on load
   useEffect(() => {
-    const canDispatch =
-      options.dispatchOnload && activeTransit && !hasDispatchedOnLoad.current;
+    if (hasDispatchedOnLoad.current) return;
+
+    const canDispatch = dispatchOnload && (activeTransit || hasUserCtx);
+
     if (canDispatch) {
       hasDispatchedOnLoad.current = true;
-      queueMicrotask(() => {
-        handleSendOtp();
-      });
+      setShouldRestrict?.(false);
+      if (isDispatchAllowed()) {
+        queueMicrotask(() => {
+          handleSendOtp();
+        });
+      }
+    } else {
+      setShouldRestrict?.(true);
     }
-  }, [activeTransit, options.dispatchOnload]);
+  }, [activeTransit, authUser, dispatchOnload, hasUserCtx, setShouldRestrict]);
 
   /**
    * Execution Layer: Dumb Dispatch Mutation
@@ -127,6 +160,7 @@ export const useOtp = <P extends TransitPurpose>(
   const { mutate: executeDispatch, isPending: isSending } = useMutation({
     mutationFn: async (request: OtpRequest) => dispatchOtp(request),
     onSuccess: (_, vars) => {
+      saveToLocalStorage<number>(LAST_DISPATCH_STORAGE_KEY, Date.now());
       setTimer(60);
       setCode("");
       setSBMessage({
@@ -253,12 +287,15 @@ export const useOtp = <P extends TransitPurpose>(
       }
 
       const targetRecipient =
-        recipient || activeTransit?.identifier || initialIdentifierRef.current;
+        recipient ||
+        activeTransit?.identifier ||
+        initialIdentifierRef.current ||
+        authUser?.email;
       if (!targetRecipient || !channel) return;
 
       executeDispatch({
         recipient: targetRecipient,
-        purpose: activeTransit?.purpose ?? "ACCOUNT_VERIFICATION",
+        purpose: activeTransit?.purpose ?? "LOGIN_VERIFICATION",
         channel,
       });
     },
@@ -270,7 +307,7 @@ export const useOtp = <P extends TransitPurpose>(
    */
   const switchChannel = useCallback(
     (targetChannel?: OtpChannel) => {
-      if (!activeTransit) {
+      if (!activeTransit || !hasUserCtx) {
         setInlineMsg(translateTxtString(AUTH_FEEDBACK.otp_send_code_failed));
         return;
       }

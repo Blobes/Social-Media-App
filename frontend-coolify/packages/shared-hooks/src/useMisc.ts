@@ -16,6 +16,7 @@ export const useMisc = () => {
   const setDrawerContent = useGlobalStore((state) => state.setDrawerContent);
   const drawerContent = useGlobalStore((state) => state.drawerContent);
   const setModalContent = useGlobalStore((state) => state.setModalContent);
+  const modalContent = useGlobalStore((state) => state.modalContent);
   const networkStatus = useGlobalStore((state) => state.networkStatus);
   const setNetworkStatus = useGlobalStore((state) => state.setNetworkStatus);
   const setSignalCheck = useGlobalStore((state) => state.setSignalCheck);
@@ -38,14 +39,14 @@ export const useMisc = () => {
     },
     [setDrawerContent],
   );
-
   /**
    * Closes the global drawer with a slight delay for smooth exit animations.
    */
   const closeDrawer = useCallback(async () => {
-    await delay(200);
+    await delay(300);
+    drawerContent?.onClose?.();
     setDrawerContent(null);
-  }, [setDrawerContent]);
+  }, [drawerContent, setDrawerContent]);
 
   /**
    * Opens the global modal with the provided configuration.
@@ -61,9 +62,10 @@ export const useMisc = () => {
    * Closes the global modal with a slight delay for smooth exit animations.
    */
   const closeModal = useCallback(async () => {
-    await delay(200);
+    await delay(300);
+    modalContent?.onClose?.();
     setModalContent(null);
-  }, [setModalContent]);
+  }, [modalContent, setModalContent]);
 
   /**
    * Automatically closes the navbar drawer when transitioning to desktop view.

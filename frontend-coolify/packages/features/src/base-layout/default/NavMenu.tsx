@@ -42,7 +42,6 @@ export const HeaderDesktopNav = ({
       <DisplayList
         menuRef={menuRef}
         list={USER_NAV_LIST}
-        usePage={usePage}
         onItemClick={closeDrawer}
       />
     </Stack>
@@ -135,7 +134,6 @@ export const HeaderMobileNav = ({}) => {
             menuRef.current?.closeMenu();
             closeDrawer();
           }}
-          usePage={usePage}
           showActiveItem={false}
           style={{
             ...theme.typography.text2,
@@ -191,7 +189,6 @@ export const CreatePostMenuDesktop = ({
       <DisplayList
         menuRef={postRef}
         list={CREATE_POST_LIST}
-        usePage={usePage}
         onItemClick={(item) => {
           if (!item?.title) return;
           const lookupKey =

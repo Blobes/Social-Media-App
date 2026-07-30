@@ -15,6 +15,7 @@ import { matchPaths, summarizeNum } from "@repo/helpers";
 import { usePathname } from "next/navigation";
 import { AnchorLink } from "./Buttons";
 import { TransText } from "./Text";
+import { usePage } from "@repo/shared-hooks";
 
 // Props for the reusable nav renderer
 export interface RenderListProps<T extends IMenuItem> {
@@ -24,7 +25,6 @@ export interface RenderListProps<T extends IMenuItem> {
   style?: GenericStyle;
   showActiveItem?: boolean;
   activeItem?: string;
-  usePage?: () => { navigateTo: (savePage: IPage) => void };
 }
 
 export const RenderItemList = <T extends IMenuItem>({
@@ -34,12 +34,10 @@ export const RenderItemList = <T extends IMenuItem>({
   style = {},
   showActiveItem = true,
   activeItem,
-  usePage,
 }: RenderListProps<T>) => {
   const theme = useTheme();
   const pathname = usePathname();
-  const hook = usePage ? usePage() : { navigateTo: () => {} };
-  const { navigateTo } = hook;
+  const { navigateTo } = usePage();
 
   const { fontSize, fontWeight, color, ...restStyle } = style;
 
@@ -105,7 +103,7 @@ export const RenderItemList = <T extends IMenuItem>({
 
         // Shared Click Handler
         const handleClick = () => {
-          if (isLink && usePage) {
+          if (isLink) {
             navigateTo({
               title: item.title ?? "",
               path: item.url ?? "",
