@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { GistModel, IPostStatus } from "@repo/database";
+import { GistModel, PostStatus, PostVisibility } from "@repo/database";
 import { getStaticPostList, MESSAGES_REGISTRY, TransInfo } from "@repo/shared";
 
 export interface GetUserDraftPostsInput {
@@ -49,7 +49,7 @@ export const executeGetUserDraftPosts = async (
 
   const matchFilter = {
     authorId: new mongoose.Types.ObjectId(String(targetUserId)),
-    status: "DRAFT" as IPostStatus,
+    visibility: "DRAFT" as PostVisibility,
   };
 
   const totalCount = await GistModel.countDocuments(matchFilter);

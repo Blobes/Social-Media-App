@@ -1,4 +1,4 @@
-import { GistModel, IMedia, IPostStatus } from "@repo/database";
+import { GistModel, ILocation, IMedia, PostStatus } from "@repo/database";
 import {
   generateRandomIp,
   getLocationFromIp,
@@ -72,15 +72,18 @@ export const executeCreateGist = async (
 
   const geoData = await getLocationFromIp(generateRandomIp());
   const location = geoData
-    ? {
-        name: `${geoData.city}, ${geoData.state}`,
+    ? ({
+        name: `${geoData.city}, ${geoData.state}, ${geoData.country}`,
+        city: geoData.city,
+        state: geoData.state,
+        country: geoData.country,
         type: "Point" as const,
         coordinates: [Number(geoData.longitude), Number(geoData.latitude)],
-      }
+      } as ILocation)
     : undefined;
 
   const hasUserTopics = topics && topics.length > 0;
-  const initialStatus: IPostStatus = skipModeration
+  const initialStatus: PostStatus = skipModeration
     ? "PUBLISHED"
     : "UNDER_REVIEW";
 
@@ -142,7 +145,7 @@ export const executeCreateGist = async (
     moderationTaskMode: modTaskMode,
   };
 
-  await enqueueModerationTask(redisUrl, "moderate:post", moderationData);
+  await enqueueModerationTask("moderate:post", moderationData, {}, redisUrl);
 
   const completionMessage = skipModeration
     ? MESSAGES_REGISTRY.POST.POST_TOPICS_EXTRACTING

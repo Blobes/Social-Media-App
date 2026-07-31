@@ -2,7 +2,7 @@ import {
   AccountStatus,
   GistModel,
   IMedia,
-  IPostStatus,
+  PostStatus,
   ModerationSeverity,
 } from "@repo/database";
 import { Request, RequestHandler } from "express";
@@ -66,21 +66,6 @@ export interface IJwtUser {
 
 export interface IAuthRequest extends Request {
   user?: IJwtUser;
-}
-
-export interface IUserPreferences {
-  userId: string;
-  firstName?: string;
-  lastName?: string;
-  username?: string;
-  location?: string | null;
-  preferredTopics: {
-    topicId: string;
-    title: string;
-    lastViewed?: Date;
-  }[];
-  showSensitiveGraphic: boolean;
-  blockedUserIds: string[]; // Hydrated from the separate collection
 }
 
 export type IGist = InferSchemaType<typeof GistModel.schema>;
@@ -174,7 +159,7 @@ export interface IModResult {
   ruleViolated: string | null;
   reason: string | null;
   needsReview: boolean;
-  status: IPostStatus;
+  status: PostStatus;
   hasSensitiveGraphic?: boolean;
 }
 
@@ -221,3 +206,14 @@ export interface TransInfo {
   readonly message?: string;
   readonly interpolations?: Record<string, any>;
 }
+
+/**
+ * Utility type to recursively make all nested properties optional for updates.
+ */
+// export type DeepPartial<T> = {
+//   [P in keyof T]?: T[P] extends (infer U)[]
+//     ? T[P]
+//     : T[P] extends object
+//       ? DeepPartial<T[P]>
+//       : T[P];
+// };

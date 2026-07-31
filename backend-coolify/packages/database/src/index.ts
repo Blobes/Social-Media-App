@@ -24,6 +24,7 @@ export * from "./models/entities/user";
 export * from "./models/entities/device";
 export * from "./models/non-entities/identity/status";
 export * from "./models/non-entities/identity/role";
+export * from "./models/non-entities/identity/userSettings";
 
 // Media
 export * from "./models/entities/media";
@@ -31,5 +32,3 @@ export * from "./models/entities/media";
 // Topic
 export * from "./models/non-entities/topic";
 export * from "./models/non-entities/logs";
-
-// Role

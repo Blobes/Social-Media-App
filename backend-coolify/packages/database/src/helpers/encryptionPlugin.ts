@@ -1,4 +1,4 @@
-import { Schema, Query, QueryOptions } from "mongoose";
+import { Schema, QueryOptions } from "mongoose";
 import { decrypt, encrypt, hashLookup, isEncryptedPattern } from "./encrypt";
 import { QFilter } from "../types/user";
 

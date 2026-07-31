@@ -4,12 +4,13 @@ import { IJwtUser } from "../types";
 export const userSensitiveFields = (): string[] => {
   return [
     "password",
+    "emailHash",
+    "phoneNumberHash",
     "otpCode",
     "otpCodeExpiresAt",
     "lastEmailOtpSentAt",
     "lastPhoneOtpSentAt",
     "deactivatedAt",
-    "role",
     "__v",
   ];
 };

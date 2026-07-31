@@ -7,6 +7,16 @@ import {
   QueryFilter,
 } from "mongoose";
 import { AccountStatus, ITfaData, VerificationStatus } from "./status";
+import { IUserPreferredTopic } from "./topic";
+
+export interface ILocation {
+  name?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  type: "Point";
+  coordinates: [number, number]; // [longitude, latitude]
+}
 
 export interface IUserDocument extends Document {
   // --- CORE IDENTITY ---
@@ -72,6 +82,7 @@ export interface IUserDocument extends Document {
   relationship?: string | null;
   interests: string[];
   website?: string | null;
+  address?: string | null; // Provided by user
 
   // --- PROFILE ASSETS ---
   profileImage?: string | null;
@@ -80,22 +91,22 @@ export interface IUserDocument extends Document {
   // --- ONBOARDING & GEOGRAPHY ---
   isOnboarded?: boolean;
   onboardingStep?: string | null;
-  location?: string | null;
-  country?: string | null;
-  state?: string | null;
+
+  // --- ACCOUNT LOCATION ---
+  location?: ILocation | null;
 
   // --- METRICS & PREFERENCES ---
   followersCount: number;
   followingCount: number;
-  preferences: {
-    showSensitiveGraphic: boolean;
-    preferredLanguage: string;
-    preferredTopics: Array<{
-      topicId: string;
-      title: string;
-      lastViewed?: Date | null;
-    }>;
-  };
+  // preferences: {
+  //   showSensitiveGraphic: boolean;
+  //   preferredLanguage: string;
+  //   preferredTopics: Array<{
+  //     topicId: string;
+  //     title: string;
+  //     lastViewed?: Date | null;
+  //   }>;
+  // };
 
   // --- MODERATION FIELDS ---
   policyBreachCount?: number;
@@ -126,4 +137,64 @@ export interface IUserModelStatic extends Model<IUserDocument> {
   findByPhone(
     config: QueryConfig & { phoneNumber: string },
   ): Query<IUserDocument | null, IUserDocument>;
+}
+
+/**
+ * Interface defining granular global user settings.
+ */
+export interface IUserSettingsDocument {
+  userId: Types.ObjectId;
+  privacy: {
+    isPrivateAccount: boolean;
+    discoverability: {
+      searchIndexing: boolean;
+      contactSync: boolean;
+      recommendToOthers: boolean;
+    };
+    directMessaging: "EVERYONE" | "FOLLOWERS" | "NO_ONE";
+    mentionsAndTagging: "EVERYONE" | "FOLLOWERS" | "NO_ONE";
+  };
+  notifications: {
+    push: {
+      enabled: boolean;
+      likes: boolean;
+      comments: boolean;
+      mentions: boolean;
+      newFollowers: boolean;
+      directMessages: boolean;
+      systemAnnouncements: boolean;
+    };
+    email: {
+      enabled: boolean;
+      digest: boolean;
+      directMessages: boolean;
+      securityAlerts: boolean;
+    };
+    quietMode: {
+      isEnabled: boolean;
+      startTime: string; // HH:mm format, e.g., "22:00"
+      endTime: string; // HH:mm format, e.g., "07:00"
+      timeZone: string; // e.g., "Africa/Lagos" or "UTC"
+    };
+  };
+  display: {
+    theme: "SYSTEM" | "LIGHT" | "DARK";
+    showSensitiveMedia: boolean;
+    accessibility: {
+      reduceMotion: boolean;
+      highContrast: boolean;
+      fontScale: number;
+      autoPlayMedia: "ALWAYS" | "WIFI_ONLY" | "NEVER";
+    };
+    localization: {
+      language: string;
+      region: string;
+      currency: string;
+    };
+    contentPreferences: {
+      preferredTopics: IUserPreferredTopic[];
+      mutedWords: string[];
+    };
+  };
+  mutedWords: string[];
 }

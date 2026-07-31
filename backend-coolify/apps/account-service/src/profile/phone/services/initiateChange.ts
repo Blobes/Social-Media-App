@@ -124,11 +124,14 @@ export const startPhoneChange = async (
   await user.save();
 
   // Forward code dispatch instructions to worker processors
-  await enqueueOtpTask(FUNSTAKES_REDIS_URL, {
-    phone: formattedPhone,
-    code,
-    type: "WHATSAPP",
-  });
+  await enqueueOtpTask(
+    {
+      phone: formattedPhone,
+      code,
+      type: "WHATSAPP",
+    },
+    FUNSTAKES_REDIS_URL,
+  );
 
   return {
     status: "SUCCESS",

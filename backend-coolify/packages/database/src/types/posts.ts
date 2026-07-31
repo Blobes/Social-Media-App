@@ -1,26 +1,27 @@
 import { Document } from "mongoose";
 import { IContentModeration } from "./moderation";
 import { Types } from "mongoose";
+import { ILocation } from "./user";
 
 export type PostVisibility =
+  | "DRAFT"
   | "PUBLIC"
+  | "FRIENDS_ONLY"
   | "FOLLOWERS"
-  | "PRIVATE"
-  | "MENTIONED_ONLY";
+  | "MENTIONS_ONLY";
 
-export type IPostStatus =
+export type PostStatus =
   | "PUBLISHED"
   | "DELETED"
   | "SHADOWBANNED"
   | "ARCHIVED"
   | "UNDER_REVIEW"
-  | "BANNED"
-  | "DRAFT";
+  | "BANNED";
 
 export interface IGistDocument extends Document {
   authorId: Types.ObjectId | string;
   mediaIds: Types.ObjectId[];
-  status: IPostStatus;
+  status: PostStatus;
 
   latestCaption: {
     captionId?: string | null;
@@ -39,11 +40,7 @@ export interface IGistDocument extends Document {
 
   // Discovery
   topics: string[];
-  location?: {
-    name?: string;
-    type: "Point";
-    coordinates: [number, number]; // [longitude, latitude]
-  };
+  location?: ILocation;
 
   // Configuration
   visibility: PostVisibility;

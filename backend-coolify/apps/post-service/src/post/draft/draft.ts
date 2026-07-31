@@ -1,7 +1,7 @@
 import { Model } from "mongoose";
 import {
   GistModel,
-  IPostStatus,
+  PostStatus,
   PostVisibility,
   StakeModel,
 } from "@repo/database";
@@ -68,8 +68,7 @@ export const executeDraftPost = async (
 
   const updateFields = {
     authorId: userId,
-    status: "DRAFT" as IPostStatus,
-    visibility: "PRIVATE" as PostVisibility,
+    visibility: "DRAFT" as PostVisibility,
     location,
     latestCaption: caption ? { caption: caption.trim() } : undefined,
     mediaIds: [],

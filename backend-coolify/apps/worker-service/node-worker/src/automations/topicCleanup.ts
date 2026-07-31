@@ -1,4 +1,4 @@
-import { UserModel } from "@repo/database";
+import { IUserPreferredTopic, UserSettingsModel } from "@repo/database";
 import { pruneDeadTopics, removeTopicsFromUser } from "@repo/shared";
 import cron from "node-cron";
 
@@ -24,10 +24,11 @@ export const initTopicCleanup = () => {
       console.log(
         `[Background Task] Cleanup finished. Removed ${result.deletedCount} topics.`,
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       console.error(
         "[Background Task] Monthly cleanup failed catastrophically:",
-        error.message,
+        err.message,
       );
     }
   });
@@ -46,31 +47,39 @@ export const initUserTopicCleanup = () => {
         `[Interest Pruning] Identifying topics stale since ${fourteenDaysAgo.toISOString()}`,
       );
 
-      // 1. Path fix: Query against 'preferences.preferredTopics.lastViewed'
-      // 2. Select: Only bring back the preferences field to keep cursor memory low
-      const cursor = UserModel.find({
-        "preferences.preferredTopics.lastViewed": { $lt: fourteenDaysAgo },
+      // Query against displayAndApp.contentPreferences.preferredTopics.lastViewed
+      const cursor = UserSettingsModel.find({
+        "displayAndApp.contentPreferences.preferredTopics.lastViewed": {
+          $lt: fourteenDaysAgo,
+        },
       })
-        .select("preferences.preferredTopics")
+        .select("userId displayAndApp.contentPreferences.preferredTopics")
         .cursor();
 
       let processedUsers = 0;
 
       for (
-        let user = await cursor.next();
-        user != null;
-        user = await cursor.next()
+        let userSettings = await cursor.next();
+        userSettings != null;
+        userSettings = await cursor.next()
       ) {
-        // Accessing the nested array correctly
-        const topics = user.preferences?.preferredTopics || [];
+        // Access nested array from user settings schema
+        const topics =
+          userSettings.display?.contentPreferences?.preferredTopics || [];
 
         const staleTopicIds = topics
-          .filter((t: any) => t.lastViewed < fourteenDaysAgo)
-          .map((t: any) => t.topicId.toString()); // Schema fix: uses 'topicId', not '_id'
+          .filter(
+            (t: IUserPreferredTopic) =>
+              t.lastViewed && new Date(t.lastViewed) < fourteenDaysAgo,
+          )
+          .map((t: IUserPreferredTopic) => t.topicId.toString());
 
-        if (staleTopicIds.length > 0) {
-          // Shared utility handles the atomic $pull from preferences.preferredTopics
-          await removeTopicsFromUser(user._id.toString(), staleTopicIds);
+        if (staleTopicIds.length > 0 && userSettings.userId) {
+          // Remove stale topics from user's settings document
+          await removeTopicsFromUser(
+            userSettings.userId.toString(),
+            staleTopicIds,
+          );
           processedUsers++;
         }
       }
@@ -78,10 +87,11 @@ export const initUserTopicCleanup = () => {
       console.log(
         `[Interest Pruning] Completed. Cleaned up interests for ${processedUsers} users.`,
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       console.error(
         "[Interest Pruning] Error during background task:",
-        error.message,
+        err.message,
       );
     }
   });

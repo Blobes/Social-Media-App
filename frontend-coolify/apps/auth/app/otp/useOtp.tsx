@@ -30,7 +30,7 @@ export interface OtpOptions<P extends TransitPurpose> {
   transitData?: OtpTransitData<P>[];
 }
 
-const ONE_HOUR_IN_MS = 60 * 60 * 1000;
+const HOUR_IN_MS = 12 * 60 * 60 * 1000; // 12 hours
 const LAST_DISPATCH_STORAGE_KEY = "otp_last_dispatch_time";
 
 /**
@@ -42,7 +42,7 @@ const isDispatchAllowed = (): boolean => {
   });
   if (!lastDispatchTime) return true;
   const timeElapsed = Date.now() - Number(lastDispatchTime);
-  return timeElapsed >= ONE_HOUR_IN_MS;
+  return timeElapsed >= HOUR_IN_MS;
 };
 
 /**

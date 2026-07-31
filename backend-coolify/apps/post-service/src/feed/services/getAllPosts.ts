@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { GistModel, IPostStatus } from "@repo/database";
+import { GistModel, PostStatus } from "@repo/database";
 import {
   getStaticPostList,
   getOrSetCache,
@@ -46,7 +46,7 @@ export const executeGetAllPost = async (
   const { staticPosts, totalCount } = await getOrSetCache(
     globalCacheKey,
     async () => {
-      const matchFilter = { status: "PUBLISHED" as IPostStatus };
+      const matchFilter = { status: "PUBLISHED" as PostStatus };
       const total = await GistModel.countDocuments(matchFilter);
 
       const pipeline = getStaticPostList({

@@ -70,5 +70,6 @@ export const CACHE_EXPIRY = {
   MIN_3: 60 * 5, // 5 minutes
   HOUR_1: 60 * 60, // 1 hour
   HOUR_24: 60 * 60 * 24, // 24 hours
+  DAY_7: 7 * 24 * 60 * 60, // 7 days
   DAY_20: 20 * 24 * 60 * 60, // 20 days
 };

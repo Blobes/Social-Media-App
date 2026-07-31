@@ -14,7 +14,7 @@ import {
 } from "@repo/database";
 import { PostType, TransInfo } from "../../types";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
-import { switchAccountStatus } from "../account/accountStatus";
+import { switchAccountStatus } from "../user/accountStatus";
 
 export interface IResolveCaseInput {
   caseId: string;

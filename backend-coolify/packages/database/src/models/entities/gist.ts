@@ -31,6 +31,9 @@ const GistSchema = new Schema<IGistDocument>(
     topics: { type: [{ type: String }], default: [] },
     location: {
       name: { type: String, default: null },
+      city: { type: String, default: null },
+      state: { type: String, default: null },
+      country: { type: String, default: null },
       type: {
         type: String,
         enum: ["Point"],
@@ -46,7 +49,7 @@ const GistSchema = new Schema<IGistDocument>(
     // Configuration
     visibility: {
       type: String,
-      enum: ["PUBLIC", "FOLLOWERS", "PRIVATE", "MENTIONED_ONLY"],
+      enum: ["DRAFT", "PUBLIC", "FRIENDS_ONLY", "FOLLOWERS", "MENTIONS_ONLY"],
       default: "PUBLIC",
     },
     allowComments: { type: Boolean, default: true },

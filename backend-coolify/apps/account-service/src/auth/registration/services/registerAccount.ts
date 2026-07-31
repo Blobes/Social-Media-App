@@ -1,5 +1,5 @@
 import { authTokens, FUNSTAKES_REDIS_URL } from "@/envVars";
-import { IUserDocument, UserModel } from "@repo/database";
+import { ILocation, IUserDocument, UserModel } from "@repo/database";
 import {
   genVerificationCode,
   getLocationFromIp,
@@ -75,15 +75,25 @@ export const registerUserAccount = async (
 
   const hashedPassword = await encryptPass(password);
   const code = genVerificationCode();
-  const userLocation = await getLocationFromIp(ipAddress);
   const sessionId = uuidv4();
+
+  const geoData = await getLocationFromIp(ipAddress);
+  const location = geoData
+    ? ({
+        name: `${geoData.city}, ${geoData.state}, ${geoData.country}`,
+        city: geoData.city,
+        state: geoData.state,
+        country: geoData.country,
+        type: "Point" as const,
+        coordinates: [Number(geoData.longitude), Number(geoData.latitude)],
+      } as ILocation)
+    : undefined;
 
   const newUser: IUserDocument = new UserModel({
     email: normalizedEmail,
     password: hashedPassword,
     phoneNumber: phone,
-    country: userLocation?.country,
-    state: userLocation?.state,
+    location,
     otpCode: hashCode(code),
     otpCodeExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
     lastEmailOtpSentAt: new Date(),
@@ -94,11 +104,14 @@ export const registerUserAccount = async (
 
   const device = await upsertDevice(newUser, deviceToken, userAgent);
 
-  await enqueueOtpTask(FUNSTAKES_REDIS_URL, {
-    email: normalizedEmail,
-    code,
-    type: "EMAIL",
-  });
+  await enqueueOtpTask(
+    {
+      email: normalizedEmail,
+      code,
+      type: "EMAIL",
+    },
+    FUNSTAKES_REDIS_URL,
+  );
 
   const jwtUser = toJwtUser(newUser, device._id.toString(), sessionId);
 

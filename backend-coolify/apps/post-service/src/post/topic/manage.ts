@@ -1,9 +1,10 @@
 import { Response, NextFunction } from "express";
 import {
-  executeTopicUpdate,
+  executePostTopicsUpdate,
   forwardError,
   IAuthRequest,
   MESSAGES_REGISTRY,
+  TopicUpdateEvent,
 } from "@repo/shared";
 
 interface ManageRequest extends IAuthRequest {
@@ -11,23 +12,20 @@ interface ManageRequest extends IAuthRequest {
     topics: string[];
     targetId?: string;
     targetModel?: "Gist" | "Stake" | "User";
-    actionType:
-      | "USER_PREFERENCE"
-      | "POST_CREATION_OR_UPDATE"
-      | "POST_ENGAGEMENT";
+    eventType: TopicUpdateEvent;
   };
 }
 
 /**
  * Controller endpoint processing ingestion configurations to match up taxonomy tags safely against target updates.
  */
-export const manageTopics = async (
+export const updatePostTopics = async (
   req: ManageRequest,
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
   const userId = req.user?.id;
-  const { topics, targetId, targetModel, actionType } = req.body;
+  const { topics, targetId, targetModel, eventType: actionType } = req.body;
 
   if (!userId) {
     return res.status(401).json({
@@ -38,12 +36,12 @@ export const manageTopics = async (
   }
 
   try {
-    const serviceResult = await executeTopicUpdate({
+    const serviceResult = await executePostTopicsUpdate({
       topics,
       userId,
       targetId,
       targetModel,
-      actionType,
+      eventType: actionType,
     });
 
     if (serviceResult.status === "INVALID_INPUT") {

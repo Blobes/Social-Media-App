@@ -81,7 +81,6 @@ const (
 	StatusArchived     PostStatus = "ARCHIVED"
 	StatusUnderReview  PostStatus = "UNDER_REVIEW"
 	StatusBanned       PostStatus = "BANNED"
-	StatusDraft        PostStatus = "DRAFT"
 )
 
 type BasePostMetadata struct {

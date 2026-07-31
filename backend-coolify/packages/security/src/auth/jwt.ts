@@ -76,14 +76,6 @@ export const setAuthCookies = (
       path: "/",
       maxAge: 30 * 60 * 1000,
     });
-    // Client-side hint for UI state management
-    res.cookie("is_logged_in", "true", {
-      httpOnly: false,
-      secure: true,
-      sameSite: "none",
-      domain: ".funstakes.net",
-      maxAge: 30 * 60 * 1000,
-    });
   }
 
   if (tokens.refreshToken && (authType === "REFRESH" || authType === "BOTH")) {
@@ -105,11 +97,7 @@ export const clearAuthCookies = (res: Response) => {
     sameSite: "none",
     path: "/",
   });
-  res.clearCookie("is_logged_in", {
-    httpOnly: false,
-    secure: true,
-    sameSite: "none",
-  });
+
   res.clearCookie("refresh_token", {
     httpOnly: true,
     secure: true,

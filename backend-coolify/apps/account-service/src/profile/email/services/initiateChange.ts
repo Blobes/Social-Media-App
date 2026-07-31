@@ -165,11 +165,14 @@ export const startEmailChange = async (
   await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
 
   // Forward code dispatch instructions to worker processors
-  await enqueueOtpTask(FUNSTAKES_REDIS_URL, {
-    email: formattedEmail,
-    code,
-    type: "EMAIL",
-  });
+  await enqueueOtpTask(
+    {
+      email: formattedEmail,
+      code,
+      type: "EMAIL",
+    },
+    FUNSTAKES_REDIS_URL,
+  );
 
   return {
     status: "SUCCESS",

@@ -89,17 +89,23 @@ export const executeResetInitiation = async (
   await user.save();
 
   if (isEmail) {
-    await enqueueOtpTask(FUNSTAKES_REDIS_URL, {
-      email: user.email,
-      code,
-      type: "EMAIL",
-    });
+    await enqueueOtpTask(
+      {
+        email: user.email,
+        code,
+        type: "EMAIL",
+      },
+      FUNSTAKES_REDIS_URL,
+    );
   } else {
-    await enqueueOtpTask(FUNSTAKES_REDIS_URL, {
-      phone: user.phoneNumber,
-      code,
-      type: "WHATSAPP",
-    });
+    await enqueueOtpTask(
+      {
+        phone: user.phoneNumber,
+        code,
+        type: "WHATSAPP",
+      },
+      FUNSTAKES_REDIS_URL,
+    );
   }
 
   return {

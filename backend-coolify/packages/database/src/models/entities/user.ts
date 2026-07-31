@@ -138,6 +138,7 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     relationship: { type: String, default: null },
     interests: { type: [String], default: [] },
     website: { type: String, default: null },
+    address: { type: String, default: null },
 
     // --- PROFILE ASSETS ---
     profileImage: { type: Schema.Types.ObjectId, ref: "Media", default: null },
@@ -146,27 +147,42 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     // --- ONBOARDING & GEOGRAPHY ---
     isOnboarded: { type: Boolean, default: false },
     onboardingStep: { type: String, default: null },
-    location: { type: String, default: null },
-    country: { type: String, default: null },
-    state: { type: String, default: null },
+
+    // --- ACCOUNT LOCATION ---
+    location: {
+      name: { type: String, default: null },
+      city: { type: String, default: null },
+      state: { type: String, default: null },
+      country: { type: String, default: null },
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number],
+        index: "2dsphere",
+        default: [],
+      },
+    },
 
     // --- METRICS & PREFERENCES ---
     followersCount: { type: Number, default: 0 },
     followingCount: { type: Number, default: 0 },
-    preferences: {
-      preferredTopics: {
-        type: [
-          {
-            topicId: { type: Schema.Types.ObjectId, ref: "Topic" },
-            title: String,
-            lastViewed: Date,
-          },
-        ],
-        default: [],
-      },
-      showSensitiveGraphic: { type: Boolean, default: false },
-      preferredLanguage: { type: String, default: "en" },
-    },
+    // preferences: {
+    //   preferredTopics: {
+    //     type: [
+    //       {
+    //         topicId: { type: Schema.Types.ObjectId, ref: "Topic" },
+    //         title: String,
+    //         lastViewed: Date,
+    //       },
+    //     ],
+    //     default: [],
+    //   },
+    //   showSensitiveGraphic: { type: Boolean, default: false },
+    //   preferredLanguage: { type: String, default: "en" },
+    // },
   },
   {
     timestamps: true,

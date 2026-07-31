@@ -3,7 +3,7 @@ import { GistModel, IMedia, PostCaptionModel, UserModel } from "@repo/database";
 import { FinalizePostReq, IS3Config } from "../../types";
 import { hardDeleteMedia } from "../media/hardDelete";
 import { createMediaBatch } from "../media/createBatch";
-import { executeTopicUpdate } from "../topic/manage";
+import { executePostTopicsUpdate } from "../topic/postTopic";
 import { franc } from "franc-min";
 import { topicsExtractor } from "../../utils/topic";
 import { to2ISOCode } from "../../constants/others";
@@ -118,12 +118,12 @@ export const finalizeGistCreation = async (
   }
 
   if (targetTopics.length > 0) {
-    await executeTopicUpdate(
+    await executePostTopicsUpdate(
       {
         topics: targetTopics,
         targetId: postId,
         targetModel: "Gist",
-        actionType: "POST_CREATION_OR_UPDATE",
+        eventType: "POST_CREATION_OR_UPDATE",
       },
       session,
     );
@@ -275,12 +275,12 @@ export const finalizeGistUpdate = async (
   }
 
   if (targetTopics.length > 0) {
-    await executeTopicUpdate(
+    await executePostTopicsUpdate(
       {
         topics: targetTopics,
         targetId: postId,
         targetModel: "Gist",
-        actionType: "POST_CREATION_OR_UPDATE",
+        eventType: "POST_CREATION_OR_UPDATE",
       },
       session,
     );

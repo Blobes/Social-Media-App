@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
-import { ITopic } from "../../types/topic";
+import { ITopicDocument } from "../../types/topic";
 
-const TopicSchema = new Schema<ITopic>(
+const TopicSchema = new Schema<ITopicDocument>(
   {
     title: { type: String, required: true, unique: true },
     userCount: { type: Number, required: true, default: 0 },

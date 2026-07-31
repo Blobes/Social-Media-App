@@ -1254,6 +1254,42 @@ export const MESSAGES_REGISTRY = {
     },
   },
 
+  SETTINGS: {
+    EMPTY_UPDATE_PAYLOAD: {
+      i18nKey: "settings.empty_update_payload",
+      message: "Settings update payload cannot be empty.",
+    },
+    FETCHED_SUCCESSFULLY: {
+      i18nKey: "settings.fetched_successfully",
+      message: "User settings fetched successfully.",
+    },
+    INVALID_MUTED_WORDS_PAYLOAD: {
+      i18nKey: "settings.invalid_muted_words_payload",
+      message: "A non-empty array of valid word strings is required.",
+    },
+    MUTED_WORDS_UPDATED: {
+      i18nKey: "settings.muted_words_updated",
+      message: "Muted words filter updated successfully.",
+    },
+    NO_UPDATE_FIELDS_PROVIDED: {
+      i18nKey: "settings.no_update_fields_provided",
+      message: "No valid settings fields were provided for update.",
+    },
+    SERVER_FALLBACK_ERROR: {
+      i18nKey: "settings.server_fallback_error",
+      message:
+        "An unexpected error occurred while processing settings request.",
+    },
+    SETTINGS_NOT_FOUND: {
+      i18nKey: "settings.settings_not_found",
+      message: "Requested user settings profile was not found.",
+    },
+    UPDATED_SUCCESSFULLY: {
+      i18nKey: "settings.updated_successfully",
+      message: "User settings updated successfully.",
+    },
+  },
+
   SYSTEM: {
     ERROR_LOGS_FETCHED_SUCCESS: {
       i18nKey: "system.error_logs_fetched_success",
