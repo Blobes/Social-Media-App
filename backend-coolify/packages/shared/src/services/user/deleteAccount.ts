@@ -16,9 +16,8 @@ import {
 import { IS3Config, TransInfo } from "../../types";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { cleanDeviceSessions } from "../session";
-import { invalidatePattern } from "../redis/cache";
 import { hardDeleteMedia } from "../media/hardDelete";
-import { CACHE_KEYS } from "../../constants/cacheKeys";
+import { checkUserExists } from "./retrieval/fetchUser";
 
 export interface IAccountDeletionInput {
   targetUserId: string;
@@ -39,9 +38,13 @@ export const executeAccountDeletion = async (
   const { targetUserId, s3Config } = input;
   const userObjectId = new Types.ObjectId(targetUserId);
 
-  const userProfile = await UserModel.findById(targetUserId);
+  // const userProfile = await UserModel.findById(targetUserId);
+  const userExists = await checkUserExists({
+    identifier: targetUserId,
+    flags: { skipFilter: true },
+  });
 
-  if (!userProfile) {
+  if (!userExists) {
     return {
       status: "NOT_FOUND",
       ...MESSAGES_REGISTRY.AUTH.USER_NOT_FOUND,
@@ -56,8 +59,6 @@ export const executeAccountDeletion = async (
   // Flush active memory caches and session nodes concurrently
   await Promise.all([
     cleanDeviceSessions(targetUserId, undefined, { clearAll: true }),
-    invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(targetUserId)),
-    invalidatePattern(CACHE_KEYS.WILDCARD_USER_SESSIONS(targetUserId)),
   ]);
 
   // Execute hard deletes across cloud S3 buckets and local document records for files

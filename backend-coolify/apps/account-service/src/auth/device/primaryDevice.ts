@@ -1,5 +1,10 @@
 import { DeviceModel, UserModel } from "@repo/database";
-import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
+import {
+  checkUserExists,
+  forwardError,
+  IAuthRequest,
+  MESSAGES_REGISTRY,
+} from "@repo/shared";
 import { NextFunction, Response } from "express";
 
 /**
@@ -9,11 +14,24 @@ export const setPrimaryDevice = async (
   req: IAuthRequest,
   res: Response,
   next: NextFunction,
-): Promise<any> => {
+): Promise<Response | void> => {
   const userId = req.user?.id;
   const { id } = req.params;
 
   try {
+    // Perform lightweight existence check
+    const userExists = await checkUserExists({
+      identifier: userId,
+    });
+
+    if (!userExists) {
+      return res.status(404).json({
+        status: "ERROR",
+        ...MESSAGES_REGISTRY.AUTH.USER_NOT_FOUND,
+        payload: null,
+      });
+    }
+
     const targetDevice = await DeviceModel.findOne({ _id: id, userId });
 
     if (!targetDevice) {
@@ -35,7 +53,7 @@ export const setPrimaryDevice = async (
     targetDevice.isStale = false; // Reset stale status if it was flagged
     await targetDevice.save();
 
-    // Update the anchor link on the user document
+    // Update anchor link on user document
     await UserModel.findByIdAndUpdate(userId, {
       $set: { primaryDeviceId: targetDevice._id },
     });
@@ -45,7 +63,7 @@ export const setPrimaryDevice = async (
       ...MESSAGES_REGISTRY.AUTH.PRIMARY_DEVICE_UPDATED,
       payload: targetDevice,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Set Primary Device Error:", error);
     return forwardError(
       next,

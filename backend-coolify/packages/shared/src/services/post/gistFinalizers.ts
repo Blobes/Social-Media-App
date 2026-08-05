@@ -3,7 +3,7 @@ import { GistModel, IMedia, PostCaptionModel, UserModel } from "@repo/database";
 import { FinalizePostReq, IS3Config } from "../../types";
 import { hardDeleteMedia } from "../media/hardDelete";
 import { createMediaBatch } from "../media/createBatch";
-import { executePostTopicsUpdate } from "../topic/postTopic";
+import { executePostTopicsSync } from "../topic/postSync";
 import { franc } from "franc-min";
 import { topicsExtractor } from "../../utils/topic";
 import { to2ISOCode } from "../../constants/others";
@@ -118,7 +118,7 @@ export const finalizeGistCreation = async (
   }
 
   if (targetTopics.length > 0) {
-    await executePostTopicsUpdate(
+    await executePostTopicsSync(
       {
         topics: targetTopics,
         targetId: postId,
@@ -275,7 +275,7 @@ export const finalizeGistUpdate = async (
   }
 
   if (targetTopics.length > 0) {
-    await executePostTopicsUpdate(
+    await executePostTopicsSync(
       {
         topics: targetTopics,
         targetId: postId,

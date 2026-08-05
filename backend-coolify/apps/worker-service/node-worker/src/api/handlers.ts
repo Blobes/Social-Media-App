@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { POST_STRATEGIES } from "../helpers/postStrategies";
-import { CACHE_KEYS, FinalizePostReq, invalidatePattern } from "@repo/shared";
+import { FinalizePostReq, INVALIDATE_CACHE } from "@repo/shared";
 import { FUNSTAKES_REDIS_URL, s3Config } from "@/envVars";
 
 /**
@@ -46,10 +46,11 @@ export const handlePostFinalizer = async (
     await session.commitTransaction();
 
     if (modResult.status === "PUBLISHED") {
-      Promise.all([
-        invalidatePattern(CACHE_KEYS.WILDCARD_USER_FEED_ALL(userId)),
-      ]).catch((err) => {
-        console.error(`Post-commit cache invalidation failure: ${err.message}`);
+      await INVALIDATE_CACHE.forPost({
+        userId,
+        postType,
+        invalidatePostTypeFeed: true,
+        invalidateGlobalFirstPage: true,
       });
     }
     console.log(modResult);

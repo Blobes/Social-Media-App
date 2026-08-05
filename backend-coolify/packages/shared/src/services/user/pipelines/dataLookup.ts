@@ -1,45 +1,87 @@
+import mongoose from "mongoose";
 import { FollowModel } from "@repo/database";
 
+export interface SocialLookupUser {
+  _id: string | mongoose.Types.ObjectId;
+  [key: string]: unknown;
+}
+
+export type EnrichedSocialUser<T extends SocialLookupUser> = T & {
+  isFollowing: boolean;
+  followsMe: boolean;
+};
+
 /**
- * Looks up other user related collect and Injects 'isFollowing' and 'followsMe' into user objects.
+ * Enriches user record objects with social relationship indicators relative to a viewer.
  */
-export const userSocialLookup = async (
-  users: any | any[],
-  viewerId?: string,
-): Promise<any | any[]> => {
-  if (!viewerId) return users;
+export const userSocialLookup = async <
+  T extends SocialLookupUser | SocialLookupUser[],
+>(
+  users: T,
+  viewerId?: string | mongoose.Types.ObjectId,
+): Promise<
+  T extends Array<infer U extends SocialLookupUser>
+    ? EnrichedSocialUser<U>[]
+    : T extends SocialLookupUser
+      ? EnrichedSocialUser<T>
+      : never
+> => {
+  if (!viewerId || !users) {
+    const defaultTransform = (
+      item: SocialLookupUser,
+    ): EnrichedSocialUser<SocialLookupUser> => ({
+      ...item,
+      isFollowing: false,
+      followsMe: false,
+    });
 
-  const isArray = Array.isArray(users);
-  const userList = isArray ? users : [users];
-  const userIds = userList.map((u) => u._id);
+    return (
+      Array.isArray(users)
+        ? users.map(defaultTransform)
+        : defaultTransform(users as SocialLookupUser)
+    ) as never;
+  }
 
-  // Perform two indexed queries to find all relationships in one go
+  const isInputArray = Array.isArray(users);
+  const userList: SocialLookupUser[] = isInputArray
+    ? (users as SocialLookupUser[])
+    : [users as SocialLookupUser];
+
+  if (userList.length === 0) {
+    return (isInputArray ? [] : {}) as never;
+  }
+
+  const targetUserIds = userList.map((user) => user._id);
+  const normalizedViewerId = new mongoose.Types.ObjectId(String(viewerId));
+
   const [followingDocs, followerDocs] = await Promise.all([
-    // Does the viewer follow these users?
     FollowModel.find({
-      followerId: viewerId,
-      followingId: { $in: userIds },
+      followerId: normalizedViewerId,
+      followingId: { $in: targetUserIds },
     })
       .select("followingId")
       .lean(),
 
-    // Do these users follow the viewer?
     FollowModel.find({
-      followerId: { $in: userIds },
-      followingId: viewerId,
+      followerId: { $in: targetUserIds },
+      followingId: normalizedViewerId,
     })
       .select("followerId")
       .lean(),
   ]);
 
-  const followingSet = new Set(followingDocs.map((d) => String(d.followingId)));
-  const followersSet = new Set(followerDocs.map((d) => String(d.followerId)));
+  const followingSet = new Set(
+    followingDocs.map((doc) => String(doc.followingId)),
+  );
+  const followersSet = new Set(
+    followerDocs.map((doc) => String(doc.followerId)),
+  );
 
-  const decorated = userList.map((user) => ({
+  const decoratedUsers = userList.map((user) => ({
     ...user,
     isFollowing: followingSet.has(String(user._id)),
     followsMe: followersSet.has(String(user._id)),
   }));
 
-  return isArray ? decorated : decorated[0];
+  return (isInputArray ? decoratedUsers : decoratedUsers[0]) as never;
 };

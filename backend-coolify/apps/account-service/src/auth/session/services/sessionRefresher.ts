@@ -1,5 +1,5 @@
 import { authTokens } from "@/envVars";
-import { IUserDocument, UserModel } from "@repo/database";
+import { IUserDocument } from "@repo/database";
 import { signAccessJwt } from "@repo/security";
 import {
   CACHE_KEYS,
@@ -12,6 +12,7 @@ import {
   CACHE_EXPIRY,
   existsInCache,
   getCache,
+  fetchSingleUser,
 } from "@repo/shared";
 import jwt from "jsonwebtoken";
 
@@ -56,7 +57,11 @@ export const executeSessionRefresh = async (
       };
     }
 
-    const user = await UserModel.findById(payload.id);
+    const user = await fetchSingleUser({
+      identifier: payload.id,
+      flags: { lean: false },
+    });
+    //const user = await UserModel.findById(payload.id);
     if (!user) {
       return {
         status: "USER_NOT_FOUND",

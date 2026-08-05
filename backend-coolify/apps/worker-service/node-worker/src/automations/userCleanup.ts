@@ -1,6 +1,9 @@
 import { s3Config } from "@/envVars";
-import { UserModel } from "@repo/database";
-import { executeAccountDeletion, switchAccountStatus } from "@repo/shared";
+import {
+  executeAccountDeletion,
+  fetchManyUsers,
+  switchAccountStatus,
+} from "@repo/shared";
 import cron from "node-cron";
 
 /**
@@ -22,12 +25,14 @@ export const initUserInactivityCleanup = () => {
 
       // --- PHASE 1: ACTIVE TO INACTIVE TRANSITIONS ---
       // Fetch users who are currently ACTIVE but haven't interacted with the platform in over 3 months
-      const inactiveEligibleUsers = await UserModel.find({
-        accountStatus: "ACTIVE",
-        lastActiveAt: { $lte: threeMonthsAgo },
-      })
-        .select("_id")
-        .lean();
+      const inactiveEligibleUsers = await fetchManyUsers({
+        query: {
+          accountStatus: "ACTIVE",
+          lastActiveAt: { $lte: threeMonthsAgo },
+        },
+        select: ["_id"],
+        flags: { lean: true, skipFilter: true },
+      });
 
       if (inactiveEligibleUsers.length > 0) {
         console.log(
@@ -36,9 +41,10 @@ export const initUserInactivityCleanup = () => {
 
         await Promise.all(
           inactiveEligibleUsers.map(async (user) => {
+            const targetUserId = user._id.toString();
             try {
               await switchAccountStatus({
-                targetUserId: user._id.toString(),
+                targetUserId,
                 targetStatus: "INACTIVE",
                 reason:
                   "Automated transition due to 3 months of account inactivity",
@@ -54,25 +60,29 @@ export const initUserInactivityCleanup = () => {
           }),
         );
       }
+
       // --- PHASE 2: INACTIVE TO DEACTIVATED TRANSITIONS ---
       // Fetch users who have remained in an INACTIVE status for more than 6 months
-      const deactivationEligibleUsers = await UserModel.find({
-        accountStatus: "INACTIVE",
-        statusChangedAt: { $lte: sixMonthsAgo },
-      })
-        .select("_id")
-        .lean();
+      const inactiveUsers = await fetchManyUsers({
+        query: {
+          accountStatus: "INACTIVE",
+          statusChangedAt: { $lte: sixMonthsAgo },
+        },
+        select: ["_id"],
+        flags: { lean: true, skipFilter: true },
+      });
 
-      if (deactivationEligibleUsers.length > 0) {
+      if (inactiveUsers.length > 0) {
         console.log(
-          `Found ${deactivationEligibleUsers.length} inactive entries stagnant for 6+ months. Updating to DEACTIVATED...`,
+          `Found ${inactiveUsers.length} inactive entries stagnant for 6+ months. Updating to DEACTIVATED...`,
         );
 
         await Promise.all(
-          deactivationEligibleUsers.map(async (user) => {
+          inactiveUsers.map(async (user) => {
+            const targetUserId = user._id.toString();
             try {
               await switchAccountStatus({
-                targetUserId: user._id.toString(),
+                targetUserId,
                 targetStatus: "DEACTIVATED",
                 reason:
                   "Automated transition due to remaining in an inactive state for 6 months",
@@ -88,6 +98,7 @@ export const initUserInactivityCleanup = () => {
           }),
         );
       }
+
       console.log(
         "User account inactivity lifecycle routine completed successfully.",
       );
@@ -109,15 +120,17 @@ export const initUserDeactivatedCleanup = () => {
     console.log("Cleaning up expired user accounts...");
     try {
       const threeMonthsAgo = new Date();
-      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3); // 3 months
+      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
       // Fetch users who have remained deactivated for longer than 3 months
-      const expiredUsers = await UserModel.find({
-        accountStatus: "DEACTIVATED",
-        deactivatedAt: { $lte: threeMonthsAgo },
-      })
-        .select("_id")
-        .lean();
+      const expiredUsers = await fetchManyUsers({
+        query: {
+          accountStatus: "DEACTIVATED",
+          deactivatedAt: { $lte: threeMonthsAgo },
+        },
+        select: ["_id"],
+        flags: { lean: true, skipFilter: true },
+      });
 
       if (expiredUsers.length === 0) {
         console.log("No expired deactivated accounts found for cleanup.");

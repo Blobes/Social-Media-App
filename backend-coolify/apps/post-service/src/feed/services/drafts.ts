@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { GistModel, PostStatus, PostVisibility } from "@repo/database";
+import { GistModel, PostVisibility } from "@repo/database";
 import { getStaticPostList, MESSAGES_REGISTRY, TransInfo } from "@repo/shared";
 
 export interface GetUserDraftPostsInput {

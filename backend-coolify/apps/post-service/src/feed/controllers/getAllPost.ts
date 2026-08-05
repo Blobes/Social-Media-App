@@ -20,7 +20,6 @@ export const getAllPost = async (
       userId,
       page,
       limit,
-      userContext: req.user,
     });
 
     return res.status(200).json({

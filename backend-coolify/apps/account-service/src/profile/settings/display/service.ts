@@ -1,10 +1,5 @@
 import { UserSettingsModel } from "@repo/database";
-import {
-  CACHE_KEYS,
-  invalidatePattern,
-  UserSettingsResult,
-  MESSAGES_REGISTRY,
-} from "@repo/shared";
+import { UserSettingsResult, MESSAGES_REGISTRY } from "@repo/shared";
 import { ClientSession } from "mongoose";
 
 export interface DisplaySettingsInput {
@@ -28,7 +23,7 @@ export interface DisplaySettingsInput {
 /**
  * Updates UI, accessibility, and localization display options.
  */
-export const updateDisplaySettings = async (
+export const executeDisplaySettingsUpdate = async (
   input: DisplaySettingsInput,
 ): Promise<UserSettingsResult> => {
   const {
@@ -50,41 +45,40 @@ export const updateDisplaySettings = async (
   const updateOps: Record<string, unknown> = {};
 
   if (theme) {
-    updateOps["displayAndApp.theme"] = theme;
+    updateOps["display.theme"] = theme;
   }
 
   if (typeof showSensitiveMedia === "boolean") {
-    updateOps["displayAndApp.showSensitiveMedia"] = showSensitiveMedia;
+    updateOps["display.showSensitiveMedia"] = showSensitiveMedia;
   }
 
   if (accessibility) {
     if (typeof accessibility.reduceMotion === "boolean") {
-      updateOps["displayAndApp.accessibility.reduceMotion"] =
+      updateOps["display.accessibility.reduceMotion"] =
         accessibility.reduceMotion;
     }
     if (typeof accessibility.highContrast === "boolean") {
-      updateOps["displayAndApp.accessibility.highContrast"] =
+      updateOps["display.accessibility.highContrast"] =
         accessibility.highContrast;
     }
     if (typeof accessibility.fontScale === "number") {
-      updateOps["displayAndApp.accessibility.fontScale"] =
-        accessibility.fontScale;
+      updateOps["display.accessibility.fontScale"] = accessibility.fontScale;
     }
     if (accessibility.autoPlayMedia) {
-      updateOps["displayAndApp.accessibility.autoPlayMedia"] =
+      updateOps["display.accessibility.autoPlayMedia"] =
         accessibility.autoPlayMedia;
     }
   }
 
   if (localization) {
     if (localization.language) {
-      updateOps["displayAndApp.localization.language"] = localization.language;
+      updateOps["display.localization.language"] = localization.language;
     }
     if (localization.region) {
-      updateOps["displayAndApp.localization.region"] = localization.region;
+      updateOps["display.localization.region"] = localization.region;
     }
     if (localization.currency) {
-      updateOps["displayAndApp.localization.currency"] = localization.currency;
+      updateOps["display.localization.currency"] = localization.currency;
     }
   }
 
@@ -101,11 +95,9 @@ export const updateDisplaySettings = async (
     { new: true, upsert: true, runValidators: true, session },
   )
     .select(
-      "displayAndApp.theme displayAndApp.showSensitiveMedia displayAndApp.accessibility displayAndApp.localization",
+      "display.theme display.showSensitiveMedia display.accessibility display.localization",
     )
     .lean();
-
-  await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
 
   return {
     status: "SUCCESS",

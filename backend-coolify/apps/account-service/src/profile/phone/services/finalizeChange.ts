@@ -1,11 +1,9 @@
-import { UserModel } from "@repo/database";
 import {
   hashCode,
   cleanDeviceSessions,
-  invalidateCache,
-  CACHE_KEYS,
   TransInfo,
   MESSAGES_REGISTRY,
+  fetchSingleUser,
 } from "@repo/shared";
 
 interface IPhoneChangeInput {
@@ -31,7 +29,13 @@ export const executePhoneChange = async (
 ): Promise<IPhoneChnageResult> => {
   const { userId, currentDeviceId, code } = input;
 
-  const user = await UserModel.findById(userId);
+  //  const user = await UserModel.findById(userId);
+  const user = await fetchSingleUser({
+    identifier: userId,
+    flags: {
+      lean: false,
+    },
+  });
   if (!user || !user.pendingPhoneNumber) {
     return {
       status: "NOT_FOUND",
@@ -71,8 +75,6 @@ export const executePhoneChange = async (
 
   const isCurrentDevicePrimary =
     currentDeviceId === user.primaryDeviceId?.toString();
-
-  await invalidateCache(CACHE_KEYS.USER_PROFILE(userId));
 
   return {
     status: "SUCCESS",

@@ -145,7 +145,11 @@ export const executeCreateGist = async (
     moderationTaskMode: modTaskMode,
   };
 
-  await enqueueModerationTask("moderate:post", moderationData, {}, redisUrl);
+  await enqueueModerationTask({
+    typename: "moderate:post",
+    payload: moderationData,
+    redisUrl,
+  });
 
   const completionMessage = skipModeration
     ? MESSAGES_REGISTRY.POST.POST_TOPICS_EXTRACTING

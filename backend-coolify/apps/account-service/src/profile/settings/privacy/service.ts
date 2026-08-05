@@ -1,10 +1,5 @@
 import { UserSettingsModel } from "@repo/database";
-import {
-  CACHE_KEYS,
-  invalidatePattern,
-  UserSettingsResult,
-  MESSAGES_REGISTRY,
-} from "@repo/shared";
+import { UserSettingsResult, MESSAGES_REGISTRY } from "@repo/shared";
 import { ClientSession } from "mongoose";
 
 export interface PrivacySettingsInput {
@@ -23,7 +18,7 @@ export interface PrivacySettingsInput {
 /**
  * Updates user privacy configurations atomically without overwriting adjacent fields.
  */
-export const updatePrivacySettings = async (
+export const executeUpdatePrivacySettings = async (
   input: PrivacySettingsInput,
 ): Promise<UserSettingsResult> => {
   const {
@@ -85,8 +80,6 @@ export const updatePrivacySettings = async (
   )
     .select("privacy")
     .lean();
-
-  await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
 
   return {
     status: "SUCCESS",

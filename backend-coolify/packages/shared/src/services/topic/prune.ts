@@ -1,6 +1,7 @@
 import { TopicModel } from "@repo/database";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { TransInfo } from "../../types";
+import { INVALIDATE_CACHE } from "../../constants/invalidators";
 
 export interface PruneUnusedTopicsResult {
   status: "SUCCESS" | "SERVER_ERROR";
@@ -24,6 +25,9 @@ export const pruneDeadTopics = async (): Promise<PruneUnusedTopicsResult> => {
 
     // Execute the bulk deletion globally across the collection using the defined conditions
     const result = await TopicModel.deleteMany(query);
+
+    // Invalidate topics lookup cache
+    await INVALIDATE_CACHE.forTopics();
 
     return {
       status: "SUCCESS",

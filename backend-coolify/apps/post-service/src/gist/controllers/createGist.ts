@@ -7,7 +7,7 @@ import {
 } from "@repo/shared";
 import { IMedia } from "@repo/database";
 import { FUNSTAKES_REDIS_URL, s3Config } from "@/envVars";
-import { executeCreateGist } from "../services/create";
+import { executeCreateGist } from "../services/createGist";
 
 export interface CreateRequest extends IAuthRequest {
   body: {

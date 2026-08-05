@@ -1,11 +1,11 @@
 import { NextFunction, Response } from "express";
 import { IAuthRequest, MESSAGES_REGISTRY, forwardError } from "@repo/shared";
-import { updatePrivacySettings } from "./service";
+import { executeUpdatePrivacySettings } from "./service";
 
 /**
  * Controller endpoint to modify user privacy configurations.
  */
-export const privacySettingsController = async (
+export const updatePrivacySettings = async (
   req: IAuthRequest,
   res: Response,
   next: NextFunction,
@@ -29,7 +29,7 @@ export const privacySettingsController = async (
   } = req.body;
 
   try {
-    const serviceResult = await updatePrivacySettings({
+    const serviceResult = await executeUpdatePrivacySettings({
       userId,
       isPrivateAccount,
       discoverability,

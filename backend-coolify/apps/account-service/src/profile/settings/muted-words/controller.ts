@@ -1,11 +1,11 @@
 import { NextFunction, Response } from "express";
 import { IAuthRequest, MESSAGES_REGISTRY, forwardError } from "@repo/shared";
-import { addMutedWords, removeMutedWords } from "./service";
+import { executeAddMutedWords, removeMutedWords } from "./service";
 
 /**
  * Controller endpoint to add words to the user's content mute filter.
  */
-export const addMutedWordsHandler = async (
+export const addMutedWords = async (
   req: IAuthRequest,
   res: Response,
   next: NextFunction,
@@ -32,7 +32,7 @@ export const addMutedWordsHandler = async (
   }
 
   try {
-    const serviceResult = await addMutedWords({ userId, words });
+    const serviceResult = await executeAddMutedWords({ userId, words });
 
     if (serviceResult.status === "INVALID_INPUT") {
       res.status(400).json({

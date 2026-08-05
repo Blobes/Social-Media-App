@@ -85,8 +85,8 @@ export interface IUserDocument extends Document {
   address?: string | null; // Provided by user
 
   // --- PROFILE ASSETS ---
-  profileImage?: string | null;
-  coverImage?: string | null;
+  profileImage?: Types.ObjectId | null;
+  coverImage?: Types.ObjectId | null;
 
   // --- ONBOARDING & GEOGRAPHY ---
   isOnboarded?: boolean;

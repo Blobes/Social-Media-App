@@ -11,7 +11,7 @@ export const getFollowers = async (
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
-  const targetUserId = req.params.id as string;
+  const targetUserId = req.params?.id as string;
   const authUserId = req.user?.id;
 
   // Fail fast on invalid ID formats

@@ -1,13 +1,16 @@
 import { authTokens } from "@/envVars";
 import {
-  AccountStatus,
+  ILocation,
   IUserDocument,
   ModerationDecision,
   UserModel,
 } from "@repo/database";
 import {
+  fetchSingleUser,
   getAccountStatusMsg,
+  getLocationFromIp,
   MESSAGES_REGISTRY,
+  sanitizeUserResult,
   toJwtUser,
   TransInfo,
   upsertDevice,
@@ -50,7 +53,7 @@ interface IOAuthAuthResult {
   transInfo?: TransInfo;
   accessToken?: string;
   refreshToken?: string;
-  payload?: any;
+  payload?: unknown;
 }
 
 /**
@@ -90,6 +93,7 @@ export const authenticateWithOAuth = async (
     purpose,
   });
   const accountStatus = checkResult.payload?.accountStatus;
+
   // ── REGISTRATION PURPOSE PIPELINE ──────────────────────────────────────────
   if (purpose === "REGISTRATION") {
     if (checkResult.isExisting) {
@@ -98,7 +102,7 @@ export const authenticateWithOAuth = async (
         accountStatus === "SUSPENDED" ||
         accountStatus === "BANNED"
       ) {
-        const restrictionMsg = getAccountStatusMsg(accountStatus, "restricted");
+        const restrictionMsg = getAccountStatusMsg(accountStatus, "RESTRICTED");
         return restrictionMsg;
       }
 
@@ -108,6 +112,18 @@ export const authenticateWithOAuth = async (
       };
     }
 
+    const geoData = await getLocationFromIp(ipAddress);
+    const location = geoData
+      ? ({
+          name: `${geoData.city}, ${geoData.state}, ${geoData.country}`,
+          city: geoData.city,
+          state: geoData.state,
+          country: geoData.country,
+          type: "Point" as const,
+          coordinates: [Number(geoData.longitude), Number(geoData.latitude)],
+        } as ILocation)
+      : undefined;
+
     const newUser: IUserDocument = new UserModel({
       email: profile.email,
       oAuthId: profile.providerId,
@@ -115,6 +131,7 @@ export const authenticateWithOAuth = async (
       firstName: profile.firstName || "",
       lastName: profile.lastName || "",
       isEmailVerified: true,
+      location,
       lastActiveAt: new Date(),
     });
     await newUser.save();
@@ -136,9 +153,9 @@ export const authenticateWithOAuth = async (
       ipAddress,
     );
 
-    const safeData = newUser.toJSON();
+    const safeData = newUser.toJSON() as Record<string, unknown>;
     userSensitiveFields().forEach((field) => {
-      delete (safeData as any)[field];
+      delete safeData[field];
     });
 
     return {
@@ -163,15 +180,14 @@ export const authenticateWithOAuth = async (
     accountStatus === "SUSPENDED" ||
     accountStatus === "BANNED"
   ) {
-    const restrictionMsg = getAccountStatusMsg(accountStatus, "restricted");
+    const restrictionMsg = getAccountStatusMsg(accountStatus, "RESTRICTED");
     return restrictionMsg;
   }
 
-  const user = await UserModel.findById(checkResult.payload?.userId).setOptions(
-    {
-      skipFilter: true,
-    },
-  );
+  const user = await fetchSingleUser({
+    identifier: checkResult.payload?.userId,
+    flags: { lean: false, skipFilter: true },
+  });
 
   if (!user) {
     throw new Error("USER_NOT_FOUND");
@@ -213,10 +229,11 @@ export const authenticateWithOAuth = async (
     ipAddress,
   );
 
-  const safeData = user.toObject();
-  userSensitiveFields().forEach((field) => {
-    delete (safeData as any)[field];
-  });
+  const safeData = sanitizeUserResult(user, userSensitiveFields());
+  // user.toObject() as Record<string, unknown>;
+  // userSensitiveFields().forEach((field) => {
+  //   delete safeData[field];
+  // });
 
   return {
     status: "SUCCESS",

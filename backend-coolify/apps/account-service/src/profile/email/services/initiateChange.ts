@@ -1,14 +1,13 @@
-import { UserModel } from "@repo/database";
 import { FUNSTAKES_REDIS_URL } from "@/envVars";
 import {
   evaluateNotability,
   genVerificationCode,
   hashCode,
-  CACHE_KEYS,
-  invalidatePattern,
   enqueueOtpTask,
   TransInfo,
   MESSAGES_REGISTRY,
+  fetchSingleUser,
+  checkUserExists,
 } from "@repo/shared";
 import { verifyEncryptedPass } from "@/auth/helpers/encrypt";
 
@@ -32,7 +31,7 @@ interface IInitiateEmailChangeResult {
   transInfo: TransInfo;
   daysRemaining?: number;
   secondsToWait?: number;
-  payload?: any;
+  payload?: unknown;
 }
 
 /**
@@ -46,7 +45,11 @@ export const startEmailChange = async (
   const ALLOWED_NO_OF_DAYS = 30 * 24 * 60 * 60 * 1000;
   const EMAIL_COOLDOWN = 60 * 1000;
 
-  const user = await UserModel.findById(userId).select("+password");
+  const user = await fetchSingleUser({
+    identifier: userId,
+    select: ["+password"],
+    flags: { lean: false, skipFilter: true },
+  });
   if (!user) {
     return {
       status: "NOT_FOUND",
@@ -122,10 +125,12 @@ export const startEmailChange = async (
   }
 
   // Scan database registry index records, bypassing global soft delete scoping rules
-  const existingEmailUser = await UserModel.findByEmail({
-    email: formattedEmail,
-    filter: { _id: { $ne: userId } },
-    options: { skipFilter: true },
+  const existingEmailUser = await checkUserExists({
+    query: {
+      email: formattedEmail,
+      _id: { $ne: userId },
+    },
+    flags: { skipFilter: true },
   });
 
   if (existingEmailUser) {
@@ -160,9 +165,6 @@ export const startEmailChange = async (
   };
 
   await user.save();
-
-  // Clear data lookup endpoints
-  await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
 
   // Forward code dispatch instructions to worker processors
   await enqueueOtpTask(

@@ -10,7 +10,7 @@ import {
 export interface EditGistInput {
   userId?: string;
   gistId: string;
-  content: string;
+  caption: string;
   redisUrl: string;
 }
 
@@ -32,9 +32,9 @@ export interface EditGistResult {
 export const executeEditGist = async (
   input: EditGistInput,
 ): Promise<EditGistResult> => {
-  const { userId, gistId, content, redisUrl } = input;
+  const { userId, gistId, caption, redisUrl } = input;
 
-  if (!content?.trim()) {
+  if (!caption?.trim()) {
     return {
       status: "CONTENT_REQUIRED",
       transInfo: MESSAGES_REGISTRY.POST.POST_MUST_CONTAIN_TEXT_OR_MEDIA("Gist"),
@@ -90,14 +90,18 @@ export const executeEditGist = async (
       postId: gist._id.toString(),
       postType: "GIST",
       userId: userId.toString(),
-      caption: content.trim(),
+      caption: caption.trim(),
       media: [],
       topics: gist.topics || [],
       moderationTaskMode: "MODERATE_AND_EXTRACT_KEYWORDS",
       event: "POST_UPDATE",
     };
 
-    await enqueueModerationTask(redisUrl, "moderate:post", moderationData);
+    await enqueueModerationTask({
+      typename: "moderate:post",
+      payload: moderationData,
+      redisUrl,
+    });
 
     await session.commitTransaction();
 

@@ -17,6 +17,7 @@ import { updateOnboarding } from "./registration/controllers/onboarding";
 import { oauthExchange } from "./oauth/oauthExchange";
 import { verifyTfaChallenge } from "./tfa-auth/verifyTFACode";
 import { initiateTFAChallenge } from "./tfa-auth/initiateTFA";
+import { autoInvalidateUserCache } from "@repo/shared";
 
 const router: Router = express.Router();
 
@@ -26,22 +27,40 @@ router.get("/", (req, res) => {
 });
 
 // --- DISCOVERY & AVAILABILITY ---
-// Public endpoints used during registration to check if data is unique
+// Public read/check endpoints (No cache invalidation needed)
 router.post("/check/email", checkEmail);
 router.post("/check/phone", checkPhone);
 router.post("/check/username", checkUsername);
 
 // --- ACCOUNT ONBOARDING ---
 router.post("/signup", createAccount);
-router.post("/onboarding", authenticate, updateOnboarding);
+router.post(
+  "/onboarding",
+  authenticate,
+  autoInvalidateUserCache("ACCOUNT_UPDATE"),
+  updateOnboarding,
+);
 
 // --- OAUTH ---
-router.post("/oauth-exchange", oauthExchange);
+router.post(
+  "/oauth-exchange",
+  autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
+  oauthExchange,
+);
 
 // --- SESSION MANAGEMENT ---
-router.post("/session/login", loginUser);
+router.post(
+  "/session/login",
+  autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
+  loginUser,
+);
 router.post("/session/refresh", refreshSession);
-router.post("/session/logout", authenticate, logoutUser);
+router.post(
+  "/session/logout",
+  authenticate,
+  autoInvalidateUserCache("SESSIONS_REVOKE_ALL"),
+  logoutUser,
+);
 router.get("/session/verify", authenticate, verifySession);
 
 // --- CODE VERIFICATION ---
@@ -51,8 +70,18 @@ router.post("/tfa/initiate", optionallyAuthenicate, initiateTFAChallenge);
 router.post("/tfa/verify-token", optionallyAuthenicate, verifyTfaChallenge);
 
 // --- DEVICE MANAGEMENT ---
-router.get("/devices", getDevices);
-router.delete("/devices/:id", removeDevice);
-router.patch("/devices/:id/primary", setPrimaryDevice);
+router.get("/devices", authenticate, getDevices);
+router.delete(
+  "/devices/:id",
+  authenticate,
+  autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
+  removeDevice,
+);
+router.patch(
+  "/devices/:id/primary",
+  authenticate,
+  autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
+  setPrimaryDevice,
+);
 
 export default router;

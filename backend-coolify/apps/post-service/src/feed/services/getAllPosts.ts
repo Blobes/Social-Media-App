@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
-import { GistModel, PostStatus } from "@repo/database";
+import { GistModel } from "@repo/database";
 import {
-  getStaticPostList,
-  getOrSetCache,
+  getCandidatePostPipeline,
   getPostSocialData,
   getUserPreferences,
-  personalizeFeed,
-  CACHE_KEYS,
   MESSAGES_REGISTRY,
   TransInfo,
+  CACHE_KEYS,
+  CACHE_EXPIRY,
+  getCacheSortedSet,
+  setCacheSortedSet,
+  applyFeedDiversityRules,
 } from "@repo/shared";
 import { hydrateSocialState } from "../syncPost";
 
@@ -16,13 +18,12 @@ export interface GetAllPostInput {
   userId?: string;
   page: number;
   limit: number;
-  userContext: any;
 }
 
 export interface GetAllPostResult {
   status: "SUCCESS";
   transInfo: TransInfo;
-  payload: any[];
+  payload: unknown[];
   meta: {
     totalDocs: number;
     totalPages: number;
@@ -33,64 +34,96 @@ export interface GetAllPostResult {
 }
 
 /**
- * Handles global feed aggregation pipeline, handling multi-tier static caching, user blocklist filtering, and multi-collection social state hydration.
+ * Handles feed retrieval using CacheService ZSET candidate indices, DB heuristics, and diversity re-ranking.
  */
 export const executeGetAllPost = async (
   input: GetAllPostInput,
 ): Promise<GetAllPostResult> => {
-  const { userId, page, limit, userContext } = input;
+  const { userId, page, limit } = input;
   const skip = (page - 1) * limit;
 
-  const globalCacheKey = CACHE_KEYS.GLOBAL_FEED(page, limit);
+  let candidatePosts: Record<string, unknown>[] = [];
 
-  const { staticPosts, totalCount } = await getOrSetCache(
-    globalCacheKey,
-    async () => {
-      const matchFilter = { status: "PUBLISHED" as PostStatus };
-      const total = await GistModel.countDocuments(matchFilter);
-
-      const pipeline = getStaticPostList({
-        matchFilter,
-        limit,
-        skip,
-      });
-
-      const data = await GistModel.aggregate(pipeline);
-      return { staticPosts: data, totalCount: total };
-    },
-    600,
-  );
-
-  const totalPages = Math.ceil(totalCount / limit);
-
-  if (!staticPosts || staticPosts.length === 0) {
-    return {
-      status: "SUCCESS",
-      transInfo: MESSAGES_REGISTRY.POST.GLOBAL_FEED_FETCHED_SUCCESSFULLY,
-      payload: [],
-      meta: {
-        totalDocs: totalCount,
-        totalPages,
-        currentPage: page,
-        limit,
-        hasNextPage: false,
-      },
-    };
-  }
-
-  let candidatePosts = staticPosts.slice(0, limit);
-  let socialMap = new Map();
-
-  if (userId && candidatePosts.length > 0) {
-    const userPreferences = await getUserPreferences(userId, userContext);
-
-    candidatePosts = personalizeFeed(staticPosts, userPreferences).slice(
-      0,
-      limit,
+  // Step 1: Read Candidate Index from Redis ZSET via CacheService
+  if (userId) {
+    const userFeedCacheKey = CACHE_KEYS.USER_FEED(userId);
+    const cachedPostIds = await getCacheSortedSet(
+      userFeedCacheKey,
+      skip,
+      skip + limit - 1,
     );
 
+    if (cachedPostIds.length > 0) {
+      const objectIds = cachedPostIds.map(
+        (id) => new mongoose.Types.ObjectId(id),
+      );
+
+      // Hydrate posts matching the cached order
+      candidatePosts = await GistModel.aggregate([
+        { $match: { _id: { $in: objectIds } } },
+        {
+          $addFields: {
+            __order: { $indexOfArray: [cachedPostIds, { $toString: "$_id" }] },
+          },
+        },
+        { $sort: { __order: 1 } },
+      ]);
+    }
+  }
+
+  // Step 2: Fallback to MongoDB Candidate Pipeline on Cache Miss
+  if (candidatePosts.length === 0) {
+    const userPrefs = userId ? await getUserPreferences(userId) : null;
+
+    // Fetch a candidate buffer (e.g. 100 items) to populate the ZSET index
+    const fetchLimit = userId ? 100 : limit;
+    const candidatePipeline = getCandidatePostPipeline({
+      userPrefs,
+      limit: fetchLimit,
+      skip: 0,
+    });
+
+    const rawCandidates = await GistModel.aggregate(candidatePipeline);
+
+    if (!rawCandidates || rawCandidates.length === 0) {
+      return {
+        status: "SUCCESS",
+        transInfo: MESSAGES_REGISTRY.POST.GLOBAL_FEED_FETCHED_SUCCESSFULLY,
+        payload: [],
+        meta: {
+          totalDocs: 0,
+          totalPages: 0,
+          currentPage: page,
+          limit,
+          hasNextPage: false,
+        },
+      };
+    }
+
+    // Step 3: Populate Redis ZSET Candidate Cache
+    if (userId) {
+      const scoredItems = rawCandidates.map(
+        (post: Record<string, unknown>) => ({
+          member: String(post._id),
+          score: (post.heuristicScore as number) || 0,
+        }),
+      );
+
+      await setCacheSortedSet(
+        CACHE_KEYS.USER_FEED(userId),
+        scoredItems,
+        CACHE_EXPIRY.MIN_20,
+      );
+    }
+
+    candidatePosts = rawCandidates.slice(skip, skip + limit);
+  }
+
+  // Step 4: Hydrate User Social Data (Likes, Follows)
+  let socialMap = new Map<string, Record<string, unknown>>();
+  if (userId && candidatePosts.length > 0) {
     const postIdsObjects = candidatePosts.map(
-      (p: any) => new mongoose.Types.ObjectId(String(p._id)),
+      (p) => new mongoose.Types.ObjectId(String(p._id)),
     );
 
     const socialData = await GistModel.aggregate([
@@ -105,26 +138,30 @@ export const executeGetAllPost = async (
           ],
         },
       },
-      { $sort: { __order: 1 } },
-      ...getPostSocialData({ userId: String(userId) }),
+      ...getPostSocialData({ userId }),
     ]);
 
     socialMap = new Map(socialData.map((s) => [String(s._id), s]));
   }
 
-  const finalPayload = hydrateSocialState(candidatePosts, socialMap);
-  const hasNextPage = page < totalPages;
+  // Step 5: Final Hydration & Author Diversity Rules
+  const hydratedPosts = hydrateSocialState(candidatePosts, socialMap);
+  const finalPayload = applyFeedDiversityRules(hydratedPosts, {
+    maxConsecutiveByAuthor: 2,
+  });
+
+  const estimatedTotal = 100;
 
   return {
     status: "SUCCESS",
     transInfo: MESSAGES_REGISTRY.POST.GLOBAL_FEED_FETCHED_SUCCESSFULLY,
     payload: finalPayload,
     meta: {
-      totalDocs: totalCount,
-      totalPages,
+      totalDocs: estimatedTotal,
+      totalPages: Math.ceil(estimatedTotal / limit),
       currentPage: page,
       limit,
-      hasNextPage,
+      hasNextPage: finalPayload.length === limit,
     },
   };
 };

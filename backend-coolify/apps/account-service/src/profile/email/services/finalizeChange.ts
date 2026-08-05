@@ -1,11 +1,9 @@
-import { UserModel } from "@repo/database";
 import {
   hashCode,
-  CACHE_KEYS,
-  invalidatePattern,
   cleanDeviceSessions,
   TransInfo,
   MESSAGES_REGISTRY,
+  fetchSingleUser,
 } from "@repo/shared";
 
 interface IEmailChangeInput {
@@ -36,7 +34,11 @@ export const executeEmailChange = async (
 ): Promise<IEmailChangeResult> => {
   const { userId, currentDeviceId, code } = input;
 
-  const user = await UserModel.findById(userId);
+  // const user = await UserModel.findById(userId);
+  const user = await fetchSingleUser({
+    identifier: userId,
+    flags: { lean: false },
+  });
   if (!user) {
     return {
       status: "NOT_FOUND",
@@ -92,8 +94,6 @@ export const executeEmailChange = async (
 
   const isCurrentDevicePrimary =
     currentDeviceId === user.primaryDeviceId?.toString();
-
-  await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(String(user._id)));
 
   return {
     status: "SUCCESS",

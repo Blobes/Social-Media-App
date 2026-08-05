@@ -1,5 +1,4 @@
 import { FUNSTAKES_REDIS_URL } from "@/envVars";
-import { UserModel } from "@repo/database";
 import {
   evaluateNotability,
   genVerificationCode,
@@ -7,6 +6,7 @@ import {
   enqueueOtpTask,
   TransInfo,
   MESSAGES_REGISTRY,
+  fetchSingleUser,
 } from "@repo/shared";
 
 interface IInitiatePhoneChangeInput {
@@ -38,7 +38,14 @@ export const startPhoneChange = async (
   const CHANGE_COOLDOWN = 90 * 24 * 60 * 60 * 1000;
   const SEND_COOLDOWN = 60 * 1000;
 
-  const user = await UserModel.findById(userId);
+  // const user = await UserModel.findById(userId);
+
+  const user = await fetchSingleUser({
+    identifier: userId,
+    flags: {
+      lean: false,
+    },
+  });
   if (!user) {
     return {
       status: "NOT_FOUND",
@@ -85,10 +92,19 @@ export const startPhoneChange = async (
   }
 
   // Cross-reference registry records across soft-delete criteria bounds
-  const existingPhoneUser = await UserModel.findByPhone({
-    phoneNumber: formattedPhone,
-    filter: { _id: { $ne: userId } },
-    options: { skipFilter: true },
+  // const existingPhoneUser = await UserModel.findByPhone({
+  //   phoneNumber: formattedPhone,
+  //   filter: { _id: { $ne: userId } },
+  //   options: { skipFilter: true },
+  // });
+  const existingPhoneUser = await fetchSingleUser({
+    identifier: formattedPhone,
+    query: { _id: { $ne: userId } },
+    flags: {
+      lean: false,
+      identifierType: "PHONE",
+      skipFilter: true,
+    },
   });
 
   if (existingPhoneUser) {

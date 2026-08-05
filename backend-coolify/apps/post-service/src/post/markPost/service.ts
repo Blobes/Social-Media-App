@@ -1,7 +1,5 @@
 import { GistModel, StakeModel, PostViewModel } from "@repo/database";
 import {
-  CACHE_KEYS,
-  invalidateCache,
   MESSAGES_REGISTRY,
   MsgPostType,
   PostType,
@@ -85,8 +83,6 @@ export const executeMarkPostAsSeen = async (
       },
       { new: true, lean: true },
     ).select("viewCount");
-
-    invalidateCache(CACHE_KEYS.POST(postType, postId));
 
     return {
       status: "SUCCESS_VIEW_RECORDED",

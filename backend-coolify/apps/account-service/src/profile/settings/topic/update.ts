@@ -2,21 +2,21 @@ import { NextFunction, Response } from "express";
 import {
   IAuthRequest,
   MESSAGES_REGISTRY,
-  UpdateUserTopicsParams,
-  executeUserTopicsUpdate,
+  UserTopicsParams,
+  executeUserTopicsSync,
   forwardError,
 } from "@repo/shared";
 
 /**
  * Controller endpoint to add or remove preferred topics from user preferences.
  */
-export const updateUserTopics = async (
+export const syncUserTopics = async (
   req: IAuthRequest,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   const userId = req.user?.id;
-  const { topics, mode, updateMetadata } = req.body as UpdateUserTopicsParams;
+  const { topics, mode, updateMetadata } = req.body as UserTopicsParams;
 
   if (!userId) {
     res.status(401).json({
@@ -28,7 +28,7 @@ export const updateUserTopics = async (
   }
 
   try {
-    const serviceResult = await executeUserTopicsUpdate({
+    const serviceResult = await executeUserTopicsSync({
       userId,
       topics,
       mode,

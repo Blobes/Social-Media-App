@@ -2,12 +2,11 @@ import mongoose from "mongoose";
 import { FollowModel, UserModel } from "@repo/database";
 import {
   getStaticUserList,
-  invalidateCache,
   userSensitiveFields,
   userSocialLookup,
-  CACHE_KEYS,
   TransInfo,
   MESSAGES_REGISTRY,
+  INVALIDATE_CACHE,
 } from "@repo/shared";
 
 interface IFollowUserInput {
@@ -32,8 +31,8 @@ export const toggleUserFollow = async (
 ): Promise<IFollowUserResult> => {
   const { currUserId, targetUserId } = input;
 
-  const followerId = new mongoose.Types.ObjectId(String(currUserId));
-  const followingId = new mongoose.Types.ObjectId(String(targetUserId));
+  const followerId = new mongoose.Types.ObjectId(currUserId);
+  const followingId = new mongoose.Types.ObjectId(targetUserId);
 
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -77,11 +76,8 @@ export const toggleUserFollow = async (
     await session.commitTransaction();
     session.endSession();
 
-    // Evict cached data vectors across matching profile entities
-    await Promise.all([
-      invalidateCache(CACHE_KEYS.USER_PROFILE(currUserId)),
-      invalidateCache(CACHE_KEYS.USER_PROFILE(targetUserId)),
-    ]);
+    // Evict cached data vectors across target user matching profile entities
+    await INVALIDATE_CACHE.forUser(targetUserId, "SOCIAL_RELATIONSHIP_UPDATE");
 
     // Pull refreshed records via normalized static lists aggregation pipelines
     const [rawCurrentUser, rawTargetUser] = await Promise.all([

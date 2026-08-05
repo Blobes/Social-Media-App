@@ -1,11 +1,6 @@
 import mongoose from "mongoose";
 import { GistLikeModel, GistModel } from "@repo/database";
-import {
-  CACHE_KEYS,
-  invalidateCache,
-  MESSAGES_REGISTRY,
-  TransInfo,
-} from "@repo/shared";
+import { MESSAGES_REGISTRY, TransInfo } from "@repo/shared";
 
 export interface GistLikeInput {
   gistId: string;
@@ -98,8 +93,6 @@ export const executeGistLike = async (
     }
 
     await session.commitTransaction();
-
-    invalidateCache(CACHE_KEYS.POST("GIST", gistId));
 
     const updatedGist = await GistModel.findById(gistId)
       .select("likeCount")

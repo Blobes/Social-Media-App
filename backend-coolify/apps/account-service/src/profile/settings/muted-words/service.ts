@@ -1,9 +1,4 @@
-import {
-  CACHE_KEYS,
-  invalidatePattern,
-  UserSettingsResult,
-  MESSAGES_REGISTRY,
-} from "@repo/shared";
+import { UserSettingsResult, MESSAGES_REGISTRY } from "@repo/shared";
 import { UserSettingsModel } from "@repo/database";
 
 export interface IMutedWordsInput {
@@ -14,7 +9,7 @@ export interface IMutedWordsInput {
 /**
  * Appends unique normalized phrases to the user's content mute list.
  */
-export const addMutedWords = async (
+export const executeAddMutedWords = async (
   input: IMutedWordsInput,
 ): Promise<UserSettingsResult> => {
   const { userId, words } = input;
@@ -34,15 +29,13 @@ export const addMutedWords = async (
     { userId },
     {
       $addToSet: {
-        "displayAndApp.contentPreferences.mutedWords": {
+        "display.contentPreferences.mutedWords": {
           $each: normalizedWords,
         },
       },
     },
     { new: true, upsert: true },
   );
-
-  await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
 
   return {
     status: "SUCCESS",
@@ -65,15 +58,13 @@ export const removeMutedWords = async (
     { userId },
     {
       $pull: {
-        "displayAndApp.contentPreferences.mutedWords": {
+        "display.contentPreferences.mutedWords": {
           $in: normalizedWords,
         },
       },
     },
     { new: true },
   );
-
-  await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
 
   return {
     status: "SUCCESS",

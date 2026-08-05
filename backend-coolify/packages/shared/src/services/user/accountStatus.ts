@@ -9,8 +9,8 @@ import {
 import { TransInfo } from "../../types";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { cleanDeviceSessions } from "../session";
-import { invalidatePattern } from "../redis/cache";
-import { CACHE_KEYS } from "../../constants/cacheKeys";
+import { INVALIDATE_CACHE } from "../../constants/invalidators";
+import { fetchSingleUser } from "./retrieval/fetchUser";
 
 export interface IStatusSwitchInput {
   targetUserId: string;
@@ -41,7 +41,11 @@ export const switchAccountStatus = async (
     suspensionExpiresAt = null,
   } = input;
 
-  const userProfile = await UserModel.findById(targetUserId);
+  //  const userProfile = await UserModel.findById(targetUserId);
+  const userProfile = await fetchSingleUser({
+    identifier: targetUserId,
+    flags: { lean: true, skipFilter: true },
+  });
 
   if (!userProfile) {
     return {
@@ -59,7 +63,7 @@ export const switchAccountStatus = async (
     };
   }
 
-  const updateFields: Record<string, any> = {
+  const updateFields: Record<string, unknown> = {
     accountStatus: targetStatus,
     statusChangedAt: new Date(),
     statusReason: reason,
@@ -93,23 +97,17 @@ export const switchAccountStatus = async (
   if (
     targetStatus === "DEACTIVATED" ||
     targetStatus === "SUSPENDED" ||
-    targetStatus === "BANNED"
+    targetStatus === "BANNED" ||
+    targetStatus === "INACTIVE"
   ) {
     await DeviceModel.updateMany(
       { userId: targetUserId },
       { $set: { isPrimary: false, isStale: true } },
     );
-
     await Promise.all([
       cleanDeviceSessions(targetUserId, undefined, { clearAll: true }),
-      invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(targetUserId)),
-      invalidatePattern(CACHE_KEYS.WILDCARD_USER_SESSIONS(targetUserId)),
     ]);
-  } else if (targetStatus === "ACTIVE") {
-    await Promise.all([
-      invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(targetUserId)),
-      invalidatePattern(CACHE_KEYS.WILDCARD_USER_SESSIONS(targetUserId)),
-    ]);
+    await INVALIDATE_CACHE.forUser(targetUserId, "CRITICAL_UPDATE");
   }
 
   return {

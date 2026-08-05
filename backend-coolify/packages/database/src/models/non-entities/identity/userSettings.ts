@@ -124,7 +124,6 @@ const UserSettingsSchema = new Schema<IUserSettingsDocument>(
  * 2. Partial index on `privacy.discoverability.recommendToOthers` optimizes background user recommendation engine jobs.
  * 3. Partial index on `notifications.quietMode.isEnabled` allows workers to efficiently process active quiet mode schedules during push delivery.
  */
-UserSettingsSchema.index({ userId: 1 }, { unique: true });
 
 UserSettingsSchema.index(
   { "privacy.discoverability.recommendToOthers": 1 },

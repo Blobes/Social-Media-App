@@ -1,11 +1,11 @@
 import { NextFunction, Response } from "express";
 import { IAuthRequest, MESSAGES_REGISTRY, forwardError } from "@repo/shared";
-import { updateDisplaySettings } from "./service";
+import { DisplaySettingsInput, executeDisplaySettingsUpdate } from "./service";
 
 /**
  * Controller endpoint to modify display preferences, accessibility, and localization.
  */
-export const displayAndAppSettingsController = async (
+export const updateDisplaySettings = async (
   req: IAuthRequest,
   res: Response,
   next: NextFunction,
@@ -21,10 +21,11 @@ export const displayAndAppSettingsController = async (
     return;
   }
 
-  const { theme, showSensitiveMedia, accessibility, localization } = req.body;
+  const { theme, showSensitiveMedia, accessibility, localization } =
+    req.body as DisplaySettingsInput;
 
   try {
-    const serviceResult = await updateDisplaySettings({
+    const serviceResult = await executeDisplaySettingsUpdate({
       userId,
       theme,
       showSensitiveMedia,

@@ -1,13 +1,14 @@
+import { IUsernameCanonical } from "@/auth/check/service";
 import { verifyEncryptedPass } from "@/auth/helpers/encrypt";
-import { UserModel } from "@repo/database";
 import {
   userSensitiveFields,
-  invalidatePattern,
-  CACHE_KEYS,
   TransInfo,
   MESSAGES_REGISTRY,
   transformToASCII,
   normalizeValue,
+  fetchSingleUser,
+  checkUserExists,
+  fetchManyUsers,
 } from "@repo/shared";
 
 interface IChangeUsernameInput {
@@ -27,7 +28,8 @@ interface IChangeUsernameResult {
     | "COOLDOWN_ACTIVE"
     | "USERNAME_TAKEN";
   transInfo: TransInfo;
-  payload?: any;
+  suggestions?: string[];
+  payload?: unknown;
 }
 
 /**
@@ -49,7 +51,12 @@ export const executeUsernameChange = async (
     };
   }
 
-  const user = await UserModel.findById(userId).select("+password");
+  const user = await fetchSingleUser({
+    identifier: userId,
+    select: ["+password"],
+    flags: { lean: false, skipFilter: true },
+  });
+
   if (!user) {
     return {
       status: "NOT_FOUND",
@@ -77,6 +84,7 @@ export const executeUsernameChange = async (
         transInfo: MESSAGES_REGISTRY.AUTH.NO_PASSWORD_SET,
       };
     }
+
     const isMatch = await verifyEncryptedPass(password, user.password);
     if (!isMatch) {
       return {
@@ -104,33 +112,64 @@ export const executeUsernameChange = async (
     }
   }
 
-  const usernameCanonical = transformToASCII(normalizedUsername);
-  const conflict = await UserModel.findOne({
-    usernameCanonical,
-    _id: { $ne: userId },
-  }).setOptions({ skipFilter: true });
+  const canonicalized = transformToASCII(normalizedUsername);
+  const isTaken = await checkUserExists({
+    query: {
+      usernameCanonical: canonicalized,
+      _id: { $ne: userId },
+    },
+    flags: { skipFilter: true },
+  });
 
-  if (conflict) {
+  if (isTaken) {
+    const suggestions: string[] = [];
+    const suggestionRegex = new RegExp(`^${canonicalized}\\d*$`, "i");
+
+    const takenDocs = await fetchManyUsers<IUsernameCanonical>({
+      query: { usernameCanonical: suggestionRegex },
+      select: ["usernameCanonical"],
+      limit: 100,
+      flags: { skipFilter: true, includeSensitiveFields: false },
+    });
+
+    const takenSet = new Set(
+      takenDocs
+        .map((u) => u.usernameCanonical)
+        .filter((name): name is string => typeof name === "string")
+        .map((name) => name.toLowerCase()),
+    );
+
+    let counter = 1;
+    while (suggestions.length < 5) {
+      const candidateSuffix = `${counter}`;
+      const candidateCanonical = `${canonicalized}${candidateSuffix}`;
+      if (!takenSet.has(candidateCanonical.toLowerCase())) {
+        const displayCandidate = `${normalizedUsername}${candidateSuffix}`;
+        suggestions.push(displayCandidate);
+      }
+      counter++;
+      if (counter > 100) break;
+    }
     return {
       status: "USERNAME_TAKEN",
       transInfo: MESSAGES_REGISTRY.PROFILE.USERNAME_TAKEN,
+      suggestions,
     };
   }
 
   user.username = normalizedUsername;
-  user.usernameCanonical = usernameCanonical;
+  user.usernameCanonical = canonicalized;
   user.lastUsernameChangeAt = new Date();
   await user.save();
 
-  // Clear runtime profile lookup layers
-  await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
-
-  const safePayload = user.toObject();
-  userSensitiveFields().forEach((field) => delete (safePayload as any)[field]);
+  // const safePayload = user.toObject() as Record<string, unknown>;
+  // userSensitiveFields().forEach((field) => {
+  //   delete safePayload[field];
+  // });
 
   return {
     status: "SUCCESS",
     transInfo: MESSAGES_REGISTRY.PROFILE.USERNAME_UPDATED_SUCCESSFULLY,
-    payload: safePayload,
+    payload: user,
   };
 };

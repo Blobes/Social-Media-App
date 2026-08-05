@@ -17,7 +17,6 @@ export const getGistList = async (
   try {
     const serviceResult = await executeGetGistList({
       userId,
-      userRawPayload: req.user,
       page,
       limit,
     });
@@ -38,5 +37,3 @@ export const getGistList = async (
     );
   }
 };
-
-//  invalidatePattern(CACHE_KEYS.WILDCARD_POST_FEED_TYPE("GIST"));

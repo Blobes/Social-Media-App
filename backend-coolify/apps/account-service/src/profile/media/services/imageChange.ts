@@ -1,13 +1,11 @@
-import { UserModel, IMedia } from "@repo/database";
+import mongoose from "mongoose";
+import { IMedia, IUserDocument } from "@repo/database";
 import {
   createMediaBatch,
-  userSensitiveFields,
-  invalidateCache,
-  CACHE_KEYS,
+  fetchSingleUser,
   TransInfo,
   MESSAGES_REGISTRY,
 } from "@repo/shared";
-import mongoose from "mongoose";
 
 export type UserImageType = "PROFILE" | "COVER";
 
@@ -23,7 +21,7 @@ interface IChangeUserImageResult {
   status: "SUCCESS" | "NOT_FOUND";
   transInfo?: TransInfo;
   payload?: {
-    user: any;
+    user: unknown;
     mediaId: mongoose.Types.ObjectId;
   };
 }
@@ -42,6 +40,16 @@ export const executeUserImageChange = async (
   session.startTransaction();
 
   try {
+    const user = await fetchSingleUser({
+      identifier: userId,
+      session,
+      flags: { lean: false },
+    });
+
+    if (!user) {
+      throw new Error("USER NOT FOUND");
+    }
+
     const mediaInput: IMedia[] = [
       {
         url,
@@ -61,30 +69,20 @@ export const executeUserImageChange = async (
     const newMediaId = savedMediaIds[0];
 
     // Determine target property to link created asset ID
-    const updateField =
-      imageType === "PROFILE"
-        ? { profileImage: newMediaId }
-        : { coverImage: newMediaId };
-
-    const updatedUser = await UserModel.findByIdAndUpdate(
-      userId,
-      { $set: updateField },
-      { new: true, session },
-    ).populate("profileImage coverImage");
-
-    if (!updatedUser) {
-      throw new Error("USER NOT FOUND");
+    if (imageType === "PROFILE") {
+      user.profileImage = newMediaId;
+    } else {
+      user.coverImage = newMediaId;
     }
 
+    await user.save({ session });
     await session.commitTransaction();
 
-    // Invalidate local profile lookup items only after commit blocks succeed
-    await invalidateCache(CACHE_KEYS.USER_PROFILE(userId));
-
-    // Clear protected credential information properties
-    const safePayload = updatedUser.toObject();
-    userSensitiveFields().forEach((field) => {
-      delete (safePayload as any)[field];
+    // Fetch lean sanitized profile snapshot directly through shared helper with populated media
+    const updatedLeanUser = await fetchSingleUser<IUserDocument>({
+      identifier: userId,
+      populate: ["profileImage", "coverImage"],
+      flags: { lean: true, includeSensitiveFields: false },
     });
 
     return {
@@ -93,13 +91,13 @@ export const executeUserImageChange = async (
         imageType === "PROFILE" ? "Profile" : "Cover",
       ),
       payload: {
-        user: safePayload,
+        user: updatedLeanUser,
         mediaId: newMediaId,
       },
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     await session.abortTransaction();
-    if (error.message === "USER NOT FOUND") {
+    if (error instanceof Error && error.message === "USER NOT FOUND") {
       return {
         status: "NOT_FOUND",
         transInfo: MESSAGES_REGISTRY.AUTH.USER_NOT_FOUND,

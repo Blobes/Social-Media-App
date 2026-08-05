@@ -10,7 +10,7 @@ export const gistLike = async (
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
-  const gistId = req.params.id as string;
+  const gistId = (req.params?.postId || req?.params?.id) as string;
   const userId = req.user?.id;
 
   try {

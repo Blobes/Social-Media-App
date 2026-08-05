@@ -1,12 +1,11 @@
-import { UserModel } from "@repo/database";
 import {
   CACHE_KEYS,
   ensurePrimaryDevice,
-  invalidateCache,
   MESSAGES_REGISTRY,
   TransInfo,
   setCache,
   getCache,
+  fetchSingleUser,
 } from "@repo/shared";
 
 export type OnboardingStep =
@@ -28,7 +27,7 @@ interface IOnboardingInput {
 interface IOnboardingResult {
   status: "SUCCESS" | "NOT_FOUND";
   transInfo?: TransInfo;
-  payload?: any;
+  payload?: unknown;
 }
 
 /**
@@ -39,7 +38,11 @@ export const syncOnboarding = async (
 ): Promise<IOnboardingResult> => {
   const { userId, sessionId, jwtDeviceId, onboardingStep, isOnboarded } = input;
 
-  const user = await UserModel.findById(userId);
+  const user = await fetchSingleUser({
+    identifier: userId,
+    flags: { lean: false, skipFilter: true },
+  });
+
   if (!user) {
     return {
       status: "NOT_FOUND",
@@ -61,7 +64,7 @@ export const syncOnboarding = async (
 
   // Refresh structural session state expiration parameters
   const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
-  const sessionData: any = await getCache(sessionKey);
+  const sessionData = await getCache<Record<string, unknown>>(sessionKey);
 
   await setCache(
     sessionKey,
@@ -71,9 +74,6 @@ export const syncOnboarding = async (
     },
     20 * 24 * 60 * 60,
   );
-
-  // Invalidate stale user queries
-  await invalidateCache(CACHE_KEYS.USER_PROFILE(userId));
 
   return {
     status: "SUCCESS",

@@ -1,4 +1,3 @@
-import { IUserDocument, UserModel } from "@repo/database";
 import {
   MESSAGES_REGISTRY,
   normalizeValue,
@@ -6,6 +5,7 @@ import {
   enqueueOtpTask,
   genVerificationCode,
   getAccountStatusMsg,
+  fetchSingleUser,
 } from "@repo/shared";
 
 const FUNSTAKES_REDIS_URL = process.env.FUNSTAKES_REDIS_URL || "";
@@ -42,19 +42,31 @@ export const executeResetInitiation = async (
   const formattedValue = normalizeValue(identifier);
   const isEmail = formattedValue.includes("@");
 
-  const user = isEmail
-    ? await UserModel.findByEmail({
-        email: formattedValue.toLowerCase(),
-        options: {
-          skipFilter: true,
-        },
-      })
-    : await UserModel.findByPhone({
-        phoneNumber: formattedValue.replace(/\D/g, ""),
-        options: {
-          skipFilter: true,
-        },
-      });
+  // const user = isEmail
+  //   ? await UserModel.findByEmail({
+  //       email: formattedValue.toLowerCase(),
+  //       options: {
+  //         skipFilter: true,
+  //       },
+  //     })
+  //   : await UserModel.findByPhone({
+  //       phoneNumber: formattedValue.replace(/\D/g, ""),
+  //       options: {
+  //         skipFilter: true,
+  //       },
+  //     });
+
+  const user = await fetchSingleUser({
+    identifier: isEmail
+      ? formattedValue.toLowerCase()
+      : formattedValue.replace(/\D/g, ""),
+    select: ["+password"],
+    flags: {
+      lean: false,
+      identifierType: isEmail ? "EMAIL" : "PHONE",
+      skipFilter: true,
+    },
+  });
 
   if (!user) {
     return {
@@ -73,7 +85,7 @@ export const executeResetInitiation = async (
     accountStatus === "SUSPENDED" ||
     accountStatus === "BANNED"
   ) {
-    const restrictionMsg = getAccountStatusMsg(accountStatus, "restricted");
+    const restrictionMsg = getAccountStatusMsg(accountStatus, "RESTRICTED");
     return {
       status: "RESTRICTION",
       transInfo: restrictionMsg.transInfo,

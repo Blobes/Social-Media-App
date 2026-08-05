@@ -1,18 +1,12 @@
 import { Response, NextFunction } from "express";
-import {
-  IAuthRequest,
-  MESSAGES_REGISTRY,
-  forwardError,
-  MsgPostType,
-  PostType,
-} from "@repo/shared";
+import { IAuthRequest, MESSAGES_REGISTRY, forwardError } from "@repo/shared";
 import { FUNSTAKES_REDIS_URL } from "@/envVars";
-import { executeEditGist } from "../services/edit";
+import { executeEditGist } from "../services/editGist";
 
 interface EditRequest extends IAuthRequest {
   body: {
-    content: string;
-    gistId: string;
+    caption: string;
+    postId: string;
   };
 }
 
@@ -25,13 +19,13 @@ export const editGist = async (
   next: NextFunction,
 ): Promise<any> => {
   const userId = req.user?.id;
-  const { content, gistId } = req.body;
+  const { caption, postId: gistId } = req.body;
 
   try {
     const serviceResult = await executeEditGist({
       userId,
       gistId,
-      content,
+      caption,
       redisUrl: FUNSTAKES_REDIS_URL,
     });
 

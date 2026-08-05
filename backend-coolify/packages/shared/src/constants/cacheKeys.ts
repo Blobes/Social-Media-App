@@ -7,17 +7,15 @@ import { PostType } from "../types";
 export const CACHE_KEYS = {
   // --- Session & Security ---
   USER_SESSION: (userId: string, sessionId: string) =>
-    `session:${userId}:${sessionId}`,
+    `user:${userId}:session:${sessionId}`,
   USER_PRIMARY_DEVICE: (userId: string) => `user:${userId}:primary_device_id`,
-  WILDCARD_USER_SESSIONS: (userId: string) => `session:${userId}:*`,
   DEVICE_TRUST_STATUS: (userId: string, deviceId: string) =>
-    `trust_check:${userId}:${deviceId}`,
+    `user:${userId}:trust_check:${deviceId}`,
 
   // --- Feed Keys (Dynamic/Personalized) ---
-  USER_FOLLOWERS_FEED: (userId: string, page: number, limit: number) =>
-    `user:${userId}:feed:followers:p${page}:l${limit}`,
-  USER_PROFILE_FEED: (userId: string, page: number, limit: number) =>
-    `user:${userId}:feed:profile:p${page}:l${limit}`,
+  USER_FOLLOWERS_FEED: (userId: string) => `user:${userId}:feed:followers`,
+  USER_PROFILE_FEED: (userId: string) => `user:${userId}:feed:profile`,
+  USER_FEED: (userId: string) => `user:${userId}:feed`,
 
   // --- Static/Global Feeds ---
   GLOBAL_FEED: (page: number, limit: number) =>
@@ -26,9 +24,10 @@ export const CACHE_KEYS = {
     `feed:${postType.toLowerCase()}s:static:p${page}:l${limit}`,
 
   // --- Entity Keys ---
+  GIST_FEED: (userId?: string) =>
+    userId ? `user:${userId}:feed:gist` : `feed:global:gist`,
   POST: (postType: PostType, postId: string) =>
     `post:${postType.toLowerCase()}:${postId}`,
-
   POST_TRANSLATION: (postId: string, targetLang: string) =>
     `post:translation:${postId}:${targetLang}`,
 
@@ -47,29 +46,32 @@ export const CACHE_KEYS = {
   USER_FOLLOWING: (userId: string) => `user:${userId}:following`,
   USER_FOLLOWERS: (userId: string, page: number, limit: number) =>
     `user:${userId}:followers:${userId}:p:${page}:l:${limit}`,
-  USER_BLOCKINGS: (userId: string) => `user:${userId}:blockings`, // List of users blocked by this user
-  USER_BLOCKERS: (userId: string) => `user:${userId}:blockers`, // List of users that has blocked this user
-
-  USER_PREFERENCES: (userId: string) => `user:${userId}:prefs`,
+  USER_BLOCKINGS: (userId: string) => `user:${userId}:blockings`,
+  USER_BLOCKERS: (userId: string) => `user:${userId}:blockers`,
+  USER_PREFERENCES: (userId: string) => `user:${userId}:preferences`,
 
   // --- Invalidation Patterns (Wildcards) ---
-  // Wipes all global first pages (Gists, Stakes, All)
-  GLOBAL_FEED_PAGE_ONE: "feed:*:static:p1:*",
-  // Wipes every paginated feed chunk authored or viewed by the user
+  WILDCARD_GLOBAL_FEED_PAGE_ONE: "feed:*:static:p1:*",
   WILDCARD_USER_FEED_ALL: (userId: string) => `user:${userId}:feed:*`,
-  // The complete account wipe pattern
   WILDCARD_USER_ALL: (userId: string) => `user:${userId}:*`,
+  WILDCARD_FOLLOWERS_ALL: (userId: string) => `user:${userId}:followers:*`,
   WILDCARD_POST_FEED_TYPE: (postType: PostType) =>
     `feed:${postType.toLowerCase()}:*`,
-};
+  WILDCARD_USER_SESSIONS: (userId: string) => `user:${userId}:session:*`,
+  WILDCARD_DEVICES: (userId: string) => `user:${userId}:trust_check:*`,
+  WILDCARD_POST_TRANSLATIONS: (postId: string) =>
+    `post:translation:${postId}:*`,
+  WILDCARD_TOPICS_LOOKUP: "topics:lookup:*",
+} as const;
 
 /**
  * Standard expiration duration constants in seconds.
  */
 export const CACHE_EXPIRY = {
-  MIN_3: 60 * 5, // 5 minutes
+  MIN_5: 5 * 60, // 5 minutes
+  MIN_20: 20 * 60, // 20 minutes
   HOUR_1: 60 * 60, // 1 hour
-  HOUR_24: 60 * 60 * 24, // 24 hours
+  HOUR_24: 24 * 60 * 60, // 24 hours
   DAY_7: 7 * 24 * 60 * 60, // 7 days
   DAY_20: 20 * 24 * 60 * 60, // 20 days
 };

@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
-import { executeUsernameChange } from "@/profile/username/executeChange";
+import { executeUsernameChange } from "@/profile/username/service";
 
 /**
  * Controller endpoint to handle user profile identifier tag mutations.

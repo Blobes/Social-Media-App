@@ -36,9 +36,13 @@ export const getUserProfile = async (
       });
     }
 
-    if (serviceResult.status === "DEACTIVATED") {
-      return res.status(200).json({
-        status: "DEACTIVATED",
+    if (
+      serviceResult.status === "ACCOUNT_DEACTIVATED" ||
+      serviceResult.status === "ACCOUNT_SUSPENDED" ||
+      serviceResult.status === "ACCOUNT_BANNED"
+    ) {
+      return res.status(403).json({
+        status: serviceResult.status,
         ...serviceResult.transInfo,
         payload: serviceResult.payload,
       });

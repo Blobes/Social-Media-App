@@ -16,10 +16,9 @@ export const markPostAsSeen = async (
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
-  const { id } = req.params;
   const { postType } = req.body as { postType: PostType };
   const userId = req.user?.id;
-  const postId = String(id);
+  const postId = String(req.params?.postId);
 
   const msgPostType: MsgPostType = postType === "GIST" ? "Gist" : "Stake";
 

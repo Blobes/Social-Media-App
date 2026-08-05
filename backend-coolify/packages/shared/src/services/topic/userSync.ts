@@ -4,17 +4,16 @@ import {
   UserSettingsModel,
 } from "@repo/database";
 import { ClientSession } from "mongoose";
-import { invalidatePattern } from "../redis/cache";
-import { CACHE_KEYS } from "../../constants/cacheKeys";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
-import { getUserSettings, UserSettingsResult } from "../user/settings";
+import { fetchUserSettings } from "../user/settings";
+import { UserSettingsResult } from "../../types";
 
 export interface PreferenceTopicInput {
   topicId: string;
   title: string;
 }
 
-export interface UpdateUserTopicsParams {
+export interface UserTopicsParams {
   userId: string;
   topics: PreferenceTopicInput[];
   mode?: "ADD" | "REMOVE";
@@ -25,8 +24,8 @@ export interface UpdateUserTopicsParams {
 /**
  * Updates user topic preferences based on operational mode and metadata options.
  */
-export const executeUserTopicsUpdate = async (
-  params: UpdateUserTopicsParams,
+export const executeUserTopicsSync = async (
+  params: UserTopicsParams,
 ): Promise<UserSettingsResult> => {
   const {
     userId,
@@ -50,13 +49,11 @@ export const executeUserTopicsUpdate = async (
     };
   }
 
-  const settingsResult = await getUserSettings({
+  const userSettings = await fetchUserSettings({
     userId,
-    select: "displayAndApp.contentPreferences.preferredTopics",
+    select: "display.contentPreferences.preferredTopics",
     session,
   });
-
-  const userSettings = settingsResult.payload;
 
   const existingPrefIds = new Set(
     (userSettings?.display?.contentPreferences?.preferredTopics || []).map(
@@ -97,7 +94,7 @@ export const executeUserTopicsUpdate = async (
         { userId },
         {
           $push: {
-            "displayAndApp.contentPreferences.preferredTopics": {
+            "display.contentPreferences.preferredTopics": {
               $each: toAdd.map((t) => ({
                 topicId: t.topicId,
                 title: t.title,
@@ -123,7 +120,7 @@ export const executeUserTopicsUpdate = async (
         { userId },
         {
           $pull: {
-            "displayAndApp.contentPreferences.preferredTopics": {
+            "display.contentPreferences.preferredTopics": {
               topicId: { $in: toRemoveIds },
             },
           },
@@ -145,7 +142,7 @@ export const executeUserTopicsUpdate = async (
         { userId },
         {
           $set: {
-            "displayAndApp.contentPreferences.preferredTopics.$[elem].lastViewed":
+            "display.contentPreferences.preferredTopics.$[elem].lastViewed":
               new Date(),
           },
         },
@@ -159,18 +156,16 @@ export const executeUserTopicsUpdate = async (
 
   if (bulkOps.length > 0) {
     await Promise.all(bulkOps);
-    await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
   }
 
-  const updatedSettingsResult = await getUserSettings({
+  const updatedSettingsResult = await fetchUserSettings({
     userId,
-    select: "displayAndApp.contentPreferences.preferredTopics",
+    select: "display.contentPreferences.preferredTopics",
     session,
   });
 
   const updatedTopics =
-    updatedSettingsResult.payload?.display?.contentPreferences
-      ?.preferredTopics || [];
+    updatedSettingsResult?.display?.contentPreferences?.preferredTopics || [];
 
   return {
     status: "SUCCESS",
@@ -207,7 +202,7 @@ export const removeTopicsFromUser = async (
     { userId },
     {
       $pull: {
-        "displayAndApp.contentPreferences.preferredTopics": {
+        "display.contentPreferences.preferredTopics": {
           topicId: { $in: topicIds },
         },
       },
@@ -222,7 +217,6 @@ export const removeTopicsFromUser = async (
         { $inc: { userCount: -1 } },
         { session },
       ),
-      invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId)),
     ]);
   }
 

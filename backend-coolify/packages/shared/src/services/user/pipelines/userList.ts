@@ -1,40 +1,39 @@
-import { PipelineStage } from "mongoose";
+import { PipelineStage, QueryFilter } from "mongoose";
+import { IUserDocument } from "@repo/database";
 import { getUserStaticData } from "./singleUser";
 
-interface UserListOptions {
-  matchFilter: Record<string, any>;
+export interface UserListOptions<TUser = IUserDocument> {
+  matchFilter?: QueryFilter<TUser>;
   skip?: number;
   limit?: number;
-  showDeactivated?: boolean; // New flag added
+  showDeactivated?: boolean;
 }
 
-export const getStaticUserList = ({
-  matchFilter,
+const DEFAULT_LIST_LIMIT = 20;
+
+/**
+ * Constructs an optimized, paginated aggregation pipeline for user listing feeds.
+ */
+export const getStaticUserList = <TUser = IUserDocument>({
+  matchFilter = {},
   skip = 0,
-  limit = 20,
-  showDeactivated = false, // Default to false to align with privacy standards
-}: UserListOptions): PipelineStage[] => {
-  // Construct the deletion filter
-  // If showDeactivated is false, we explicitly only want users where isDeactivated is not true
+  limit = DEFAULT_LIST_LIMIT,
+  showDeactivated = false,
+}: UserListOptions<TUser>): PipelineStage[] => {
   const deactivationFilter = showDeactivated
     ? {}
     : { accountStatus: { $ne: "DEACTIVATED" } };
 
   return [
-    // Combine the incoming matchFilter with our deletion logic
     {
       $match: {
         ...matchFilter,
         ...deactivationFilter,
       },
     },
-
-    // Performance: Sort and Paginate before joining or heavy lookups
     { $sort: { createdAt: -1 } },
     { $skip: skip },
     { $limit: limit },
-
-    // Inject the core user aggregation logic (lookups for media, followers, etc.)
     ...getUserStaticData(),
   ];
 };

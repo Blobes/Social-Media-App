@@ -1,13 +1,11 @@
 import { encryptPass, verifyEncryptedPass } from "@/auth/helpers/encrypt";
-import { UserModel } from "@repo/database";
 import {
-  CACHE_KEYS,
-  invalidateCache,
   cleanDeviceSessions,
   TransInfo,
   MESSAGES_REGISTRY,
   normalizeValue,
   getAccountStatusMsg,
+  fetchSingleUser,
 } from "@repo/shared";
 
 export type PasswordPurpose =
@@ -66,18 +64,29 @@ export const executePasswordUpdate = async (
       };
     }
 
+    // user = isEmail
+    //   ? await UserModel.findByEmail({
+    //       email: formattedValue.toLowerCase(),
+    //       options: { skipFilter: true },
+    //     }).select("+password")
+    //   : await UserModel.findByPhone({
+    //       phoneNumber: formattedValue.replace(/\D/g, ""),
+    //       options: { skipFilter: true },
+    //     }).select("+password");
     const formattedValue = normalizeValue(identifier);
     const isEmail = formattedValue.includes("@");
 
-    user = isEmail
-      ? await UserModel.findByEmail({
-          email: formattedValue.toLowerCase(),
-          options: { skipFilter: true },
-        }).select("+password")
-      : await UserModel.findByPhone({
-          phoneNumber: formattedValue.replace(/\D/g, ""),
-          options: { skipFilter: true },
-        }).select("+password");
+    user = await fetchSingleUser({
+      identifier: isEmail
+        ? formattedValue.toLowerCase()
+        : formattedValue.replace(/\D/g, ""),
+      select: ["+password"],
+      flags: {
+        lean: false,
+        identifierType: isEmail ? "EMAIL" : "PHONE",
+        skipFilter: true,
+      },
+    });
 
     if (!user) {
       return {
@@ -94,7 +103,7 @@ export const executePasswordUpdate = async (
       accountStatus === "SUSPENDED" ||
       accountStatus === "BANNED"
     ) {
-      const restrictionMsg = getAccountStatusMsg(accountStatus, "restricted");
+      const restrictionMsg = getAccountStatusMsg(accountStatus, "RESTRICTED");
       return {
         status: "RESTRICTION",
         transInfo: restrictionMsg.transInfo,
@@ -122,7 +131,16 @@ export const executePasswordUpdate = async (
       };
     }
 
-    user = await UserModel.findById(userId).select("+password");
+    // user = await UserModel.findById(userId).select("+password");
+    user = await fetchSingleUser({
+      identifier: userId,
+      select: ["+password"],
+      flags: {
+        lean: false,
+        skipFilter: true,
+      },
+    });
+
     if (!user) {
       return {
         status: "NOT_FOUND",
@@ -191,8 +209,6 @@ export const executePasswordUpdate = async (
       primaryDeviceId: user.primaryDeviceId?.toString(),
     },
   );
-
-  await invalidateCache(CACHE_KEYS.USER_PROFILE(user._id.toString()));
 
   const isCurrentDevicePrimary =
     jwtDeviceId && jwtDeviceId === user.primaryDeviceId?.toString();

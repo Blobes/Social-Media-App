@@ -1,10 +1,5 @@
 import { UserSettingsModel } from "@repo/database";
-import {
-  CACHE_KEYS,
-  invalidatePattern,
-  UserSettingsResult,
-  MESSAGES_REGISTRY,
-} from "@repo/shared";
+import { UserSettingsResult, MESSAGES_REGISTRY } from "@repo/shared";
 import { ClientSession } from "mongoose";
 
 export interface NotificationSettingsInput {
@@ -36,7 +31,7 @@ export interface NotificationSettingsInput {
 /**
  * Updates push, email, and quiet mode notification preferences.
  */
-export const updateNotificationSettings = async (
+export const executeUpdateNotificationSettings = async (
   input: NotificationSettingsInput,
 ): Promise<UserSettingsResult> => {
   const { userId, push, email, quietMode, session } = input;
@@ -104,8 +99,6 @@ export const updateNotificationSettings = async (
   )
     .select("notifications")
     .lean();
-
-  await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
 
   return {
     status: "SUCCESS",

@@ -1,14 +1,14 @@
-import { DeviceModel, IUserDocument, UserModel } from "@repo/database";
+import { DeviceModel } from "@repo/database";
 import {
-  CACHE_KEYS,
   ensurePrimaryDevice,
   hashCode,
-  invalidatePattern,
   setOtpChannel,
   VerificationPurpose,
   OtpType,
   MESSAGES_REGISTRY,
   TransInfo,
+  fetchUserData,
+  fetchSingleUser,
 } from "@repo/shared";
 import { otpWorkflowRegistry } from "../helpers/otpWorkflow";
 
@@ -50,21 +50,25 @@ export const executeOtpVerification = async (
       status: "INVALID_CHANNEL",
       transInfo: MESSAGES_REGISTRY.AUTH.INVALID_OTP_CHANNEL,
     };
-    //  error.status = 400;
   }
 
-  let user: IUserDocument | null = null;
-  if (otpChannel === "EMAIL") {
-    user = await UserModel.findByEmail({
-      email: normalized,
-      options: { skipFilter: true },
-    });
-  } else {
-    user = await UserModel.findByPhone({
-      phoneNumber: normalized,
-      options: { skipFilter: true },
-    });
-  }
+  // let user: IUserDocument | null = null;
+  // if (otpChannel === "EMAIL") {
+  //   user = await UserModel.findByEmail({
+  //     email: normalized,
+  //     options: { skipFilter: true },
+  //   });
+  // } else {
+  //   user = await UserModel.findByPhone({
+  //     phoneNumber: normalized,
+  //     options: { skipFilter: true },
+  //   });
+  // }
+
+  const user = await fetchSingleUser({
+    identifier: normalized,
+    flags: { lean: false, skipFilter: true },
+  });
 
   if (!user) {
     return {
@@ -113,8 +117,6 @@ export const executeOtpVerification = async (
   user.otpCode = null;
   user.otpCodeExpiresAt = null;
   await user.save();
-
-  await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(String(user._id)));
 
   return {
     status: "SUCCESS",

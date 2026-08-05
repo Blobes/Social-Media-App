@@ -4,8 +4,9 @@ import { gistLike } from "./controllers/gistLike";
 import { createGist } from "./controllers/createGist";
 import { editGist } from "./controllers/editGist";
 import { getGist } from "./controllers/getGist";
-import { optionallyAuthenicate, authenticate } from "@/envVars";
+import { optionallyAuthenticate, authenticate } from "@/envVars";
 import { draftGist } from "./controllers/draftGist";
+import { autoInvalidatePostCache, autoInvalidateUserCache } from "@repo/shared";
 
 export const gistRouter = () => {
   const router: Router = express.Router();
@@ -15,12 +16,39 @@ export const gistRouter = () => {
     res.json({ message: "Welcome to Funstakes Gist API" });
   });
 
-  router.get("/feed", optionallyAuthenicate, getGistList);
+  // Read operations
+  router.get("/feed", optionallyAuthenticate, getGistList);
+  router.get("/:postId", optionallyAuthenticate, getGist);
+
+  // Mutation operations
   router.post("/create", authenticate, createGist);
-  router.post("/draft", authenticate, draftGist);
-  router.get("/:id", optionallyAuthenicate, getGist);
-  router.post("/:id/like", authenticate, gistLike);
-  router.put("/:id/edit", authenticate, editGist);
+
+  router.post(
+    "/draft",
+    authenticate,
+    autoInvalidateUserCache("POST_UPDATE"),
+    draftGist,
+  );
+
+  router.post(
+    "/:postId/like",
+    authenticate,
+    autoInvalidatePostCache({
+      postType: "GIST",
+      invalidatePostTypeFeed: false,
+    }),
+    gistLike,
+  );
+
+  router.put(
+    "/:postId/edit",
+    authenticate,
+    autoInvalidatePostCache({
+      postType: "GIST",
+      invalidateGlobalFirstPage: true,
+    }),
+    editGist,
+  );
 
   return router;
 };

@@ -1,7 +1,3 @@
-// User-triggered Removal: Receives a list of topics to be removed from a user's preferred topics list and decrement the userCount field from the topic collection.
-
-// Automated-removal: A background process that looks into the user's preferred topics list and removes every topic that the lastViewed date exceeds a given number when compared with the current date. And also decrements the userCount field from the topic collection.
-
 import {
   forwardError,
   IAuthRequest,
@@ -19,7 +15,7 @@ interface RemovalRequest extends IAuthRequest {
 /**
  * Controller endpoint stripping tracking indices off a specific user profile choice collection.
  */
-export const handleUserTopicRemoval = async (
+export const removeUserTopics = async (
   req: RemovalRequest,
   res: Response,
   next: NextFunction,

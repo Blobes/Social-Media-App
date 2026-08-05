@@ -1,11 +1,10 @@
 import { UserModel } from "@repo/database";
 import {
   userSensitiveFields,
-  invalidateCache,
-  CACHE_KEYS,
   softDeleteMedia,
   TransInfo,
   MESSAGES_REGISTRY,
+  sanitizeUserResult,
 } from "@repo/shared";
 import { UserImageType } from "./imageChange";
 
@@ -31,7 +30,7 @@ export const executeUserImageRemoval = async (
 
   // Execute soft delete to handle the database reference update
   const updatedUser = await softDeleteMedia({
-    model: UserModel as any,
+    model: UserModel,
     id: authUserId,
     field: fieldToUpdate,
     populateFields: ["profileImage", "coverImage"],
@@ -43,14 +42,9 @@ export const executeUserImageRemoval = async (
       transInfo: MESSAGES_REGISTRY.AUTH.USER_NOT_FOUND,
     };
   }
-  // Clear stale data lookup entries
-  await invalidateCache(CACHE_KEYS.USER_PROFILE(authUserId));
 
   // Purge sensitive configuration targets
-  const safePayload = updatedUser.toObject();
-  userSensitiveFields().forEach((field) => {
-    delete (safePayload as any)[field];
-  });
+  const safePayload = sanitizeUserResult(updatedUser, userSensitiveFields());
 
   return {
     status: "SUCCESS",

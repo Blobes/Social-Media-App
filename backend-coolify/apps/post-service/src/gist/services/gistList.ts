@@ -1,20 +1,20 @@
 import mongoose from "mongoose";
 import { GistModel } from "@repo/database";
 import {
-  getStaticPostList,
-  getOrSetCache,
+  getCandidatePostPipeline,
   getPostSocialData,
-  personalizeFeed,
   getUserPreferences,
-  CACHE_KEYS,
   MESSAGES_REGISTRY,
   TransInfo,
+  CACHE_KEYS,
+  CACHE_EXPIRY,
+  getCacheSortedSet,
+  setCacheSortedSet,
 } from "@repo/shared";
 import { hydrateSocialState } from "@/feed/syncPost";
 
 export interface GetGistListInput {
   userId?: string;
-  userRawPayload?: any;
   page: number;
   limit: number;
 }
@@ -22,7 +22,7 @@ export interface GetGistListInput {
 export interface GetGistListResult {
   status: "SUCCESS_EMPTY" | "SUCCESS_FETCHED";
   transInfo: TransInfo;
-  payload: any[];
+  payload: Record<string, unknown>[];
   meta: {
     totalDocs: number;
     totalPages: number;
@@ -33,40 +33,90 @@ export interface GetGistListResult {
 }
 
 /**
- * Handles feed list generation by coordinating static aggregate cache layers, sorting user social states, and executing feed personalization calculations.
+ * Handles Gist feed list retrieval using Redis ZSET candidate indices, DB candidate pipelines, and social state hydration.
  */
 export const executeGetGistList = async (
   input: GetGistListInput,
 ): Promise<GetGistListResult> => {
-  const { userId, userRawPayload, page, limit } = input;
+  const { userId, page, limit } = input;
   const skip = (page - 1) * limit;
 
-  const globalCacheKey = CACHE_KEYS.POST_FEED_TYPE("GIST", page, limit);
+  let candidateGists: Record<string, unknown>[] = [];
+  const gistFeedCacheKey = CACHE_KEYS.GIST_FEED(userId);
 
-  const cachedData = (await getOrSetCache(globalCacheKey, async () => {
-    const total = await GistModel.countDocuments({ status: "PUBLISHED" });
-    const pipeline = getStaticPostList({
-      matchFilter: { status: "PUBLISHED" },
+  // Read Candidate Index from Redis ZSET
+  const cachedGistIds = await getCacheSortedSet(
+    gistFeedCacheKey,
+    skip,
+    skip + limit - 1,
+  );
+
+  if (cachedGistIds.length > 0) {
+    const objectIds = cachedGistIds.map(
+      (id) => new mongoose.Types.ObjectId(id),
+    );
+
+    // Hydrate Gists matching cached order
+    candidateGists = await GistModel.aggregate([
+      { $match: { _id: { $in: objectIds } } },
+      {
+        $addFields: {
+          __order: { $indexOfArray: [cachedGistIds, { $toString: "$_id" }] },
+        },
+      },
+      { $sort: { __order: 1 } },
+    ]);
+  }
+
+  // Fallback to MongoDB Candidate Pipeline on Cache Miss
+  if (candidateGists.length === 0) {
+    const userPrefs = userId ? await getUserPreferences(userId) : null;
+
+    // Fetch candidate buffer to populate Redis index
+    const fetchLimit = 100;
+    const candidatePipeline = getCandidatePostPipeline({
+      userPrefs,
       postType: "GIST",
-      limit: limit + 5,
-      skip,
+      limit: fetchLimit,
+      skip: 0,
     });
-    const data = await GistModel.aggregate(pipeline);
-    return { staticGists: data, totalCount: total };
-  })) || { staticGists: [], totalCount: 0 };
 
-  const { staticGists, totalCount } = cachedData;
+    const rawCandidates = await GistModel.aggregate(candidatePipeline);
 
-  const totalPages = Math.ceil(totalCount / limit);
+    if (!rawCandidates || rawCandidates.length === 0) {
+      return {
+        status: "SUCCESS_EMPTY",
+        transInfo: MESSAGES_REGISTRY.POST.POSTS_FETCHED_SUCCESSFULLY("Gist"),
+        payload: [],
+        meta: {
+          totalDocs: 0,
+          totalPages: 0,
+          currentPage: page,
+          limit,
+          hasNextPage: false,
+        },
+      };
+    }
 
-  if (!staticGists || staticGists.length === 0) {
+    // Populate Redis ZSET Candidate Cache
+    const scoredItems = rawCandidates.map((gist: Record<string, unknown>) => ({
+      member: String(gist._id),
+      score: (gist.heuristicScore as number) || 0,
+    }));
+
+    await setCacheSortedSet(gistFeedCacheKey, scoredItems, CACHE_EXPIRY.MIN_20);
+
+    candidateGists = rawCandidates.slice(skip, skip + limit);
+  }
+
+  if (candidateGists.length === 0) {
     return {
       status: "SUCCESS_EMPTY",
       transInfo: MESSAGES_REGISTRY.POST.POSTS_FETCHED_SUCCESSFULLY("Gist"),
       payload: [],
       meta: {
-        totalDocs: totalCount,
-        totalPages,
+        totalDocs: 0,
+        totalPages: 0,
         currentPage: page,
         limit,
         hasNextPage: false,
@@ -74,49 +124,42 @@ export const executeGetGistList = async (
     };
   }
 
-  let candidateGists = staticGists.slice(0, limit);
-  let socialMap = new Map();
+  // Hydrate User Social Data
+  let socialMap = new Map<string, Record<string, unknown>>();
 
-  if (userId) {
-    const gistIdsAsObjects = candidateGists.map(
-      (g: any) => new mongoose.Types.ObjectId(String(g._id)),
+  if (userId && candidateGists.length > 0) {
+    const gistIdsObjects = candidateGists.map(
+      (g) => new mongoose.Types.ObjectId(String(g._id)),
     );
 
-    const gistIdsAsStrings = candidateGists.map((g: any) => String(g._id));
-
     const socialData = await GistModel.aggregate([
-      { $match: { _id: { $in: gistIdsAsObjects } } },
-      { $addFields: { postType: "GIST", stringId: { $toString: "$_id" } } },
-      {
-        $addFields: {
-          __order: { $indexOfArray: [gistIdsAsStrings, "$stringId"] },
-        },
-      },
-      { $sort: { __order: 1 } },
-      ...getPostSocialData({ userId: String(userId) }),
+      { $match: { _id: { $in: gistIdsObjects } } },
+      { $addFields: { postType: "GIST" } },
+      ...getPostSocialData({ userId }),
     ]);
 
-    socialMap = new Map((socialData || []).map((s) => [String(s._id), s]));
-
-    const userPreferences = await getUserPreferences(userId, userRawPayload);
-    candidateGists = personalizeFeed(staticGists, userPreferences).slice(
-      0,
-      limit,
+    socialMap = new Map(
+      (socialData || []).map((s) => [
+        String(s._id),
+        s as Record<string, unknown>,
+      ]),
     );
   }
 
+  // Final Social Hydration
   const finalPayload = hydrateSocialState(candidateGists, socialMap);
+  const estimatedTotal = 100;
 
   return {
     status: "SUCCESS_FETCHED",
     transInfo: MESSAGES_REGISTRY.POST.POSTS_FETCHED_SUCCESSFULLY("Gist"),
     payload: finalPayload,
     meta: {
-      totalDocs: totalCount,
-      totalPages,
+      totalDocs: estimatedTotal,
+      totalPages: Math.ceil(estimatedTotal / limit),
       currentPage: page,
       limit,
-      hasNextPage: skip + finalPayload.length < totalCount,
+      hasNextPage: skip + finalPayload.length < estimatedTotal,
     },
   };
 };

@@ -1217,7 +1217,7 @@ export const MESSAGES_REGISTRY = {
     },
     UNAUTHENTICATED_PREFERENCE_UPDATE: {
       i18nKey: "profile.unauthenticated_preference_update",
-      message: "User not authenticated for status preference updates.",
+      message: "User not authenticated for preference updates.",
     },
     UPDATE_DEMO_ERROR: {
       i18nKey: "profile.update_demo_error",

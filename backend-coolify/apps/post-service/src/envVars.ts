@@ -64,11 +64,14 @@ export const s3Config: IS3Config = {
 };
 
 /**
- * Middleware instances for strict and optional authentication
+ * Middleware instances for strict authentication
  */
 export const authenticate: RequestHandler = verifyAuthTokens(authConfig);
 
-export const optionallyAuthenicate: RequestHandler =
+/**
+ * Middleware instances for optional authentication
+ */
+export const optionallyAuthenticate: RequestHandler =
   verifyAuthOptionally(authConfig);
 
 /**

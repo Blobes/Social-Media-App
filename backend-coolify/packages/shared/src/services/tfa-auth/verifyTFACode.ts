@@ -4,6 +4,7 @@ import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { normalizeValue } from "../../utils/hash";
 import { authenticatorService } from "./authenticator";
 import { TFAPurpose } from "./initiateTFA";
+import { fetchSingleUser } from "../user/retrieval/fetchUser";
 
 export interface ITFAVerificationInput {
   purpose: TFAPurpose;
@@ -55,19 +56,30 @@ export const executeTFAVerification = async (
     const formattedValue = normalizeValue(identifier);
     const isEmail = formattedValue.includes("@");
 
-    const user = isEmail
-      ? await UserModel.findByEmail({
-          email: formattedValue.toLowerCase(),
-          options: {
-            skipFilter: true,
-          },
-        })
-      : await UserModel.findByPhone({
-          phoneNumber: formattedValue.replace(/\D/g, ""),
-          options: {
-            skipFilter: true,
-          },
-        });
+    // const user = isEmail
+    //   ? await UserModel.findByEmail({
+    //       email: formattedValue.toLowerCase(),
+    //       options: {
+    //         skipFilter: true,
+    //       },
+    //     })
+    //   : await UserModel.findByPhone({
+    //       phoneNumber: formattedValue.replace(/\D/g, ""),
+    //       options: {
+    //         skipFilter: true,
+    //       },
+    //     });
+
+    const user = await fetchSingleUser({
+      identifier: isEmail
+        ? formattedValue.toLowerCase()
+        : formattedValue.replace(/\D/g, ""),
+      flags: {
+        lean: false,
+        identifierType: isEmail ? "EMAIL" : "PHONE",
+        skipFilter: true,
+      },
+    });
 
     if (!user) {
       return {
@@ -134,7 +146,12 @@ export const executeTFAVerification = async (
     };
   }
 
-  const user = await UserModel.findById(userId);
+  const user = await fetchSingleUser({
+    identifier: userId,
+    flags: { lean: false, skipFilter: true },
+  });
+
+  // const user = await UserModel.findById(userId);
 
   if (!user || !user.twoFactorAuth.tempSecret) {
     return {

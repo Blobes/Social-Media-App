@@ -10,6 +10,7 @@ import {
   enqueueOtpTask,
   MESSAGES_REGISTRY,
   TransInfo,
+  sanitizeUserResult,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
 import { executeAccountCheck } from "../../check/service";
@@ -129,10 +130,7 @@ export const registerUserAccount = async (
     ipAddress,
   );
 
-  const safeData = newUser.toJSON();
-  userSensitiveFields().forEach((field) => {
-    delete (safeData as any)[field];
-  });
+  const safeData = sanitizeUserResult(newUser, userSensitiveFields());
 
   return {
     status: "SUCCESS",

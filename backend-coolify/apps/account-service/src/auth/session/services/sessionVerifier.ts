@@ -1,4 +1,3 @@
-import { UserModel } from "@repo/database";
 import {
   CACHE_KEYS,
   validateHardwareTrust,
@@ -11,6 +10,7 @@ import {
   existsInCache,
   setCache,
   CACHE_EXPIRY,
+  fetchSingleUser,
 } from "@repo/shared";
 
 interface IVerifySessionInput {
@@ -61,7 +61,11 @@ export const executeSessionVerification = async (
     };
   }
 
-  const user = await UserModel.findById(userId);
+  // const user = await UserModel.findById(userId);
+  const user = await fetchSingleUser({
+    identifier: userId,
+    flags: { lean: false },
+  });
   if (!user) {
     await deleteCache(CACHE_KEYS.USER_SESSION(userId, sessionId));
     return {
@@ -71,7 +75,7 @@ export const executeSessionVerification = async (
   }
 
   const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
-  const sessionData: any = await getCache(sessionKey);
+  const sessionData = await getCache(sessionKey);
 
   if (!sessionData || sessionData.deviceId !== jwtDeviceId) {
     return {

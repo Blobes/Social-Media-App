@@ -182,16 +182,18 @@ export const initQueueClient = (redisUrl?: string): void =>
 export const getQueueConnection = (redisUrl?: string) =>
   QueueService.getConnection(redisUrl);
 
+export interface ModerationTaskInput {
+  typename: string;
+  payload: Record<string, any>;
+  options?: Omit<AsynqTaskOptions, "queue">;
+  redisUrl?: string;
+}
 /**
  * Pushes heavy media assets directly into the Go Asynq protocol matrix.
  */
-export const enqueueModerationTask = (
-  typename: string,
-  payload: Record<string, any>,
-  options: Omit<AsynqTaskOptions, "queue"> = {},
-  redisUrl?: string,
-) =>
-  QueueService.enqueueAsynqTask(
+export const enqueueModerationTask = (input: ModerationTaskInput) => {
+  const { typename, payload, options = {}, redisUrl } = input;
+  return QueueService.enqueueAsynqTask(
     typename,
     payload,
     {
@@ -200,6 +202,7 @@ export const enqueueModerationTask = (
     },
     redisUrl,
   );
+};
 
 /**
  * Dispatches high-priority auth verification tasks cleanly into native BullMQ engines.

@@ -25,10 +25,9 @@ export const getFollowersPosts = async (
     const limit = 10;
 
     const serviceResult = await executeGetFollowersPosts({
-      authUserId,
+      userId: authUserId,
       page,
       limit,
-      userContext: req.user,
     });
 
     if (serviceResult.status === "EMPTY_FEED") {

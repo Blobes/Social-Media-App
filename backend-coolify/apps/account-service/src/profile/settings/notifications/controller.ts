@@ -1,11 +1,11 @@
 import { NextFunction, Response } from "express";
 import { IAuthRequest, MESSAGES_REGISTRY, forwardError } from "@repo/shared";
-import { updateNotificationSettings } from "./service";
+import { executeUpdateNotificationSettings } from "./service";
 
 /**
  * Controller endpoint to modify push, email, and quiet mode notification options.
  */
-export const notificationSettingsController = async (
+export const updateNotificationSettings = async (
   req: IAuthRequest,
   res: Response,
   next: NextFunction,
@@ -24,7 +24,7 @@ export const notificationSettingsController = async (
   const { push, email, quietMode } = req.body;
 
   try {
-    const serviceResult = await updateNotificationSettings({
+    const serviceResult = await executeUpdateNotificationSettings({
       userId,
       push,
       email,
@@ -47,7 +47,7 @@ export const notificationSettingsController = async (
     });
     return;
   } catch (error: unknown) {
-    console.error("[updateNotificationSettingsController] Error:", error);
+    console.error("[updateNotificationSettings] Error:", error);
     return forwardError(
       next,
       MESSAGES_REGISTRY.SETTINGS.SERVER_FALLBACK_ERROR,

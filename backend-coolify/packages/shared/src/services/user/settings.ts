@@ -2,79 +2,71 @@ import { IUserSettingsDocument, UserSettingsModel } from "@repo/database";
 import { ClientSession } from "mongoose";
 import { getOrSetCache } from "../redis/cache";
 import { CACHE_KEYS, CACHE_EXPIRY } from "../../constants/cacheKeys";
-import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { TransInfo } from "../../types";
 
-export interface GetUserSettingsInput {
+export interface FetchUserSettingsInput {
   userId: string;
   select?: string;
   session?: ClientSession;
 }
 
-export interface GetUserSettingsResult {
-  status: "SUCCESS" | "NOT_FOUND" | "INVALID_INPUT";
-  transInfo: TransInfo;
-  payload?: IUserSettingsDocument | null;
-}
-
-export interface UserSettingsResult extends GetUserSettingsResult {
-  payload?: any;
-}
+export type FetchUserSettingsResult = Partial<IUserSettingsDocument> | null;
 
 /**
- * Retrieves global user settings or initializes default settings if none exist, utilizing cached layer.
+ * Retrieves global user settings utilizing a lean cached layer.
  */
-export const getUserSettings = async (
-  input: GetUserSettingsInput,
-): Promise<GetUserSettingsResult> => {
+export const fetchUserSettings = async (
+  input: FetchUserSettingsInput,
+): Promise<FetchUserSettingsResult> => {
   const { userId, select, session } = input;
 
-  if (!userId) {
-    return {
-      status: "INVALID_INPUT",
-      transInfo: MESSAGES_REGISTRY.PROFILE.UNAUTHENTICATED_PREFERENCE_UPDATE,
-    };
-  }
+  if (!userId) return null;
 
-  // Bypass cache when active session or explicit query select projections are required
-  if (session || select) {
-    let query = UserSettingsModel.findOne({ userId }).session(session || null);
+  // Helper to extract specific fields from an object if select is provided
+  const applySelection = (
+    doc: Record<string, any> | null,
+    selectStr?: string,
+  ) => {
+    if (!doc || !selectStr) return doc;
+    const fields = selectStr.split(/\s+/).filter(Boolean);
+    const selectedDoc: Record<string, any> = {};
+
+    fields.forEach((field) => {
+      if (field in doc) {
+        selectedDoc[field] = doc[field];
+      }
+    });
+    return selectedDoc;
+  };
+
+  // Direct database query when an active session is required
+  if (session) {
+    let query = UserSettingsModel.findOne({ userId }).lean().session(session);
+
     if (select) {
       query = query.select(select);
     }
 
-    let doc = await query;
-    if (!doc) {
-      const [createdDoc] = await UserSettingsModel.create([{ userId }], {
-        session,
-      });
-      doc = createdDoc;
-    }
-
-    return {
-      status: "SUCCESS",
-      transInfo: MESSAGES_REGISTRY.SETTINGS.FETCHED_SUCCESSFULLY,
-      payload: { ...doc },
-    };
+    return await query;
   }
 
+  // Redis Cache Path: Always cache full lean object, project fields in-memory
   const cacheKey = CACHE_KEYS.USER_PREFERENCES(userId);
 
-  const settings = await getOrSetCache(
+  const fullSettings = await getOrSetCache(
     cacheKey,
     async () => {
-      let doc = await UserSettingsModel.findOne({ userId });
+      const doc = await UserSettingsModel.findOne({ userId }).lean();
+
+      // Default fallback in memory without write-on-read overhead
       if (!doc) {
-        doc = await UserSettingsModel.create({ userId });
+        return { userId, preferredLanguage: "en" };
       }
+
       return doc;
     },
     CACHE_EXPIRY.DAY_7,
   );
 
-  return {
-    status: "SUCCESS",
-    transInfo: MESSAGES_REGISTRY.SETTINGS.FETCHED_SUCCESSFULLY,
-    payload: { ...settings },
-  };
+  return applySelection(fullSettings, select);
 };

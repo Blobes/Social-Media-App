@@ -15,6 +15,7 @@ import {
 import { PostType, TransInfo } from "../../types";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { switchAccountStatus } from "../user/accountStatus";
+import { fetchSingleUser } from "../user/retrieval/fetchUser";
 
 export interface IResolveCaseInput {
   caseId: string;
@@ -116,13 +117,16 @@ export const executeCaseResolution = async (
         contentPayload.$set["moderationCase.caseId"] = modCase._id;
       }
     }
-
     await TargetModel.findByIdAndUpdate(modCase.targetId, contentPayload);
   }
 
   // --- Core Identity Penalization & Account Lifecycle Pipeline ---
   if (!isApproved) {
-    const userProfile = await UserModel.findById(modCase.targetOwner);
+    //  const userProfile = await UserModel.findById(modCase.targetOwner);
+    const userProfile = await fetchSingleUser({
+      identifier: modCase.targetOwner,
+      flags: { lean: false, skipFilter: true },
+    });
 
     if (userProfile) {
       const shouldIssueStrike =

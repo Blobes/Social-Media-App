@@ -13,12 +13,12 @@ export const healthCheck = (serviceName: AppName) => {
 
 export const getAccountStatusMsg = (
   status: AccountStatus,
-  mode: "restricted" | "normal" = "normal",
+  mode: "RESTRICTED" | "NORMAL" = "NORMAL",
 ): {
   status: "ACCOUNT_ACTIVE" | "ACCOUNT_INACTIVE" | ModerationDecision;
   transInfo: TransInfo;
 } => {
-  if (mode === "restricted") {
+  if (mode === "RESTRICTED") {
     if (status === "DEACTIVATED") {
       return {
         status: "ACCOUNT_DEACTIVATED",

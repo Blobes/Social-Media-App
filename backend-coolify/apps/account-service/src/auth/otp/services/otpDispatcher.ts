@@ -1,5 +1,4 @@
 import { emailDispatchTokens, phoneDispatchTokens } from "@/envVars";
-import { IUserDocument, UserModel } from "@repo/database";
 import {
   dispatchEmailCode,
   dispatchWhatsAppCode,
@@ -10,6 +9,7 @@ import {
   VerificationPurpose,
   MESSAGES_REGISTRY,
   TransInfo,
+  fetchSingleUser,
 } from "@repo/shared";
 import { otpWorkflowRegistry } from "../helpers/otpWorkflow";
 
@@ -50,12 +50,17 @@ export const executeOtpDispatch = async (
     };
   }
 
-  let user: IUserDocument | null = null;
-  if (channel === "EMAIL") {
-    user = await UserModel.findByEmail({ email: normalized });
-  } else {
-    user = await UserModel.findByPhone({ phoneNumber: normalized });
-  }
+  // let user: IUserDocument | null = null;
+  // if (channel === "EMAIL") {
+  //   user = await UserModel.findByEmail({ email: normalized });
+  // } else {
+  //   user = await UserModel.findByPhone({ phoneNumber: normalized });
+  // }
+
+  const user = await fetchSingleUser({
+    identifier: normalized,
+    flags: { lean: false, skipFilter: true },
+  });
 
   if (!user) {
     const transMsg =

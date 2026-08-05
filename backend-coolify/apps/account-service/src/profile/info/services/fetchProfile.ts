@@ -1,24 +1,29 @@
-import mongoose from "mongoose";
-import { UserModel } from "@repo/database";
+import { ModerationDecision } from "@repo/database";
 import {
-  getUserStaticData,
-  userPrivateFields,
-  userSensitiveFields,
   getOrSetCache,
   userSocialLookup,
   CACHE_KEYS,
   TransInfo,
   MESSAGES_REGISTRY,
+  getAccountStatusMsg,
+  CACHE_EXPIRY,
+  fetchSingleUser,
 } from "@repo/shared";
 
 interface IGetUserProfileInput {
   targetUserId: string;
   authUserId?: string;
 }
+
 interface IGetUserProfileResult {
-  status: "SUCCESS" | "NOT_FOUND" | "DEACTIVATED";
+  status:
+    | "SUCCESS"
+    | "NOT_FOUND"
+    | "ACCOUNT_ACTIVE"
+    | "ACCOUNT_INACTIVE"
+    | ModerationDecision;
   transInfo: TransInfo;
-  payload: any;
+  payload: Record<string, unknown> | null;
 }
 
 /**
@@ -31,19 +36,19 @@ export const executeUserProfileFetch = async (
   const isOwner = authUserId === targetUserId;
   const cacheKey = CACHE_KEYS.USER_PROFILE(targetUserId);
 
-  // Retrieve cached records or execute secondary fallback data pipeline queries
+  // Retrieve cached records or query using fetchUser
   const baseProfile = await getOrSetCache(
     cacheKey,
     async () => {
-      const users = await UserModel.aggregate([
-        {
-          $match: { _id: new mongoose.Types.ObjectId(String(targetUserId)) },
+      return await fetchSingleUser({
+        identifier: targetUserId,
+        flags: {
+          includeLanguage: true,
+          includePrivateFields: isOwner ? true : false,
         },
-        ...getUserStaticData(),
-      ]);
-      return users && users.length > 0 ? users[0] : null;
+      });
     },
-    1800,
+    CACHE_EXPIRY.HOUR_1,
   );
 
   if (!baseProfile) {
@@ -53,11 +58,17 @@ export const executeUserProfileFetch = async (
       payload: null,
     };
   }
+
   // Intercept data processing paths early if account parameters mark deactivation
-  if (baseProfile.accountStatus === "DEACTIVATED") {
+  const accountStatus = baseProfile.accountStatus;
+  if (
+    accountStatus === "DEACTIVATED" ||
+    accountStatus === "SUSPENDED" ||
+    accountStatus === "BANNED"
+  ) {
+    const restrictionMsg = getAccountStatusMsg(accountStatus, "RESTRICTED");
     return {
-      status: "DEACTIVATED",
-      transInfo: MESSAGES_REGISTRY.PROFILE.ACCOUNT_DEACTIVATED,
+      ...restrictionMsg,
       payload: {
         _id: baseProfile._id,
         username: baseProfile.username,
@@ -68,24 +79,13 @@ export const executeUserProfileFetch = async (
       },
     };
   }
+
   // Paint following flags using graph relational connections
   const userProfile = await userSocialLookup(
     { ...baseProfile, isOwner },
     authUserId,
   );
 
-  // Enforce zero-trust visibility boundaries
-  const sensitiveFields = userSensitiveFields();
-  sensitiveFields.forEach((field) => {
-    delete userProfile[field];
-  });
-
-  if (!isOwner) {
-    const privateFields = userPrivateFields();
-    privateFields.forEach((field) => {
-      delete userProfile[field];
-    });
-  }
   return {
     status: "SUCCESS",
     transInfo: MESSAGES_REGISTRY.PROFILE.USER_FETCHED_SUCCESSFULLY,

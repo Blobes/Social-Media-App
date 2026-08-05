@@ -4,6 +4,7 @@ import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { normalizeValue } from "../../utils/hash";
 import { getAccountStatusMsg } from "../../utils/status";
 import { authenticatorService } from "./authenticator";
+import { fetchSingleUser } from "../user/retrieval/fetchUser";
 
 export type TFAPurpose = "AUTHENTICATE" | "TFA_SETUP";
 
@@ -43,19 +44,30 @@ export const executeTFAInitiation = async (
     const formattedValue = normalizeValue(identifier);
     const isEmail = formattedValue.includes("@");
 
-    const user = isEmail
-      ? await UserModel.findByEmail({
-          email: formattedValue.toLowerCase(),
-          options: {
-            skipFilter: true,
-          },
-        })
-      : await UserModel.findByPhone({
-          phoneNumber: formattedValue.replace(/\D/g, ""),
-          options: {
-            skipFilter: true,
-          },
-        });
+    const user = await fetchSingleUser({
+      identifier: isEmail
+        ? formattedValue.toLowerCase()
+        : formattedValue.replace(/\D/g, ""),
+      flags: {
+        lean: true,
+        identifierType: isEmail ? "EMAIL" : "PHONE",
+        skipFilter: true,
+      },
+    });
+
+    // const user = isEmail
+    //   ? await UserModel.findByEmail({
+    //       email: formattedValue.toLowerCase(),
+    //       options: {
+    //         skipFilter: true,
+    //       },
+    //     })
+    //   : await UserModel.findByPhone({
+    //       phoneNumber: formattedValue.replace(/\D/g, ""),
+    //       options: {
+    //         skipFilter: true,
+    //       },
+    //     });
 
     if (!user) {
       return {
@@ -71,7 +83,7 @@ export const executeTFAInitiation = async (
       accountStatus === "SUSPENDED" ||
       accountStatus === "BANNED"
     ) {
-      const restrictionMsg = getAccountStatusMsg(accountStatus, "restricted");
+      const restrictionMsg = getAccountStatusMsg(accountStatus, "RESTRICTED");
       return {
         status: "RESTRICTION",
         transInfo: restrictionMsg.transInfo,
@@ -106,7 +118,11 @@ export const executeTFAInitiation = async (
     };
   }
 
-  const user = await UserModel.findById(userId);
+  // const user = await UserModel.findById(userId);
+  const user = await fetchSingleUser({
+    identifier: userId,
+    flags: { lean: false, skipFilter: true },
+  });
 
   if (!user) {
     return {

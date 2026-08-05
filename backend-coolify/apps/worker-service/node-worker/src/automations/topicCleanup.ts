@@ -47,13 +47,13 @@ export const initUserTopicCleanup = () => {
         `[Interest Pruning] Identifying topics stale since ${fourteenDaysAgo.toISOString()}`,
       );
 
-      // Query against displayAndApp.contentPreferences.preferredTopics.lastViewed
+      // Query against display.contentPreferences.preferredTopics.lastViewed
       const cursor = UserSettingsModel.find({
-        "displayAndApp.contentPreferences.preferredTopics.lastViewed": {
+        "display.contentPreferences.preferredTopics.lastViewed": {
           $lt: fourteenDaysAgo,
         },
       })
-        .select("userId displayAndApp.contentPreferences.preferredTopics")
+        .select("userId display.contentPreferences.preferredTopics")
         .cursor();
 
       let processedUsers = 0;

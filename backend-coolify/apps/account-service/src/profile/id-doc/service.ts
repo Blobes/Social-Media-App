@@ -1,5 +1,6 @@
-import { IdVerificationRequestModel, UserModel } from "@repo/database";
-import { TransInfo, MESSAGES_REGISTRY } from "@repo/shared";
+import mongoose from "mongoose";
+import { IdVerificationRequestModel } from "@repo/database";
+import { TransInfo, MESSAGES_REGISTRY, fetchSingleUser } from "@repo/shared";
 
 interface ISubmitIdDocInput {
   userId: string;
@@ -13,7 +14,7 @@ interface ISubmitIdDocResult {
   status: "SUCCESS" | "NOT_FOUND" | "INELIGIBLE" | "ALREADY_PENDING";
   transInfo: TransInfo;
   payload?: {
-    requestId: any;
+    requestId: mongoose.Types.ObjectId;
     status: string;
   };
 }
@@ -32,7 +33,11 @@ export const executeIdDocSubmission = async (
     verificationSelfie,
   } = input;
 
-  const user = await UserModel.findById(userId);
+  const user = await fetchSingleUser({
+    identifier: userId,
+    flags: { lean: false, skipFilter: false },
+  });
+
   if (!user) {
     return {
       status: "NOT_FOUND",
@@ -74,7 +79,7 @@ export const executeIdDocSubmission = async (
     status: "SUCCESS",
     transInfo: MESSAGES_REGISTRY.VERIFICATION.REQUEST_SUBMITTED_SUCCESSFULLY,
     payload: {
-      requestId: verificationRequest._id,
+      requestId: verificationRequest._id as mongoose.Types.ObjectId,
       status: "PENDING",
     },
   };

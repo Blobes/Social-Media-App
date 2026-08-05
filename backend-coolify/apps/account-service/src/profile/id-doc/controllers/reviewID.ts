@@ -1,24 +1,25 @@
-import { IdVerificationRequestModel, UserModel } from "@repo/database";
-import { IAuthRequest } from "@repo/shared";
-
+import { IdVerificationRequestModel } from "@repo/database";
+import { IAuthRequest, fetchSingleUser } from "@repo/shared";
 import { Response } from "express";
 
 interface ReviewRequest extends IAuthRequest {
   body: {
     requestId: string;
     decision: "APPROVED" | "REJECTED";
-    rejectionReason?: string; // Optional feedback for the user
+    rejectionReason?: string;
   };
 }
 
+/**
+ * Reviews ID verification requests, updates request decision status, and synchronizes user verification flags.
+ */
 export const reviewVerification = async (
   req: ReviewRequest,
   res: Response,
-): Promise<any> => {
-  const { requestId, decision, rejectionReason } = req.body;
+): Promise<Response> => {
+  const { requestId, decision } = req.body;
 
   try {
-    // 1. Find and update the request
     const request = await IdVerificationRequestModel.findById(requestId);
     if (!request) {
       return res
@@ -29,22 +30,25 @@ export const reviewVerification = async (
     request.status = decision;
     await request.save();
 
-    // 2. Update the User profile based on the decision
     const isApproved = decision === "APPROVED";
 
-    await UserModel.findByIdAndUpdate(request.userId, {
-      $set: {
-        idVerificationStatus: decision,
-        isVerified: isApproved, // General badge
-        isPublicFigure: isApproved, // Merit-based figure badge
-      },
+    const user = await fetchSingleUser({
+      identifier: request.userId,
+      flags: { lean: false, skipFilter: true },
     });
+
+    if (user) {
+      user.idVerificationStatus = decision;
+      user.isVerified = isApproved;
+      user.isPublicFigure = isApproved;
+      await user.save();
+    }
 
     return res.status(200).json({
       status: "SUCCESS",
       message: `User verification has been ${decision.toLowerCase()}.`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Review Verification Error:", error);
     return res
       .status(500)

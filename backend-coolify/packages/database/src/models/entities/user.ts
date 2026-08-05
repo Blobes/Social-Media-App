@@ -169,20 +169,6 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     // --- METRICS & PREFERENCES ---
     followersCount: { type: Number, default: 0 },
     followingCount: { type: Number, default: 0 },
-    // preferences: {
-    //   preferredTopics: {
-    //     type: [
-    //       {
-    //         topicId: { type: Schema.Types.ObjectId, ref: "Topic" },
-    //         title: String,
-    //         lastViewed: Date,
-    //       },
-    //     ],
-    //     default: [],
-    //   },
-    //   showSensitiveGraphic: { type: Boolean, default: false },
-    //   preferredLanguage: { type: String, default: "en" },
-    // },
   },
   {
     timestamps: true,

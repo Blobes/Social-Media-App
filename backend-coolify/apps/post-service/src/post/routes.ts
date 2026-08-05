@@ -1,20 +1,31 @@
 import express, { Router } from "express";
 import { markPostAsSeen } from "./markPost/markAsSeen";
-import { optionallyAuthenicate, authenticate } from "../envVars";
+import { optionallyAuthenticate, authenticate } from "../envVars";
 import { translateCaption } from "./translate/translateCaption";
 import { lookupTopics } from "./topic/lookup";
-import { executePostTopicsUpdate } from "./topic/manage";
-import { handleUserTopicRemoval } from "./topic/remove";
-import { deleteUnusedTopics } from "./topic/delete";
+import { syncPostTopics } from "./topic/sync";
+import { autoInvalidatePostCache } from "@repo/shared";
 
 const router: Router = express.Router();
 
-router.patch("/:id/seen", optionallyAuthenicate, markPostAsSeen);
+// Read and operational endpoints (No cache invalidation required)
+router.patch(
+  "/:postId/seen",
+  optionallyAuthenticate,
+  autoInvalidatePostCache({ invalidatePostLanguages: false }),
+  markPostAsSeen,
+);
 router.post("/translate/caption", authenticate, translateCaption);
-
 router.post("/topic/search", authenticate, lookupTopics);
-router.post("/topic/sync", authenticate, executePostTopicsUpdate);
-router.patch("/topic/remove-preferences", authenticate, handleUserTopicRemoval);
-router.delete("/topic/cleanup", authenticate, deleteUnusedTopics);
+
+// Mutation endpoints
+router.post(
+  "/topic/sync",
+  authenticate,
+  autoInvalidatePostCache({}),
+  syncPostTopics,
+);
+
+// router.delete("/topic/cleanup", authenticate, deleteUnusedTopics);
 
 export default router;

@@ -3,14 +3,14 @@ import {
   IAuthRequest,
   MESSAGES_REGISTRY,
   forwardError,
-  getUserSettings,
+  fetchUserSettings,
 } from "@repo/shared";
 import { UpdateSettingsInput, updateUserSettings } from "./service";
 
 /**
  * Controller endpoint to fetch active user settings.
  */
-export const fetchUserSettings = async (
+export const getUserSettings = async (
   req: IAuthRequest,
   res: Response,
   next: NextFunction,
@@ -27,12 +27,20 @@ export const fetchUserSettings = async (
   }
 
   try {
-    const serviceResult = await getUserSettings({ userId });
+    const settingsResult = await fetchUserSettings({ userId });
+
+    if (!settingsResult) {
+      res.status(400).json({
+        status: "ERROR",
+        ...MESSAGES_REGISTRY.SETTINGS.SETTINGS_NOT_FOUND,
+        payload: null,
+      });
+    }
 
     res.status(200).json({
       status: "SUCCESS",
-      ...serviceResult.transInfo,
-      payload: serviceResult.payload,
+      ...MESSAGES_REGISTRY.SETTINGS.FETCHED_SUCCESSFULLY,
+      payload: settingsResult,
     });
     return;
   } catch (error: any) {

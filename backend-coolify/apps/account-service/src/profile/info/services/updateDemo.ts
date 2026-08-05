@@ -1,23 +1,17 @@
-import { UserModel } from "@repo/database";
-import {
-  userSensitiveFields,
-  CACHE_KEYS,
-  invalidateCache,
-  TransInfo,
-  MESSAGES_REGISTRY,
-} from "@repo/shared";
+import { TransInfo, MESSAGES_REGISTRY, fetchSingleUser } from "@repo/shared";
 
 interface IUpdateDemoInfoInput {
   authUserId: string;
   gender?: string;
   dateOfBirth?: string;
-  location?: string;
+  address?: string;
   relationship?: string;
 }
+
 interface IUpdateDemoInfoResult {
   status: "SUCCESS" | "NOT_FOUND";
   transInfo: TransInfo;
-  payload?: any;
+  payload?: unknown;
 }
 
 /**
@@ -26,38 +20,37 @@ interface IUpdateDemoInfoResult {
 export const updateAccountDemoInfo = async (
   input: IUpdateDemoInfoInput,
 ): Promise<IUpdateDemoInfoResult> => {
-  const { authUserId, gender, dateOfBirth, location, relationship } = input;
+  const { authUserId, gender, dateOfBirth, address, relationship } = input;
 
-  const updatedUser = await UserModel.findByIdAndUpdate(
-    authUserId,
-    {
-      $set: {
-        gender,
-        dateOfBirth,
-        location,
-        relationship,
-      },
-    },
-    { new: true, runValidators: true },
-  );
+  const user = await fetchSingleUser({
+    identifier: authUserId,
+    flags: { lean: false },
+  });
 
-  if (!updatedUser) {
+  if (!user) {
     return {
       status: "NOT_FOUND",
       transInfo: MESSAGES_REGISTRY.AUTH.USER_NOT_FOUND,
     };
   }
-  // Clear stale profiling cache values immediately to keep client layers accurate
-  await invalidateCache(CACHE_KEYS.USER_PROFILE(authUserId));
 
-  const safePayload = updatedUser.toObject();
-  userSensitiveFields().forEach((field) => {
-    delete (safePayload as any)[field];
+  if (gender !== undefined) user.gender = gender;
+  if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth;
+  if (address !== undefined) user.address = address;
+  if (relationship !== undefined) user.relationship = relationship;
+
+  await user.save();
+
+  // Fetch lean sanitized paload using default repository sanitization flags
+  const updatedLeanUser = await fetchSingleUser({
+    identifier: authUserId,
+    flags: { lean: true, includeSensitiveFields: false },
   });
+
   return {
     status: "SUCCESS",
     transInfo:
       MESSAGES_REGISTRY.PROFILE.DEMOGRAPHIC_INFORMATION_UPDATED_SUCCESSFULLY,
-    payload: safePayload,
+    payload: updatedLeanUser,
   };
 };

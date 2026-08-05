@@ -1,9 +1,4 @@
-import {
-  CACHE_KEYS,
-  invalidatePattern,
-  UserSettingsResult,
-  MESSAGES_REGISTRY,
-} from "@repo/shared";
+import { UserSettingsResult, MESSAGES_REGISTRY } from "@repo/shared";
 import { IUserSettingsDocument, UserSettingsModel } from "@repo/database";
 import { DeepPartial, Document } from "mongoose";
 
@@ -62,8 +57,6 @@ export const updateUserSettings = async (
     { $set: updateFields },
     { new: true, upsert: true, runValidators: true },
   );
-
-  await invalidatePattern(CACHE_KEYS.WILDCARD_USER_ALL(userId));
 
   return {
     status: "SUCCESS",

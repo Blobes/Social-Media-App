@@ -48,6 +48,8 @@ export enum VerificationPurpose {
   PASSWORD_RESET = "PASSWORD_RESET",
 }
 
+export type InputCheckType = "EMAIL" | "PHONE" | "USERNAME";
+
 export type Role = "USER" | "ADMIN" | "MODERATOR";
 
 export interface IJwtUser {
@@ -207,13 +209,8 @@ export interface TransInfo {
   readonly interpolations?: Record<string, any>;
 }
 
-/**
- * Utility type to recursively make all nested properties optional for updates.
- */
-// export type DeepPartial<T> = {
-//   [P in keyof T]?: T[P] extends (infer U)[]
-//     ? T[P]
-//     : T[P] extends object
-//       ? DeepPartial<T[P]>
-//       : T[P];
-// };
+export interface UserSettingsResult {
+  status: "SUCCESS" | "NOT_FOUND" | "INVALID_INPUT";
+  transInfo: TransInfo;
+  payload?: any;
+}

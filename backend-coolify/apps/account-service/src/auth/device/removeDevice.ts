@@ -3,6 +3,8 @@ import { clearAuthCookies } from "@repo/security";
 import {
   cleanDeviceSessions,
   ensurePrimaryDevice,
+  fetchSingleUser,
+  fetchUserData,
   forwardError,
   IAuthRequest,
   MESSAGES_REGISTRY,
@@ -39,7 +41,11 @@ export const removeDevice = async (
     await device.deleteOne();
 
     if (wasPrimary) {
-      const user = await UserModel.findById(userId);
+      const user = await fetchSingleUser({
+        identifier: userId,
+        flags: { lean: false },
+      });
+
       if (user) {
         user.primaryDeviceId = null;
         await ensurePrimaryDevice(user, currentDeviceId?.toString());

@@ -12,6 +12,14 @@ export interface IEncryptedPluginOptions {
 }
 
 /**
+ * Shape constraint for documents processed by field encryption routines.
+ */
+interface IEncryptedTargetDoc {
+  get(path: string): unknown;
+  set(path: string, val: unknown, options?: Record<string, unknown>): unknown;
+}
+
+/**
  * Intercepts Mongoose document schemas to automate field transformations and blind lookups.
  */
 export const encryptedFieldsPlugin = (
@@ -36,7 +44,7 @@ export const encryptedFieldsPlugin = (
   /**
    * Internal routine to translate field data into secure variants before database persistence.
    */
-  const encryptDocumentFields = (doc: any) => {
+  const encryptDocumentFields = (doc: IEncryptedTargetDoc) => {
     fields.forEach(({ field, searchable }) => {
       const plainValue = doc.get(field);
 
@@ -54,7 +62,7 @@ export const encryptedFieldsPlugin = (
   /**
    * Internal routine to restore cipher properties back to clean payload representations.
    */
-  const decryptDocumentFields = (doc: any) => {
+  const decryptDocumentFields = (doc: IEncryptedTargetDoc | null) => {
     if (!doc) return;
     fields.forEach(({ field }) => {
       const cipherValue = doc.get(field);
@@ -70,10 +78,10 @@ export const encryptedFieldsPlugin = (
   });
 
   schema.pre("findOneAndUpdate", function () {
-    const update: any = this.getUpdate();
+    const update = this.getUpdate() as Record<string, unknown> | null;
     if (!update) return;
 
-    const target = update.$set || update;
+    const target = (update.$set || update) as Record<string, unknown>;
 
     fields.forEach(({ field, searchable }) => {
       const plainValue = target[field];
@@ -117,13 +125,14 @@ export const encryptedFieldsPlugin = (
     }
 
     const blindHash = hashLookup(plainValue);
+    const projection = options?.projection || options?.select || null;
 
     return this.findOne(
       {
         [`${fieldName}Hash`]: blindHash,
         ...filter,
       },
-      null,
+      projection,
       options,
     );
   };

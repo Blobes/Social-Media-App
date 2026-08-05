@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
-import { executeIdDocSubmission } from "@/profile/id-doc/submitDoc";
+import { executeIdDocSubmission } from "@/profile/id-doc/service";
 
 interface SubmitRequest extends IAuthRequest {
   body: {

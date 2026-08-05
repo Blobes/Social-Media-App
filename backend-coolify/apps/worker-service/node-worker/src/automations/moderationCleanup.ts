@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import { Types } from "mongoose";
-import { UserModel, ModerationCaseModel } from "@repo/database";
-import { switchAccountStatus } from "@repo/shared";
+import { ModerationCaseModel, UserModel } from "@repo/database";
+import { fetchManyUsers, switchAccountStatus } from "@repo/shared";
 
 /**
  * Sweeps and penalizes malicious profiles that have been repeatedly suspended.
@@ -34,14 +34,19 @@ async function processAutomatedProfileBans(): Promise<void> {
 
   const violatorIds = violators.map((v) => v._id);
 
-  const activeViolators = await UserModel.find({
-    _id: { $in: violatorIds },
-    accountStatus: { $in: ["ACTIVE", "SUSPENDED"] },
-  }).select("_id");
+  const activeViolators = await fetchManyUsers({
+    query: {
+      _id: { $in: violatorIds },
+      accountStatus: { $in: ["ACTIVE", "SUSPENDED"] },
+    },
+    select: ["_id"],
+    flags: { skipFilter: true },
+  });
 
   for (const user of activeViolators) {
+    const targetUserId = (user._id as Types.ObjectId).toString();
     await switchAccountStatus({
-      targetUserId: (user._id as Types.ObjectId).toString(),
+      targetUserId,
       targetStatus: "BANNED",
       reason: `Automated permanent ban enforced by system background worker. Exceeded 15 historical suspensions within a 2-month window.`,
       changedBy: "SYSTEM",
@@ -55,13 +60,19 @@ async function processAutomatedProfileBans(): Promise<void> {
  */
 async function processExpiredSuspensions(): Promise<void> {
   const now = new Date();
-  const expiredSuspendedUsers = await UserModel.find({
-    accountStatus: "SUSPENDED",
-    suspensionExpiresAt: { $ne: null, $lte: now },
-  }).select("_id");
+  const expiredSuspendedUsers = await fetchManyUsers({
+    query: {
+      accountStatus: "SUSPENDED",
+      suspensionExpiresAt: { $ne: null, $lte: now },
+    },
+    select: ["_id"],
+    flags: { skipFilter: true },
+  });
+
   for (const user of expiredSuspendedUsers) {
+    const targetUserId = (user._id as Types.ObjectId).toString();
     await switchAccountStatus({
-      targetUserId: (user._id as Types.ObjectId).toString(),
+      targetUserId,
       targetStatus: "ACTIVE",
       reason:
         "Automated account unsuspension triggered by worker due to expiration period completion.",
@@ -94,6 +105,7 @@ async function processPolicyBreachResets(): Promise<void> {
     ],
     createdAt: { $gte: sixMonthsAgo },
   });
+
   await UserModel.updateMany(
     {
       policyBreachCount: { $gt: 0 },

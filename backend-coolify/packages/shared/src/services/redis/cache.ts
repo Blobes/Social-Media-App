@@ -310,6 +310,66 @@ export class CacheService {
   }
 
   /**
+   * Stores candidate items with scores into a Redis Sorted Set (ZSET).
+   */
+  public static async zaddMany(
+    key: string,
+    items: Array<{ member: string; score: number }>,
+    expiryInSeconds?: number,
+    redisUrl?: string,
+  ): Promise<void> {
+    if (items.length === 0) return;
+
+    try {
+      const client = this.getClient(redisUrl);
+      const pipeline = client.pipeline();
+
+      pipeline.del(key);
+
+      const zaddArgs: (string | number)[] = [];
+      items.forEach(({ member, score }) => {
+        zaddArgs.push(score, member);
+      });
+
+      pipeline.zadd(key, ...zaddArgs);
+
+      if (expiryInSeconds) {
+        pipeline.expire(key, expiryInSeconds);
+      }
+
+      await pipeline.exec();
+    } catch (error) {
+      const err = error as Error;
+      console.error(
+        `[CacheZSet-Error] Failed ZADD for key ${key}:`,
+        err.message,
+      );
+    }
+  }
+
+  /**
+   * Fetches paginated members from a Redis Sorted Set in descending order of score.
+   */
+  public static async zrevrange(
+    key: string,
+    start: number,
+    stop: number,
+    redisUrl?: string,
+  ): Promise<string[]> {
+    try {
+      const client = this.getClient(redisUrl);
+      return await client.zrevrange(key, start, stop);
+    } catch (error) {
+      const err = error as Error;
+      console.error(
+        `[CacheZSet-Error] Failed ZREVRANGE for key ${key}:`,
+        err.message,
+      );
+      return [];
+    }
+  }
+
+  /**
    * Executes an atomic sliding window rate limit check.
    */
   public static async checkSlidingWindow(
@@ -401,7 +461,7 @@ export const setCache = (
 export const getOrSetCache = <T>(
   key: string,
   cb: () => Promise<T>,
-  expiryInSeconds = CACHE_EXPIRY.MIN_3,
+  expiryInSeconds = CACHE_EXPIRY.MIN_5,
 ): Promise<T> => CacheService.getOrSet(key, cb, expiryInSeconds);
 
 /**
@@ -460,6 +520,24 @@ export const scanCache = (
 export const pipelineGetCache = <T = any>(
   keys: string[],
 ): Promise<(T | null)[]> => CacheService.pipelineGet<T>(keys);
+
+/**
+ * Stores pre-scored candidate items in a Redis Sorted Set.
+ */
+export const setCacheSortedSet = (
+  key: string,
+  items: Array<{ member: string; score: number }>,
+  expiryInSeconds = CACHE_EXPIRY.MIN_20,
+): Promise<void> => CacheService.zaddMany(key, items, expiryInSeconds);
+
+/**
+ * Retrieves paginated items from a Redis Sorted Set ordered by highest score first.
+ */
+export const getCacheSortedSet = (
+  key: string,
+  start: number,
+  stop: number,
+): Promise<string[]> => CacheService.zrevrange(key, start, stop);
 
 /**
  * Evaluates sliding window rate limits using Redis pipelines.

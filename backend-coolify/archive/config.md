@@ -1,104 +1,80 @@
-package main
+/\*\*
 
-import (
-	"context"
-	"log"
-	"os"
-	"strings"
+- Ranks and filters generic posts based on user topic preferences, location matching, and moderation settings.
+  \*/
+  // export const personalizeFeed = async <T extends IBasePost>(
+  // posts: T[],
+  // userId: string,
+  // ): Promise<PersonalizeFeedResult<T>> => {
+  // if (!userId) {
+  // return {
+  // status: "NOT_FOUND",
+  // transInfo: MESSAGES_REGISTRY.AUTH.USER_NOT_FOUND,
+  // payload: posts,
+  // };
+  // }
 
-	"go-worker/tasks"
+// const userPrefs = await getUserPreferences(userId);
 
-	vision "cloud.google.com/go/vision/v2/apiv1"
-	"github.com/hibiken/asynq"
-	"github.com/joho/godotenv"
-	"github.com/sashabaranov/go-openai"
-	"google.golang.org/api/option"
-	"google.golang.org/api/transport"
-)
+// // Fallback to raw post sequence if settings retrieval failed
+// if (userPrefs.settings.status !== "SUCCESS") {
+// return {
+// status: userPrefs.settings.status,
+// transInfo: userPrefs.settings.transInfo,
+// payload: posts,
+// };
+// }
 
-type AppConfig struct {
-	AsynqOpts    asynq.RedisClientOpt
-	TaskDeps     *tasks.DependencyContext
-	VisionClient *vision.ImageAnnotatorClient
-}
+// // Extract preferences directly from settings document
+// const settingsDoc = userPrefs.settings.payload;
+// const displayPrefs = settingsDoc?.display;
 
-/**
- * Loads environment configurations and initializes connection-pooled cloud SDK clients.
- */
-func LoadEnvVars(ctx context.Context) (*AppConfig, error) {
-	if err := godotenv.Load("../../../.env.production"); err != nil {
-		log.Println("ℹ️ No .env.production file found, processing system level context maps")
-	}
+// const preferredTopics: IUserPreferredTopic[] =
+// displayPrefs?.contentPreferences?.preferredTopics || [];
+// const preferredTopicIds = new Set(
+// preferredTopics.map((t) => String(t.topicId)),
+// );
 
-	redisURL := os.Getenv("FUNSTAKES_REDIS_URL")
-	if redisURL == "" {
-		redisURL = "redis://62.171.158.199:3100/0"
-	}
+// const showSensitiveMedia = displayPrefs?.showSensitiveMedia ?? false;
 
-	parsedOpts, err := asynq.ParseRedisURI(redisURL)
-	if err != nil {
-		log.Printf("❌ Failed to parse raw connection sequence string: %v", err)
-		return nil, err
-	}
+// const personalizedPosts = posts
+// .filter((post) => {
+// // Safety Filter: Blocked Authors
+// if (userPrefs.blockedUserIds.includes(String(post.authorId))) {
+// return false;
+// }
 
-	clientOpts := parsedOpts.(asynq.RedisClientOpt)
+// // Safety Filter: Sensitive Graphics
+// if (post.hasSensitiveGraphic && !showSensitiveMedia) {
+// return false;
+// }
 
-	var visionClient *vision.ImageAnnotatorClient
-	var errVision error
+// return true;
+// })
+// .map((post) => {
+// let score = 0;
 
-	rawJSONKey := os.Getenv("GOOGLE_CREDENTIALS_JSON")
+// // Topic Intersection Scoring (+10 if any topic matches preferred topics)
+// if (post.topics && Array.isArray(post.topics)) {
+// const hasTopicMatch = post.topics.some((topicId) =>
+// preferredTopicIds.has(String(topicId)),
+// );
+// if (hasTopicMatch) score += 10;
+// }
 
-	var clientOptsList []option.ClientOption
+// // Proximity Location Scoring (+2 to +8 based on distance radius)
+// score += calculateLocationScore(userPrefs.location, post.location);
 
-	if rawJSONKey != "" && strings.HasPrefix(strings.TrimSpace(rawJSONKey), "{") {
-		creds, errCreds := transport.Creds(ctx, option.WithCredentialsJSON([]byte(rawJSONKey)))
-		if errCreds != nil {
-			log.Printf("❌ Failed to parse memory credential configurations securely: %v", errCreds)
-			return nil, errCreds
-		}
-		clientOptsList = append(clientOptsList, option.WithCredentials(creds))
-	} else if rawJSONKey != "" {
-		clientOptsList = append(clientOptsList, option.WithCredentialsFile(rawJSONKey))
-	}
+// return { post, score };
+// })
+// // Sort by descending score
+// .sort((a, b) => b.score - a.score)
+// // Unwrap original post
+// .map((wrapper) => wrapper.post);
 
-	visionClient, errVision = vision.NewImageAnnotatorClient(ctx, clientOptsList...)
-	if errVision != nil {
-		log.Printf("❌ Failed to initialize system-wide Google Vision SDK: %v", errVision)
-		return nil, errVision
-	}
-
-	openAIKey := os.Getenv("OPENAI_API_KEY")
-	if openAIKey == "" {
-		openAIKey = "YOUR_OPENAI_API_KEY"
-	}
-	openaiClient := openai.NewClient(openAIKey)
-
-	// Fetch API key for Gemini multimodal pipeline operations
-	geminiAPIKey := os.Getenv("GEMINI_API_KEY")
-	if geminiAPIKey == "" {
-		log.Println("⚠️ GEMINI_API_KEY is not configured in the active environment variables")
-	}
-
-	nodeWorkerURL := os.Getenv("WORKER_URL")
-	if nodeWorkerURL == "" {
-		if os.Getenv("NODE_ENV") == "production" {
-			nodeWorkerURL = "http://node-worker-service:8083"
-		} else {
-			nodeWorkerURL = "http://localhost:8083"
-		}
-	}
-
-	// Instantiate dependency context carrying existing engines and your new Gemini API token
-	taskDeps := &tasks.DependencyContext{
-		VisionClient: visionClient,
-		OpenAIClient: openaiClient,
-		GeminiAPIKey: geminiAPIKey,
-		NodeClient:   tasks.NewNodeClient(nodeWorkerURL + "/internal"),
-	}
-
-	return &AppConfig{
-		AsynqOpts:    clientOpts,
-		TaskDeps:     taskDeps,
-		VisionClient: visionClient,
-	}, nil
-}
+// return {
+// status: "SUCCESS",
+// transInfo: MESSAGES_REGISTRY.SETTINGS.FETCHED_SUCCESSFULLY,
+// payload: personalizedPosts,
+// };
+// };

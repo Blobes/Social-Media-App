@@ -1,11 +1,8 @@
-import { UserModel } from "@repo/database";
 import {
-  userSensitiveFields,
-  CACHE_KEYS,
-  invalidateCache,
   evaluateNotability,
   TransInfo,
   MESSAGES_REGISTRY,
+  fetchSingleUser,
 } from "@repo/shared";
 
 interface IUpdateBasicInfoInput {
@@ -17,10 +14,11 @@ interface IUpdateBasicInfoInput {
   website?: string;
   occupation?: string;
 }
+
 interface IUpdateBasicInfoResult {
   status: "SUCCESS" | "NOT_FOUND";
   transInfo: TransInfo;
-  payload?: any;
+  payload?: unknown;
   requiresIdVerification?: boolean;
 }
 
@@ -40,7 +38,11 @@ export const updateAccountBasicInfo = async (
     occupation,
   } = input;
 
-  const user = await UserModel.findById(authUserId);
+  const user = await fetchSingleUser({
+    identifier: authUserId,
+    flags: { lean: false },
+  });
+
   if (!user) {
     return {
       status: "NOT_FOUND",
@@ -86,19 +88,17 @@ export const updateAccountBasicInfo = async (
 
   await user.save();
 
-  // Flush stale storage blocks before compiling response sets
-  await invalidateCache(CACHE_KEYS.USER_PROFILE(authUserId));
-
-  const safePayload = user.toObject();
-  userSensitiveFields().forEach((field) => {
-    delete (safePayload as any)[field];
+  // Fetch lean sanitized profile snapshot directly through shared helper
+  const updatedLeanUser = await fetchSingleUser({
+    identifier: authUserId,
+    flags: { lean: true, includeSensitiveFields: false },
   });
 
   return {
     status: "SUCCESS",
     transInfo:
       MESSAGES_REGISTRY.PROFILE.USER_BASIC_DETAILS_UPDATED_SUCCESSFULLY,
-    payload: safePayload,
+    payload: updatedLeanUser,
     requiresIdVerification: isVIPCandidate,
   };
 };

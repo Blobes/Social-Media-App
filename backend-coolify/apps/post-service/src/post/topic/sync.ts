@@ -1,6 +1,6 @@
 import { Response, NextFunction } from "express";
 import {
-  executePostTopicsUpdate,
+  executePostTopicsSync,
   forwardError,
   IAuthRequest,
   MESSAGES_REGISTRY,
@@ -19,13 +19,13 @@ interface ManageRequest extends IAuthRequest {
 /**
  * Controller endpoint processing ingestion configurations to match up taxonomy tags safely against target updates.
  */
-export const updatePostTopics = async (
+export const syncPostTopics = async (
   req: ManageRequest,
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
   const userId = req.user?.id;
-  const { topics, targetId, targetModel, eventType: actionType } = req.body;
+  const { topics, targetId, targetModel, eventType } = req.body;
 
   if (!userId) {
     return res.status(401).json({
@@ -36,12 +36,12 @@ export const updatePostTopics = async (
   }
 
   try {
-    const serviceResult = await executePostTopicsUpdate({
+    const serviceResult = await executePostTopicsSync({
       topics,
       userId,
       targetId,
       targetModel,
-      eventType: actionType,
+      eventType,
     });
 
     if (serviceResult.status === "INVALID_INPUT") {
@@ -59,7 +59,7 @@ export const updatePostTopics = async (
     });
   } catch (error: any) {
     console.error(
-      `[Topic Manager] Execution Instance Failure during ${actionType}:`,
+      `[Topic Manager] Execution Instance Failure during ${eventType}:`,
       error,
     );
 

@@ -2,7 +2,8 @@ import mongoose, { ClientSession } from "mongoose";
 import { TopicModel } from "@repo/database";
 import { TransInfo } from "../../types";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
-import { executeUserTopicsUpdate } from "./userTopic";
+import { executeUserTopicsSync } from "./userSync";
+import { INVALIDATE_CACHE } from "../../constants/invalidators";
 
 export type TopicUpdateEvent = "POST_CREATION_OR_UPDATE" | "POST_ENGAGEMENT";
 
@@ -23,7 +24,7 @@ export interface ManageTopicsResult {
 /**
  * Attaches new topic IDs to a post and increments global postCount.
  */
-export const handleViaPostCreation = async (
+export const createOnPostCreation = async (
   targetId: string,
   targetModel: string,
   topicDocs: any[],
@@ -60,13 +61,14 @@ export const handleViaPostCreation = async (
         { session },
       ),
     ]);
+    await INVALIDATE_CACHE.forTopics();
   }
 };
 
 /**
  * Updates user preferences and metadata timestamps upon post engagement.
  */
-export const handleViaPostEngagement = async (
+export const syncWithUserViaPostEngagement = async (
   userId: string,
   topicDocs: any[],
   session?: ClientSession,
@@ -76,7 +78,7 @@ export const handleViaPostEngagement = async (
     title: t.title,
   }));
 
-  await executeUserTopicsUpdate({
+  await executeUserTopicsSync({
     userId,
     topics: preferenceTopics,
     mode: "ADD",
@@ -88,7 +90,7 @@ export const handleViaPostEngagement = async (
 /**
  * Synchronizes topic entities and processes post-related actions.
  */
-export const executePostTopicsUpdate = async (
+export const executePostTopicsSync = async (
   params: ManageTopicsParams,
   session?: ClientSession,
 ): Promise<ManageTopicsResult> => {
@@ -133,12 +135,12 @@ export const executePostTopicsUpdate = async (
           MESSAGES_REGISTRY.POST.MISSING_POST_PROCESSING_PARAMS.message,
         );
       }
-      await handleViaPostCreation(targetId, targetModel, topicDocs, session);
+      await createOnPostCreation(targetId, targetModel, topicDocs, session);
       break;
 
     case "POST_ENGAGEMENT":
       if (userId) {
-        await handleViaPostEngagement(userId, topicDocs, session);
+        await syncWithUserViaPostEngagement(userId, topicDocs, session);
       }
       break;
 
