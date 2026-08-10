@@ -1,6 +1,6 @@
-import { model, Schema } from "mongoose";
+import { Model, Schema, model } from "mongoose";
+import { IUserPreferredTopic } from "../../../types/misc";
 import { IUserSettingsDocument } from "../../../types/user";
-import { IUserPreferredTopic } from "../../../types/topic";
 
 /**
  * Schema defining topic preference tracking subdocument.
@@ -34,8 +34,6 @@ const UserSettingsSchema = new Schema<IUserSettingsDocument>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true,
-      index: true,
     },
     privacy: {
       isPrivateAccount: { type: Boolean, default: false },
@@ -112,19 +110,11 @@ const UserSettingsSchema = new Schema<IUserSettingsDocument>(
       },
     },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
 
-/**
- * --- INDEX STRATEGY ---
- *
- * 1. Unique index on `userId` handles fast settings lookup during profile loads and authentication.
- * 2. Partial index on `privacy.discoverability.recommendToOthers` optimizes background user recommendation engine jobs.
- * 3. Partial index on `notifications.quietMode.isEnabled` allows workers to efficiently process active quiet mode schedules during push delivery.
- */
-
+// User Settings Schema Indexes
+UserSettingsSchema.index({ userId: 1 }, { unique: true });
 UserSettingsSchema.index(
   { "privacy.discoverability.recommendToOthers": 1 },
   {
@@ -133,14 +123,14 @@ UserSettingsSchema.index(
     },
   },
 );
-
 UserSettingsSchema.index(
   { "notifications.quietMode.isEnabled": 1 },
   { partialFilterExpression: { "notifications.quietMode.isEnabled": true } },
 );
 
-export const UserSettingsModel = model<IUserSettingsDocument>(
-  "UserSettings",
-  UserSettingsSchema,
-  "user_settings",
-);
+export const UserSettingsModel: Model<IUserSettingsDocument> =
+  model<IUserSettingsDocument>(
+    "UserSettings",
+    UserSettingsSchema,
+    "user_settings",
+  );

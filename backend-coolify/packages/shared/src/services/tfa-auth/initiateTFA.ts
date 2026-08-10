@@ -1,10 +1,9 @@
-import { UserModel } from "@repo/database";
 import { TransInfo } from "../../types";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
-import { normalizeValue } from "../../utils/hash";
 import { getAccountStatusMsg } from "../../utils/status";
 import { authenticatorService } from "./authenticator";
 import { fetchSingleUser } from "../user/retrieval/fetchUser";
+import { determineCheckType } from "../../utils/sanitizeData";
 
 export type TFAPurpose = "AUTHENTICATE" | "TFA_SETUP";
 
@@ -15,7 +14,12 @@ export interface ITFAInitiationInput {
 }
 
 export interface ITFAInitiationResult {
-  status: "SUCCESS" | "MISSING_IDENTIFIER" | "NOT_FOUND" | "RESTRICTION";
+  status:
+    | "SUCCESS"
+    | "MISSING_IDENTIFIER"
+    | "NOT_FOUND"
+    | "RESTRICTION"
+    | "INVALID_IDENTIFIER";
   transInfo: TransInfo;
   payload: {
     qrCodeDataUrl: string | null;
@@ -41,33 +45,25 @@ export const executeTFAInitiation = async (
       };
     }
 
-    const formattedValue = normalizeValue(identifier);
-    const isEmail = formattedValue.includes("@");
+    const isEmail = determineCheckType(identifier) === "EMAIL";
+    const isPhone = determineCheckType(identifier) === "PHONE";
+
+    if (!isEmail && !isPhone) {
+      return {
+        status: "INVALID_IDENTIFIER",
+        transInfo: MESSAGES_REGISTRY.AUTH.INVALID_EMAIL_OR_PHONE,
+        payload: null,
+      };
+    }
 
     const user = await fetchSingleUser({
-      identifier: isEmail
-        ? formattedValue.toLowerCase()
-        : formattedValue.replace(/\D/g, ""),
+      identifier,
       flags: {
         lean: true,
         identifierType: isEmail ? "EMAIL" : "PHONE",
         skipFilter: true,
       },
     });
-
-    // const user = isEmail
-    //   ? await UserModel.findByEmail({
-    //       email: formattedValue.toLowerCase(),
-    //       options: {
-    //         skipFilter: true,
-    //       },
-    //     })
-    //   : await UserModel.findByPhone({
-    //       phoneNumber: formattedValue.replace(/\D/g, ""),
-    //       options: {
-    //         skipFilter: true,
-    //       },
-    //     });
 
     if (!user) {
       return {
@@ -118,7 +114,6 @@ export const executeTFAInitiation = async (
     };
   }
 
-  // const user = await UserModel.findById(userId);
   const user = await fetchSingleUser({
     identifier: userId,
     flags: { lean: false, skipFilter: true },

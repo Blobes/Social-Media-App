@@ -21,7 +21,10 @@ export const initiatePasswordReset = async (
   try {
     const serviceResult = await executeResetInitiation({ identifier });
 
-    if (serviceResult.status === "MISSING_IDENTIFIER") {
+    if (
+      serviceResult.status === "MISSING_IDENTIFIER" ||
+      serviceResult.status === "INVALID_IDENTIFIER"
+    ) {
       return res.status(400).json({
         status: "ERROR",
         ...serviceResult.transInfo,

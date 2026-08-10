@@ -32,8 +32,6 @@ export type AppName =
 
 export type PostType = "GIST" | "STAKE";
 
-export type MsgPostType = "Gist" | "Stake" | "Post";
-
 export type ModerationTaskMode =
   | "MODERATE_ONLY"
   | "MODERATE_AND_EXTRACT_KEYWORDS"
@@ -153,6 +151,7 @@ export interface OtpJobPayload {
   code: string;
   email?: string;
   phone?: string;
+  firstName?: string;
 }
 
 export interface IModResult {

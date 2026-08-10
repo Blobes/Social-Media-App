@@ -1,4 +1,5 @@
 import { Document, Types } from "mongoose";
+import { PostModelType } from "./post";
 
 export interface IFlaggedPost extends Document {
   postId: Types.ObjectId;
@@ -122,7 +123,7 @@ export interface IModerationStrike extends Document {
   severity: ModerationSeverity;
   points: number;
   reason: string;
-  relatedPostType: "Gist" | "Stake";
+  relatedPostType: PostModelType;
   relatedPost?: Types.ObjectId | null;
   relatedComment?: Types.ObjectId | null;
   relatedMedia?: Types.ObjectId | null;

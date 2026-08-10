@@ -1,6 +1,7 @@
-import { Schema, model } from "mongoose";
+import { Model, Schema, model } from "mongoose";
+import { IBookmarkDocument } from "../../../types/post";
 
-const BookmarkSchema = new Schema(
+const BookmarkSchema = new Schema<IBookmarkDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -15,13 +16,18 @@ const BookmarkSchema = new Schema(
     postType: {
       type: String,
       required: true,
-      enum: ["GIST", "STAKE"],
+      enum: ["Gist", "Stake"],
     },
   },
-  {
-    timestamps: true,
-    autoIndex: false, // Stop mongodb auto index
-  },
+  { timestamps: true },
 );
 
-export const BookmarkModel = model("Bookmark", BookmarkSchema, "bookmarks");
+// Bookmark Schema Indexes
+BookmarkSchema.index({ userId: 1, postId: 1 }, { unique: true });
+BookmarkSchema.index({ userId: 1, createdAt: -1 });
+
+export const BookmarkModel: Model<IBookmarkDocument> = model<IBookmarkDocument>(
+  "Bookmark",
+  BookmarkSchema,
+  "bookmarks",
+);

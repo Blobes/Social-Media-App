@@ -26,7 +26,7 @@ export const otpWorkflowRegistry: Record<
     user: IUserDocument,
     context: IWorkflowContext,
     lifecycle?: Lifecycle,
-  ) => Promise<any>
+  ) => Promise<unknown>
 > = {
   LOGIN_VERIFICATION: async (user, context, lifecycle = "VERIFICATION") => {
     if (lifecycle === "DISPATCH_REQUEST") return null;

@@ -1,10 +1,9 @@
-import { DeviceModel, UserModel } from "@repo/database";
+import { DeviceModel } from "@repo/database";
 import { clearAuthCookies } from "@repo/security";
 import {
   cleanDeviceSessions,
   ensurePrimaryDevice,
   fetchSingleUser,
-  fetchUserData,
   forwardError,
   IAuthRequest,
   MESSAGES_REGISTRY,

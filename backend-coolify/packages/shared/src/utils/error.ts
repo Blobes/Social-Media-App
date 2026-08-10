@@ -8,14 +8,20 @@ export class AppError extends Error {
   public readonly statusCode: number;
   public readonly i18nKey: string;
   public readonly interpolations?: Record<string, any>;
+  public readonly isOperational: boolean;
 
-  constructor(statusCode: number, transInfo: TransInfo) {
+  constructor(
+    statusCode: number,
+    transInfo: TransInfo,
+    isOperational: boolean = true,
+  ) {
     super(transInfo.message || "An operational application error occurred.");
     Object.setPrototypeOf(this, new.target.prototype);
 
     this.statusCode = statusCode;
     this.i18nKey = transInfo.i18nKey || "auth.server_fallback_error";
     this.interpolations = transInfo?.interpolations;
+    this.isOperational = isOperational;
 
     Error.captureStackTrace(this, this.constructor);
   }
@@ -30,16 +36,20 @@ export const forwardError = (
   originalError?: any,
   statusCode: number = 500,
 ): void => {
-  // Preserve status code, i18nKey, and interpolations from original thrown operational errors
   const finalStatusCode =
     originalError?.status || originalError?.statusCode || statusCode;
+
+  // Preserve explicit message/i18nKey if originalError has them, otherwise fallback to transInfo
   const finalTransInfo: TransInfo = {
     message: originalError?.message || transInfo.message,
-    i18nKey: originalError?.i18nKey || transInfo.i18nKey,
+    i18nKey:
+      originalError?.message && !originalError?.i18nKey
+        ? "auth.server_unknown_error"
+        : originalError?.i18nKey || transInfo.i18nKey,
     interpolations: originalError?.interpolations || transInfo?.interpolations,
   };
 
-  const appError = new AppError(finalStatusCode, finalTransInfo);
+  const appError = new AppError(finalStatusCode, finalTransInfo, true);
 
   if (originalError?.stack) {
     appError.stack = originalError.stack;

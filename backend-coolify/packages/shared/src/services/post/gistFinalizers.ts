@@ -140,7 +140,7 @@ export const finalizeGistCreation = async (
     [
       {
         postId,
-        postType: "GIST",
+        postType: "Gist",
         caption: caption?.trim() || "",
         detectedLanguage: detectedIso2,
         version: 1,
@@ -295,7 +295,7 @@ export const finalizeGistUpdate = async (
     [
       {
         postId,
-        postType: "GIST",
+        postType: "Gist",
         caption: caption?.trim() || "",
         detectedLanguage: detectedIso2,
         version: nextVersion,
@@ -306,7 +306,7 @@ export const finalizeGistUpdate = async (
   );
 
   await PostCaptionModel.updateMany(
-    { postId, postType: "GIST", _id: { $ne: newCaptionDoc._id } },
+    { postId, postType: "Gist", _id: { $ne: newCaptionDoc._id } },
     { $set: { isLatest: false } },
     { session },
   );

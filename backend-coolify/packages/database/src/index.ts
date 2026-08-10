@@ -1,11 +1,10 @@
 // Data types
 export * from "./types/user";
-export * from "./types/posts";
+export * from "./types/post";
 export * from "./types/media";
 export * from "./types/device";
 export * from "./types/moderation";
-export * from "./types/topic";
-export * from "./types/status";
+export * from "./types/misc";
 
 // Moderation
 export * from "./models/non-entities/moderation";

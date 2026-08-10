@@ -1,21 +1,25 @@
+import { FUNSTAKES_REDIS_URL } from "@/envVars";
 import {
   MESSAGES_REGISTRY,
-  normalizeValue,
   TransInfo,
   enqueueOtpTask,
   genVerificationCode,
   getAccountStatusMsg,
   fetchSingleUser,
+  determineCheckType,
 } from "@repo/shared";
-
-const FUNSTAKES_REDIS_URL = process.env.FUNSTAKES_REDIS_URL || "";
 
 export interface IResetInitiationInput {
   identifier: string;
 }
 
 export interface IResetInitiationResult {
-  status: "SUCCESS" | "MISSING_IDENTIFIER" | "NOT_FOUND" | "RESTRICTION";
+  status:
+    | "SUCCESS"
+    | "MISSING_IDENTIFIER"
+    | "NOT_FOUND"
+    | "RESTRICTION"
+    | "INVALID_IDENTIFIER";
   transInfo: TransInfo;
   payload: {
     resetType: "EMAIL" | "PHONE";
@@ -39,31 +43,22 @@ export const executeResetInitiation = async (
     };
   }
 
-  const formattedValue = normalizeValue(identifier);
-  const isEmail = formattedValue.includes("@");
+  const isEmail = determineCheckType(identifier) === "EMAIL";
+  const isPhone = determineCheckType(identifier) === "PHONE";
 
-  // const user = isEmail
-  //   ? await UserModel.findByEmail({
-  //       email: formattedValue.toLowerCase(),
-  //       options: {
-  //         skipFilter: true,
-  //       },
-  //     })
-  //   : await UserModel.findByPhone({
-  //       phoneNumber: formattedValue.replace(/\D/g, ""),
-  //       options: {
-  //         skipFilter: true,
-  //       },
-  //     });
+  if (!isEmail && !isPhone) {
+    return {
+      status: "INVALID_IDENTIFIER",
+      transInfo: MESSAGES_REGISTRY.AUTH.INVALID_EMAIL_OR_PHONE,
+      payload: null,
+    };
+  }
 
   const user = await fetchSingleUser({
-    identifier: isEmail
-      ? formattedValue.toLowerCase()
-      : formattedValue.replace(/\D/g, ""),
-    select: ["+password"],
+    identifier,
+    select: ["+password", "email", "phoneNumber", "accountStatus"],
     flags: {
       lean: false,
-      identifierType: isEmail ? "EMAIL" : "PHONE",
       skipFilter: true,
     },
   });
@@ -94,8 +89,6 @@ export const executeResetInitiation = async (
   }
 
   const code = genVerificationCode();
-  const resetDestination = isEmail ? user.email : user.phoneNumber;
-
   user.otpCode = code;
   user.otpCodeExpiresAt = new Date(Date.now() + 1000 * 60 * 15);
   await user.save();
@@ -106,6 +99,7 @@ export const executeResetInitiation = async (
         email: user.email,
         code,
         type: "EMAIL",
+        firstName: user.firstName,
       },
       FUNSTAKES_REDIS_URL,
     );
@@ -115,16 +109,19 @@ export const executeResetInitiation = async (
         phone: user.phoneNumber,
         code,
         type: "WHATSAPP",
+        firstName: user.firstName,
       },
       FUNSTAKES_REDIS_URL,
     );
   }
 
+  const resetDestination = isEmail ? user.email : user.phoneNumber;
+
   return {
     status: "SUCCESS",
     transInfo: isEmail
-      ? MESSAGES_REGISTRY.AUTH.EMAIL_AVAILABLE
-      : MESSAGES_REGISTRY.AUTH.PHONE_AVAILABLE,
+      ? MESSAGES_REGISTRY.AUTH.VERIFICATION_CODE_SENT_TO_EMAIL
+      : MESSAGES_REGISTRY.AUTH.VERIFICATION_CODE_SENT_TO_PHONE,
     payload: {
       resetType: isEmail ? "EMAIL" : "PHONE",
       destination: resetDestination || "",

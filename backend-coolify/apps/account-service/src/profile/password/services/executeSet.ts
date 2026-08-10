@@ -3,9 +3,9 @@ import {
   cleanDeviceSessions,
   TransInfo,
   MESSAGES_REGISTRY,
-  normalizeValue,
   getAccountStatusMsg,
   fetchSingleUser,
+  determineCheckType,
 } from "@repo/shared";
 
 export type PasswordPurpose =
@@ -31,7 +31,8 @@ interface IUpdatePasswordResult {
     | "INCORRECT_CURRENT_PASSWORD"
     | "PASSWORD_REUSE_FORBIDDEN"
     | "MISSING_IDENTIFIER"
-    | "RESTRICTION";
+    | "RESTRICTION"
+    | "INVALID_IDENTIFIER";
   transInfo: TransInfo;
   payload?: {
     loggedOut: boolean;
@@ -64,26 +65,20 @@ export const executePasswordUpdate = async (
       };
     }
 
-    // user = isEmail
-    //   ? await UserModel.findByEmail({
-    //       email: formattedValue.toLowerCase(),
-    //       options: { skipFilter: true },
-    //     }).select("+password")
-    //   : await UserModel.findByPhone({
-    //       phoneNumber: formattedValue.replace(/\D/g, ""),
-    //       options: { skipFilter: true },
-    //     }).select("+password");
-    const formattedValue = normalizeValue(identifier);
-    const isEmail = formattedValue.includes("@");
+    const isEmail = determineCheckType(identifier) === "EMAIL";
+    const isPhone = determineCheckType(identifier) === "PHONE";
+
+    if (!isEmail && !isPhone) {
+      return {
+        status: "INVALID_IDENTIFIER",
+        transInfo: MESSAGES_REGISTRY.AUTH.INVALID_EMAIL_OR_PHONE,
+      };
+    }
 
     user = await fetchSingleUser({
-      identifier: isEmail
-        ? formattedValue.toLowerCase()
-        : formattedValue.replace(/\D/g, ""),
-      select: ["+password"],
+      identifier,
       flags: {
         lean: false,
-        identifierType: isEmail ? "EMAIL" : "PHONE",
         skipFilter: true,
       },
     });
@@ -131,7 +126,6 @@ export const executePasswordUpdate = async (
       };
     }
 
-    // user = await UserModel.findById(userId).select("+password");
     user = await fetchSingleUser({
       identifier: userId,
       select: ["+password"],

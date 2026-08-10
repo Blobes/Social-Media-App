@@ -100,6 +100,7 @@ export const setPassword = async (
 
     if (
       serviceResult.status === "MISSING_IDENTIFIER" ||
+      serviceResult.status === "INVALID_IDENTIFIER" ||
       serviceResult.status === "PASSWORD_ALREADY_EXISTS" ||
       serviceResult.status === "NO_PASSWORD_SET" ||
       serviceResult.status === "PASSWORD_REUSE_FORBIDDEN"

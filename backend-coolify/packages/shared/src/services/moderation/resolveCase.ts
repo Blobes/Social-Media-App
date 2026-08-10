@@ -122,10 +122,10 @@ export const executeCaseResolution = async (
 
   // --- Core Identity Penalization & Account Lifecycle Pipeline ---
   if (!isApproved) {
-    //  const userProfile = await UserModel.findById(modCase.targetOwner);
     const userProfile = await fetchSingleUser({
       identifier: modCase.targetOwner,
-      flags: { lean: false, skipFilter: true },
+      select: ["accountStatus"],
+      flags: { skipFilter: true },
     });
 
     if (userProfile) {

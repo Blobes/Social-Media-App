@@ -74,7 +74,14 @@ router.use(createStaticProxy(["/feed", "/gist"], POST_URL));
 router.use(createStaticProxy(["/platform"], PLATFORM_URL, true));
 router.use(
   createStaticProxy(
-    ["/upload", "/notification", "/search", "/audit", "/moderation"],
+    [
+      "/upload",
+      "/notification",
+      "/search",
+      "/audit",
+      "/moderation",
+      "/webhook",
+    ],
     PLATFORM_URL,
   ),
 );

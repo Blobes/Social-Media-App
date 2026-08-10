@@ -1,7 +1,8 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model, Types, Model } from "mongoose";
+import { IGistLikeDocument } from "../../../types/post";
 
 // Like Schema
-const GistLikeSchema = new Schema(
+const GistLikeSchema = new Schema<IGistLikeDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -14,10 +15,15 @@ const GistLikeSchema = new Schema(
       required: true,
     },
   },
-  {
-    timestamps: true,
-    autoIndex: false, // Stop mongodb auto index
-  },
+  { timestamps: true },
 );
 
-export const GistLikeModel = model("GistLike", GistLikeSchema, "gist_likes");
+// Gist Like Schema Indexes
+GistLikeSchema.index({ userId: 1, gistId: 1 }, { unique: true });
+GistLikeSchema.index({ gistId: 1, createdAt: -1 });
+
+export const GistLikeModel: Model<IGistLikeDocument> = model<IGistLikeDocument>(
+  "GistLike",
+  GistLikeSchema,
+  "gist_likes",
+);

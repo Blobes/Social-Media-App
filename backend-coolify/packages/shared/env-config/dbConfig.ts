@@ -1,16 +1,27 @@
-import mongoose from "mongoose";
+import mongoose, { ConnectOptions } from "mongoose";
 
 /**
- * Global is used here to maintain a cached connection across hot-reloads
- * in development and function executions in serverless environments.
+ * Interface for global mongoose cache container.
  */
-let cached = (global as any).mongoose;
-
-if (!cached) {
-  cached = (global as any).mongoose = { conn: null, promise: null };
+interface IMongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
 }
 
-// Connect to MongoDB
+declare global {
+  // eslint-disable-next-line no-var
+  var mongooseCache: IMongooseCache | undefined;
+}
+
+let cached = global.mongooseCache;
+
+if (!cached) {
+  cached = global.mongooseCache = { conn: null, promise: null };
+}
+
+/**
+ * Establishes and caches the database connection.
+ */
 export const connectDB = async (mongoUri: string) => {
   if (!mongoUri) {
     console.error("❌ MONGODB_URI is missing from environment variables.");
@@ -22,10 +33,11 @@ export const connectDB = async (mongoUri: string) => {
   }
 
   if (!cached.promise) {
-    const opts = {
-      bufferCommands: false, // Disable buffering for better error visibility
+    const opts: ConnectOptions = {
+      bufferCommands: false,
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
+      autoIndex: process.env.NODE_ENV !== "production",
     };
 
     console.log("⏳ Attempting to connect to MongoDB...");
@@ -42,15 +54,16 @@ export const connectDB = async (mongoUri: string) => {
   } catch (e) {
     cached.promise = null;
     console.error("❌ Initial DB connection failed:", e);
-    // Exponential backoff or retry logic could go here
     throw e;
   }
 
   return cached.conn;
 };
 
+/**
+ * Configures process-level and connection event listeners.
+ */
 export const monitorProcess = () => {
-  // ====== DB Lifecycle Handlers ======
   mongoose.connection.on("disconnected", () => {
     console.warn("⚠️ MongoDB disconnected. Attempting to reconnect...");
   });
@@ -59,10 +72,8 @@ export const monitorProcess = () => {
     console.error("🔥 MongoDB runtime error:", err);
   });
 
-  // ====== Global Error Handlers ======
   process.on("uncaughtException", (err) => {
     console.error("🚨 Uncaught Exception:", err);
-    // In production, consider a graceful shutdown logic here
   });
 
   process.on("unhandledRejection", (reason) => {

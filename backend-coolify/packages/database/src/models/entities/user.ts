@@ -4,7 +4,7 @@ import { encryptedFieldsPlugin } from "../../helpers/encryptionPlugin";
 import { schemaSyncPlugin } from "../../migration/schemaSyncPlugin";
 
 /**
- * User schema
+ * User Schema Configuration
  */
 const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
   {
@@ -12,20 +12,15 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     email: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       trim: true,
     },
     username: {
       type: String,
-      unique: true,
-      sparse: true,
       trim: true,
     },
     usernameCanonical: {
       type: String,
-      unique: true,
-      sparse: true,
       trim: true,
     },
     password: { type: String, required: true, default: null },
@@ -39,8 +34,6 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     },
     phoneNumber: {
       type: String,
-      sparse: true,
-      unique: true,
     },
 
     // --- AUTHENTICATION & SECURITY ---
@@ -94,7 +87,6 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
       ref: "User",
       default: null,
     },
-    deactivatedAt: { type: Date, default: null },
 
     // --- VERIFICATION & NOTABILITY ---
     isVerified: { type: Boolean, default: false },
@@ -126,9 +118,9 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     },
 
     // --- MODERATION & COMPLIANCE ---
-    policyBreachCount: { type: Number, default: 0 }, // A simple counter for how many times they've breached policy historically
+    policyBreachCount: { type: Number, default: 0 },
     hasFlaggedPost: { type: Boolean, default: false },
-    postCountWindow: { type: Number, default: 0, index: true },
+    postCountWindow: { type: Number, default: 0 },
 
     // --- PROFILE DETAILS ---
     gender: { type: String, default: null },
@@ -161,7 +153,6 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
       },
       coordinates: {
         type: [Number],
-        index: "2dsphere",
         default: [],
       },
     },
@@ -170,25 +161,35 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     followersCount: { type: Number, default: 0 },
     followingCount: { type: Number, default: 0 },
   },
-  {
-    timestamps: true,
-    autoIndex: true, // Enabled index for primaryDeviceId lookup efficiency
-    toJSON: {
-      virtuals: true,
-      transform: (doc, ret: any) => {
-        ret._id = ret._id.toString();
-        delete ret.password;
-        delete ret.otpCode;
-        return ret;
-      },
-    },
-  },
+  { timestamps: true },
 );
 
-// Register the new schema sync plugin BEFORE any other plugins that might modify fields based on defaults
-UserSchema.plugin(schemaSyncPlugin);
+// --- User Schema Index Configurations ---
+// Core Identity Lookup Indexes
+UserSchema.index({ email: 1 }, { unique: true });
+UserSchema.index({ username: 1 }, { unique: true, sparse: true });
+UserSchema.index({ usernameCanonical: 1 }, { unique: true, sparse: true });
+UserSchema.index({ phoneNumber: 1 }, { unique: true, sparse: true });
+// Account Lifecycle & Sorting
+UserSchema.index({ createdAt: 1 });
+UserSchema.index({ statusChangedAt: 1 });
+UserSchema.index({ lastActiveAt: 1 });
+UserSchema.index({ accountStatus: 1 });
+UserSchema.index({ followersCount: 1 });
+UserSchema.index({ postCountWindow: 1 });
+// Verification Workflow Compound Lookup
+UserSchema.index({
+  meritsVerification: 1,
+  isPublicFigure: 1,
+  isEmailVerified: 1,
+});
+// Geospatial Queries for Account Location
+UserSchema.index({ "location.coordinates": "2dsphere" });
 
-// Register plugin to automate configuration transformations transparently
+// --- Plugin Registrations ---
+// Register schema sync plugin before encryption plugin
+UserSchema.plugin(schemaSyncPlugin);
+// Transparent encryption configuration plugin
 UserSchema.plugin(encryptedFieldsPlugin, {
   fields: [
     { field: "email", searchable: true },
@@ -196,9 +197,7 @@ UserSchema.plugin(encryptedFieldsPlugin, {
   ],
 });
 
-/**
- * Model helper method lookup abstraction for profile email match operations.
- */
+// --- Static Model Methods ---
 UserSchema.statics.findByEmail = function (
   this: IUserModelStatic,
   config: QueryConfig & { email: string },
@@ -207,7 +206,6 @@ UserSchema.statics.findByEmail = function (
   return this.findByEncryptedField("email", email, filter, options);
 };
 
-// Model helper method lookup abstraction for profile phone number match operations.
 UserSchema.statics.findByPhone = function (
   this: IUserModelStatic,
   config: QueryConfig & { phoneNumber: string },
@@ -216,6 +214,7 @@ UserSchema.statics.findByPhone = function (
   return this.findByEncryptedField("phoneNumber", phoneNumber, filter, options);
 };
 
+// --- User Model Definition ---
 export const UserModel = model<IUserDocument, IUserModelStatic>(
   "User",
   UserSchema,

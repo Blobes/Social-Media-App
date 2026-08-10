@@ -1,8 +1,4 @@
-import mongoose, {
-  HydratedDocument,
-  PopulateOptions,
-  QueryFilter,
-} from "mongoose";
+import mongoose, { HydratedDocument } from "mongoose";
 import { IUserDocument } from "@repo/database";
 import {
   sanitizeUserResult,
@@ -116,6 +112,8 @@ export async function fetchUserData<
 > {
   const { mode = "SINGLE", flags } = input;
   const isLean = flags?.lean ?? true;
+  const includeSensitiveFields = flags?.includeSensitiveFields ?? false;
+  const includePrivateFields = flags?.includePrivateFields ?? true;
 
   // Fetching raw data from database repository
   let rawResult = await UserRepository.execute<TUser, TFlags>(input);
@@ -138,14 +136,14 @@ export async function fetchUserData<
     }
   }
 
-  // Applying standalone sanitization if sensitive fields are not requested
-  if (!isLean && !flags?.includeSensitiveFields) {
+  // Only sanitize plain lean objects. Do not strip properties from hydrated documents
+  if (isLean && !includeSensitiveFields) {
     rawResult = sanitizeUserResult(
       rawResult,
       userSensitiveFields(),
     ) as typeof rawResult;
   }
-  if (!isLean && !flags?.includePrivateFields) {
+  if (isLean && !includePrivateFields) {
     rawResult = sanitizeUserResult(
       rawResult,
       userPrivateFields(),

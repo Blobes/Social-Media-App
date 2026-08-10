@@ -17,7 +17,6 @@ export const executeCancelEmailChange = async (
 ): Promise<ICancelEmailChangeResult> => {
   const { userId } = input;
 
-  //  const user = await UserModel.findById(userId);
   const user = await fetchSingleUser({
     identifier: userId,
     flags: { lean: false },

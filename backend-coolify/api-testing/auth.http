@@ -1,0 +1,153 @@
+### Variables
+@baseUrl = http://localhost:8085
+@liveBaseUrl = https://api.funstakes.net
+
+@user1ID = 69c574998b204a8d93f5783d
+@user1Email = officialblobes@gmail.com
+@user1Phone = +234805658530
+@authToken = Bearer YOUR_ACCESS_TOKEN_HERE
+@refreshToken = YOUR_REFRESH_TOKEN_HERE
+@deviceId = 66e8b418a2e1e24749f91a12
+
+### Base Welcome Route
+GET {{baseUrl}}/auth/
+Content-Type: application/json
+
+### Check Username
+POST {{baseUrl}}/auth/check/username
+Content-Type: application/json
+
+{
+  "identifier": "fun_staker",
+  "purpose": "LOGIN"
+}
+
+### Check Email
+POST {{baseUrl}}/auth/check/email
+Content-Type: application/json
+
+{
+  "email": "{{user1Email}}",
+  "purpose": "LOGIN"
+}
+
+### Check Phone
+POST {{baseUrl}}/auth/check/phone
+Content-Type: application/json
+
+{
+  "phone": "{{user1Phone}}",
+  "purpose": "LOGIN"
+}
+
+### Create an Account
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "email": "{{user1Email}}",
+  "password": "Password123!",
+  "firstName": "Janet",
+  "lastName": "Jackson",
+  "phoneNumber": "{{user1Phone}}"
+}
+
+### Update Onboarding Info
+POST {{baseUrl}}/auth/onboarding
+Authorization: {{authToken}}
+Content-Type: application/json
+
+{
+  "username": "janet_j",
+  "country": "NG",
+  "currency": "NGN"
+}
+
+### OAuth Exchange
+POST {{baseUrl}}/auth/oauth-exchange
+Content-Type: application/json
+
+{
+  "provider": "GOOGLE",
+  "idToken": "YOUR_OAUTH_ID_TOKEN_HERE"
+}
+
+### Login User
+POST {{baseUrl}}/auth/session/login
+Content-Type: application/json
+
+{
+  "identifier": "{{user1Email}}",
+  "password": "Password123!"
+}
+
+### Refresh User Auth Token
+POST {{baseUrl}}/auth/session/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### Logout User
+POST {{baseUrl}}/auth/session/logout
+Authorization: {{authToken}}
+Content-Type: application/json
+
+### Verify User Auth Session
+GET {{baseUrl}}/auth/session/verify
+Authorization: {{authToken}}
+Content-Type: application/json
+
+### Send OTP
+POST {{baseUrl}}/auth/otp/send
+Content-Type: application/json
+
+{
+  "recipient": "{{user1Email}}",
+  "channel": "EMAIL"
+}
+
+### Verify OTP
+POST {{baseUrl}}/auth/otp/verify
+Content-Type: application/json
+
+{
+  "recipient": "{{user1Email}}",
+  "code": "520420"
+}
+
+### Initiate TFA Challenge
+POST {{baseUrl}}/auth/tfa/initiate
+Authorization: {{authToken}}
+Content-Type: application/json
+
+{
+  "identifier": "{{user1Email}}",
+  "method": "EMAIL"
+}
+
+### Verify TFA Token
+POST {{baseUrl}}/auth/tfa/verify-token
+Authorization: {{authToken}}
+Content-Type: application/json
+
+{
+  "identifier": "{{user1Email}}",
+  "code": "123456"
+}
+
+### Get All User Devices
+GET {{baseUrl}}/auth/devices
+Authorization: {{authToken}}
+Content-Type: application/json
+
+### Remove A Specific Device
+DELETE {{baseUrl}}/auth/devices/{{deviceId}}
+Authorization: {{authToken}}
+Content-Type: application/json
+
+### Set Primary Device
+PATCH {{baseUrl}}/auth/devices/{{deviceId}}/primary
+Authorization: {{authToken}}
+Content-Type: application/json

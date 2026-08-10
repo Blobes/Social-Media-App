@@ -38,8 +38,6 @@ export const startPhoneChange = async (
   const CHANGE_COOLDOWN = 90 * 24 * 60 * 60 * 1000;
   const SEND_COOLDOWN = 60 * 1000;
 
-  // const user = await UserModel.findById(userId);
-
   const user = await fetchSingleUser({
     identifier: userId,
     flags: {
@@ -92,11 +90,6 @@ export const startPhoneChange = async (
   }
 
   // Cross-reference registry records across soft-delete criteria bounds
-  // const existingPhoneUser = await UserModel.findByPhone({
-  //   phoneNumber: formattedPhone,
-  //   filter: { _id: { $ne: userId } },
-  //   options: { skipFilter: true },
-  // });
   const existingPhoneUser = await fetchSingleUser({
     identifier: formattedPhone,
     query: { _id: { $ne: userId } },
@@ -145,6 +138,7 @@ export const startPhoneChange = async (
       phone: formattedPhone,
       code,
       type: "WHATSAPP",
+      firstName: user.firstName,
     },
     FUNSTAKES_REDIS_URL,
   );

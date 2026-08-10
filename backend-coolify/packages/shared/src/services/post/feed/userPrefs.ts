@@ -1,5 +1,5 @@
 import { IBasePost, TransInfo } from "../../../types";
-import { UserModel, BlockedModel, ILocation } from "@repo/database";
+import { BlockedModel, ILocation } from "@repo/database";
 import { getOrSetCacheSet } from "../../redis/cache";
 import { CACHE_KEYS } from "../../../constants/cacheKeys";
 import {
@@ -29,12 +29,9 @@ export const getUserPreferences = async (
   userId: string,
 ): Promise<UserPreferencesResult> => {
   const [user, settingsResult, blockedUserIds] = await Promise.all([
-    // UserModel.findById(userId)
-    //   .select("location username firstName lastName")
-    //   .lean(),
     fetchSingleUser({
       identifier: userId,
-      select: ["location", "username", "firstName", "lastName"],
+      select: ["location"],
       flags: { lean: true, skipFilter: true },
     }),
     fetchUserSettings({ userId }),

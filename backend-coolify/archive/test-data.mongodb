@@ -1,0 +1,78 @@
+use("funstakes");
+
+// 1. Clean up old test data (Optional - keeps your test environment fresh)
+db.users.deleteMany({ email: "tester@funstakes.com" });
+const testUserId = new ObjectId();
+const secondUserId = new ObjectId();
+
+// 2. Create Dummy Users
+db.users.insertMany([
+  {
+    _id: testUserId,
+    username: "crypto_king",
+    firstName: "John",
+    lastName: "Doe",
+    email: "tester@funstakes.com",
+    profileImage: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
+    createdAt: new Date(),
+  },
+  {
+    _id: secondUserId,
+    username: "bet_master",
+    firstName: "Sarah",
+    lastName: "Smith",
+    email: "sarah@funstakes.com",
+    profileImage: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+    createdAt: new Date(),
+  },
+]);
+
+// 3. Create a Dummy Gist with Extended Reference
+const gistId = new ObjectId();
+const contentId = new ObjectId();
+
+db.post_captions.insertOne({
+  _id: contentId,
+  postId: gistId,
+  postType: "GIST",
+  authorId: testUserId,
+  content:
+    "Just analyzed the Chelsea vs Arsenal game. Arsenal looks strong! ⚽️ #EPL",
+  version: 1,
+  isLatest: true,
+  createdAt: new Date(),
+});
+
+db.gists.insertOne({
+  _id: gistId,
+  authorId: testUserId,
+  latestContent: {
+    contentId: contentId,
+    content:
+      "Just analyzed the Chelsea vs Arsenal game. Arsenal looks strong! ⚽️ #EPL",
+    createdAt: new Date(),
+  },
+  likeCount: 1,
+  commentCount: 0,
+  status: "ACTIVE",
+  createdAt: new Date(),
+});
+
+// 4. Create Social Relationships (To test your aggregation lookups)
+// Sarah follows John
+db.follows.insertOne({
+  followerId: secondUserId,
+  followingId: testUserId,
+  createdAt: new Date(),
+});
+
+// Sarah likes John's post
+db.gist_likes.insertOne({
+  gistId: gistId,
+  userId: secondUserId,
+  createdAt: new Date(),
+});
+
+print(
+  "🚀 Dummy data created! User 'Sarah' is now following 'John' and liked his Gist.",
+);

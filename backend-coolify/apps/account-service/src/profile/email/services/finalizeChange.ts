@@ -34,7 +34,6 @@ export const executeEmailChange = async (
 ): Promise<IEmailChangeResult> => {
   const { userId, currentDeviceId, code } = input;
 
-  // const user = await UserModel.findById(userId);
   const user = await fetchSingleUser({
     identifier: userId,
     flags: { lean: false },

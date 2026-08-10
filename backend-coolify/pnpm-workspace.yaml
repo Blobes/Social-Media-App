@@ -42,6 +42,7 @@ catalog:
   "@upstash/redis": "^1.34.3"
   "node-asynq": "^0.2.0"
   "franc-min": "^6.2.0"
+  svix: "^1.99.1"
 
   # Dev Tools & Build
   typescript: "^5.8.3"

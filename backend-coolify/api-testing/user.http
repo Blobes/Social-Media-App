@@ -1,0 +1,253 @@
+### Variables
+@baseUrl = http://localhost:8000
+@user1ID = 69aa38047ef187d34dba2899
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGQyN2VjZWE1YjI0YzBhMTkwYjViZSIsImRldmljZUlkIjoiNmEwZDI0ZTM2MDExY2E3MTM4NDQ0ODE5Iiwic2Vzc2lvbklkIjoiZTAyMDQyZGYtYjA1Ny00NGYyLWE3NTgtNWZhYzk2YjE4NzhmIiwiZW1haWwiOiJvZmZpY2lhbGJsb2Jlc0BnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImZpcnN0TmFtZSI6IkphbmV0IiwibGFzdE5hbWUiOiJKYWNrc29uIiwiaWF0IjoxNzc5MjQ2MzA5LCJleHAiOjE3NzkyNDcyMDl9.H3mZWUQ-HPf5G3vh5GRJ61Z9dJP7iQvCepKVyz5H00k
+
+# ==========================================
+# BASE & USER PROFILE
+# ==========================================
+
+### Test User API Base Route
+GET {{baseUrl}}/user
+
+### Get User Profile
+GET {{baseUrl}}/user/{{user1ID}}
+
+### Update Basic Info
+PATCH {{baseUrl}}/user/update/basic
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Nick",
+  "lastName": "Doe"
+}
+
+### Update Demographic Info
+PATCH {{baseUrl}}/user/update/demo
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "gender": "male",
+  "dateOfBirth": "1990-12-12",
+  "location": "Iyana Ipaja, Lagos, Nigeria"
+}
+
+### Update Profile Image
+PATCH {{baseUrl}}/user/update/profile-image
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "imageType": "PROFILE",
+  "url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+  "fileKey": "test-key",
+  "mimeType": "image/jpeg"
+}
+
+### Remove Profile Image
+DELETE {{baseUrl}}/user/delete/profile-image
+Authorization: Bearer {{authToken}}
+
+
+# ==========================================
+# ACCOUNT MANAGEMENT
+# ==========================================
+
+### Initiate Email Change
+POST {{baseUrl}}/user/change-email/initiate
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "newEmail": "nick@gmail.co"
+}
+
+### Finalize Email Change
+PATCH {{baseUrl}}/user/change-email/finalize
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "email": "nick@gmail.co",
+  "code": "123567"
+}
+
+### Cancel Email Change
+POST {{baseUrl}}/user/change-email/cancel
+Authorization: Bearer {{authToken}}
+
+### Change Username
+POST {{baseUrl}}/user/change-username
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "newUsername": "fun_staker"
+}
+
+### Initiate Phone Change
+POST {{baseUrl}}/user/change-phone/initiate
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "phoneNumber": "+2348012345678"
+}
+
+### Finalize Phone Change
+PATCH {{baseUrl}}/user/change-phone/finalize
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "phoneNumber": "+2348012345678",
+  "code": "123456"
+}
+
+### Initiate Password Reset
+POST {{baseUrl}}/user/reset-password/initiate
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "identifier": "officialblobes6457@gmail.com"
+}
+
+### Set Password
+PATCH {{baseUrl}}/user/set-password
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "newPassword": "NickPassword123!"
+}
+
+### Change Account Status
+PATCH {{baseUrl}}/user/account/status
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": "SUSPENDED"
+}
+
+### Delete Account
+DELETE {{baseUrl}}/user/account/delete
+Authorization: Bearer {{authToken}}
+
+
+# ==========================================
+# SOCIAL RELATIONSHIPS
+# ==========================================
+
+### Follow User
+POST {{baseUrl}}/user/{{user1ID}}/follow
+Authorization: Bearer {{authToken}}
+
+### Get Followers
+GET {{baseUrl}}/user/{{user1ID}}/followers
+Authorization: Bearer {{authToken}}
+
+
+# ==========================================
+# ID DOCUMENT VERIFICATION
+# ==========================================
+
+### Submit ID Document
+PATCH {{baseUrl}}/user/submit-doc
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "documentType": "PASSPORT",
+  "documentUrl": "https://example.com/doc.pdf"
+}
+
+### Review ID Document
+PATCH {{baseUrl}}/user/review-doc
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "requestId": "69aa38047ef187d34dba2899",
+  "status": "APPROVED"
+}
+
+
+# ==========================================
+# USER SETTINGS
+# ==========================================
+
+### Get User Settings
+GET {{baseUrl}}/user/settings
+Authorization: Bearer {{authToken}}
+
+### Update Display Settings
+PATCH {{baseUrl}}/user/settings/display
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "theme": "DARK",
+  "showSensitiveMedia": true
+}
+
+### Update Notification Settings
+PATCH {{baseUrl}}/user/settings/notifications
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "push": {
+    "enabled": true,
+    "likes": true
+  }
+}
+
+### Update Privacy Settings
+PATCH {{baseUrl}}/user/settings/privacy
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "isPrivateAccount": false,
+  "directMessaging": "EVERYONE"
+}
+
+### Add Muted Words
+POST {{baseUrl}}/user/settings/muted-words
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "words": ["spam", "spoiler"]
+}
+
+### Remove Muted Words
+DELETE {{baseUrl}}/user/settings/muted-words
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "words": ["spam"]
+}
+
+### Sync User Topics
+PATCH {{baseUrl}}/user/settings/topic
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "topicIds": ["69aa38047ef187d34dba2899"]
+}
+
+### Remove User Topics
+DELETE {{baseUrl}}/user/settings/topic
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "topicIds": ["69aa38047ef187d34dba2899"]
+}

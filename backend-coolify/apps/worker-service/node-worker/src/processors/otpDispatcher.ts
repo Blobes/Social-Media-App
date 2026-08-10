@@ -1,7 +1,6 @@
 import { Worker, Job } from "bullmq";
 import {
   dispatchEmailCode,
-  QueueService,
   OtpType,
   dispatchWhatsAppCode,
   OtpJobPayload,
@@ -22,7 +21,7 @@ export const otpDispatchWorker = () => {
   const worker = new Worker<OtpJobPayload, any, "send_otp">(
     "otp_queue",
     async (job: Job<OtpJobPayload, any, "send_otp">) => {
-      const { code, type, email, phone } = job.data;
+      const { code, type, email, phone, firstName } = job.data;
       const otpType: OtpType = type;
       const receiver = otpType === "EMAIL" ? email : phone;
 
@@ -34,7 +33,13 @@ export const otpDispatchWorker = () => {
 
       switch (otpType) {
         case "EMAIL":
-          await dispatchEmailCode({ to: receiver, code }, codeDispatchTokens);
+          await dispatchEmailCode(
+            {
+              recipient: { email: receiver, firstName },
+              code,
+            },
+            codeDispatchTokens,
+          );
           break;
         case "WHATSAPP":
           await dispatchWhatsAppCode(

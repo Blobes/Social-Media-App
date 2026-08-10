@@ -6,7 +6,7 @@ export interface UserListOptions<TUser = IUserDocument> {
   matchFilter?: QueryFilter<TUser>;
   skip?: number;
   limit?: number;
-  showDeactivated?: boolean;
+  includeRestricted?: boolean;
 }
 
 const DEFAULT_LIST_LIMIT = 20;
@@ -18,17 +18,17 @@ export const getStaticUserList = <TUser = IUserDocument>({
   matchFilter = {},
   skip = 0,
   limit = DEFAULT_LIST_LIMIT,
-  showDeactivated = false,
+  includeRestricted = false,
 }: UserListOptions<TUser>): PipelineStage[] => {
-  const deactivationFilter = showDeactivated
+  const restrictedFilter = includeRestricted
     ? {}
-    : { accountStatus: { $ne: "DEACTIVATED" } };
+    : { accountStatus: { $nin: ["DEACTIVATED", "SUSPENDED", "BANNED"] } };
 
   return [
     {
       $match: {
         ...matchFilter,
-        ...deactivationFilter,
+        ...restrictedFilter,
       },
     },
     { $sort: { createdAt: -1 } },

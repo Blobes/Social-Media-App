@@ -24,11 +24,14 @@ const IdVerificationSchema = new Schema(
     },
     submittedAt: { type: Date, default: Date.now },
   },
-  {
-    timestamps: true,
-    autoIndex: false, // Stop mongodb auto index
-  },
+  { timestamps: true },
 );
+
+// --- ID Verification Request Schema Index Configurations ---
+// Primary user pending verification check
+IdVerificationSchema.index({ userId: 1, status: 1, createdAt: -1 });
+// Admin verification review queue
+IdVerificationSchema.index({ status: 1, submittedAt: 1 });
 
 export const IdVerificationRequestModel = model(
   "IdVerificationRequest",

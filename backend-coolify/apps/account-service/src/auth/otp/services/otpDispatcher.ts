@@ -50,15 +50,8 @@ export const executeOtpDispatch = async (
     };
   }
 
-  // let user: IUserDocument | null = null;
-  // if (channel === "EMAIL") {
-  //   user = await UserModel.findByEmail({ email: normalized });
-  // } else {
-  //   user = await UserModel.findByPhone({ phoneNumber: normalized });
-  // }
-
   const user = await fetchSingleUser({
-    identifier: normalized,
+    identifier: recipient,
     flags: { lean: false, skipFilter: true },
   });
 
@@ -98,7 +91,6 @@ export const executeOtpDispatch = async (
         status: "COOLDOWN_ACTIVE",
         transInfo: transMsg,
       };
-      // error.status = 429;
     }
   }
 
@@ -117,7 +109,10 @@ export const executeOtpDispatch = async (
   try {
     if (channel === "EMAIL") {
       await dispatchEmailCode(
-        { to: normalized, code: newCode },
+        {
+          recipient: { email: normalized, firstName: user.firstName },
+          code: newCode,
+        },
         emailDispatchTokens,
       );
     } else {

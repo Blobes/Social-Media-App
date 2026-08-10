@@ -10,7 +10,7 @@ export const checkUsername = async (
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
-  const { username, purpose = "REGISTRATION" } = req.body as {
+  const { username, purpose } = req.body as {
     username?: string;
     purpose?: "REGISTRATION" | "LOGIN";
   };

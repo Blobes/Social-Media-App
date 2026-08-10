@@ -31,3 +31,39 @@ export interface ITfaData {
   tempSecret: string | null;
   tempBackupCodes: string[];
 }
+
+/**
+ * Interface defining the Follow document structure.
+ */
+export interface IFollowDocument extends Document {
+  followerId: Types.ObjectId;
+  followingId: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Interface defining the Blocked User document structure.
+ */
+export interface IBlockedUserDocument extends Document {
+  blockerId: Types.ObjectId;
+  blockedId: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Interface defining topic preference tracking subdocument.
+ */
+export interface IUserPreferredTopic {
+  topicId: Types.ObjectId;
+  title: string;
+  lastViewed?: Date;
+}
+export interface ITopicDocument extends Document {
+  title: string;
+  userCount: number;
+  postCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}

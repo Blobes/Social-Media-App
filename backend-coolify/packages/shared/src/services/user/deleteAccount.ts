@@ -38,7 +38,6 @@ export const executeAccountDeletion = async (
   const { targetUserId, s3Config } = input;
   const userObjectId = new Types.ObjectId(targetUserId);
 
-  // const userProfile = await UserModel.findById(targetUserId);
   const userExists = await checkUserExists({
     identifier: targetUserId,
     flags: { skipFilter: true },

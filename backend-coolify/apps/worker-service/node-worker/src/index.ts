@@ -4,7 +4,7 @@ import { otpDispatchWorker } from "./processors/otpDispatcher";
 import appLoader from "./loader";
 import { startDeviceCleanupTask } from "./automations/deviceCleanup";
 import { FUNSTAKES_REDIS_URL, MONGO_URI, NODE_ENV, PORT } from "./envVars";
-import { startUserMetricsReset } from "./automations/resetUseMetrics";
+import { startUserMetricsReset } from "./automations/resetUserMetrics";
 import { startErrorLogCleanupTask } from "./automations/errorLogsCleanup";
 
 const startServer = async () => {

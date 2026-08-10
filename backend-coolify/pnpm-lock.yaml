@@ -117,6 +117,9 @@ catalogs:
     socket.io:
       specifier: ^4.8.1
       version: 4.8.3
+    svix:
+      specifier: ^1.99.1
+      version: 1.99.1
     tsc-alias:
       specifier: ^1.8.16
       version: 1.8.17
@@ -295,6 +298,9 @@ importers:
       mongoose:
         specifier: 'catalog:'
         version: 9.6.2
+      svix:
+        specifier: 'catalog:'
+        version: 1.99.1
     devDependencies:
       '@types/cookie-parser':
         specifier: 'catalog:'
@@ -2503,6 +2509,9 @@ packages:
   svix@1.92.2:
     resolution: {integrity: sha512-ZmuA3UVvlnF9EgxlzmPtF7CKjQb64Z6OFlyfdDfU0sdcC7dJa+3aOYX5B9mA+RS6ch1AxBa4UP/l6KmqfGtWBQ==}
 
+  svix@1.99.1:
+    resolution: {integrity: sha512-JfpvbAg5iT5NagDAfOq3e6Ci6NbOMbMm6C3DnfDBB60m2JDK+Z2hXPE9XNAmutb53DCdPoih1V70IbklZnX09A==}
+
   thenify-all@1.6.0:
     resolution: {integrity: sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA==}
     engines: {node: '>=0.8'}
@@ -4642,6 +4651,10 @@ snapshots:
       ts-interface-checker: 0.1.13
 
   svix@1.92.2:
+    dependencies:
+      standardwebhooks: 1.0.0
+
+  svix@1.99.1:
     dependencies:
       standardwebhooks: 1.0.0
 

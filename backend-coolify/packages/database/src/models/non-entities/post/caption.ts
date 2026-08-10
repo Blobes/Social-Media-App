@@ -1,6 +1,7 @@
-import { Schema, model } from "mongoose";
+import { Model, Schema, model } from "mongoose";
+import { IPostCaptionDocument } from "../../../types/post";
 
-const PostCaptionSchema = new Schema(
+const PostCaptionSchema = new Schema<IPostCaptionDocument>(
   {
     postId: {
       type: Schema.Types.ObjectId,
@@ -10,21 +11,26 @@ const PostCaptionSchema = new Schema(
     postType: {
       type: String,
       required: true,
-      enum: ["GIST", "STAKE"],
+      enum: ["Gist", "Stake"],
     },
     caption: { type: String, required: true },
     version: { type: Number, required: true, default: 1 },
     isLatest: { type: Boolean, default: true },
     detectedLanguage: { type: String, default: "en" },
   },
-  {
-    timestamps: true,
-    autoIndex: false, // Stop mongodb auto index
-  },
+  { timestamps: true },
 );
 
-export const PostCaptionModel = model(
-  "PostCaption",
-  PostCaptionSchema,
-  "post_captions",
+// Post Caption Schema Indexes
+PostCaptionSchema.index({ postId: 1, version: -1 });
+PostCaptionSchema.index(
+  { postId: 1, isLatest: 1 },
+  { partialFilterExpression: { isLatest: true } },
 );
+
+export const PostCaptionModel: Model<IPostCaptionDocument> =
+  model<IPostCaptionDocument>(
+    "PostCaption",
+    PostCaptionSchema,
+    "post_captions",
+  );

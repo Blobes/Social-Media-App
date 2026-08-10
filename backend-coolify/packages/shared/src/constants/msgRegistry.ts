@@ -1,4 +1,5 @@
-import { MsgPostType, TransInfo } from "../types";
+import { TransInfo } from "../types";
+import { PostModelType } from "@repo/database";
 
 type RegistryValue = TransInfo | ((...args: any[]) => TransInfo);
 type RegistryStructure = {
@@ -192,6 +193,10 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.email_or_phone_required",
       message: "An email address or phone number is required.",
     },
+    INVALID_EMAIL_OR_PHONE: {
+      i18nKey: "auth.invalid_email_or_phone",
+      message: "Invalid email or phone number.",
+    },
     NOT_SIGNED_UP_WITH_EMAIL: (provider: string): TransInfo => ({
       i18nKey: "auth.not_signed_up_with_email",
       message:
@@ -251,6 +256,10 @@ export const MESSAGES_REGISTRY = {
     CODE_REQUIRED: {
       i18nKey: "auth.code_required",
       message: "Verification code is required.",
+    },
+    CODE_RECIPIENT_PURPOSE_REQUIRED: {
+      i18nKey: "auth.code_recipient_purpose_required",
+      message: "Verification code, recipient and purpose is required.",
     },
     COOLDOWN_ACTIVE: (daysRemaining: number | string): TransInfo => ({
       i18nKey: "auth.cooldown_active",
@@ -718,7 +727,7 @@ export const MESSAGES_REGISTRY = {
 
   POST: {
     ACCESS_DENIED_OWN_DRAFTS_ONLY: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.access_denied_own_drafts_only",
       message:
@@ -726,32 +735,32 @@ export const MESSAGES_REGISTRY = {
       interpolations: { msgPostType },
     }),
     BYPASS_CREATION_SUCCESS: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.bypass_creation_success",
       message: "{{msgPostType}} created successfully via skip bypass pathing.",
       interpolations: { msgPostType },
     }),
-    CONTENT_REQUIRED: (msgPostType: MsgPostType = "Post"): TransInfo => ({
+    CONTENT_REQUIRED: (msgPostType: PostModelType = "Post"): TransInfo => ({
       i18nKey: "post.content_required",
       message: "{{msgPostType}} must contain either text content or media.",
       interpolations: { msgPostType },
     }),
     CREATION_FALLBACK_ERROR: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.creation_fallback_error",
       message: "Failed to create {{msgPostType}} due to a server error.",
       interpolations: { msgPostType },
     }),
-    DRAFT_FALLBACK_ERROR: (msgPostType: MsgPostType = "Post"): TransInfo => ({
+    DRAFT_FALLBACK_ERROR: (msgPostType: PostModelType = "Post"): TransInfo => ({
       i18nKey: "post.draft_fallback_error",
       message:
         "Failed to preserve {{msgPostType}} draft tracking state due to a server error.",
       interpolations: { msgPostType },
     }),
     DRAFT_NOT_FOUND_OR_UNAUTHORIZED: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.draft_not_found_or_unauthorized",
       message:
@@ -759,21 +768,21 @@ export const MESSAGES_REGISTRY = {
       interpolations: { msgPostType },
     }),
     DRAFT_SAVED_SUCCESSFULLY: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.draft_saved_successfully",
       message: "{{msgPostType}} successfully saved as a draft.",
       interpolations: { msgPostType },
     }),
     DRAFT_UPDATED_SUCCESSFULLY: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.draft_updated_successfully",
       message: "{{msgPostType}} draft progress updated successfully.",
       interpolations: { msgPostType },
     }),
     DYNAMIC_CAPTION_TRANSLATED: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.dynamic_caption_translated",
       message: "Dynamic caption translated successfully.",
@@ -807,7 +816,7 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "post.global_feed_fetched_successfully",
       message: "Global feed fetched successfully",
     },
-    INITIATE_POST_FAILED: (msgPostType: MsgPostType = "Post"): TransInfo => ({
+    INITIATE_POST_FAILED: (msgPostType: PostModelType = "Post"): TransInfo => ({
       i18nKey: "post.initiate_post_failed",
       message: "Failed to initiate {{msgPostType}}",
       interpolations: { msgPostType },
@@ -817,7 +826,7 @@ export const MESSAGES_REGISTRY = {
       message: "Invalid Post ID",
     },
     INVALID_POST_ID_OR_SESSION: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.invalid_post_id_or_session",
       message: "Invalid {{msgPostType}} ID or Session",
@@ -827,7 +836,7 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "post.invalid_post_type",
       message: "Invalid postType",
     },
-    INVALID_SESSION: (msgPostType: MsgPostType = "Post"): TransInfo => ({
+    INVALID_SESSION: (msgPostType: PostModelType = "Post"): TransInfo => ({
       i18nKey: "post.invalid_session",
       message: "Invalid User Session",
       interpolations: { msgPostType },
@@ -841,7 +850,7 @@ export const MESSAGES_REGISTRY = {
       message: "Invalid User Session",
     },
     MAXIMUM_EDIT_LIMIT_REACHED: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.maximum_edit_limit_reached",
       message: "Maximum edit limit (3) reached for this {{msgPostType}}.",
@@ -895,27 +904,27 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "post.post_flagging_sync_fallback_error",
       message: "Internal flagging synchronization error.",
     },
-    POST_BEING_PROCESSED: (msgPostType: MsgPostType = "Post"): TransInfo => ({
+    POST_BEING_PROCESSED: (msgPostType: PostModelType = "Post"): TransInfo => ({
       i18nKey: "post.post_being_processed",
       message: "{{msgPostType}} is being processed.",
       interpolations: { msgPostType },
     }),
     POSTS_FETCHED_SUCCESSFULLY: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.posts_fetched_successfully",
       message: "{{msgPostType}}s fetched successfully",
       interpolations: { msgPostType },
     }),
     POST_CREATED_SUCCESSFULLY_VIA_SKIP_BYPASS: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.post_created_successfully_via_skip_bypass",
       message: "{{msgPostType}} created successfully via skip bypass pathing.",
       interpolations: { msgPostType },
     }),
     POST_DATA_INITIATED_TAXONOMY_EXTRACTION: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.post_data_initiated_taxonomy_extraction",
       message:
@@ -923,54 +932,54 @@ export const MESSAGES_REGISTRY = {
       interpolations: { msgPostType },
     }),
     POST_FETCHED_AND_HYDRATED_SUCCESSFULLY: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.post_fetched_and_hydrated_successfully",
       message: "{{msgPostType}} fetched and hydrated successfully",
       interpolations: { msgPostType },
     }),
     POST_DETAIL_FETCHED_SUCCESSFULLY: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.post_detail_fetched_successfully",
       message: "{{msgPostType}} detail fetched successfully",
       interpolations: { msgPostType },
     }),
     POST_LIKED_SUCCESSFULLY: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.post_liked_successfully",
       message: "{{msgPostType}} liked successfully",
       interpolations: { msgPostType },
     }),
     POST_LIKE_FALLBACK_ERROR: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.post_like_fallback_error",
       message: "Server error while toggling {{msgPostType}} like",
       interpolations: { msgPostType },
     }),
     POST_MUST_CONTAIN_TEXT_OR_MEDIA: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.post_must_contain_text_or_media",
       message: "{{msgPostType}} must contain either text content or media.",
       interpolations: { msgPostType },
     }),
-    POST_NOT_FOUND: (msgPostType: MsgPostType = "Post"): TransInfo => ({
+    POST_NOT_FOUND: (msgPostType: PostModelType = "Post"): TransInfo => ({
       i18nKey: "post.post_not_found",
       message: "{{msgPostType}} not found",
       interpolations: { msgPostType },
     }),
     POST_UNLIKED_SUCCESSFULLY: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.post_unliked_successfully",
       message: "{{msgPostType}} unliked successfully",
       interpolations: { msgPostType },
     }),
     POST_UPDATE_UNDERGOING_MODERATION_REVIEW: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.post_update_undergoing_moderation_review",
       message: "{{msgPostType}} update is undergoing moderation review.",
@@ -1009,7 +1018,7 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "post.post_post_topics_update_fallback_error",
       message: "Error processing taxonomy routing execution graph.",
     },
-    PROCESSING_INITIATED: (msgPostType: MsgPostType = "Post"): TransInfo => ({
+    PROCESSING_INITIATED: (msgPostType: PostModelType = "Post"): TransInfo => ({
       i18nKey: "post.processing_initiated",
       message: "{{msgPostType}} is being processed.",
       interpolations: { msgPostType },
@@ -1018,7 +1027,9 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "post.state_update_transaction_failed",
       message: "State update transaction failed",
     },
-    POST_TOPICS_EXTRACTING: (msgPostType: MsgPostType = "Post"): TransInfo => ({
+    POST_TOPICS_EXTRACTING: (
+      msgPostType: PostModelType = "Post",
+    ): TransInfo => ({
       i18nKey: "post.post_topics_extracting",
       message: "{{msgPostType}} data initiated. Extracting contextual topics.",
       interpolations: { msgPostType },
@@ -1098,7 +1109,7 @@ export const MESSAGES_REGISTRY = {
       interpolations: { strategyKey },
     }),
     UPDATE_MODERATION_STREAM_FAILED: (
-      msgPostType: MsgPostType = "Post",
+      msgPostType: PostModelType = "Post",
     ): TransInfo => ({
       i18nKey: "post.update_moderation_stream_failed",
       message: "Failed to initiate update moderation stream",

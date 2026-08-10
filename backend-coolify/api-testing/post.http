@@ -1,0 +1,146 @@
+### Variables
+@baseUrl = http://localhost:8081
+@user1Id = 69c574998b204a8d93f5783d
+@user2Id = 69c574e98b204a8d93f57840
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGQyN2VjZWE1YjI0YzBhMTkwYjViZSIsImRldmljZUlkIjoiNmEwZDI0ZTM2MDExY2E3MTM4NDQ0ODE5Iiwic2Vzc2lvbklkIjoiZTAyMDQyZGYtYjA1Ny00NGYyLWE3NTgtNWZhYzk2YjE4NzhmIiwiZW1haWwiOiJvZmZpY2lhbGJsb2Jlc0BnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImZpcnN0TmFtZSI6IkphbmV0IiwibGFzdE5hbWUiOiJKYWNrc29uIiwiaWF0IjoxNzc5MjQ2MzA5LCJleHAiOjE3NzkyNDcyMDl9.H3mZWUQ-HPf5G3vh5GRJ61Z9dJP7iQvCepKVyz5H00k
+@postId = 69c574998b204a8d93f5783f
+
+# ==========================================
+# GISTS API ROUTES (/gists)
+# ==========================================
+
+### Test Gists API
+GET {{baseUrl}}/gists/test
+
+### Create Gist 1 (Healthtech)
+POST {{baseUrl}}/gists/create
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "authorId": "{{user1Id}}",
+  "caption": "I just want to try out a new post with moderation. Trying again...",
+  "topics": ["healthtech", "building"],
+  "visibility": "PUBLIC",
+  "allowComments": true
+}
+
+### Create Gist 2 (Lagos)
+POST {{baseUrl}}/gists/create
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "authorId": "{{user2Id}}",
+  "caption": "Exploring the streets of Lagos today. The energy here is unmatched! 🇳🇬✨",
+  "topics": ["lagos", "vibes"],
+  "visibility": "PUBLIC",
+  "allowComments": true
+}
+
+### Create Gist 3 (Dev Tip)
+POST {{baseUrl}}/gists/create
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "authorId": "{{user1Id}}",
+  "caption": "Quick dev tip: Use 'autoIndex: false' in production Mongoose models to prevent startup lag. 🚀",
+  "topics": ["coding", "mongodb", "tips"],
+  "visibility": "PUBLIC",
+  "allowComments": false
+}
+
+### Save Gist as Draft
+POST {{baseUrl}}/gists/draft
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "caption": "Drafting a new update about our platform launch...",
+  "topics": ["launch", "updates"]
+}
+
+### Get Gist Feed
+GET {{baseUrl}}/gists/feed
+Authorization: Bearer {{authToken}}
+
+### Get Specific Gist by ID
+GET {{baseUrl}}/gists/{{postId}}
+Authorization: Bearer {{authToken}}
+
+### Like / Unlike a Gist
+POST {{baseUrl}}/gists/{{postId}}/like
+Authorization: Bearer {{authToken}}
+
+### Edit a Gist
+PUT {{baseUrl}}/gists/{{postId}}/edit
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "caption": "Updated caption: Quick dev tip on Mongoose indexes in production! 🚀",
+  "allowComments": true
+}
+
+
+# ==========================================
+# FEED API ROUTES (/feed)
+# ==========================================
+
+### Test Feed API
+GET {{baseUrl}}/feed/test
+
+### Get All Posts Feed
+GET {{baseUrl}}/feed
+Authorization: Bearer {{authToken}}
+
+### Get Followers Posts Feed
+GET {{baseUrl}}/feed/followers
+Authorization: Bearer {{authToken}}
+
+### Get User Posts
+GET {{baseUrl}}/feed/{{user1Id}}
+Authorization: Bearer {{authToken}}
+
+### Get User Draft Posts
+GET {{baseUrl}}/feed/{{user1Id}}/drafts
+Authorization: Bearer {{authToken}}
+
+
+# ==========================================
+# POST OPERATIONS & TOPICS ROUTES
+# ==========================================
+
+### Mark Post as Seen
+PATCH {{baseUrl}}/posts/{{postId}}/seen
+Authorization: Bearer {{authToken}}
+
+### Translate Post Caption
+POST {{baseUrl}}/posts/translate/caption
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "text": "Exploring the streets of Lagos today.",
+  "targetLanguage": "es"
+}
+
+### Lookup Topics
+POST {{baseUrl}}/posts/topic/search
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "query": "tech"
+}
+
+### Sync Post Topics
+POST {{baseUrl}}/posts/topic/sync
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "postId": "{{postId}}",
+  "topics": ["healthtech", "mongodb", "tips"]
+}

@@ -3,7 +3,7 @@ import mongoose, {
   HydratedDocument,
   PopulateOptions,
 } from "mongoose";
-import { IUserDocument, UserModel } from "@repo/database";
+import { IUserDocument } from "@repo/database";
 import { InputCheckType } from "../../../types";
 import { UserQueryBuilder } from "./queryBuilder";
 
@@ -69,33 +69,32 @@ export class UserRepository {
     const skipFilter = flags?.skipFilter ?? false;
     const projection = UserQueryBuilder.buildProjection(select);
 
-    // Build filter criteria
-    let filter: QueryFilter<IUserDocument> = {};
-    if (customQuery) {
-      filter = customQuery as QueryFilter<IUserDocument>;
-    } else if (identifier) {
-      filter = UserQueryBuilder.resolveSingleFilter(
-        identifier,
-        flags?.identifierType,
-      );
-    } else if (mode === "SINGLE") {
+    if (!identifier && !customQuery && mode === "SINGLE") {
       return null;
     }
 
+    // Resolving query with encrypted model statics
+    let mongoQuery = UserQueryBuilder.buildQuery({
+      identifier,
+      identifierType: flags?.identifierType,
+      customQuery: customQuery as QueryFilter<IUserDocument>,
+      skipFilter,
+    });
+
     // Fast-path boolean/count queries
     if (mode === "EXISTS") {
-      const existsDoc = await UserModel.exists(filter)
-        .setOptions({
-          skipFilter,
-        })
-        .session(session || null);
+      const existsDoc = await mongoQuery
+        .clone()
+        .session(session || null)
+        .findOne();
       return Boolean(existsDoc);
     }
 
     if (mode === "COUNT") {
-      return UserModel.countDocuments(filter)
-        .setOptions({ skipFilter })
-        .session(session || null);
+      return mongoQuery
+        .clone()
+        .session(session || null)
+        .countDocuments();
     }
 
     // Collection Fetching (MANY)
@@ -105,36 +104,45 @@ export class UserRepository {
         MAX_PAGE_LIMIT,
       );
 
-      let mongoQuery = UserModel.find(filter).setOptions({ skipFilter });
-
       if (session) mongoQuery = mongoQuery.session(session);
       if (projection) mongoQuery = mongoQuery.select(projection);
-      if (populate) mongoQuery = mongoQuery.populate(populate as any);
+      if (populate)
+        mongoQuery = mongoQuery.populate(
+          populate as PopulateOptions | PopulateOptions[],
+        );
       if (skip) mongoQuery = mongoQuery.skip(skip);
       mongoQuery = mongoQuery.limit(enforcedLimit);
       if (sort) mongoQuery = mongoQuery.sort(sort);
 
       if (!isLean) {
+        mongoQuery = mongoQuery.lean(false);
         const docs = await mongoQuery.exec();
         return docs as unknown as Array<HydratedDocument<TUser>>;
       }
 
-      return mongoQuery.lean<
-        Array<Partial<TUser> & { _id: mongoose.Types.ObjectId }>
-      >();
+      const result = await mongoQuery.lean().exec();
+      return result as unknown as Array<
+        Partial<TUser> & { _id: mongoose.Types.ObjectId }
+      >;
     }
 
     // Single Document Fetching (SINGLE)
-    let mongoQuery = UserModel.findOne(filter).setOptions({ skipFilter });
     if (session) mongoQuery = mongoQuery.session(session);
     if (projection) mongoQuery = mongoQuery.select(projection);
-    if (populate) mongoQuery = mongoQuery.populate(populate as any);
+    if (populate)
+      mongoQuery = mongoQuery.populate(
+        populate as PopulateOptions | PopulateOptions[],
+      );
 
     if (!isLean) {
+      mongoQuery = mongoQuery.lean(false);
       const doc = await mongoQuery.exec();
       return doc as unknown as HydratedDocument<TUser> | null;
     }
 
-    return mongoQuery.lean<Partial<TUser> & { _id: mongoose.Types.ObjectId }>();
+    const result = await mongoQuery.lean().exec();
+    return result as unknown as
+      | (Partial<TUser> & { _id: mongoose.Types.ObjectId })
+      | null;
   }
 }

@@ -1,17 +1,19 @@
-import { GistModel, StakeModel, PostViewModel } from "@repo/database";
 import {
-  MESSAGES_REGISTRY,
-  MsgPostType,
-  PostType,
-  TransInfo,
-} from "@repo/shared";
+  GistModel,
+  StakeModel,
+  PostViewModel,
+  PostModelType,
+  IGistDocument,
+  IStakeDocument,
+} from "@repo/database";
+import { MESSAGES_REGISTRY, PostType, TransInfo } from "@repo/shared";
 import mongoose from "mongoose";
 
 export interface MarkPostSeenInput {
   postId: string;
   userId?: string;
   postType: PostType;
-  msgPostType: MsgPostType;
+  postModelType: PostModelType;
 }
 
 export interface MarkPostSeenResult {
@@ -28,7 +30,10 @@ export interface MarkPostSeenResult {
 /**
  * Mapping of post types to their respective database models.
  */
-const POST_MODEL_MAP: Record<PostType, mongoose.Model<any>> = {
+const POST_MODEL_MAP: Record<
+  PostType,
+  mongoose.Model<IGistDocument | IStakeDocument>
+> = {
   GIST: GistModel,
   STAKE: StakeModel,
 };
@@ -39,12 +44,12 @@ const POST_MODEL_MAP: Record<PostType, mongoose.Model<any>> = {
 export const executeMarkPostAsSeen = async (
   input: MarkPostSeenInput,
 ): Promise<MarkPostSeenResult> => {
-  const { postId, userId, postType, msgPostType } = input;
+  const { postId, userId, postType, postModelType } = input;
 
   if (!userId) {
     return {
       status: "INVALID_SESSION",
-      transInfo: MESSAGES_REGISTRY.POST.INVALID_SESSION(msgPostType),
+      transInfo: MESSAGES_REGISTRY.POST.INVALID_SESSION(postModelType),
       payload: null,
     };
   }
@@ -73,7 +78,7 @@ export const executeMarkPostAsSeen = async (
       };
     }
 
-    await PostViewModel.create({ postId, userId, postType });
+    await PostViewModel.create({ postId, userId, postType: postModelType });
 
     const updatedPost = await MainModel.findByIdAndUpdate(
       postId,

@@ -1,7 +1,8 @@
 {
   "rest-client.environmentVariables": {
     "local": {
-      "baseUrl": "http://localhost:8000"
+      "baseUrl": "http://localhost:8000",
+      "authToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGQyN2VjZWE1YjI0YzBhMTkwYjViZSIsImRldmljZUlkIjoiNmEwZDI0ZTM2MDExY2E3MTM4NDQ0ODE5Iiwic2Vzc2lvbklkIjoiZTAyMDQyZGYtYjA1Ny00NGYyLWE3NTgtNWZhYzk2YjE4NzhmIiwiZW1haWwiOiJvZmZpY2lhbGJsb2Jlc0BnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImZpcnN0TmFtZSI6IkphbmV0IiwibGFzdE5hbWUiOiJKYWNrc29uIiwiaWF0IjoxNzc5MjQ2MzA5LCJleHAiOjE3NzkyNDcyMDl9.H3mZWUQ-HPf5G3vh5GRJ61Z9dJP7iQvCepKVyz5H00k"
     },
     "production": {
       "baseUrl": "https://api.funstakes.net"

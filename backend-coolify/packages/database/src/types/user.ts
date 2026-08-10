@@ -6,8 +6,12 @@ import {
   QueryOptions,
   QueryFilter,
 } from "mongoose";
-import { AccountStatus, ITfaData, VerificationStatus } from "./status";
-import { IUserPreferredTopic } from "./topic";
+import {
+  AccountStatus,
+  ITfaData,
+  IUserPreferredTopic,
+  VerificationStatus,
+} from "./misc";
 
 export interface ILocation {
   name?: string | null;
@@ -18,6 +22,9 @@ export interface ILocation {
   coordinates: [number, number]; // [longitude, latitude]
 }
 
+/**
+ * Interface defining user models.
+ */
 export interface IUserDocument extends Document {
   // --- CORE IDENTITY ---
   email: string;
@@ -72,7 +79,6 @@ export interface IUserDocument extends Document {
   statusChangedAt?: Date | null;
   statusReason?: string;
   statusChangedBy?: Types.ObjectId | null;
-  deactivatedAt?: Date | null;
 
   // --- PROFILE DETAILS ---
   gender?: string | null;
@@ -98,15 +104,6 @@ export interface IUserDocument extends Document {
   // --- METRICS & PREFERENCES ---
   followersCount: number;
   followingCount: number;
-  // preferences: {
-  //   showSensitiveGraphic: boolean;
-  //   preferredLanguage: string;
-  //   preferredTopics: Array<{
-  //     topicId: string;
-  //     title: string;
-  //     lastViewed?: Date | null;
-  //   }>;
-  // };
 
   // --- MODERATION FIELDS ---
   policyBreachCount?: number;
@@ -197,4 +194,35 @@ export interface IUserSettingsDocument {
     };
   };
   mutedWords: string[];
+}
+
+/**
+ * Interface defining user logs.
+ */
+export interface IUserLogDocument {
+  userId: Types.ObjectId;
+  action: string;
+  category: "AUTH" | "PROFILE" | "SECURITY" | "TRANSACTION" | "MODERATION";
+  ipAddress?: string;
+  userAgent?: string;
+  deviceId?: Types.ObjectId;
+  metadata?: Record<string, any>;
+  createdAt: Date;
+}
+
+/**
+ * Interface defining error logs.
+ */
+export interface IErrorLogDocument {
+  userId?: Types.ObjectId;
+  errorCode: string;
+  route?: string;
+  method?: string;
+  statusCode: number;
+  i18nKey?: string;
+  message: string;
+  stackTrace?: string;
+  ipAddress?: string;
+  metadata?: Record<string, any>;
+  createdAt: Date;
 }

@@ -1,24 +1,27 @@
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
 import { IEmailDispatchTokens } from "../../types";
+import {
+  EmailOtpParams,
+  getEmailOtpVariables,
+  getFlatEmailOtpVariables,
+} from "./variables";
+import { renderEmailOtpHtml } from "./emailTemplate";
 
-interface EmailOptions {
-  to: string;
-  code: string;
-}
-
+/**
+ * Dispatches an OTP verification email using Resend templates with a Nodemailer SMTP fallback.
+ */
 export async function dispatchEmailCode(
-  { to, code }: EmailOptions,
+  { code, recipient, templateId }: EmailOtpParams,
   dispatchConfig: IEmailDispatchTokens,
 ) {
-  const html = `
-    <h3>Your verification code</h3>
-    <p style="font-size: 22px; font-weight: bold;">${code}</p>
-    <p>This code expires in 10 minutes.</p>
-  `;
-
   const resendApiKey = dispatchConfig.RESEND_API_KEY;
   const resendFromEmail = dispatchConfig.RESEND_FROM_EMAIL;
+  const targetTemplateId = templateId || "account-verification-template";
+
+  // Construct template parameters using structured variable generator
+  const variables = getEmailOtpVariables({ code, recipient });
+  const flattenedVariables = getFlatEmailOtpVariables({ code, recipient });
 
   // -----------------------------
   // 1. TRY RESEND FIRST
@@ -32,13 +35,18 @@ export async function dispatchEmailCode(
 
     const response = await resend.emails.send({
       from: resendFromEmail,
-      to,
-      subject: "Verify Your Email",
-      html,
+      to: recipient.email,
+      subject: `${code} is your verification code`,
+      template: {
+        id: targetTemplateId,
+        variables: flattenedVariables,
+      },
     });
 
     if (response.error) {
-      throw new Error(response.error.message || "Resend failed");
+      throw new Error(
+        response.error.message || "Resend template dispatch failed",
+      );
     }
 
     return response;
@@ -51,16 +59,19 @@ export async function dispatchEmailCode(
   // -----------------------------
   let provider: "gmail" | "outlook" | "yahoo" | "smtp";
 
-  if (to.includes("@gmail.")) provider = "gmail";
-  else if (to.includes("@outlook.") || to.includes("@hotmail."))
+  if (recipient.email.includes("@gmail.")) provider = "gmail";
+  else if (
+    recipient.email.includes("@outlook.") ||
+    recipient.email.includes("@hotmail.")
+  )
     provider = "outlook";
-  else if (to.includes("@yahoo.")) provider = "yahoo";
+  else if (recipient.email.includes("@yahoo.")) provider = "yahoo";
   else provider = "smtp";
 
   // -----------------------------
   // 3. CONFIGURE SMTP TRANSPORTER
   // -----------------------------
-  let transporterConfig: any;
+  let transporterConfig: Record<string, unknown>;
 
   switch (provider) {
     case "gmail":
@@ -113,21 +124,26 @@ export async function dispatchEmailCode(
   // 4. SEND WITH STRICT ERROR HANDLING
   // -----------------------------
   try {
+    const fallbackFrom =
+      dispatchConfig.GMAIL_USER ||
+      (transporterConfig.auth as { user?: string })?.user;
+
     const info = await transporter.sendMail({
-      from: dispatchConfig.GMAIL_USER || transporterConfig.auth.user,
-      to,
-      subject: "Verify Your Email",
-      html,
+      from: fallbackFrom,
+      to: recipient.email,
+      subject: `${code} is your verification code`,
+      html: renderEmailOtpHtml(variables),
     });
 
-    // Nodemailer: some failures don't throw but return rejected list
     if (info.rejected && info.rejected.length > 0) {
       throw new Error(`SMTP rejected recipients: ${info.rejected.join(", ")}`);
     }
 
     return info;
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorMessage =
+      err instanceof Error ? err.message : "SMTP email send failed";
     console.error("❌ SMTP failed:", err);
-    throw new Error(err.message || "SMTP email send failed");
+    throw new Error(errorMessage);
   }
 }

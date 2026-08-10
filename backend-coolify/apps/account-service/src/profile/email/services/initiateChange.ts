@@ -172,6 +172,7 @@ export const startEmailChange = async (
       email: formattedEmail,
       code,
       type: "EMAIL",
+      firstName: user.firstName,
     },
     FUNSTAKES_REDIS_URL,
   );

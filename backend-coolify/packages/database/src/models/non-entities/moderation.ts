@@ -12,19 +12,16 @@ export const ModerationCaseSchema = new Schema<IModerationCase>(
     targetId: {
       type: Schema.Types.ObjectId,
       required: true,
-      index: true,
     },
     targetType: {
       type: String,
       required: true,
       enum: ["PROFILE", "POST", "COMMENT", "MESSAGE", "MEDIA", "COMMUNITY"],
-      index: true,
     },
     targetOwner: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
     title: {
       type: String,
@@ -39,7 +36,6 @@ export const ModerationCaseSchema = new Schema<IModerationCase>(
       type: String,
       enum: ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
       default: "MEDIUM",
-      index: true,
     },
     status: {
       type: String,
@@ -52,7 +48,6 @@ export const ModerationCaseSchema = new Schema<IModerationCase>(
         "APPEALED",
       ],
       default: "OPEN",
-      index: true,
     },
     decision: {
       type: String,
@@ -73,7 +68,6 @@ export const ModerationCaseSchema = new Schema<IModerationCase>(
       type: Schema.Types.ObjectId,
       ref: "User",
       default: null,
-      index: true,
     },
     resolvedBy: {
       type: Schema.Types.ObjectId,
@@ -87,18 +81,23 @@ export const ModerationCaseSchema = new Schema<IModerationCase>(
     aiGenerated: {
       type: Boolean,
       default: false,
-      index: true,
     },
     requiresHumanReview: {
       type: Boolean,
       default: true,
     },
   },
-  {
-    timestamps: true,
-    autoIndex: true,
-  },
+  { timestamps: true },
 );
+
+// Moderation Case Schema Indexes
+ModerationCaseSchema.index({ targetId: 1 });
+ModerationCaseSchema.index({ targetType: 1 });
+ModerationCaseSchema.index({ targetOwner: 1 });
+ModerationCaseSchema.index({ priority: 1 });
+ModerationCaseSchema.index({ status: 1 });
+ModerationCaseSchema.index({ assignedModerator: 1 });
+ModerationCaseSchema.index({ aiGenerated: 1 });
 ModerationCaseSchema.index({
   status: 1,
   priority: -1,
@@ -112,6 +111,10 @@ ModerationCaseSchema.index({
   targetOwner: 1,
   createdAt: -1,
 });
+
+/**
+ * Model schema for tracking unique content and account moderation cases.
+ */
 export const ModerationCaseModel: Model<IModerationCase> = model(
   "ModerationCase",
   ModerationCaseSchema,
@@ -125,7 +128,6 @@ export const ModerationStrikeSchema = new Schema<IModerationStrike>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
     issuedBy: {
       type: Schema.Types.ObjectId,
@@ -194,10 +196,20 @@ export const ModerationStrikeSchema = new Schema<IModerationStrike>(
       default: true,
     },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
+
+// Moderation Strike Schema Indexes
+ModerationStrikeSchema.index({ account: 1, createdAt: -1 });
+ModerationStrikeSchema.index({ account: 1, isActive: 1 });
+ModerationStrikeSchema.index(
+  { expiresAt: 1 },
+  { partialFilterExpression: { expiresAt: { $type: "date" } } },
+);
+
+/**
+ * Model schema for tracking penalization strikes and policy violations issued against accounts.
+ */
 export const ModerationStrikeModel: Model<IModerationStrike> = model(
   "ModerationStrike",
   ModerationStrikeSchema,
@@ -211,19 +223,16 @@ export const ModerationReportSchema = new Schema<IModerationReport>(
       type: Schema.Types.ObjectId,
       ref: "ModerationCase",
       required: true,
-      index: true,
     },
     reporter: {
       type: Schema.Types.ObjectId,
       ref: "User",
       default: null,
-      index: true,
     },
     source: {
       type: String,
       enum: ["USER", "AI", "SYSTEM", "MODERATOR"],
       required: true,
-      index: true,
     },
     reason: {
       type: String,
@@ -244,7 +253,6 @@ export const ModerationReportSchema = new Schema<IModerationReport>(
         "OTHER",
       ],
       required: true,
-      index: true,
     },
     description: {
       type: String,
@@ -266,12 +274,10 @@ export const ModerationReportSchema = new Schema<IModerationReport>(
       default: false,
     },
   },
-  {
-    timestamps: true,
-    autoIndex: true,
-  },
+  { timestamps: true },
 );
 
+// Moderation Report Schema Indexes
 ModerationReportSchema.index({
   moderationCase: 1,
   createdAt: -1,
@@ -284,20 +290,23 @@ ModerationReportSchema.index({
   source: 1,
   reason: 1,
 });
+
+/**
+ * Model schema for storing user, AI, and system-submitted violation reports tied to moderation cases.
+ */
 export const ModerationReportModel: Model<IModerationReport> = model(
   "ModerationReport",
   ModerationReportSchema,
   "moderation_reports",
 );
 
-// Eveidence Records
+// Evidence Records
 export const ModerationEvidenceSchema = new Schema<IModerationEvidence>(
   {
     moderationCase: {
       type: Schema.Types.ObjectId,
       ref: "ModerationCase",
       required: true,
-      index: true,
     },
     type: {
       type: String,
@@ -314,7 +323,6 @@ export const ModerationEvidenceSchema = new Schema<IModerationEvidence>(
         "SYSTEM_METADATA",
       ],
       required: true,
-      index: true,
     },
     title: {
       type: String,
@@ -346,15 +354,18 @@ export const ModerationEvidenceSchema = new Schema<IModerationEvidence>(
       default: null,
     },
   },
-  {
-    timestamps: true,
-    autoIndex: true,
-  },
+  { timestamps: true },
 );
+
+// Moderation Evidence Schema Indexes
 ModerationEvidenceSchema.index({
   moderationCase: 1,
   type: 1,
 });
+
+/**
+ * Model schema for storing media, text, and technical evidence collected for moderation review.
+ */
 export const ModerationEvidenceModel: Model<IModerationEvidence> = model(
   "ModerationEvidence",
   ModerationEvidenceSchema,

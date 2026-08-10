@@ -11,9 +11,7 @@ export interface IEncryptedPluginOptions {
   fields: IEncryptedFieldConfig[];
 }
 
-/**
- * Shape constraint for documents processed by field encryption routines.
- */
+// Shape constraint for documents processed by field encryption routines.
 interface IEncryptedTargetDoc {
   get(path: string): unknown;
   set(path: string, val: unknown, options?: Record<string, unknown>): unknown;
@@ -60,16 +58,45 @@ export const encryptedFieldsPlugin = (
   };
 
   /**
-   * Internal routine to restore cipher properties back to clean payload representations.
+   * Restores cipher properties back to clean payload representations across documents and plain lean objects.
    */
-  const decryptDocumentFields = (doc: IEncryptedTargetDoc | null) => {
-    if (!doc) return;
+  const decryptTargetPayload = (target: unknown) => {
+    if (!target || typeof target !== "object") return;
+
+    const doc = target as Record<string, unknown>;
+
     fields.forEach(({ field }) => {
-      const cipherValue = doc.get(field);
+      const isHydratedDoc =
+        typeof (doc as unknown as IEncryptedTargetDoc).get === "function";
+      const cipherValue = isHydratedDoc
+        ? (doc as unknown as IEncryptedTargetDoc).get(field)
+        : doc[field];
+
       if (typeof cipherValue === "string" && isEncryptedPattern(cipherValue)) {
-        doc.set(field, decrypt(cipherValue), { strict: false });
+        const decryptedValue = decrypt(cipherValue);
+
+        if (isHydratedDoc) {
+          (doc as unknown as IEncryptedTargetDoc).set(field, decryptedValue, {
+            strict: false,
+          });
+        } else {
+          doc[field] = decryptedValue;
+        }
       }
     });
+  };
+
+  /**
+   * Processes query result payloads for auto-decryption on single or batch results.
+   */
+  const handleQueryQueryResult = (result: unknown) => {
+    if (!result) return;
+
+    if (Array.isArray(result)) {
+      result.forEach((item) => decryptTargetPayload(item));
+    } else {
+      decryptTargetPayload(result);
+    }
   };
 
   // Attach lifecycle pre-save pipeline event hooks
@@ -97,17 +124,22 @@ export const encryptedFieldsPlugin = (
     });
   });
 
-  // Attach lifecycle post-retrieval pipeline event hooks
+  // Attach lifecycle post-retrieval pipeline event hooks for hydrated instances
   schema.post("init", function (doc) {
-    decryptDocumentFields(doc);
+    decryptTargetPayload(doc);
   });
 
   schema.post("save", function (doc) {
-    decryptDocumentFields(doc);
+    decryptTargetPayload(doc);
   });
 
+  // Attach query post middleware to transparently auto-decrypt lean query results
+  schema.post("find", handleQueryQueryResult);
+  schema.post("findOne", handleQueryQueryResult);
+  schema.post("findOneAndUpdate", handleQueryQueryResult);
+
   /**
-   * Executes lookup using blind hash query chain, supporting standard Mongoose query methods.
+   * Executes lookup using blind hash query chain with fallback support for unencrypted records.
    */
   schema.statics.findByEncryptedField = function (
     fieldName: string,
@@ -126,14 +158,18 @@ export const encryptedFieldsPlugin = (
 
     const blindHash = hashLookup(plainValue);
     const projection = options?.projection || options?.select || null;
+    const normalizedValue = plainValue.trim().toLowerCase();
 
-    return this.findOne(
-      {
-        [`${fieldName}Hash`]: blindHash,
-        ...filter,
-      },
-      projection,
-      options,
-    );
+    // Query matches encrypted hash or legacy plain string
+    const matchQuery = {
+      $or: [
+        { [`${fieldName}Hash`]: blindHash },
+        { [fieldName]: normalizedValue },
+        { [fieldName]: plainValue },
+      ],
+      ...filter,
+    };
+
+    return this.findOne(matchQuery, projection, options);
   };
 };

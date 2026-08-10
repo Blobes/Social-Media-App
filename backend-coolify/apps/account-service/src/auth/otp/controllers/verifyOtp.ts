@@ -25,7 +25,7 @@ export const verifyOtp = async (
   if (!recipient || !code || !purpose) {
     res.status(400).json({
       status: "ERROR",
-      ...MESSAGES_REGISTRY.AUTH.CODE_REQUIRED,
+      ...MESSAGES_REGISTRY.AUTH.CODE_RECIPIENT_PURPOSE_REQUIRED,
       payload: null,
     });
     return;

@@ -23,6 +23,9 @@ export const env = {
   get PORT() {
     return parseInt(getEnv("ADMIN_PORT", false) || "8084", 10);
   },
+  get RESEND_WEBHOOK_SECRET() {
+    return getEnv("RESEND_WEBHOOK_SECRET");
+  },
 };
 
 // Authentication Configuration for Admin routes
@@ -74,3 +77,4 @@ export const authenticateInternal: RequestHandler =
 export const NODE_ENV = env.NODE_ENV;
 export const PORT = env.PORT;
 export const MONGO_URI = env.MONGO_URI;
+export const RESEND_WEBHOOK_SECRET = env.RESEND_WEBHOOK_SECRET;

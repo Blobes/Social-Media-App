@@ -3,9 +3,10 @@ import cookieParser from "cookie-parser";
 import notificationRoutes from "./notification/routes";
 import uploadRoutes from "./upload/routes";
 import auditRoutes from "./audit-log/routes";
+import webhookRoutes from "./webhook/routes";
 import moderationRoutes from "./moderation/routes";
 import { healthRouter } from "./health";
-import { initErrorHandlerMiddleware } from "@repo/security";
+import { globalErrorHandler } from "@repo/security";
 import { ErrorLogModel } from "@repo/database";
 
 export default (app: Express) => {
@@ -27,8 +28,9 @@ export default (app: Express) => {
   app.use("/upload", uploadRoutes);
   app.use("/audit", auditRoutes);
   app.use("/moderation", moderationRoutes);
+  app.use("/webhook", webhookRoutes);
 
-  app.use(initErrorHandlerMiddleware(ErrorLogModel));
+  app.use(globalErrorHandler(ErrorLogModel));
 
   return app;
 };

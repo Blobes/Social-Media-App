@@ -120,18 +120,18 @@ const MediaSchema = new Schema<IMediaDocument>(
       caseCount: { type: Number, default: 0 },
     },
   },
-  {
-    timestamps: true,
-    autoIndex: false,
-    toJSON: {
-      virtuals: true,
-      transform: (doc, ret: any) => {
-        if (ret._id) ret._id = ret._id.toString();
-        return ret;
-      },
-    },
-  },
+  { timestamps: true },
 );
+
+// --- Media Schema Index Configurations ---
+// Primary asset resolution per post or profile entity
+MediaSchema.index({ sourceId: 1, sourceType: 1, order: 1 });
+// User gallery and uploaded media listing
+MediaSchema.index({ ownerId: 1, status: 1, createdAt: -1 });
+// Unlinked orphaned uploads cleanup worker
+MediaSchema.index({ status: 1, sourceId: 1, createdAt: 1 });
+// Fast file key lookup for direct cloud storage operations
+MediaSchema.index({ fileKey: 1 }, { unique: true });
 
 export const MediaModel: Model<IMediaDocument> = model<IMediaDocument>(
   "Media",

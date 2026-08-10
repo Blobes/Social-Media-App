@@ -126,7 +126,7 @@ export const initUserDeactivatedCleanup = () => {
       const expiredUsers = await fetchManyUsers({
         query: {
           accountStatus: "DEACTIVATED",
-          deactivatedAt: { $lte: threeMonthsAgo },
+          statusChangedAt: { $lte: threeMonthsAgo },
         },
         select: ["_id"],
         flags: { lean: true, skipFilter: true },

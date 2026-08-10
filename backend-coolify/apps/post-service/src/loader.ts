@@ -4,7 +4,7 @@ import feedRoutes from "./feed/routes";
 import postRoutes from "./post/routes";
 import { gistRouter } from "./gist/routes";
 import { healthRouter } from "./health";
-import { initErrorHandlerMiddleware } from "@repo/security";
+import { globalErrorHandler } from "@repo/security";
 import { ErrorLogModel } from "@repo/database";
 
 export default (app: Express) => {
@@ -26,6 +26,6 @@ export default (app: Express) => {
   app.use("/feed", feedRoutes);
   app.use("/gist", gistRouter());
 
-  app.use(initErrorHandlerMiddleware(ErrorLogModel));
+  app.use(globalErrorHandler(ErrorLogModel));
   return app;
 };

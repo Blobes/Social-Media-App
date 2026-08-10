@@ -1,5 +1,5 @@
 import { Schema, model, Model } from "mongoose";
-import { IGistDocument } from "../../types/posts";
+import { IGistDocument } from "../../types/post";
 
 const GistSchema = new Schema<IGistDocument>(
   {
@@ -78,18 +78,23 @@ const GistSchema = new Schema<IGistDocument>(
       caseCount: { type: Number, default: 0 },
     },
   },
-  {
-    timestamps: true,
-    autoIndex: false,
-    toJSON: {
-      virtuals: true,
-      transform: (doc, ret: any) => {
-        if (ret._id) ret._id = ret._id.toString();
-        return ret;
-      },
-    },
-  },
+  { timestamps: true },
 );
+
+// --- Index Registrations ---
+GistSchema.index({ topics: 1 });
+// Primary feed retrieval sorted by recency
+GistSchema.index({ status: 1, visibility: 1, createdAt: -1 });
+// User profile posts tab query
+GistSchema.index({ authorId: 1, status: 1, createdAt: -1 });
+// User pinned post retrieval
+GistSchema.index({ authorId: 1, isPinned: -1, createdAt: -1 });
+// Topic-based feed discovery
+GistSchema.index({ topics: 1, status: 1, createdAt: -1 });
+// Geospatial querying for location-based feeds
+GistSchema.index({ "location.coordinates": "2dsphere", status: 1 });
+// Active moderation review queue lookup
+GistSchema.index({ status: 1, "moderationCase.caseCount": -1 });
 
 export const GistModel: Model<IGistDocument> = model<IGistDocument>(
   "Gist",

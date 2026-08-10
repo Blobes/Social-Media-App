@@ -1,6 +1,7 @@
 import { Model } from "mongoose";
 import {
   GistModel,
+  PostModelType,
   PostStatus,
   PostVisibility,
   StakeModel,
@@ -9,7 +10,6 @@ import {
   generateRandomIp,
   getLocationFromIp,
   MESSAGES_REGISTRY,
-  MsgPostType,
   PostType,
   TransInfo,
 } from "@repo/shared";
@@ -20,7 +20,7 @@ export interface DraftPostInput {
   caption?: string;
   topics?: string[];
   postType: PostType;
-  msgPostType: MsgPostType;
+  msgPostType: PostModelType;
 }
 
 export interface DraftPostResult {

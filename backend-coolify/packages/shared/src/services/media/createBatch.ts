@@ -1,4 +1,4 @@
-import mongoose, { ClientSession, Types } from "mongoose";
+import { ClientSession, Types } from "mongoose";
 import { MediaModel, IMedia, IMediaDocument } from "@repo/database";
 
 /**

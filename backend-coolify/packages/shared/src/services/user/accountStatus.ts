@@ -68,7 +68,6 @@ export const switchAccountStatus = async (
     statusChangedAt: new Date(),
     statusReason: reason,
     statusChangedBy: changedBy ? new Types.ObjectId(changedBy) : null,
-    deactivatedAt: targetStatus === "DEACTIVATED" ? new Date() : null,
   };
 
   if (targetStatus === "DEACTIVATED" || targetStatus === "BANNED") {

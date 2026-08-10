@@ -10,7 +10,6 @@ export const userSensitiveFields = (): string[] => {
     "otpCodeExpiresAt",
     "lastEmailOtpSentAt",
     "lastPhoneOtpSentAt",
-    "deactivatedAt",
     "__v",
   ];
 };

@@ -6,7 +6,7 @@ import { executeErrorLogCreation } from "./services";
 /**
  * Initializes the error handling middleware with the required database model context.
  */
-export const initErrorHandlerMiddleware = <T extends Model<any>>(
+export const globalErrorHandler = <T extends Model<any>>(
   ErrorLogModel: T,
 ): ErrorRequestHandler => {
   return async (
@@ -29,7 +29,7 @@ export const initErrorHandlerMiddleware = <T extends Model<any>>(
       err.i18nKey || MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR.i18nKey;
     const interpolations = err.interpolations || undefined;
 
-    // Skip database persistence entirely for any remaining user-driven errors (4xx series)
+    // Direct return for 4xx series errors without persistence
     if (statusCode >= 400 && statusCode < 500) {
       return res.status(statusCode).json({
         status: "ERROR",
@@ -41,7 +41,6 @@ export const initErrorHandlerMiddleware = <T extends Model<any>>(
     }
 
     try {
-      // Pass the runtime model reference directly into the logger execution instance
       const trackingCode = await executeErrorLogCreation({
         ErrorLogModel,
         userId: authUserId,
@@ -59,10 +58,22 @@ export const initErrorHandlerMiddleware = <T extends Model<any>>(
         },
       });
 
-      // Mask system context details from user views during top level exception recoveries
-      return res.status(500).json({
+      // Check if error was explicitly flagged as operational or carries custom translation info
+      const isCustomError = Boolean(
+        err.isOperational ||
+        (err.i18nKey &&
+          err.i18nKey !== MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR.i18nKey),
+      );
+
+      return res.status(statusCode).json({
         status: "ERROR",
-        ...MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+        i18nKey: isCustomError
+          ? i18nKey
+          : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR.i18nKey,
+        message: isCustomError
+          ? internalMessage
+          : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR.message,
+        interpolations,
         payload: { errorCode: trackingCode },
       });
     } catch (loggingFailure) {

@@ -1,6 +1,7 @@
-import { Schema, model } from "mongoose";
+import { Model, Schema, model } from "mongoose";
+import { IStakeDocument } from "../../types/post";
 
-const StakeSchema = new Schema(
+const StakeSchema = new Schema<IStakeDocument>(
   {
     authorId: {
       type: Schema.Types.ObjectId,
@@ -22,7 +23,13 @@ const StakeSchema = new Schema(
     },
     // The shell only needs a placeholder for the initial text
     latestCaption: {
+      captionId: {
+        type: Schema.Types.ObjectId,
+        ref: "PostCaption",
+      },
       caption: { type: String, required: true },
+      detectedLanguage: { type: String, default: "en" },
+      createdAt: { type: Date, default: Date.now, required: false },
     },
     // References to be filled by the Worker
     mediaIds: [{ type: Schema.Types.ObjectId, ref: "Media" }],
@@ -30,15 +37,22 @@ const StakeSchema = new Schema(
 
     // Geographical data (assigned in the Controller)
     location: {
-      name: { type: String },
+      name: { type: String, default: null },
+      city: { type: String, default: null },
+      state: { type: String, default: null },
+      country: { type: String, default: null },
       type: {
         type: String,
         enum: ["Point"],
+        default: "Point",
       },
       coordinates: {
         type: [Number],
+        index: "2dsphere",
+        default: [],
       },
     },
+    viewCount: { type: Number, default: 0, min: 0 },
 
     // UI Configuration
     visibility: {
@@ -70,10 +84,21 @@ const StakeSchema = new Schema(
       caseCount: { type: Number, default: 0 },
     },
   },
-  {
-    timestamps: true,
-    autoIndex: false,
-  },
+  { timestamps: true },
 );
 
-export const StakeModel = model("Stake", StakeSchema, "stakes");
+// --- Stake Schema Index Configurations ---
+// Main feed and thread replies retrieval
+StakeSchema.index({ postId: 1, postType: 1, status: 1, createdAt: -1 });
+// User engagement history query
+StakeSchema.index({ authorId: 1, status: 1, createdAt: -1 });
+// Automated worker processing queue for draft or under-review stakes
+StakeSchema.index({ status: 1, createdAt: 1 });
+// Spatial distribution queries for stakes
+StakeSchema.index({ "location.coordinates": "2dsphere", status: 1 });
+
+export const StakeModel: Model<IStakeDocument> = model<IStakeDocument>(
+  "Stake",
+  StakeSchema,
+  "stakes",
+);

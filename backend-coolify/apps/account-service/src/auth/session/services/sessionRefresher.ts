@@ -61,7 +61,7 @@ export const executeSessionRefresh = async (
       identifier: payload.id,
       flags: { lean: false },
     });
-    //const user = await UserModel.findById(payload.id);
+
     if (!user) {
       return {
         status: "USER_NOT_FOUND",

@@ -224,7 +224,7 @@ export class AutoSyncSchemaFields implements Migration {
   }
 
   /**
-   * Evaluates missing schema default paths independently per field.
+   * Evaluates missing schema default paths independently per field, handling nested sub-documents safely.
    */
   private async addMissingFields(): Promise<void> {
     const schemaFieldsWithDefaults: string[] = [];
@@ -246,6 +246,21 @@ export class AutoSyncSchemaFields implements Migration {
         `    - No new fields with defaults detected in schema for ${this.model.modelName}. Skipping default setting.`,
       );
       return;
+    }
+
+    // Clean up top-level null values on object containers before attempting dot-notation updates
+    const topLevelParents = new Set<string>();
+    schemaFieldsWithDefaults.forEach((field) => {
+      if (field.includes(".")) {
+        topLevelParents.add(field.split(".")[0]);
+      }
+    });
+
+    for (const parentField of topLevelParents) {
+      await this.model.collection.updateMany(
+        { [parentField]: null },
+        { $unset: { [parentField]: "" } },
+      );
     }
 
     for (const field of schemaFieldsWithDefaults) {

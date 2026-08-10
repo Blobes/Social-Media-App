@@ -29,7 +29,6 @@ export const executePhoneChange = async (
 ): Promise<IPhoneChnageResult> => {
   const { userId, currentDeviceId, code } = input;
 
-  //  const user = await UserModel.findById(userId);
   const user = await fetchSingleUser({
     identifier: userId,
     flags: {

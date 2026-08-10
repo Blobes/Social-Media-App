@@ -2,7 +2,7 @@ import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 import authRoutes from "./auth/routes";
 import userRoutes from "./profile/routes";
-import { initErrorHandlerMiddleware } from "@repo/security";
+import { globalErrorHandler } from "@repo/security";
 import { healthRouter } from "./health";
 import { ErrorLogModel } from "@repo/database";
 
@@ -25,6 +25,6 @@ export default (app: Express) => {
   app.use("/user", userRoutes);
 
   // Global Error handler
-  app.use(initErrorHandlerMiddleware(ErrorLogModel));
+  app.use(globalErrorHandler(ErrorLogModel));
   return app;
 };

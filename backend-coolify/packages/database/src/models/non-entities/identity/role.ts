@@ -1,4 +1,4 @@
-import { Schema, model, Model } from "mongoose";
+import { Model, Schema, model } from "mongoose";
 import { COMMUNITY_ROLES, PLATFORM_ROLES } from "../../../constants/roles";
 import {
   IRoleDocument,
@@ -15,9 +15,7 @@ const RoleSchema = new Schema<IRoleDocument>(
     name: {
       type: String,
       required: true,
-      unique: true,
       enum: allRoleNames,
-      index: true,
     },
     category: {
       type: String,
@@ -29,19 +27,15 @@ const RoleSchema = new Schema<IRoleDocument>(
       default: null,
     },
   },
-  {
-    timestamps: true,
-    toJSON: {
-      virtuals: true,
-      transform: (doc, ret: any) => {
-        ret.id = ret._id.toString();
-        delete ret._id;
-        delete ret.__v;
-        return ret;
-      },
-    },
-  },
+  { timestamps: true },
 );
+
+// Role Schema Indexes
+RoleSchema.index({ name: 1 }, { unique: true });
+
+/**
+ * Model schema for managing system roles.
+ */
 export const RoleModel: Model<IRoleDocument> = model<IRoleDocument>(
   "Role",
   RoleSchema,
@@ -55,17 +49,15 @@ const UserRoleSchema = new Schema<IUserRoleDocument>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
     roleId: {
       type: Schema.Types.ObjectId,
       ref: "Role",
       required: true,
-      index: true,
     },
     assignedBy: {
       type: Schema.Types.ObjectId,
-      ref: "User", // Can be null if system-assigned or self-assigned upon signup
+      ref: "User",
       default: null,
     },
     assignmentReason: {
@@ -79,34 +71,28 @@ const UserRoleSchema = new Schema<IUserRoleDocument>(
     },
     effectiveTo: {
       type: Date,
-      default: null, // Null means permanent
+      default: null,
     },
   },
-  {
-    timestamps: true,
-    toJSON: {
-      virtuals: true,
-      transform: (doc, ret: any) => {
-        ret.id = ret._id.toString();
-        delete ret._id;
-        delete ret.__v;
-        return ret;
-      },
-    },
-  },
+  { timestamps: true },
 );
 
-// Ensure unique combination of userId and roleId, but only for currently active roles
+// User Role Schema Indexes
+UserRoleSchema.index({ userId: 1 });
+UserRoleSchema.index({ roleId: 1 });
 UserRoleSchema.index(
   { userId: 1, roleId: 1 },
   {
     unique: true,
     partialFilterExpression: {
-      effectiveTo: { $exists: false }, // Only apply uniqueness to active roles
+      effectiveTo: null,
     },
   },
 );
 
+/**
+ * Model schema for mapping user role assignments and durations.
+ */
 export const UserRoleModel: Model<IUserRoleDocument> = model<IUserRoleDocument>(
   "UserRole",
   UserRoleSchema,

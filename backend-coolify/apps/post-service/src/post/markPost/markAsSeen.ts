@@ -3,10 +3,10 @@ import {
   IAuthRequest,
   MESSAGES_REGISTRY,
   forwardError,
-  MsgPostType,
   PostType,
 } from "@repo/shared";
 import { executeMarkPostAsSeen } from "./service";
+import { PostModelType } from "@repo/database";
 
 /**
  * Controller endpoint managing traffic routing parameters for updating engagement tracking counters across unique digital post artifacts.
@@ -19,15 +19,14 @@ export const markPostAsSeen = async (
   const { postType } = req.body as { postType: PostType };
   const userId = req.user?.id;
   const postId = String(req.params?.postId);
-
-  const msgPostType: MsgPostType = postType === "GIST" ? "Gist" : "Stake";
+  const postModelType: PostModelType = postType === "GIST" ? "Gist" : "Stake";
 
   try {
     const serviceResult = await executeMarkPostAsSeen({
       postId,
       userId,
       postType,
-      msgPostType,
+      postModelType,
     });
 
     if (serviceResult.status === "INVALID_SESSION") {
@@ -67,7 +66,7 @@ export const markPostAsSeen = async (
 
     return forwardError(
       next,
-      MESSAGES_REGISTRY.POST.CREATION_FALLBACK_ERROR(msgPostType),
+      MESSAGES_REGISTRY.POST.CREATION_FALLBACK_ERROR(postModelType),
       error,
     );
   }

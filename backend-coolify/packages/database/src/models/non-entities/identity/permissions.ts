@@ -1,4 +1,4 @@
-import { Schema, model, Model } from "mongoose";
+import { Model, Schema, model } from "mongoose";
 import {
   ADMIN_PERMISSIONS,
   ADS_PERMISSIONS,
@@ -28,9 +28,7 @@ const PermissionSchema = new Schema<IPermissionDocument>(
     name: {
       type: String,
       required: true,
-      unique: true,
       enum: allPermissionNames,
-      index: true,
     },
     resource: {
       type: String,
@@ -45,19 +43,15 @@ const PermissionSchema = new Schema<IPermissionDocument>(
       default: null,
     },
   },
-  {
-    timestamps: true,
-    toJSON: {
-      virtuals: true,
-      transform: (doc, ret: any) => {
-        ret.id = ret._id.toString();
-        delete ret._id;
-        delete ret.__v;
-        return ret;
-      },
-    },
-  },
+  { timestamps: true },
 );
+
+// Permission Schema Indexes
+PermissionSchema.index({ name: 1 }, { unique: true });
+
+/**
+ * Model schema for defining granular access control permissions.
+ */
 export const PermissionModel: Model<IPermissionDocument> =
   model<IPermissionDocument>("Permission", PermissionSchema, "permissions");
 
@@ -68,32 +62,24 @@ const RolePermissionSchema = new Schema<IRolePermissionDocument>(
       type: Schema.Types.ObjectId,
       ref: "Role",
       required: true,
-      index: true,
     },
     permissionId: {
       type: Schema.Types.ObjectId,
       ref: "Permission",
       required: true,
-      index: true,
     },
   },
-  {
-    timestamps: true,
-    toJSON: {
-      virtuals: true,
-      transform: (doc, ret: any) => {
-        ret.id = ret._id.toString();
-        delete ret._id;
-        delete ret.__v;
-        return ret;
-      },
-    },
-  },
+  { timestamps: true },
 );
 
-// Ensure unique combination of roleId and permissionId
+// Role Permission Schema Indexes
+RolePermissionSchema.index({ roleId: 1 });
+RolePermissionSchema.index({ permissionId: 1 });
 RolePermissionSchema.index({ roleId: 1, permissionId: 1 }, { unique: true });
 
+/**
+ * Model schema for mapping permissions to user roles.
+ */
 export const RolePermissionModel: Model<IRolePermissionDocument> =
   model<IRolePermissionDocument>(
     "RolePermission",

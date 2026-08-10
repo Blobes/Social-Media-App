@@ -1,15 +1,5 @@
-import { Schema, Types, model, Model } from "mongoose";
-
-export interface IUserLogDocument {
-  userId: Types.ObjectId;
-  action: string;
-  category: "AUTH" | "PROFILE" | "SECURITY" | "TRANSACTION" | "MODERATION";
-  ipAddress?: string;
-  userAgent?: string;
-  deviceId?: Types.ObjectId;
-  metadata?: Record<string, any>;
-  createdAt: Date;
-}
+import { Schema, model, Model } from "mongoose";
+import { IErrorLogDocument, IUserLogDocument } from "../../types/user";
 
 const UserLogSchema = new Schema<IUserLogDocument>(
   {
@@ -51,27 +41,21 @@ const UserLogSchema = new Schema<IUserLogDocument>(
   },
 );
 
+// User Log Schema Indexes
+UserLogSchema.index({ userId: 1, createdAt: -1 });
+UserLogSchema.index({ category: 1, createdAt: -1 });
+UserLogSchema.index({ action: 1, createdAt: -1 });
+
+/**
+ * Model schema for auditing user activities and security events.
+ */
 export const UserLogModel: Model<IUserLogDocument> = model<IUserLogDocument>(
   "UserLog",
   UserLogSchema,
   "user_logs",
 );
 
-export interface IErrorLog {
-  userId?: Types.ObjectId;
-  errorCode: string;
-  route?: string;
-  method?: string;
-  statusCode: number;
-  i18nKey?: string;
-  message: string;
-  stackTrace?: string;
-  ipAddress?: string;
-  metadata?: Record<string, any>;
-  createdAt: Date;
-}
-
-const ErrorLogSchema = new Schema<IErrorLog>(
+const ErrorLogSchema = new Schema<IErrorLogDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -81,7 +65,6 @@ const ErrorLogSchema = new Schema<IErrorLog>(
     errorCode: {
       type: String,
       required: true,
-      unique: true,
     },
     route: {
       type: String,
@@ -115,18 +98,22 @@ const ErrorLogSchema = new Schema<IErrorLog>(
       type: Schema.Types.Mixed,
       default: null,
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      index: { expires: 2592000 },
-    },
   },
   {
     timestamps: { createdAt: true, updatedAt: false },
   },
 );
 
-export const ErrorLogModel: Model<IErrorLog> = model<IErrorLog>(
+// Error Log Schema Indexes
+ErrorLogSchema.index({ errorCode: 1 }, { unique: true });
+ErrorLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 2592000 });
+ErrorLogSchema.index({ userId: 1, createdAt: -1 });
+ErrorLogSchema.index({ statusCode: 1, createdAt: -1 });
+
+/**
+ * Model schema for tracking application error logs and system failures.
+ */
+export const ErrorLogModel: Model<IErrorLogDocument> = model<IErrorLogDocument>(
   "ErrorLog",
   ErrorLogSchema,
   "error_logs",

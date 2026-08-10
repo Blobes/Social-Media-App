@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { authTokens } from "@/envVars";
-import { IUserDocument, ModerationDecision, UserModel } from "@repo/database";
+import { IUserDocument, ModerationDecision } from "@repo/database";
 import {
   userSensitiveFields,
   CACHE_KEYS,
@@ -11,7 +11,6 @@ import {
   TransInfo,
   getAccountStatusMsg,
   setCache,
-  fetchUserData,
   sanitizeUserResult,
   fetchSingleUser,
 } from "@repo/shared";
@@ -102,7 +101,7 @@ export const authenticateUser = async (
     };
   }
 
-  const userPassword = user.password as string | undefined;
+  const userPassword = user.password;
   if (!userPassword) {
     return {
       status: "NO_USER_PASSWORD_SET",

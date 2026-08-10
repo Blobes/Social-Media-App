@@ -1,5 +1,5 @@
 import { Schema, model, Model } from "mongoose";
-import { IAccountStatusHistory } from "../../../types/status";
+import { IAccountStatusHistory } from "../../../types/misc";
 
 const AccountStatusHistorySchema = new Schema<IAccountStatusHistory>(
   {
@@ -7,7 +7,6 @@ const AccountStatusHistorySchema = new Schema<IAccountStatusHistory>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
     previousStatus: {
       type: String,
@@ -38,10 +37,12 @@ const AccountStatusHistorySchema = new Schema<IAccountStatusHistory>(
       default: null,
     },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
+
+// Account Status History Indexes
+AccountStatusHistorySchema.index({ account: 1, createdAt: -1 });
+
 export const AccountStatusHistoryModel: Model<IAccountStatusHistory> = model(
   "AccountStatusHistory",
   AccountStatusHistorySchema,

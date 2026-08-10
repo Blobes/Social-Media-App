@@ -43,27 +43,14 @@ export const executeOtpVerification = async (
 ): Promise<IVerifyOtpResult> => {
   const { recipient, code, purpose, deviceToken, userAgent } = input;
   const normalized = recipient.toLowerCase().trim();
-  const otpChannel = setOtpChannel(normalized);
 
+  const otpChannel = setOtpChannel(normalized);
   if (!otpChannel) {
     return {
       status: "INVALID_CHANNEL",
       transInfo: MESSAGES_REGISTRY.AUTH.INVALID_OTP_CHANNEL,
     };
   }
-
-  // let user: IUserDocument | null = null;
-  // if (otpChannel === "EMAIL") {
-  //   user = await UserModel.findByEmail({
-  //     email: normalized,
-  //     options: { skipFilter: true },
-  //   });
-  // } else {
-  //   user = await UserModel.findByPhone({
-  //     phoneNumber: normalized,
-  //     options: { skipFilter: true },
-  //   });
-  // }
 
   const user = await fetchSingleUser({
     identifier: normalized,

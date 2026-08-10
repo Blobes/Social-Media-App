@@ -61,11 +61,11 @@ export const executeSessionVerification = async (
     };
   }
 
-  // const user = await UserModel.findById(userId);
   const user = await fetchSingleUser({
     identifier: userId,
     flags: { lean: false },
   });
+
   if (!user) {
     await deleteCache(CACHE_KEYS.USER_SESSION(userId, sessionId));
     return {
