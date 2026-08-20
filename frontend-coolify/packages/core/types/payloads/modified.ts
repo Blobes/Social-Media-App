@@ -25,6 +25,7 @@ export interface ApiError extends Error {
   status: FetchStatus;
   payload: any | null;
   localizedErrMsg?: string;
+  retryAfter?: number | null;
 }
 
 export interface APITransMsg {

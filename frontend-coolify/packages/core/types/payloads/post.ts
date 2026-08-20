@@ -1,5 +1,6 @@
 "use client";
 
+import { ILocation } from "../ui-state";
 import { IMedia } from "../media";
 import { IContentModeration } from "./modified";
 
@@ -53,11 +54,7 @@ export interface IGistPayload {
 
   // Discovery
   topics: string[];
-  location?: {
-    name?: string;
-    type: "Point";
-    coordinates: [number, number]; // [longitude, latitude]
-  };
+  location?: ILocation;
 
   // Configuration
   visibility: PostVisibility;

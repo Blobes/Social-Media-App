@@ -4,8 +4,6 @@ import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { AppLogo, Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
-import Image from "next/image";
-import { asset } from "@repo/assets";
 import { IStep, PasswordResetStepName } from "@repo/core";
 import { CredentialStep } from "./Credential";
 import { NewPasswordStep } from "./NewPassword";
@@ -72,7 +70,8 @@ export const Reset: React.FC<ResetStepProps> = ({ style = {} }) => {
           width: "100%",
           maxWidth: "unset",
         },
-      }}>
+      }}
+    >
       <AppLogo size={50} />
       <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />
     </Stack>

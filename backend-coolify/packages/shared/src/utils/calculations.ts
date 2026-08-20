@@ -1,5 +1,5 @@
 import { ILocation } from "@repo/database";
-import { OtpType } from "../types";
+import { OtpMessageChannel, OtpIdentifierType } from "../types";
 
 /**
  * Calculates a dynamic threshold based on post popularity.
@@ -37,12 +37,13 @@ export const calculateMeritScore = (
 /**
  * Resolves destination type from the raw identifier string.
  */
-export const setOtpChannel = (value: string): OtpType | null => {
+export const getOtpIdentifierType = (
+  value: string,
+): OtpIdentifierType | null => {
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const PHONE_REGEX = /^\+?[\d\s-]{10,}$/;
-
   if (EMAIL_REGEX.test(value)) return "EMAIL";
-  if (PHONE_REGEX.test(value)) return "PHONE";
+  if (PHONE_REGEX.test(value)) return "PHONE_NUMBER";
   return null;
 };
 

@@ -66,7 +66,7 @@ export const executePasswordUpdate = async (
     }
 
     const isEmail = determineCheckType(identifier) === "EMAIL";
-    const isPhone = determineCheckType(identifier) === "PHONE";
+    const isPhone = determineCheckType(identifier) === "PHONE_NUMBER";
 
     if (!isEmail && !isPhone) {
       return {

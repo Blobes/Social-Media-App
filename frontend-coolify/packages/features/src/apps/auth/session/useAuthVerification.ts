@@ -1,7 +1,7 @@
 "use client";
 
 import { useSnackbar, useStaticTranslation } from "@repo/shared-hooks";
-import { AuthService } from "./service";
+import { AuthSharedService } from "../service";
 import {
   CACHE_KEYS,
   useGlobalStore,
@@ -17,13 +17,17 @@ import { getCookie } from "@repo/helpers";
  * Manages user authentication state and session verification.
  */
 export const useAuthVerification = () => {
+  const authUser = useGlobalStore((state) => state.authUser);
+  const authStatus = useGlobalStore((state) => state.authStatus);
+  const accessToken = useGlobalStore((state) => state.accessToken);
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
   const setAccessToken = useGlobalStore((state) => state.setAccessToken);
+
   const { translateTxtString } = useStaticTranslation();
   const { setSBMessage } = useSnackbar();
-  const { verifyAndFetchUser } = AuthService();
+  const { verifyAndFetchUser } = AuthSharedService();
   const resetPassSession = getCookie("reset_session_expiry");
 
   const { refetch, isFetching } = useQuery<IUser | null, ApiError>({
@@ -34,9 +38,17 @@ export const useAuthVerification = () => {
         const user = res.payload;
 
         if (user) {
-          setAuthUser(user);
-          setAuthStatus("AUTHENTICATED");
-          setAccessToken(res.accessToken || null);
+          if (JSON.stringify(authUser) !== JSON.stringify(user)) {
+            setAuthUser(user);
+          }
+
+          if (authStatus !== "AUTHENTICATED") {
+            setAuthStatus("AUTHENTICATED");
+          }
+
+          if (accessToken !== (res.accessToken || null)) {
+            setAccessToken(res.accessToken || null);
+          }
 
           if (!user.isEmailVerified && !user.isPhoneVerified) {
             setAccountStatus("NOT_VERIFIED");
@@ -52,31 +64,25 @@ export const useAuthVerification = () => {
           return user;
         }
 
-        setAuthUser(null);
-        setAuthStatus("UNAUTHENTICATED");
+        if (authUser !== null) setAuthUser(null);
+        if (authStatus !== "UNAUTHENTICATED") setAuthStatus("UNAUTHENTICATED");
         return null;
-      } catch (err: any) {
+      } catch (err: unknown) {
         const error = err as ApiError;
-        setAuthUser(null);
+        if (authUser !== null) setAuthUser(null);
 
         if (
           error.httpStatus === 401 ||
           error.httpStatus === 403 ||
           error.status === "UNAUTHORIZED"
         ) {
-          setAuthStatus("UNAUTHENTICATED");
-          // setSBMessage({
-          //   msg: {
-          //     tagline:
-          //       error.localizedErrMsg ||
-          //       translateTxtString(AUTH_FEEDBACK.session_expired) ||
-          //       error.message,
-          //     msgStatus: "ERROR",
-          //     hasClose: true,
-          //   },
-          // });
+          if (authStatus !== "UNAUTHENTICATED") {
+            setAuthStatus("UNAUTHENTICATED");
+          }
         } else {
-          setAuthStatus("ERROR");
+          if (authStatus !== "ERROR") {
+            setAuthStatus("ERROR");
+          }
           const errorMsg =
             error.localizedErrMsg ||
             error.message ||
@@ -92,9 +98,13 @@ export const useAuthVerification = () => {
     enabled: !resetPassSession,
     retry: false,
     refetchOnWindowFocus: true,
-    refetchInterval: 1000 * 60 * 10,
+    refetchInterval: 1000 * 60 * 10, // 10 Mins
+    refetchIntervalInBackground: false,
   });
 
+  /**
+   * Triggers manual re-verification of active session state.
+   */
   const verifyAuth = useCallback(async () => {
     const currentResetSession = getCookie("reset_session_expiry");
     if (currentResetSession) {
@@ -102,7 +112,7 @@ export const useAuthVerification = () => {
       return;
     }
     await refetch();
-  }, [refetch]);
+  }, [refetch, setAuthStatus]);
 
   return {
     verifyAuth,

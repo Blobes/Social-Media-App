@@ -24,9 +24,6 @@ export const draftGist = async (
   const postType = "GIST";
   const msgPostType = "Gist";
 
-  // Preserving client networking lookup logic layer unchanged
-  const userIp = getClientIp(req);
-
   try {
     const serviceResult = await executeDraftPost({
       userId,

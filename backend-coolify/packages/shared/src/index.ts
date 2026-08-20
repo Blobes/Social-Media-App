@@ -6,14 +6,17 @@ export * from "./middlewares/cache";
 export * from "./types";
 
 // Services
-export * from "./services/otp/dispatchEmailCode";
-export * from "./services/otp/dispatchWhatsappCode";
+export * from "./services/otp/channel/emailDispatch";
+export * from "./services/otp/channel/smsDispatch";
+export * from "./services/otp/channel/whatsappDispatch";
+export * from "./services/otp/totp/setupTotp";
+export * from "./services/otp/totp/verifyTotp";
 export * from "./services/user/publicStatus";
 export * from "./services/user/accountStatus";
 export * from "./services/user/deleteAccount";
 export * from "./services/s3";
 export * from "./services/redis/cache";
-export * from "./services/ip";
+export * from "./utils/ip";
 export * from "./services/redis/socket";
 export * from "./services/redis/enqueue";
 export * from "./services/device";
@@ -37,8 +40,6 @@ export * from "./services/topic/postSync";
 export * from "./services/topic/userSync";
 export * from "./services/moderation/resolveCase";
 export * from "./services/moderation/reportCase";
-export * from "./services/tfa-auth/initiateTFA";
-export * from "./services/tfa-auth/verifyTFACode";
 
 // Routes
 export * from "./utils/status";

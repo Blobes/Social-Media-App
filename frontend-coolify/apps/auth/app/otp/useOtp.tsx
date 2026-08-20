@@ -5,32 +5,33 @@ import { useSnackbar, useStaticTranslation } from "@repo/shared-hooks";
 import {
   TransitPurpose,
   OtpTransitData,
-  OtpChannel,
+  OtpMessageChannel,
+  OtpGeneratorMethod,
   useGlobalStore,
   AUTH_FEEDBACK,
   ApiError,
+  IdentifierType,
 } from "@repo/core";
-import { OtpRequest, OtpService, TFAPurpose } from "./service";
+import { OtpRequest, OtpService, TotpActionType } from "./service";
 import { useMutation } from "@tanstack/react-query";
 import { useFeedback } from "./useFeedback";
-import {
-  getFromLocalStorage,
-  saveToLocalStorage,
-  stripToNumbers,
-} from "@repo/helpers";
+import { getFromLocalStorage, saveToLocalStorage } from "@repo/helpers";
 import {
   createVerificationStrategies,
   executeVerificationStrategy,
   resolveChannelRecipient,
 } from "./strategies";
+import { useAuthNavigation } from "@repo/features";
 
 export interface OtpOptions<P extends TransitPurpose> {
   dispatchOnload?: boolean;
   setShouldRestrict?: (value: boolean) => void;
   transitData?: OtpTransitData<P>[];
+  onRateLimitExceeded?: () => void;
+  isBotChallengeAllowed?: () => boolean;
 }
 
-const HOUR_IN_MS = 12 * 60 * 60 * 1000; // 12 hours
+const HOUR_IN_MS = 12 * 60 * 60 * 1000;
 const LAST_DISPATCH_STORAGE_KEY = "otp_last_dispatch_time";
 
 /**
@@ -46,19 +47,26 @@ const isDispatchAllowed = (): boolean => {
 };
 
 /**
- * Manages OTP logic by decoupling API mutations from orchestration strategies.
+ * Manages OTP state, dispatching, and verification mechanisms across messaging channels.
  */
 export const useOtp = <P extends TransitPurpose>(
   options: OtpOptions<P> = {},
 ) => {
-  const { transitData, dispatchOnload = true, setShouldRestrict } = options;
+  const {
+    transitData,
+    dispatchOnload = true,
+    setShouldRestrict,
+    onRateLimitExceeded,
+    isBotChallengeAllowed,
+  } = options;
 
   const {
-    verifyOtp,
+    verifyMsgCode,
+    dispatchMsgCode,
+    verifyTotpCode,
     finalizeEmailUpdateOtp,
     finalizePhoneUpdateOtp,
-    dispatchOtp,
-    verifyTFA,
+    commitAccountUpdate,
   } = OtpService();
   const setInlineMsg = useGlobalStore((state) => state.setInlineMsg);
   const inlineMsg = useGlobalStore((state) => state.inlineMsg);
@@ -67,14 +75,18 @@ export const useOtp = <P extends TransitPurpose>(
   const { handleAuthOtpSuccess, onUpdateSuccess, handlePassResetSuccess } =
     useFeedback();
   const { translateTxtString } = useStaticTranslation();
+  const { checkTotpConfiguration } = useAuthNavigation();
 
   const [code, setCode] = useState("");
   const [timer, setTimer] = useState(0);
 
   const activeTransit = transitData?.[0];
 
-  const [channel, setChannel] = useState<OtpChannel>(
-    activeTransit?.channel || "EMAIL",
+  const [generatorMethod, setGeneratorMethod] = useState<OtpGeneratorMethod>(
+    activeTransit?.otpGeneratorMethod || "MESSAGING_APP",
+  );
+  const [msgChannel, setMsgChannel] = useState<OtpMessageChannel>(
+    activeTransit?.otpMessageChannel || "EMAIL",
   );
   const [recipient, setRecipient] = useState<string | undefined>(
     activeTransit?.identifier,
@@ -84,6 +96,8 @@ export const useOtp = <P extends TransitPurpose>(
   const initialIdentifierRef = useRef(activeTransit?.identifier);
   const hasUserCtx =
     authUser && !authUser.isEmailVerified && !authUser.isPhoneVerified;
+
+  const hasTotpConfigured = checkTotpConfiguration(authUser);
 
   /**
    * Strategy lookup object created with dependency scope.
@@ -102,7 +116,6 @@ export const useOtp = <P extends TransitPurpose>(
   const isAuthPurpose =
     activeTransit?.purpose === "LOGIN_VERIFICATION" ||
     activeTransit?.purpose === "SIGNUP_VERIFICATION";
-  activeTransit?.purpose === "PASSWORD_RESET";
 
   /**
    * Preserves initial identifier reference across modal state renders.
@@ -120,11 +133,24 @@ export const useOtp = <P extends TransitPurpose>(
     if (activeTransit?.identifier && !recipient) {
       setRecipient(activeTransit.identifier);
     }
-    // Only hydrate channel if user has NOT switched to AUTHENTICATOR
-    if (activeTransit?.channel && channel !== "AUTHENTICATOR") {
-      setChannel(activeTransit.channel);
+    if (
+      activeTransit?.otpMessageChannel &&
+      generatorMethod === "MESSAGING_APP"
+    ) {
+      setMsgChannel(activeTransit.otpMessageChannel);
     }
-  }, [activeTransit?.identifier, activeTransit?.channel, channel, recipient]);
+    if (
+      activeTransit?.otpGeneratorMethod &&
+      generatorMethod === "AUTHENTICATOR_APP"
+    ) {
+      setGeneratorMethod(activeTransit.otpGeneratorMethod);
+    }
+  }, [
+    activeTransit?.identifier,
+    activeTransit?.otpMessageChannel,
+    activeTransit?.otpGeneratorMethod,
+    recipient,
+  ]);
 
   useEffect(() => {
     if (timer > 0) {
@@ -134,6 +160,117 @@ export const useOtp = <P extends TransitPurpose>(
       setInlineMsg(null);
     }
   }, [timer, setInlineMsg]);
+
+  /**
+   * Execution Layer: Dumb Dispatch Mutation
+   */
+  const { mutate: executeDispatch, isPending: isSending } = useMutation({
+    mutationFn: async (request: OtpRequest) => {
+      const dispatchResponse = await dispatchMsgCode(request);
+
+      const targetIdentifier =
+        request.recipient ||
+        recipient ||
+        activeTransit?.identifier ||
+        initialIdentifierRef.current;
+
+      const currentPurpose =
+        request.purpose ?? activeTransit?.purpose ?? "LOGIN_VERIFICATION";
+
+      const currentOtpIdentifierType: IdentifierType =
+        (request.messageChannel || msgChannel) === "EMAIL"
+          ? "EMAIL"
+          : "PHONE_NUMBER";
+
+      await commitAccountUpdate({
+        identifier: targetIdentifier,
+        purpose: currentPurpose,
+        otpIdentifierType: currentOtpIdentifierType,
+      });
+
+      return dispatchResponse;
+    },
+    onSuccess: (_, vars) => {
+      saveToLocalStorage<number>(LAST_DISPATCH_STORAGE_KEY, Date.now());
+      setTimer(60);
+      setCode("");
+      setSBMessage({
+        msg: {
+          tagline: translateTxtString(
+            AUTH_FEEDBACK.new_code_sent_tagline(
+              vars.messageChannel?.toLowerCase() || "email",
+            ),
+          ),
+          msgStatus: "SUCCESS",
+          duration: 6,
+        },
+      });
+    },
+    onError: (error: ApiError) => {
+      const errMsg =
+        error.localizedErrMsg ||
+        translateTxtString(AUTH_FEEDBACK.otp_send_code_failed);
+
+      const retryAfter = error.retryAfter ?? error.payload?.retryAfter;
+
+      if (typeof retryAfter === "number" && retryAfter > 0) {
+        setTimer(retryAfter);
+        setInlineMsg(errMsg);
+        return;
+      }
+
+      if (error.httpStatus === 429) {
+        const canTriggerChallenge = isBotChallengeAllowed
+          ? isBotChallengeAllowed()
+          : true;
+
+        if (canTriggerChallenge) {
+          onRateLimitExceeded?.();
+        } else {
+          setInlineMsg(errMsg);
+        }
+        return;
+      }
+
+      setInlineMsg(errMsg);
+    },
+  });
+
+  /**
+   * Orchestration Layer: Resend/Send
+   */
+  const handleSendOtp = useCallback(
+    (customRequest?: OtpRequest) => {
+      if (generatorMethod === "AUTHENTICATOR_APP") return;
+      setInlineMsg(null);
+
+      if (customRequest) {
+        setRecipient(customRequest?.recipient);
+        return executeDispatch(customRequest);
+      }
+
+      const targetRecipient =
+        recipient ||
+        activeTransit?.identifier ||
+        initialIdentifierRef.current ||
+        authUser?.email;
+      if (!targetRecipient || !msgChannel) return;
+
+      executeDispatch({
+        recipient: targetRecipient,
+        messageChannel: msgChannel,
+      });
+    },
+    [
+      generatorMethod,
+      recipient,
+      msgChannel,
+      activeTransit,
+      authUser?.email,
+      executeDispatch,
+      setInlineMsg,
+    ],
+  );
 
   // Auto-dispatch logic on load
   useEffect(() => {
@@ -152,38 +289,14 @@ export const useOtp = <P extends TransitPurpose>(
     } else {
       setShouldRestrict?.(true);
     }
-  }, [activeTransit, authUser, dispatchOnload, hasUserCtx, setShouldRestrict]);
-
-  /**
-   * Execution Layer: Dumb Dispatch Mutation
-   */
-  const { mutate: executeDispatch, isPending: isSending } = useMutation({
-    mutationFn: async (request: OtpRequest) => dispatchOtp(request),
-    onSuccess: (_, vars) => {
-      saveToLocalStorage<number>(LAST_DISPATCH_STORAGE_KEY, Date.now());
-      setTimer(60);
-      setCode("");
-      setSBMessage({
-        msg: {
-          tagline: translateTxtString(
-            AUTH_FEEDBACK.new_code_sent_tagline(
-              vars.channel?.toLowerCase() || "email",
-            ),
-          ),
-          msgStatus: "SUCCESS",
-          duration: 6,
-        },
-      });
-    },
-    onError: (error: ApiError) => {
-      const seconds = stripToNumbers(error.localizedErrMsg || "");
-      setTimer(seconds);
-      setInlineMsg(
-        error.localizedErrMsg ||
-          translateTxtString(AUTH_FEEDBACK.otp_send_code_failed),
-      );
-    },
-  });
+  }, [
+    activeTransit,
+    authUser,
+    dispatchOnload,
+    hasUserCtx,
+    setShouldRestrict,
+    handleSendOtp,
+  ]);
 
   /**
    * Execution Layer: Dumb Verification Mutation
@@ -193,17 +306,37 @@ export const useOtp = <P extends TransitPurpose>(
       purpose: TransitPurpose;
       method: () => Promise<any>;
     }) => {
-      return await params.method();
+      const response = await params.method();
+
+      await commitAccountUpdate({
+        identifier: response.identifier,
+        purpose: params.purpose,
+        otpIdentifierType: response.otpIdentifierType,
+        verificationToken: response.verificationToken,
+      });
+
+      return response;
     },
     onSuccess: () => {
       if (!activeTransit) return;
       executeVerificationStrategy(activeTransit, verificationStrategies);
     },
-    onError: (error: ApiError) =>
+    onError: (error: ApiError) => {
+      if (error.httpStatus === 429) {
+        const canTriggerChallenge = isBotChallengeAllowed
+          ? isBotChallengeAllowed()
+          : true;
+
+        if (canTriggerChallenge) {
+          onRateLimitExceeded?.();
+          return;
+        }
+      }
       setInlineMsg(
         error.localizedErrMsg ||
           translateTxtString(AUTH_FEEDBACK.otp_invalid_code),
-      ),
+      );
+    },
   });
 
   /**
@@ -229,22 +362,22 @@ export const useOtp = <P extends TransitPurpose>(
         "";
 
       const method = (() => {
-        if (channel === "AUTHENTICATOR") {
-          const tFAPurpose: TFAPurpose = isAuthPurpose
+        if (generatorMethod === "AUTHENTICATOR_APP") {
+          const totpActionType: TotpActionType = isAuthPurpose
             ? "AUTHENTICATE"
-            : "TFA_SETUP";
+            : "CONFIGURE";
           return () =>
-            verifyTFA({
-              purpose: tFAPurpose,
+            verifyTotpCode({
+              actionType: totpActionType,
               token: finalCode,
               identifier: targetIdentifier,
             });
         }
         if (isAuthPurpose)
           return () =>
-            verifyOtp({ recipient: targetIdentifier, code: finalCode });
+            verifyMsgCode({ recipient: targetIdentifier, code: finalCode });
         if (purpose === "IDENTIFIER_UPDATE") {
-          return channel === "EMAIL"
+          return msgChannel === "EMAIL"
             ? () => finalizeEmailUpdateOtp(finalCode)
             : () => finalizePhoneUpdateOtp(finalCode);
         }
@@ -260,69 +393,36 @@ export const useOtp = <P extends TransitPurpose>(
     [
       activeTransit,
       code,
-      channel,
+      generatorMethod,
       isAuthPurpose,
       recipient,
+      msgChannel,
       executeVerify,
-      verifyOtp,
+      verifyMsgCode,
       finalizeEmailUpdateOtp,
       finalizePhoneUpdateOtp,
-      verifyTFA,
+      verifyTotpCode,
       setInlineMsg,
       translateTxtString,
     ],
   );
 
   /**
-   * Orchestration Layer: Resend/Send
-   */
-  const handleSendOtp = useCallback(
-    (customRequest?: OtpRequest) => {
-      if (channel === "AUTHENTICATOR") return;
-      setInlineMsg(null);
-
-      if (customRequest) {
-        setRecipient(customRequest?.recipient);
-        return executeDispatch(customRequest);
-      }
-
-      const targetRecipient =
-        recipient ||
-        activeTransit?.identifier ||
-        initialIdentifierRef.current ||
-        authUser?.email;
-      if (!targetRecipient || !channel) return;
-
-      executeDispatch({
-        recipient: targetRecipient,
-        purpose: activeTransit?.purpose ?? "LOGIN_VERIFICATION",
-        channel,
-      });
-    },
-    [recipient, channel, activeTransit, executeDispatch, setInlineMsg],
-  );
-
-  /**
-   * Switches the active channel and immediately triggers a new OTP.
+   * Switches the active channel directly to target channel and triggers a fresh OTP dispatch.
    */
   const switchChannel = useCallback(
-    (targetChannel?: OtpChannel) => {
+    (targetChannel: OtpMessageChannel) => {
       if (!activeTransit || !hasUserCtx) {
         setInlineMsg(translateTxtString(AUTH_FEEDBACK.otp_send_code_failed));
         return;
       }
 
-      const nextChannel: OtpChannel =
-        targetChannel ||
-        (channel === "AUTHENTICATOR"
-          ? activeTransit.channel || "EMAIL"
-          : channel === "EMAIL"
-            ? "PHONE"
-            : "EMAIL");
+      const nextIdentifierType: IdentifierType =
+        targetChannel === "EMAIL" ? "EMAIL" : "PHONE_NUMBER";
 
       const nextDest = resolveChannelRecipient(
         activeTransit,
-        nextChannel,
+        nextIdentifierType,
         recipient || initialIdentifierRef.current,
       );
 
@@ -330,7 +430,7 @@ export const useOtp = <P extends TransitPurpose>(
         setSBMessage({
           msg: {
             tagline: translateTxtString(
-              AUTH_FEEDBACK.no_email_or_phone(nextChannel.toLowerCase()),
+              AUTH_FEEDBACK.no_email_or_phone(targetChannel.toLowerCase()),
             ),
           },
         });
@@ -338,18 +438,19 @@ export const useOtp = <P extends TransitPurpose>(
       }
 
       setTimer(0);
-      setChannel(nextChannel);
+      setGeneratorMethod("MESSAGING_APP");
+      setMsgChannel(targetChannel);
       setRecipient(nextDest);
 
       handleSendOtp({
         recipient: nextDest,
         purpose: activeTransit.purpose,
-        channel: nextChannel,
+        messageChannel: targetChannel,
       });
     },
     [
-      channel,
       activeTransit,
+      hasUserCtx,
       recipient,
       handleSendOtp,
       setSBMessage,
@@ -359,13 +460,23 @@ export const useOtp = <P extends TransitPurpose>(
   );
 
   /**
-   * Explicitly switches the verification channel into Authenticator device mode.
+   * Explicitly switches the verification generator method into Authenticator App mode if configured.
    */
   const switchToAuthenticator = useCallback(() => {
+    if (!hasTotpConfigured) {
+      setSBMessage({
+        msg: {
+          tagline: translateTxtString(
+            AUTH_FEEDBACK.authenticator_not_configured,
+          ),
+        },
+      });
+      return;
+    }
     setTimer(0);
-    setChannel("AUTHENTICATOR");
+    setGeneratorMethod("AUTHENTICATOR_APP");
     setInlineMsg(null);
-  }, [setInlineMsg]);
+  }, [hasTotpConfigured, setSBMessage, setInlineMsg, translateTxtString]);
 
   return {
     code,
@@ -375,9 +486,11 @@ export const useOtp = <P extends TransitPurpose>(
     isSending,
     handleVerify,
     handleSendOtp,
-    channel,
+    generatorMethod,
+    msgChannel,
     switchChannel,
     switchToAuthenticator,
+    hasTotpConfigured,
     recipient,
     setRecipient,
     inlineMsg,

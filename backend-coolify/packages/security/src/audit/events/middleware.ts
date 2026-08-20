@@ -1,4 +1,4 @@
-import { generateRandomIp, IAuthRequest } from "@repo/shared";
+import { getClientIp, IAuthRequest } from "@repo/shared";
 import { Response, NextFunction } from "express";
 import { Model } from "mongoose";
 import { executeUserLogCreation } from "./service";
@@ -17,8 +17,7 @@ export const auditAction = <T extends Model<any>>(
 ) => {
   return (req: IAuthRequest, res: Response, next: NextFunction): void => {
     const authUserId = req.user?.id;
-    const randomIp = generateRandomIp();
-    // const clientIp = getClientIp(req); // Don't remove or touch just leave as is
+    const clientIp = getClientIp(req) || "unknown_client";
     const jwtDeviceId = req.user?.deviceId;
 
     // Intercept the response finish event to ensure we only log successful operations
@@ -31,7 +30,7 @@ export const auditAction = <T extends Model<any>>(
           userId: authUserId,
           action: options.action,
           category: options.category,
-          ipAddress: req.ip || randomIp,
+          ipAddress: clientIp,
           userAgent: req.headers["user-agent"] || "unknown",
           deviceId: jwtDeviceId,
           metadata: {

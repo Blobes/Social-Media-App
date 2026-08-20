@@ -1,4 +1,4 @@
-import { IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
+import { getClientIp, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
 import { Response, NextFunction, ErrorRequestHandler, Request } from "express";
 import { Model } from "mongoose";
 import { executeErrorLogCreation } from "./services";
@@ -21,6 +21,7 @@ export const globalErrorHandler = <T extends Model<any>>(
 
     const authReq = req as IAuthRequest;
     const authUserId = authReq.user?.id;
+    const clientIp = getClientIp(req) || "unknown_client";
 
     const statusCode = err.status || err.statusCode || 500;
     const internalMessage =
@@ -50,7 +51,7 @@ export const globalErrorHandler = <T extends Model<any>>(
         i18nKey,
         message: internalMessage,
         stackTrace: err.stack,
-        ipAddress: req.ip,
+        ipAddress: clientIp,
         metadata: {
           headers: req.headers,
           query: req.query,

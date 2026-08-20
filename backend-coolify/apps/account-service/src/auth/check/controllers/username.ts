@@ -1,4 +1,4 @@
-import { executeAccountCheck } from "@/auth/check/service";
+import { CheckPurpose, executeAccountCheck } from "@/auth/check/service";
 import { NextFunction, Request, Response } from "express";
 import { forwardError, MESSAGES_REGISTRY } from "@repo/shared";
 
@@ -12,12 +12,12 @@ export const checkUsername = async (
 ): Promise<any> => {
   const { username, purpose } = req.body as {
     username?: string;
-    purpose?: "REGISTRATION" | "LOGIN";
+    purpose?: CheckPurpose;
   };
 
   try {
     const serviceResult = await executeAccountCheck({
-      type: "USERNAME",
+      identifierType: "USERNAME",
       identifier: username || "",
       purpose,
     });

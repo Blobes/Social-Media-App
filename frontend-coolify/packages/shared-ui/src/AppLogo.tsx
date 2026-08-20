@@ -23,14 +23,14 @@ export const AppLogo = ({
 
   return withName ? (
     <SVGWrapper
-      src={asset.logoName}
+      src={asset.appLogoName}
       fallbackUIType="SKELETON"
       color={color ?? theme.palette.primary.dark}
       sx={{ width: size, ...sx }}
     />
   ) : (
     <SVGWrapper
-      src={asset.logoSymbol}
+      src={asset.appLogoSymbol}
       color={color ?? theme.palette.primary.dark}
       size={size}
       fallbackUIType="SKELETON"

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { AccountStatus } from "@repo/database";
+import { AccountStatus, ITotpData } from "@repo/database";
 import {
   fetchSingleUser,
   fetchManyUsers,
@@ -10,11 +10,11 @@ import {
   TransInfo,
 } from "@repo/shared";
 
-export type CheckPurpose = "REGISTRATION" | "LOGIN";
+export type CheckPurpose = "REGISTRATION" | "LOGIN" | "PASSWORD_RESET";
 
 export interface CheckInput {
   identifier: string;
-  type?: InputCheckType;
+  identifierType?: InputCheckType;
   purpose?: CheckPurpose;
 }
 
@@ -35,10 +35,12 @@ export interface CheckResult {
     firstName?: string;
     email?: string;
     phone?: string;
+    hasEnabledMFA?: boolean;
+    totpAuth?: ITotpData;
   } | null;
 }
 
-interface IAccountCheckProjection {
+interface AccountCheckProjection {
   _id: mongoose.Types.ObjectId;
   accountStatus: AccountStatus;
   password?: string;
@@ -47,6 +49,8 @@ interface IAccountCheckProjection {
   firstName?: string;
   email?: string;
   phoneNumber?: string;
+  hasEnabledMFA?: boolean;
+  totpAuth?: ITotpData;
 }
 
 export interface IUsernameCanonical {
@@ -63,6 +67,8 @@ const REQUIRED_FIELDS = [
   "firstName",
   "email",
   "phoneNumber",
+  "hasEnabledMFA",
+  "totpAuth",
 ];
 
 const ACCOUNT_STATUS_MAP: Record<string, TransInfo> = {
@@ -74,13 +80,15 @@ const ACCOUNT_STATUS_MAP: Record<string, TransInfo> = {
 /**
  * Builds user account summary payload for response objects.
  */
-const buildUserPayload = (user: IAccountCheckProjection) => ({
+const buildUserPayload = (user: AccountCheckProjection) => ({
   accountStatus: user.accountStatus,
   userId: user._id,
   username: user.username,
   firstName: user.firstName,
   email: user.email,
   phone: user.phoneNumber,
+  hasEnabledMFA: user.hasEnabledMFA,
+  totpAuth: user.totpAuth,
 });
 
 /**
@@ -89,13 +97,13 @@ const buildUserPayload = (user: IAccountCheckProjection) => ({
 export const executeAccountCheck = async (
   input: CheckInput,
 ): Promise<CheckResult> => {
-  const { type, identifier, purpose = "REGISTRATION" } = input;
+  const { identifierType: type, identifier, purpose = "REGISTRATION" } = input;
 
   if (!identifier) {
     const errorMapping =
       type === "EMAIL"
         ? MESSAGES_REGISTRY.AUTH.EMAIL_REQUIRED
-        : type === "PHONE"
+        : type === "PHONE_NUMBER"
           ? MESSAGES_REGISTRY.AUTH.PHONE_REQUIRED
           : MESSAGES_REGISTRY.AUTH.USERNAME_REQUIRED;
 
@@ -105,7 +113,7 @@ export const executeAccountCheck = async (
     };
   }
 
-  const existingUser = await fetchSingleUser<IAccountCheckProjection>({
+  const existingUser = await fetchSingleUser<AccountCheckProjection>({
     identifier,
     select: REQUIRED_FIELDS,
     flags: { identifierType: type, skipFilter: true },
@@ -113,7 +121,7 @@ export const executeAccountCheck = async (
 
   // Helper handling third-party provider check restrictions
   const checkThirdPartyRestriction = (
-    user: IAccountCheckProjection,
+    user: AccountCheckProjection,
   ): CheckResult | null => {
     if (
       !user.password &&
@@ -132,7 +140,7 @@ export const executeAccountCheck = async (
   };
 
   // ── PHONE CHECK PIPELINE ──────────────────────────────────────────────────
-  if (type === "PHONE") {
+  if (type === "PHONE_NUMBER") {
     if (purpose === "REGISTRATION") {
       return {
         status: "SUCCESS",
@@ -150,22 +158,38 @@ export const executeAccountCheck = async (
       };
     }
 
-    const restriction = checkThirdPartyRestriction(existingUser);
-    if (restriction) return restriction;
+    if (purpose === "LOGIN") {
+      const restriction = checkThirdPartyRestriction(existingUser);
+      if (restriction) return restriction;
 
-    const transMsg =
-      existingUser.accountStatus === "ACTIVE" ||
-      existingUser.accountStatus === "INACTIVE"
-        ? MESSAGES_REGISTRY.AUTH.PHONE_REGISTERED
-        : ACCOUNT_STATUS_MAP[existingUser.accountStatus];
+      const transMsg =
+        existingUser.accountStatus === "ACTIVE" ||
+        existingUser.accountStatus === "INACTIVE"
+          ? MESSAGES_REGISTRY.AUTH.PHONE_REGISTERED
+          : ACCOUNT_STATUS_MAP[existingUser.accountStatus];
 
-    return {
-      status: "SUCCESS",
-      transInfo: transMsg,
-      isExisting: true,
-      signedUpWith: existingUser.signedUpWith || "EMAIL",
-      payload: buildUserPayload(existingUser),
-    };
+      return {
+        status: "SUCCESS",
+        transInfo: transMsg,
+        isExisting: true,
+        signedUpWith: existingUser.signedUpWith || "EMAIL",
+        payload: buildUserPayload(existingUser),
+      };
+    }
+
+    if (purpose === "PASSWORD_RESET") {
+      const transMsg =
+        existingUser.accountStatus === "ACTIVE" ||
+        existingUser.accountStatus === "INACTIVE"
+          ? MESSAGES_REGISTRY.AUTH.ACCOUNT_FOUND
+          : ACCOUNT_STATUS_MAP[existingUser.accountStatus];
+      return {
+        status: "SUCCESS",
+        transInfo: transMsg,
+        isExisting: true,
+        payload: buildUserPayload(existingUser),
+      };
+    }
   }
 
   // ── EMAIL CHECK PIPELINE ──────────────────────────────────────────────────
@@ -187,22 +211,38 @@ export const executeAccountCheck = async (
       };
     }
 
-    const restriction = checkThirdPartyRestriction(existingUser);
-    if (restriction) return restriction;
+    if (purpose === "LOGIN") {
+      const restriction = checkThirdPartyRestriction(existingUser);
+      if (restriction) return restriction;
 
-    const transMsg =
-      existingUser.accountStatus === "ACTIVE" ||
-      existingUser.accountStatus === "INACTIVE"
-        ? MESSAGES_REGISTRY.AUTH.EMAIL_ALREADY_REGISTERED
-        : ACCOUNT_STATUS_MAP[existingUser.accountStatus];
+      const transMsg =
+        existingUser.accountStatus === "ACTIVE" ||
+        existingUser.accountStatus === "INACTIVE"
+          ? MESSAGES_REGISTRY.AUTH.EMAIL_ALREADY_REGISTERED
+          : ACCOUNT_STATUS_MAP[existingUser.accountStatus];
 
-    return {
-      status: "SUCCESS",
-      transInfo: transMsg,
-      isExisting: true,
-      signedUpWith: existingUser.signedUpWith || "EMAIL",
-      payload: buildUserPayload(existingUser),
-    };
+      return {
+        status: "SUCCESS",
+        transInfo: transMsg,
+        isExisting: true,
+        signedUpWith: existingUser.signedUpWith || "EMAIL",
+        payload: buildUserPayload(existingUser),
+      };
+    }
+
+    if (purpose === "PASSWORD_RESET") {
+      const transMsg =
+        existingUser.accountStatus === "ACTIVE" ||
+        existingUser.accountStatus === "INACTIVE"
+          ? MESSAGES_REGISTRY.AUTH.ACCOUNT_FOUND
+          : ACCOUNT_STATUS_MAP[existingUser.accountStatus];
+      return {
+        status: "SUCCESS",
+        transInfo: transMsg,
+        isExisting: true,
+        payload: buildUserPayload(existingUser),
+      };
+    }
   }
 
   // ── USERNAME CHECK PIPELINE ───────────────────────────────────────────────

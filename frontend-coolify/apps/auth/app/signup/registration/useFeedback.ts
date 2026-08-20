@@ -43,7 +43,7 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
       handleSendOtp({
         recipient: user.email || email,
         purpose: "SIGNUP_VERIFICATION",
-        channel: "EMAIL",
+        messageChannel: "EMAIL",
       });
       handleOtpNavigation({
         user,

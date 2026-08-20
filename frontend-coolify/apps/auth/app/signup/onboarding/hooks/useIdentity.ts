@@ -39,7 +39,11 @@ export const useIdentity = (onSuccess?: () => void) => {
       if (isInvalid) return;
 
       setUsernameStatus({ status: "CHECKING" });
-      const res = await checkUsername(debouncedUsername, "SIGNUP");
+
+      const res = await checkUsername({
+        identifier: debouncedUsername,
+        purpose: "REGISTRATION",
+      });
 
       if (res.isExisting) {
         setUsernameStatus({ status: "TAKEN", suggestions: res.suggestions });

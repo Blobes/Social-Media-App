@@ -37,18 +37,21 @@ export type ModerationTaskMode =
   | "MODERATE_AND_EXTRACT_KEYWORDS"
   | "EXTRACT_KEYWORDS_ONLY";
 
-export type OtpType = "EMAIL" | "SMS" | "WHATSAPP" | "PHONE";
+export type OtpIdentifierType = "EMAIL" | "PHONE_NUMBER";
 
-export enum VerificationPurpose {
-  LOGIN_VERIFICATION = "LOGIN_VERIFICATION",
-  SIGNUP_VERIFICATION = "SIGNUP_VERIFICATION",
-  IDENTIFIER_UPDATE = "IDENTIFIER_UPDATE",
-  PASSWORD_RESET = "PASSWORD_RESET",
-}
+export type OtpMessageChannel = "EMAIL" | "SMS" | "WHATSAPP";
 
-export type InputCheckType = "EMAIL" | "PHONE" | "USERNAME";
+export type InputCheckType = OtpIdentifierType | "USERNAME";
 
 export type Role = "USER" | "ADMIN" | "MODERATOR";
+
+export type OtpActionType =
+  | "LOGIN_VERIFICATION"
+  | "SIGNUP_VERIFICATION"
+  | "IDENTIFIER_UPDATE"
+  | "PASSWORD_RESET_VERIFICATION"
+  | "MFA_ACTIVATION"
+  | "MFA_DEACTIVATION";
 
 export interface IJwtUser {
   id: any;
@@ -116,20 +119,6 @@ export interface IUploadConfig extends IVerifyAuth, IValidateInternalToken {
 export interface IEmailDispatchTokens {
   RESEND_API_KEY?: string;
   RESEND_FROM_EMAIL?: string;
-
-  GMAIL_USER?: string;
-  GMAIL_CLIENT_ID?: string;
-  GMAIL_CLIENT_SECRET?: string;
-  GMAIL_REFRESH_TOKEN?: string;
-
-  HOTMAIL_USER?: string;
-  HOTMAIL_PASSWORD?: string;
-  HOTMAIL_FROM_EMAIL?: string;
-
-  YAHOO_USER?: string;
-  YAHOO_PASSWORD?: string;
-  YAHOO_FROM_EMAIL?: string;
-
   SMTP_HOST_EMAIL?: string;
   SMTP_PORT?: string;
   SMTP_USER?: string;
@@ -141,13 +130,17 @@ export interface IPhoneDispatchTokens {
   WHATSAPP_ACCESS_KEY?: string;
   WHATSAPP_PHONE_NUMBER_ID?: string;
   WHATSAPP_BUSINESS_ACCOUNT_ID?: string;
+  LOCAL_SMS_API_KEY?: string;
+  LOCAL_SMS_SENDER_ID?: string;
+  GLOBAL_SMS_SENDER_ID?: string;
+  GLOBAL_SMS_API_KEY?: string;
 }
 
 export interface ICodeDispatchTokens
   extends IEmailDispatchTokens, IPhoneDispatchTokens {}
 
 export interface OtpJobPayload {
-  type: OtpType;
+  type: OtpMessageChannel;
   code: string;
   email?: string;
   phone?: string;

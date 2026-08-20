@@ -46,13 +46,13 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     isEmailVerified: { type: Boolean, default: false },
     isPhoneVerified: { type: Boolean, default: false },
     lastPasswordVerifiedAt: { type: Date, default: null },
-    twoFactorAuth: {
+    totpAuth: {
       secret: { type: String, default: null },
-      isEnabled: { type: Boolean, default: false },
       backupCodes: { type: [String], default: [] },
       tempSecret: { type: String, default: null },
       tempBackupCodes: { type: [String], default: [] },
     },
+    hasEnabledMFA: { type: Boolean, default: false },
 
     // --- OTP VERIFICATION ---
     otpCode: { type: String, default: null },

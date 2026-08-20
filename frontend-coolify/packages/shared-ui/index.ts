@@ -33,6 +33,7 @@ export * from "./src/Localize";
 export * from "./src/Text";
 export * from "./src/Keyboard";
 export * from "./src/AppLogo";
+export * from "./src/VerifyBot";
 // Carousels
 export * from "./src/carousel/Linear";
 export * from "./src/carousel/Stacked";

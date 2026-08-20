@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { forwardError, MESSAGES_REGISTRY } from "@repo/shared";
-import { executeAccountCheck } from "../service";
+import { CheckPurpose, executeAccountCheck } from "../service";
 
 /**
  * Controller endpoint to handle verification requests for account email availability.
@@ -12,12 +12,12 @@ export const checkEmail = async (
 ): Promise<any> => {
   const { email, purpose = "LOGIN" } = req.body as {
     email?: string;
-    purpose?: "REGISTRATION" | "LOGIN";
+    purpose?: CheckPurpose;
   };
 
   try {
     const serviceResult = await executeAccountCheck({
-      type: "EMAIL",
+      identifierType: "EMAIL",
       identifier: email || "",
       purpose,
     });

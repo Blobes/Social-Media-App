@@ -3,9 +3,14 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useDynamicInputValidation, usePage } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
-import { LoginService } from "../service";
+import { CheckRequest, LoginService } from "../service";
 import { delay, getSavedIdentifier, sanitizePhoneNumber } from "@repo/helpers";
-import { CLIENT_ROUTES, ApiError, GenericStyle } from "@repo/core";
+import {
+  CLIENT_ROUTES,
+  ApiError,
+  GenericStyle,
+  CheckPurpose,
+} from "@repo/core";
 import { useTheme } from "@mui/material/styles";
 import { useLoginFeedback } from "./useFeedback";
 import { LoginProps } from "../../types";
@@ -89,10 +94,11 @@ export const useIdentifier = ({
       await delay();
       const resolvedType = inputType ?? "UNKNOWN";
       const cleaned = resolvedType === "PHONE" ? sanitizePhoneNumber(val) : val;
+      const checkReq: CheckRequest = { identifier: cleaned, purpose: "LOGIN" };
 
-      if (resolvedType === "EMAIL") return await checkEmail(cleaned);
-      if (resolvedType === "PHONE") return await checkPhone(cleaned);
-      return await checkUsername(cleaned, "LOGIN");
+      if (resolvedType === "EMAIL") return await checkEmail(checkReq);
+      if (resolvedType === "PHONE") return await checkPhone(checkReq);
+      return await checkUsername(checkReq);
     },
     onSuccess: (res) => {
       handleCheckSuccess({

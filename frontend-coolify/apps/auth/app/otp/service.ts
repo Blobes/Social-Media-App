@@ -3,60 +3,88 @@
 import { apiClient } from "@repo/helpers";
 import {
   ISinglePayload,
-  OtpChannel,
+  OtpMessageChannel,
   TransitPurpose,
   SERVER_API,
+  IdentifierType,
 } from "@repo/core";
 
 export interface OtpRequest {
   code?: string;
   recipient?: string;
   purpose?: TransitPurpose;
-  channel?: OtpChannel;
+  messageChannel?: OtpMessageChannel;
 }
 
-export type TFAPurpose = "AUTHENTICATE" | "TFA_SETUP";
+export interface OtpResponse {
+  identifier?: string;
+  verificationToken?: string;
+  purpose?: TransitPurpose;
+  otpIdentifierType?: IdentifierType;
+}
 
-export interface TFAInitiationRequest {
-  purpose: TFAPurpose;
+export type TotpActionType = "AUTHENTICATE" | "CONFIGURE";
+
+export interface TotpSetupRequest {
+  actionType: TotpActionType;
   identifier?: string;
 }
 
-export interface TFAInitiationResponse {
+export interface TotpSetupResponse {
   qrCodeDataUrl: string | null;
   manualEntryKey: string | null;
   isMfaActive: boolean;
 }
 
-export interface TFAVerificationRequest {
-  purpose: TFAPurpose;
+export interface TotpVerificationRequest {
+  actionType: TotpActionType;
   token: string;
   identifier?: string;
 }
 
-export interface TFAVerificationResponse {
+export interface TotpVerificationResponse {
   isRecovery?: boolean;
   backupCodes?: string[];
 }
 
 export const OtpService = () => {
-  const dispatchOtp = async (
+  const dispatchMsgCode = async (
     request: OtpRequest,
   ): Promise<ISinglePayload<OtpRequest>> => {
-    const { recipient, purpose = "LOGIN_VERIFICATION" } = request;
-    return await apiClient<ISinglePayload<OtpRequest>>(SERVER_API.sendOtp, {
+    const { recipient } = request;
+    return await apiClient<ISinglePayload<OtpRequest>>(SERVER_API.sendMsgCode, {
       method: "POST",
-      body: JSON.stringify({ recipient, purpose }),
+      body: JSON.stringify({ recipient }),
     });
   };
 
-  const verifyOtp = async (
+  const verifyMsgCode = async (
     request: OtpRequest,
-  ): Promise<ISinglePayload<any>> => {
+  ): Promise<ISinglePayload<OtpResponse>> => {
     const { code, recipient, purpose = "LOGIN_VERIFICATION" } = request;
-    return await apiClient(SERVER_API.verifyOtp, {
+    return await apiClient(SERVER_API.verifyMsgCode, {
       method: "POST",
       body: JSON.stringify({ code, recipient, purpose }),
+    });
+  };
+
+  const commitAccountUpdate = async (
+    request: OtpResponse,
+  ): Promise<ISinglePayload<any>> => {
+    const {
+      identifier,
+      verificationToken,
+      purpose = "LOGIN_VERIFICATION",
+      otpIdentifierType,
+    } = request;
+    return await apiClient(SERVER_API.otpAccountUpdate, {
+      method: "PATCH",
+      body: JSON.stringify({
+        identifier,
+        verificationToken,
+        purpose,
+        otpIdentifierType,
+      }),
     });
   };
 
@@ -81,12 +109,12 @@ export const OtpService = () => {
   /**
    * Initializes a multi-factor authentication setup configuration session or login challenge context.
    */
-  const initiateTFA = async (
-    request: TFAInitiationRequest,
-  ): Promise<ISinglePayload<TFAInitiationResponse>> => {
-    const { purpose, identifier } = request;
-    return await apiClient<ISinglePayload<TFAInitiationResponse>>(
-      SERVER_API.initiateTFA,
+  const setupTotp = async (
+    request: TotpSetupRequest,
+  ): Promise<ISinglePayload<TotpSetupResponse>> => {
+    const { actionType: purpose, identifier } = request;
+    return await apiClient<ISinglePayload<TotpSetupResponse>>(
+      SERVER_API.setupTotp,
       {
         method: "POST",
         body: JSON.stringify({ purpose, identifier }),
@@ -97,12 +125,12 @@ export const OtpService = () => {
   /**
    * Validates safety codes during authentication checkpoints or finalized registration workflows.
    */
-  const verifyTFA = async (
-    request: TFAVerificationRequest,
-  ): Promise<ISinglePayload<TFAVerificationResponse>> => {
-    const { purpose, token, identifier } = request;
-    return await apiClient<ISinglePayload<TFAVerificationResponse>>(
-      SERVER_API.verifyTFA,
+  const verifyTotpCode = async (
+    request: TotpVerificationRequest,
+  ): Promise<ISinglePayload<TotpVerificationResponse>> => {
+    const { actionType: purpose, token, identifier } = request;
+    return await apiClient<ISinglePayload<TotpVerificationResponse>>(
+      SERVER_API.verifyTotp,
       {
         method: "POST",
         body: JSON.stringify({ purpose, token, identifier }),
@@ -111,11 +139,12 @@ export const OtpService = () => {
   };
 
   return {
-    dispatchOtp,
-    verifyOtp,
+    dispatchMsgCode,
+    verifyMsgCode,
+    commitAccountUpdate,
     finalizeEmailUpdateOtp,
     finalizePhoneUpdateOtp,
-    initiateTFA,
-    verifyTFA,
+    setupTotp,
+    verifyTotpCode,
   };
 };

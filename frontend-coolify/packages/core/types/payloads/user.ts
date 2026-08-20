@@ -1,7 +1,7 @@
 "use client";
 
-import { SupportedIsoCode } from "@repo/core";
-import { AuthStepName, ITfaData } from "../ui-state";
+import { ILocation, SupportedIsoCode } from "@repo/core";
+import { AuthStepName, ITotpData } from "../ui-state";
 
 export type UserRole = "USER" | "ADMIN" | "MODERATOR";
 export type AccountStatus =
@@ -58,7 +58,8 @@ export interface IUserPayload {
   isEmailVerified?: boolean;
   isPhoneVerified?: boolean;
   lastPasswordVerifiedAt?: Date | null;
-  twoFactorAuth?: ITfaData;
+  totpAuth?: ITotpData;
+  hasEnabledMFA?: boolean;
 
   // --- OTP VERIFICATION ---
   lastEmailCodeSentAt?: Date | string | null;
@@ -116,9 +117,10 @@ export interface IUserPayload {
   // --- ONBOARDING & GEOGRAPHY ---
   isOnboarded?: boolean;
   onboardingStep?: AuthStepName | null;
-  location?: string | null;
-  country?: string | null;
-  state?: string | null;
+
+  // --- ACCOUNT LOCATION & USER ADDRESS ---
+  location?: ILocation | null; // Computed by system
+  address?: string | null; // Provided by user
 
   // --- METRICS & PREFERENCES ---
   followersCount?: number;

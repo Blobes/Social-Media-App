@@ -23,7 +23,7 @@ export class CacheService {
         connectTimeout: 10000,
       });
 
-      this.redisInstance.on("error", (err) => {
+      this.redisInstance.on("error", (err: Error) => {
         console.error("❌ Shared Cache Engine Redis Error:", err.message);
       });
 
@@ -35,7 +35,7 @@ export class CacheService {
   /**
    * Direct GET key lookup with JSON parsing.
    */
-  public static async get<T = any>(
+  public static async get<T = unknown>(
     key: string,
     redisUrl?: string,
   ): Promise<T | null> {
@@ -44,8 +44,9 @@ export class CacheService {
       const rawData = await client.get(key);
       if (!rawData) return null;
       return JSON.parse(rawData) as T;
-    } catch (error: any) {
-      console.error(`[Cache-Error] Failed to GET key ${key}:`, error.message);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error(`[Cache-Error] Failed to GET key ${key}:`, err.message);
       return null;
     }
   }
@@ -53,9 +54,9 @@ export class CacheService {
   /**
    * Direct SET key storing JSON values with optional expiry in seconds.
    */
-  public static async set(
+  public static async set<T = unknown>(
     key: string,
-    value: any,
+    value: T,
     expiryInSeconds?: number,
     redisUrl?: string,
   ): Promise<void> {
@@ -69,8 +70,9 @@ export class CacheService {
       } else {
         await client.set(key, serialized);
       }
-    } catch (error: any) {
-      console.error(`[Cache-Error] Failed to SET key ${key}:`, error.message);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error(`[Cache-Error] Failed to SET key ${key}:`, err.message);
     }
   }
 
@@ -95,7 +97,7 @@ export class CacheService {
       if (freshData !== undefined && freshData !== null) {
         client
           .set(key, JSON.stringify(freshData), "EX", expiry)
-          .catch((err) =>
+          .catch((err: Error) =>
             console.error(
               `[Cache-Error] Failed to set key ${key}:`,
               err.message,
@@ -103,11 +105,9 @@ export class CacheService {
           );
       }
       return freshData;
-    } catch (error: any) {
-      console.error(
-        `[Cache-Error] Redis get failed for ${key}:`,
-        error.message,
-      );
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error(`[Cache-Error] Redis get failed for ${key}:`, err.message);
       return await cb();
     }
   }
@@ -122,7 +122,7 @@ export class CacheService {
     try {
       const client = this.getClient(redisUrl);
       await client.unlink(key);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(`Redis Invalidation Error for key ${key}:`, error);
     }
   }
@@ -153,7 +153,7 @@ export class CacheService {
 
         cursor = nextCursor;
       } while (cursor !== "0");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(`Redis Pattern Invalidation Error (${pattern}):`, error);
     }
   }
@@ -185,8 +185,9 @@ export class CacheService {
       }
 
       return freshIds;
-    } catch (error: any) {
-      console.error(`[CacheSet-Error] Failed for key ${key}:`, error.message);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error(`[CacheSet-Error] Failed for key ${key}:`, err.message);
       return await cb();
     }
   }
@@ -223,10 +224,11 @@ export class CacheService {
       const client = this.getClient(redisUrl);
       const count = await client.exists(key);
       return count > 0;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       console.error(
         `[Cache-Error] Failed EXISTS check for key ${key}:`,
-        error.message,
+        err.message,
       );
       return false;
     }
@@ -244,10 +246,11 @@ export class CacheService {
       const keysToDelete = Array.isArray(keys) ? keys : [keys];
       if (keysToDelete.length === 0) return 0;
       return await client.del(...keysToDelete);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       console.error(
         `[Cache-Error] Failed DEL operation for keys:`,
-        error.message,
+        err.message,
       );
       return 0;
     }
@@ -265,10 +268,11 @@ export class CacheService {
     try {
       const client = this.getClient(redisUrl);
       return await client.scan(cursor, "MATCH", pattern, "COUNT", count);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       console.error(
         `[Cache-Error] Failed SCAN for pattern ${pattern}:`,
-        error.message,
+        err.message,
       );
       return ["0", []];
     }
@@ -277,7 +281,7 @@ export class CacheService {
   /**
    * Executes a batch GET pipeline for multiple keys with JSON parsing.
    */
-  public static async pipelineGet<T = any>(
+  public static async pipelineGet<T = unknown>(
     keys: string[],
     redisUrl?: string,
   ): Promise<(T | null)[]> {
@@ -303,8 +307,9 @@ export class CacheService {
           return rawData as unknown as T;
         }
       });
-    } catch (error: any) {
-      console.error(`[Cache-Error] Failed pipeline GET:`, error.message);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error(`[Cache-Error] Failed pipeline GET:`, err.message);
       return keys.map(() => null);
     }
   }
@@ -338,7 +343,7 @@ export class CacheService {
       }
 
       await pipeline.exec();
-    } catch (error) {
+    } catch (error: unknown) {
       const err = error as Error;
       console.error(
         `[CacheZSet-Error] Failed ZADD for key ${key}:`,
@@ -359,7 +364,7 @@ export class CacheService {
     try {
       const client = this.getClient(redisUrl);
       return await client.zrevrange(key, start, stop);
-    } catch (error) {
+    } catch (error: unknown) {
       const err = error as Error;
       console.error(
         `[CacheZSet-Error] Failed ZREVRANGE for key ${key}:`,
@@ -418,10 +423,11 @@ export class CacheService {
         isAllowed: estimate <= limit,
         currentUsage: Math.floor(estimate),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       console.error(
         `[Cache-Error] Sliding window check failed for ${identifier}:`,
-        error.message,
+        err.message,
       );
       return { isAllowed: true, currentUsage: 0 };
     }
@@ -433,7 +439,7 @@ export const initCacheClient = async (redisUrl?: string): Promise<Redis> => {
   try {
     const status = await client.ping();
     console.log(`✅ Redis cache connected: ${status}`);
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("⚠️ Redis cache connectivity check failed:", err);
   }
 
@@ -443,15 +449,15 @@ export const initCacheClient = async (redisUrl?: string): Promise<Redis> => {
 /**
  * Direct fetch wrapper from Redis.
  */
-export const getCache = <T = any>(key: string): Promise<T | null> =>
+export const getCache = <T = unknown>(key: string): Promise<T | null> =>
   CacheService.get<T>(key);
 
 /**
  * Direct set wrapper for Redis.
  */
-export const setCache = (
+export const setCache = <T = unknown>(
   key: string,
-  value: any,
+  value: T,
   expiryInSeconds = CACHE_EXPIRY.HOUR_1,
 ): Promise<void> => CacheService.set(key, value, expiryInSeconds);
 
@@ -517,7 +523,7 @@ export const scanCache = (
 /**
  * Executes a batch GET pipeline for multiple keys.
  */
-export const pipelineGetCache = <T = any>(
+export const pipelineGetCache = <T = unknown>(
   keys: string[],
 ): Promise<(T | null)[]> => CacheService.pipelineGet<T>(keys);
 

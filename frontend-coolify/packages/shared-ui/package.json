@@ -15,7 +15,8 @@
     "framer-motion": "catalog:",
     "react-blurhash": "catalog:",
     "html-react-parser": "catalog:",
-    "react-aria": "catalog:"
+    "react-aria": "catalog:",
+    "@marsidev/react-turnstile": "catalog:"
   },
   "peerDependencies": {
     "@emotion/react": "catalog:",

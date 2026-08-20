@@ -25,7 +25,7 @@ export const userPrivateFields = (): string[] => {
     "isEmailVerified",
     "isPhoneVerified",
     "accountStatus",
-    "location", // Optional: hide if you want to keep exact location private
+    "address",
   ];
 };
 
@@ -78,6 +78,6 @@ export const toJwtUser = (
  */
 export const determineCheckType = (identifier: string): InputCheckType => {
   if (identifier.includes("@")) return "EMAIL";
-  if (/^\+?\d+$/.test(identifier.replace(/\s+/g, ""))) return "PHONE";
+  if (/^\+?\d+$/.test(identifier.replace(/\s+/g, ""))) return "PHONE_NUMBER";
   return "USERNAME";
 };

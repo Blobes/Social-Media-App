@@ -90,7 +90,6 @@ interface FormatPhoneResult {
   shouldReset: boolean;
   shouldOpenMenu: boolean;
 }
-
 /**
  * Transforms raw inputs into formatted phone values and manages cursor shifts for hardware or software entries.
  */

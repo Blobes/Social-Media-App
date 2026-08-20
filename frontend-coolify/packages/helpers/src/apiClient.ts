@@ -118,6 +118,10 @@ export const apiClient = async <T>(
       error.status = responseData?.status || "ERROR";
       error.payload = responseData || null;
 
+      // Preserve structured retryAfter from root or error property
+      error.retryAfter =
+        responseData?.retryAfter ?? responseData?.error?.retryAfter ?? null;
+
       // Attach translated string exclusively to localizedErrMsg for UI consumers
       error.localizedErrMsg =
         localizedString ||

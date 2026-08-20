@@ -10,4 +10,4 @@ docker-compose.yml
 dist
 coverage
 archive.md
-secrets/
+archive/oldKeys.md

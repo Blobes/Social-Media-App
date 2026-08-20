@@ -7,10 +7,13 @@ import {
   getAccountStatusMsg,
   fetchSingleUser,
   determineCheckType,
+  OtpMessageChannel,
+  OtpIdentifierType,
 } from "@repo/shared";
 
 export interface IResetInitiationInput {
   identifier: string;
+  otpChannelType?: OtpMessageChannel;
 }
 
 export interface IResetInitiationResult {
@@ -22,8 +25,8 @@ export interface IResetInitiationResult {
     | "INVALID_IDENTIFIER";
   transInfo: TransInfo;
   payload: {
-    resetType: "EMAIL" | "PHONE";
-    destination: string;
+    resetType: OtpIdentifierType;
+    identifier: string;
   } | null;
 }
 
@@ -33,7 +36,7 @@ export interface IResetInitiationResult {
 export const executeResetInitiation = async (
   input: IResetInitiationInput,
 ): Promise<IResetInitiationResult> => {
-  const { identifier } = input;
+  const { identifier, otpChannelType = "EMAIL" } = input;
 
   if (!identifier) {
     return {
@@ -44,7 +47,7 @@ export const executeResetInitiation = async (
   }
 
   const isEmail = determineCheckType(identifier) === "EMAIL";
-  const isPhone = determineCheckType(identifier) === "PHONE";
+  const isPhone = determineCheckType(identifier) === "PHONE_NUMBER";
 
   if (!isEmail && !isPhone) {
     return {
@@ -93,7 +96,7 @@ export const executeResetInitiation = async (
   user.otpCodeExpiresAt = new Date(Date.now() + 1000 * 60 * 15);
   await user.save();
 
-  if (isEmail) {
+  if (otpChannelType === "EMAIL") {
     await enqueueOtpTask(
       {
         email: user.email,
@@ -103,12 +106,22 @@ export const executeResetInitiation = async (
       },
       FUNSTAKES_REDIS_URL,
     );
-  } else {
+  } else if (otpChannelType === "WHATSAPP") {
     await enqueueOtpTask(
       {
         phone: user.phoneNumber,
         code,
         type: "WHATSAPP",
+        firstName: user.firstName,
+      },
+      FUNSTAKES_REDIS_URL,
+    );
+  } else {
+    await enqueueOtpTask(
+      {
+        phone: user.phoneNumber,
+        code,
+        type: "SMS",
         firstName: user.firstName,
       },
       FUNSTAKES_REDIS_URL,
@@ -120,11 +133,13 @@ export const executeResetInitiation = async (
   return {
     status: "SUCCESS",
     transInfo: isEmail
-      ? MESSAGES_REGISTRY.AUTH.VERIFICATION_CODE_SENT_TO_EMAIL
-      : MESSAGES_REGISTRY.AUTH.VERIFICATION_CODE_SENT_TO_PHONE,
+      ? MESSAGES_REGISTRY.AUTH.VERIFICATION_CODE_WILL_BE_SENT_TO_EMAIL
+      : MESSAGES_REGISTRY.AUTH.VERIFICATION_WILL_BE_CODE_SENT_TO_PHONE(
+          otpChannelType,
+        ),
     payload: {
-      resetType: isEmail ? "EMAIL" : "PHONE",
-      destination: resetDestination || "",
+      resetType: isEmail ? "EMAIL" : "PHONE_NUMBER",
+      identifier: resetDestination || "",
     },
   };
 };

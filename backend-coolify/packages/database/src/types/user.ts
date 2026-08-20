@@ -8,7 +8,7 @@ import {
 } from "mongoose";
 import {
   AccountStatus,
-  ITfaData,
+  ITotpData,
   IUserPreferredTopic,
   VerificationStatus,
 } from "./misc";
@@ -44,7 +44,8 @@ export interface IUserDocument extends Document {
   isPhoneVerified: boolean;
   primaryDeviceId?: Types.ObjectId | string | null;
   lastPasswordVerifiedAt?: Date | null;
-  twoFactorAuth: ITfaData;
+  totpAuth: ITotpData;
+  hasEnabledMFA?: boolean;
 
   // --- OTP VERIFICATION ---
   otpCode?: string | null;
@@ -88,7 +89,6 @@ export interface IUserDocument extends Document {
   relationship?: string | null;
   interests: string[];
   website?: string | null;
-  address?: string | null; // Provided by user
 
   // --- PROFILE ASSETS ---
   profileImage?: Types.ObjectId | null;
@@ -98,8 +98,9 @@ export interface IUserDocument extends Document {
   isOnboarded?: boolean;
   onboardingStep?: string | null;
 
-  // --- ACCOUNT LOCATION ---
-  location?: ILocation | null;
+  // --- ACCOUNT LOCATION & USER ADDRESS ---
+  location?: ILocation | null; // Computed by system
+  address?: string | null; // Provided by user
 
   // --- METRICS & PREFERENCES ---
   followersCount: number;

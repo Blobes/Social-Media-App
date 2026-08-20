@@ -4,9 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
-
 	"go-worker/tasks"
-
 	"github.com/hibiken/asynq"
 	"github.com/joho/godotenv"
 )
@@ -60,9 +58,9 @@ func LoadConfig(ctx context.Context) (*AppConfig, error) {
 
 	log.Printf("🔍 Redis connection initialized: %+v", clientOpts.Addr)
 
-	openRouterAPIKey := os.Getenv("OPENROUTER_API_KEY")
+	openRouterAPIKey := os.Getenv("OPENROUTER_AI_MODERATOR_KEY")
 	if openRouterAPIKey == "" {
-		log.Println("⚠️ OPENROUTER_API_KEY is not configured in the active environment variables")
+		log.Println("⚠️ OPENROUTER_AI_MODERATOR_KEY is not configured in the active environment variables")
 	}
 	log.Printf("🔍 Open router api initialized")
 

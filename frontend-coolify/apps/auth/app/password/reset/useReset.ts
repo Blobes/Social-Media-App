@@ -22,46 +22,53 @@ import {
 import {
   COMMON_FEEDBACK,
   ApiError,
-  OtpChannel,
+  OtpMessageChannel,
   AUTH_FEEDBACK,
   CACHE_KEYS,
   TransitData,
   useGlobalStore,
   CLIENT_ROUTES,
+  IUser,
 } from "@repo/core";
 import { ResetPasswordService } from "./service";
-import { OtpService } from "../../otp/service";
+import { CheckRequest, LoginService } from "../../login/service";
 import { ResetStepProps } from "../../types";
 
 /**
- * Orchestrates local view states, text transformations, input sanitization, and state engines for password modification.
+ * Orchestrates state management, validation, and mutations for password reset workflows.
  */
 export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
   const { initiateReset, setPassword } = ResetPasswordService();
-  const { initiateTFA } = OtpService();
-  const { handleSendOtp } = useOtp();
-  const { handleOtpNavigation } = useAuthNavigation();
+  const { handleOtpNavigation, checkTotpConfiguration } = useAuthNavigation();
   const { translateTxtString } = useStaticTranslation();
   const { openPopup } = usePopup();
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
   const { navigateTo } = usePage();
+  const { checkEmail, checkPhone } = LoginService();
 
   const [inlineMsg, setInlineMsg] = useState<React.ReactNode | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(120);
+  const [tempUser, setTempUser] = useState<IUser | null>(null);
 
   const cachedEntries = useCachedData<TransitData<"PASSWORD_RESET">>(
     CACHE_KEYS.PASS_RESET_FINALIZED_TRANSIT_DATA,
   );
+
   const resetTransitData = cachedEntries?.[0];
   const transitNextStep = resetTransitData?.payload?.nextStep;
   const transitUserIdentifier = resetTransitData?.payload?.identifier;
 
+  const hasTotp = checkTotpConfiguration(tempUser);
+
+  /**
+   * Resets active inline message state.
+   */
   const clearInlineMsg = useCallback(() => {
     setInlineMsg(null);
   }, []);
 
   /**
-   * Clears active password reset cookies, purges cached transit data, and restores default view state.
+   * Purges reset cookies, removes transit queries, and resets auth status.
    */
   const clearResetSession = useCallback(() => {
     deleteCookie("reset_session_expiry");
@@ -81,11 +88,12 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
       return;
     }
     if (transitNextStep) setStep?.(transitNextStep);
-  }, [[transitNextStep, setStep, clearResetSession]]);
+  }, [transitNextStep, setStep, clearResetSession]);
 
   useEffect(() => {
     const resetSession = getCookie("reset_session_expiry");
     if (!resetSession) return;
+
     const interval = setInterval(() => {
       const diff = Math.max(
         0,
@@ -130,7 +138,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
   } = usePasswordInputValidation();
 
   /**
-   * TanStack Mutation handles password reset finalized confirmations.
+   * Submits the updated password payload.
    */
   const { mutate: submitNewPassword, isPending: isNewPasswordLoading } =
     useMutation({
@@ -171,7 +179,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     });
 
   /**
-   * Standard identity recovery verification strategy.
+   * Initiates password recovery process and fetches user account details.
    */
   const { mutate: executeOtpInitiate, isPending: isStandardLoading } =
     useMutation({
@@ -180,38 +188,75 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
         const resolvedType = inputType ?? "UNKNOWN";
         const cleaned =
           resolvedType === "PHONE" ? sanitizePhoneNumber(val) : val;
-        return await initiateReset(cleaned);
-      },
-      onSuccess: (res) => {
-        if (res.status === "SUCCESS" && res.payload) {
-          const sessionDurationMinutes = 10;
-          const expiryTimestamp =
-            Date.now() + sessionDurationMinutes * 60 * 1000;
-          setCookie(
-            "reset_session_expiry",
-            expiryTimestamp.toString(),
-            sessionDurationMinutes,
-          );
+        const isEmailReset = resolvedType === "EMAIL";
 
-          setAuthStatus("TEMPORARY");
-          const channel: OtpChannel =
-            res.payload.resetType === "PHONE" ? "PHONE" : "EMAIL";
+        const checkReq: CheckRequest = {
+          identifier: cleaned,
+          purpose: "PASSWORD_RESET",
+        };
 
-          handleSendOtp({
-            recipient: res.payload.destination,
-            purpose: "PASSWORD_RESET",
-            channel,
+        const userData = isEmailReset
+          ? await checkEmail(checkReq)
+          : await checkPhone(checkReq);
+
+        const isTotpConfigured = checkTotpConfiguration(userData);
+
+        let initResetRes = null;
+
+        if (!isTotpConfigured) {
+          const res = await initiateReset({
+            identifier: cleaned,
+            otpChannelType: isEmailReset ? "EMAIL" : "WHATSAPP",
           });
-
-          handleOtpNavigation({
-            user: null as any,
-            identifier: res.payload.destination,
-            inputType: channel,
-            reason: "PASSWORD_RESET",
-            purpose: "PASSWORD_RESET",
-            method: channel,
-          });
+          if (res.status === "SUCCESS" && res.payload) {
+            initResetRes = res;
+          }
         }
+
+        return {
+          initResetRes,
+          userData,
+          cleaned,
+          isEmailReset,
+        };
+      },
+      onSuccess: (data) => {
+        if (!data || !data.userData) return;
+
+        const { initResetRes, userData, cleaned, isEmailReset } = data;
+        const user = userData.payload;
+        const identifier = initResetRes?.payload?.identifier || cleaned;
+        const sessionDurationMinutes = 10;
+        const expiryTimestamp = Date.now() + sessionDurationMinutes * 60 * 1000;
+
+        setCookie(
+          "reset_session_expiry",
+          expiryTimestamp.toString(),
+          sessionDurationMinutes,
+        );
+
+        setAuthStatus("TEMPORARY");
+        setTempUser(user);
+
+        const isTotpConfigured = checkTotpConfiguration(user);
+
+        const activeChannel: OtpMessageChannel = isEmailReset
+          ? "EMAIL"
+          : "WHATSAPP";
+
+        handleOtpNavigation({
+          user,
+          identifier,
+          inputType:
+            initResetRes?.payload?.resetType ||
+            (isEmailReset ? "EMAIL" : "PHONE_NUMBER"),
+          otpMessageChannel: !isTotpConfigured ? activeChannel : undefined,
+          otpGeneratorMethod: !isTotpConfigured
+            ? "MESSAGING_APP"
+            : "AUTHENTICATOR_APP",
+          purpose: "PASSWORD_RESET",
+          reason: "PASSWORD_RESET",
+        });
       },
       onError: (error: ApiError) => {
         if (error.httpStatus !== 500 && error.httpStatus !== 0) {
@@ -224,7 +269,6 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
           );
           return;
         }
-
         setInlineMsg(
           error.localizedErrMsg ||
             translateTxtString(COMMON_FEEDBACK.server_error),
@@ -236,65 +280,48 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     });
 
   /**
-   * Secondary verification strategy utilizing the structured object required by initiateTFA.
+   * Handles form submit for identity recovery initiation.
    */
-  const { mutate: executeTFAInitiate, isPending: isTFALoading } = useMutation({
-    mutationFn: async (val: string) => {
-      await delay();
-      const resolvedType = inputType ?? "UNKNOWN";
-      const cleaned = resolvedType === "PHONE" ? sanitizePhoneNumber(val) : val;
-
-      return await initiateTFA({
-        purpose: "AUTHENTICATE",
-        identifier: cleaned,
-      });
-    },
-    onSuccess: (res) => {
-      if (res.status === "SUCCESS" && res.payload) {
-        const resolvedType = inputType ?? "UNKNOWN";
-        const channel: OtpChannel =
-          resolvedType === "PHONE" ? "PHONE" : "EMAIL";
-
-        handleOtpNavigation({
-          user: null as any,
-          identifier: input,
-          inputType: channel,
-          reason: "PASSWORD_RESET",
-          purpose: "PASSWORD_RESET",
-          method: "AUTHENTICATOR",
-          transitKey: CACHE_KEYS.PASS_RESET_INIT_TRANSIT_DATA,
-        });
-      } else {
-        setInlineMsg(
-          res.localizedSuccessMsg ||
-            res.message ||
-            translateTxtString(AUTH_FEEDBACK.password_reset_initiation_failed),
-        );
-      }
-    },
-    onError: (error: ApiError) => {
-      setInlineMsg(
-        error.localizedErrMsg ||
-          translateTxtString(COMMON_FEEDBACK.server_error),
-      );
-    },
-    onMutate: () => {
-      clearInlineMsg();
-    },
-  });
-
   const handleStandardSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!isValidInput || !input) return;
     executeOtpInitiate(input);
   };
 
-  const handleTFASubmit = useCallback(() => {
+  /**
+   * Routes user to TOTP verification if authenticator app is configured.
+   */
+  const handleTotpClick = useCallback(() => {
     if (!isValidInput || !input) return;
-    executeTFAInitiate(input);
-  }, [isValidInput, input, executeTFAInitiate]);
+    if (!hasTotp || !tempUser) {
+      setInlineMsg(
+        translateTxtString(AUTH_FEEDBACK.authenticator_not_configured),
+      );
+      return;
+    }
+    handleOtpNavigation({
+      user: tempUser,
+      identifier: input,
+      inputType: inputType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
+      reason: "PASSWORD_RESET",
+      purpose: "PASSWORD_RESET",
+      otpGeneratorMethod: "AUTHENTICATOR_APP",
+      transitKey: CACHE_KEYS.PASS_RESET_INIT_TRANSIT_DATA,
+    });
+    clearInlineMsg();
+  }, [
+    isValidInput,
+    input,
+    hasTotp,
+    tempUser,
+    inputType,
+    handleOtpNavigation,
+    clearInlineMsg,
+    translateTxtString,
+  ]);
 
   const passwordsMatch = password !== "" && password === confirmPassword;
+
   const isNewPasswordSubmitDisabled =
     isNewPasswordLoading ||
     !isPasswordValid ||
@@ -302,7 +329,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     timeLeft <= 0;
 
   /**
-   * Dispatches payload updates on valid data validation thresholds.
+   * Handles form submit for setting a new password.
    */
   const handleNewPasswordSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
@@ -310,11 +337,17 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     submitNewPassword();
   };
 
+  /**
+   * Cancels reset workflow and cleans up local state.
+   */
   const handleResetCancel = useCallback(() => {
     setInlineMsg(null);
     clearResetSession();
   }, [clearResetSession]);
 
+  /**
+   * Navigates user back to login route.
+   */
   const handleBack = useCallback(
     (e: React.MouseEvent) => {
       setInlineMsg(null);
@@ -342,13 +375,9 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     confirmPassword,
     confirmPassErrMsg,
     isStandardLoading,
-    isTFALoading,
     isNewPasswordLoading,
     isResetInitSubmitDisabled:
-      validity === "INVALID" ||
-      input === "" ||
-      isStandardLoading ||
-      isTFALoading,
+      validity === "INVALID" || input === "" || isStandardLoading,
     isNewPasswordSubmitDisabled,
     countryMenuRef,
     handleChange,
@@ -356,7 +385,8 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     handlePasswordChange,
     handleConfirmChange,
     handleStandardSubmit,
-    handleTFASubmit,
+    handleTotpClick,
+    hasTotp,
     handleNewPasswordSubmit,
     handleResetCancel,
     handleBack,

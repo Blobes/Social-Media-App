@@ -11,7 +11,6 @@ import {
   CLIENT_ROUTES,
   IPage,
   IUser,
-  OtpChannel,
   GenericStyle,
   useGlobalStore,
   AuthStepName,
@@ -45,7 +44,7 @@ export interface UseFeedbackProps {
 export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
   const { navigateTo, isOnWeb } = usePage();
   const { handleSendOtp } = useOtp();
-  const { handleOtpNavigation } = useAuthNavigation();
+  const { handleOtpNavigation, checkTotpConfiguration } = useAuthNavigation();
   const { translateTxtString } = useStaticTranslation();
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
@@ -68,18 +67,24 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
       if (loginResponse.status === "SUCCESS" && user) {
         setAccessToken(loginResponse.accessToken);
 
-        // OTP Verification Flow for logging in after a while or untrusted hardware
+        const hasTotp = checkTotpConfiguration(user);
+        const isEmail = inputType === "EMAIL" || !hasTotp;
+        const isPhoneNumber = !isEmail || !hasTotp;
+
         if (loginResponse.requireOtp) {
           setAccountStatus("NOT_VERIFIED");
-          handleSendOtp({
-            recipient: user.email || user.phoneNumber || identifier,
-            purpose: "LOGIN_VERIFICATION",
-            channel: (inputType as OtpChannel) || "EMAIL",
-          });
+
+          if (isEmail || isPhoneNumber)
+            handleSendOtp({
+              recipient: user.email || user.phoneNumber || identifier,
+              purpose: "LOGIN_VERIFICATION",
+              messageChannel: isEmail ? "EMAIL" : "WHATSAPP",
+            });
           handleOtpNavigation({
             user,
             identifier,
-            inputType: inputType as OtpChannel,
+            inputType: inputType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
+            otpMessageChannel: isEmail ? "EMAIL" : "WHATSAPP",
             reason: loginResponse.otpReason,
           });
           return;
@@ -199,7 +204,8 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
                 style={{
                   marginLeft: theme?.gap(2),
                   ...inlineTxtStyle,
-                }}>
+                }}
+              >
                 <TransText {...AUTH_BUTTON_LABELS.create_account} noComponent />
               </AnchorLink>
             )}
@@ -218,7 +224,8 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
               style={{
                 marginLeft: theme?.gap(2),
                 ...inlineTxtStyle,
-              }}>
+              }}
+            >
               <TransText {...AUTH_BUTTON_LABELS.set_password} noComponent />
             </AnchorLink>
           </span>,

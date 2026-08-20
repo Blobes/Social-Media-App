@@ -1,6 +1,6 @@
 import express from "express";
 import { connectDB, initCacheClient, monitorProcess } from "@repo/shared";
-import { otpDispatchWorker } from "./processors/otpDispatcher";
+import { otpDispatchWorker } from "./processors/otpDispatch";
 import appLoader from "./loader";
 import { startDeviceCleanupTask } from "./automations/deviceCleanup";
 import { FUNSTAKES_REDIS_URL, MONGO_URI, NODE_ENV, PORT } from "./envVars";

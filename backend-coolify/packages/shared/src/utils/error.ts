@@ -1,13 +1,24 @@
-import { TransInfo } from "../types";
 import { NextFunction } from "express";
+import { MESSAGES_REGISTRY } from "../constants/msgRegistry";
+import { TransInfo } from "../types";
+
+/**
+ * Interface defining operational application errors extending native Error.
+ */
+export interface IAppError extends Error {
+  statusCode?: number;
+  i18nKey?: string;
+  interpolations?: Record<string, unknown>;
+  isOperational?: boolean;
+}
 
 /**
  * Custom operational error class to pass semantic messaging and translation parameters down request lifecycles.
  */
-export class AppError extends Error {
+export class AppError extends Error implements IAppError {
   public readonly statusCode: number;
   public readonly i18nKey: string;
-  public readonly interpolations?: Record<string, any>;
+  public readonly interpolations?: Record<string, unknown>;
   public readonly isOperational: boolean;
 
   constructor(
@@ -19,7 +30,8 @@ export class AppError extends Error {
     Object.setPrototypeOf(this, new.target.prototype);
 
     this.statusCode = statusCode;
-    this.i18nKey = transInfo.i18nKey || "auth.server_fallback_error";
+    this.i18nKey =
+      transInfo.i18nKey || MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR.i18nKey;
     this.interpolations = transInfo?.interpolations;
     this.isOperational = isOperational;
 
@@ -33,26 +45,51 @@ export class AppError extends Error {
 export const forwardError = (
   next: NextFunction,
   transInfo: TransInfo,
-  originalError?: any,
+  originalError?: unknown,
   statusCode: number = 500,
 ): void => {
+  const err = originalError as Record<string, unknown> | undefined;
+
+  const rawStatus = err?.status || err?.statusCode;
   const finalStatusCode =
-    originalError?.status || originalError?.statusCode || statusCode;
+    typeof rawStatus === "number" ? rawStatus : statusCode;
+
+  const errMessage = typeof err?.message === "string" ? err.message : undefined;
+  const errI18nKey = typeof err?.i18nKey === "string" ? err.i18nKey : undefined;
+  const errInterpolations =
+    err?.interpolations && typeof err.interpolations === "object"
+      ? (err.interpolations as Record<string, unknown>)
+      : undefined;
 
   // Preserve explicit message/i18nKey if originalError has them, otherwise fallback to transInfo
   const finalTransInfo: TransInfo = {
-    message: originalError?.message || transInfo.message,
+    message: errMessage || transInfo.message,
     i18nKey:
-      originalError?.message && !originalError?.i18nKey
-        ? "auth.server_unknown_error"
-        : originalError?.i18nKey || transInfo.i18nKey,
-    interpolations: originalError?.interpolations || transInfo?.interpolations,
+      errMessage && !errI18nKey
+        ? MESSAGES_REGISTRY.AUTH.UNKNOWN_SERVER_ERROR(errMessage).i18nKey
+        : errI18nKey || transInfo.i18nKey,
+    interpolations: errInterpolations || transInfo?.interpolations,
   };
 
   const appError = new AppError(finalStatusCode, finalTransInfo, true);
 
-  if (originalError?.stack) {
-    appError.stack = originalError.stack;
+  if (typeof err?.stack === "string") {
+    appError.stack = err.stack;
   }
   next(appError);
 };
+
+/**
+ * Constructs and throws structured IAppError domain instances.
+ */
+export function createDomainError(
+  message: string,
+  i18nKey: string,
+  statusCode: number = 500,
+): IAppError {
+  const error: IAppError = new Error(message);
+  error.i18nKey = i18nKey;
+  error.statusCode = statusCode;
+  error.isOperational = true;
+  return error;
+}

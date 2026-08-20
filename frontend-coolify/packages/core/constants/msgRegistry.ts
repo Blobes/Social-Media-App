@@ -94,6 +94,10 @@ export const auth = {
       tKey: "auth:button.use_authenticator",
       tValue: "Use Authenticator",
     },
+    verify_and_proceed: {
+      tKey: "auth:button.verify_and_proceed",
+      tValue: "Verify & proceed",
+    },
     verify_with_email_phone: {
       tKey: "auth:button.verify_with_email_phone",
       tValue: "Verify with Email / Phone",
@@ -116,6 +120,10 @@ export const auth = {
     account_suspended_tagline: {
       tKey: "auth:feedback.account_suspended_tagline",
       tValue: "Your account has been suspended for violating our terms.",
+    },
+    authenticator_not_configured: {
+      tKey: "auth.authenticator_not_configured",
+      tValue: "Authenticator app is not configured for this account",
     },
     already_have_an_account: {
       tKey: "auth:feedback.already_have_an_account",

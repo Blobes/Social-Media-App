@@ -1,6 +1,6 @@
 {
-  "short_name": "FunStakes",
-  "name": "FunStakes",
+  "short_name": "Funstakes",
+  "name": "Funstakes",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,7 +8,7 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo.png",
+      "src": "svgs/app-logo-name.svg",
       "type": "image/png",
       "sizes": "512x512"
     }

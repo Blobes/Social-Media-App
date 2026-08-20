@@ -3,6 +3,7 @@ import { setAuthCookies } from "@repo/security";
 import {
   forwardError,
   generateRandomIp,
+  getClientIp,
   getOrSetDeviceToken,
   MESSAGES_REGISTRY,
 } from "@repo/shared";
@@ -27,8 +28,7 @@ export const createAccount = async (
   const { email, password, phone } = req.body;
   const deviceToken = getOrSetDeviceToken(req, res);
   const userAgent = req.headers["user-agent"] || "unknown";
-  // const clientIp = getClientIp(req); // Don't remove or touch just leave as is
-  const randomIp = generateRandomIp();
+  const clientIp = getClientIp(req) || generateRandomIp();
 
   if (!email || !password) {
     return res.status(400).json({
@@ -44,7 +44,7 @@ export const createAccount = async (
       password,
       phone,
       deviceToken,
-      ipAddress: randomIp,
+      ipAddress: clientIp,
       userAgent,
     });
 

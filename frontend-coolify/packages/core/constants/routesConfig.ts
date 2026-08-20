@@ -147,11 +147,13 @@ export const SERVER_API = {
   checkEmail: `${API_BASE.auth}/check/email`,
   checkPhone: `${API_BASE.auth}/check/phone`,
   checkUsername: `${API_BASE.auth}/check/username`,
-  sendOtp: `${API_BASE.auth}/otp/send`,
-  verifyOtp: `${API_BASE.auth}/otp/verify`,
+  sendMsgCode: `${API_BASE.auth}/otp/send-msg-code`,
+  verifyMsgCode: `${API_BASE.auth}/otp/verify-msg-code`,
+  setupTotp: `${API_BASE.auth}/otp/setup-totp`,
+  verifyTotp: `${API_BASE.auth}/otp/verify-totp`,
+  verifyBot: `${API_BASE.auth}/verify-bot`,
+  otpAccountUpdate: `${API_BASE.auth}/otp/update-account`,
   updateOnboarding: `${API_BASE.auth}/onboarding`,
-  initiateTFA: `${API_BASE.auth}/tfa/initiate`,
-  verifyTFA: `${API_BASE.auth}/tfa/verify-token`,
   // Device
   getDevices: `${API_BASE.auth}/devices/`,
   setPrimaryDevice: (userId: string) =>

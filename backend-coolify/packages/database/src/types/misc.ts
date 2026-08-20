@@ -24,9 +24,8 @@ export interface IAccountStatusHistory extends Document {
   updatedAt: Date;
 }
 
-export interface ITfaData {
+export interface ITotpData {
   secret: string | null; // Encrypted or plain secure base32 string
-  isEnabled: boolean; // Active status toggle
   backupCodes: string[]; // Fallback recovery matrices
   tempSecret: string | null;
   tempBackupCodes: string[];

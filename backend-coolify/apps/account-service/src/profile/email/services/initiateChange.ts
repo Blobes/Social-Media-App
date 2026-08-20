@@ -179,7 +179,7 @@ export const startEmailChange = async (
 
   return {
     status: "SUCCESS",
-    transInfo: MESSAGES_REGISTRY.AUTH.VERIFICATION_CODE_SENT_TO_EMAIL,
+    transInfo: MESSAGES_REGISTRY.AUTH.VERIFICATION_CODE_WILL_BE_SENT_TO_EMAIL,
     payload: {
       pendingEmail: user.pendingEmail,
       expiresAt: user.otpCodeExpiresAt,

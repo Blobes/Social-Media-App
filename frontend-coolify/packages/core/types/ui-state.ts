@@ -50,25 +50,33 @@ export type AuthStepName =
   | "RESTORE_ACCOUNT"
   | "PASSWORD";
 
+export type OtpStepName = "BOT_CHALLENGE" | "OTP_VERIFY";
+
 export type StepName =
   | "FEED"
   | AuthStepName
   | PostStepName
-  | PasswordResetStepName;
+  | PasswordResetStepName
+  | OtpStepName;
 
-export type OtpVerificationMethod = "EMAIL_OR_SMS" | "AUTHENTICATOR_DEVICE";
-
-export type OtpChannel = "EMAIL" | "PHONE" | "AUTHENTICATOR";
+export type OtpGeneratorMethod = "MESSAGING_APP" | "AUTHENTICATOR_APP";
+export type IdentifierType = "EMAIL" | "PHONE_NUMBER";
+export type OtpMessageChannel = "EMAIL" | "SMS" | "WHATSAPP";
 
 export type InputType =
-  | OtpChannel
+  | "EMAIL"
+  | "PHONE"
   | "PASSWORD"
   | "USERNAME"
   | "NUMBER"
   | "UNKNOWN"
   | "NAME";
 
-export type Action = "LOGIN" | "SIGNUP" | "ACCOUNT_UPDATE";
+export type CheckPurpose =
+  | "REGISTRATION"
+  | "LOGIN"
+  | "PASSWORD_RESET"
+  | "ACCOUNT_UPDATE";
 
 export type InputStatus = "VALID" | "INVALID";
 
@@ -172,7 +180,8 @@ export interface TransitData<P extends TransitPurpose = TransitPurpose> {
 export type OtpTransitData<P extends TransitPurpose = TransitPurpose> =
   TransitData<P> & {
     identifier?: string;
-    channel: OtpChannel;
+    otpMessageChannel: OtpMessageChannel;
+    otpGeneratorMethod?: OtpGeneratorMethod;
     reason: OtpReason;
     onVerificationSuccess?: () => void;
     nextStep?: StepName;
@@ -240,10 +249,18 @@ export interface DynamicTranslateArgs {
   transCb: DynamicTranslateFns;
 }
 
-export interface ITfaData {
+export interface ITotpData {
   secret: string | null;
-  isEnabled: boolean;
   backupCodes: string[];
   tempSecret?: string | null;
   tempBackupCodes?: string[];
+}
+
+export interface ILocation {
+  name?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  type: "Point";
+  coordinates: [number, number]; // [longitude, latitude]
 }

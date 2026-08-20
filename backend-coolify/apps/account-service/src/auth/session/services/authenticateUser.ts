@@ -167,15 +167,6 @@ export const authenticateUser = async (
     },
   );
 
-  // // Create safe payload output by removing sensitive fields
-  // const safeData: Record<string, unknown> = {
-  //   ...userPayload,
-  //   language: userPayload.additions?.language,
-  // };
-  // userSensitiveFields().forEach((field) => {
-  //   delete safeData[field];
-  // });
-
   const safeData = sanitizeUserResult(user, userSensitiveFields());
 
   const finalPayload = { ...safeData, language: safeData.additions?.language };

@@ -112,7 +112,7 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "identifier": "officialblobes6457@gmail.com"
+  "identifier": "2348057658530"
 }
 
 ### Set Password

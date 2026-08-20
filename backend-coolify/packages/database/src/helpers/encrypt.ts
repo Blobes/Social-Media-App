@@ -13,7 +13,7 @@ const getEncryptionKeyBuffer = (): Buffer => {
   if (cachedKeyBuffer) {
     return cachedKeyBuffer;
   }
-  const encryptionKey = process.env.DATA_FIELD_ENCRYPTION_KEY || "";
+  const encryptionKey = process.env.DB_ENCRYPTION_KEY || "";
   const keyBuffer = Buffer.from(encryptionKey, "hex");
 
   if (keyBuffer.length !== 32) {
@@ -87,7 +87,7 @@ export const isEncryptedPattern = (value: string): boolean => {
 export const hashLookup = (value: string): string => {
   if (!value) return value;
 
-  const lookupHashKey = process.env.DATA_FIELD_LOOKUP_HASH_KEY || "";
+  const lookupHashKey = process.env.DB_HASH_KEY || "";
   if (!lookupHashKey) {
     throw new Error("Lookup hash key configuration is missing.");
   }

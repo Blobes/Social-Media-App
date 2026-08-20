@@ -1,4 +1,3 @@
-// const API_CACHE = "funstakes-api-v2";
 const STATIC_CACHE = "funstakes-static-v1";
 
 const ESSENTIAL_ASSETS = [
@@ -11,24 +10,26 @@ const ESSENTIAL_ASSETS = [
   "/support",
 ];
 
-// Install: Pre-cache with error resilience
+/**
+ * Handles service worker installation and pre-caches static core shell assets.
+ */
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => {
-      // Map + add ensures one missing page doesn't break everything
       return Promise.allSettled(
         ESSENTIAL_ASSETS.map((url) =>
           cache
             .add(url)
-            .catch((err) => console.warn(`Failed to pre-cache: ${url}`)),
+            .catch((err) => console.warn(`Failed to pre-cache: ${url}`, err)),
         ),
       );
     }),
   );
-  self.skipWaiting();
 });
 
-// Activate: Clean up old versions
+/**
+ * Handles service worker activation and removes stale static cache versions.
+ */
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
@@ -42,31 +43,26 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch: The Traffic Controller
+/**
+ * Intercepts network requests and routes traffic using network or cache strategies.
+ */
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  if (url.searchParams.has("_rsc")) {
-    event.respondWith(
-      fetch(request).catch(async () => {
-        const cache = await caches.open(STATIC_CACHE);
-        // Try to find the base page without the _rsc query param
-        const match = await cache.match(url.pathname);
-        if (match) return match;
-        // If no match, return a minimal JSON response to stop Next.js from panicking
-        return new Response(JSON.stringify({ offline: true }), {
-          headers: { "Content-Type": "application/json" },
-        });
-      }),
-    );
+  // Allow Next.js internal RSC requests to pass directly through to network natively
+  if (url.searchParams.has("_rsc")) return;
+
+  // Ignore non-GET requests, local /api routes, and all external API host requests (e.g., api.funstakes.net)
+  const isBackendApi =
+    url.hostname.includes("api.funstakes.net") ||
+    url.hostname !== self.location.hostname;
+
+  if (request.method !== "GET" || isBackendApi) {
     return;
   }
 
-  // Ignore non-GET and API calls
-  if (request.method !== "GET" || url.pathname.startsWith("/api")) return;
-
-  // STRATEGY: Network-First for Navigations (Pages)
+  // Network-First strategy for page navigations
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
@@ -80,11 +76,9 @@ self.addEventListener("fetch", (event) => {
         .catch(async () => {
           const cache = await caches.open(STATIC_CACHE);
 
-          // Check for the specific page
           const exactMatch = await cache.match(request);
           if (exactMatch) return exactMatch;
 
-          // Fallback to /offline
           const offlineShell = await cache.match("/offline");
           return offlineShell || cache.match("/");
         }),
@@ -92,11 +86,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // STRATEGY: Cache-First for Assets
+  // Cache-First strategy for static assets
   const isStatic =
     url.pathname.startsWith("/_next/static") ||
     url.pathname.startsWith("/_next/image") ||
-    url.pathname.includes("-assets/") || // Catch Micro-Frontend assets
+    url.pathname.includes("-assets/") ||
     url.pathname.startsWith("/images") ||
     url.pathname.includes("turbopack") ||
     /\.(js|css|png|jpg|svg|ico)$/i.test(url.pathname);
@@ -107,7 +101,9 @@ self.addEventListener("fetch", (event) => {
   }
 });
 
-// Background Fetch: Intercept successful persistent media transfers
+/**
+ * Handles persistent background upload task completion.
+ */
 self.addEventListener("backgroundfetchsuccess", (event) => {
   const bgFetch = event.registration;
 
@@ -117,7 +113,6 @@ self.addEventListener("backgroundfetchsuccess", (event) => {
         `Background upload task successfully complete: ${bgFetch.id}`,
       );
 
-      // Extract records to verify the pipeline status codes
       const records = await bgFetch.matchAll();
       for (const record of records) {
         const response = await record.responseReady;
@@ -128,7 +123,6 @@ self.addEventListener("backgroundfetchsuccess", (event) => {
         }
       }
 
-      // Notify active frontend runtime window clients of successful upload state completion
       const clientsList = await self.clients.matchAll({ type: "window" });
       for (const client of clientsList) {
         client.postMessage({
@@ -137,7 +131,6 @@ self.addEventListener("backgroundfetchsuccess", (event) => {
         });
       }
 
-      // Update native operating system layout UI notification badge toast
       await event.updateUI({
         title: "Media uploaded successfully to Funstakes!",
       });
@@ -145,7 +138,9 @@ self.addEventListener("backgroundfetchsuccess", (event) => {
   );
 });
 
-// Background Fetch: Handle persistent media transfer failures or network drops
+/**
+ * Handles persistent background upload failures or network drops.
+ */
 self.addEventListener("backgroundfetchfail", (event) => {
   const bgFetch = event.registration;
   console.error(
@@ -154,7 +149,6 @@ self.addEventListener("backgroundfetchfail", (event) => {
 
   event.waitUntil(
     (async () => {
-      // Notify active frontend runtime window clients of terminal execution error tracking frames
       const clientsList = await self.clients.matchAll({ type: "window" });
       for (const client of clientsList) {
         client.postMessage({
@@ -170,13 +164,14 @@ self.addEventListener("backgroundfetchfail", (event) => {
   );
 });
 
-// Background Fetch: Handle interactions when the user clicks on the notification item
+/**
+ * Handles interactions when clicking on a background fetch notification UI.
+ */
 self.addEventListener("backgroundfetchclick", (event) => {
   event.waitUntil(
     (async () => {
       const clientsList = await self.clients.matchAll({ type: "window" });
 
-      // Focus existing tab window if active, else create a fresh foreground interface stack viewport
       if (clientsList.length > 0) {
         await clientsList[0].focus();
       } else {
@@ -188,6 +183,9 @@ self.addEventListener("backgroundfetchclick", (event) => {
 
 /* ---------- STRATEGIES ---------- */
 
+/**
+ * Serves cached assets first, falling back to network fetch.
+ */
 async function cacheFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
@@ -201,17 +199,16 @@ async function cacheFirst(request, cacheName) {
     }
     return fresh;
   } catch (error) {
-    // Fail-safe for Next.js JS chunks to prevent ChunkLoadError
-    if (request.url.endsWith(".js")) {
-      return new Response(
-        "console.warn('Chunk missing. Redirecting to offline...')",
-        { headers: { "Content-Type": "application/javascript" } },
-      );
-    }
-    return new Response(null, { status: 503 });
+    return new Response(null, {
+      status: 503,
+      statusText: "Service Unavailable",
+    });
   }
 }
 
+/**
+ * Fetches from network first, falling back to cached response.
+ */
 async function networkFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
   try {
@@ -222,8 +219,9 @@ async function networkFirst(request, cacheName) {
     const cached = await cache.match(request);
     if (cached) return cached;
 
-    return new Response(JSON.stringify({ offline: true }), {
-      headers: { "Content-Type": "application/json" },
+    return new Response(null, {
+      status: 503,
+      statusText: "Service Unavailable",
     });
   }
 }

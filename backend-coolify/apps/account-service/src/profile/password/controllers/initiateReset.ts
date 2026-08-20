@@ -1,10 +1,16 @@
 import { NextFunction, Response } from "express";
-import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
+import {
+  forwardError,
+  IAuthRequest,
+  MESSAGES_REGISTRY,
+  OtpMessageChannel,
+} from "@repo/shared";
 import { executeResetInitiation } from "../services/initiateReset";
 
 interface InitiateRequest extends IAuthRequest {
   body: {
     identifier: string;
+    otpChannelType?: OtpMessageChannel;
   };
 }
 
@@ -16,10 +22,13 @@ export const initiatePasswordReset = async (
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
-  const { identifier } = req.body;
+  const { identifier, otpChannelType } = req.body;
 
   try {
-    const serviceResult = await executeResetInitiation({ identifier });
+    const serviceResult = await executeResetInitiation({
+      identifier,
+      otpChannelType,
+    });
 
     if (
       serviceResult.status === "MISSING_IDENTIFIER" ||

@@ -46,7 +46,7 @@ export const registerUserAccount = async (
 
   // Validate email availability and security state using unified service check layer
   const emailCheckResult = await executeAccountCheck({
-    type: "EMAIL",
+    identifierType: "EMAIL",
     identifier: normalizedEmail,
     purpose: "REGISTRATION",
   });
@@ -65,7 +65,7 @@ export const registerUserAccount = async (
   // Validate phone number availability if provided during flow step
   if (phone) {
     const phoneCheckResult = await executeAccountCheck({
-      type: "PHONE",
+      identifierType: "PHONE_NUMBER",
       identifier: phone,
       purpose: "REGISTRATION",
     });

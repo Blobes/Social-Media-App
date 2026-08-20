@@ -51,7 +51,7 @@ export const executePhoneChange = async (
     return {
       status: isExpired ? "EXPIRED" : "INVALID_CODE",
       transInfo: isExpired
-        ? MESSAGES_REGISTRY.AUTH.EXPIRED
+        ? MESSAGES_REGISTRY.AUTH.CODE_EXPIRED
         : MESSAGES_REGISTRY.AUTH.INVALID_OTP_CODE,
     };
   }

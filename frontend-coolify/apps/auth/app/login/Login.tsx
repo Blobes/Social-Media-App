@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { IStep, AuthStepName, OtpChannel, InputType } from "@repo/core";
+import { IStep, AuthStepName, InputType } from "@repo/core";
 import { DisplayFeedbackUI, Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
 import { PasswordStep } from "./PasswordStep";
@@ -69,7 +69,8 @@ export const Login: React.FC<LoginProps> = ({ style = {} }) => {
         [theme.breakpoints.down("sm")]: {
           width: style.container?.smScreen,
         },
-      }}>
+      }}
+    >
       <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />
     </Stack>
   );

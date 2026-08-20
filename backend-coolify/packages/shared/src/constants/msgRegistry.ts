@@ -1,4 +1,4 @@
-import { TransInfo } from "../types";
+import { OtpMessageChannel, TransInfo } from "../types";
 import { PostModelType } from "@repo/database";
 
 type RegistryValue = TransInfo | ((...args: any[]) => TransInfo);
@@ -121,6 +121,10 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.account_banned",
       message:
         "This account has been banned for severely violating our commnunity policies",
+    },
+    ACCOUNT_FOUND: {
+      i18nKey: "auth.account_found",
+      message: "Account found with provided identifier",
     },
     ACCOUNT_INACTIVE: {
       i18nKey: "auth.account_inactive",
@@ -261,6 +265,10 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.code_recipient_purpose_required",
       message: "Verification code, recipient and purpose is required.",
     },
+    OTP_CHANNEL_REQUIRED: {
+      i18nKey: "auth.otp_channel_required",
+      message: "Otp dispatch channel is required.",
+    },
     COOLDOWN_ACTIVE: (daysRemaining: number | string): TransInfo => ({
       i18nKey: "auth.cooldown_active",
       message:
@@ -335,8 +343,8 @@ export const MESSAGES_REGISTRY = {
       message:
         "Email updated successfully. Other devices have been logged out.",
     },
-    EXPIRED: {
-      i18nKey: "auth.expired",
+    CODE_EXPIRED: {
+      i18nKey: "auth.code_expired",
       message: "Verification code has expired.",
     },
     FORBIDDEN: {
@@ -394,12 +402,16 @@ export const MESSAGES_REGISTRY = {
         "Invalid phone number format. Please use E.164 format (e.g., +234...).",
     },
     INVALID_OTP_DISPATCH_PURPOSE: {
-      i18nKey: "auth.invalid_password_purpose",
-      message: "A valid otp dispatch purpose strategy is required.",
+      i18nKey: "auth.invalid_otp_dispatch_purpose",
+      message: "A valid otp dispatch purpose is required.",
+    },
+    INVALID_OTP_VERIFICATION_PURPOSE: {
+      i18nKey: "auth.invalid__otp_verification_purpose",
+      message: "A valid otp verification purpose is required.",
     },
     INVALID_PASSWORD_PURPOSE: {
       i18nKey: "auth.invalid_password_purpose",
-      message: "A valid password reset purpose strategy is required.",
+      message: "A valid password reset purpose is required.",
     },
     LOGGED_IN_SUCCESSFULLY: {
       i18nKey: "auth.logged_in_successfully",
@@ -413,6 +425,22 @@ export const MESSAGES_REGISTRY = {
     LOGGED_OUT_OF_ALL_DEVICES_SUCCESSFULLY: {
       i18nKey: "auth.logged_out_of_all_devices_successfully",
       message: "Successfully logged out of all devices.",
+    },
+    MFA_ALREADY_ENABLED: {
+      i18nKey: "auth.mfa_already_enabled",
+      message: "MFA is already enabled",
+    },
+    MFA_ENABLED: {
+      i18nKey: "auth.mfa_enabled",
+      message: "MFA successfully enabled",
+    },
+    MFA_ALREADY_DISABLED: {
+      i18nKey: "auth.mfa_already_disabled",
+      message: "MFA is already disabled",
+    },
+    MFA_DISABLED: {
+      i18nKey: "auth.mfa_disabled",
+      message: "MFA successfully disabled",
     },
     MISSING_TOKENS: {
       i18nKey: "auth.missing_tokens",
@@ -452,6 +480,58 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.otp_verified_successfully",
       message: "Verified successfully.",
     },
+    OTP_PHONE_REGION_NOT_SUPPORTED: {
+      i18nKey: "auth.otp_phone_region_not_supportedd",
+      message:
+        "Destination phone number does not belong to any of our supported African or global regions for OTP delivery.",
+    },
+    OTP_WHATSAPP_CONFIG_INVALID: {
+      i18nKey: "auth.otp_whatsapp_config_invalid",
+      message: "WhatsApp provider configuration tokens are missing or invalid.",
+    },
+    OTP_LOCAL_SMS_CONFIG_INVALID: {
+      i18nKey: "auth.otp_local_sms_config_invalid",
+      message:
+        "Local SMS provider configuration tokens are missing or invalid.",
+    },
+    OTP_GLOBAL_SMS_CONFIG_INVALID: {
+      i18nKey: "auth.otp_global_sms_config_invalid",
+      message:
+        "Global SMS provider configuration tokens are missing or invalid.",
+    },
+    OTP_WHATSAPP_DISPATCH_FAILED: (detail?: string) => ({
+      i18nKey: "auth.otp_whatsapp_dispatch_failed",
+      message: detail
+        ? "WhatsApp API dispatch failed: {{detail}}"
+        : "WhatsApp API dispatch failed.",
+      interpolations: { detail },
+    }),
+    OTP_LOCAL_SMS_DISPATCH_FAILED: (detail?: string) => ({
+      i18nKey: "auth.otp_local_sms_dispatch_failed",
+      message: detail
+        ? "Local SMS dispatch failed: {{detail}}"
+        : "Local SMS dispatch failed.",
+      interpolations: { detail },
+    }),
+    OTP_LOCAL_SMS_TIMEOUT: (duration: number = 45) => ({
+      i18nKey: "auth.otp_local_sms_timeout",
+      message:
+        "Local SMS dispatch request timed out after {{duration}} seconds.",
+      interpolations: { duration },
+    }),
+    OTP_GLOBAL_SMS_DISPATCH_FAILED: (detail?: string) => ({
+      i18nKey: "auth.otp_global_sms_dispatch_failed",
+      message: detail
+        ? "Global SMS dispatch failed: {{detail}}"
+        : "Global SMS dispatch failed.",
+      interpolations: { detail },
+    }),
+    PHONE_OTP_LIMIT_EXCEEDED: (duration: number): TransInfo => ({
+      i18nKey: "auth.phone_otp_limit_exceeded",
+      message:
+        "Too many verification requests for this number. Please wait {{duration}} minutes to dispatch via phone number or you can use an alternative dispatch method.",
+      interpolations: { duration },
+    }),
     OAUTH_PROVIDER_CONFLICT: (provider: string): TransInfo => ({
       i18nKey: "auth.oauth_provider_conflict",
       message:
@@ -541,8 +621,24 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.server_fallback_error",
       message: "An unexpected error occurred on the server.",
     },
-    SERVER_THROWN_ERROR: (message: string): TransInfo => ({
-      i18nKey: "auth.server_thrown_error",
+    TURNSTILE_TOKEN_MISSING: {
+      i18nKey: "auth.turnstile_token_missing",
+      message: "Verification token is required.",
+    },
+    TURNSTILE_CONFIG_INVALID: {
+      i18nKey: "auth.turnstile_config_invalid",
+      message: "Verification service configuration error.",
+    },
+    TURNSTILE_VERIFICATION_FAILED: {
+      i18nKey: "auth.turnstile_verification_failed",
+      message: "Verification failed or token has expired.",
+    },
+    TURNSTILE_VERIFICATION_SUCCESS: {
+      i18nKey: "auth.turnstile_verification_success",
+      message: "Verification completed successfully.",
+    },
+    UNKNOWN_SERVER_ERROR: (message: string): TransInfo => ({
+      i18nKey: "auth.unknown_server_error",
       message: "{{message}}",
       interpolations: { message },
     }),
@@ -562,18 +658,36 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.session_valid",
       message: "Session is valid.",
     },
-    TFA_NOT_ENABLED: {
-      i18nKey: "auth.tfa_not_enabled",
+    SUSPICIOUS_ACTIVITY: {
+      i18nKey: "auth.suspicious_activity",
+      message:
+        "Suspicious activity detected from your IP address. Please try again later.",
+    },
+    TOTP_NOT_ENABLED: {
+      i18nKey: "auth.totp_not_enabled",
       message:
         "Authenticator verification is not active on this profile. Please authenticate using the alternative OTP method.",
     },
-    TFA_RETRIEVAL_SUCCESS: {
-      i18nKey: "auth.tfa_retrieval_success",
-      message: "Authenticator session retrieved successfully.",
+    TOTP_RETRIEVAL_SUCCESS: {
+      i18nKey: "auth.totp_retrieval_success",
+      message: "Authenticator app session retrieved successfully.",
     },
-    TFA_SETUP_SUCCESS: {
-      i18nKey: "auth.tfa_setup_success",
-      message: "Authenticator configuration vectors initialized successfully.",
+    TOTP_SETUP_SUCCESS: {
+      i18nKey: "auth.totp_setup_success",
+      message: "Authenticator app configuration initialized successfully.",
+    },
+    TOTP_SETUP_FINALIZED: {
+      i18nKey: "auth.totp_setup_finalized",
+      message:
+        "OTP Authenticator app configuration verified and enabled natively.",
+    },
+    TOTP_VERIFICATION_SUCCESS: {
+      i18nKey: "auth.totp_verification_success",
+      message: "Identity verified successfully.",
+    },
+    TOTP_RECOVERY_SUCCESS: {
+      i18nKey: "auth.totp_recovery_success",
+      message: "Identity validated successfully via recovery token fallback.",
     },
     MISSING_TOKEN: {
       i18nKey: "auth.missing_token",
@@ -583,18 +697,6 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.invalid_lifecycle_sequence",
       message:
         "Invalid activation sequence. Please restart the authenticator setup.",
-    },
-    TFA_SETUP_FINALIZED: {
-      i18nKey: "auth.tfa_setup_finalized",
-      message: "Multi-factor authenticator verified and enabled natively.",
-    },
-    TFA_VERIFICATION_SUCCESS: {
-      i18nKey: "auth.tfa_verification_success",
-      message: "Identity verified successfully.",
-    },
-    TFA_RECOVERY_SUCCESS: {
-      i18nKey: "auth.tfa_recovery_success",
-      message: "Identity validated successfully via recovery token fallback.",
     },
     UNAUTHORIZED: {
       i18nKey: "auth.unauthorized",
@@ -608,6 +710,10 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.user_not_found",
       message: "User not found or deactivated",
     },
+    MISSING_IDENTIFER: {
+      i18nKey: "auth.user_id_required",
+      message: "User identifier is required for account update",
+    },
     VERIFICATION_CODE_SENT_TO_EMAIL: {
       i18nKey: "auth.verification_code_sent_to_email",
       message: "A verification code has been sent to your email address.",
@@ -616,6 +722,19 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.verification_code_sent_to_phone",
       message: "A verification code has been sent to your phone number.",
     },
+    VERIFICATION_CODE_WILL_BE_SENT_TO_EMAIL: {
+      i18nKey: "auth.verification_will_be_code_sent_to_email",
+      message:
+        "A verification code will be sent to your email address shortly.",
+    },
+    VERIFICATION_WILL_BE_CODE_SENT_TO_PHONE: (
+      channelType: OtpMessageChannel,
+    ) => ({
+      i18nKey: "auth.verification_will_be_code_sent_to_phone",
+      message:
+        "A verification code will be sent to your phone number shortly. Check your {{channelType}} Messages",
+      interpolations: { channelType },
+    }),
     WELCOME_BACK_ACCOUNT_RESTORED: {
       i18nKey: "auth.welcome_back_account_restored",
       message: "Welcome back! Your account has been fully restored.",
@@ -633,7 +752,8 @@ export const MESSAGES_REGISTRY = {
       limit: number | string,
     ): TransInfo => ({
       i18nKey: "gateway.rate_limit_exceeded",
-      message: "Rate limit exceeded. Current usage: {{currentUsage}}/{{limit}}",
+      message:
+        "Too many requests: Rate limit exceeded. Your current usage is {{currentUsage}}/{{limit}}",
       interpolations: { currentUsage, limit },
     }),
     SERVICE_UNAVAILABLE: {

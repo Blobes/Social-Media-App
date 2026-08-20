@@ -53,7 +53,7 @@ export class UserQueryBuilder {
         }) as unknown as Query<unknown, IUserDocument>;
       }
 
-      if (checkType === "PHONE") {
+      if (checkType === "PHONE_NUMBER") {
         return UserModel.findByPhone({
           phoneNumber: formattedValue.replace(/\D/g, ""),
           filter: customQuery,

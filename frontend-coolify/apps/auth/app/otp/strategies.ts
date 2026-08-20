@@ -2,9 +2,10 @@ import {
   TransitPurpose,
   TransitPayloadMap,
   OtpTransitData,
-  OtpChannel,
   IUser,
+  IdentifierType,
 } from "@repo/core";
+import { getOtpIdentifierType } from "@repo/helpers";
 
 /**
  * Type-safe verification strategy handler function signature.
@@ -67,7 +68,7 @@ export function executeVerificationStrategy<P extends TransitPurpose>(
  */
 export function resolveChannelRecipient<P extends TransitPurpose>(
   activeTransit: OtpTransitData<P> | undefined,
-  targetChannel: OtpChannel,
+  identifierType: IdentifierType,
   currentRecipient?: string,
 ): string | undefined {
   if (!activeTransit) return currentRecipient;
@@ -77,12 +78,13 @@ export function resolveChannelRecipient<P extends TransitPurpose>(
     | (IUser & { identifier?: string; email?: string; phoneNumber?: string })
     | undefined;
 
-  const isPhone = targetChannel === "PHONE";
+  const isPhone = identifierType === "PHONE_NUMBER";
+  const fallbackType = getOtpIdentifierType(fallbackIdentifier || "");
 
-  // Check channel-specific payload properties
   if (isPhone) {
     if (payload?.phoneNumber) return payload.phoneNumber;
-    if (fallbackIdentifier?.startsWith("+")) return fallbackIdentifier;
+    if (fallbackIdentifier && fallbackType === "PHONE_NUMBER")
+      return fallbackIdentifier;
     return undefined;
   }
 
@@ -90,6 +92,6 @@ export function resolveChannelRecipient<P extends TransitPurpose>(
   return (
     payload?.email ||
     payload?.identifier ||
-    (!fallbackIdentifier?.startsWith("+") ? fallbackIdentifier : undefined)
+    (fallbackType !== "PHONE_NUMBER" ? fallbackIdentifier : undefined)
   );
 }

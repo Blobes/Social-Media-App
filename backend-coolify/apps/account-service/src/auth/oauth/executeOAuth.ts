@@ -45,10 +45,13 @@ interface IOAuthAuthResult {
   status:
     | "SUCCESS"
     | "MERGE_RESTRICTION"
-    | "NOT_FOUND"
+    | "EMAIL_NOT_FOUND"
+    | "USER_NOT_FOUND"
     | "CONFLICT_EMAIL_IN_USE"
     | "ACCOUNT_ACTIVE"
     | "ACCOUNT_INACTIVE"
+    | "UNSUPPORTED_OAUTH_PROVIDER"
+    | "INVALID_OAUTH_TOKEN"
     | ModerationDecision;
   transInfo?: TransInfo;
   accessToken?: string;
@@ -74,27 +77,41 @@ export const authenticateWithOAuth = async (
 
   let profile: IOAuthProfile;
 
-  if (provider === "GOOGLE") {
-    profile = await verifyGoogleToken(idToken);
-  } else if (provider === "APPLE") {
-    profile = await verifyAppleToken(idToken);
-    if (identityPayload) {
-      profile.firstName = profile.firstName || identityPayload.firstName;
-      profile.lastName = profile.lastName || identityPayload.lastName;
+  // Single unified try-catch block handling token verification for all supported providers
+  try {
+    if (provider === "GOOGLE") {
+      profile = await verifyGoogleToken(idToken);
+    } else if (provider === "APPLE") {
+      profile = await verifyAppleToken(idToken);
+      if (identityPayload) {
+        profile.firstName = profile.firstName || identityPayload.firstName;
+        profile.lastName = profile.lastName || identityPayload.lastName;
+      }
+    } else {
+      return {
+        status: "UNSUPPORTED_OAUTH_PROVIDER",
+        transInfo: MESSAGES_REGISTRY.AUTH.UNSUPPORTED_OAUTH_PROVIDER,
+      };
     }
-  } else {
-    throw new Error("UNSUPPORTED_OAUTH_PROVIDER");
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === "INVALID_OAUTH_TOKEN") {
+      return {
+        status: "INVALID_OAUTH_TOKEN",
+        transInfo: MESSAGES_REGISTRY.AUTH.INVALID_OAUTH_TOKEN,
+      };
+    }
+    throw error;
   }
 
-  // Route identifier checking logic through primary check layer
+  // Routing identifier checking logic through primary check layer
   const checkResult = await executeAccountCheck({
-    type: "EMAIL",
+    identifierType: "EMAIL",
     identifier: profile.email,
     purpose,
   });
   const accountStatus = checkResult.payload?.accountStatus;
 
-  // ── REGISTRATION PURPOSE PIPELINE ──────────────────────────────────────────
+  // --- Registration purpose pipeline ---
   if (purpose === "REGISTRATION") {
     if (checkResult.isExisting) {
       if (
@@ -105,7 +122,6 @@ export const authenticateWithOAuth = async (
         const restrictionMsg = getAccountStatusMsg(accountStatus, "RESTRICTED");
         return restrictionMsg;
       }
-
       return {
         status: "CONFLICT_EMAIL_IN_USE",
         transInfo: MESSAGES_REGISTRY.AUTH.EMAIL_ALREADY_REGISTERED,
@@ -153,10 +169,7 @@ export const authenticateWithOAuth = async (
       ipAddress,
     );
 
-    const safeData = newUser.toJSON() as Record<string, unknown>;
-    userSensitiveFields().forEach((field) => {
-      delete safeData[field];
-    });
+    const safeData = sanitizeUserResult(newUser, userSensitiveFields());
 
     return {
       status: "SUCCESS",
@@ -168,10 +181,10 @@ export const authenticateWithOAuth = async (
     };
   }
 
-  // ── LOGIN PURPOSE PIPELINE ─────────────────────────────────────────────────
+  // --- Login purpose pipeline ---
   if (checkResult.status === "NOT_FOUND") {
     return {
-      status: "NOT_FOUND",
+      status: "EMAIL_NOT_FOUND",
       transInfo: MESSAGES_REGISTRY.AUTH.EMAIL_NOT_FOUND,
     };
   }
@@ -190,10 +203,13 @@ export const authenticateWithOAuth = async (
   });
 
   if (!user) {
-    throw new Error("USER_NOT_FOUND");
+    return {
+      status: "USER_NOT_FOUND",
+      transInfo: MESSAGES_REGISTRY.AUTH.USER_NOT_FOUND,
+    };
   }
 
-  // Enforce third-party mapping restriction checks based on registration origin
+  // Enforcing third-party mapping restriction checks based on registration origin
   if (
     user.signedUpWith &&
     user.signedUpWith !== "EMAIL" &&
@@ -205,7 +221,7 @@ export const authenticateWithOAuth = async (
     };
   }
 
-  // Bind the generic identity identifier if missing, leaving signedUpWith unaltered
+  // Binding the generic identity identifier if missing, leaving signedUpWith unaltered
   if (!user.oAuthId) {
     user.oAuthId = profile.providerId;
     user.lastActiveAt = new Date();
@@ -230,10 +246,6 @@ export const authenticateWithOAuth = async (
   );
 
   const safeData = sanitizeUserResult(user, userSensitiveFields());
-  // user.toObject() as Record<string, unknown>;
-  // userSensitiveFields().forEach((field) => {
-  //   delete safeData[field];
-  // });
 
   return {
     status: "SUCCESS",

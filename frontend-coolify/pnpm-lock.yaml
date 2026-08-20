@@ -15,6 +15,9 @@ catalogs:
     '@lottiefiles/dotlottie-react':
       specifier: 0.19.2
       version: 0.19.2
+    '@marsidev/react-turnstile':
+      specifier: ^1.1.0
+      version: 1.6.0
     '@mui/material':
       specifier: ^7.3.7
       version: 7.3.10
@@ -677,6 +680,9 @@ importers:
       '@lottiefiles/dotlottie-react':
         specifier: 'catalog:'
         version: 0.19.2(react@19.2.5)
+      '@marsidev/react-turnstile':
+        specifier: 'catalog:'
+        version: 1.6.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mui/material':
         specifier: 'catalog:'
         version: 7.3.10(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -1142,6 +1148,12 @@ packages:
 
   '@lottiefiles/dotlottie-web@0.72.1':
     resolution: {integrity: sha512-TPHCTQHw4oZBiIi/JPd6CtjPzsazpyRVUloO7kA5khF6IX/sCIfBa8l/Tav333pskO6gFMtlnfRPwEOatMZS/A==}
+
+  '@marsidev/react-turnstile@1.6.0':
+    resolution: {integrity: sha512-T2Um71ZdBgQBiyS01xgRMvDWk+mEsrLtXLFVhOC917OVEO584wbPOWj1sw35RaM17+q9QoADgLVcH60xr9NRqQ==}
+    peerDependencies:
+      react: ^17.0.2 || ^18.0.0 || ^19.0
+      react-dom: ^17.0.2 || ^18.0.0 || ^19.0
 
   '@mui/core-downloads-tracker@7.3.10':
     resolution: {integrity: sha512-vrOpWRmPJSuwLo23J62wggEm/jvGdzqctej+UOCtgDUz6nZJQuj3ByPccVyaa7eQmwAzUwKN56FQPMKkqbj1GA==}
@@ -2359,6 +2371,11 @@ snapshots:
       react: 19.2.5
 
   '@lottiefiles/dotlottie-web@0.72.1': {}
+
+  '@marsidev/react-turnstile@1.6.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
 
   '@mui/core-downloads-tracker@7.3.10': {}
 

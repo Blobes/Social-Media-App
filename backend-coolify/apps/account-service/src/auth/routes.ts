@@ -2,8 +2,8 @@ import express, { Router } from "express";
 import { checkEmail } from "./check/controllers/email";
 import { checkUsername } from "./check/controllers/username";
 import { createAccount } from "./registration/controllers/createAccount";
-import { verifyOtp } from "./otp/controllers/verifyOtp";
-import { sendOtp } from "./otp/controllers/sendOtp";
+import { verifyChannelOtp } from "./otp/messaging/controllers/verifyOtp";
+import { sendChannelOtp } from "./otp/messaging/controllers/sendOtp";
 import { loginUser } from "./session/controllers/login";
 import { verifySession } from "./session/controllers/verifySession";
 import { logoutUser } from "./session/controllers/logout";
@@ -15,9 +15,11 @@ import { removeDevice } from "./device/removeDevice";
 import { authenticate, optionallyAuthenicate } from "@/envVars";
 import { updateOnboarding } from "./registration/controllers/onboarding";
 import { oauthExchange } from "./oauth/oauthExchange";
-import { verifyTfaChallenge } from "./tfa-auth/verifyTFACode";
-import { initiateTFAChallenge } from "./tfa-auth/initiateTFA";
+import { verifyTotpCode } from "./otp/totp/verify";
+import { setupTotp } from "./otp/totp/setup";
 import { autoInvalidateUserCache } from "@repo/shared";
+import { turnstileVerification } from "./turnstile/controller";
+import { commitAccountUpdate } from "./otp/messaging/controllers/commitUpdate";
 
 const router: Router = express.Router();
 
@@ -64,10 +66,11 @@ router.post(
 router.get("/session/verify", authenticate, verifySession);
 
 // --- CODE VERIFICATION ---
-router.post("/otp/send", sendOtp);
-router.post("/otp/verify", verifyOtp);
-router.post("/tfa/initiate", optionallyAuthenicate, initiateTFAChallenge);
-router.post("/tfa/verify-token", optionallyAuthenicate, verifyTfaChallenge);
+router.post("/otp/send-msg-code", sendChannelOtp);
+router.post("/otp/verify-msg-code", verifyChannelOtp);
+router.patch("/otp/update-account", commitAccountUpdate);
+router.post("/otp/setup-totp", optionallyAuthenicate, setupTotp);
+router.post("/otp/verify-totp", optionallyAuthenicate, verifyTotpCode);
 
 // --- DEVICE MANAGEMENT ---
 router.get("/devices", authenticate, getDevices);
@@ -83,5 +86,8 @@ router.patch(
   autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
   setPrimaryDevice,
 );
+
+// --- BOT VERIFICATION ---
+router.post("/verify-bot", authenticate, turnstileVerification);
 
 export default router;

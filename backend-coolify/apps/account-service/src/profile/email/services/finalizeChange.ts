@@ -62,7 +62,7 @@ export const executeEmailChange = async (
   if (Date.now() > user.otpCodeExpiresAt.getTime()) {
     return {
       status: "EXPIRED",
-      transInfo: MESSAGES_REGISTRY.AUTH.EXPIRED,
+      transInfo: MESSAGES_REGISTRY.AUTH.CODE_EXPIRED,
     };
   }
 

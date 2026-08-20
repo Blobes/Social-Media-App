@@ -1,10 +1,15 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import {
   authenticateWithOAuth,
   OAuthPurpose,
   OAuthProvider,
 } from "./executeOAuth";
-import { getOrSetDeviceToken, MESSAGES_REGISTRY } from "@repo/shared";
+import {
+  forwardError,
+  getClientIp,
+  getOrSetDeviceToken,
+  MESSAGES_REGISTRY,
+} from "@repo/shared";
 import { setAuthCookies } from "@repo/security";
 
 /**
@@ -13,6 +18,7 @@ import { setAuthCookies } from "@repo/security";
 export const oauthExchange = async (
   req: Request,
   res: Response,
+  next: NextFunction,
 ): Promise<any> => {
   const {
     provider,
@@ -27,7 +33,7 @@ export const oauthExchange = async (
   };
   const deviceToken = getOrSetDeviceToken(req, res);
   const userAgent = req.headers["user-agent"] || "";
-  const ipAddress = req.ip || req.socket.remoteAddress || "";
+  const ipAddress = getClientIp(req) || "unknown_client";
 
   if (!provider || !idToken || !deviceToken) {
     return res.status(400).json({
@@ -48,7 +54,21 @@ export const oauthExchange = async (
       identityPayload,
     });
 
-    if (result.status === "NOT_FOUND") {
+    if (
+      result.status === "UNSUPPORTED_OAUTH_PROVIDER" ||
+      result.status === "INVALID_OAUTH_TOKEN"
+    ) {
+      return res.status(401).json({
+        status: "ERROR",
+        ...result.transInfo,
+        payload: null,
+      });
+    }
+
+    if (
+      result.status === "EMAIL_NOT_FOUND" ||
+      result.status === "USER_NOT_FOUND"
+    ) {
       return res.status(404).json({
         status: "ERROR",
         ...result.transInfo,
@@ -100,29 +120,10 @@ export const oauthExchange = async (
     });
   } catch (error: any) {
     console.error("OAuth Exchange Error:", error);
-
-    if (error.message === "INVALID_OAUTH_TOKEN") {
-      return res.status(401).json({
-        status: "ERROR",
-        ...MESSAGES_REGISTRY.AUTH.INVALID_OAUTH_TOKEN,
-        payload: null,
-      });
-    }
-
-    if (error.message === "UNSUPPORTED_OAUTH_PROVIDER") {
-      return res.status(401).json({
-        status: "ERROR",
-        ...MESSAGES_REGISTRY.AUTH.UNSUPPORTED_OAUTH_PROVIDER,
-        payload: null,
-      });
-    }
-
-    return res.status(500).json({
-      status: "ERROR",
-      ...(error.message
-        ? MESSAGES_REGISTRY.AUTH.SERVER_THROWN_ERROR(error.message)
-        : MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR),
-      payload: null,
-    });
+    return forwardError(
+      next,
+      MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
+      error,
+    );
   }
 };

@@ -47,14 +47,15 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
     validity,
     validationMsg,
     isStandardLoading,
-    isTFALoading,
+
     handleChange,
     isResetInitSubmitDisabled: isSubmitDisabled,
     countryMenuRef,
     inlineMsg,
     validateAndSet,
     handleStandardSubmit,
-    handleTFASubmit,
+    handleTotpClick,
+    hasTotp,
     handleBack,
   } = useReset({ existingInput, step, setStep });
 
@@ -62,12 +63,14 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
     <Stack
       sx={{
         gap: theme.gap(10),
-      }}>
+      }}
+    >
       <Stack
         sx={{
           paddingBottom: theme.boxSpacing(18),
           gap: theme.gap(8),
-        }}>
+        }}
+      >
         <TransText
           {...AUTH_FEEDBACK.reset_your_password}
           component="h3"
@@ -96,7 +99,8 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
       <Stack
         sx={{ gap: theme.gap(20) }}
         component="form"
-        onSubmit={handleStandardSubmit}>
+        onSubmit={handleStandardSubmit}
+      >
         <DynamicInput
           value={input}
           label={translateTxtString(AUTH_INPUT.label.email__or_phone)}
@@ -146,7 +150,8 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
             style={{
               width: "100%",
             }}
-            options={{ disabled: isSubmitDisabled }}>
+            options={{ disabled: isSubmitDisabled }}
+          >
             {isStandardLoading ? (
               <ProgressIcon options={{ size: 25 }} />
             ) : (
@@ -154,22 +159,16 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
             )}
           </AppButton>
 
-          {/*  TFA Submit CTA */}
+          {/*  Totp navigation CTA */}
           <AppButton
             variant="outlined"
-            onClick={handleTFASubmit}
+            onClick={handleTotpClick}
             style={{
               width: "100%",
             }}
-            options={{ disabled: isSubmitDisabled }}>
-            {isTFALoading ? (
-              <ProgressIcon options={{ size: 25 }} />
-            ) : (
-              <TransText
-                {...AUTH_BUTTON_LABELS.use_authenticator}
-                noComponent
-              />
-            )}
+            options={{ disabled: isSubmitDisabled || hasTotp }}
+          >
+            <TransText {...AUTH_BUTTON_LABELS.use_authenticator} noComponent />
           </AppButton>
 
           {/* Back to Login CTA */}
@@ -178,12 +177,13 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
             variant="text"
             size="small"
             onClick={handleBack}
-            options={{ disabled: isStandardLoading || isTFALoading }}
+            options={{ disabled: isStandardLoading }}
             style={{
               color: theme.palette.primary.dark,
               marginTop: theme.boxSpacing(6),
               gap: theme.gap(3),
-            }}>
+            }}
+          >
             <ArrowLeft
               size={20}
               style={{ stroke: theme.palette.primary.dark }}

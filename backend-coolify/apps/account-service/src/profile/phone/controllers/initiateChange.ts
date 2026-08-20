@@ -1,10 +1,16 @@
 import { NextFunction, Response } from "express";
-import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
+import {
+  forwardError,
+  IAuthRequest,
+  MESSAGES_REGISTRY,
+  OtpMessageChannel,
+} from "@repo/shared";
 import { startPhoneChange } from "../services/initiateChange";
 
 interface UserPhoneRequest extends IAuthRequest {
   body: {
     newPhoneNumber: string;
+    otpChannelType?: OtpMessageChannel;
   };
 }
 
@@ -19,7 +25,7 @@ export const initiatePhoneChange = async (
   next: NextFunction,
 ): Promise<any> => {
   const userId = req.user?.id;
-  const { newPhoneNumber } = req.body;
+  const { newPhoneNumber, otpChannelType } = req.body;
 
   if (!userId) {
     return res.status(401).json({
@@ -41,6 +47,7 @@ export const initiatePhoneChange = async (
     const serviceResult = await startPhoneChange({
       userId,
       newPhoneNumber,
+      otpChannelType,
     });
 
     if (serviceResult.status === "NOT_FOUND") {

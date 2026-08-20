@@ -1,5 +1,6 @@
 "use client";
 
+import { IdentifierType } from "@repo/core";
 import { getCookie, setCookie } from "./storage";
 
 // Delay function
@@ -53,4 +54,15 @@ export const getOrCreateDeviceId = (): string => {
   }
 
   return deviceId;
+};
+
+/**
+ * Resolves destination type from the raw identifier string.
+ */
+export const getOtpIdentifierType = (value: string): IdentifierType | null => {
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const PHONE_REGEX = /^\+?[\d\s-]{10,}$/;
+  if (EMAIL_REGEX.test(value)) return "EMAIL";
+  if (PHONE_REGEX.test(value)) return "PHONE_NUMBER";
+  return null;
 };

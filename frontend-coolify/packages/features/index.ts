@@ -2,7 +2,7 @@
 export * from "./src/apps/auth/session/useAuthVerification";
 export * from "./src/apps/auth/logout/useLogout";
 export * from "./src/apps/auth/logout/Logout";
-export * from "./src/apps/auth/session/service";
+export * from "./src/apps/auth/service";
 export * from "./src/apps/auth/session/useAuthNavigation";
 // Gist
 export * from "./src/apps/gist/view/hooks/useGists";

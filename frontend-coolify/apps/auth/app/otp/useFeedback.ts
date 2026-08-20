@@ -7,7 +7,6 @@ import {
   CLIENT_ROUTES,
   IUser,
   TransitData,
-  TransitPurpose,
   useGlobalStore,
 } from "@repo/core";
 import { queryClient } from "@repo/helpers";
@@ -101,7 +100,6 @@ export const useFeedback = () => {
         msgStatus: "SUCCESS",
       },
     });
-
     queryClient.removeQueries({
       queryKey: CACHE_KEYS.PASS_RESET_INIT_TRANSIT_DATA,
     });

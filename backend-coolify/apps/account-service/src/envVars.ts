@@ -63,36 +63,6 @@ export const emailDispatchTokens: IEmailDispatchTokens = {
   get RESEND_FROM_EMAIL() {
     return getEnv("RESEND_FROM", false);
   },
-  get GMAIL_USER() {
-    return getEnv("GMAIL_USER", false);
-  },
-  get GMAIL_CLIENT_ID() {
-    return getEnv("GMAIL_CLIENT_ID", false);
-  },
-  get GMAIL_CLIENT_SECRET() {
-    return getEnv("GMAIL_CLIENT_SECRET", false);
-  },
-  get GMAIL_REFRESH_TOKEN() {
-    return getEnv("GMAIL_REFRESH_TOKEN", false);
-  },
-  get HOTMAIL_USER() {
-    return getEnv("HOTMAIL_USER", false);
-  },
-  get HOTMAIL_PASSWORD() {
-    return getEnv("HOTMAIL_PASS", false);
-  },
-  get HOTMAIL_FROM_EMAIL() {
-    return getEnv("HOTMAIL_FROM", false);
-  },
-  get YAHOO_USER() {
-    return getEnv("YAHOO_USER", false);
-  },
-  get YAHOO_PASSWORD() {
-    return getEnv("YAHOO_PASS", false);
-  },
-  get YAHOO_FROM_EMAIL() {
-    return getEnv("YAHOO_FROM_EMAIL", false);
-  },
   get SMTP_HOST_EMAIL() {
     return getEnv("SMTP_HOST_EMAIL", false);
   },
@@ -100,10 +70,10 @@ export const emailDispatchTokens: IEmailDispatchTokens = {
     return getEnv("SMTP_HOST_PORT", false);
   },
   get SMTP_USER() {
-    return getEnv("SMTP_USER", false);
+    return getEnv("SMTP_USERNAME", false);
   },
   get SMTP_PASSWORD() {
-    return getEnv("SMTP_PASSWORD", false);
+    return getEnv("SMTP_USER_PASSWORD", false);
   },
 };
 
@@ -122,6 +92,19 @@ export const phoneDispatchTokens: IPhoneDispatchTokens = {
   },
   get WHATSAPP_BUSINESS_ACCOUNT_ID() {
     return getEnv("WHATSAPP_BUSINESS_ACCOUNT_ID", false);
+  },
+  // SMS
+  get LOCAL_SMS_API_KEY() {
+    return getEnv("LOCAL_SMS_API_KEY", false);
+  },
+  get LOCAL_SMS_SENDER_ID() {
+    return getEnv("LOCAL_SMS_SENDER_ID", false);
+  },
+  get GLOBAL_SMS_SENDER_ID() {
+    return getEnv("GLOBAL_SMS_SENDER_ID", false);
+  },
+  get GLOBAL_SMS_API_KEY() {
+    return getEnv("GLOBAL_SMS_API_KEY", false);
   },
 };
 

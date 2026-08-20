@@ -1,3 +1,4 @@
+import { IDevice } from "@repo/database";
 import {
   CACHE_KEYS,
   validateHardwareTrust,
@@ -75,9 +76,9 @@ export const executeSessionVerification = async (
   }
 
   const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
-  const sessionData = await getCache(sessionKey);
+  const sessionData = await getCache<IDevice>(sessionKey);
 
-  if (!sessionData || sessionData.deviceId !== jwtDeviceId) {
+  if (!sessionData || sessionData.deviceToken !== jwtDeviceId) {
     return {
       status: "SESSION_MISMATCH",
       transInfo: MESSAGES_REGISTRY.AUTH.SESSIONS_EXPIRED,

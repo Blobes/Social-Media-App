@@ -7,11 +7,13 @@ import {
   TransInfo,
   MESSAGES_REGISTRY,
   fetchSingleUser,
+  OtpMessageChannel,
 } from "@repo/shared";
 
 interface IInitiatePhoneChangeInput {
   userId: string;
   newPhoneNumber: string;
+  otpChannelType?: OtpMessageChannel;
 }
 
 interface IInitiatePhoneChangeResult {
@@ -34,7 +36,7 @@ interface IInitiatePhoneChangeResult {
 export const startPhoneChange = async (
   input: IInitiatePhoneChangeInput,
 ): Promise<IInitiatePhoneChangeResult> => {
-  const { userId, newPhoneNumber } = input;
+  const { userId, newPhoneNumber, otpChannelType = "WHATSAPP" } = input;
   const CHANGE_COOLDOWN = 90 * 24 * 60 * 60 * 1000;
   const SEND_COOLDOWN = 60 * 1000;
 
@@ -95,7 +97,7 @@ export const startPhoneChange = async (
     query: { _id: { $ne: userId } },
     flags: {
       lean: false,
-      identifierType: "PHONE",
+      identifierType: "PHONE_NUMBER",
       skipFilter: true,
     },
   });
@@ -133,19 +135,34 @@ export const startPhoneChange = async (
   await user.save();
 
   // Forward code dispatch instructions to worker processors
-  await enqueueOtpTask(
-    {
-      phone: formattedPhone,
-      code,
-      type: "WHATSAPP",
-      firstName: user.firstName,
-    },
-    FUNSTAKES_REDIS_URL,
-  );
+  if (otpChannelType === "WHATSAPP") {
+    await enqueueOtpTask(
+      {
+        phone: formattedPhone,
+        code,
+        type: "WHATSAPP",
+        firstName: user.firstName,
+      },
+      FUNSTAKES_REDIS_URL,
+    );
+  } else {
+    await enqueueOtpTask(
+      {
+        phone: formattedPhone,
+        code,
+        type: "SMS",
+        firstName: user.firstName,
+      },
+      FUNSTAKES_REDIS_URL,
+    );
+  }
 
   return {
     status: "SUCCESS",
-    transInfo: MESSAGES_REGISTRY.AUTH.VERIFICATION_CODE_SENT_TO_PHONE,
+    transInfo:
+      MESSAGES_REGISTRY.AUTH.VERIFICATION_WILL_BE_CODE_SENT_TO_PHONE(
+        otpChannelType,
+      ),
     payload: {
       pendingPhoneNumber: user.pendingPhoneNumber,
       expiresAt: user.otpCodeExpiresAt,

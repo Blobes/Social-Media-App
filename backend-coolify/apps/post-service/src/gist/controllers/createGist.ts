@@ -4,6 +4,7 @@ import {
   IAuthRequest,
   MESSAGES_REGISTRY,
   forwardError,
+  generateRandomIp,
 } from "@repo/shared";
 import { IMedia } from "@repo/database";
 import { FUNSTAKES_REDIS_URL, s3Config } from "@/envVars";
@@ -32,7 +33,7 @@ export const createGist = async (
     req.body;
 
   // Preserving client network address lookup strategy context requirements unchanged
-  const userIp = getClientIp(req);
+  const userIp = getClientIp(req) || generateRandomIp();
 
   try {
     const serviceResult = await executeCreateGist({

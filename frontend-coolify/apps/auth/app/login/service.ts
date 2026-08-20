@@ -6,7 +6,7 @@ import {
   ISinglePayload,
   SERVER_API,
   OtpReason,
-  Action,
+  CheckPurpose,
 } from "@repo/core";
 
 interface LoginRequest {
@@ -20,6 +20,11 @@ export interface LoginResponse extends ISinglePayload<IUser> {
   accessToken: string | null; // Keep short-lived token in volatile memory only
 }
 
+export interface CheckRequest {
+  identifier: string;
+  purpose?: CheckPurpose;
+}
+
 export interface CheckResponse extends ISinglePayload<IUser> {
   isExisting: boolean;
   suggestions?: string[];
@@ -27,27 +32,35 @@ export interface CheckResponse extends ISinglePayload<IUser> {
 }
 
 export const LoginService = () => {
-  const checkEmail = async (email: string): Promise<CheckResponse> => {
+  const checkEmail = async (request: CheckRequest): Promise<CheckResponse> => {
     return await apiClient<CheckResponse>(SERVER_API.checkEmail, {
       method: "POST",
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({
+        email: request.identifier,
+        purpose: request.purpose,
+      }),
     });
   };
 
-  const checkPhone = async (phone: string): Promise<CheckResponse> => {
+  const checkPhone = async (request: CheckRequest): Promise<CheckResponse> => {
     return await apiClient<CheckResponse>(SERVER_API.checkPhone, {
       method: "POST",
-      body: JSON.stringify({ phone: phone }),
+      body: JSON.stringify({
+        phone: request.identifier,
+        purpose: request.purpose,
+      }),
     });
   };
 
   const checkUsername = async (
-    username: string,
-    purpose: Action = "LOGIN",
+    request: CheckRequest,
   ): Promise<CheckResponse> => {
     return await apiClient<CheckResponse>(SERVER_API.checkUsername, {
       method: "POST",
-      body: JSON.stringify({ username, purpose }),
+      body: JSON.stringify({
+        username: request.identifier,
+        purpose: request.purpose || "LOGIN",
+      }),
     });
   };
 

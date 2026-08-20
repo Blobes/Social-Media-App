@@ -1,9 +1,21 @@
+"use client";
+
 import { apiClient } from "@repo/helpers";
-import { SERVER_API, ISinglePayload } from "@repo/core";
+import {
+  SERVER_API,
+  ISinglePayload,
+  IdentifierType,
+  OtpMessageChannel,
+} from "@repo/core";
 
 export interface InitiateResetResponse {
-  resetType: "EMAIL" | "PHONE";
-  destination: string;
+  resetType: IdentifierType;
+  identifier: string;
+}
+
+export interface InitiateResetRequest {
+  identifier: string;
+  otpChannelType?: OtpMessageChannel;
 }
 
 export interface SetPasswordRequest {
@@ -25,13 +37,16 @@ export const ResetPasswordService = () => {
    * Initiates standard password reset process via identifier verification.
    */
   const initiateReset = async (
-    identifier: string,
+    request: InitiateResetRequest,
   ): Promise<ISinglePayload<InitiateResetResponse>> => {
     return await apiClient<ISinglePayload<InitiateResetResponse>>(
       SERVER_API.initiatePasswordReset,
       {
         method: "POST",
-        body: JSON.stringify({ identifier }),
+        body: JSON.stringify({
+          identifier: request.identifier,
+          otpChannelType: request.otpChannelType,
+        }),
       },
     );
   };
