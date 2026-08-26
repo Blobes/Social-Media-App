@@ -1,4 +1,5 @@
 import { Request } from "express";
+import { ILocation } from "@repo/database";
 
 /**
  * Fetches location data using ip-api.com.
@@ -62,6 +63,24 @@ export const getClientIp = (req: Request): string | undefined => {
     req.socket.remoteAddress;
 
   return ip;
+};
+
+/**
+ * Resolves IP address into standard GeoJSON Point location structure.
+ */
+export const buildLocationFromIp = async (
+  ipAddress: string,
+): Promise<ILocation | undefined> => {
+  const geoData = await getLocationFromIp(ipAddress);
+  if (!geoData) return undefined;
+  return {
+    name: `${geoData.city}, ${geoData.state}, ${geoData.country}`,
+    city: geoData.city,
+    state: geoData.state,
+    country: geoData.country,
+    type: "Point" as const,
+    coordinates: [Number(geoData.longitude), Number(geoData.latitude)],
+  };
 };
 
 export const generateRandomIp = () => {

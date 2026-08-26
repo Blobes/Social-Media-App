@@ -1,4 +1,4 @@
-import { IBasePost } from "../../../types";
+import { IBasePost } from "../../../types/general";
 
 interface ReRankOptions {
   maxConsecutiveByAuthor?: number;

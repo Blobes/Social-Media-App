@@ -8,17 +8,20 @@
   },
   "dependencies": {
     "@repo/shared": "workspace:*",
+    "@repo/security": "workspace:*",
     "express": "catalog:",
     "http-proxy-middleware": "catalog:",
     "socket.io": "catalog:",
     "ioredis": "catalog:",
-    "@socket.io/redis-adapter": "catalog:"
+    "@socket.io/redis-adapter": "catalog:",
+    "jsonwebtoken": "catalog:"
   },
   "devDependencies": {
     "tsup": "catalog:",
     "@types/express": "catalog:",
     "@types/node": "catalog:",
     "tsx": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@types/jsonwebtoken": "catalog:"
   }
 }

@@ -12,6 +12,15 @@ export type VerificationStatus = "NONE" | "PENDING" | "APPROVED" | "REJECTED";
 
 export type ChangedByType = ModeratorType | "OWNER";
 
+export type EntityType =
+  | "PROFILE"
+  | "POST"
+  | "COMMENT"
+  | "MESSAGE"
+  | "MEDIA"
+  | "COMMUNITY"
+  | "DEVICE";
+
 export interface IAccountStatusHistory extends Document {
   account: Types.ObjectId;
   previousStatus: AccountStatus;

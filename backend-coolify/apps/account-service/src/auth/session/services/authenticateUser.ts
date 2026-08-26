@@ -4,7 +4,6 @@ import { IUserDocument, ModerationDecision } from "@repo/database";
 import {
   userSensitiveFields,
   CACHE_KEYS,
-  toJwtUser,
   upsertDevice,
   evaluateDeviceTrust,
   MESSAGES_REGISTRY,
@@ -17,7 +16,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { executeAccountCheck } from "../../check/service";
 import { verifyEncryptedPass } from "@/auth/helpers/encrypt";
-import { signAccessJwt, signRefreshJwt } from "@repo/security";
+import { issueAuthTokens } from "@repo/security";
 
 interface ILoginInput {
   identifier: string;
@@ -118,14 +117,13 @@ export const authenticateUser = async (
   }
 
   const device = await upsertDevice(
-    user as unknown as IUserDocument,
+    user as IUserDocument,
     deviceToken,
     userAgent,
   );
 
   const userId = user._id.toString();
   const deviceIdString = device._id.toString();
-  const sessionId = uuidv4();
 
   const primaryDeviceId = user.primaryDeviceId as
     | mongoose.Types.ObjectId
@@ -136,25 +134,14 @@ export const authenticateUser = async (
     primaryDeviceId?.toString(),
   );
 
-  const jwtUser = toJwtUser(
-    user as unknown as IUserDocument,
-    deviceIdString,
-    sessionId,
-  );
-
-  const accessToken = signAccessJwt(
-    jwtUser,
-    sessionId,
-    authTokens.ACCESS_TOKEN_SECRET,
-  );
-
-  const refreshToken = await signRefreshJwt(
-    jwtUser,
-    sessionId,
-    authTokens.REFRESH_TOKEN_SECRET,
+  const { accessToken, refreshToken } = await issueAuthTokens({
+    user,
+    deviceId: deviceIdString,
+    sessionId: uuidv4(),
     userAgent,
     ipAddress,
-  );
+    authTokens,
+  });
 
   // Perform atomic update for active status timestamps without triggering a redundant full read
   await user.updateOne(

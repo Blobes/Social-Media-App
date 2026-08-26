@@ -1,4 +1,4 @@
-import { IDevice } from "@repo/database";
+import { IDeviceDocument } from "@repo/database";
 import {
   CACHE_KEYS,
   validateHardwareTrust,
@@ -76,7 +76,7 @@ export const executeSessionVerification = async (
   }
 
   const sessionKey = CACHE_KEYS.USER_SESSION(userId, sessionId);
-  const sessionData = await getCache<IDevice>(sessionKey);
+  const sessionData = await getCache<IDeviceDocument>(sessionKey);
 
   if (!sessionData || sessionData.deviceToken !== jwtDeviceId) {
     return {

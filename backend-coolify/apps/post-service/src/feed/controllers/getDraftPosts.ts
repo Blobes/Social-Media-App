@@ -9,7 +9,7 @@ export const getUserDraftPosts = async (
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
-  const targetUserId = req.params.id as string;
+  const targetUserId = req.params.userId as string;
   const authUserId = req.user?.id;
 
   try {

@@ -37,7 +37,7 @@ export const setPrimaryDevice = async (
     if (!targetDevice) {
       return res.status(404).json({
         status: "ERROR",
-        ...MESSAGES_REGISTRY.AUTH.PRIMARY_DEVICE_NOT_FOUND,
+        ...MESSAGES_REGISTRY.AUTH.DEVICE_NOT_FOUND,
         payload: null,
       });
     }

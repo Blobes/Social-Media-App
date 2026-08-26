@@ -12,7 +12,7 @@ import { checkPhone } from "./check/controllers/phone";
 import { refreshSession } from "./session/controllers/refreshSession";
 import { getDevices } from "./device/getAllDevices";
 import { removeDevice } from "./device/removeDevice";
-import { authenticate, optionallyAuthenicate } from "@/envVars";
+import { authenticate, optionallyAuthenticate } from "@/envVars";
 import { updateOnboarding } from "./registration/controllers/onboarding";
 import { oauthExchange } from "./oauth/oauthExchange";
 import { verifyTotpCode } from "./otp/totp/verify";
@@ -20,25 +20,33 @@ import { setupTotp } from "./otp/totp/setup";
 import { autoInvalidateUserCache } from "@repo/shared";
 import { turnstileVerification } from "./turnstile/controller";
 import { commitAccountUpdate } from "./otp/messaging/controllers/commitUpdate";
+import {
+  enforcePolicy,
+  requirePermission,
+  devicePolicy,
+  loadDeviceResource,
+} from "@repo/security";
+import { PERMISSIONS } from "@repo/database";
 
 const router: Router = express.Router();
 
-// testing api.funstakes.net/auth
-router.get("/", (req, res) => {
+// Health check endpoint for auth service.
+router.get("/", (_req, res) => {
   res.json({ message: "Welcome to Funstakes Auth API" });
 });
 
 // --- DISCOVERY & AVAILABILITY ---
-// Public read/check endpoints (No cache invalidation needed)
 router.post("/check/email", checkEmail);
 router.post("/check/phone", checkPhone);
 router.post("/check/username", checkUsername);
 
-// --- ACCOUNT ONBOARDING ---
 router.post("/signup", createAccount);
+
+// --- ACCOUNT ONBOARDING ---
 router.post(
   "/onboarding",
   authenticate,
+  requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   updateOnboarding,
 );
@@ -65,24 +73,48 @@ router.post(
 );
 router.get("/session/verify", authenticate, verifySession);
 
-// --- CODE VERIFICATION ---
+// --- CODE VERIFICATION & MFA ---
 router.post("/otp/send-msg-code", sendChannelOtp);
 router.post("/otp/verify-msg-code", verifyChannelOtp);
-router.patch("/otp/update-account", commitAccountUpdate);
-router.post("/otp/setup-totp", optionallyAuthenicate, setupTotp);
-router.post("/otp/verify-totp", optionallyAuthenicate, verifyTotpCode);
+router.patch(
+  "/otp/update-account",
+  authenticate,
+  requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
+  commitAccountUpdate,
+);
+router.post("/otp/setup-totp", optionallyAuthenticate, setupTotp);
+router.post("/otp/verify-totp", optionallyAuthenticate, verifyTotpCode);
 
 // --- DEVICE MANAGEMENT ---
-router.get("/devices", authenticate, getDevices);
+router.get(
+  "/devices",
+  authenticate,
+  requirePermission(PERMISSIONS.DEVICE.READ),
+  getDevices,
+);
+/**
+ * Deletes a registered user device.
+ * Requires DEVICE.DELETE permission + ReBAC ownership/admin check.
+ */
+
 router.delete(
   "/devices/:id",
   authenticate,
+  requirePermission(PERMISSIONS.DEVICE.DELETE),
+  enforcePolicy(devicePolicy, loadDeviceResource("id")),
   autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
   removeDevice,
 );
+
+/**
+ * Marks a specific device as primary.
+ * Requires DEVICE.SET_PRIMARY permission + ReBAC ownership/admin check.
+ */
 router.patch(
   "/devices/:id/primary",
   authenticate,
+  requirePermission(PERMISSIONS.DEVICE.SET_PRIMARY),
+  enforcePolicy(devicePolicy, loadDeviceResource("id")),
   autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
   setPrimaryDevice,
 );

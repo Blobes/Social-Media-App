@@ -1,8 +1,7 @@
 import { IUserSettingsDocument, UserSettingsModel } from "@repo/database";
 import { ClientSession } from "mongoose";
-import { getOrSetCache } from "../redis/cache";
 import { CACHE_KEYS, CACHE_EXPIRY } from "../../constants/cacheKeys";
-import { TransInfo } from "../../types";
+import { getOrSetCache } from "../redis/cache/helpers";
 
 export interface FetchUserSettingsInput {
   userId: string;

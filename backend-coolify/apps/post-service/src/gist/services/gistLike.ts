@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { GistLikeModel, GistModel } from "@repo/database";
+import { GistModel, PostLikeModel } from "@repo/database";
 import { MESSAGES_REGISTRY, TransInfo } from "@repo/shared";
 
 export interface GistLikeInput {
@@ -57,15 +57,16 @@ export const executeGistLike = async (
       };
     }
 
-    const existingLike = await GistLikeModel.findOne({
-      gistId,
+    const existingLike = await PostLikeModel.findOne({
       userId,
+      postId: gistId,
+      postType: "Gist",
     }).session(session);
 
     let isLiked: boolean;
 
     if (existingLike) {
-      await GistLikeModel.deleteOne({ _id: existingLike._id }).session(session);
+      await PostLikeModel.deleteOne({ _id: existingLike._id }).session(session);
 
       await GistModel.updateOne(
         { _id: gistId },
@@ -74,11 +75,12 @@ export const executeGistLike = async (
       );
       isLiked = false;
     } else {
-      await GistLikeModel.create(
+      await PostLikeModel.create(
         [
           {
-            gistId,
             userId,
+            postId: gistId,
+            postType: "Gist",
           },
         ],
         { session },

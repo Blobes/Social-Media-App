@@ -1,5 +1,5 @@
-import { IUserDocument } from "@repo/database";
-import { IJwtUser, InputCheckType } from "../types";
+import { IUserDocument, PermissionName, RoleName } from "@repo/database";
+import { IJwtUser, InputCheckType } from "../types/general";
 
 export const userSensitiveFields = (): string[] => {
   return [
@@ -61,6 +61,8 @@ export const toJwtUser = (
   user: IUserDocument,
   deviceId: string,
   sessionId: string,
+  roles: RoleName[],
+  permissions?: PermissionName[],
 ): IJwtUser => {
   return {
     id: user._id.toString(),
@@ -70,6 +72,8 @@ export const toJwtUser = (
     username: user.username,
     firstName: user.firstName,
     lastName: user.lastName,
+    roles,
+    permissions,
   };
 };
 

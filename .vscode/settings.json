@@ -7,5 +7,12 @@
     "production": {
       "baseUrl": "https://api.funstakes.net"
     }
-  }
+  },
+  "workbench.startupEditor": "welcomePage",
+  "mdb.presetConnections": [
+    {
+      "name": "Preset Connection",
+      "connectionString": "mongodb://localhost:27017"
+    }
+  ]
 }

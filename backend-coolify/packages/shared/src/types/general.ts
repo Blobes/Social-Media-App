@@ -2,11 +2,16 @@ import {
   AccountStatus,
   GistModel,
   IMedia,
-  PostStatus,
+  PostContentStatus,
   ModerationSeverity,
+  RoleName,
+  PermissionName,
+  SubscriptionTier,
+  SubscriptionStatus,
 } from "@repo/database";
 import { Request, RequestHandler } from "express";
 import mongoose, { InferSchemaType } from "mongoose";
+import { AuthorizationContext } from "./authorization";
 
 export type ILikelihood =
   | "UNKNOWN"
@@ -53,22 +58,30 @@ export type OtpActionType =
   | "MFA_ACTIVATION"
   | "MFA_DEACTIVATION";
 
+/**
+ * Represents the signed JWT user payload.
+ */
 export interface IJwtUser {
-  id: any;
+  id: string;
   deviceId: string;
   sessionId: string;
   email?: string;
   username?: string;
-  isAdmin?: boolean;
-  password?: string;
   firstName?: string;
   lastName?: string;
   accountStatus?: AccountStatus;
-  role?: Role;
+  roles: RoleName[];
+  permissions?: PermissionName[];
+  subscriptionTier?: SubscriptionTier;
+  subscriptionStatus?: SubscriptionStatus;
 }
 
+/**
+ * Express Request extension carrying resolved security claims.
+ */
 export interface IAuthRequest extends Request {
   user?: IJwtUser;
+  authContext?: AuthorizationContext;
 }
 
 export type IGist = InferSchemaType<typeof GistModel.schema>;
@@ -153,7 +166,7 @@ export interface IModResult {
   ruleViolated: string | null;
   reason: string | null;
   needsReview: boolean;
-  status: PostStatus;
+  status: PostContentStatus;
   hasSensitiveGraphic?: boolean;
 }
 

@@ -1,5 +1,6 @@
 import { Document, Types } from "mongoose";
 import { PostModelType } from "./post";
+import { EntityType } from "./misc";
 
 export interface IFlaggedPost extends Document {
   postId: Types.ObjectId;
@@ -36,13 +37,6 @@ export interface IContentModeration {
 
 export type CaseResolutionAction = "APPROVED" | "REJECTED";
 
-export type ModerationTargetType =
-  | "PROFILE"
-  | "POST"
-  | "COMMENT"
-  | "MESSAGE"
-  | "MEDIA"
-  | "COMMUNITY";
 export type ModerationCaseStatus =
   | "OPEN"
   | "UNDER_REVIEW"
@@ -99,7 +93,7 @@ export type ModerationEvidenceType =
 
 export interface IModerationCase extends Document {
   targetId: Types.ObjectId;
-  targetType: ModerationTargetType;
+  targetType: EntityType;
   targetOwner: Types.ObjectId;
   title: string;
   description?: string | null;

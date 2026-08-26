@@ -2,7 +2,7 @@ import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 import authRoutes from "./auth/routes";
 import userRoutes from "./profile/routes";
-import { globalErrorHandler } from "@repo/security";
+import { globalErrorHandler, parseGatewayHeaders } from "@repo/security";
 import { healthRouter } from "./health";
 import { ErrorLogModel } from "@repo/database";
 
@@ -19,6 +19,8 @@ export default (app: Express) => {
   app.get("/", (req, res) => {
     res.json({ message: "Welcome to Funstakes Account Service API" });
   });
+
+  app.use(parseGatewayHeaders);
 
   // Feature Routes
   app.use("/auth", authRoutes);

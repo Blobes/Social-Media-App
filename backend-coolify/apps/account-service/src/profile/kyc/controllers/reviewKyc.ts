@@ -1,4 +1,4 @@
-import { IdVerificationRequestModel } from "@repo/database";
+import { KycRequestModel } from "@repo/database";
 import { IAuthRequest, fetchSingleUser } from "@repo/shared";
 import { Response } from "express";
 
@@ -13,14 +13,14 @@ interface ReviewRequest extends IAuthRequest {
 /**
  * Reviews ID verification requests, updates request decision status, and synchronizes user verification flags.
  */
-export const reviewVerification = async (
+export const reviewKyc = async (
   req: ReviewRequest,
   res: Response,
 ): Promise<Response> => {
   const { requestId, decision } = req.body;
 
   try {
-    const request = await IdVerificationRequestModel.findById(requestId);
+    const request = await KycRequestModel.findById(requestId);
     if (!request) {
       return res
         .status(404)
@@ -38,8 +38,8 @@ export const reviewVerification = async (
     });
 
     if (user) {
-      user.idVerificationStatus = decision;
-      user.isVerified = isApproved;
+      user.kycReviewStatus = decision;
+      user.isKycVerified = isApproved;
       user.isPublicFigure = isApproved;
       await user.save();
     }

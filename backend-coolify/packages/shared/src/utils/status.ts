@@ -1,5 +1,5 @@
 import { AccountStatus, ModerationDecision } from "@repo/database";
-import { AppName, TransInfo } from "../types";
+import { AppName, TransInfo } from "../types/general";
 import { MESSAGES_REGISTRY } from "../constants/msgRegistry";
 
 export const healthCheck = (serviceName: AppName) => {

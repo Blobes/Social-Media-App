@@ -1,73 +1,189 @@
+// --- 1. CORE PERMISSION ACTIONS & RESOURCES ---
+const SYSTEM_ACTIONS = {
+  // Generic CRUD & Status
+  CREATE: "create",
+  READ: "read",
+  EDIT: "edit",
+  DELETE: "delete",
+  VIEW_ALL: "view_all",
+
+  // Account & Moderation
+  SUSPEND: "suspend",
+  WARN: "warn",
+  VERIFY: "verify",
+  BLOCK: "block",
+  APPROVE: "approve",
+  REJECT: "reject",
+
+  // Social & Interactivity
+  FOLLOW: "follow",
+  PIN: "pin",
+  HIDE: "hide",
+
+  // User Profile
+  VIEW_PROFILE: "view_profile",
+  EDIT_PROFILE: "edit_profile",
+  VIEW_FOLLOWERS: "view_followers",
+  DELETE_ACCOUNT: "delete_account",
+  VIEW_EMAIL: "view_email",
+  VIEW_PHONE: "view_phone",
+  SETTINGS_VIEW: "settings.view",
+  SETTINGS_MANAGE: "settings.manage",
+  CHANGE_STATUS: "change_status",
+
+  // Post
+  SYNC_TOPICS: "sync_topics",
+  VIEW_TOPICS: "view_topics",
+  TRANSLATE_CAPTION: "translate_caption",
+
+  // Infrastructure & Ops
+  SET_PRIMARY: "primary",
+  SUBMIT: "submit",
+  REVIEW: "review",
+  RESOLVE: "resolve",
+  ESCALATE: "escalate",
+
+  // Admin & Management
+  DASHBOARD_ACCESS: "dashboard.access",
+  ANALYTICS_VIEW: "analytics.view",
+  USERS_VIEW: "users.view",
+  USERS_EDIT: "users.edit",
+  USERS_DELETE: "users.delete",
+  USERS_MANAGE: "users.manage",
+  ROLES_ASSIGN: "roles.assign",
+  ROLES_MANAGE: "roles.manage",
+  PERMISSIONS_MANAGE: "permissions.manage",
+  SITE_CONTENT_MANAGE: "site_content.manage",
+  SYSTEM_LOGS_VIEW: "system_logs.view",
+
+  // Wallet & Ads Specifics
+  MANAGE_OWN: "manage_own",
+  VIEW_TRANSACTIONS_OWN: "view_transactions_own",
+  VIEW_TRANSACTIONS_ALL: "view_transactions_all",
+  INITIATE_PAYOUT: "initiate_payout",
+  APPROVE_PAYOUT: "approve_payout",
+  REJECT_PAYOUT: "reject_payout",
+  MANAGE_ALL: "manage_all",
+  VIEW_PERFORMANCE_OWN: "view_performance_own",
+  VIEW_PERFORMANCE_ALL: "view_performance_all",
+
+  HD_VIDEO_UPLOAD: "hd_video.upload",
+  CUSTOM_BADGE: "badge.custom",
+} as const;
+
+// --- 2. RESOURCE SPECIFIC PERMISSION MAPS ---
+export const DEVICE_PERMISSIONS = {
+  READ: `device.${SYSTEM_ACTIONS.READ}`,
+  WRITE: `device.write`,
+  DELETE: `device.${SYSTEM_ACTIONS.DELETE}`,
+  SET_PRIMARY: `device.${SYSTEM_ACTIONS.SET_PRIMARY}`,
+} as const;
+
 export const POST_PERMISSIONS = {
-  CREATE: "post.create",
-  READ: "post.read",
-  EDIT: "post.edit",
-  DELETE: "post.delete",
-  PIN: "post.pin",
-  HIDE: "post.hide",
-  APPROVE: "post.approve",
-  REJECT: "post.reject",
+  CREATE: `post.${SYSTEM_ACTIONS.CREATE}`,
+  READ: `post.${SYSTEM_ACTIONS.READ}`,
+  TRANSLATE_CAPTION: `post.${SYSTEM_ACTIONS.TRANSLATE_CAPTION}`,
+  EDIT: `post.${SYSTEM_ACTIONS.EDIT}`,
+  DELETE: `post.${SYSTEM_ACTIONS.DELETE}`,
+  PIN: `post.${SYSTEM_ACTIONS.PIN}`,
+  HIDE: `post.${SYSTEM_ACTIONS.HIDE}`,
+  APPROVE: `post.${SYSTEM_ACTIONS.APPROVE}`,
+  REJECT: `post.${SYSTEM_ACTIONS.REJECT}`,
+  SYNC_TOPICS: `post.${SYSTEM_ACTIONS.SYNC_TOPICS}`,
+  VIEW_TOPICS: `post.${SYSTEM_ACTIONS.VIEW_TOPICS}`,
 } as const;
 
 export const COMMENT_PERMISSIONS = {
-  CREATE: "comment.create",
-  READ: "comment.read",
-  EDIT: "comment.edit",
-  DELETE: "comment.delete",
-  HIDE: "comment.hide",
-  APPROVE: "comment.approve",
-  REJECT: "comment.reject",
+  CREATE: `comment.${SYSTEM_ACTIONS.CREATE}`,
+  READ: `comment.${SYSTEM_ACTIONS.READ}`,
+  EDIT: `comment.${SYSTEM_ACTIONS.EDIT}`,
+  DELETE: `comment.${SYSTEM_ACTIONS.DELETE}`,
+  HIDE: `comment.${SYSTEM_ACTIONS.HIDE}`,
+  APPROVE: `comment.${SYSTEM_ACTIONS.APPROVE}`,
+  REJECT: `comment.${SYSTEM_ACTIONS.REJECT}`,
 } as const;
 
 export const USER_PERMISSIONS = {
-  FOLLOW: "user.follow",
-  BLOCK: "user.block",
-  VERIFY: "user.verify",
-  SUSPEND: "user.suspend",
-  WARN: "user.warn",
-  VIEW_DETAILS: "user.view_details",
-  EDIT_PROFILE: "user.edit_profile",
-  DELETE_ACCOUNT: "user.delete_account",
-  VIEW_EMAIL: "user.view_email", // For support/admin
-  VIEW_PHONE: "user.view_phone", // For support/admin
+  FOLLOW: `user.${SYSTEM_ACTIONS.FOLLOW}`,
+  BLOCK: `user.${SYSTEM_ACTIONS.BLOCK}`,
+  VERIFY: `user.${SYSTEM_ACTIONS.VERIFY}`,
+  VIEW_PROFILE: `user.${SYSTEM_ACTIONS.VIEW_PROFILE}`,
+  EDIT_PROFILE: `user.${SYSTEM_ACTIONS.EDIT_PROFILE}`,
+  VIEW_FOLLOWERS: `user.${SYSTEM_ACTIONS.VIEW_FOLLOWERS}`,
+  DELETE_ACCOUNT: `user.${SYSTEM_ACTIONS.DELETE_ACCOUNT}`,
+  VIEW_EMAIL: `user.${SYSTEM_ACTIONS.VIEW_EMAIL}`,
+  VIEW_PHONE: `user.${SYSTEM_ACTIONS.VIEW_PHONE}`,
+  SETTINGS_VIEW: `user.${SYSTEM_ACTIONS.SETTINGS_VIEW}`,
+  SETTINGS_MANAGE: `user.${SYSTEM_ACTIONS.SETTINGS_MANAGE}`,
 } as const;
 
 export const ADMIN_PERMISSIONS = {
-  DASHBOARD_ACCESS: "admin.dashboard.access",
-  ANALYTICS_VIEW: "admin.analytics.view",
-  USERS_VIEW: "admin.users.view",
-  USERS_EDIT: "admin.users.edit",
-  USERS_DELETE: "admin.users.delete",
-  ROLES_ASSIGN: "admin.roles.assign",
-  ROLES_MANAGE: "admin.roles.manage",
-  PERMISSIONS_MANAGE: "admin.permissions.manage",
-  SETTINGS_MANAGE: "admin.settings.manage",
-  SITE_CONTENT_MANAGE: "admin.site_content.manage",
-  SYSTEM_LOGS_VIEW: "admin.system_logs.view",
+  DASHBOARD_ACCESS: `admin.${SYSTEM_ACTIONS.DASHBOARD_ACCESS}`,
+  ANALYTICS_VIEW: `admin.${SYSTEM_ACTIONS.ANALYTICS_VIEW}`,
+  USERS_VIEW: `admin.${SYSTEM_ACTIONS.USERS_VIEW}`,
+  USERS_EDIT: `admin.${SYSTEM_ACTIONS.USERS_EDIT}`,
+  USERS_DELETE: `admin.${SYSTEM_ACTIONS.USERS_DELETE}`,
+  SUSPEND: `user.${SYSTEM_ACTIONS.SUSPEND}`,
+  WARN: `user.${SYSTEM_ACTIONS.WARN}`,
+  ROLES_ASSIGN: `admin.${SYSTEM_ACTIONS.ROLES_ASSIGN}`,
+  ROLES_MANAGE: `admin.${SYSTEM_ACTIONS.ROLES_MANAGE}`,
+  MANAGE_USERS: `admin.${SYSTEM_ACTIONS.USERS_MANAGE}`,
+  PERMISSIONS_MANAGE: `admin.${SYSTEM_ACTIONS.PERMISSIONS_MANAGE}`,
+  SETTINGS_MANAGE: `admin.${SYSTEM_ACTIONS.SETTINGS_MANAGE}`,
+  SITE_CONTENT_MANAGE: `admin.${SYSTEM_ACTIONS.SITE_CONTENT_MANAGE}`,
+  SYSTEM_LOGS_VIEW: `admin.${SYSTEM_ACTIONS.SYSTEM_LOGS_VIEW}`,
 } as const;
 
 export const REPORT_PERMISSIONS = {
-  REVIEW: "report.review",
-  RESOLVE: "report.resolve",
-  ESCALATE: "report.escalate",
-  VIEW_ALL: "report.view_all",
+  REVIEW: `report.${SYSTEM_ACTIONS.REVIEW}`,
+  RESOLVE: `report.${SYSTEM_ACTIONS.RESOLVE}`,
+  ESCALATE: `report.${SYSTEM_ACTIONS.ESCALATE}`,
+  VIEW_ALL: `report.${SYSTEM_ACTIONS.VIEW_ALL}`,
+} as const;
+
+export const KYC_PERMISSIONS = {
+  SUBMIT: `kyc.${SYSTEM_ACTIONS.SUBMIT}`,
+  REVIEW: `kyc.${SYSTEM_ACTIONS.REVIEW}`,
+  APPROVE: `kyc.${SYSTEM_ACTIONS.APPROVE}`,
+  VIEW_ALL: `kyc.${SYSTEM_ACTIONS.VIEW_ALL}`,
 } as const;
 
 export const WALLET_PERMISSIONS = {
-  MANAGE_OWN: "wallet.manage_own",
-  VIEW_TRANSACTIONS_OWN: "wallet.view_transactions_own",
-  VIEW_TRANSACTIONS_ALL: "wallet.view_transactions_all", // For finance/admin
-  INITIATE_PAYOUT: "wallet.initiate_payout",
-  APPROVE_PAYOUT: "wallet.approve_payout",
-  REJECT_PAYOUT: "wallet.reject_payout",
+  MANAGE_OWN: `wallet.${SYSTEM_ACTIONS.MANAGE_OWN}`,
+  VIEW_TRANSACTIONS_OWN: `wallet.${SYSTEM_ACTIONS.VIEW_TRANSACTIONS_OWN}`,
+  VIEW_TRANSACTIONS_ALL: `wallet.${SYSTEM_ACTIONS.VIEW_TRANSACTIONS_ALL}`,
+  INITIATE_PAYOUT: `wallet.${SYSTEM_ACTIONS.INITIATE_PAYOUT}`,
+  APPROVE_PAYOUT: `wallet.${SYSTEM_ACTIONS.APPROVE_PAYOUT}`,
+  REJECT_PAYOUT: `wallet.${SYSTEM_ACTIONS.REJECT_PAYOUT}`,
 } as const;
 
 export const ADS_PERMISSIONS = {
-  CREATE: "ads.create",
-  MANAGE_OWN: "ads.manage_own",
-  VIEW_PERFORMANCE_OWN: "ads.view_performance_own",
-  MANAGE_ALL: "ads.manage_all", // For advertiser/admin
-  VIEW_PERFORMANCE_ALL: "ads.view_performance_all", // For advertiser/admin
-  APPROVE: "ads.approve",
-  REJECT: "ads.reject",
+  CREATE: `ads.${SYSTEM_ACTIONS.CREATE}`,
+  MANAGE_OWN: `ads.${SYSTEM_ACTIONS.MANAGE_OWN}`,
+  VIEW_PERFORMANCE_OWN: `ads.${SYSTEM_ACTIONS.VIEW_PERFORMANCE_OWN}`,
+  MANAGE_ALL: `ads.${SYSTEM_ACTIONS.MANAGE_ALL}`,
+  VIEW_PERFORMANCE_ALL: `ads.${SYSTEM_ACTIONS.VIEW_PERFORMANCE_ALL}`,
+  APPROVE: `ads.${SYSTEM_ACTIONS.APPROVE}`,
+  REJECT: `ads.${SYSTEM_ACTIONS.REJECT}`,
+} as const;
+
+// Feature-gated Premium Permissions
+export const PREMIUM_PERMISSIONS = {
+  ANALYTICS_READ: `premium.${SYSTEM_ACTIONS.ANALYTICS_VIEW}`,
+  HD_VIDEO_UPLOAD: `premium.${SYSTEM_ACTIONS.HD_VIDEO_UPLOAD}`,
+  CUSTOM_BADGE: `premium.${SYSTEM_ACTIONS.CUSTOM_BADGE}`,
+};
+
+// --- 3. UNIFIED REGISTRY & TYPES ---
+export const PERMISSIONS = {
+  POST: POST_PERMISSIONS,
+  COMMENT: COMMENT_PERMISSIONS,
+  USER: USER_PERMISSIONS,
+  ADMIN: ADMIN_PERMISSIONS,
+  REPORT: REPORT_PERMISSIONS,
+  DEVICE: DEVICE_PERMISSIONS,
+  PREMIUM: PREMIUM_PERMISSIONS,
+  KYC: KYC_PERMISSIONS,
+  WALLET: WALLET_PERMISSIONS,
+  ADS: ADS_PERMISSIONS,
 } as const;

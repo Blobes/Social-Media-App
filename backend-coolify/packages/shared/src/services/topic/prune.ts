@@ -1,6 +1,6 @@
 import { TopicModel } from "@repo/database";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
-import { TransInfo } from "../../types";
+import { TransInfo } from "../../types/general";
 import { INVALIDATE_CACHE } from "../../constants/invalidators";
 
 export interface PruneUnusedTopicsResult {

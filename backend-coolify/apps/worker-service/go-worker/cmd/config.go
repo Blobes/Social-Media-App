@@ -2,9 +2,10 @@ package main
 
 import (
 	"context"
+	"go-worker/tasks"
 	"log"
 	"os"
-	"go-worker/tasks"
+
 	"github.com/hibiken/asynq"
 	"github.com/joho/godotenv"
 )

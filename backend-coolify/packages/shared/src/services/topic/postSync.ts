@@ -1,6 +1,6 @@
 import mongoose, { ClientSession } from "mongoose";
 import { TopicModel } from "@repo/database";
-import { TransInfo } from "../../types";
+import { TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { executeUserTopicsSync } from "./userSync";
 import { INVALIDATE_CACHE } from "../../constants/invalidators";

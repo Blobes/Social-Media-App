@@ -5,9 +5,22 @@ import {
   type NextFunction,
 } from "express";
 import { createProxyMiddleware, type Options } from "http-proxy-middleware";
-import { ACCOUNT_URL, PLATFORM_URL, POST_URL, WORKER_URL } from "./envVars";
+import {
+  ACCOUNT_URL,
+  JWT_SECRET,
+  PLATFORM_URL,
+  POST_URL,
+  WORKER_URL,
+} from "./envVars";
+import { gatewayAuthMiddleware } from "./middleware";
 
 const router: Router = Router();
+
+/**
+ * Apply gateway authentication middleware globally across proxy routes.
+ * Populates req.user and sets downstream headers (x-user-id, x-user-roles, etc.).
+ */
+router.use(gatewayAuthMiddleware(JWT_SECRET));
 
 /**
  * Factory that initializes http-proxy-middleware instances statically.

@@ -1,4 +1,9 @@
-import { GistModel, ILocation, IMedia, PostStatus } from "@repo/database";
+import {
+  GistModel,
+  ILocation,
+  IMedia,
+  PostContentStatus,
+} from "@repo/database";
 import {
   generateRandomIp,
   getLocationFromIp,
@@ -83,7 +88,7 @@ export const executeCreateGist = async (
     : undefined;
 
   const hasUserTopics = topics && topics.length > 0;
-  const initialStatus: PostStatus = skipModeration
+  const initialStatus: PostContentStatus = skipModeration
     ? "PUBLISHED"
     : "UNDER_REVIEW";
 

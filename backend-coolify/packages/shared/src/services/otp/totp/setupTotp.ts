@@ -1,4 +1,4 @@
-import { TransInfo } from "../../../types";
+import { TransInfo } from "../../../types/general";
 import { MESSAGES_REGISTRY } from "../../../constants/msgRegistry";
 import { getAccountStatusMsg } from "../../../utils/status";
 import { totpService } from "./service";

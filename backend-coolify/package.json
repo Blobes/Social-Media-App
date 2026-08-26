@@ -14,7 +14,8 @@
     "clean:workspaces": "pnpm -r exec rm -rf node_modules dist out && rm -rf node_modules",
     "sync:api-messages": "pnpm dlx tsx sync-api-msg.ts",
     "db:migrate": "dotenv -e .env.production -- pnpm dlx tsx packages/database/src/migration/index.ts",
-    "db:sync-indexes": "dotenv -e .env.production -- pnpm dlx tsx packages/database/src/migration/buildIndexes.ts"
+    "db:sync-indexes": "dotenv -e .env.production -- pnpm dlx tsx packages/database/src/migration/buildIndexes.ts",
+    "db:sync-auth": "pnpm dlx tsx packages/security/src/authorization/migration/index.ts"
   },
   "devDependencies": {
     "@types/node": "catalog:",

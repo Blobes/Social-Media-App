@@ -6,7 +6,7 @@ import {
   GistModel,
   StakeModel,
   MediaModel,
-  ModerationTargetType,
+  EntityType,
   ModerationSourceType,
   ModerationSeverity,
   ModerationCategory,
@@ -14,7 +14,7 @@ import {
   ModerationEvidenceType,
 } from "@repo/database";
 import { calculateThreshold } from "../../utils/calculations";
-import { PostType, TransInfo } from "../../types";
+import { PostType, TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { switchAccountStatus } from "../user/accountStatus";
 
@@ -28,7 +28,7 @@ export interface IEvidenceSnapshot {
 
 export interface IExecuteReportInput {
   targetId: string;
-  targetType: ModerationTargetType;
+  targetType: EntityType;
   targetOwner: string;
   postType?: PostType | null;
   source: ModerationSourceType;

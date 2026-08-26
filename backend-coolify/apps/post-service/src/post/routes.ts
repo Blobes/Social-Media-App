@@ -5,23 +5,40 @@ import { translateCaption } from "./translate/translateCaption";
 import { lookupTopics } from "./topic/lookup";
 import { syncPostTopics } from "./topic/sync";
 import { autoInvalidatePostCache } from "@repo/shared";
+import { requirePermission } from "@repo/security";
+import { PERMISSIONS } from "@repo/database";
 
 const router: Router = express.Router();
 
-// Read and operational endpoints (No cache invalidation required)
+// Mark post as seen
 router.patch(
   "/:postId/seen",
   optionallyAuthenticate,
   autoInvalidatePostCache({ invalidatePostLanguages: false }),
   markPostAsSeen,
 );
-router.post("/translate/caption", authenticate, translateCaption);
-router.post("/topic/search", authenticate, lookupTopics);
 
-// Mutation endpoints
+// Translate post caption
+router.post(
+  "/translate/caption",
+  authenticate,
+  requirePermission(PERMISSIONS.POST.TRANSLATE_CAPTION),
+  translateCaption,
+);
+
+// Search and lookup available topics
+router.post(
+  "/topic/search",
+  authenticate,
+  requirePermission(PERMISSIONS.POST.VIEW_TOPICS),
+  lookupTopics,
+);
+
+// Sync topics attached to posts
 router.post(
   "/topic/sync",
   authenticate,
+  requirePermission(PERMISSIONS.POST.SYNC_TOPICS),
   autoInvalidatePostCache({}),
   syncPostTopics,
 );

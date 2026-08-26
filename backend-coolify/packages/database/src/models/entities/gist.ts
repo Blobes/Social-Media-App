@@ -67,7 +67,7 @@ const GistSchema = new Schema<IGistDocument>(
         "UNDER_REVIEW",
         "BANNED",
       ],
-      default: "PUBLISHED",
+      default: "ARCHIVED",
     },
     moderationCase: {
       caseId: {

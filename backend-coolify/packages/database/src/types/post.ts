@@ -10,7 +10,7 @@ export type PostVisibility =
   | "FOLLOWERS"
   | "MENTIONS_ONLY";
 
-export type PostStatus =
+export type PostContentStatus =
   | "PUBLISHED"
   | "DELETED"
   | "SHADOWBANNED"
@@ -31,7 +31,7 @@ export interface IPostCaption {
 export interface IGistDocument extends Document {
   authorId: Types.ObjectId | string;
   mediaIds: Types.ObjectId[];
-  status: PostStatus;
+  status: PostContentStatus;
 
   latestCaption: IPostCaption;
   editCount: number;
@@ -72,7 +72,7 @@ export interface IStakeDocument extends Document {
   location?: ILocation;
   visibility: PostVisibility;
   hasSensitiveGraphic: boolean;
-  status: PostStatus;
+  status: PostContentStatus;
   moderationCase?: IContentModeration;
   viewCount: number;
   createdAt: Date;
@@ -115,6 +115,17 @@ export interface IGistLikeDocument extends Document {
 }
 
 /**
+ * Interface defining the Post Like document structure.
+ */
+export interface IPostLikeDocument extends Document {
+  userId: Types.ObjectId;
+  postId: Types.ObjectId;
+  postType: PostModelType;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
  * Interface defining the Post View document structure.
  */
 export interface IPostViewDocument extends Document {
@@ -122,6 +133,21 @@ export interface IPostViewDocument extends Document {
   postType: PostModelType;
   userId: Types.ObjectId;
   viewedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Interface representing the Comment document.
+ */
+export interface ICommentDocument extends Document {
+  _id: Types.ObjectId;
+  authorId: Types.ObjectId;
+  postId: Types.ObjectId;
+  postType: PostModelType;
+  content: string;
+  visibility: PostVisibility;
+  status: PostContentStatus;
   createdAt: Date;
   updatedAt: Date;
 }

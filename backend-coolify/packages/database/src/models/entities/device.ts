@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
-import { IDevice } from "../../types/device";
+import { IDeviceDocument } from "../../types/device";
 
-const DeviceSchema = new Schema<IDevice>(
+const DeviceSchema = new Schema<IDeviceDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -70,4 +70,8 @@ DeviceSchema.index({ userId: 1, ipHash: 1 });
 /**
  * Device Model Definition
  */
-export const DeviceModel = model<IDevice>("Device", DeviceSchema, "devices");
+export const DeviceModel = model<IDeviceDocument>(
+  "Device",
+  DeviceSchema,
+  "devices",
+);

@@ -16,7 +16,8 @@
     "@socket.io/redis-emitter": "catalog:",
     "bullmq": "catalog:",
     "@repo/database": "workspace:*",
-    "@repo/shared": "workspace:*"
+    "@repo/shared": "workspace:*",
+    "@repo/security": "workspace:*"
   },
   "devDependencies": {
     "tsup": "catalog:",

@@ -1,9 +1,9 @@
 import { TopicModel } from "@repo/database";
 import crypto from "crypto";
-import { TransInfo } from "../../types";
-import { getOrSetCache } from "../redis/cache";
+import { TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { CACHE_KEYS } from "../../constants/cacheKeys";
+import { getOrSetCache } from "../redis/cache/helpers";
 
 export interface LookupTopicsInput {
   keyword?: string;

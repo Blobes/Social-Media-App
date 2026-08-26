@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { FollowModel, GistModel, PostStatus } from "@repo/database";
+import { FollowModel, GistModel, PostContentStatus } from "@repo/database";
 import {
   getStaticPostList,
   getPostSocialData,
@@ -105,7 +105,7 @@ export const executeGetFollowersPosts = async (
       authorId: {
         $in: followingIds.map((id) => new mongoose.Types.ObjectId(id)),
       },
-      status: "PUBLISHED" as PostStatus,
+      status: "PUBLISHED" as PostContentStatus,
       // Apply user blockings & exclusions directly at DB level
       ...(userPrefs.blockedUserIds.length > 0 && {
         authorId: {

@@ -1,3 +1,5 @@
+import { SubscriptionTier } from "@repo/database";
+
 // 1. Define allowed formats
 export const ALLOWED_MIME_TYPES = [
   "image/jpeg",
@@ -19,6 +21,12 @@ export const MIME_TO_EXTENSION: Record<string, string> = {
   "video/mp4": "mp4",
   "video/quicktime": "mov",
   "image/gif": "gif",
+};
+
+export const TIER_WEIGHTS: Record<SubscriptionTier, number> = {
+  FREE: 0,
+  PREMIUM: 1,
+  ENTERPRISE: 2,
 };
 
 // Create a type from the array for strict TypeScript checking

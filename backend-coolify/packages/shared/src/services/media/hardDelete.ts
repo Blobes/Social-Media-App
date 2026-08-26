@@ -1,6 +1,6 @@
 import { MediaModel } from "@repo/database";
 import { Model } from "mongoose";
-import { IS3Config } from "../../types";
+import { IS3Config } from "../../types/general";
 import { createS3Service } from "../../services/s3";
 
 interface HardDeleteOptions {

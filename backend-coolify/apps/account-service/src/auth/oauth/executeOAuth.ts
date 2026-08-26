@@ -1,17 +1,16 @@
 import { authTokens } from "@/envVars";
 import {
-  ILocation,
   IUserDocument,
   ModerationDecision,
+  ROLES,
   UserModel,
 } from "@repo/database";
 import {
+  buildLocationFromIp,
   fetchSingleUser,
   getAccountStatusMsg,
-  getLocationFromIp,
   MESSAGES_REGISTRY,
   sanitizeUserResult,
-  toJwtUser,
   TransInfo,
   upsertDevice,
   userSensitiveFields,
@@ -23,7 +22,8 @@ import {
   verifyAppleToken,
   verifyGoogleToken,
 } from "./oAuthClients";
-import { signAccessJwt, signRefreshJwt } from "@repo/security";
+import { assignUserRole, issueAuthTokens } from "@repo/security";
+import mongoose from "mongoose";
 
 export type OAuthProvider = "GOOGLE" | "APPLE";
 export type OAuthPurpose = "REGISTRATION" | "LOGIN";
@@ -128,57 +128,65 @@ export const authenticateWithOAuth = async (
       };
     }
 
-    const geoData = await getLocationFromIp(ipAddress);
-    const location = geoData
-      ? ({
-          name: `${geoData.city}, ${geoData.state}, ${geoData.country}`,
-          city: geoData.city,
-          state: geoData.state,
-          country: geoData.country,
-          type: "Point" as const,
-          coordinates: [Number(geoData.longitude), Number(geoData.latitude)],
-        } as ILocation)
-      : undefined;
+    const location = await buildLocationFromIp(ipAddress);
 
-    const newUser: IUserDocument = new UserModel({
-      email: profile.email,
-      oAuthId: profile.providerId,
-      signedUpWith: provider,
-      firstName: profile.firstName || "",
-      lastName: profile.lastName || "",
-      isEmailVerified: true,
-      location,
-      lastActiveAt: new Date(),
-    });
-    await newUser.save();
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    const device = await upsertDevice(newUser, deviceToken, userAgent);
-    const sessionId = uuidv4();
-    const jwtUser = toJwtUser(newUser, device._id.toString(), sessionId);
+    try {
+      const newUser: IUserDocument = new UserModel({
+        email: profile.email,
+        oAuthId: profile.providerId,
+        signedUpWith: provider,
+        firstName: profile.firstName || "",
+        lastName: profile.lastName || "",
+        isEmailVerified: true,
+        location,
+        lastActiveAt: new Date(),
+      });
+      await newUser.save({ session });
 
-    const accessToken = signAccessJwt(
-      jwtUser,
-      sessionId,
-      authTokens.ACCESS_TOKEN_SECRET,
-    );
-    const refreshToken = await signRefreshJwt(
-      jwtUser,
-      sessionId,
-      authTokens.REFRESH_TOKEN_SECRET,
-      userAgent,
-      ipAddress,
-    );
+      await assignUserRole({
+        userId: newUser._id,
+        roleName: ROLES.COMMUNITY.USER,
+        reason: `Initial user onboarding via ${provider} OAuth`,
+        session,
+      });
 
-    const safeData = sanitizeUserResult(newUser, userSensitiveFields());
+      const device = await upsertDevice(
+        newUser,
+        deviceToken,
+        userAgent,
+        session,
+      );
 
-    return {
-      status: "SUCCESS",
-      transInfo:
-        MESSAGES_REGISTRY.AUTH.REGISTRATION_SUCCESSFUL_VIA_OAUTH(provider),
-      accessToken,
-      refreshToken,
-      payload: safeData,
-    };
+      await session.commitTransaction();
+
+      const { accessToken, refreshToken } = await issueAuthTokens({
+        user: newUser,
+        deviceId: device._id.toString(),
+        sessionId: uuidv4(),
+        userAgent,
+        ipAddress,
+        authTokens,
+      });
+
+      const safeData = sanitizeUserResult(newUser, userSensitiveFields());
+
+      return {
+        status: "SUCCESS",
+        transInfo:
+          MESSAGES_REGISTRY.AUTH.REGISTRATION_SUCCESSFUL_VIA_OAUTH(provider),
+        accessToken,
+        refreshToken,
+        payload: safeData,
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
   }
 
   // --- Login purpose pipeline ---
@@ -229,21 +237,15 @@ export const authenticateWithOAuth = async (
   }
 
   const device = await upsertDevice(user, deviceToken, userAgent);
-  const sessionId = uuidv4();
-  const jwtUser = toJwtUser(user, device._id.toString(), sessionId);
 
-  const accessToken = signAccessJwt(
-    jwtUser,
-    sessionId,
-    authTokens.ACCESS_TOKEN_SECRET,
-  );
-  const refreshToken = await signRefreshJwt(
-    jwtUser,
-    sessionId,
-    authTokens.REFRESH_TOKEN_SECRET,
+  const { accessToken, refreshToken } = await issueAuthTokens({
+    user,
+    deviceId: device._id.toString(),
+    sessionId: uuidv4(),
     userAgent,
     ipAddress,
-  );
+    authTokens,
+  });
 
   const safeData = sanitizeUserResult(user, userSensitiveFields());
 

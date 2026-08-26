@@ -4,7 +4,7 @@ import mongoose, {
   PopulateOptions,
 } from "mongoose";
 import { IUserDocument } from "@repo/database";
-import { InputCheckType } from "../../../types";
+import { InputCheckType } from "../../../types/general";
 import { UserQueryBuilder } from "./queryBuilder";
 
 export type FetchUserMode = "SINGLE" | "MANY" | "EXISTS" | "COUNT";

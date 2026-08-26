@@ -1,7 +1,7 @@
 import { Queue, QueueOptions } from "bullmq";
 import { Redis } from "ioredis";
 import { Client as AsynqClient, Task as AsynqTask } from "node-asynq";
-import { OtpJobPayload } from "../../types";
+import { OtpJobPayload } from "../../types/general";
 
 export interface AsynqTaskOptions {
   queue?: string;

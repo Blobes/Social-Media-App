@@ -3,7 +3,7 @@ import { Document, Types } from "mongoose";
 /**
  * Interface representing the Device document in MongoDB.
  */
-export interface IDevice extends Document {
+export interface IDeviceDocument extends Document {
   userId: Types.ObjectId;
   deviceToken: string;
   name: string | null;

@@ -1,6 +1,10 @@
-import { IAuthRequest, PostType } from "../types";
-import { invalidateCache, invalidatePattern } from "../services/redis/cache";
+import {
+  invalidateCache,
+  invalidatePattern,
+} from "../services/redis/cache/helpers";
+import { IAuthRequest, PostType } from "../types/general";
 import { CACHE_KEYS } from "./cacheKeys";
+import { RoleName } from "@repo/database";
 
 export type InvalidateEvent =
   | "CRITICAL_UPDATE"
@@ -31,6 +35,13 @@ export const INVALIDATE_CACHE = {
    */
   forTopics: async (): Promise<void> => {
     await invalidatePattern(CACHE_KEYS.WILDCARD_TOPICS_LOOKUP);
+  },
+
+  /**
+   * Invalidates the Redis role-permission mapping cache when roles change.
+   */
+  forUserRole: async (roleName: RoleName): Promise<void> => {
+    await invalidatePattern(CACHE_KEYS.WILDCARD_ROLE_PERMISSIONS(roleName));
   },
   /**
    * Invalidates target user identity, social graph, device, and setting caches safely.
@@ -165,10 +176,6 @@ export const INVALIDATE_CACHE = {
     const targetLang = (req.query?.targetLang || req.body?.targetLang) as
       | string
       | undefined;
-
-    // if (!postId || !postType) {
-    //   return;
-    // }
 
     await INVALIDATE_CACHE.forPost({
       postType,

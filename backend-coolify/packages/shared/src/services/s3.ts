@@ -9,7 +9,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 import { v4 as uuidv4 } from "uuid";
-import { IS3Config } from "../types";
+import { IS3Config } from "../types/general";
 import {
   ALLOWED_MIME_TYPES,
   AllowedMimeType,

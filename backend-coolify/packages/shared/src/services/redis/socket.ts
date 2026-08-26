@@ -4,7 +4,7 @@ import { Emitter } from "@socket.io/redis-emitter";
 import { Redis } from "ioredis";
 import jwt from "jsonwebtoken";
 import type { Server as HttpServer } from "http";
-import { IJwtUser } from "../../types";
+import { IJwtUser } from "../../types/general";
 
 export interface AuthenticatedSocket extends Socket {
   user?: IJwtUser;

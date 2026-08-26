@@ -22,6 +22,8 @@ export interface ILocation {
   coordinates: [number, number]; // [longitude, latitude]
 }
 
+export type AccountVisibility = "PRIVATE" | "PUBLIC";
+
 /**
  * Interface defining user models.
  */
@@ -61,12 +63,12 @@ export interface IUserDocument extends Document {
   lastUsernameChangeAt?: Date | null;
 
   // --- ID VERIFICATION & NOTABILITY ---
-  isVerified: boolean;
+  isKycVerified: boolean;
   isPublicFigure: boolean;
   meritsVerification: boolean;
   isNotable: boolean;
-  idVerificationRequest?: Types.ObjectId | null;
-  idVerificationStatus: VerificationStatus;
+  kycSubmitRequest?: Types.ObjectId | null;
+  kycReviewStatus: VerificationStatus;
   verificationSignals: {
     hasWikipedia: boolean;
     isVipEmail: boolean;
@@ -74,8 +76,9 @@ export interface IUserDocument extends Document {
   };
   isAgeVerified: boolean;
 
-  // --- ACCOUNT STATUS UPDATES ---
+  // --- ACCOUNT STATUS & VISIBILITY ---
   accountStatus: AccountStatus;
+  accountVisibility?: AccountVisibility;
   lastActiveAt?: Date | null;
   statusChangedAt?: Date | null;
   statusReason?: string;
@@ -226,4 +229,27 @@ export interface IErrorLogDocument {
   ipAddress?: string;
   metadata?: Record<string, any>;
   createdAt: Date;
+}
+
+export type SubscriptionTier = "FREE" | "PREMIUM" | "ENTERPRISE";
+export type SubscriptionStatus =
+  | "INCOMPLETE"
+  | "INCOMPLETE_EXPIRED"
+  | "TRIALING"
+  | "ACTIVE"
+  | "PAST_DUE"
+  | "CANCELED"
+  | "UNPAID";
+
+export interface ISubscriptionDocument extends Document {
+  userId: Types.ObjectId;
+  tier: SubscriptionTier;
+  status: SubscriptionStatus;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  currentPeriodStart: Date;
+  currentPeriodEnd: Date;
+  cancelAtPeriodEnd: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }

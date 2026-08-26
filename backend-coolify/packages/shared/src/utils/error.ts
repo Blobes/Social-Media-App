@@ -1,6 +1,6 @@
 import { NextFunction } from "express";
 import { MESSAGES_REGISTRY } from "../constants/msgRegistry";
-import { TransInfo } from "../types";
+import { TransInfo } from "../types/general";
 
 /**
  * Interface defining operational application errors extending native Error.
@@ -79,17 +79,37 @@ export const forwardError = (
   next(appError);
 };
 
+// /**
+//  * Constructs and throws structured IAppError domain instances.
+//  */
+// export function createDomainError(
+//   message: string,
+//   i18nKey: string,
+//   statusCode: number = 500,
+// ): IAppError {
+//   const error: IAppError = new Error(message);
+//   error.i18nKey = i18nKey;
+//   error.statusCode = statusCode;
+//   error.isOperational = true;
+//   return error;
+// }
+
 /**
- * Constructs and throws structured IAppError domain instances.
+ * Constructs structured AppError domain instances for throw operations outside request middleware pipelines.
  */
 export function createDomainError(
   message: string,
   i18nKey: string,
   statusCode: number = 500,
-): IAppError {
-  const error: IAppError = new Error(message);
-  error.i18nKey = i18nKey;
-  error.statusCode = statusCode;
-  error.isOperational = true;
-  return error;
+  interpolations?: Record<string, unknown>,
+): AppError {
+  return new AppError(
+    statusCode,
+    {
+      message,
+      i18nKey,
+      interpolations,
+    },
+    true,
+  );
 }

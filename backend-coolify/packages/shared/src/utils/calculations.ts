@@ -1,5 +1,5 @@
 import { ILocation } from "@repo/database";
-import { OtpMessageChannel, OtpIdentifierType } from "../types";
+import { OtpMessageChannel, OtpIdentifierType } from "../types/general";
 
 /**
  * Calculates a dynamic threshold based on post popularity.

@@ -10,10 +10,8 @@ import { getFollowers } from "./socials/controllers/getFollowers";
 import { followUser } from "./socials/controllers/followUser";
 import { finalizeEmailChange } from "./email/controllers/finalizeChange";
 import { finalizePhoneChange } from "./phone/controllers/finalizeChange";
-import { authenticate, optionallyAuthenicate } from "@/envVars";
+import { authenticate, optionallyAuthenticate } from "@/envVars";
 import { getUserProfile } from "./info/controllers/getProfile";
-import { reviewVerification } from "./id-doc/controllers/reviewID";
-import { submitIdDoc } from "./id-doc/controllers/docSubmission";
 import { changeAccountStatus } from "./account/accountStatus";
 import { deleteAccount } from "./account/deleteAccount";
 import { initiatePasswordReset } from "./password/controllers/initiateReset";
@@ -30,157 +28,235 @@ import {
 } from "./settings/muted-words/controller";
 import { removeUserTopics } from "./settings/topic/remove";
 import { syncUserTopics } from "./settings/topic/update";
+import {
+  enforcePolicy,
+  requirePermission,
+  requireRole,
+  userProfilePolicy,
+  loadUserResource,
+} from "@repo/security";
+import { COMMUNITY_ROLES, PERMISSIONS, PLATFORM_ROLES } from "@repo/database";
+import { reviewKyc } from "./kyc/controllers/reviewKyc";
+import { submitKyc } from "./kyc/controllers/submitKyc";
 
 const router: Router = express.Router();
 
-// Testing api.funstakes.net/identity
-router.get("/", (req, res) => {
+// Health check endpoint for identity service.
+router.get("/", (_req, res) => {
   res.json({ message: "Welcome to Funstakes User API" });
 });
 
-// User Info
-router.get("/:id", getUserProfile);
+// --- USER PROFILE & INFO ---
+// View User Profile: Checks account lifecycle state and social graph blocklists.
+router.get(
+  "/:id",
+  optionallyAuthenticate,
+  enforcePolicy(userProfilePolicy, loadUserResource("id")),
+  getUserProfile,
+);
+
 router.patch(
   "/update/basic",
   authenticate,
+  requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   updateBasicInfo,
 );
+
 router.patch(
   "/update/demo",
   authenticate,
+  requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   updateDemoInfo,
 );
 router.patch(
   "/update/profile-image",
   authenticate,
+  requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   changeUserImage,
 );
 router.delete(
   "/delete/profile-image",
   authenticate,
+  requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   removeUserImage,
 );
 
-// User Account
-router.post("/change-email/initiate", authenticate, initiateEmailChange);
+// --- USER ACCOUNT IDENTIFIERS & CREDENTIALS ---
+router.post(
+  "/change-email/initiate",
+  authenticate,
+  requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
+  initiateEmailChange,
+);
 router.patch(
   "/change-email/finalize",
   authenticate,
+  requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   finalizeEmailChange,
 );
-router.post("/change-email/cancel", authenticate, cancelEmailChange);
-
+router.post(
+  "/change-email/cancel",
+  authenticate,
+  requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
+  cancelEmailChange,
+);
 router.post(
   "/change-username",
   authenticate,
+  requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   changeUsername,
 );
-router.post("/change-phone/initiate", authenticate, initiatePhoneChange);
-
+router.post(
+  "/change-phone/initiate",
+  authenticate,
+  requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
+  initiatePhoneChange,
+);
 router.patch(
   "/change-phone/finalize",
   authenticate,
+  requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   autoInvalidateUserCache("ACCOUNT_UPDATE"),
   finalizePhoneChange,
 );
-
 router.post(
   "/reset-password/initiate",
-  optionallyAuthenicate,
+  optionallyAuthenticate,
   initiatePasswordReset,
 );
-
 router.patch(
   "/set-password",
-  optionallyAuthenicate,
+  optionallyAuthenticate,
   autoInvalidateUserCache("SESSIONS_REVOKE_ALL"),
   setPassword,
 );
 
-// Invalidation is handled at the service logic level
-router.patch("/account/status", authenticate, changeAccountStatus);
-
+// --- ADMINISTRATIVE & ACCOUNT LIFECYCLE ---
+router.patch(
+  "/account/status",
+  authenticate,
+  requireRole([
+    COMMUNITY_ROLES.USER,
+    PLATFORM_ROLES.ADMIN,
+    PLATFORM_ROLES.SUPER_ADMIN,
+  ]),
+  requirePermission(PERMISSIONS.ADMIN.MANAGE_USERS),
+  changeAccountStatus,
+);
 router.delete(
   "/account/delete",
   authenticate,
+  requireRole([PLATFORM_ROLES.ADMIN, PLATFORM_ROLES.SUPER_ADMIN]),
+  requirePermission(PERMISSIONS.USER.DELETE_ACCOUNT),
   autoInvalidateUserCache("CRITICAL_UPDATE"),
   deleteAccount,
 );
 
-// Update User Socials
+// --- SOCIAL RELATIONSHIPS ---
+// Follow User: Evaluates target user state and social block relationships.
 router.post(
   "/:id/follow",
   authenticate,
+  requirePermission(PERMISSIONS.USER.FOLLOW),
+  enforcePolicy(userProfilePolicy, loadUserResource("id")),
   autoInvalidateUserCache("SOCIAL_RELATIONSHIP_UPDATE"),
   followUser,
 );
-router.get("/:id/followers", authenticate, getFollowers);
 
-// ID Doc
-router.patch(
-  "/review-doc",
+// Get Followers: Validates access permissions and social restrictions for the target user.
+router.get(
+  "/:id/followers",
   authenticate,
-  autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
-  reviewVerification,
-);
-router.patch(
-  "/submit-doc",
-  authenticate,
-  autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
-  submitIdDoc,
+  requirePermission(PERMISSIONS.USER.VIEW_FOLLOWERS),
+  enforcePolicy(userProfilePolicy, loadUserResource("id")),
+  getFollowers,
 );
 
-// Settings operations
-router.get("/settings", authenticate, getUserSettings);
+// --- IDENTITY VERIFICATION (KYC) ---
+router.patch(
+  "/kyc/submit",
+  authenticate,
+  requireRole([PLATFORM_ROLES.OWNER]),
+  requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
+  autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
+  submitKyc,
+);
+router.patch(
+  "/kyc/review",
+  authenticate,
+  requireRole([PLATFORM_ROLES.ADMIN, PLATFORM_ROLES.SUPER_ADMIN]),
+  requirePermission(PERMISSIONS.KYC.REVIEW),
+  autoInvalidateUserCache("DEVICE_TRUST_UPDATE"),
+  reviewKyc,
+);
+
+// --- PREFERENCES & SETTINGS ---
+router.get(
+  "/settings",
+  authenticate,
+  requirePermission(PERMISSIONS.USER.SETTINGS_VIEW),
+  getUserSettings,
+);
+
 router.patch(
   "/settings/display",
   authenticate,
+  requirePermission(PERMISSIONS.USER.SETTINGS_MANAGE),
   autoInvalidateUserCache("USER_SETTINGS"),
   updateDisplaySettings,
 );
+
 router.patch(
   "/settings/notifications",
   authenticate,
+  requirePermission(PERMISSIONS.USER.SETTINGS_MANAGE),
   autoInvalidateUserCache("USER_SETTINGS"),
   updateNotificationSettings,
 );
+
 router.patch(
   "/settings/privacy",
   authenticate,
+  requirePermission(PERMISSIONS.USER.SETTINGS_MANAGE),
   autoInvalidateUserCache("USER_SETTINGS"),
   updatePrivacySettings,
 );
 
-// Content mute filter operations
+// --- CONTENT FILTERING & TOPICS ---
 router.post(
   "/settings/muted-words",
   authenticate,
+  requirePermission(PERMISSIONS.USER.SETTINGS_MANAGE),
   autoInvalidateUserCache("USER_SETTINGS"),
   addMutedWords,
 );
+
 router.delete(
   "/settings/muted-words",
   authenticate,
+  requirePermission(PERMISSIONS.USER.SETTINGS_MANAGE),
   autoInvalidateUserCache("USER_SETTINGS"),
   removeMutedWordsHandler,
 );
 
-// User Topics
 router.patch(
   "/settings/topic",
   authenticate,
+  requirePermission(PERMISSIONS.USER.SETTINGS_MANAGE),
   autoInvalidateUserCache("USER_SETTINGS"),
   syncUserTopics,
 );
+
 router.delete(
   "/settings/topic",
   authenticate,
+  requirePermission(PERMISSIONS.USER.SETTINGS_MANAGE),
   autoInvalidateUserCache("USER_SETTINGS"),
   removeUserTopics,
 );

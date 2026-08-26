@@ -1,6 +1,6 @@
 import { MESSAGES_REGISTRY } from "../../../constants/msgRegistry";
-import { IAppError } from "../../../utils/error";
-import { CacheService } from "../../redis/cache";
+import { createDomainError, IAppError } from "../../../utils/error";
+import { CacheService } from "../../redis/cache/service";
 
 /**
  * Enforces dual-dimension rate limits (Phone + IP) on OTP dispatches to block SMS spam and toll fraud.
@@ -53,22 +53,16 @@ export async function enforceOtpRateLimit(
   }
 
   if (currentPhoneRequests > 3) {
-    const error: IAppError = new Error(
-      MESSAGES_REGISTRY.AUTH.PHONE_OTP_LIMIT_EXCEEDED(10).message as string,
+    const transMsg = MESSAGES_REGISTRY.AUTH.PHONE_OTP_LIMIT_EXCEEDED(10);
+    throw createDomainError(
+      transMsg.message as string,
+      transMsg.i18nKey as string,
+      429,
     );
-    error.statusCode = 429;
-    error.i18nKey = MESSAGES_REGISTRY.AUTH.PHONE_OTP_LIMIT_EXCEEDED(10).i18nKey;
-    error.isOperational = true;
-    throw error;
   }
 
   if (currentIpRequests > 10) {
-    const error: IAppError = new Error(
-      MESSAGES_REGISTRY.AUTH.SUSPICIOUS_ACTIVITY.message,
-    );
-    error.statusCode = 429;
-    error.i18nKey = MESSAGES_REGISTRY.AUTH.SUSPICIOUS_ACTIVITY.i18nKey;
-    error.isOperational = true;
-    throw error;
+    const transMsg = MESSAGES_REGISTRY.AUTH.SUSPICIOUS_ACTIVITY;
+    throw createDomainError(transMsg.message, transMsg.i18nKey, 429);
   }
 }

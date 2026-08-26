@@ -6,7 +6,7 @@ import auditRoutes from "./audit-log/routes";
 import webhookRoutes from "./webhook/routes";
 import moderationRoutes from "./moderation/routes";
 import { healthRouter } from "./health";
-import { globalErrorHandler } from "@repo/security";
+import { globalErrorHandler, parseGatewayHeaders } from "@repo/security";
 import { ErrorLogModel } from "@repo/database";
 
 export default (app: Express) => {
@@ -22,6 +22,8 @@ export default (app: Express) => {
   app.get("/", (req, res) => {
     res.json({ message: "Welcome to Funstakes Platform Service API" });
   });
+
+  app.use(parseGatewayHeaders);
 
   // Feature Routes
   app.use("/notification", notificationRoutes);

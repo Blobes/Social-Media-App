@@ -1,5 +1,5 @@
-import { OtpMessageChannel, TransInfo } from "../types";
-import { PostModelType } from "@repo/database";
+import { OtpMessageChannel, TransInfo } from "../types/general";
+import { PostModelType, RoleName } from "@repo/database";
 
 type RegistryValue = TransInfo | ((...args: any[]) => TransInfo);
 type RegistryStructure = {
@@ -171,6 +171,10 @@ export const MESSAGES_REGISTRY = {
     ACCOUNT_DEACTIVATED_ADMIN: {
       i18nKey: "auth.account_deactivated_admin",
       message: "User account deactivated by you as an administrator.",
+    },
+    AUTH_REQUIRED: {
+      i18nKey: "auth.auth_required",
+      message: "Authentication required",
     },
     ACCOUNT_SUSPENDED: {
       i18nKey: "auth.account_suspended",
@@ -476,6 +480,27 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.no_auth_token",
       message: "No refresh token",
     },
+    OTP_EMAIL_DISPATCH_FAILED: (
+      provider: string,
+      errorName: string,
+      errorMsg: string,
+    ) => ({
+      i18nKey: "auth.otp_email_dispatch_failed",
+      message:
+        "Email OTP dispatch from ({{provider}}) failed: {{errorName} - ${errorMsg}",
+      interpolations: { provider, errorName, errorMsg },
+    }),
+    OTP_EMAIL_DISPATCH_MISSING_ID: (provider: string) => ({
+      i18nKey: "auth.otp_email_dispatch_missing_id",
+      message: "{{provider}} response missing dispatch email ID",
+      interpolations: { provider },
+    }),
+    OTP_EMAIL_DISPATCH_FALLBACK_FAILED: {
+      i18nKey: "auth.otp_email_dispatch_fallback_failed",
+      message:
+        "Email dispatch failed completely: Resend failed and SMTP configuration is incomplete.",
+    },
+
     OTP_VERIFIED_SUCCESSFULLY: {
       i18nKey: "auth.otp_verified_successfully",
       message: "Verified successfully.",
@@ -589,8 +614,8 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.primary_device_updated",
       message: "Primary device updated successfully.",
     },
-    PRIMARY_DEVICE_NOT_FOUND: {
-      i18nKey: "auth.primary_device_not_found",
+    DEVICE_NOT_FOUND: {
+      i18nKey: "auth.device_not_found",
       message: "Device not found.",
     },
     RATE_LIMIT_ACTIVE: (secondsToWait: number | string): TransInfo => ({
@@ -861,6 +886,10 @@ export const MESSAGES_REGISTRY = {
       message: "{{msgPostType}} created successfully via skip bypass pathing.",
       interpolations: { msgPostType },
     }),
+    COMMENT_NOT_FOUND: {
+      i18nKey: "post.comment_not_found",
+      message: "Comment entity not found",
+    },
     CONTENT_REQUIRED: (msgPostType: PostModelType = "Post"): TransInfo => ({
       i18nKey: "post.content_required",
       message: "{{msgPostType}} must contain either text content or media.",
@@ -1086,10 +1115,10 @@ export const MESSAGES_REGISTRY = {
       message: "{{msgPostType}} must contain either text content or media.",
       interpolations: { msgPostType },
     }),
-    POST_NOT_FOUND: (msgPostType: PostModelType = "Post"): TransInfo => ({
+    POST_NOT_FOUND: (postType: PostModelType = "Post"): TransInfo => ({
       i18nKey: "post.post_not_found",
       message: "{{msgPostType}} not found",
-      interpolations: { msgPostType },
+      interpolations: { msgPostType: postType },
     }),
     POST_UNLIKED_SUCCESSFULLY: (
       msgPostType: PostModelType = "Post",
@@ -1457,6 +1486,47 @@ export const MESSAGES_REGISTRY = {
     PURGE_ERROR_LOGS_FAILED: {
       i18nKey: "system.purge_error_logs_failed",
       message: "Failed to execute error record maintenance purge.",
+    },
+    POLICY_REQUIREMENT_FAILED: {
+      i18nKey: "system.policy_requirement_failed",
+      message: "Forbidden: Policy requirements not met.",
+    },
+    INSUFFICIENT_ROLE_PERMISSIONS: {
+      i18nKey: "system.insuffient_role_permissions",
+      message: "Forbidden: Insufficient role permissions",
+    },
+    ROLE_NOT_FOUND: (roleName: RoleName) => ({
+      i18nKey: "system.role_not_found",
+      message: "Role {{roleName}} not found in database.",
+      interpolations: { roleName },
+    }),
+    SUBSCRIPTION_CANCELLED: {
+      i18nKey: "system.subscription_cancelled",
+      message: "Subscription successfully cancelled.",
+    },
+    SUBSCRIPTION_FETCHED: {
+      i18nKey: "system.subscription_fetched",
+      message: "Account successfully fetched.",
+    },
+    SUBSCRIPTION_UPDATED: {
+      i18nKey: "system.subscription_cancelled",
+      message: "Subscription successfully updated.",
+    },
+    SUBSCRIPTION_INVALID_TYPE: {
+      i18nKey: "system.subscription_invalid_type",
+      message: "Invalid subscription type.",
+    },
+    SUBSCRIPTION_NOT_FOUND: {
+      i18nKey: "system.subscription_not_found",
+      message: "Subscription not found.",
+    },
+    PREMIUM_SUBSCRIPTION_INELIGIBLE: {
+      i18nKey: "system.ineligible_premium_subscription",
+      message: "You are currently not eligible for a Premium subscription.",
+    },
+    ENTERPRISE_SUBSCRIPTION_INELIGIBLE: {
+      i18nKey: "system.ineligible_enterprise_subscription",
+      message: "You are currently not eligible for an Enterprise subscription.",
     },
     TARGET_MODEL_NOT_FOUND: (modelName: string) => ({
       i18nKey: "system.target_model_not_found",

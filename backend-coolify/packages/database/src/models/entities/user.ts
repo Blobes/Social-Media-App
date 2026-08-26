@@ -67,11 +67,16 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     lastUsernameChangeAt: { type: Date, default: null },
     pendingPhoneNumber: { type: String, default: null },
 
-    // --- ACCOUNT STATUS UPDATES ---
+    // --- ACCOUNT STATUS & VISIBILITY ---
     accountStatus: {
       type: String,
       enum: ["ACTIVE", "INACTIVE", "DEACTIVATED", "SUSPENDED", "BANNED"],
       default: "ACTIVE",
+    },
+    accountVisibility: {
+      type: String,
+      enum: ["PUBLIC", "PRIVATE"],
+      default: "PUBLIC",
     },
     lastActiveAt: { type: Date, default: null },
     statusChangedAt: {
@@ -89,16 +94,16 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     },
 
     // --- VERIFICATION & NOTABILITY ---
-    isVerified: { type: Boolean, default: false },
+    isKycVerified: { type: Boolean, default: false },
     isPublicFigure: { type: Boolean, default: false },
     meritsVerification: { type: Boolean, default: false },
     isNotable: { type: Boolean, default: false },
-    idVerificationRequest: {
+    kycSubmitRequest: {
       type: Schema.Types.ObjectId,
       ref: "IdVerificationRequest",
       default: null,
     },
-    idVerificationStatus: {
+    kycReviewStatus: {
       type: String,
       enum: ["NONE", "PENDING", "APPROVED", "REJECTED"],
       default: "NONE",

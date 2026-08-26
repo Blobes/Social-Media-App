@@ -1,7 +1,7 @@
 import { PipelineStage, Types, QueryFilter } from "mongoose";
 import { getPostStaticData } from "../fetch/postData";
 import { UserPreferencesResult } from "./userPrefs";
-import { PostType } from "../../../types";
+import { PostType } from "../../../types/general";
 
 export interface ListOptions<TPost = Record<string, unknown>> {
   matchFilter?: QueryFilter<TPost>;

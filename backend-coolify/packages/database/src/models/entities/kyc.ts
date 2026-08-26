@@ -1,7 +1,7 @@
 // src/models/VerificationRequest.ts
 import { Schema, model } from "mongoose";
 
-const IdVerificationSchema = new Schema(
+const KycRequestSchema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     fullName: String,
@@ -29,12 +29,12 @@ const IdVerificationSchema = new Schema(
 
 // --- ID Verification Request Schema Index Configurations ---
 // Primary user pending verification check
-IdVerificationSchema.index({ userId: 1, status: 1, createdAt: -1 });
+KycRequestSchema.index({ userId: 1, status: 1, createdAt: -1 });
 // Admin verification review queue
-IdVerificationSchema.index({ status: 1, submittedAt: 1 });
+KycRequestSchema.index({ status: 1, submittedAt: 1 });
 
-export const IdVerificationRequestModel = model(
-  "IdVerificationRequest",
-  IdVerificationSchema,
-  "id_verification_requests",
+export const KycRequestModel = model(
+  "KycRequest",
+  KycRequestSchema,
+  "kyc_requests",
 );

@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
-import { executeIdDocSubmission } from "@/profile/id-doc/service";
+import { executeKycSubmission } from "../service";
 
 interface SubmitRequest extends IAuthRequest {
   body: {
@@ -14,7 +14,7 @@ interface SubmitRequest extends IAuthRequest {
 /**
  * Controller endpoint to ingest profile verification assets and lock progress trackers.
  */
-export const submitIdDoc = async (
+export const submitKyc = async (
   req: SubmitRequest,
   res: Response,
   next: NextFunction,
@@ -40,7 +40,7 @@ export const submitIdDoc = async (
   }
 
   try {
-    const serviceResult = await executeIdDocSubmission({
+    const serviceResult = await executeKycSubmission({
       userId,
       fullName,
       evidenceLinks,

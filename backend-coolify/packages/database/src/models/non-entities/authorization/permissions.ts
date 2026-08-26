@@ -3,6 +3,7 @@ import {
   ADMIN_PERMISSIONS,
   ADS_PERMISSIONS,
   COMMENT_PERMISSIONS,
+  DEVICE_PERMISSIONS,
   POST_PERMISSIONS,
   REPORT_PERMISSIONS,
   USER_PERMISSIONS,
@@ -11,10 +12,11 @@ import {
 import {
   IPermissionDocument,
   IRolePermissionDocument,
-} from "../../../types/role-permission";
+} from "../../../types/authorization";
 
 const allPermissionNames = [
   ...Object.values(POST_PERMISSIONS),
+  ...Object.values(DEVICE_PERMISSIONS),
   ...Object.values(COMMENT_PERMISSIONS),
   ...Object.values(USER_PERMISSIONS),
   ...Object.values(ADMIN_PERMISSIONS),
@@ -45,10 +47,8 @@ const PermissionSchema = new Schema<IPermissionDocument>(
   },
   { timestamps: true },
 );
-
 // Permission Schema Indexes
 PermissionSchema.index({ name: 1 }, { unique: true });
-
 /**
  * Model schema for defining granular access control permissions.
  */

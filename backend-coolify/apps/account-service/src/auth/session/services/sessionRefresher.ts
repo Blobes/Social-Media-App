@@ -1,10 +1,8 @@
 import { authTokens } from "@/envVars";
-import { IUserDocument } from "@repo/database";
-import { signAccessJwt } from "@repo/security";
+import { issueAuthTokens } from "@repo/security";
 import {
   CACHE_KEYS,
   IJwtUser,
-  toJwtUser,
   upsertDevice,
   MESSAGES_REGISTRY,
   TransInfo,
@@ -90,17 +88,12 @@ export const executeSessionRefresh = async (
     sessionData.lastActive = new Date();
     await setCache(sessionKey, sessionData, CACHE_EXPIRY.DAY_20);
 
-    const jwtUser = toJwtUser(
-      user as IUserDocument,
-      deviceIdString,
-      payload.sessionId,
-    );
-
-    const accessToken = signAccessJwt(
-      jwtUser,
-      payload.sessionId,
-      authTokens.ACCESS_TOKEN_SECRET,
-    );
+    const { accessToken } = await issueAuthTokens({
+      user,
+      deviceId: deviceIdString,
+      sessionId: payload.sessionId,
+      authTokens,
+    });
 
     return {
       status: "SUCCESS",

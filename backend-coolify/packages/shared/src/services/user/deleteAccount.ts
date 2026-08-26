@@ -7,13 +7,13 @@ import {
   UserLogModel,
   FollowModel,
   BlockedModel,
-  IdVerificationRequestModel,
+  KycRequestModel,
   UserRoleModel,
   BookmarkModel,
   StakeModel,
   PostViewModel,
 } from "@repo/database";
-import { IS3Config, TransInfo } from "../../types";
+import { IS3Config, TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { cleanDeviceSessions } from "../session";
 import { hardDeleteMedia } from "../media/hardDelete";
@@ -78,7 +78,7 @@ export const executeAccountDeletion = async (
     DeviceModel.deleteMany({ userId: targetUserId }),
     AccountStatusHistoryModel.deleteMany({ account: userObjectId }),
     UserLogModel.deleteMany({ userId: userObjectId }),
-    IdVerificationRequestModel.deleteMany({ userId: userObjectId }),
+    KycRequestModel.deleteMany({ userId: userObjectId }),
     UserRoleModel.deleteMany({ userId: userObjectId }),
     BookmarkModel.deleteMany({ userId: userObjectId }),
     StakeModel.deleteMany({ userId: userObjectId }),

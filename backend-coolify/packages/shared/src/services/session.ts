@@ -4,7 +4,7 @@ import {
   getCache,
   pipelineGetCache,
   scanCache,
-} from "./redis/cache";
+} from "./redis/cache/helpers";
 
 interface SessionCleanupOptions {
   userId: string;

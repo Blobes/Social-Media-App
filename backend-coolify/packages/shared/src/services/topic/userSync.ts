@@ -6,7 +6,7 @@ import {
 import { ClientSession } from "mongoose";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { fetchUserSettings } from "../user/settings";
-import { UserSettingsResult } from "../../types";
+import { UserSettingsResult } from "../../types/general";
 
 export interface PreferenceTopicInput {
   topicId: string;

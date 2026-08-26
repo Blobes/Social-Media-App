@@ -12,7 +12,7 @@ import {
   ModerationCategory,
   ModeratorType,
 } from "@repo/database";
-import { PostType, TransInfo } from "../../types";
+import { PostType, TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { switchAccountStatus } from "../user/accountStatus";
 import { fetchSingleUser } from "../user/retrieval/fetchUser";

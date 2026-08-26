@@ -1,15 +1,18 @@
 import mongoose from "mongoose";
 import { DeviceModel } from "../models/entities/device";
 import { GistModel } from "../models/entities/gist";
-import { IdVerificationRequestModel } from "../models/entities/idVerification";
+import { KycRequestModel } from "../models/entities/kyc";
 import { MediaModel } from "../models/entities/media";
 import { StakeModel } from "../models/entities/stake";
 import { UserModel } from "../models/entities/user";
 import {
   PermissionModel,
   RolePermissionModel,
-} from "../models/non-entities/identity/permissions";
-import { RoleModel, UserRoleModel } from "../models/non-entities/identity/role";
+} from "../models/non-entities/authorization/permissions";
+import {
+  RoleModel,
+  UserRoleModel,
+} from "../models/non-entities/authorization/role";
 import { AccountStatusHistoryModel } from "../models/non-entities/identity/status";
 import { UserSettingsModel } from "../models/non-entities/identity/userSettings";
 import { ErrorLogModel, UserLogModel } from "../models/non-entities/logs";
@@ -21,10 +24,12 @@ import {
 } from "../models/non-entities/moderation";
 import { BookmarkModel } from "../models/non-entities/post/bookmark";
 import { PostCaptionModel } from "../models/non-entities/post/caption";
-import { GistLikeModel } from "../models/non-entities/post/postLikes";
+import { PostLikeModel } from "../models/non-entities/post/postLikes";
 import { PostViewModel } from "../models/non-entities/post/view";
 import { BlockedModel, FollowModel } from "../models/non-entities/socials";
 import { TopicModel } from "../models/non-entities/topic";
+import { RelationTupleModel } from "../models/non-entities/authorization/relation";
+import { SubscriptionModel } from "../models/non-entities/identity/subscription";
 
 const MONGO_URI = process.env.MONGO_URI || "";
 
@@ -48,7 +53,7 @@ async function syncIndexes(): Promise<void> {
     await GistModel.syncIndexes();
     await DeviceModel.syncIndexes();
     await StakeModel.syncIndexes();
-    await IdVerificationRequestModel.syncIndexes();
+    await KycRequestModel.syncIndexes();
     await MediaModel.syncIndexes();
 
     // Non Entity Models
@@ -60,8 +65,10 @@ async function syncIndexes(): Promise<void> {
     await UserSettingsModel.syncIndexes();
     await BookmarkModel.syncIndexes();
     await PostCaptionModel.syncIndexes();
-    await GistLikeModel.syncIndexes();
+    await PostLikeModel.syncIndexes();
     await PostViewModel.syncIndexes();
+    await RelationTupleModel.syncIndexes();
+    await SubscriptionModel.syncIndexes();
 
     // Moderation Models
     await ModerationCaseModel.syncIndexes();

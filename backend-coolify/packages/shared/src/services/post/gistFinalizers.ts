@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { GistModel, IMedia, PostCaptionModel, UserModel } from "@repo/database";
-import { FinalizePostReq, IS3Config } from "../../types";
+import { FinalizePostReq, IS3Config } from "../../types/general";
 import { hardDeleteMedia } from "../media/hardDelete";
 import { createMediaBatch } from "../media/createBatch";
 import { executePostTopicsSync } from "../topic/postSync";

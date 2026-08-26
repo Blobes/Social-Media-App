@@ -1,5 +1,5 @@
 import { Response, NextFunction } from "express";
-import { IAuthRequest } from "../types";
+import { IAuthRequest } from "../types/general";
 import { trackEvent } from "../services/analytics";
 
 /**

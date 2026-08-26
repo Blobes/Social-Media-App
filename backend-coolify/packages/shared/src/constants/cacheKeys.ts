@@ -1,4 +1,5 @@
-import { PostType } from "../types";
+import { PostModelType, RoleName } from "@repo/database";
+import { PostType } from "../types/general";
 
 /**
  * Cache Key Registry
@@ -12,6 +13,27 @@ export const CACHE_KEYS = {
   DEVICE_TRUST_STATUS: (userId: string, deviceId: string) =>
     `user:${userId}:trust_check:${deviceId}`,
 
+  // --- RBAC & Access Control ---
+  ROLE_PERMISSIONS: (sortedRoles: string[]) =>
+    `rbac:roles:permissions:${sortedRoles.join(":")}`,
+
+  // --- ReBAC Security & Resource Loaders ---
+  POST_RESOURCE: (postId: string, postType: PostModelType) =>
+    `resource:${postType.toLowerCase()}:${postId}`,
+  COMMENT_RESOURCE: (commentId: string) => `resource:comment:${commentId}`,
+  USER_PROFILE_RESOURCE: (userId: string) => `resource:user_profile:${userId}`,
+  DEVICE_RESOURCE: (deviceId: string) => `resource:device:${deviceId}`,
+
+  RELATION: (
+    subjectId: string,
+    subjectType: string,
+    relation: string,
+    objectType: string,
+    objectId: string,
+  ) =>
+    `rebac:rel:${subjectType}:${subjectId}:${relation}:${objectType}:${objectId}`,
+  BLOCKED_USERS: (userId: string) => `rebac:blocked:${userId}`,
+
   // --- Feed Keys (Dynamic/Personalized) ---
   USER_FOLLOWERS_FEED: (userId: string) => `user:${userId}:feed:followers`,
   USER_PROFILE_FEED: (userId: string) => `user:${userId}:feed:profile`,
@@ -24,8 +46,10 @@ export const CACHE_KEYS = {
     `feed:${postType.toLowerCase()}s:static:p${page}:l${limit}`,
 
   // --- Entity Keys ---
-  GIST_FEED: (userId?: string) =>
-    userId ? `user:${userId}:feed:gist` : `feed:global:gist`,
+  SPECIFIC_POST_FEED: (postType: PostModelType, userId?: string) =>
+    userId
+      ? `user:${userId}:feed:${postType.toLowerCase()}`
+      : `feed:global:${postType.toLowerCase()}`,
   POST: (postType: PostType, postId: string) =>
     `post:${postType.toLowerCase()}:${postId}`,
   POST_TRANSLATION: (postId: string, targetLang: string) =>
@@ -62,6 +86,9 @@ export const CACHE_KEYS = {
   WILDCARD_POST_TRANSLATIONS: (postId: string) =>
     `post:translation:${postId}:*`,
   WILDCARD_TOPICS_LOOKUP: "topics:lookup:*",
+  WILDCARD_ROLE_PERMISSIONS: (roleName: RoleName) =>
+    `rbac:roles:permissions:*${roleName}*`,
+  WILDCARD_USER_RELATIONS: (userId: string) => `rebac:rel:*:*${userId}*`,
 } as const;
 
 /**
@@ -69,7 +96,9 @@ export const CACHE_KEYS = {
  */
 export const CACHE_EXPIRY = {
   MIN_5: 5 * 60, // 5 minutes
+  MIN_15: 15 * 60, // 15 minutes
   MIN_20: 20 * 60, // 20 minutes
+  MIN_30: 30 * 60, // 30 minutes
   HOUR_1: 60 * 60, // 1 hour
   HOUR_24: 24 * 60 * 60, // 24 hours
   DAY_7: 7 * 24 * 60 * 60, // 7 days

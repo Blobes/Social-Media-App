@@ -3,7 +3,7 @@ import {
   africanCountryCodes,
   globalCountryCodes,
 } from "../../../constants/others";
-import { IPhoneDispatchTokens } from "../../../types";
+import { IPhoneDispatchTokens } from "../../../types/general";
 import { createDomainError } from "../../../utils/error";
 import { enforceOtpRateLimit } from "./rateLimit";
 

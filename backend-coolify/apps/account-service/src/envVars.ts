@@ -141,7 +141,7 @@ export const codeDispatchTokens: ICodeDispatchTokens = {
 };
 
 export const authenticate: RequestHandler = verifyAuthTokens(authTokens);
-export const optionallyAuthenicate: RequestHandler =
+export const optionallyAuthenticate: RequestHandler =
   verifyAuthOptionally(authTokens);
 
 // Legacy Compatibility Exports

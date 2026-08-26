@@ -1,6 +1,6 @@
 import mongoose, { Query, QueryFilter } from "mongoose";
 import { IUserDocument, UserModel } from "@repo/database";
-import { InputCheckType } from "../../../types";
+import { InputCheckType } from "../../../types/general";
 import { normalizeValue, transformToASCII } from "../../../utils/hash";
 import { determineCheckType } from "../../../utils/sanitizeData";
 

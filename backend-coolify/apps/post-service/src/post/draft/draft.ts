@@ -2,7 +2,7 @@ import { Model } from "mongoose";
 import {
   GistModel,
   PostModelType,
-  PostStatus,
+  PostContentStatus,
   PostVisibility,
   StakeModel,
 } from "@repo/database";

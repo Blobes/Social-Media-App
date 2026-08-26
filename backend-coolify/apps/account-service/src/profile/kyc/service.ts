@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IdVerificationRequestModel } from "@repo/database";
+import { KycRequestModel } from "@repo/database";
 import { TransInfo, MESSAGES_REGISTRY, fetchSingleUser } from "@repo/shared";
 
 interface ISubmitIdDocInput {
@@ -22,7 +22,7 @@ interface ISubmitIdDocResult {
 /**
  * Validates candidate profile parameters, blocks duplicate pipelines, and registers document records.
  */
-export const executeIdDocSubmission = async (
+export const executeKycSubmission = async (
   input: ISubmitIdDocInput,
 ): Promise<ISubmitIdDocResult> => {
   const {
@@ -54,7 +54,7 @@ export const executeIdDocSubmission = async (
   }
 
   // Block simultaneous tracking pipelines
-  if (user.idVerificationStatus === "PENDING") {
+  if (user.kycReviewStatus === "PENDING") {
     return {
       status: "ALREADY_PENDING",
       transInfo: MESSAGES_REGISTRY.VERIFICATION.ALREADY_PENDING,
@@ -62,7 +62,7 @@ export const executeIdDocSubmission = async (
   }
 
   // Build the underlying storage ledger entries
-  const verificationRequest = await IdVerificationRequestModel.create({
+  const verificationRequest = await KycRequestModel.create({
     userId,
     fullName,
     evidenceLinks: evidenceLinks || [],
@@ -72,7 +72,7 @@ export const executeIdDocSubmission = async (
   });
 
   // Persist current tracking states into user profile fields
-  user.idVerificationStatus = "PENDING";
+  user.kycReviewStatus = "PENDING";
   await user.save();
 
   return {

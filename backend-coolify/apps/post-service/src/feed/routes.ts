@@ -4,6 +4,14 @@ import { getUserPosts } from "./controllers/getUserPosts";
 import { optionallyAuthenticate, authenticate } from "@/envVars";
 import { getUserDraftPosts } from "./controllers/getDraftPosts";
 import { getFollowersPosts } from "./controllers/followersPosts";
+import {
+  enforcePolicy,
+  loadUserResource,
+  ownerPolicy,
+  requirePermission,
+  userProfilePolicy,
+} from "@repo/security";
+import { PERMISSIONS } from "@repo/database";
 
 const router: Router = express.Router();
 
@@ -14,8 +22,27 @@ router.get("/test", (req, res) => {
 
 // Feed Logic
 router.get("/", optionallyAuthenticate, getAllPost);
-router.get("/followers", authenticate, getFollowersPosts);
-router.get(":id/drafts", authenticate, getUserDraftPosts);
-router.get("/:id", authenticate, getUserPosts);
+router.get(
+  "/followers",
+  authenticate,
+  requirePermission(PERMISSIONS.POST.READ),
+  getFollowersPosts,
+);
+
+router.get(
+  ":userId/drafts",
+  authenticate,
+  requirePermission(PERMISSIONS.POST.READ),
+  enforcePolicy(ownerPolicy, loadUserResource("userId")),
+  getUserDraftPosts,
+);
+
+router.get(
+  "/:userId",
+  authenticate,
+  requirePermission(PERMISSIONS.POST.READ),
+  enforcePolicy(userProfilePolicy, loadUserResource("id")),
+  getUserPosts,
+);
 
 export default router;

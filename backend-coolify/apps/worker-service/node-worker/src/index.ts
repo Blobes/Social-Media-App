@@ -2,10 +2,11 @@ import express from "express";
 import { connectDB, initCacheClient, monitorProcess } from "@repo/shared";
 import { otpDispatchWorker } from "./processors/otpDispatch";
 import appLoader from "./loader";
-import { startDeviceCleanupTask } from "./automations/deviceCleanup";
+import { startDeviceCleanupTask } from "./routine/deviceCleanup";
 import { FUNSTAKES_REDIS_URL, MONGO_URI, NODE_ENV, PORT } from "./envVars";
-import { startUserMetricsReset } from "./automations/resetUserMetrics";
-import { startErrorLogCleanupTask } from "./automations/errorLogsCleanup";
+import { startUserMetricsReset } from "./routine/resetUserMetrics";
+import { startErrorLogCleanupTask } from "./routine/errorLogsCleanup";
+import { startSubscriptionTask } from "./routine/subscription";
 
 const startServer = async () => {
   const app = express();
@@ -21,6 +22,7 @@ const startServer = async () => {
     startDeviceCleanupTask();
     startErrorLogCleanupTask();
     startUserMetricsReset();
+    startSubscriptionTask();
     // initUserCleanup()
     // initTopicCleanup();
     // initUserTopicCleanup();

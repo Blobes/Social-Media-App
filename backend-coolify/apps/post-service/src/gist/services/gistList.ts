@@ -42,7 +42,7 @@ export const executeGetGistList = async (
   const skip = (page - 1) * limit;
 
   let candidateGists: Record<string, unknown>[] = [];
-  const gistFeedCacheKey = CACHE_KEYS.GIST_FEED(userId);
+  const gistFeedCacheKey = CACHE_KEYS.SPECIFIC_POST_FEED("Gist", userId);
 
   // Read Candidate Index from Redis ZSET
   const cachedGistIds = await getCacheSortedSet(

@@ -1,5 +1,5 @@
 import { MESSAGES_REGISTRY } from "../../../constants/msgRegistry";
-import { IPhoneDispatchTokens } from "../../../types";
+import { IPhoneDispatchTokens } from "../../../types/general";
 import { createDomainError } from "../../../utils/error";
 import { enforceOtpRateLimit } from "./rateLimit";
 import { IPhoneRecipient } from "./smsDispatch";

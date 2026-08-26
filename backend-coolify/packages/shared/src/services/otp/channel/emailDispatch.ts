@@ -1,9 +1,11 @@
 import nodemailer from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 import { Resend } from "resend";
-import { IEmailDispatchTokens } from "../../../types";
+import { IEmailDispatchTokens } from "../../../types/general";
 import { EmailOtpParams, getEmailOtpVariables } from "./variables";
 import { renderEmailOtpHtml } from "./emailTemplate";
+import { createDomainError, IAppError } from "../../../utils/error";
+import { MESSAGES_REGISTRY } from "../../../constants/msgRegistry";
 
 const FORCE_SMTP_TEST = false;
 
@@ -17,7 +19,6 @@ export async function dispatchEmailCode(
   const resendApiKey = dispatchConfig.RESEND_API_KEY;
   const resendFromEmail = dispatchConfig.RESEND_FROM_EMAIL;
 
-  // Construct template parameters and render HTML
   const variables = getEmailOtpVariables({ code, recipient });
   const htmlContent = renderEmailOtpHtml(variables);
 
@@ -35,20 +36,13 @@ export async function dispatchEmailCode(
         html: htmlContent,
       });
 
-      // Explicitly check for Resend API errors
       if (response.error) {
         console.error("❌ Resend API returned error:", response.error);
-        throw new Error(
-          `Resend error: ${response.error.name} - ${response.error.message}`,
-        );
-      }
-
-      if (!response.data?.id) {
+      } else if (!response.data?.id) {
         console.error("❌ Resend dispatch missing email ID:", response);
-        throw new Error("Resend response missing dispatch confirmation ID");
+      } else {
+        return response;
       }
-
-      return response;
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       console.error(
@@ -74,8 +68,11 @@ export async function dispatchEmailCode(
     console.error(
       "❌ Stalwart SMTP fallback skipped: missing configuration tokens.",
     );
-    throw new Error(
-      "Email dispatch failed completely: Resend failed and SMTP configuration is incomplete.",
+    const transMsg = MESSAGES_REGISTRY.AUTH.OTP_EMAIL_DISPATCH_FALLBACK_FAILED;
+    throw createDomainError(
+      transMsg.message as string,
+      transMsg.i18nKey as string,
+      502,
     );
   }
 
@@ -83,12 +80,11 @@ export async function dispatchEmailCode(
   const transportOptions: SMTPTransport.Options = {
     host: smtpHost,
     port: smtpPort,
-    secure: smtpPort === 465, // True for port 465, false for 587 (STARTTLS)
+    secure: smtpPort === 465,
     auth: {
       user: smtpUser,
       pass: smtpPassword,
     },
-    // Enforce TLS connection security
     tls: {
       rejectUnauthorized: isProduction,
     },
@@ -107,17 +103,34 @@ export async function dispatchEmailCode(
     if (info.rejected && info.rejected.length > 0) {
       const rejectedList = info.rejected.join(", ");
       console.error(`❌ Stalwart SMTP rejected recipients: ${rejectedList}`);
-      throw new Error(`SMTP rejected recipients: ${rejectedList}`);
+
+      const transMsg =
+        MESSAGES_REGISTRY.AUTH.OTP_EMAIL_DISPATCH_FALLBACK_FAILED;
+      throw createDomainError(
+        transMsg.message as string,
+        transMsg.i18nKey as string,
+        502,
+      );
     }
 
     return info;
   } catch (err: unknown) {
+    if ((err as IAppError).isOperational) {
+      throw err;
+    }
+
     const errorMessage =
       err instanceof Error ? err.message : "SMTP email send failed";
     console.error(
       "❌ Both Resend and Stalwart SMTP fallback failed:",
       errorMessage,
     );
-    throw new Error(`Email dispatch failed completely: ${errorMessage}`);
+
+    const transMsg = MESSAGES_REGISTRY.AUTH.OTP_EMAIL_DISPATCH_FALLBACK_FAILED;
+    throw createDomainError(
+      transMsg.message as string,
+      transMsg.i18nKey as string,
+      502,
+    );
   }
 }

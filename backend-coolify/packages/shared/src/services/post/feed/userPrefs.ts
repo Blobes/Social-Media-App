@@ -1,6 +1,6 @@
-import { IBasePost, TransInfo } from "../../../types";
+import { IBasePost, TransInfo } from "../../../types/general";
 import { BlockedModel, ILocation } from "@repo/database";
-import { getOrSetCacheSet } from "../../redis/cache";
+import { getOrSetCacheSet } from "../../redis/cache/helpers";
 import { CACHE_KEYS } from "../../../constants/cacheKeys";
 import {
   fetchUserSettings,

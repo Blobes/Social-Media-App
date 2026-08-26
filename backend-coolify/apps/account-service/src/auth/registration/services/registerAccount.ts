@@ -1,21 +1,25 @@
 import { authTokens, FUNSTAKES_REDIS_URL } from "@/envVars";
-import { ILocation, IUserDocument, UserModel } from "@repo/database";
+import { IUserDocument, UserModel, ROLES } from "@repo/database";
 import {
   genVerificationCode,
-  getLocationFromIp,
   hashCode,
   userSensitiveFields,
-  toJwtUser,
   upsertDevice,
   enqueueOtpTask,
   MESSAGES_REGISTRY,
   TransInfo,
   sanitizeUserResult,
+  buildLocationFromIp,
 } from "@repo/shared";
 import { v4 as uuidv4 } from "uuid";
+import mongoose from "mongoose";
 import { executeAccountCheck } from "../../check/service";
 import { encryptPass } from "../../helpers/encrypt";
-import { signAccessJwt, signRefreshJwt } from "@repo/security";
+import {
+  assignUserRole,
+  issueAuthTokens,
+  SubscriptionService,
+} from "@repo/security";
 
 interface IRegistrationInput {
   email: string;
@@ -78,65 +82,77 @@ export const registerUserAccount = async (
   const code = genVerificationCode();
   const sessionId = uuidv4();
 
-  const geoData = await getLocationFromIp(ipAddress);
-  const location = geoData
-    ? ({
-        name: `${geoData.city}, ${geoData.state}, ${geoData.country}`,
-        city: geoData.city,
-        state: geoData.state,
-        country: geoData.country,
-        type: "Point" as const,
-        coordinates: [Number(geoData.longitude), Number(geoData.latitude)],
-      } as ILocation)
-    : undefined;
+  const location = await buildLocationFromIp(ipAddress);
 
-  const newUser: IUserDocument = new UserModel({
-    email: normalizedEmail,
-    password: hashedPassword,
-    phoneNumber: phone,
-    location,
-    otpCode: hashCode(code),
-    otpCodeExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
-    lastEmailOtpSentAt: new Date(),
-    signedUpWith: "EMAIL",
-  });
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  await newUser.save();
-
-  const device = await upsertDevice(newUser, deviceToken, userAgent);
-
-  await enqueueOtpTask(
-    {
+  try {
+    const newUser: IUserDocument = new UserModel({
       email: normalizedEmail,
-      code,
-      type: "EMAIL",
-    },
-    FUNSTAKES_REDIS_URL,
-  );
+      password: hashedPassword,
+      phoneNumber: phone,
+      location,
+      otpCode: hashCode(code),
+      otpCodeExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
+      lastEmailOtpSentAt: new Date(),
+      signedUpWith: "EMAIL",
+    });
 
-  const jwtUser = toJwtUser(newUser, device._id.toString(), sessionId);
+    await newUser.save({ session });
 
-  const accessToken = signAccessJwt(
-    jwtUser,
-    sessionId,
-    authTokens.ACCESS_TOKEN_SECRET,
-  );
+    // Assign default community role within transaction
+    await assignUserRole({
+      userId: newUser._id,
+      roleName: ROLES.COMMUNITY.USER,
+      reason: "Initial user onboarding registration",
+      session,
+    });
 
-  const refreshToken = await signRefreshJwt(
-    jwtUser,
-    sessionId,
-    authTokens.REFRESH_TOKEN_SECRET,
-    userAgent,
-    ipAddress,
-  );
+    // Provision baseline FREE tier subscription within active transaction session
+    await SubscriptionService.createSubscription({
+      userId: newUser._id.toString(),
+      tier: "FREE",
+      status: "ACTIVE",
+      currentPeriodStart: new Date(),
+      session,
+    });
 
-  const safeData = sanitizeUserResult(newUser, userSensitiveFields());
+    const device = await upsertDevice(newUser, deviceToken, userAgent, session);
 
-  return {
-    status: "SUCCESS",
-    transInfo: MESSAGES_REGISTRY.AUTH.REGISTRATION_SUCCESSFUL,
-    safeData,
-    accessToken,
-    refreshToken,
-  };
+    await session.commitTransaction();
+
+    await enqueueOtpTask(
+      {
+        email: normalizedEmail,
+        code,
+        type: "EMAIL",
+      },
+      FUNSTAKES_REDIS_URL,
+    );
+
+    const { accessToken, refreshToken } = await issueAuthTokens({
+      user: newUser,
+      deviceId: device._id.toString(),
+      sessionId,
+      userAgent,
+      ipAddress,
+      authTokens,
+    });
+
+    const safeData = sanitizeUserResult(newUser, userSensitiveFields());
+
+    return {
+      status: "SUCCESS",
+      transInfo: MESSAGES_REGISTRY.AUTH.REGISTRATION_SUCCESSFUL,
+      safeData,
+      accessToken,
+      refreshToken,
+    };
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
 };

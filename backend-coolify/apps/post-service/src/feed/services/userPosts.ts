@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { GistModel, PostStatus } from "@repo/database";
+import { GistModel, PostContentStatus } from "@repo/database";
 import {
   getStaticPostList,
   getPostSocialData,
@@ -79,7 +79,7 @@ export const executeGetUserPosts = async (
   if (candidatePosts.length === 0) {
     const matchFilter = {
       authorId: new mongoose.Types.ObjectId(String(targetUserId)),
-      status: "PUBLISHED" as PostStatus,
+      status: "PUBLISHED" as PostContentStatus,
     };
 
     const fetchLimit = 100;
