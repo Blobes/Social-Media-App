@@ -18,6 +18,18 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
   const isShell = appName === "shell";
   const assetPrefix = isShell ? undefined : `/${appName}-assets`;
 
+  // Standard list of directories to ignore across watchers
+  const ignoredWatchPatterns = [
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.turbo/**",
+    "../../apps/*/.next/**",
+    "../../../backend-coolify/**",
+  ];
+
   return {
     ...appConfig,
     output: isProduction ? "standalone" : undefined,
@@ -35,6 +47,19 @@ export function withBaseConfig(appConfig = {}, backendApi, appName) {
     },
 
     webpack(config) {
+      // Excludes non-source directories from Webpack Watchpack file watching
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: [
+          ...(Array.isArray(config.watchOptions?.ignored)
+            ? config.watchOptions.ignored
+            : config.watchOptions?.ignored
+              ? [config.watchOptions.ignored]
+              : []),
+          ...ignoredWatchPatterns,
+        ],
+      };
+
       // Retains support if building with --webpack flag
       config.module.rules.push({
         test: /\.lottie$/,

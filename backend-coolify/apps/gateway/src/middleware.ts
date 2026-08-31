@@ -1,26 +1,19 @@
 import jwt from "jsonwebtoken";
 import { Response, NextFunction } from "express";
-import { IAuthRequest, IJwtUser, MESSAGES_REGISTRY } from "@repo/shared";
+import { IAuthRequest, IJwtUser } from "@repo/shared";
 
 /**
- * Gateway-level authentication middleware.
- * Verifies JWT signature statelessly at the edge and attaches forwarded user claims to headers.
+ * Gateway-level identity forwarding middleware.
+ * Decodes JWTs when present to inject identity headers for downstream microservices without blocking unauthenticated requests.
  */
-export const gatewayAuthMiddleware = (jwtSecret: string) => {
+export const forwardIdHeaders = (jwtSecret: string) => {
   return (req: IAuthRequest, res: Response, next: NextFunction): void => {
     const authHeader = req.headers.authorization;
     const token =
       req.cookies?.access_token ||
       (authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null);
 
-    if (!token) {
-      res.status(401).json({
-        status: "ERROR",
-        ...MESSAGES_REGISTRY.AUTH.AUTH_REQUIRED,
-        payload: null,
-      });
-      return;
-    }
+    if (!token) return next();
 
     try {
       const decoded = jwt.verify(token, jwtSecret) as IJwtUser;
@@ -38,15 +31,9 @@ export const gatewayAuthMiddleware = (jwtSecret: string) => {
 
       if (decoded.deviceId) req.headers["x-device-id"] = decoded.deviceId;
       if (decoded.sessionId) req.headers["x-session-id"] = decoded.sessionId;
-
-      next();
     } catch {
-      res.status(401).json({
-        status: "ERROR",
-        ...MESSAGES_REGISTRY.AUTH.INVALID_TOKEN,
-        payload: null,
-      });
-      return;
+      // Allow request to proceed unauthenticated if token verification fails; downstream services will handle strict enforcement
     }
+    next();
   };
 };

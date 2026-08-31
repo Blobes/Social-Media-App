@@ -12,6 +12,7 @@ import {
   SVGWrapper,
   AnchorLink,
   TransText,
+  AppLogo,
 } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
 import {
@@ -78,6 +79,7 @@ export const IdentifierStep: React.FC<LoginProps> = ({
 
   return (
     <Stack gap={theme.gap(8)}>
+      <AppLogo color={theme.palette.gray[300]} sx={{ alignSelf: "center" }} />
       <Stack
         gap={theme.gap(8)}
         sx={{
@@ -85,7 +87,8 @@ export const IdentifierStep: React.FC<LoginProps> = ({
           [theme.breakpoints.down("md")]: {
             paddingBottom: theme.boxSpacing(12),
           },
-        }}>
+        }}
+      >
         <TransText
           {...COMMON_FEEDBACK.sign_in_to_funstakes}
           component="h3"
@@ -124,7 +127,8 @@ export const IdentifierStep: React.FC<LoginProps> = ({
             gap: theme.gap(4),
             width: "100%",
           }}
-          options={{ disabled: isAuthLoading }}>
+          options={{ disabled: isAuthLoading }}
+        >
           <SVGWrapper
             src={asset.googleLogo}
             size={20}
@@ -138,7 +142,8 @@ export const IdentifierStep: React.FC<LoginProps> = ({
             gap: theme.gap(4),
             width: "100%",
           }}
-          options={{ disabled: isAuthLoading }}>
+          options={{ disabled: isAuthLoading }}
+        >
           <SVGWrapper
             src={asset.appleLogo}
             size={20}
@@ -154,7 +159,8 @@ export const IdentifierStep: React.FC<LoginProps> = ({
           ...theme.typography.text5,
           color: theme.palette.gray[200],
           margin: theme.gap(4),
-        }}>
+        }}
+      >
         <TransText {...AUTH_FEEDBACK.or_sign_in_with} noComponent />
       </Divider>
 
@@ -165,7 +171,8 @@ export const IdentifierStep: React.FC<LoginProps> = ({
       <Stack
         sx={{ gap: theme.gap(10), paddingBottom: theme.boxSpacing(8) }}
         component="form"
-        onSubmit={handleSubmit}>
+        onSubmit={handleSubmit}
+      >
         <DynamicInput
           required
           value={input}
@@ -219,7 +226,8 @@ export const IdentifierStep: React.FC<LoginProps> = ({
           style={{
             width: "100%",
           }}
-          options={{ disabled: isSubmitDisabled }}>
+          options={{ disabled: isSubmitDisabled }}
+        >
           {isAuthLoading ? (
             <ProgressIcon options={{ size: 25 }} />
           ) : (
@@ -251,7 +259,8 @@ export const IdentifierStep: React.FC<LoginProps> = ({
           onClick={handleResetPassClick}
           style={{
             ...inlineTxtStyle,
-          }}>
+          }}
+        >
           <TransText {...COMMON_BUTTON_LABELS.reset_password} noComponent />
         </AnchorLink>
       </Stack>

@@ -11,11 +11,23 @@ import {
   AUTH_FEEDBACK,
   ApiError,
   IdentifierType,
+  ISinglePayload,
 } from "@repo/core";
-import { OtpRequest, OtpService, TotpActionType } from "./service";
+import {
+  OtpRequest,
+  OtpResponse,
+  OtpService,
+  TotpActionType,
+  IdentifierChangeResult,
+  TotpVerificationResponse,
+} from "./service";
 import { useMutation } from "@tanstack/react-query";
 import { useFeedback } from "./useFeedback";
-import { getFromLocalStorage, saveToLocalStorage } from "@repo/helpers";
+import {
+  extractPayloadKeys,
+  getFromLocalStorage,
+  saveToLocalStorage,
+} from "@repo/helpers";
 import {
   createVerificationStrategies,
   executeVerificationStrategy,
@@ -31,11 +43,16 @@ export interface OtpOptions<P extends TransitPurpose> {
   isBotChallengeAllowed?: () => boolean;
 }
 
+type VerificationPayload =
+  | OtpResponse
+  | IdentifierChangeResult
+  | TotpVerificationResponse;
+
 const HOUR_IN_MS = 12 * 60 * 60 * 1000;
 const LAST_DISPATCH_STORAGE_KEY = "otp_last_dispatch_time";
 
 /**
- * Checks whether the required one-hour elapsed duration has passed since the last dispatch.
+ * Checks whether the required duration has elapsed since the last dispatch.
  */
 const isDispatchAllowed = (): boolean => {
   const lastDispatchTime = getFromLocalStorage<number>({
@@ -100,7 +117,7 @@ export const useOtp = <P extends TransitPurpose>(
   const hasTotpConfigured = checkTotpConfiguration(authUser);
 
   /**
-   * Strategy lookup object created with dependency scope.
+   * Creates verification strategy map scoped with current dependencies.
    */
   const verificationStrategies = useMemo(
     () =>
@@ -115,7 +132,8 @@ export const useOtp = <P extends TransitPurpose>(
 
   const isAuthPurpose =
     activeTransit?.purpose === "LOGIN_VERIFICATION" ||
-    activeTransit?.purpose === "SIGNUP_VERIFICATION";
+    activeTransit?.purpose === "SIGNUP_VERIFICATION" ||
+    activeTransit?.purpose === "PASSWORD_RESET";
 
   /**
    * Preserves initial identifier reference across modal state renders.
@@ -150,6 +168,7 @@ export const useOtp = <P extends TransitPurpose>(
     activeTransit?.otpMessageChannel,
     activeTransit?.otpGeneratorMethod,
     recipient,
+    generatorMethod,
   ]);
 
   useEffect(() => {
@@ -162,33 +181,11 @@ export const useOtp = <P extends TransitPurpose>(
   }, [timer, setInlineMsg]);
 
   /**
-   * Execution Layer: Dumb Dispatch Mutation
+   * Dispatches an OTP request payload to the server.
    */
   const { mutate: executeDispatch, isPending: isSending } = useMutation({
     mutationFn: async (request: OtpRequest) => {
-      const dispatchResponse = await dispatchMsgCode(request);
-
-      const targetIdentifier =
-        request.recipient ||
-        recipient ||
-        activeTransit?.identifier ||
-        initialIdentifierRef.current;
-
-      const currentPurpose =
-        request.purpose ?? activeTransit?.purpose ?? "LOGIN_VERIFICATION";
-
-      const currentOtpIdentifierType: IdentifierType =
-        (request.messageChannel || msgChannel) === "EMAIL"
-          ? "EMAIL"
-          : "PHONE_NUMBER";
-
-      await commitAccountUpdate({
-        identifier: targetIdentifier,
-        purpose: currentPurpose,
-        otpIdentifierType: currentOtpIdentifierType,
-      });
-
-      return dispatchResponse;
+      return await dispatchMsgCode(request);
     },
     onSuccess: (_, vars) => {
       saveToLocalStorage<number>(LAST_DISPATCH_STORAGE_KEY, Date.now());
@@ -237,7 +234,7 @@ export const useOtp = <P extends TransitPurpose>(
   });
 
   /**
-   * Orchestration Layer: Resend/Send
+   * Handles orchestrating OTP generation and resend dispatching.
    */
   const handleSendOtp = useCallback(
     (customRequest?: OtpRequest) => {
@@ -272,7 +269,6 @@ export const useOtp = <P extends TransitPurpose>(
     ],
   );
 
-  // Auto-dispatch logic on load
   useEffect(() => {
     if (hasDispatchedOnLoad.current) return;
 
@@ -299,20 +295,43 @@ export const useOtp = <P extends TransitPurpose>(
   ]);
 
   /**
-   * Execution Layer: Dumb Verification Mutation
+   * Verifies the provided verification code and updates account state using the backend payload.
    */
   const { mutateAsync: executeVerify, isPending: isVerifying } = useMutation({
     mutationFn: async (params: {
       purpose: TransitPurpose;
-      method: () => Promise<any>;
+      method: () => Promise<ISinglePayload<VerificationPayload>>;
     }) => {
       const response = await params.method();
+      const payloadData = response.payload;
+
+      const { identifier, verificationToken, otpIdentifierType } =
+        extractPayloadKeys(payloadData, [
+          "identifier",
+          "verificationToken",
+          "otpIdentifierType",
+        ]);
+
+      // const identifier =
+      //   payloadData && "identifier" in payloadData
+      //     ? payloadData.identifier
+      //     : undefined;
+
+      // const verificationToken =
+      //   payloadData && "verificationToken" in payloadData
+      //     ? payloadData.verificationToken
+      //     : undefined;
+
+      // const otpIdentifierType =
+      //   payloadData && "otpIdentifierType" in payloadData
+      //     ? payloadData.otpIdentifierType
+      //     : undefined;
 
       await commitAccountUpdate({
-        identifier: response.identifier,
+        identifier: identifier as string | undefined,
         purpose: params.purpose,
-        otpIdentifierType: response.otpIdentifierType,
-        verificationToken: response.verificationToken,
+        otpIdentifierType: otpIdentifierType as IdentifierType | undefined,
+        verificationToken: verificationToken as string | undefined,
       });
 
       return response;
@@ -340,7 +359,7 @@ export const useOtp = <P extends TransitPurpose>(
   });
 
   /**
-   * Orchestration Layer: Verification
+   * Orchestrates verification processing for active security purpose.
    */
   const handleVerify = useCallback(
     async (verificationCode?: string) => {
@@ -408,7 +427,7 @@ export const useOtp = <P extends TransitPurpose>(
   );
 
   /**
-   * Switches the active channel directly to target channel and triggers a fresh OTP dispatch.
+   * Switches active delivery channel and dispatches new code.
    */
   const switchChannel = useCallback(
     (targetChannel: OtpMessageChannel) => {
@@ -460,7 +479,7 @@ export const useOtp = <P extends TransitPurpose>(
   );
 
   /**
-   * Explicitly switches the verification generator method into Authenticator App mode if configured.
+   * Switches verification generator to Authenticator App mode if active.
    */
   const switchToAuthenticator = useCallback(() => {
     if (!hasTotpConfigured) {

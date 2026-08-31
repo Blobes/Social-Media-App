@@ -1,5 +1,5 @@
 import { Redis } from "ioredis";
-import { CACHE_EXPIRY } from "../../../constants/cacheKeys";
+import { CACHE_EXPIRY, CACHE_KEYS } from "../../../constants/cacheKeys";
 
 /**
  * Reusable Cache Service managing native ioredis instances and cached data operations.
@@ -389,8 +389,11 @@ export class CacheService {
       const currentWindow = Math.floor(now / (windowSeconds * 1000));
       const previousWindow = currentWindow - 1;
 
-      const currentKey = `ratelimit:${identifier}:${currentWindow}`;
-      const previousKey = `ratelimit:${identifier}:${previousWindow}`;
+      // Normalize localhost IPv6 (::1 -> 127.0.0.1) and sanitize separators
+      const normalizedId = identifier === "::1" ? "127.0.0.1" : identifier;
+      const cleanIdentifier = normalizedId.replace(/[:\/]/g, "_");
+      const currentKey = CACHE_KEYS.RATELIMIT(cleanIdentifier, currentWindow);
+      const previousKey = CACHE_KEYS.RATELIMIT(cleanIdentifier, previousWindow);
 
       const pipeline = client.pipeline();
       pipeline.get(previousKey);

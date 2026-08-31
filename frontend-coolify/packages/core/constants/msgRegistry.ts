@@ -368,7 +368,7 @@ export const auth = {
     },
     verify_via_credential: (credType: string) => ({
       tKey: "auth:feedback.verify_your_credential",
-      tValue: "Verify your {{credType}}",
+      tValue: "Verify {{credType}} Code",
       interpolations: { credType },
     }),
     verify_your_account_headline: {

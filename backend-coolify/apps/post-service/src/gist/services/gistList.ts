@@ -73,7 +73,7 @@ export const executeGetGistList = async (
     const userPrefs = userId ? await getUserPreferences(userId) : null;
 
     // Fetch candidate buffer to populate Redis index
-    const fetchLimit = 100;
+    const fetchLimit = Math.max(100, skip + limit);
     const candidatePipeline = getCandidatePostPipeline({
       userPrefs,
       postType: "GIST",

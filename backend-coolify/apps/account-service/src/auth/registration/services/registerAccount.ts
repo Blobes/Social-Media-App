@@ -1,5 +1,5 @@
 import { authTokens, FUNSTAKES_REDIS_URL } from "@/envVars";
-import { IUserDocument, UserModel, ROLES } from "@repo/database";
+import { IUserDocument, UserModel } from "@repo/database";
 import {
   genVerificationCode,
   hashCode,
@@ -15,11 +15,8 @@ import { v4 as uuidv4 } from "uuid";
 import mongoose from "mongoose";
 import { executeAccountCheck } from "../../check/service";
 import { encryptPass } from "../../helpers/encrypt";
-import {
-  assignUserRole,
-  issueAuthTokens,
-  SubscriptionService,
-} from "@repo/security";
+import { issueAuthTokens } from "@repo/security";
+import { syncDefaultRole } from "../../helpers/syncRole";
 
 interface IRegistrationInput {
   email: string;
@@ -101,22 +98,8 @@ export const registerUserAccount = async (
 
     await newUser.save({ session });
 
-    // Assign default community role within transaction
-    await assignUserRole({
-      userId: newUser._id,
-      roleName: ROLES.COMMUNITY.USER,
-      reason: "Initial user onboarding registration",
-      session,
-    });
-
-    // Provision baseline FREE tier subscription within active transaction session
-    await SubscriptionService.createSubscription({
-      userId: newUser._id.toString(),
-      tier: "FREE",
-      status: "ACTIVE",
-      currentPeriodStart: new Date(),
-      session,
-    });
+    // Provision default role and baseline subscription tier directly
+    await syncDefaultRole(newUser._id, { session, skipCheck: true });
 
     const device = await upsertDevice(newUser, deviceToken, userAgent, session);
 

@@ -2,10 +2,10 @@ import nodemailer from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 import { Resend } from "resend";
 import { IEmailDispatchTokens } from "../../../types/general";
-import { EmailOtpParams, getEmailOtpVariables } from "./variables";
-import { renderEmailOtpHtml } from "./emailTemplate";
+import { EmailOtpParams, getEmailOtpVariables } from "../variables";
 import { createDomainError, IAppError } from "../../../utils/error";
 import { MESSAGES_REGISTRY } from "../../../constants/msgRegistry";
+import { renderEmailOtpHtml } from "./template";
 
 const FORCE_SMTP_TEST = false;
 
@@ -115,12 +115,20 @@ export async function dispatchEmailCode(
 
     return info;
   } catch (err: unknown) {
-    if ((err as IAppError).isOperational) {
-      throw err;
-    }
-
     const errorMessage =
       err instanceof Error ? err.message : "SMTP email send failed";
+
+    if ((err as IAppError).isOperational) {
+      const transMsg =
+        MESSAGES_REGISTRY.AUTH.UNKNOWN_SERVER_ERROR(errorMessage);
+      throw createDomainError(
+        transMsg.message as string,
+        transMsg.i18nKey as string,
+        502,
+        transMsg.interpolations,
+      );
+    }
+
     console.error(
       "❌ Both Resend and Stalwart SMTP fallback failed:",
       errorMessage,

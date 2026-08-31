@@ -44,39 +44,41 @@ export const executeGetAllPost = async (
 
   let candidatePosts: Record<string, unknown>[] = [];
 
-  // Step 1: Read Candidate Index from Redis ZSET via CacheService
-  if (userId) {
-    const userFeedCacheKey = CACHE_KEYS.USER_FEED(userId);
-    const cachedPostIds = await getCacheSortedSet(
-      userFeedCacheKey,
-      skip,
-      skip + limit - 1,
+  // Determine key: user-specific feed key or global unauthenticated feed key
+  const feedCacheKey = userId
+    ? CACHE_KEYS.USER_FEED(userId)
+    : CACHE_KEYS.GLOBAL_FEED(page, limit);
+
+  // Step 1: Read Candidate Index from Redis ZSET
+  const cachedPostIds = await getCacheSortedSet(
+    feedCacheKey,
+    skip,
+    skip + limit - 1,
+  );
+
+  if (cachedPostIds.length > 0) {
+    const objectIds = cachedPostIds.map(
+      (id) => new mongoose.Types.ObjectId(id),
     );
 
-    if (cachedPostIds.length > 0) {
-      const objectIds = cachedPostIds.map(
-        (id) => new mongoose.Types.ObjectId(id),
-      );
-
-      // Hydrate posts matching the cached order
-      candidatePosts = await GistModel.aggregate([
-        { $match: { _id: { $in: objectIds } } },
-        {
-          $addFields: {
-            __order: { $indexOfArray: [cachedPostIds, { $toString: "$_id" }] },
-          },
+    // Hydrate posts matching the cached order
+    candidatePosts = await GistModel.aggregate([
+      { $match: { _id: { $in: objectIds } } },
+      {
+        $addFields: {
+          __order: { $indexOfArray: [cachedPostIds, { $toString: "$_id" }] },
         },
-        { $sort: { __order: 1 } },
-      ]);
-    }
+      },
+      { $sort: { __order: 1 } },
+    ]);
   }
 
   // Step 2: Fallback to MongoDB Candidate Pipeline on Cache Miss
   if (candidatePosts.length === 0) {
     const userPrefs = userId ? await getUserPreferences(userId) : null;
 
-    // Fetch a candidate buffer (e.g. 100 items) to populate the ZSET index
-    const fetchLimit = userId ? 100 : limit;
+    // Fetch a candidate buffer to populate the ZSET index
+    const fetchLimit = Math.max(100, skip + limit);
     const candidatePipeline = getCandidatePostPipeline({
       userPrefs,
       limit: fetchLimit,
@@ -100,21 +102,13 @@ export const executeGetAllPost = async (
       };
     }
 
-    // Step 3: Populate Redis ZSET Candidate Cache
-    if (userId) {
-      const scoredItems = rawCandidates.map(
-        (post: Record<string, unknown>) => ({
-          member: String(post._id),
-          score: (post.heuristicScore as number) || 0,
-        }),
-      );
+    // Step 3: Populate Redis ZSET Candidate Cache for both guest and authenticated users
+    const scoredItems = rawCandidates.map((post: Record<string, unknown>) => ({
+      member: String(post._id),
+      score: (post.heuristicScore as number) || 0,
+    }));
 
-      await setCacheSortedSet(
-        CACHE_KEYS.USER_FEED(userId),
-        scoredItems,
-        CACHE_EXPIRY.MIN_20,
-      );
-    }
+    await setCacheSortedSet(feedCacheKey, scoredItems, CACHE_EXPIRY.MIN_20);
 
     candidatePosts = rawCandidates.slice(skip, skip + limit);
   }

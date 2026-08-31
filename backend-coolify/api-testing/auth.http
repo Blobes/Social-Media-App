@@ -100,7 +100,7 @@ Authorization: {{authToken}}
 Content-Type: application/json
 
 ### Send OTP
-POST {{baseUrl}}/auth/otp/send
+POST {{baseUrl}}/auth/otp/send-msg-code
 Content-Type: application/json
 
 {

@@ -79,21 +79,6 @@ export const forwardError = (
   next(appError);
 };
 
-// /**
-//  * Constructs and throws structured IAppError domain instances.
-//  */
-// export function createDomainError(
-//   message: string,
-//   i18nKey: string,
-//   statusCode: number = 500,
-// ): IAppError {
-//   const error: IAppError = new Error(message);
-//   error.i18nKey = i18nKey;
-//   error.statusCode = statusCode;
-//   error.isOperational = true;
-//   return error;
-// }
-
 /**
  * Constructs structured AppError domain instances for throw operations outside request middleware pipelines.
  */

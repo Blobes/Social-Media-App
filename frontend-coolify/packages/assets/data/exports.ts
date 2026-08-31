@@ -14,6 +14,9 @@ export const asset = {
   // Lottie Animations
   LoadingAnimation: "/lottie/loading.lottie",
   SignupAnimation: "/lottie/signup-animation.lottie",
+  MarketingAnimation: "/lottie/marketing.lottie",
+  Error404Animation: "/lottie/error-404.lottie",
+  NotFoundAnimation: "/lottie/not-found.lottie",
 
   // SVGs
   doodle: "/svgs/doodle.svg",
@@ -36,4 +39,6 @@ export const asset = {
   appLogo: "/svgs/app-logo.svg",
   appLogoName: "/svgs/app-logo-name.svg",
   networkGlitch: "/svgs/network-glitch.svg",
+  hashedStars: "/svgs/hashed-stars.svg",
+  authenticator: "/svgs/authenticator.svg",
 };

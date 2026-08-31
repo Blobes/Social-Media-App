@@ -13,6 +13,10 @@ export const CACHE_KEYS = {
   DEVICE_TRUST_STATUS: (userId: string, deviceId: string) =>
     `user:${userId}:trust_check:${deviceId}`,
 
+  // --- Rate Limiting ---
+  RATELIMIT: (cleanIdentifier: string, window: number) =>
+    `ratelimit:${cleanIdentifier}:${window}`,
+
   // --- RBAC & Access Control ---
   ROLE_PERMISSIONS: (sortedRoles: string[]) =>
     `rbac:roles:permissions:${sortedRoles.join(":")}`,
@@ -89,6 +93,8 @@ export const CACHE_KEYS = {
   WILDCARD_ROLE_PERMISSIONS: (roleName: RoleName) =>
     `rbac:roles:permissions:*${roleName}*`,
   WILDCARD_USER_RELATIONS: (userId: string) => `rebac:rel:*:*${userId}*`,
+  WILDCARD_RATELIMIT_IDENTIFIER: (cleanIdentifier: string) =>
+    `ratelimit:${cleanIdentifier}:*`,
 } as const;
 
 /**
@@ -100,6 +106,7 @@ export const CACHE_EXPIRY = {
   MIN_20: 20 * 60, // 20 minutes
   MIN_30: 30 * 60, // 30 minutes
   HOUR_1: 60 * 60, // 1 hour
+  HOUR_2: 2 * 60 * 60, // 2 hours
   HOUR_24: 24 * 60 * 60, // 24 hours
   DAY_7: 7 * 24 * 60 * 60, // 7 days
   DAY_20: 20 * 24 * 60 * 60, // 20 days

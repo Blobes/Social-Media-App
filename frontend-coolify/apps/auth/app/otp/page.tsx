@@ -73,7 +73,8 @@ export default function OtpPage() {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
-        }}>
+        }}
+      >
         <ProgressIcon options={{ size: 32 }} />
       </Stack>
     );
@@ -86,9 +87,10 @@ export default function OtpPage() {
         height: "100%",
         alignItems: "center",
         justifyContent: "center",
-        padding: theme.boxSpacing(10),
+        padding: theme.boxSpacing(20, 10),
         minHeight: "fit-content",
-      }}>
+      }}
+    >
       {(cachedEntries && cachedEntries.length > 0) || !shouldRestrict ? (
         <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />
       ) : (

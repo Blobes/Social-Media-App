@@ -62,7 +62,7 @@ Content-Type: application/json
 }
 
 ### Get Gist Feed
-GET {{baseUrl}}/gists/feed
+GET {{baseUrl}}/gist/feed
 Authorization: Bearer {{authToken}}
 
 ### Get Specific Gist by ID

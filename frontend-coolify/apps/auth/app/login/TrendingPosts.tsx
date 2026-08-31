@@ -5,7 +5,6 @@ import { IPost, GenericStyle, COMMON_FEEDBACK, POST_INFO } from "@repo/core";
 import { useAdaptiveTime } from "@repo/shared-hooks";
 import { useTheme } from "@mui/material/styles";
 import {
-  AppLogo,
   LinearCarousel,
   PostSkeleton,
   SmartDate,
@@ -53,7 +52,8 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
           gap: theme.gap(14),
           padding: theme.boxSpacing(16),
         },
-      }}>
+      }}
+    >
       {/* Background Visual Rendering Block */}
       {hasMedia && targetMedia && (
         <Box sx={{ position: "absolute", inset: 0, zIndex: 1 }}>
@@ -85,7 +85,8 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
           position: "relative",
           color: "#FFFFFF",
           textShadow: hasMedia ? "0px 2px 8px rgba(0,0,0,0.2)" : "none",
-        }}>
+        }}
+      >
         {data.caption}
       </TransText>
 
@@ -99,7 +100,8 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
           display: "flex",
           alignItems: "center",
           gap: theme.gap(6),
-        }}>
+        }}
+      >
         <SVGWrapper
           src={data.avatar}
           size={42}
@@ -115,7 +117,8 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
         <Box
           sx={{
             width: "100%",
-          }}>
+          }}
+        >
           {data.post.postType === "GIST" ? (
             <>
               <TransText
@@ -134,7 +137,8 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
                   display: "inline-flex",
                   flexDirection: "row",
                   gap: theme.gap(2),
-                }}>
+                }}
+              >
                 <SmartDate
                   timestamp={data.post.createdAt}
                   adaptiveTime={useAdaptiveTime}
@@ -167,7 +171,8 @@ const TrendingPostCard = ({ data }: { data: TrendingPost }) => {
                 ...theme.typography.text4,
                 color: "inherit",
                 display: "block",
-              }}>
+              }}
+            >
               Shared trending post
             </TransText>
           )}
@@ -211,20 +216,8 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
           flex: "none",
           ...style?.container?.smallScreen,
         },
-      }}>
-      <AppLogo
-        color={theme.palette.gray[300]}
-        sx={{
-          position: "absolute",
-          zIndex: 5,
-          top: 28,
-          left: 36,
-          [theme.breakpoints.down("sm")]: {
-            left: 32,
-          },
-        }}
-      />
-
+      }}
+    >
       {isLoading ? (
         <PostSkeleton
           quantity={1}
@@ -251,7 +244,8 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
               gap: theme.gap(8),
               alignItems: "center",
               padding: theme.boxSpacing(18),
-            }}>
+            }}
+          >
             <TransText
               {...COMMON_FEEDBACK.quote1}
               component="h6"
@@ -269,7 +263,8 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
                 width: "100%",
                 textAlign: "center",
                 color: theme.palette.primary.light,
-              }}>
+              }}
+            >
               ~ Funstakes
             </TransText>
           </Stack>

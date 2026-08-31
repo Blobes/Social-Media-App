@@ -108,10 +108,10 @@ export const executeAccountUpdate = async (
         };
       }
       activeIdType = tokenPayload.otpIdentifierType;
-    } catch {
+    } catch (err: any) {
       return {
-        status: "UNAUTHORIZED",
-        transInfo: MESSAGES_REGISTRY.AUTH.UNAUTHORIZED,
+        status: "BAD_REQUEST",
+        transInfo: MESSAGES_REGISTRY.AUTH.UNKNOWN_SERVER_ERROR(err.message),
       };
     }
   }
@@ -156,7 +156,7 @@ export const executeAccountUpdate = async (
       };
     }
 
-    case "PASSWORD_RESET_VERIFICATION": {
+    case "PASSWORD_RESET": {
       if (activeIdType === "EMAIL") {
         user.isEmailVerified = true;
         user.lastEmailOtpSentAt = null;

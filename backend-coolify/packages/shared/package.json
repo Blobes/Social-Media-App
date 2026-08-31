@@ -17,7 +17,6 @@
     "cookie-parser": "catalog:",
     "cors": "catalog:",
     "dotenv": "catalog:",
-    "@upstash/redis": "catalog:",
     "bullmq": "catalog:",
     "ua-parser-js": "catalog:",
     "node-asynq": "catalog:",

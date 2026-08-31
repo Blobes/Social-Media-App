@@ -109,7 +109,7 @@ export const useLogin = ({ identifier, setStep, inputType }: LoginProps) => {
   /**
    * Executes authentication mutation request.
    */
-  const { mutate, isPending: isMutationLoading } = useMutation({
+  const { mutate: executeLogin, isPending: isMutationLoading } = useMutation({
     mutationFn: async () => {
       if (!identifier) return;
       await delay();
@@ -142,9 +142,9 @@ export const useLogin = ({ identifier, setStep, inputType }: LoginProps) => {
     (e: React.SubmitEvent) => {
       e.preventDefault();
       if (isLocked) return;
-      mutate();
+      executeLogin();
     },
-    [isLocked, mutate],
+    [isLocked, executeLogin],
   );
 
   return {

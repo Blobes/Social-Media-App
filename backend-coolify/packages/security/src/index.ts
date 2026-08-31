@@ -13,8 +13,8 @@ export * from "./audit/logger/services";
 // Authorization
 export * from "./authorization/middlewares/gatewayParser";
 export * from "./authorization/middlewares/enforce";
-export * from "./authorization/services/assign";
-export * from "./authorization/services/securityClaims";
+export * from "./authorization/helpers";
 export * from "./authorization/policies";
 export * from "./authorization/services/loadResource";
 export * from "./authorization/services/subscription";
+export * from "./authorization/migration/sync";

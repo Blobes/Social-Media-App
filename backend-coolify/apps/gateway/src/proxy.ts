@@ -12,15 +12,12 @@ import {
   POST_URL,
   WORKER_URL,
 } from "./envVars";
-import { gatewayAuthMiddleware } from "./middleware";
+import { forwardIdHeaders } from "./middleware";
 
 const router: Router = Router();
 
-/**
- * Apply gateway authentication middleware globally across proxy routes.
- * Populates req.user and sets downstream headers (x-user-id, x-user-roles, etc.).
- */
-router.use(gatewayAuthMiddleware(JWT_SECRET));
+// Apply gateway authentication middleware globally across proxy routes.
+router.use(forwardIdHeaders(JWT_SECRET));
 
 /**
  * Factory that initializes http-proxy-middleware instances statically.

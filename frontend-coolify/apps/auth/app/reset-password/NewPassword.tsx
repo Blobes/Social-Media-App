@@ -19,7 +19,7 @@ import {
 } from "@repo/core";
 import { useStaticTranslation, useGuides } from "@repo/shared-hooks";
 import { useReset } from "./useReset";
-import { ResetStepProps } from "../../types";
+import { ResetStepProps } from "../types";
 
 /**
  * Secure step component enforcing dynamic mutation updates inside authorized timeframes.
@@ -56,7 +56,8 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
           width: "100%",
           gap: theme.gap(8),
           paddingBottom: theme.boxSpacing(8),
-        }}>
+        }}
+      >
         <TransText
           {...AUTH_FEEDBACK.set_new_password_headline}
           component="h3"
@@ -83,13 +84,15 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
       <Stack
         sx={{ gap: theme.gap(8), width: "100%" }}
         component="form"
-        onSubmit={handleNewPasswordSubmit}>
+        onSubmit={handleNewPasswordSubmit}
+      >
         <Stack
           sx={{
             gap: theme.gap(8),
             flexDirection: "row",
             justifyContent: "space-between",
-          }}>
+          }}
+        >
           {/* Cancel CTA */}
           <AppButton
             variant="text"
@@ -98,7 +101,8 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
             options={{ disabled: isNewPasswordLoading }}
             style={{
               color: theme.palette.error.dark,
-            }}>
+            }}
+          >
             <TransText {...COMMON_BUTTON_LABELS.cancel} noComponent />
           </AppButton>
           {/* Timer */}
@@ -112,7 +116,8 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
               borderRadius: theme.radius[2],
               textAlign: "center",
               fontWeight: 700,
-            }}>
+            }}
+          >
             {Math.floor(timeLeft / 60)}:
             {(timeLeft % 60).toString().padStart(2, "0")}
           </span>
@@ -161,7 +166,8 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
         }}
         options={{
           disabled: isNewPasswordSubmitDisabled,
-        }}>
+        }}
+      >
         {isNewPasswordLoading ? (
           <ProgressIcon options={{ size: 25 }} />
         ) : (

@@ -12,7 +12,6 @@
     "cookie-parser": "catalog:",
     "cors": "catalog:",
     "dotenv": "catalog:",
-    "@upstash/redis": "catalog:",
     "ua-parser-js": "catalog:",
     "@repo/shared": "workspace:*",
     "@repo/database": "workspace:*"

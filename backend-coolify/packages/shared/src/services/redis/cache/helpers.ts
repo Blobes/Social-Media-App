@@ -161,7 +161,7 @@ export const getCachedPermissionsForRoles = async (
 
   const permissionNames = permissions.map((p) => p.name as PermissionName);
 
-  await setCache(cacheKey, permissionNames, CACHE_EXPIRY.HOUR_1 || 3600);
+  await setCache(cacheKey, permissionNames, CACHE_EXPIRY.HOUR_1);
 
   return new Set<PermissionName>(permissionNames);
 };

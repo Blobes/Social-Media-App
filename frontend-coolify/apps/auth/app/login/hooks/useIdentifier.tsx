@@ -5,12 +5,7 @@ import { useDynamicInputValidation, usePage } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { CheckRequest, LoginService } from "../service";
 import { delay, getSavedIdentifier, sanitizePhoneNumber } from "@repo/helpers";
-import {
-  CLIENT_ROUTES,
-  ApiError,
-  GenericStyle,
-  CheckPurpose,
-} from "@repo/core";
+import { CLIENT_ROUTES, ApiError, GenericStyle } from "@repo/core";
 import { useTheme } from "@mui/material/styles";
 import { useLoginFeedback } from "./useFeedback";
 import { LoginProps } from "../../types";

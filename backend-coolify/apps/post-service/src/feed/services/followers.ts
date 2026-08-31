@@ -117,7 +117,7 @@ export const executeGetFollowersPosts = async (
       }),
     };
 
-    const fetchLimit = 100;
+    const fetchLimit = Math.max(100, skip + limit);
     const pipeline = getStaticPostList({
       matchFilter,
       limit: fetchLimit,

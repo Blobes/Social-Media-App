@@ -68,7 +68,7 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
   const { translateTxtString } = useStaticTranslation();
 
   const inlineLinkStyle = {
-    color: theme.palette.primary.main,
+    color: theme.palette.primary.dark,
     flex: "none",
     "&:hover": {
       color: theme.palette.primary.dark,
@@ -96,7 +96,8 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         [theme.breakpoints.down("sm")]: {
           width: style.container?.smScreen,
         },
-      }}>
+      }}
+    >
       <AppLogo size={50} />
       <Stack
         gap={theme.gap(4)}
@@ -106,7 +107,8 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           [theme.breakpoints.down("md")]: {
             paddingBottom: theme.boxSpacing(12),
           },
-        }}>
+        }}
+      >
         <TransText
           {...COMMON_FEEDBACK.predict_stake_win}
           component="h3"
@@ -147,7 +149,8 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             gap: theme.gap(4),
             width: "100%",
           }}
-          options={{ disabled: isSubmitLoading }}>
+          options={{ disabled: isSubmitLoading }}
+        >
           <SVGWrapper
             src={asset.googleLogo}
             size={20}
@@ -161,7 +164,8 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             gap: theme.gap(4),
             width: "100%",
           }}
-          options={{ disabled: isSubmitLoading }}>
+          options={{ disabled: isSubmitLoading }}
+        >
           <SVGWrapper
             src={asset.appleLogo}
             size={20}
@@ -178,7 +182,8 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           color: theme.palette.gray[200],
           width: "100%",
           margin: 0,
-        }}>
+        }}
+      >
         <TransText {...AUTH_FEEDBACK.or_sign_up_with} noComponent />
       </Divider>
 
@@ -191,7 +196,8 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
         sx={{ gap: theme.gap(6), width: "100%" }}
         component="form"
         onSubmit={handleSubmit}
-        noValidate>
+        noValidate
+      >
         <DynamicInput
           required
           value={email}
@@ -245,7 +251,8 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
             width: "100%",
             marginTop: theme.gap(4),
           }}
-          options={{ disabled: isSubmitDisabled }}>
+          options={{ disabled: isSubmitDisabled }}
+        >
           {isSubmitLoading ? (
             <ProgressIcon options={{ size: 25 }} />
           ) : (
@@ -260,7 +267,8 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           justifyContent: "center",
           paddingTop: theme.boxSpacing(8),
           gap: theme.gap(2),
-        }}>
+        }}
+      >
         <TransText
           {...AUTH_FEEDBACK.already_have_an_account}
           component="p"
@@ -276,7 +284,8 @@ export const Signup: React.FC<SignupProps> = ({ style = {} }) => {
           href={CLIENT_ROUTES.login.path}
           style={{
             ...inlineLinkStyle,
-          }}>
+          }}
+        >
           <TransText {...AUTH_BUTTON_LABELS.login} noComponent />
         </AnchorLink>
       </Stack>

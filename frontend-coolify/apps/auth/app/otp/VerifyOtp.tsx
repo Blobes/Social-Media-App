@@ -8,10 +8,10 @@ import {
   InlineMsgUI,
   OtpInput,
   ProgressIcon,
+  SVGWrapper,
   TransText,
 } from "@repo/shared-ui";
 import { OtpOptions, useOtp } from "./useOtp";
-import { ShieldCheckIcon, SquareAsterisk } from "lucide-react";
 import {
   AUTH_BUTTON_LABELS,
   AUTH_FEEDBACK,
@@ -21,6 +21,7 @@ import {
 } from "@repo/core";
 import { Logout } from "@repo/features";
 import { useMisc } from "@repo/shared-hooks";
+import { asset } from "@repo/assets";
 
 /**
  * All available messaging channels.
@@ -99,6 +100,9 @@ export const VerifyOtp = <P extends TransitPurpose>({
         width: "30%",
         minWidth: 300,
         maxWidth: 600,
+        [theme.breakpoints.down("lg")]: {
+          width: "50%",
+        },
         [theme.breakpoints.down("sm")]: {
           width: "100%",
           minWidth: "unset",
@@ -108,20 +112,34 @@ export const VerifyOtp = <P extends TransitPurpose>({
       }}
     >
       <Stack
-        spacing={theme.gap(2)}
-        sx={{ textAlign: "center", alignItems: "center" }}
+        sx={{ gap: theme.gap(2), textAlign: "center", alignItems: "center" }}
       >
         {isAuthenticator ? (
-          <ShieldCheckIcon
-            size={60}
-            strokeWidth="1.5px"
-            style={{ stroke: theme.palette.primary.main }}
+          <SVGWrapper
+            src={asset.authenticator}
+            size={90}
+            fallbackUIType="SKELETON"
+            sx={{
+              marginBottom: theme.boxSpacing(8),
+              flex: "none",
+              alignSelf: "center",
+            }}
           />
         ) : (
-          <SquareAsterisk
-            size={60}
-            strokeWidth="1.5px"
-            style={{ stroke: theme.palette.primary.main }}
+          <SVGWrapper
+            src={asset.hashedStars}
+            size={100}
+            color={theme.palette.primary.dark}
+            fallbackUIType="SKELETON"
+            sx={{
+              height: "unset",
+              padding: theme.boxSpacing(8),
+              marginBottom: theme.boxSpacing(8),
+              background: theme.fixedColors.pTrans,
+              borderRadius: theme.radius[3],
+              flex: "none",
+              alignSelf: "center",
+            }}
           />
         )}
 

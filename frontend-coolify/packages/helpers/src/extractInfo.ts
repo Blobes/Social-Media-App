@@ -66,3 +66,20 @@ export const getImageFromText = (
 
   return { imageUrl };
 };
+
+/**
+ * Extracts specified dynamic keys from a payload object.
+ */
+export const extractPayloadKeys = <T extends object, K extends PropertyKey>(
+  payload: T | undefined | null,
+  keys: K[],
+): Partial<Record<K, unknown>> => {
+  if (!payload || typeof payload !== "object") return {};
+
+  return keys.reduce<Partial<Record<K, unknown>>>((acc, key) => {
+    if (key in payload) {
+      acc[key] = (payload as Record<PropertyKey, unknown>)[key];
+    }
+    return acc;
+  }, {});
+};

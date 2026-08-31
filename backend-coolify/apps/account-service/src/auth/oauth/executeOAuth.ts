@@ -1,10 +1,5 @@
 import { authTokens } from "@/envVars";
-import {
-  IUserDocument,
-  ModerationDecision,
-  ROLES,
-  UserModel,
-} from "@repo/database";
+import { IUserDocument, ModerationDecision, UserModel } from "@repo/database";
 import {
   buildLocationFromIp,
   fetchSingleUser,
@@ -22,8 +17,9 @@ import {
   verifyAppleToken,
   verifyGoogleToken,
 } from "./oAuthClients";
-import { assignUserRole, issueAuthTokens } from "@repo/security";
+import { issueAuthTokens } from "@repo/security";
 import mongoose from "mongoose";
+import { syncDefaultRole } from "../helpers/syncRole";
 
 export type OAuthProvider = "GOOGLE" | "APPLE";
 export type OAuthPurpose = "REGISTRATION" | "LOGIN";
@@ -146,12 +142,8 @@ export const authenticateWithOAuth = async (
       });
       await newUser.save({ session });
 
-      await assignUserRole({
-        userId: newUser._id,
-        roleName: ROLES.COMMUNITY.USER,
-        reason: `Initial user onboarding via ${provider} OAuth`,
-        session,
-      });
+      // Directly provision baseline entitlements for fresh OAuth account
+      await syncDefaultRole(newUser._id, { session, skipCheck: true });
 
       const device = await upsertDevice(
         newUser,
@@ -235,6 +227,9 @@ export const authenticateWithOAuth = async (
     user.lastActiveAt = new Date();
     await user.save();
   }
+
+  // Idempotently guarantee baseline role and subscription for existing account login
+  await syncDefaultRole(user._id);
 
   const device = await upsertDevice(user, deviceToken, userAgent);
 

@@ -37,7 +37,6 @@ export const sendChannelOtp = async (
   try {
     const serviceResult = await executeOtpDispatch({
       recipient,
-
       userAgent,
       deviceToken,
       userIp: clientIp,

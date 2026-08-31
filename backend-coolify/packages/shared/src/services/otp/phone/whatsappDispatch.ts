@@ -3,7 +3,7 @@ import { IPhoneDispatchTokens } from "../../../types/general";
 import { createDomainError } from "../../../utils/error";
 import { enforceOtpRateLimit } from "./rateLimit";
 import { IPhoneRecipient } from "./smsDispatch";
-import { APP_INFO } from "./variables";
+import { APP_INFO } from "../variables";
 
 export type WhatsAppApiResponse = {
   error?: {

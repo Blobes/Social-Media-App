@@ -17,14 +17,10 @@ export interface IOtpActionInput {
 /**
  * Mints a short-lived signed action token authorizing post-verification operations.
  */
-export const signOtpActionToken = (
-  payload: IOtpActionInput,
-): string => {
-  return jwt.sign(
-    payload,
-    authTokens.ACCESS_TOKEN_SECRET,
-    { expiresIn: "10m" },
-  );
+export const signOtpActionToken = (payload: IOtpActionInput): string => {
+  return jwt.sign(payload, authTokens.ACCESS_TOKEN_SECRET, {
+    expiresIn: "10m",
+  });
 };
 
 /**
@@ -42,11 +38,7 @@ export const verifyOtpActionToken = (
 
     if (decoded.purpose !== expectedPurpose) {
       const transMsg = MESSAGES_REGISTRY.AUTH.INVALID_OTP_VERIFICATION_PURPOSE;
-      throw createDomainError(
-        transMsg.message,
-        transMsg.i18nKey,
-        400,
-      );
+      throw createDomainError(transMsg.message, transMsg.i18nKey, 400);
     }
 
     return decoded;
@@ -57,18 +49,10 @@ export const verifyOtpActionToken = (
 
     if (err instanceof jwt.TokenExpiredError) {
       const transMsg = MESSAGES_REGISTRY.AUTH.MISSING_TOKEN;
-      throw createDomainError(
-        transMsg.message,
-        transMsg.i18nKey,
-        401,
-      );
+      throw createDomainError(transMsg.message, transMsg.i18nKey, 401);
     }
 
     const transMsg = MESSAGES_REGISTRY.AUTH.INVALID_TOKEN;
-    throw createDomainError(
-      transMsg.message,
-      transMsg.i18nKey,
-      401,
-    );
+    throw createDomainError(transMsg.message, transMsg.i18nKey, 401);
   }
 };

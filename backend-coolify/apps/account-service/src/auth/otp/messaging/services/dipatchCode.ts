@@ -99,8 +99,9 @@ export const executeOtpDispatch = async (
   }
 
   const newCode = genVerificationCode();
+  console.log(hashCode(newCode));
   user.otpCode = hashCode(newCode);
-  user.otpCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+  user.otpCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
   if (isEmail) {
     user.lastEmailOtpSentAt = new Date();

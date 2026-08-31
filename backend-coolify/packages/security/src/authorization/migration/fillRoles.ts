@@ -6,7 +6,7 @@ import {
   RolePermissionModel,
   PERMISSIONS,
 } from "@repo/database";
-import { assignUserRole } from "../services/assign";
+import { assignUserRole } from "../helpers";
 
 /**
  * Backfills standard community role to all existing active users.

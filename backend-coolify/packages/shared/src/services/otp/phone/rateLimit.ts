@@ -1,5 +1,5 @@
 import { MESSAGES_REGISTRY } from "../../../constants/msgRegistry";
-import { createDomainError, IAppError } from "../../../utils/error";
+import { createDomainError } from "../../../utils/error";
 import { CacheService } from "../../redis/cache/service";
 
 /**

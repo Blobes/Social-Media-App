@@ -78,7 +78,8 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
           type === "SUCCESS"
             ? theme.palette.info.main
             : theme.palette.error.trans[1],
-      }}>
+      }}
+    >
       <div
         style={{
           display: "flex",
@@ -86,7 +87,8 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
           alignItems: "center",
           gap: theme.gap(6),
           flex: 1,
-        }}>
+        }}
+      >
         <AlertCircle
           size={20}
           style={{
@@ -107,7 +109,11 @@ export const InlineMsgUI: React.FC<MsgProps> = ({
           sx={{
             padding: theme.boxSpacing(2),
             flexShrink: 0,
-          }}>
+            "& svg": {
+              stroke: theme.palette.error.main,
+            },
+          }}
+        >
           <X size={16} />
         </IconButton>
       )}

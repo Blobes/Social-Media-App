@@ -12,11 +12,11 @@ interface IPhoneChangeInput {
   code: string;
 }
 
-interface IPhoneChnageResult {
+interface IPhoneChangeResult {
   status: "SUCCESS" | "NOT_FOUND" | "EXPIRED" | "INVALID_CODE";
   transInfo: TransInfo;
   payload?: {
-    phoneNumber: string;
+    identifier: string;
     loggedOut: boolean;
   };
 }
@@ -26,7 +26,7 @@ interface IPhoneChnageResult {
  */
 export const executePhoneChange = async (
   input: IPhoneChangeInput,
-): Promise<IPhoneChnageResult> => {
+): Promise<IPhoneChangeResult> => {
   const { userId, currentDeviceId, code } = input;
 
   const user = await fetchSingleUser({
@@ -79,7 +79,7 @@ export const executePhoneChange = async (
     status: "SUCCESS",
     transInfo: MESSAGES_REGISTRY.AUTH.PHONE_VERIFIED_SESSIONS_ENDED,
     payload: {
-      phoneNumber: user.phoneNumber,
+      identifier: user.phoneNumber,
       loggedOut: !isCurrentDevicePrimary,
     },
   };

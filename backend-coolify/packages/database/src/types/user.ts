@@ -33,7 +33,7 @@ export interface IUserDocument extends Document {
   emailHash?: string;
   username?: string;
   usernameCanonical?: string;
-  password: string | null;
+  password?: string | null;
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;

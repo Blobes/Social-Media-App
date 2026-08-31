@@ -7,7 +7,7 @@ import { Stack } from "@mui/material";
 import { IStep, PasswordResetStepName } from "@repo/core";
 import { CredentialStep } from "./Credential";
 import { NewPasswordStep } from "./NewPassword";
-import { ResetStepProps } from "../../types";
+import { ResetStepProps } from "../types";
 
 /**
  * Top level controller switching presentation stages via unified linear routing matrices.

@@ -24,7 +24,7 @@ import {
 import { ArrowLeft } from "lucide-react";
 import { useGuides, useStaticTranslation } from "@repo/shared-hooks";
 import { useReset } from "./useReset";
-import { ResetStepProps } from "../../types";
+import { ResetStepProps } from "../types";
 
 /**
  * Primary identity resolution view checking credentials and binding target identifiers.

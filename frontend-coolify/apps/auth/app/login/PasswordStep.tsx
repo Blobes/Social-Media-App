@@ -67,10 +67,10 @@ export const PasswordStep: React.FC<LoginProps> = ({
         [theme.breakpoints.down("md")]: {
           width: "100%",
         },
-      }}>
-      {/* <ShieldHalfIcon size={40} style={{ alignSelf: "center" }} /> */}
+      }}
+    >
       <SVGWrapper
-        src={asset.moonRocket}
+        src={asset.shield}
         size={70}
         color={theme.palette.primary.dark}
         fallbackUIType="SKELETON"
@@ -113,7 +113,8 @@ export const PasswordStep: React.FC<LoginProps> = ({
           gap: theme.gap(24),
         }}
         component="form"
-        onSubmit={handleSubmit}>
+        onSubmit={handleSubmit}
+      >
         <Stack sx={{ gap: theme.gap(8) }}>
           {/* User Identifier Snapshot */}
           <Stack direction="row" gap={theme.gap(2)}>
@@ -128,11 +129,13 @@ export const PasswordStep: React.FC<LoginProps> = ({
                 backgroundColor: theme.fixedColors.pTrans,
                 width: "100%",
                 fontWeight: "500",
-              }}>
+              }}
+            >
               {identifier}
             </TransText>
             <BasicTooltip
-              title={translateTxtString(AUTH_BUTTON_LABELS.change_credential)}>
+              title={translateTxtString(AUTH_BUTTON_LABELS.change_credential)}
+            >
               <IconButton
                 sx={{
                   padding: theme.boxSpacing(4, 4),
@@ -144,7 +147,8 @@ export const PasswordStep: React.FC<LoginProps> = ({
                 onClick={() => {
                   setInlineMsg(null);
                   setStep?.("IDENTIFIER");
-                }}>
+                }}
+              >
                 <Pencil
                   style={{ width: "18px", stroke: theme.palette.gray[300] }}
                 />
@@ -188,7 +192,8 @@ export const PasswordStep: React.FC<LoginProps> = ({
                 password === "" ||
                 isLocked ||
                 isAuthLoading,
-            }}>
+            }}
+          >
             {isAuthLoading ? (
               <ProgressIcon options={{ size: 25 }} />
             ) : (
@@ -200,16 +205,16 @@ export const PasswordStep: React.FC<LoginProps> = ({
             href={CLIENT_ROUTES.resetPassword.path}
             onClick={handleResetPassClick}
             style={{
-              color: theme.palette.primary.main,
+              color: theme.palette.primary.dark,
               flex: "none",
               alignSelf: "center",
               "&:hover": {
                 textAlign: "center",
-                color: theme.palette.primary.dark,
                 textDecoration: "underline",
                 fontWeight: 600,
               },
-            }}>
+            }}
+          >
             <TransText {...COMMON_BUTTON_LABELS.reset_password} noComponent />
           </AnchorLink>
         </Stack>

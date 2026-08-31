@@ -11,7 +11,6 @@ import {
 } from "@repo/shared";
 import { signOtpActionToken } from "./verificationToken";
 
-
 interface IVerifyOtpInput {
   recipient: string;
   code: string;
@@ -29,11 +28,10 @@ interface IVerifyOtpResult {
     | "INVALID_CHANNEL";
   transInfo?: TransInfo;
   payload?: {
-    userId?: string;
+    identifier?: string;
     verificationToken: string;
     purpose: OtpActionType;
     otpIdentifierType: OtpIdentifierType;
-    
   };
 }
 
@@ -77,6 +75,7 @@ export const executeOtpVerification = async (
     };
   }
 
+  console.log(hashCode(code));
   if (hashCode(code) !== user.otpCode) {
     return {
       status: "INVALID_CODE",
@@ -104,7 +103,7 @@ export const executeOtpVerification = async (
     status: "SUCCESS",
     transInfo: MESSAGES_REGISTRY.AUTH.OTP_VERIFIED_SUCCESSFULLY,
     payload: {
-      userId: String(user._id),
+      identifier: String(user._id),
       verificationToken,
       purpose,
       otpIdentifierType,

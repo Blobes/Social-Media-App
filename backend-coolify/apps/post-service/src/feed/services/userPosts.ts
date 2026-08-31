@@ -82,7 +82,7 @@ export const executeGetUserPosts = async (
       status: "PUBLISHED" as PostContentStatus,
     };
 
-    const fetchLimit = 100;
+    const fetchLimit = Math.max(100, skip + limit);
     const pipeline = getStaticPostList({
       matchFilter,
       limit: fetchLimit,

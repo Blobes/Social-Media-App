@@ -78,7 +78,7 @@ router.post("/otp/send-msg-code", sendChannelOtp);
 router.post("/otp/verify-msg-code", verifyChannelOtp);
 router.patch(
   "/otp/update-account",
-  authenticate,
+  // authenticate,
   requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
   commitAccountUpdate,
 );

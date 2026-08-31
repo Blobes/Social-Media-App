@@ -173,7 +173,7 @@ export const apiClient = async <T>(
     } else {
       apiErr.localizedErrMsg = translateAPIMessage({
         i18nKey: COMMON_FEEDBACK.unknown_error.tKey,
-        message: error.message,
+        message: error.message || COMMON_FEEDBACK.unknown_error.tValue,
       });
       apiErr.httpStatus = 500;
       apiErr.status = "ERROR";

@@ -19,16 +19,14 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "paths": {
-      "@repo/assets": ["./packages/assets/*"],
-      "@repo/core": ["./packages/core/*"],
-      "@repo/features": ["./packages/features/*"],
-      "@repo/helpers": ["./packages/helpers/*"],
-      "@repo/shared-hooks": ["./packages/shared-hooks/*"],
-      "@repo/shared-ui": ["./packages/shared-ui/*"]
-      // "@repo/*": ["./packages/src/*"]
+      "@repo/assets": ["./packages/assets/index.ts"],
+      "@repo/core": ["./packages/core/index.ts"],
+      "@repo/features": ["./packages/features/index.ts"],
+      "@repo/helpers": ["./packages/helpers/index.ts"],
+      "@repo/shared-hooks": ["./packages/shared-hooks/index.ts"],
+      "@repo/shared-ui": ["./packages/shared-ui/index.ts"]
     }
   },
-
   "include": [
     "packages/**/*.ts",
     "packages/**/*.tsx",

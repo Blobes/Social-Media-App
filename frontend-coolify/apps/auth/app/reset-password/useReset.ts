@@ -10,7 +10,6 @@ import {
 } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
 import { useAuthNavigation, usePopup } from "@repo/features";
-import { useOtp } from "../../otp/useOtp";
 import {
   delay,
   sanitizePhoneNumber,
@@ -31,8 +30,8 @@ import {
   IUser,
 } from "@repo/core";
 import { ResetPasswordService } from "./service";
-import { CheckRequest, LoginService } from "../../login/service";
-import { ResetStepProps } from "../../types";
+import { ResetStepProps } from "../types";
+import { CheckRequest, LoginService } from "../login/service";
 
 /**
  * Orchestrates state management, validation, and mutations for password reset workflows.

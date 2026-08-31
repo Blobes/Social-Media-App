@@ -23,7 +23,7 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
       type: String,
       trim: true,
     },
-    password: { type: String, required: true, default: null },
+    password: { type: String, default: null },
     firstName: {
       type: String,
       trim: true,

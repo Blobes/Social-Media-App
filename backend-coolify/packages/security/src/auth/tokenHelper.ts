@@ -1,7 +1,7 @@
 import { IUserDocument } from "@repo/database";
 import { toJwtUser, IAuthConfig } from "@repo/shared";
 import { signAccessJwt, signRefreshJwt } from "./jwt";
-import { getUserSecurityClaims } from "../authorization/services/securityClaims";
+import { getUserSecurityClaims } from "../authorization/helpers";
 
 export type TokenTypeOption = "ALL" | "ACCESS_ONLY" | "REFRESH_ONLY";
 

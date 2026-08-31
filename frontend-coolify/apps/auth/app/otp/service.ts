@@ -47,6 +47,11 @@ export interface TotpVerificationResponse {
   backupCodes?: string[];
 }
 
+export interface IdentifierChangeResult {
+  identifier?: string;
+  loggedOut?: boolean;
+}
+
 export const OtpService = () => {
   const dispatchMsgCode = async (
     request: OtpRequest,
@@ -90,7 +95,7 @@ export const OtpService = () => {
 
   const finalizeEmailUpdateOtp = async (
     code: string,
-  ): Promise<ISinglePayload<any>> => {
+  ): Promise<ISinglePayload<IdentifierChangeResult>> => {
     return await apiClient(SERVER_API.finalizeEmailChange, {
       method: "PATCH",
       body: JSON.stringify({ code }),
@@ -99,7 +104,7 @@ export const OtpService = () => {
 
   const finalizePhoneUpdateOtp = async (
     code: string,
-  ): Promise<ISinglePayload<any>> => {
+  ): Promise<ISinglePayload<IdentifierChangeResult>> => {
     return await apiClient(SERVER_API.finalizePhoneChange, {
       method: "PATCH",
       body: JSON.stringify({ code }),

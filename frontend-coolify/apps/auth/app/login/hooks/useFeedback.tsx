@@ -204,6 +204,8 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
                 style={{
                   marginLeft: theme?.gap(2),
                   ...inlineTxtStyle,
+                  textDecoration: "underline",
+                  color: theme?.palette.error.dark,
                 }}
               >
                 <TransText {...AUTH_BUTTON_LABELS.create_account} noComponent />

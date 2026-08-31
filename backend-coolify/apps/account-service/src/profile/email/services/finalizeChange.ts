@@ -22,6 +22,7 @@ interface IEmailChangeResult {
     | "INVALID_CODE";
   transInfo: TransInfo;
   payload?: {
+    identifier: string;
     loggedOut: boolean;
   };
 }
@@ -97,6 +98,6 @@ export const executeEmailChange = async (
   return {
     status: "SUCCESS",
     transInfo: MESSAGES_REGISTRY.AUTH.EMAIL_UPDATED_SESSIONS_ENDED,
-    payload: { loggedOut: !isCurrentDevicePrimary },
+    payload: { identifier: user.email, loggedOut: !isCurrentDevicePrimary },
   };
 };

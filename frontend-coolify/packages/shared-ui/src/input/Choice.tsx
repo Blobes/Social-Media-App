@@ -69,13 +69,13 @@ export const ChoiceInput = ({
     return (
       <Stack
         sx={{
-          width: 26,
-          height: 26,
+          width: 28,
+          height: 28,
           borderRadius: theme.radius.full,
           backgroundColor: isChecked
             ? theme.palette.primary.dark
             : theme.palette.gray[200],
-          padding: theme.boxSpacing(2.5),
+          padding: theme.boxSpacing(1),
           alignItems: "center",
           justifyContent: "center",
           "& svg": {
@@ -84,7 +84,8 @@ export const ChoiceInput = ({
             stroke: theme.fixedColors.gray50,
             strokeWidth: 3,
           },
-        }}>
+        }}
+      >
         {customIcon ?? (isChecked ? <Check /> : null)}
       </Stack>
     );
@@ -110,7 +111,8 @@ export const ChoiceInput = ({
           stroke: theme.fixedColors.gray50,
           strokeWidth: 4,
         },
-      }}>
+      }}
+    >
       {checked &&
         (type === "radio" ? (
           <Box
@@ -153,8 +155,8 @@ export const ChoiceInput = ({
             icon={renderSwitchIcon(false)}
             checkedIcon={renderSwitchIcon(true)}
             sx={{
-              width: 52,
-              height: 34,
+              width: 50,
+              height: 28,
               padding: 0,
               display: "flex",
               alignItems: "center",
@@ -182,9 +184,8 @@ export const ChoiceInput = ({
                 padding: theme.boxSpacing(1),
                 top: "unset",
                 left: 4,
-
                 "&.Mui-checked": {
-                  transform: "translateX(16px)",
+                  transform: "translateX(12px)",
                   "& + .MuiSwitch-track": {
                     backgroundColor: theme.fixedColors.pTrans,
                     borderColor: theme.palette.primary.main,
@@ -195,6 +196,7 @@ export const ChoiceInput = ({
                   width: "100%",
                   left: 0,
                 },
+                "& .MuiStack-root": { width: 26, height: 18 },
               },
             }}
           />
@@ -228,14 +230,16 @@ export const ChoiceInput = ({
         [theme.breakpoints.down("md")]: {
           ...style?.container?.smallScreen,
         },
-      }}>
+      }}
+    >
       <Stack
         sx={{
           flexDirection: "row",
           alignItems: "center",
           gap: theme.gap(2),
           ...style?.content,
-        }}>
+        }}
+      >
         <FormControlLabel
           control={renderControl()}
           required={required}
@@ -247,7 +251,8 @@ export const ChoiceInput = ({
                   color: error
                     ? theme.palette.error.main
                     : theme.palette.gray[300],
-                }}>
+                }}
+              >
                 {label}
               </span>
             ) : null
@@ -274,7 +279,8 @@ export const ChoiceInput = ({
                 "&:hover": {
                   backgroundColor: theme.palette.gray.trans[1],
                 },
-              }}>
+              }}
+            >
               <CircleQuestionMark size={18} />
             </Box>
           </BasicTooltip>
@@ -287,7 +293,8 @@ export const ChoiceInput = ({
           sx={{
             marginLeft: theme.spacing(1),
             marginTop: 0,
-          }}>
+          }}
+        >
           {helperText}
         </FormHelperText>
       )}

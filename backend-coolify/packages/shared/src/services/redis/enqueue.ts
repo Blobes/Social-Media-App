@@ -2,11 +2,13 @@ import { Queue, QueueOptions } from "bullmq";
 import { Redis } from "ioredis";
 import { Client as AsynqClient, Task as AsynqTask } from "node-asynq";
 import { OtpJobPayload } from "../../types/general";
+import { CACHE_EXPIRY } from "../../constants/cacheKeys";
 
 export interface AsynqTaskOptions {
   queue?: string;
   maxRetry?: number;
   processAt?: number;
+  retention?: number;
 }
 
 export class QueueService {
@@ -117,8 +119,16 @@ export class QueueService {
         defaultJobOptions: {
           attempts: 3,
           backoff: { type: "exponential", delay: 1000 },
-          removeOnComplete: true,
-          removeOnFail: false,
+          // Retain completed jobs for 1 hour or max 500 count
+          removeOnComplete: {
+            age: CACHE_EXPIRY.HOUR_1,
+            count: 500,
+          },
+          // Retain failed jobs for 24 hours or max 1000 count
+          removeOnFail: {
+            age: CACHE_EXPIRY.HOUR_24,
+            count: 1000,
+          },
         },
       });
       this.bullInstances.set(queueName, queue);
@@ -142,6 +152,7 @@ export class QueueService {
     const queue = options.queue || "default";
     const maxRetry = options.maxRetry ?? 3;
     const processAt = options.processAt;
+    const retention = options.retention ?? CACHE_EXPIRY.HOUR_2; // Default to 2 hours retention (in seconds)
 
     console.log(
       "[enqueueAsynqTask] Dispatching payload task using node-asynq to queue:",
@@ -152,9 +163,10 @@ export class QueueService {
       const client = this.getAsynqClient(redisUrl);
       const task = new AsynqTask(typename, payload);
 
-      const taskOptions: any = {
-        queue: queue,
+      const taskOptions: Record<string, unknown> = {
+        queue,
         retry: maxRetry,
+        retention,
       };
 
       if (processAt && processAt > Math.floor(Date.now() / 1000)) {

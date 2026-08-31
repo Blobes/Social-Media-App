@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from "uuid";
 import { executeAccountCheck } from "../../check/service";
 import { verifyEncryptedPass } from "@/auth/helpers/encrypt";
 import { issueAuthTokens } from "@repo/security";
+import { syncDefaultRole } from "../../helpers/syncRole";
 
 interface ILoginInput {
   identifier: string;
@@ -116,13 +117,17 @@ export const authenticateUser = async (
     };
   }
 
+  const userId = user._id.toString();
+
+  // Ensure default role and subscription are present before issuing session state
+  await syncDefaultRole(user._id);
+
   const device = await upsertDevice(
     user as IUserDocument,
     deviceToken,
     userAgent,
   );
 
-  const userId = user._id.toString();
   const deviceIdString = device._id.toString();
 
   const primaryDeviceId = user.primaryDeviceId as

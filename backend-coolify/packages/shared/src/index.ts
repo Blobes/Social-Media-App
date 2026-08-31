@@ -8,9 +8,9 @@ export * from "./types/authorization";
 
 // Services
 //Otp
-export * from "./services/otp/channel/emailDispatch";
-export * from "./services/otp/channel/smsDispatch";
-export * from "./services/otp/channel/whatsappDispatch";
+export * from "./services/otp/email/emailDispatch";
+export * from "./services/otp/phone/smsDispatch";
+export * from "./services/otp/phone/whatsappDispatch";
 export * from "./services/otp/totp/setupTotp";
 export * from "./services/otp/totp/verifyTotp";
 // Redis
