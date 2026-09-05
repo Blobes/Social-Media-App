@@ -13,20 +13,7 @@ import { Request, RequestHandler } from "express";
 import mongoose, { InferSchemaType } from "mongoose";
 import { AuthorizationContext } from "./authorization";
 
-export type ILikelihood =
-  | "UNKNOWN"
-  | "VERY_UNLIKELY"
-  | "UNLIKELY"
-  | "POSSIBLE"
-  | "LIKELY"
-  | "VERY_LIKELY";
-
-export enum ISeverity {
-  CRITICAL = "CRITICAL", // Blocked + Account Flagged (Hard Block)
-  MODERATE = "MODERATE", // Blocked + Requires Edit (Soft Block)
-  LOW = "LOW", // Allowed + Labeled/Hidden (Soft Label)
-  NONE = "NONE",
-}
+export type VerificationMethod = "MESSAGING" | "TOTP" | "SECURITY_QUESTIONS";
 
 export type AppName =
   | "PLATFORM_SERVICE"
@@ -192,20 +179,6 @@ export interface IPostModData {
   topics?: string[];
   event: ModEventType;
   moderationTaskMode: ModerationTaskMode;
-}
-
-export interface FlagPostData {
-  postId: string;
-  postType: PostType;
-  authorId: string;
-  source: "AI" | "USER";
-  severity: ISeverity | null;
-  ruleViolated: string;
-  reason: string;
-  contentSnapshot: {
-    text?: string;
-    mediaIds?: string[];
-  };
 }
 
 export interface TransInfo {

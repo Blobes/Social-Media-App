@@ -18,7 +18,6 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   isConnected: false,
 
   initializeSocket: (token: string) => {
-    // Prevent duplicate connections if already active
     if (get().socket?.connected) return;
 
     const socketInstance = io(SOCKET_URL, {

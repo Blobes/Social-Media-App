@@ -12,21 +12,20 @@ import {
   COMMON_MEDIA,
   MediaProcessingProgress,
   MenuRef,
-  QUEUE_KEYS,
   TrackedFile,
   IMedia,
   CustomizedMedia,
   MediaProps,
+  STORAGE_KEYS,
 } from "@repo/core";
-import { checkDeviceCapability, compressVideoAsync } from "@repo/helpers";
 import { useStaticTranslation } from "./useTrans";
 
 export interface UseFileProcessingProps {
   stagedFiles: File[];
   setStagedFiles: React.Dispatch<React.SetStateAction<File[]>>;
   setErrorMessage: (msg: string | null) => void;
-  shouldCompress?: boolean;
 }
+
 export interface MockMediaFile {
   id: string;
   url: string;
@@ -34,11 +33,13 @@ export interface MockMediaFile {
   name: string;
   rawFile?: File;
 }
+
 export interface MediaFolder {
   id: string;
   name: string;
   files: MockMediaFile[];
 }
+
 interface UseMediaFileSelectorProps {
   initialMaximized?: boolean;
   allowDrag?: boolean;
@@ -52,20 +53,85 @@ interface UseMediaTransform {
 }
 
 /**
- * Manages local raw file staging pipelines with integrated, unified event progression metrics.
+ * Fast client-side image compression using Canvas and WebP conversion.
+ */
+const optimizeImageClientSide = async (file: File): Promise<File> => {
+  if (!file.type.startsWith("image/") || file.type === "image/gif") {
+    return file;
+  }
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+
+      const maxDimension = 2048;
+      let { width, height } = img;
+
+      if (width > maxDimension || height > maxDimension) {
+        if (width > height) {
+          height = Math.round((height * maxDimension) / width);
+          width = maxDimension;
+        } else {
+          width = Math.round((width * maxDimension) / height);
+          height = maxDimension;
+        }
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        resolve(file);
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            resolve(file);
+            return;
+          }
+          const optimizedFile = new File(
+            [blob],
+            file.name.replace(/\.[^/.]+$/, ".webp"),
+            { type: "image/webp" },
+          );
+          resolve(optimizedFile);
+        },
+        "image/webp",
+        0.85,
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(file);
+    };
+
+    img.src = objectUrl;
+  });
+};
+
+/**
+ * Lightweight client staging pipeline for preparing raw uploads to R2.
  */
 export const useFileProcessing = ({
   stagedFiles,
   setStagedFiles,
   setErrorMessage,
-  shouldCompress = false,
 }: UseFileProcessingProps) => {
-  const [compressingIds, setCompressingIds] = useState<string[]>([]);
-
+  const [isProcessingLocal, setIsProcessingLocal] = useState<boolean>(false);
   const { processingStates } = useFileProcessingProgress(stagedFiles);
 
   /**
-   * Processes raw inputs, attaches tracking variables, and pushes video streams to background workers when flag criteria are met.
+   * Assigns tracking IDs and optimizes images locally before staging.
    */
   const handleSelectedFiles = useCallback(
     async (input: ChangeEvent<HTMLInputElement> | File[]) => {
@@ -79,85 +145,53 @@ export const useFileProcessing = ({
         return;
       }
 
-      const processedFiles: File[] = [];
-
-      for (const file of rawFiles) {
-        const trackedFile = file as TrackedFile;
-        if (!trackedFile.trackingId) {
-          trackedFile.trackingId = Math.random().toString(36).substring(2, 9);
-        }
-        processedFiles.push(trackedFile);
-      }
-
-      setStagedFiles((prev) => [...prev, ...processedFiles]);
+      setIsProcessingLocal(true);
       setErrorMessage(null);
 
-      const highPerformanceAvailable = checkDeviceCapability();
+      try {
+        const processedFiles: File[] = await Promise.all(
+          rawFiles.map(async (file) => {
+            const trackingId =
+              Math.random().toString(36).substring(2, 9) +
+              Date.now().toString(36);
 
-      processedFiles.forEach(async (file) => {
-        if (
-          file.type.startsWith("video") &&
-          shouldCompress &&
-          highPerformanceAvailable
-        ) {
-          const tId = (file as TrackedFile).trackingId;
-          if (!tId) return;
+            let finalFile = file;
 
-          setCompressingIds((prev) => [...prev, tId]);
+            if (file.type.startsWith("image/")) {
+              finalFile = await optimizeImageClientSide(file);
+            }
 
-          const initEvent = new CustomEvent(
-            `${QUEUE_KEYS.MEDIA_COMPRESSION}-${tId}`,
-            {
-              detail: { status: "LOADING_ENGINE", progress: 0 },
-            },
-          );
-          window.dispatchEvent(initEvent);
+            const trackedFile = finalFile as TrackedFile;
+            trackedFile.trackingId = trackingId;
+            return trackedFile;
+          }),
+        );
 
-          try {
-            const compressedBlob = await compressVideoAsync(file, tId);
-            const compressedFile = new File([compressedBlob], file.name, {
-              type: "video/mp4",
-            }) as TrackedFile;
-            compressedFile.trackingId = tId;
-
-            setStagedFiles((prev) =>
-              prev.map((f) =>
-                (f as TrackedFile).trackingId === tId ? compressedFile : f,
-              ),
-            );
-          } catch (compressionError) {
-            console.warn(
-              "Local optimization aborting, reverting to uncompressed stream:",
-              compressionError,
-            );
-          } finally {
-            setCompressingIds((prev) => prev.filter((id) => id !== tId));
-          }
-        }
-      });
+        setStagedFiles((prev) => [...prev, ...processedFiles]);
+      } catch (err) {
+        console.error("Failed to process selected files locally:", err);
+        setErrorMessage("Failed to process media files. Please try again.");
+      } finally {
+        setIsProcessingLocal(false);
+      }
     },
-    [setStagedFiles, setErrorMessage, shouldCompress],
+    [setStagedFiles, setErrorMessage],
   );
 
   /**
-   * Removes tracking instances and purges active compression jobs.
+   * Removes tracking instances from staged file state.
    */
   const handleRemoveFile = useCallback(
     (targetIndex: number) => {
-      const targetFile = stagedFiles[targetIndex] as TrackedFile;
-      if (targetFile?.trackingId) {
-        const tId = targetFile.trackingId;
-        setCompressingIds((prev) => prev.filter((id) => id !== tId));
-      }
       setStagedFiles((prev) =>
         prev.filter((_, index) => index !== targetIndex),
       );
     },
-    [stagedFiles, setStagedFiles],
+    [setStagedFiles],
   );
 
   return {
-    compressingIds,
+    isProcessingLocal,
     processingStates,
     handleSelectedFiles,
     handleRemoveFile,
@@ -165,20 +199,13 @@ export const useFileProcessing = ({
 };
 
 /**
- * Subscribes to global window events tracking local compression loops and network storage uploads.
+ * Subscribes strictly to window network upload events.
  */
 export const useFileProcessingProgress = (files: File[]) => {
   const [processingStates, setProcessingStates] = useState<
-    Record<
-      string,
-      {
-        upload?: MediaProcessingProgress;
-        compression?: MediaProcessingProgress;
-      }
-    >
+    Record<string, { upload?: MediaProcessingProgress }>
   >({});
 
-  // Stable dependency mapping by extracting tracking details explicitly
   const fileTrackers = useMemo(() => {
     return files
       .map((f) => ({
@@ -200,17 +227,13 @@ export const useFileProcessingProgress = (files: File[]) => {
       handler: (e: Event) => void;
     }> = [];
 
-    // Pre-initialize tracking records for active IDs in a single pass
     setProcessingStates((prev) => {
       let currentMapHasChanges = false;
       const updatedMap = { ...prev };
 
       fileTrackers.forEach(({ trackingId }) => {
         if (!updatedMap[trackingId]) {
-          updatedMap[trackingId] = {
-            compression: undefined,
-            upload: undefined,
-          };
+          updatedMap[trackingId] = { upload: undefined };
           currentMapHasChanges = true;
         }
       });
@@ -218,44 +241,27 @@ export const useFileProcessingProgress = (files: File[]) => {
       return currentMapHasChanges ? updatedMap : prev;
     });
 
-    // Register active event listeners explicitly with clean removal handlers
     fileTrackers.forEach(({ trackingId, fileName }) => {
-      const channels = [
-        {
-          name: `${QUEUE_KEYS.MEDIA_COMPRESSION}-${trackingId}`,
-          key: "compression" as const,
-        },
-        {
-          name: `${QUEUE_KEYS.MEDIA_UPLOAD}-${trackingId}`,
-          key: "upload" as const,
-        },
-      ];
+      const eventName = `${STORAGE_KEYS.MEDIA_UPLOAD}-${trackingId}`;
 
-      channels.forEach(({ name, key }) => {
-        const handler = (event: Event) => {
-          const customEvent = event as CustomEvent<MediaProcessingProgress>;
+      const handler = (event: Event) => {
+        const customEvent = event as CustomEvent<MediaProcessingProgress>;
 
-          setProcessingStates((prev) => {
-            const currentRecord = prev[trackingId] || {};
-            return {
-              ...prev,
-              [trackingId]: {
-                ...currentRecord,
-                [key]: {
-                  fileName,
-                  ...customEvent.detail,
-                },
-              },
-            };
-          });
-        };
+        setProcessingStates((prev) => ({
+          ...prev,
+          [trackingId]: {
+            upload: {
+              fileName,
+              ...customEvent.detail,
+            },
+          },
+        }));
+      };
 
-        window.addEventListener(name, handler);
-        activeListeners.push({ eventName: name, handler });
-      });
+      window.addEventListener(eventName, handler);
+      activeListeners.push({ eventName, handler });
     });
 
-    // Guaranteed teardown cleanup function
     return () => {
       activeListeners.forEach(({ eventName, handler }) => {
         window.removeEventListener(eventName, handler);
@@ -504,7 +510,6 @@ export const useMediaFileTransform = ({
 }: UseMediaTransform): MediaProps[] => {
   const previousUrlsRef = useRef<string[]>([]);
 
-  // Cleanup object URLs on unmount
   useEffect(() => {
     return () => {
       previousUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
@@ -512,7 +517,6 @@ export const useMediaFileTransform = ({
   }, []);
 
   const transformedMediaList = useMemo(() => {
-    // Revoke previous URLs before generating new ones to prevent memory bloat
     previousUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
 
     const newUrls: string[] = [];

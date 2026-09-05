@@ -14,18 +14,17 @@ import {
   GenericStyle,
   useGlobalStore,
   AuthStepName,
-  InputType,
+  IdentifierType,
 } from "@repo/core";
-import { useAuthNavigation } from "@repo/features";
+import { useAuthNavigation, useMessagingOtp } from "@repo/features";
 import { AnchorLink, TransText } from "@repo/shared-ui";
 import { Theme } from "@mui/material/styles";
 import { LoginResponse, CheckResponse } from "../service";
-import { useOtp } from "../../otp/useOtp";
 import { LoginProps } from "../../types";
 
 export interface UseFeedbackProps {
   input?: string;
-  inputType?: InputType;
+  identifierType?: IdentifierType;
   setStep?: (step: AuthStepName) => void;
   setIdentifier?: (identifier: string) => void;
   setInlineMsg?: React.Dispatch<React.SetStateAction<React.ReactNode | null>>;
@@ -43,7 +42,7 @@ export interface UseFeedbackProps {
 
 export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
   const { navigateTo, isOnWeb } = usePage();
-  const { handleSendOtp } = useOtp();
+  const { handleSendOtp } = useMessagingOtp();
   const { handleOtpNavigation, checkTotpConfiguration } = useAuthNavigation();
   const { translateTxtString } = useStaticTranslation();
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
@@ -57,7 +56,7 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
    */
   const handleLoginSuccess = useCallback(
     async (feedbackProps: UseFeedbackProps) => {
-      const { loginResponse, inputType } = feedbackProps;
+      const { loginResponse, identifierType } = feedbackProps;
 
       if (loginResponse?.httpStatus !== 200) return;
       clearLoginLock();
@@ -68,8 +67,8 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
         setAccessToken(loginResponse.accessToken);
 
         const hasTotp = checkTotpConfiguration(user);
-        const isEmail = inputType === "EMAIL" || !hasTotp;
-        const isPhoneNumber = !isEmail || !hasTotp;
+        const isEmail = identifierType === "EMAIL" && !hasTotp;
+        const isPhoneNumber = identifierType === "PHONE_NUMBER" && !hasTotp;
 
         if (loginResponse.requireOtp) {
           setAccountStatus("NOT_VERIFIED");
@@ -80,10 +79,12 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
               purpose: "LOGIN_VERIFICATION",
               messageChannel: isEmail ? "EMAIL" : "WHATSAPP",
             });
+
           handleOtpNavigation({
             user,
             identifier,
-            inputType: inputType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
+            identifierType:
+              identifierType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
             otpMessageChannel: isEmail ? "EMAIL" : "WHATSAPP",
             reason: loginResponse.otpReason,
           });

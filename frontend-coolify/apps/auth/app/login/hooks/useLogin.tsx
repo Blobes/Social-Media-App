@@ -10,7 +10,7 @@ import {
   saveIdentifier,
   savePassword,
 } from "@repo/helpers";
-import { ApiError, CLIENT_ROUTES } from "@repo/core";
+import { ApiError, CLIENT_ROUTES, IdentifierType } from "@repo/core";
 import { LoginService } from "../service";
 import { useLoginFeedback } from "./useFeedback";
 import { usePage, usePasswordInputValidation } from "@repo/shared-hooks";
@@ -123,7 +123,11 @@ export const useLogin = ({ identifier, setStep, inputType }: LoginProps) => {
       } else {
         clearSavedPassword();
       }
-      if (res) handleLoginSuccess({ loginResponse: res, inputType });
+      if (res) {
+        const identifierType: IdentifierType =
+          inputType === "PHONE" ? "PHONE_NUMBER" : "EMAIL";
+        handleLoginSuccess({ loginResponse: res, identifierType });
+      }
     },
     onError: (err: ApiError) => {
       setIsRedirecting(false);

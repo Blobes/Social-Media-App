@@ -20,44 +20,43 @@ export function renderEmailOtpHtml(
   const content = `
     ${EmailHeader({ appInfo })}
 
-    <!-- Heading -->
-    <tr>
-      <td class="pb-20" align="left">
-        <h1 class="heading-title">Confirm Verification Code</h1>
-      </td>
-    </tr>
+    <!-- Main Body Container Wrapper -->
 
-    <!-- Body Text -->
-    <tr>
-      <td class="text-body pb-20 bold" align="left">Hi ${recipient.firstName},</td>
-    </tr>
-    <tr>
-      <td class="text-body pb-20" align="left">This is your verification code:</td>
-    </tr>
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="content-container">
+          <!-- Headline -->
+          <tr>
+            <td class="pb-20" align="left">
+              <h1 class="heading-title">Hi ${recipient.firstName},</h1>
+            </td>
+          </tr>
 
-    ${OtpDigitsBox({ code: fullCode })}
+          <!-- Body Text -->
+          <tr>
+            <td class="text-body pb-20" align="left">This is your verification code:</td>
+          </tr>
 
-    <!-- Expiration Notice -->
-    <tr>
-      <td class="text-body pb-24" align="left">
-        We're glad to have you! This code is valid for the next ${expiresInMinutes} minutes. If the code
-        doesn't work, you can click the "Verify Email" button below instead:
-      </td>
-    </tr>
+          ${OtpDigitsBox({ code: fullCode })}
 
-    <!-- Sign-off -->
-    <tr>
-      <td class="text-body pt-40 pb-32" align="left">
-        Thanks,<br />
-        <strong>${appInfo.appName} Team</strong>
-      </td>
-    </tr>
+          <!-- Expiration Notice -->
+          <tr>
+            <td class="text-body pb-24" align="left">
+              This code is valid for the next ${expiresInMinutes} minutes.
+            </td>
+          </tr>
 
-    ${AppStoreBadges({ appInfo })}
-    ${EmailFooter({ appInfo })}
+          <!-- Sign-off -->
+          <tr>
+            <td class="text-body pt-20 pb-20" align="left">
+              Thanks,<br />
+              <strong>${appInfo.appName} Team</strong>
+            </td>
+          </tr>
+
+          ${AppStoreBadges({ appInfo })}
+          ${EmailFooter({ appInfo })}
+        </table>
+     
   `;
 
   return EmailLayout({ content });
 }
-
-//  ${EmailButton({ label: "Verify Email", url: verificationUrl || "#" })}

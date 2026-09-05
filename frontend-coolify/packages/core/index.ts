@@ -8,8 +8,8 @@ export * from "./types/payloads/user";
 export * from "./types/payloads/post";
 export * from "./types/payloads/media";
 export * from "./types/payloads/modified";
-export * from "./types/ui-state";
 export * from "./types/ui-props";
+export * from "./types/auth";
 export * from "./types/media";
 
 // Constants

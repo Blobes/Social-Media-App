@@ -24,7 +24,7 @@ export interface IMediaPayload {
 
   // Storage
   url: string;
-  thumbnailUrl?: string | null;
+  thumbnailUrl?: string;
   storageProvider?: StorageProvider;
   fileKey?: string | null;
 

@@ -40,7 +40,7 @@ export interface ICommitAccountUpdateResult {
 /**
  * Validates requirements for identity update codes.
  */
-export const checkIdentifierPending = (
+export const checkPendingIdentifier = (
   user: IUserDocument,
   otpIdentifierType?: OtpIdentifierType,
 ): TransInfo | null => {
@@ -125,7 +125,7 @@ export const executeAccountUpdate = async (
 
   switch (purpose) {
     case "IDENTIFIER_UPDATE": {
-      const pendingErrorMsg = checkIdentifierPending(user, activeIdType);
+      const pendingErrorMsg = checkPendingIdentifier(user, activeIdType);
       if (pendingErrorMsg) {
         return {
           status: "BAD_REQUEST",

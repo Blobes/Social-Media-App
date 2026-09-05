@@ -9,11 +9,14 @@ import {
   determineCheckType,
   OtpMessageChannel,
   OtpIdentifierType,
+  VerificationMethod,
+  checkOtpCooldown,
 } from "@repo/shared";
 
 export interface IResetInitiationInput {
   identifier: string;
   otpChannelType?: OtpMessageChannel;
+  resetMethod?: VerificationMethod;
 }
 
 export interface IResetInitiationResult {
@@ -22,11 +25,14 @@ export interface IResetInitiationResult {
     | "MISSING_IDENTIFIER"
     | "NOT_FOUND"
     | "RESTRICTION"
-    | "INVALID_IDENTIFIER";
-  transInfo: TransInfo;
+    | "INVALID_IDENTIFIER"
+    | "RATE_LIMIT_ACTIVE";
+  transInfo?: TransInfo;
   payload: {
-    resetType: OtpIdentifierType;
-    identifier: string;
+    identifier?: string;
+    identifierType?: OtpIdentifierType;
+    resetMethod?: VerificationMethod;
+    retryAfter?: number | null;
   } | null;
 }
 
@@ -36,7 +42,11 @@ export interface IResetInitiationResult {
 export const executeResetInitiation = async (
   input: IResetInitiationInput,
 ): Promise<IResetInitiationResult> => {
-  const { identifier, otpChannelType = "EMAIL" } = input;
+  const {
+    identifier,
+    otpChannelType = "EMAIL",
+    resetMethod = "MESSAGING",
+  } = input;
 
   if (!identifier) {
     return {
@@ -91,55 +101,83 @@ export const executeResetInitiation = async (
     };
   }
 
+  // Enforce single-minute delay window on messaging gateways
+  if (user.lastEmailOtpSentAt || user.lastPhoneOtpSentAt) {
+    const lastSentAt = isEmail
+      ? user.lastEmailOtpSentAt
+      : user.lastPhoneOtpSentAt;
+
+    const cooldown = checkOtpCooldown({ lastSentAt });
+    if (cooldown.isCooldownActive) {
+      return {
+        status: "RATE_LIMIT_ACTIVE",
+        transInfo: cooldown.transInfo,
+        payload: {
+          retryAfter: cooldown.retryAfter || 0,
+        },
+      };
+    }
+  }
+
   const code = genVerificationCode();
   user.otpCode = code;
   user.otpCodeExpiresAt = new Date(Date.now() + 1000 * 60 * 15);
+
+  if (isEmail) {
+    user.lastEmailOtpSentAt = new Date();
+  } else {
+    user.lastPhoneOtpSentAt = new Date();
+  }
   await user.save();
 
-  if (otpChannelType === "EMAIL") {
-    await enqueueOtpTask(
-      {
-        email: user.email,
-        code,
-        type: "EMAIL",
-        firstName: user.firstName,
-      },
-      FUNSTAKES_REDIS_URL,
-    );
-  } else if (otpChannelType === "WHATSAPP") {
-    await enqueueOtpTask(
-      {
-        phone: user.phoneNumber,
-        code,
-        type: "WHATSAPP",
-        firstName: user.firstName,
-      },
-      FUNSTAKES_REDIS_URL,
-    );
-  } else {
-    await enqueueOtpTask(
-      {
-        phone: user.phoneNumber,
-        code,
-        type: "SMS",
-        firstName: user.firstName,
-      },
-      FUNSTAKES_REDIS_URL,
-    );
+  if (resetMethod === "MESSAGING") {
+    if (otpChannelType === "EMAIL") {
+      await enqueueOtpTask(
+        {
+          email: user.email,
+          code,
+          type: "EMAIL",
+          firstName: user.firstName,
+        },
+        FUNSTAKES_REDIS_URL,
+      );
+    } else if (otpChannelType === "WHATSAPP") {
+      await enqueueOtpTask(
+        {
+          phone: user.phoneNumber,
+          code,
+          type: "WHATSAPP",
+          firstName: user.firstName,
+        },
+        FUNSTAKES_REDIS_URL,
+      );
+    } else {
+      await enqueueOtpTask(
+        {
+          phone: user.phoneNumber,
+          code,
+          type: "SMS",
+          firstName: user.firstName,
+        },
+        FUNSTAKES_REDIS_URL,
+      );
+    }
   }
 
   const resetDestination = isEmail ? user.email : user.phoneNumber;
 
   return {
     status: "SUCCESS",
-    transInfo: isEmail
-      ? MESSAGES_REGISTRY.AUTH.VERIFICATION_CODE_WILL_BE_SENT_TO_EMAIL
-      : MESSAGES_REGISTRY.AUTH.VERIFICATION_WILL_BE_CODE_SENT_TO_PHONE(
-          otpChannelType,
-        ),
+    transInfo:
+      resetMethod === "MESSAGING"
+        ? MESSAGES_REGISTRY.AUTH.PASSWORD_RESET_INITIATED_VIA_MESSAGING(
+            otpChannelType,
+          )
+        : MESSAGES_REGISTRY.AUTH.PASSWORD_RESET_INITIATED,
     payload: {
-      resetType: isEmail ? "EMAIL" : "PHONE_NUMBER",
       identifier: resetDestination || "",
+      identifierType: isEmail ? "EMAIL" : "PHONE_NUMBER",
+      resetMethod,
     },
   };
 };

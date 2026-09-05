@@ -3,7 +3,6 @@
 import { useCallback } from "react";
 import { queryClient } from "@repo/helpers";
 import {
-  CACHE_KEYS,
   CLIENT_ROUTES,
   IUser,
   OtpTransitData,
@@ -11,19 +10,21 @@ import {
   OtpReason,
   TransitPurpose,
   IdentifierType,
-  OtpGeneratorMethod,
+  VerifyIdentityMethod,
+  STORAGE_KEYS,
 } from "@repo/core";
 import { usePage } from "@repo/shared-hooks";
 
 export interface OtpNavigation {
   user?: IUser | null;
   identifier?: string;
-  inputType?: IdentifierType;
+  identifierType?: IdentifierType;
   reason: OtpReason;
   purpose?: TransitPurpose;
-  transitKey?: string[];
+  transitKey?: readonly string[];
   otpMessageChannel?: OtpMessageChannel;
-  otpGeneratorMethod?: OtpGeneratorMethod;
+  verificationMethod?: VerifyIdentityMethod;
+  dispatchOnload?: boolean;
 }
 
 export const useAuthNavigation = () => {
@@ -46,35 +47,37 @@ export const useAuthNavigation = () => {
       const {
         user,
         identifier,
-        inputType,
+        identifierType,
         reason,
         purpose = "LOGIN_VERIFICATION",
-        transitKey = CACHE_KEYS.AUTH_TRANSIT_DATA,
+        transitKey = STORAGE_KEYS.AUTH_TRANSIT,
         otpMessageChannel,
-        otpGeneratorMethod,
+        verificationMethod,
+        dispatchOnload,
       } = navOptions;
 
       if (!user) return;
 
       const activeChannel: OtpMessageChannel =
-        otpMessageChannel ?? (inputType === "EMAIL" ? "EMAIL" : "WHATSAPP");
+        otpMessageChannel ??
+        (identifierType === "EMAIL" ? "EMAIL" : "WHATSAPP");
 
       const hasTotp = checkTotpConfiguration(user);
 
       const otpTransitData: OtpTransitData<typeof purpose> = {
-        _id: "transit:otp-auth",
+        _id: transitKey.join("_"),
         identifier,
         otpMessageChannel: activeChannel,
-        otpGeneratorMethod:
-          otpGeneratorMethod ??
-          (hasTotp ? "AUTHENTICATOR_APP" : "MESSAGING_APP"),
         purpose,
         payload: user,
         reason,
+        verificationMethod:
+          verificationMethod ?? (hasTotp ? "TOTP" : "MESSAGING"),
+        dispatchOnload,
       };
 
       queryClient.setQueryData(transitKey, otpTransitData);
-      navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true });
+      navigateTo(CLIENT_ROUTES.verifyIdentity, { loadPage: true });
     },
     [navigateTo, checkTotpConfiguration],
   );

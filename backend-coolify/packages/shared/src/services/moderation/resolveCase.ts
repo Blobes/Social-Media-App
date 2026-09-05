@@ -15,7 +15,7 @@ import {
 import { PostType, TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { switchAccountStatus } from "../user/accountStatus";
-import { fetchSingleUser } from "../user/retrieval/fetchUser";
+import { fetchSingleUser } from "../user/retrieve/fetchUser";
 
 export interface IResolveCaseInput {
   caseId: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
 import { IStep, PostStepName, StepperProps } from "@repo/core";
 import { MediaCustomizer, Stepper } from "@repo/shared-ui";
@@ -49,55 +49,68 @@ export const CreateGist: React.FC<StepperProps<PostStepName>> = ({
   const currentMediaToCustomize =
     editingFileIndex !== null ? transformedMediaList[editingFileIndex] : null;
 
-  const steps: IStep<PostStepName>[] = [
-    {
-      name: "CONTENT",
-      element: (
-        <GistContentStep
-          step={step}
-          setStep={setStep}
-          caption={caption}
-          setCaption={setCaption}
-          stagedFiles={stagedFiles}
-          setStagedFiles={setStagedFiles}
-          topics={topics}
-          setTopics={setTopics}
-          gistContext={gistContentContext}
-        />
-      ),
-    },
-    {
-      name: "SETTINGS",
-      element: (
-        <GistSettingsStep
-          step={step}
-          setStep={setStep}
-          hasSensitiveGraphic={hasSensitiveGraphic}
-          setHasSensitiveGraphic={setHasSensitiveGraphic}
-          isProcessing={gistContentContext.isProcessing}
-          inlineErrMsg={gistContentContext.inlineErrMsg}
-          handleGistPublish={gistContentContext.handleGistPublish}
-        />
-      ),
-    },
-    {
-      name: "MEDIA_PREVIEW",
-      element: <CreatePostMediaPreview stagedFiles={stagedFiles} />,
-    },
-    {
-      name: "MEDIA_CUSTOMIZATION",
-      element: currentMediaToCustomize ? (
-        <MediaCustomizer
-          media={currentMediaToCustomize}
-          onSave={(customizedMedia) => {
-            if (editingFileIndex !== null) {
-              handleSaveCustomization(editingFileIndex, customizedMedia);
-            }
-          }}
-        />
-      ) : null,
-    },
-  ];
+  const steps = useMemo<IStep<PostStepName>[]>(
+    () => [
+      {
+        name: "CONTENT",
+        element: (
+          <GistContentStep
+            step={step}
+            setStep={setStep}
+            caption={caption}
+            setCaption={setCaption}
+            stagedFiles={stagedFiles}
+            setStagedFiles={setStagedFiles}
+            topics={topics}
+            setTopics={setTopics}
+            gistContext={gistContentContext}
+          />
+        ),
+      },
+      {
+        name: "SETTINGS",
+        element: (
+          <GistSettingsStep
+            step={step}
+            setStep={setStep}
+            hasSensitiveGraphic={hasSensitiveGraphic}
+            setHasSensitiveGraphic={setHasSensitiveGraphic}
+            isProcessing={gistContentContext.isProcessing}
+            inlineErrMsg={gistContentContext.inlineErrMsg}
+            handleGistPublish={gistContentContext.handleGistPublish}
+          />
+        ),
+      },
+      {
+        name: "MEDIA_PREVIEW",
+        element: <CreatePostMediaPreview stagedFiles={stagedFiles} />,
+      },
+      {
+        name: "MEDIA_CUSTOMIZATION",
+        element: currentMediaToCustomize ? (
+          <MediaCustomizer
+            media={currentMediaToCustomize}
+            onSave={(customizedMedia) => {
+              if (editingFileIndex !== null) {
+                handleSaveCustomization(editingFileIndex, customizedMedia);
+              }
+            }}
+          />
+        ) : null,
+      },
+    ],
+    [
+      step,
+      caption,
+      stagedFiles,
+      topics,
+      gistContentContext,
+      hasSensitiveGraphic,
+      currentMediaToCustomize,
+      editingFileIndex,
+      handleSaveCustomization,
+    ],
+  );
 
   return (
     <Stack
@@ -109,10 +122,11 @@ export const CreateGist: React.FC<StepperProps<PostStepName>> = ({
         gap: theme.gap(10),
         [theme.breakpoints.down("sm")]: {
           width: "100%",
-          ...style.container?.mobile,
+          ...style.container?.mobiles,
         },
         ...style.container,
-      }}>
+      }}
+    >
       <Stepper steps={steps} currStep={step} setCurrStep={setStep} />
     </Stack>
   );

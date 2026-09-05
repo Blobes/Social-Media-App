@@ -1,7 +1,7 @@
 "use client";
 
-import { ILocation } from "../ui-state";
 import { IMedia } from "../media";
+import { ILocation } from "../ui-props";
 import { IContentModeration } from "./modified";
 
 export type PostVisibility =

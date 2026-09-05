@@ -23,11 +23,11 @@ import {
   ApiError,
   OtpMessageChannel,
   AUTH_FEEDBACK,
-  CACHE_KEYS,
   TransitData,
   useGlobalStore,
   CLIENT_ROUTES,
   IUser,
+  STORAGE_KEYS,
 } from "@repo/core";
 import { ResetPasswordService } from "./service";
 import { ResetStepProps } from "../types";
@@ -49,11 +49,11 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
   const [timeLeft, setTimeLeft] = useState<number>(120);
   const [tempUser, setTempUser] = useState<IUser | null>(null);
 
-  const cachedEntries = useCachedData<TransitData<"PASSWORD_RESET">>(
-    CACHE_KEYS.PASS_RESET_FINALIZED_TRANSIT_DATA,
+  const transitData = useCachedData<TransitData<"PASSWORD_RESET">>(
+    STORAGE_KEYS.PASS_RESET_FINALIZED_TRANSIT,
   );
 
-  const resetTransitData = cachedEntries?.[0];
+  const resetTransitData = transitData?.[0];
   const transitNextStep = resetTransitData?.payload?.nextStep;
   const transitUserIdentifier = resetTransitData?.payload?.identifier;
 
@@ -72,7 +72,7 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
   const clearResetSession = useCallback(() => {
     deleteCookie("reset_session_expiry");
     queryClient.removeQueries({
-      queryKey: CACHE_KEYS.PASS_RESET_FINALIZED_TRANSIT_DATA,
+      queryKey: STORAGE_KEYS.PASS_RESET_FINALIZED_TRANSIT,
     });
     setAuthStatus("UNAUTHENTICATED");
     if (step !== "CREDENTIAL") {
@@ -201,15 +201,13 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
         const isTotpConfigured = checkTotpConfiguration(userData);
 
         let initResetRes = null;
-
-        if (!isTotpConfigured) {
-          const res = await initiateReset({
-            identifier: cleaned,
-            otpChannelType: isEmailReset ? "EMAIL" : "WHATSAPP",
-          });
-          if (res.status === "SUCCESS" && res.payload) {
-            initResetRes = res;
-          }
+        const res = await initiateReset({
+          identifier: cleaned,
+          otpChannelType: isEmailReset ? "EMAIL" : "WHATSAPP",
+          resetMethod: !isTotpConfigured ? "MESSAGING" : "TOTP",
+        });
+        if (res.status === "SUCCESS" && res.payload) {
+          initResetRes = res;
         }
 
         return {
@@ -246,15 +244,15 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
         handleOtpNavigation({
           user,
           identifier,
-          inputType:
-            initResetRes?.payload?.resetType ||
+          identifierType:
+            initResetRes?.payload?.identifierType ||
             (isEmailReset ? "EMAIL" : "PHONE_NUMBER"),
           otpMessageChannel: !isTotpConfigured ? activeChannel : undefined,
-          otpGeneratorMethod: !isTotpConfigured
-            ? "MESSAGING_APP"
-            : "AUTHENTICATOR_APP",
+          verificationMethod: !isTotpConfigured ? "MESSAGING" : "TOTP",
           purpose: "PASSWORD_RESET",
           reason: "PASSWORD_RESET",
+          transitKey: STORAGE_KEYS.PASS_RESET_INIT_TRANSIT,
+          dispatchOnload: false,
         });
       },
       onError: (error: ApiError) => {
@@ -301,11 +299,11 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
     handleOtpNavigation({
       user: tempUser,
       identifier: input,
-      inputType: inputType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
+      identifierType: inputType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
       reason: "PASSWORD_RESET",
       purpose: "PASSWORD_RESET",
-      otpGeneratorMethod: "AUTHENTICATOR_APP",
-      transitKey: CACHE_KEYS.PASS_RESET_INIT_TRANSIT_DATA,
+      verificationMethod: "TOTP",
+      transitKey: STORAGE_KEYS.PASS_RESET_INIT_TRANSIT,
     });
     clearInlineMsg();
   }, [

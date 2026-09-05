@@ -1,7 +1,7 @@
 "use client";
 
 import { ILocation, SupportedIsoCode } from "@repo/core";
-import { AuthStepName, ITotpData } from "../ui-state";
+import { AuthStepName, ITotpData } from "../auth";
 
 export type UserRole = "USER" | "ADMIN" | "MODERATOR";
 export type AccountStatus =

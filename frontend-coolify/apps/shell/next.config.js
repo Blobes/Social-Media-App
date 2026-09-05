@@ -19,7 +19,10 @@ const nextConfig = {
         // Auth app
         { source: "/login", destination: `${authUrl}/login` },
         { source: "/signup", destination: `${authUrl}/signup` },
-        { source: "/verify-otp", destination: `${authUrl}/otp` },
+        {
+          source: "/verify-identity",
+          destination: `${authUrl}/verify-identity`,
+        },
         { source: "/reset-password", destination: `${authUrl}/reset-password` },
         { source: "/onboarding", destination: `${authUrl}/signup/onboarding` },
         // Gist app

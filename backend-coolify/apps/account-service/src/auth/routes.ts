@@ -27,6 +27,7 @@ import {
   loadDeviceResource,
 } from "@repo/security";
 import { PERMISSIONS } from "@repo/database";
+import { checkWhatsAppStatus } from "./whatsapp/checkStatus";
 
 const router: Router = express.Router();
 
@@ -76,14 +77,11 @@ router.get("/session/verify", authenticate, verifySession);
 // --- CODE VERIFICATION & MFA ---
 router.post("/otp/send-msg-code", sendChannelOtp);
 router.post("/otp/verify-msg-code", verifyChannelOtp);
-router.patch(
-  "/otp/update-account",
-  // authenticate,
-  requirePermission(PERMISSIONS.USER.EDIT_PROFILE),
-  commitAccountUpdate,
-);
+router.patch("/otp/update-account", commitAccountUpdate);
 router.post("/otp/setup-totp", optionallyAuthenticate, setupTotp);
 router.post("/otp/verify-totp", optionallyAuthenticate, verifyTotpCode);
+
+router.post("/whatsapp-status", checkWhatsAppStatus);
 
 // --- DEVICE MANAGEMENT ---
 router.get(

@@ -10,7 +10,7 @@ import {
 
 export const REDIRECT_MAP = [
   { guard: "needsLogin", target: CLIENT_ROUTES.home },
-  { guard: "needsOtpVerification", target: CLIENT_ROUTES.verifyOtp },
+  { guard: "needsOtpVerification", target: CLIENT_ROUTES.verifyIdentity },
   { guard: "needsOnboarding", target: CLIENT_ROUTES.onboarding },
   { guard: "needsRestoreAccount", target: CLIENT_ROUTES.restoreAccount },
   { guard: "isOnDisallowedRoute", target: CLIENT_ROUTES.about },
@@ -40,7 +40,7 @@ export const useRouteGuards = (
       (accountStatus === "NOT_VERIFIED" ||
         (authUser && !authUser.isEmailVerified)) &&
       isProtectedRoute &&
-      pathname !== CLIENT_ROUTES.verifyOtp.path;
+      pathname !== CLIENT_ROUTES.verifyIdentity.path;
 
     const needsOnboarding =
       authStatus === "AUTHENTICATED" &&
@@ -49,7 +49,7 @@ export const useRouteGuards = (
         (authUser && !authUser.isOnboarded)) &&
       isProtectedRoute &&
       pathname !== CLIENT_ROUTES.onboarding.path &&
-      pathname !== CLIENT_ROUTES.verifyOtp.path;
+      pathname !== CLIENT_ROUTES.verifyIdentity.path;
 
     const needsRestoreAccount =
       !needsLogin &&

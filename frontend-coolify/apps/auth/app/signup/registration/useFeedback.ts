@@ -4,13 +4,12 @@ import { useStaticTranslation } from "@repo/shared-hooks";
 import {
   ApiError,
   AUTH_FEEDBACK,
-  CACHE_KEYS,
   IUser,
+  STORAGE_KEYS,
   useGlobalStore,
 } from "@repo/core";
 import { SignupResponse } from "../service";
-import { useOtp } from "../../otp/useOtp";
-import { useAuthNavigation } from "@repo/features";
+import { useAuthNavigation, useMessagingOtp } from "@repo/features";
 
 interface UseSignupFeedbackProps {
   email: string;
@@ -24,7 +23,7 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
   const setAccessToken = useGlobalStore((state) => state.setAccessToken);
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
-  const { handleSendOtp } = useOtp();
+  const { handleSendOtp } = useMessagingOtp();
   const { handleOtpNavigation } = useAuthNavigation();
   const { translateTxtString } = useStaticTranslation();
 
@@ -48,10 +47,10 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
       handleOtpNavigation({
         user,
         identifier: user.email || email,
-        inputType: "EMAIL",
+        identifierType: "EMAIL",
         reason: "NEW_ACCOUNT",
         purpose: "SIGNUP_VERIFICATION",
-        transitKey: CACHE_KEYS.AUTH_TRANSIT_DATA,
+        transitKey: STORAGE_KEYS.AUTH_TRANSIT,
       });
       return;
     }

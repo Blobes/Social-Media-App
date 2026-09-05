@@ -10,7 +10,7 @@ import { TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { cleanDeviceSessions } from "../session";
 import { INVALIDATE_CACHE } from "../../constants/invalidators";
-import { fetchSingleUser } from "./retrieval/fetchUser";
+import { fetchSingleUser } from "./retrieve/fetchUser";
 
 export interface IStatusSwitchInput {
   targetUserId: string;

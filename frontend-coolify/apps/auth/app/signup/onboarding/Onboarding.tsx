@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
 import { Stepper, StepperProgress } from "@repo/shared-ui";
 import { IStep, AuthStepName, StepperProps, useGlobalStore } from "@repo/core";
@@ -22,40 +22,43 @@ export const Onboarding: React.FC<StepperProps<AuthStepName>> = ({
     authUser?.onboardingStep ? "WELCOME_BACK" : "INTRO",
   );
 
-  const steps: IStep<AuthStepName>[] = [
-    {
-      name: authUser?.onboardingStep ? "WELCOME_BACK" : "INTRO",
-      label: authUser?.onboardingStep ? "Resume" : "Start",
-      revisitable: true,
-      element: authUser?.onboardingStep ? (
-        <WelcomeBack
-          onNext={() => setCurrStep(authUser?.onboardingStep ?? "IDENTITY")}
-        />
-      ) : (
-        <OnboardingIntro onNext={() => setCurrStep("IDENTITY")} />
-      ),
-    },
-    {
-      name: "IDENTITY",
-      label: "Identity",
-      revisitable: true,
-      allowPrevious: true,
-      element: (
-        <Identity
-          onNext={() => setCurrStep("DEMOGRAPHICS")}
-          onPrev={() =>
-            setCurrStep(authUser?.onboardingStep ? "WELCOME_BACK" : "INTRO")
-          }
-        />
-      ),
-    },
-    {
-      name: "DEMOGRAPHICS",
-      label: "Demographics",
-      revisitable: false,
-      element: <WelcomeBack onNext={() => setCurrStep("COMPLETED")} />,
-    },
-  ];
+  const steps = useMemo<IStep<AuthStepName>[]>(
+    () => [
+      {
+        name: authUser?.onboardingStep ? "WELCOME_BACK" : "INTRO",
+        label: authUser?.onboardingStep ? "Resume" : "Start",
+        revisitable: true,
+        element: authUser?.onboardingStep ? (
+          <WelcomeBack
+            onNext={() => setCurrStep(authUser?.onboardingStep ?? "IDENTITY")}
+          />
+        ) : (
+          <OnboardingIntro onNext={() => setCurrStep("IDENTITY")} />
+        ),
+      },
+      {
+        name: "IDENTITY",
+        label: "Identity",
+        revisitable: true,
+        allowPrevious: true,
+        element: (
+          <Identity
+            onNext={() => setCurrStep("DEMOGRAPHICS")}
+            onPrev={() =>
+              setCurrStep(authUser?.onboardingStep ? "WELCOME_BACK" : "INTRO")
+            }
+          />
+        ),
+      },
+      {
+        name: "DEMOGRAPHICS",
+        label: "Demographics",
+        revisitable: false,
+        element: <WelcomeBack onNext={() => setCurrStep("COMPLETED")} />,
+      },
+    ],
+    [authUser?.onboardingStep],
+  );
 
   return (
     <Stack
@@ -76,7 +79,8 @@ export const Onboarding: React.FC<StepperProps<AuthStepName>> = ({
           padding: theme.boxSpacing(6, 6),
         },
         ...style.container,
-      }}>
+      }}
+    >
       {/* Visual Progress Tracker (Independent) */}
       <StepperProgress
         steps={steps}
@@ -84,7 +88,7 @@ export const Onboarding: React.FC<StepperProps<AuthStepName>> = ({
         setCurrStep={setCurrStep}
       />
 
-      {/* Step Content Content (Independent) */}
+      {/* Step Content (Independent) */}
       <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />
     </Stack>
   );

@@ -24,17 +24,32 @@ export function EmailLayout({ content }: { content: string }): string {
       .container-card {
         background-color: #f7f8fb;
         border-radius: 16px;
-        padding: 40px;
+        padding: 0;
+        max-width: 600px;
         box-sizing: border-box;
         width: 100%;
         margin: 0 auto;
+        overflow: hidden;
       }
 
-      /* Header & Branding */
+       .content-container {
+        padding: 0 30px 30px 30px;
+        box-sizing: border-box;
+      }
+
+      /* Header Container */
+      .header-container {
+        display: block;
+        background: #506AFF;
+        padding: 36px;
+        margin-bottom: 24px;
+      }
+
+       /* Branding logo */
       .brand-logo {
         display: block;
         border: 0;
-        height: 48px;
+        height: 44px;
         width: auto;
       }
 
@@ -57,6 +72,7 @@ export function EmailLayout({ content }: { content: string }): string {
       }
 
       /* Spacing Helpers */
+      .p-40 { padding: 40px; }
       .pb-16 { padding-bottom: 16px; }
       .pb-20 { padding-bottom: 20px; }
       .pb-24 { padding-bottom: 24px; }
@@ -65,10 +81,12 @@ export function EmailLayout({ content }: { content: string }): string {
       .pt-16 { padding-top: 16px; }
       .pt-24 { padding-top: 24px; }
       .pt-40 { padding-top: 40px; }
+      .mb-32 { margin-bottom: 32px; }
 
       /* Single Box OTP Container */
       .otp-digit-box {
         display: inline-block;
+        width: -webkit-fill-available;
         padding: 14px 28px;
         border-radius: 12px;
         text-align: center;
@@ -107,7 +125,7 @@ export function EmailLayout({ content }: { content: string }): string {
       /* Footer Links, Social Icons & Credits */
       .footer-container {
         border-top: 1px solid #e5e7eb;
-        font-size: 14px;
+        font-size: 13px;
         line-height: 20px;
         color: #6b7280;
       }
@@ -136,12 +154,10 @@ export function EmailLayout({ content }: { content: string }): string {
       }
     </style>
   </head>
-  <body>
    <body>
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" class="container-card">
       ${content}
     </table>
-  </body>
   </body>
 </html>
   `;
@@ -153,7 +169,7 @@ export function EmailLayout({ content }: { content: string }): string {
 export function EmailHeader({ appInfo }: { appInfo: AppInfo }): string {
   return `
     <tr>
-      <td class="pb-32" align="left">
+      <td class="header-container mb-32" align="center">
         <img src="${appInfo.logoUrl}" alt="${appInfo.appName}" class="brand-logo" />
       </td>
     </tr>
@@ -200,7 +216,7 @@ export function EmailButton({
 export function AppStoreBadges({ appInfo }: { appInfo: AppInfo }): string {
   return `
     <tr>
-      <td class="text-body pb-16" style="font-size: 14px;" align="left">
+      <td class="text-body pb-16" align="left">
         Download our app for Mobile App from Google Play &amp; App Store.
       </td>
     </tr>
@@ -239,8 +255,7 @@ export function EmailFooter({ appInfo }: { appInfo: AppInfo }): string {
           </a>
         </div>
 
-        Questions or faq? Contact us at
-        <a href="mailto:${appInfo.supportEmail}" class="footer-link-primary">${appInfo.supportEmail}</a>.
+        Contact us at <a href="mailto:${appInfo.supportEmail}" class="footer-link-primary">${appInfo.supportEmail}</a>.
         Don't want any more emails from ${appInfo.appName}?
         <a href="${appInfo.unsubscribeUrl}" class="footer-link-underline">Unsubscribe</a>.
       </td>

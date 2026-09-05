@@ -45,12 +45,12 @@ export const otpDispatchWorker = () => {
             phoneDispatchTokens,
           );
           break;
-          case "SMS":
-            await dispatchSmsOtp(
-              { phoneNumber: receiver, code },
-              phoneDispatchTokens,
-            );
-            break;
+        case "SMS":
+          await dispatchSmsOtp(
+            { phoneNumber: receiver, code },
+            phoneDispatchTokens,
+          );
+          break;
         default:
           throw new Error(`Unhandled dispatch channels requested: ${otpType}`);
       }

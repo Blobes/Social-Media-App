@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { processQueue } from "@repo/helpers";
-import { QUEUE_KEYS } from "@repo/core";
+import { STORAGE_KEYS } from "@repo/core";
 import { LikablePost, UsePostLikeContext } from "./usePostLike";
 
 interface LikeSlice {
@@ -23,7 +23,7 @@ export const usePostLikeSync = (
   const { getPendingLike, clearPendingLike, updateStore, authStatus } = context;
 
   useEffect(() => {
-    const pending = getPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
+    const pending = getPendingLike(STORAGE_KEYS.POST.PENDING_LIKES, _id);
     const pendingLike = pending?.newValue;
 
     if (pendingLike !== undefined && pendingLike !== post.likedByMe) {
@@ -37,7 +37,7 @@ export const usePostLikeSync = (
       });
 
       updateStore?.(_id, pendingLike, nextCount);
-      clearPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
+      clearPendingLike(STORAGE_KEYS.POST.PENDING_LIKES, _id);
     }
   }, [
     _id,
@@ -51,10 +51,10 @@ export const usePostLikeSync = (
 
   useEffect(() => {
     if (authStatus === "AUTHENTICATED") {
-      processQueue(authStatus, QUEUE_KEYS.POST.PENDING_LIKES, onLikeApi);
+      processQueue(authStatus, STORAGE_KEYS.POST.PENDING_LIKES, onLikeApi);
 
       const handleOnline = () =>
-        processQueue(authStatus, QUEUE_KEYS.POST.PENDING_LIKES, onLikeApi);
+        processQueue(authStatus, STORAGE_KEYS.POST.PENDING_LIKES, onLikeApi);
 
       window.addEventListener("online", handleOnline);
       return () => window.removeEventListener("online", handleOnline);

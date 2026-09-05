@@ -37,9 +37,10 @@ export const ProfileCard = () => {
         height: "fit-content",
         flexShrink: 0,
         flexGrow: 0,
-      }}>
+      }}
+    >
       <Image
-        src={coverImage || asset.defaultCover}
+        src={coverImage || asset.pic1}
         width={400}
         height={130}
         alt="Image cover"
@@ -63,14 +64,17 @@ export const ProfileCard = () => {
           alignItems: "center",
           justifyContent: "center",
           gap: theme.gap(1),
-        }}>
+        }}
+      >
         <TransText
           sx={theme.typography.text1}
-          noWrap={true}>{`${firstName} ${lastName}`}</TransText>
+          noWrap={true}
+        >{`${firstName} ${lastName}`}</TransText>
         <TransText
           component="p"
           noWrap={true}
-          sx={{ ...theme.typography.text4, color: theme.palette.gray[200] }}>
+          sx={{ ...theme.typography.text4, color: theme.palette.gray[200] }}
+        >
           {email}
         </TransText>
         <Divider />
@@ -80,7 +84,8 @@ export const ProfileCard = () => {
             sx={{
               width: "inherit",
               borderRight: `1px solid ${theme.palette.gray.trans[1]}`,
-            }}>
+            }}
+          >
             <TransText sx={theme.typography.text1}>
               {summarizeNum(followersCount ?? 0)}
             </TransText>
@@ -110,7 +115,8 @@ export const ProfileCard = () => {
             alignSelf: "center",
             width: "100%",
             borderColor: theme.palette.gray.trans[2],
-          }}>
+          }}
+        >
           <TransText {...COMMON_BUTTON_LABELS.my_profile} noComponent />
         </AppButton>
       </Stack>

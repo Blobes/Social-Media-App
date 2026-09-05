@@ -88,7 +88,7 @@ export const mediaData: MediaProps[] = [
   {
     _id: "media3",
     ownerId: "2",
-    url: asset.video,
+    url: asset.marketingVideo,
     type: "VIDEO",
     status: "READY",
   },
@@ -107,13 +107,13 @@ export const mediaData: MediaProps[] = [
   {
     _id: "media6",
     ownerId: "4",
-    url: asset.pic5,
+    url: asset.pic4,
     status: "READY",
   },
   {
     _id: "media7",
     ownerId: "2",
-    url: asset.pic5,
+    url: asset.pic4,
     status: "READY",
   },
 ];

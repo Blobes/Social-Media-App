@@ -9,6 +9,7 @@ import { TransText } from "../Text";
 import { A11y } from "../A11y";
 import { CarouselStyle } from "./Linear";
 import { useBGFadeCarousel } from "@repo/shared-hooks";
+import { VideoMedia } from "../media/view/VideoMedia";
 
 interface BGFadeCarouselProps {
   slides: IBGFadeSlideData[];
@@ -95,7 +96,8 @@ export const BGFadeCarousel = ({
       useCase="carousel-track"
       label="Background media spotlight carousel showcases"
       onSwipeNext={next}
-      onSwipePrev={prev}>
+      onSwipePrev={prev}
+    >
       <Box
         ref={containerRef}
         onClick={(e) => handleTapNavigation(e, enableEdgeTap)}
@@ -118,7 +120,8 @@ export const BGFadeCarousel = ({
           bgcolor: "#000000",
           cursor: enablePressToHide ? "pointer" : "default",
           ...style?.container,
-        }}>
+        }}
+      >
         {/* Absolute Background Layer Stack */}
         <Box
           sx={{
@@ -127,7 +130,8 @@ export const BGFadeCarousel = ({
             width: "100%",
             height: "100%",
             zIndex: 0,
-          }}>
+          }}
+        >
           {slides.map((slide, idx) => {
             const isSelected = idx === currentIndex;
             const assetStyles = {
@@ -143,15 +147,17 @@ export const BGFadeCarousel = ({
 
             if (slide.media.type === "VIDEO") {
               return (
-                <Box
-                  component="video"
+                <VideoMedia
                   key={`bg-video-${slide.media._id}`}
-                  src={slide.media.url}
+                  _id={slide.media._id}
+                  url={slide.media.url}
+                  posterUrl={slide.media.thumbnailUrl}
                   autoPlay
                   loop
                   muted
                   playsInline
-                  sx={assetStyles}
+                  viewMode="ISOLATED"
+                  style={assetStyles}
                 />
               );
             }
@@ -190,7 +196,8 @@ export const BGFadeCarousel = ({
             padding: theme.gap(6),
             boxSizing: "border-box",
             pointerEvents: "auto",
-          }}>
+          }}
+        >
           {progressBarPosition === "top" && renderedProgressBar}
           {header && (
             <Box
@@ -198,7 +205,8 @@ export const BGFadeCarousel = ({
                 width: "100%",
                 opacity: isContentHidden ? 0 : 1,
                 transition: "opacity 0.2s ease-in-out",
-              }}>
+              }}
+            >
               {header}
             </Box>
           )}
@@ -218,7 +226,8 @@ export const BGFadeCarousel = ({
               progressBarPosition === "bottom"
                 ? theme.boxSpacing(14)
                 : theme.boxSpacing(38),
-          }}>
+          }}
+        >
           {/* Foreground Content Stack Layer */}
           {slides.map((slide, idx) => {
             const isSelected = idx === currentIndex;
@@ -248,7 +257,8 @@ export const BGFadeCarousel = ({
                     "0%": { opacity: 0, transform: "translateY(10px)" },
                     "100%": { opacity: 1, transform: "translateY(0)" },
                   },
-                }}>
+                }}
+              >
                 <TransText
                   component={"h5"}
                   sx={{
@@ -256,14 +266,16 @@ export const BGFadeCarousel = ({
                     fontWeight: 800,
                     letterSpacing: "-0.02em",
                     lineHeight: 1.15,
-                  }}>
+                  }}
+                >
                   {slide.headline}
                 </TransText>
                 <TransText
                   sx={{
                     ...theme.typography.text4,
                     color: "rgba(255, 255, 255, 0.7)",
-                  }}>
+                  }}
+                >
                   {slide.tagline}
                 </TransText>
               </Box>

@@ -66,3 +66,13 @@ export const getOtpIdentifierType = (value: string): IdentifierType | null => {
   if (PHONE_REGEX.test(value)) return "PHONE_NUMBER";
   return null;
 };
+
+/**
+ * Determines if the client device has enough hardware resources for local WebAssembly compression.
+ */
+export const checkDeviceCapability = (): boolean => {
+  if (typeof navigator === "undefined") return false;
+  const cores = navigator.hardwareConcurrency || 4;
+  const deviceMemory = (navigator as any).deviceMemory || 4;
+  return cores >= 4 && deviceMemory >= 4;
+};

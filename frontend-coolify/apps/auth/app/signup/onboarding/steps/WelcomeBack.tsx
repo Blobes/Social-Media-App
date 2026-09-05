@@ -32,11 +32,12 @@ export const WelcomeBack: React.FC<{ onNext: () => void }> = ({ onNext }) => {
         gap: theme.gap(20),
         width: "100%",
         maxWidth: "400px",
-      }}>
+      }}
+    >
       <Stack sx={{ alignItems: "center", gap: theme.gap(12) }}>
         <Image
           alt="Welcome Back"
-          src={asset.logo}
+          src={asset.appLogoSymbol}
           width={120}
           height={120}
           style={{ borderRadius: theme.radius.full }}
@@ -58,7 +59,8 @@ export const WelcomeBack: React.FC<{ onNext: () => void }> = ({ onNext }) => {
       <AppButton
         variant="contained"
         onClick={handleResume}
-        style={{ width: "100%" }}>
+        style={{ width: "100%" }}
+      >
         <TransText {...AUTH_BUTTON_LABELS.resume} noComponent />
       </AppButton>
       <TransText

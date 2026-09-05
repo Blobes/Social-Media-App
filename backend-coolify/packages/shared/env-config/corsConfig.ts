@@ -1,7 +1,9 @@
-import cors from "cors";
+import cors, { CorsOptions } from "cors";
 
-// Configure cors
-export const corsConfig = (): any => {
+/**
+ * Returns dynamic CORS configuration options for Express and Socket.IO.
+ */
+export const getCorsOptions = (): CorsOptions => {
   const allowedOrigins = [
     // Backend Production Deployments
     "https://api.funstakes.net", // Gateway
@@ -28,7 +30,7 @@ export const corsConfig = (): any => {
     "http://localhost:3006",
   ];
 
-  return cors({
+  return {
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
@@ -40,7 +42,7 @@ export const corsConfig = (): any => {
       const localhostMatch = origin.match(/^http:\/\/localhost:300[0-6]$/);
       if (localhostMatch) return callback(null, true);
 
-      // Allow any subdomain of your main domain (optional but safer)
+      // Allow any subdomain of main domain
       const allowedDomains = ["funstakes.net"];
       if (
         allowedDomains.some(
@@ -54,7 +56,7 @@ export const corsConfig = (): any => {
 
       return callback(new Error(`CORS Error: Origin ${origin} not allowed`));
     },
-    credentials: true, // Crucial for sending cookies across subdomains
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
@@ -62,5 +64,10 @@ export const corsConfig = (): any => {
       "X-Requested-With",
       "Accept",
     ],
-  });
+  };
 };
+
+/**
+ * Express middleware wrapper for CORS configuration.
+ */
+export const corsConfig = () => cors(getCorsOptions());

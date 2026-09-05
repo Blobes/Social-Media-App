@@ -144,7 +144,8 @@ export const useDisplayFBConfig = (): Record<
       icon: <UserPlus />,
       primaryCta: {
         label: translateTxtString(AUTH_BUTTON_LABELS.otp_verify_code),
-        action: () => navigateTo(CLIENT_ROUTES.verifyOtp, { loadPage: true }),
+        action: () =>
+          navigateTo(CLIENT_ROUTES.verifyIdentity, { loadPage: true }),
       },
     },
     NEEDS_ONBOARDING: {

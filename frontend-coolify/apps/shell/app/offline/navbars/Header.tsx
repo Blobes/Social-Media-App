@@ -37,10 +37,11 @@ export const Header: React.FC<AppHeaderProps> = ({ scrollRef }) => {
             scrollDir === "down" ? "translateY(-100%)" : "translateY(0)",
           transition: "transform 0.3s ease-in-out",
         }),
-      }}>
+      }}
+    >
       {/* Logo */}
       <Image
-        src={asset.logo}
+        src={asset.appLogoSymbol}
         alt="logo"
         width={34}
         height={34}

@@ -2,8 +2,16 @@
 export * from "./src/apps/auth/session/useAuthVerification";
 export * from "./src/apps/auth/logout/useLogout";
 export * from "./src/apps/auth/logout/Logout";
-export * from "./src/apps/auth/service";
+export * from "./src/apps/auth/session/service";
 export * from "./src/apps/auth/session/useAuthNavigation";
+// Verify Identity
+export * from "./src/apps/auth/verify-identity/useVerifyIdentity";
+export * from "./src/apps/auth/verify-identity/VerifyIdentity";
+export * from "./src/apps/auth/verify-identity/totp/useTotp";
+export * from "./src/apps/auth/verify-identity/totp/Totp";
+export * from "./src/apps/auth/verify-identity/messaging/useMessaging";
+export * from "./src/apps/auth/verify-identity/messaging/MessagingOtp";
+export * from "./src/apps/auth/verify-identity/service";
 // Gist
 export * from "./src/apps/gist/view/hooks/useGists";
 export * from "./src/apps/gist/view/hooks/useGistState";

@@ -75,7 +75,6 @@ export const executeOtpVerification = async (
     };
   }
 
-  console.log(hashCode(code));
   if (hashCode(code) !== user.otpCode) {
     return {
       status: "INVALID_CODE",

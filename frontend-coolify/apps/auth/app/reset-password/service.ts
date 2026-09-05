@@ -6,16 +6,19 @@ import {
   ISinglePayload,
   IdentifierType,
   OtpMessageChannel,
+  VerifyIdentityMethod,
 } from "@repo/core";
-
-export interface InitiateResetResponse {
-  resetType: IdentifierType;
-  identifier: string;
-}
 
 export interface InitiateResetRequest {
   identifier: string;
   otpChannelType?: OtpMessageChannel;
+  resetMethod?: VerifyIdentityMethod;
+}
+
+export interface InitiateResetResponse {
+  identifier: string;
+  identifierType: IdentifierType;
+  resetMethod?: VerifyIdentityMethod;
 }
 
 export interface SetPasswordRequest {
@@ -46,6 +49,7 @@ export const ResetPasswordService = () => {
         body: JSON.stringify({
           identifier: request.identifier,
           otpChannelType: request.otpChannelType,
+          resetMethod: request.resetMethod,
         }),
       },
     );

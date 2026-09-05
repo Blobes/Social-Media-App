@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
 import { AppLogo, Stepper } from "@repo/shared-ui";
 import { Stack } from "@mui/material";
@@ -17,36 +17,39 @@ export const Reset: React.FC<ResetStepProps> = ({ style = {} }) => {
   const [input, setInput] = useState("");
   const [currStep, setCurrStep] = useState<PasswordResetStepName>("CREDENTIAL");
 
-  const steps: IStep<PasswordResetStepName>[] = [
-    {
-      name: "CREDENTIAL",
-      element: (
-        <CredentialStep
-          step={currStep}
-          setStep={setCurrStep}
-          existingInput={input}
-          setIdentifier={setInput}
-          style={{
-            headline: style?.headline,
-            tagline: style?.tagline,
-          }}
-        />
-      ),
-    },
-    {
-      name: "NEW_PASSWORD",
-      element: (
-        <NewPasswordStep
-          step={currStep}
-          setStep={setCurrStep}
-          style={{
-            headline: style?.headline,
-            tagline: style?.tagline,
-          }}
-        />
-      ),
-    },
-  ];
+  const steps = useMemo<IStep<PasswordResetStepName>[]>(
+    () => [
+      {
+        name: "CREDENTIAL",
+        element: (
+          <CredentialStep
+            step={currStep}
+            setStep={setCurrStep}
+            existingInput={input}
+            setIdentifier={setInput}
+            style={{
+              headline: style?.headline,
+              tagline: style?.tagline,
+            }}
+          />
+        ),
+      },
+      {
+        name: "NEW_PASSWORD",
+        element: (
+          <NewPasswordStep
+            step={currStep}
+            setStep={setCurrStep}
+            style={{
+              headline: style?.headline,
+              tagline: style?.tagline,
+            }}
+          />
+        ),
+      },
+    ],
+    [currStep, input, style?.headline, style?.tagline],
+  );
 
   return (
     <Stack

@@ -78,7 +78,7 @@ Content-Type: application/json
 
 {
   "identifier": "{{user1Email}}",
-  "password": "Password123!"
+  "password": "Password123#"
 }
 
 ### Refresh User Auth Token

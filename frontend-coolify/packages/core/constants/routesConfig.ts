@@ -1,6 +1,6 @@
 "use client";
 
-import { IPage } from "../types/ui-state";
+import { IPage } from "../types/ui-props";
 import { COMMON_BUTTON_LABELS, COMMON_LIST } from "./msgRegistry";
 
 export const CLIENT_ROUTES = {
@@ -20,9 +20,9 @@ export const CLIENT_ROUTES = {
     title: COMMON_LIST.nav.restoreAccount.tValue,
     path: "/restore-account",
   },
-  verifyOtp: {
-    title: COMMON_LIST.nav.verifyOtp.tValue,
-    path: "/verify-otp",
+  verifyIdentity: {
+    title: COMMON_LIST.nav.verifyIdentity.tValue,
+    path: "/verify-identity",
   },
   onboarding: {
     title: COMMON_LIST.nav.onboarding.tValue,
@@ -85,7 +85,7 @@ const AUTH_ROUTES = [
   CLIENT_ROUTES.login.path,
   CLIENT_ROUTES.signup.path,
   CLIENT_ROUTES.restoreAccount.path,
-  CLIENT_ROUTES.verifyOtp.path,
+  CLIENT_ROUTES.verifyIdentity.path,
   CLIENT_ROUTES.resetPassword.path,
   CLIENT_ROUTES.onboarding.path,
 ];
@@ -152,6 +152,7 @@ export const SERVER_API = {
   setupTotp: `${API_BASE.auth}/otp/setup-totp`,
   verifyTotp: `${API_BASE.auth}/otp/verify-totp`,
   verifyBot: `${API_BASE.auth}/verify-bot`,
+  checkWhatsappStatus: `${API_BASE.auth}/whatsapp-status`,
   otpAccountUpdate: `${API_BASE.auth}/otp/update-account`,
   updateOnboarding: `${API_BASE.auth}/onboarding`,
   // Device

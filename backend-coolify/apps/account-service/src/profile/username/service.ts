@@ -1,7 +1,6 @@
 import { IUsernameCanonical } from "@/auth/check/service";
 import { verifyEncryptedPass } from "@/auth/helpers/encrypt";
 import {
-  userSensitiveFields,
   TransInfo,
   MESSAGES_REGISTRY,
   transformToASCII,
@@ -161,11 +160,6 @@ export const executeUsernameChange = async (
   user.usernameCanonical = canonicalized;
   user.lastUsernameChangeAt = new Date();
   await user.save();
-
-  // const safePayload = user.toObject() as Record<string, unknown>;
-  // userSensitiveFields().forEach((field) => {
-  //   delete safePayload[field];
-  // });
 
   return {
     status: "SUCCESS",

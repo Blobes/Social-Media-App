@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
 import { IStep, AuthStepName, InputType } from "@repo/core";
 import { DisplayFeedbackUI, Stepper } from "@repo/shared-ui";
@@ -15,43 +15,46 @@ export const Login: React.FC<LoginProps> = ({ style = {} }) => {
   const [inputType, setInputType] = useState<InputType>("UNKNOWN");
   const [currStep, setCurrStep] = useState<AuthStepName>("IDENTIFIER");
 
-  const steps: IStep<AuthStepName>[] = [
-    {
-      name: "IDENTIFIER",
-      element: (
-        <IdentifierStep
-          step={currStep}
-          setStep={setCurrStep}
-          existingInput={input}
-          setInputType={setInputType}
-          setIdentifier={setInput}
-          style={{
-            headline: style?.headline,
-            tagline: style?.tagline,
-          }}
-        />
-      ),
-    },
-    {
-      name: "RESTORE_ACCOUNT",
-      element: <DisplayFeedbackUI type="NEEDS_RESTORE" />,
-    },
-    {
-      name: "PASSWORD",
-      element: (
-        <PasswordStep
-          step={currStep}
-          setStep={setCurrStep}
-          identifier={input}
-          inputType={inputType}
-          style={{
-            headline: style?.headline,
-            tagline: style?.tagline,
-          }}
-        />
-      ),
-    },
-  ];
+  const steps = useMemo<IStep<AuthStepName>[]>(
+    () => [
+      {
+        name: "IDENTIFIER",
+        element: (
+          <IdentifierStep
+            step={currStep}
+            setStep={setCurrStep}
+            existingInput={input}
+            setInputType={setInputType}
+            setIdentifier={setInput}
+            style={{
+              headline: style?.headline,
+              tagline: style?.tagline,
+            }}
+          />
+        ),
+      },
+      {
+        name: "RESTORE_ACCOUNT",
+        element: <DisplayFeedbackUI type="NEEDS_RESTORE" />,
+      },
+      {
+        name: "PASSWORD",
+        element: (
+          <PasswordStep
+            step={currStep}
+            setStep={setCurrStep}
+            identifier={input}
+            inputType={inputType}
+            style={{
+              headline: style?.headline,
+              tagline: style?.tagline,
+            }}
+          />
+        ),
+      },
+    ],
+    [currStep, input, inputType, style?.headline, style?.tagline],
+  );
 
   return (
     <Stack

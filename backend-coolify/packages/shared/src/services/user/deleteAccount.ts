@@ -17,7 +17,7 @@ import { IS3Config, TransInfo } from "../../types/general";
 import { MESSAGES_REGISTRY } from "../../constants/msgRegistry";
 import { cleanDeviceSessions } from "../session";
 import { hardDeleteMedia } from "../media/hardDelete";
-import { checkUserExists } from "./retrieval/fetchUser";
+import { checkUserExists } from "./retrieve/fetchUser";
 
 export interface IAccountDeletionInput {
   targetUserId: string;

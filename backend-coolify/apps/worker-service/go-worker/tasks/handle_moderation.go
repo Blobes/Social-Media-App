@@ -9,7 +9,9 @@ import (
 	"github.com/hibiken/asynq"
 )
 
-/* Worker node process to ingest payloads and run the optimized OpenRouter pipeline.
+/**
+ * Ingests post moderation tasks, pre-processes raw media assets into optimized formats,
+ * runs moderation evaluations on processed assets, and dispatches finalization callbacks.
  */
 func (deps *DependencyContext) HandlePostModeration(ctx context.Context, t *asynq.Task) error {
 	var payload PostModData
@@ -25,10 +27,29 @@ func (deps *DependencyContext) HandlePostModeration(ctx context.Context, t *asyn
 	log.Printf("📥 Processing validation task for post: %s (Mode: %s, Media Count: %d)",
 		payload.PostID, payload.ModerationTaskMode, len(payload.Media))
 
-	var report ModerationReport
-	var err error
+	// Pre-process raw media assets into compressed WebP / HLS poster structures before running AI evaluation
+	var optimizedMediaList []MediaInput
+	for _, rawMedia := range payload.Media {
+		processed, err := deps.ProcessMediaItem(ctx, rawMedia)
+		if err != nil {
+			log.Printf("⚠️ Media pre-processing failed for asset %s; falling back to original asset: %v", rawMedia.FileKey, err)
+			optimizedMediaList = append(optimizedMediaList, rawMedia)
+			continue
+		}
 
-	report, err = deps.ExecuteModerationPipeline(ctx, &payload)
+		// If video poster generation occurred during HLS processing, assign the thumbnail URL for visual checks
+		updatedItem := processed.MediaInput
+		if processed.ThumbnailURL != nil && *processed.ThumbnailURL != "" {
+			updatedItem.ThumbnailURL = processed.ThumbnailURL
+		}
+
+		optimizedMediaList = append(optimizedMediaList, updatedItem)
+	}
+
+	// Update payload references to target compressed assets
+	payload.Media = optimizedMediaList
+
+	report, err := deps.ExecuteModerationPipeline(ctx, &payload)
 	if err != nil {
 		log.Printf("OpenRouter moderation pipeline encountered operational faults: %v", err)
 

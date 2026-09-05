@@ -121,3 +121,15 @@ type PostModCallbackPayload struct {
 	ModResult ModerationReport `json:"modResult"`
 	Event     string           `json:"event"`
 }
+
+type ProcessedMedia struct {
+	MediaInput
+	HLSUrl      *string  `json:"hlsUrl,omitempty"`
+	VariantUrls []string `json:"variantUrls,omitempty"`
+}
+
+type ProcessMediaTaskPayload struct {
+	TargetID       string       `json:"targetId"`
+	Media          []MediaInput `json:"media"`
+	PurgeRawSource bool         `json:"purgeRawSource,omitempty"`
+}

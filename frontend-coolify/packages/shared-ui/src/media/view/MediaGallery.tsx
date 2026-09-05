@@ -87,7 +87,8 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
       }}
       variant="quilted"
       cols={4}
-      rowHeight={150}>
+      rowHeight={150}
+    >
       {displayMedia.map((media, index) => {
         const isLastItem = index === 4 && remainingCount > 0;
         const { _id, onSingleTap, onDoubleTap, cols, rows } = media;
@@ -103,11 +104,13 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
               overflow: "hidden",
               cursor: "pointer",
               ...bgEffects(theme).zoom("& video, & img"),
-            }}>
+            }}
+          >
             <ElementTap
               onSingleTap={() => onSingleTap && onSingleTap()}
               onDoubleTap={() => onDoubleTap && onDoubleTap()}
-              style={{ ...(!isLastItem && bgEffects(theme).overlay) }}>
+              style={{ ...(!isLastItem && bgEffects(theme).overlay) }}
+            >
               <MediaRenderer
                 media={media}
                 width={0}
@@ -132,24 +135,6 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
                 }}
               />
 
-              {/* {mediaType === "VIDEO" ? (
-                <VideoMedia
-                  _id={_id}
-                  ownerId={ownerId}
-                  url={url}
-                  style={style?.content}
-                />
-              ) : (
-                <Image
-                  src={url}
-                  width={0}
-                  height={0}
-                  sizes="100vw"
-                  loading="lazy"
-                  alt={alt || "Post image"}
-                  style={{ ...(style?.content as CSSProperties) }}
-                />
-              )} */}
               {isLastItem && (
                 <Box
                   sx={{
@@ -166,7 +151,8 @@ export const MediaGrid = ({ mediaList, style, bgEffects }: GalleryProps) => {
                     zIndex: 2,
                     padding: theme.boxSpacing(4),
                     color: theme.fixedColors.gray50,
-                  }}>
+                  }}
+                >
                   <TransText
                     {...COMMON_MEDIA.remaining_count}
                     sx={{ ...theme.typography.h6, textAlign: "center" }}
@@ -209,10 +195,19 @@ export const MediaScroll = ({ mediaList, style, bgEffects }: GalleryProps) => {
         [theme.breakpoints.down("md")]: {
           ...style?.container?.smallScreen,
         },
-      }}>
+      }}
+    >
       {mediaList.map((media) => {
-        const { _id, ownerId, url, type, alt, onSingleTap, onDoubleTap } =
-          media;
+        const {
+          _id,
+          ownerId,
+          url,
+          thumbnailUrl,
+          type,
+          alt,
+          onSingleTap,
+          onDoubleTap,
+        } = media;
         const mediaType = type ?? "IMAGE";
 
         return (
@@ -228,16 +223,19 @@ export const MediaScroll = ({ mediaList, style, bgEffects }: GalleryProps) => {
               overflow: "hidden",
               backgroundColor: theme.palette.gray.trans[1],
               ...bgEffects?.(theme)?.zoom?.("& video, & img"),
-            }}>
+            }}
+          >
             <ElementTap
               onSingleTap={() => onSingleTap && onSingleTap()}
               onDoubleTap={() => onDoubleTap && onDoubleTap()}
-              style={{ ...bgEffects?.(theme)?.overlay }}>
+              style={{ ...bgEffects?.(theme)?.overlay }}
+            >
               {mediaType === "VIDEO" ? (
                 <VideoMedia
                   _id={_id}
                   ownerId={ownerId}
                   url={url}
+                  posterUrl={thumbnailUrl}
                   style={{
                     width: "100%",
                     height: "100%",

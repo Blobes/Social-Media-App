@@ -10,8 +10,8 @@ export const ALLOWED_MIME_TYPES = [
   "image/gif",
 ] as const;
 
-// 2. Define size limits (100MB)
-export const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024;
+// 2. Define size limits (50MB)
+export const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024; // 50mb
 
 // 3. Helper to get extension from mime type (useful for S3 keys)
 export const MIME_TO_EXTENSION: Record<string, string> = {
@@ -50,6 +50,8 @@ const ISO_MAP: Record<string, string> = {
 export const to2ISOCode = (threeLetterCode: string): string => {
   return ISO_MAP[threeLetterCode] || "en"; // Default fallback to English if text is ambiguous
 };
+
+export const smsDispatchCountries = ["234"];
 
 // African country calling code prefixes (digits only)
 export const africanCountryCodes = [

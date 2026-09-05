@@ -6,7 +6,7 @@ import {
   fetchUserSettings,
   FetchUserSettingsResult,
 } from "../../user/settings";
-import { fetchSingleUser } from "../../user/retrieval/fetchUser";
+import { fetchSingleUser } from "../../user/retrieve/fetchUser";
 
 export interface PersonalizeFeedResult<T extends IBasePost> {
   status: "SUCCESS" | "INVALID_INPUT" | "NOT_FOUND" | "SERVER_ERROR";

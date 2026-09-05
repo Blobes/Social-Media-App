@@ -5,7 +5,7 @@ import {
   MESSAGES_REGISTRY,
   forwardError,
 } from "@repo/shared";
-import { authenticateUser } from "@/auth/session/services/authenticateUser";
+import { authenticateUser } from "@/auth/session/services/authenticate";
 import { setAuthCookies } from "@repo/security";
 
 interface LoginRequest extends Request {

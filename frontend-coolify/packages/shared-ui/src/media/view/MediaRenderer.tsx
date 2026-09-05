@@ -5,7 +5,6 @@ import { useTheme, styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import Image from "next/image";
 import { Blurhash } from "react-blurhash";
-import { VideoMedia } from "./VideoMedia";
 import {
   AnalyzedImage,
   IMedia,
@@ -15,6 +14,7 @@ import {
 } from "@repo/core";
 import { analyzeImage } from "@repo/helpers";
 import { COLOR_CONFIGS, useMisc } from "@repo/shared-hooks";
+import { VideoMedia } from "./VideoMedia";
 
 export interface RendererProps {
   media: IMedia;
@@ -36,7 +36,7 @@ export const MediaRenderer = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [analyzedImg, setAnalyzedImg] = useState<AnalyzedImage>();
 
-  const { _id, url, type, alt, dimensions, blurHash } = media;
+  const { _id, url, type, alt, dimensions, blurHash, thumbnailUrl } = media;
   const mediaType = type ?? "IMAGE";
   const {
     width: mediaWidth,
@@ -100,7 +100,8 @@ export const MediaRenderer = ({
         [theme.breakpoints.down("md")]: {
           ...style?.container?.smallScreen,
         },
-      }}>
+      }}
+    >
       {/* 1. Optimized Blurred Background */}
       {!excludeBlurHash &&
         (blurHash ? (
@@ -111,7 +112,8 @@ export const MediaRenderer = ({
               zIndex: 1,
               filter: "blur(48px)",
               transform: "scale(1.1)", // Prevents white edges
-            }}>
+            }}
+          >
             <Blurhash
               hash={blurHash}
               width="100%"
@@ -151,6 +153,7 @@ export const MediaRenderer = ({
         <VideoMedia
           _id={_id}
           url={url}
+          posterUrl={thumbnailUrl}
           autoPlay
           loop
           muted
@@ -237,7 +240,8 @@ export const CustomizedMediaRenderer = ({ media }: RendererProps) => {
                   borderRadius: theme.radius.base,
                   padding: theme.boxSpacing(1, 3),
                   backgroundColor: colorCfg.backgroundColor,
-                }}>
+                }}
+              >
                 <span
                   style={{
                     display: "block",
@@ -246,7 +250,8 @@ export const CustomizedMediaRenderer = ({ media }: RendererProps) => {
                     fontSize: `${item.size}px`,
                     textAlign: item.textAlign || "center",
                     whiteSpace: "pre-wrap",
-                  }}>
+                  }}
+                >
                   {item.content}
                 </span>
               </Box>
@@ -265,12 +270,14 @@ export const CustomizedMediaRenderer = ({ media }: RendererProps) => {
                 position: "absolute",
                 left: `${item.position.x}%`,
                 top: `${item.position.y}%`,
-              }}>
+              }}
+            >
               <span
                 style={{
                   fontSize: `${item.size}px`,
                   userSelect: "none",
-                }}>
+                }}
+              >
                 {item.content}
               </span>
             </Box>

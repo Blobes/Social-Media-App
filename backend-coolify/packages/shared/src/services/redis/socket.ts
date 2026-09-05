@@ -5,6 +5,7 @@ import { Redis } from "ioredis";
 import jwt from "jsonwebtoken";
 import type { Server as HttpServer } from "http";
 import { IJwtUser } from "../../types/general";
+import { getCorsOptions } from "../../../env-config/corsConfig";
 
 export interface AuthenticatedSocket extends Socket {
   user?: IJwtUser;
@@ -35,6 +36,8 @@ export class SocketService {
     redisUrl?: string,
     jwtSecret = process.env.JWT_SECRET,
   ): Server {
+    const customCorsOptions = getCorsOptions();
+
     if (this.ioInstance) {
       return this.ioInstance;
     }
@@ -50,7 +53,7 @@ export class SocketService {
     this.subClient = this.pubClient.duplicate();
 
     this.ioInstance = new Server(httpServer, {
-      cors: { origin: "*" },
+      cors: customCorsOptions,
     });
 
     this.ioInstance.adapter(createAdapter(this.pubClient, this.subClient));

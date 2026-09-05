@@ -80,7 +80,8 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
         display: "flex",
         flexDirection: "column",
         gap: theme.gap(7.5),
-      }}>
+      }}
+    >
       <Stack sx={{ gap: theme.gap(2) }}>
         <TransText
           {...POST_FEEDBACK.compose_post}
@@ -138,7 +139,8 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
           options={{ disabled: isProcessing }}
           style={{
             alignSelf: "flex-start",
-          }}>
+          }}
+        >
           <TransText {...POST_BUTTON_LABELS.post_add_topic} noComponent />
         </AppButton>
 
@@ -149,7 +151,8 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
               flexWrap: "wrap",
               gap: theme.gap(2),
               mt: theme.gap(1),
-            }}>
+            }}
+          >
             {topics.map((topicTitle) => (
               <Chip
                 key={topicTitle}
@@ -212,7 +215,8 @@ export const GistContentStep: React.FC<GistStepProps & FilesProps> = ({
         onClick={handleNext}
         options={{
           disabled: isProcessing,
-        }}>
+        }}
+      >
         <TransText {...POST_BUTTON_LABELS.post_next} noComponent />
       </AppButton>
     </Box>

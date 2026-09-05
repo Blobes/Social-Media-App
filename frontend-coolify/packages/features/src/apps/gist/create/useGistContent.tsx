@@ -85,9 +85,8 @@ export const useGistContent = ({
     customizationsMap,
   });
 
-  // Hook handles compression tracking, file mapping selection, and unified pipeline metrics internally
   const {
-    compressingIds,
+    isProcessingLocal,
     processingStates,
     handleSelectedFiles,
     handleRemoveFile,
@@ -95,7 +94,6 @@ export const useGistContent = ({
     stagedFiles,
     setStagedFiles,
     setErrorMessage,
-    shouldCompress: true,
   });
 
   const userHasFlags = authUser?.hasFlaggedPost ?? false;
@@ -103,7 +101,7 @@ export const useGistContent = ({
   const skipModeration = !userHasFlags && userWindowCount >= 6;
 
   /**
-   * Listens for real-time moderation processing updates broadcasted by the backend worker architecture.
+   * Listens for real-time moderation updates broadcasted by backend workers.
    */
   useSocketListener("GIST_STATUS_UPDATE", (data: any) => {
     if (!moderationTrackingId || data.payload?.gistId !== moderationTrackingId)
@@ -133,7 +131,7 @@ export const useGistContent = ({
   });
 
   /**
-   * Listens for real-time content violation rejections broadcasted by the backend safety pipeline.
+   * Listens for real-time rejections from backend safety checking.
    */
   useSocketListener("CONTENT_REJECTED", (data: any) => {
     if (!moderationTrackingId || data.postId !== moderationTrackingId) return;
@@ -155,9 +153,6 @@ export const useGistContent = ({
     setModerationTrackingId(null);
   });
 
-  /**
-   * Dispatches validation and infrastructure failures directly to the snackbar tray.
-   */
   useEffect(() => {
     if (errorMessage) {
       setSBMessage({
@@ -175,7 +170,7 @@ export const useGistContent = ({
   }, [errorMessage, setSBMessage]);
 
   /**
-   * Evaluates background upload stream ticks to provide real-time UI metrics via progress indicator inline injection.
+   * Displays direct upload progress metrics.
    */
   useEffect(() => {
     if (moderationTrackingId) return;
@@ -183,7 +178,6 @@ export const useGistContent = ({
     const stateEntries = Object.entries(processingStates);
     if (stateEntries.length === 0) return;
 
-    // Isolate uploading states out of the nested progression maps
     const uploadStatesOnly = Object.fromEntries(
       stateEntries
         .filter(([_, data]) => data.upload)
@@ -208,9 +202,6 @@ export const useGistContent = ({
     });
   }, [processingStates, moderationTrackingId, setSBMessage]);
 
-  /**
-   * Manages the persistent visibility contract for posts routed to asynchronous backend analysis workers.
-   */
   useEffect(() => {
     if (!moderationTrackingId) return;
 
@@ -230,9 +221,6 @@ export const useGistContent = ({
     });
   }, [moderationTrackingId, setSBMessage]);
 
-  /**
-   * Updates customization data for a specific file index and returns to content view.
-   */
   const handleSaveCustomization = useCallback(
     (fileIndex: number, customizedData: CustomizedMedia) => {
       const targetFile = stagedFiles[fileIndex];
@@ -252,7 +240,7 @@ export const useGistContent = ({
     [stagedFiles, setStep],
   );
 
-  const { mutate, isPending: isMutationLoading } = useMutation({
+  const { mutate: executePublish, isPending: isMutationLoading } = useMutation({
     mutationFn: async () => {
       const hasMedia = stagedFiles?.length > 0;
       let uploadedAssets: MediaUploadPayload[] = [];
@@ -261,10 +249,6 @@ export const useGistContent = ({
         uploadedAssets = await uploadMediaToCloud(
           stagedFiles,
           customizationsMap,
-        );
-        console.log(
-          "Cloud asset transfers completed successfully:",
-          uploadedAssets,
         );
       }
 
@@ -279,8 +263,6 @@ export const useGistContent = ({
       return await createGist(serverPayload);
     },
     onSuccess: (result: any) => {
-      console.log("Gist record structural entry committed:", result);
-
       if (skipModeration) {
         setSBMessage({
           msg: {
@@ -315,17 +297,11 @@ export const useGistContent = ({
     },
   });
 
-  /**
-   * Evaluates minimum composition metrics before executing mutations or step routing.
-   */
   const handleGistPublish = useCallback(
     (e: React.SubmitEvent) => {
       e.preventDefault();
 
-      if (compressingIds.length > 0) {
-        setErrorMessage(
-          translateTxtString(COMMON_MEDIA.media_video_optimization),
-        );
+      if (isProcessingLocal) {
         return;
       }
 
@@ -339,19 +315,13 @@ export const useGistContent = ({
         return;
       }
       setErrorMessage(null);
-      mutate();
+      executePublish();
     },
-    [caption, stagedFiles, compressingIds, mutate],
+    [caption, stagedFiles, isProcessingLocal, executePublish],
   );
 
-  /**
-   * Advances form state mapping step forward into setting fields.
-   */
   const handleNext = useCallback(() => {
-    if (compressingIds.length > 0) {
-      setErrorMessage(
-        translateTxtString(COMMON_MEDIA.media_video_optimization),
-      );
+    if (isProcessingLocal) {
       return;
     }
 
@@ -366,7 +336,7 @@ export const useGistContent = ({
     }
     setErrorMessage(null);
     setStep?.("SETTINGS");
-  }, [caption, stagedFiles, compressingIds, setStep]);
+  }, [caption, stagedFiles, isProcessingLocal, setStep]);
 
   return {
     caption,
@@ -382,7 +352,7 @@ export const useGistContent = ({
     hasSensitiveGraphic,
     setHasSensitiveGraphic,
     isProcessing:
-      isMutationLoading || !!moderationTrackingId || compressingIds.length > 0,
+      isMutationLoading || !!moderationTrackingId || isProcessingLocal,
     inlineErrMsg,
     processingStates,
     handleSelectedFiles,

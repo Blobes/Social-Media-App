@@ -6,8 +6,8 @@ import {
   AuthStatus,
   COMMON_FEEDBACK,
   POST_FEEDBACK,
-  QUEUE_KEYS,
   QueueItem,
+  STORAGE_KEYS,
   UIMode,
 } from "@repo/core";
 import { usePostLikeSync } from "./useLikeSync";
@@ -142,7 +142,7 @@ export const usePostLike = (
    */
   const applyOptimisticLike = useCallback(
     (nextState: LikeSlice) => {
-      setPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id, {
+      setPendingLike(STORAGE_KEYS.POST.PENDING_LIKES, _id, {
         newValue: nextState.likedByMe,
         prevValue: lastStoredVal.current,
       });
@@ -207,7 +207,7 @@ export const usePostLike = (
       const isEven = clickCount.current % 2 === 0;
 
       if (clickCount.current > 1 && isEven) {
-        clearPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, _id);
+        clearPendingLike(STORAGE_KEYS.POST.PENDING_LIKES, _id);
         clickCount.current = 0;
         return;
       }

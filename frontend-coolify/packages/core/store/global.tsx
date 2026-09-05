@@ -2,19 +2,20 @@
 
 import { create } from "zustand";
 import { i18n as I18nInstance } from "i18next";
+import { IUser } from "../types/payloads/modified";
+import { SupportedIsoCode } from "../constants/languages";
+import { AccountStatus } from "../types/payloads/user";
 import {
-  AuthStatus,
+  DrawerProps,
   IMessage,
   InputFieldType,
   IPage,
   ISnackBarMsgs,
+  ModalProps,
   NetworkStatus,
-} from "../types/ui-state";
-import { IUser } from "../types/payloads/modified";
-import { SupportedIsoCode } from "../constants/languages";
-import { AccountStatus } from "../types/payloads/user";
-import { DrawerProps, ModalProps } from "../types/ui-props";
+} from "../types/ui-props";
 import { CLIENT_ROUTES } from "../constants/routesConfig";
+import { AuthStatus } from "../types/auth";
 
 /** * Defines the shape and actions of the global application store.
  */

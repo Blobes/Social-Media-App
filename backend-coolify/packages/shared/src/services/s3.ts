@@ -17,6 +17,8 @@ import {
   MIME_TO_EXTENSION,
 } from "../constants/others";
 
+const DEFAULT_CACHE_CONTROL = "public, max-age=31536000, immutable";
+
 /**
  * Creates an instance of the cloud storage service mapped to Cloudflare R2 infrastructure.
  */
@@ -61,10 +63,12 @@ export const createS3Service = (config: IS3Config) => {
       Fields: {
         "content-type": fileType,
         "x-amz-meta-uploader-id": userId,
+        "Cache-Control": DEFAULT_CACHE_CONTROL,
       },
       Conditions: [
         ["eq", "$bucket", config.BUCKET_NAME],
         ["eq", "$content-type", fileType],
+        ["eq", "$Cache-Control", DEFAULT_CACHE_CONTROL],
         ["content-length-range", 0, MAX_FILE_SIZE_BYTES],
       ],
     });
@@ -86,6 +90,7 @@ export const createS3Service = (config: IS3Config) => {
       Bucket: config.BUCKET_NAME,
       Key: fileKey,
       ContentType: fileType,
+      CacheControl: DEFAULT_CACHE_CONTROL,
       Metadata: {
         "uploader-id": userId,
         "original-mime-type": fileType,
@@ -113,6 +118,7 @@ export const createS3Service = (config: IS3Config) => {
       Bucket: config.BUCKET_NAME,
       Key: fileKey,
       ContentType: fileType,
+      CacheControl: DEFAULT_CACHE_CONTROL,
       Metadata: {
         "uploader-id": userId,
       },
@@ -200,7 +206,7 @@ export const createS3Service = (config: IS3Config) => {
       Key: fileKey,
       ContentType: "application/json",
       Body: Buffer.from(jsonStringContent, "utf-8"),
-      CacheControl: "public, max-age=31536000, immutable",
+      CacheControl: DEFAULT_CACHE_CONTROL,
     });
 
     await s3.send(command);

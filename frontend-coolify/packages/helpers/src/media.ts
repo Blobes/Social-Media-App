@@ -2,7 +2,7 @@ import {
   AnalyzedImage,
   MediaProcessingStatus,
   MediaProcessingProgress,
-  QUEUE_KEYS,
+  STORAGE_KEYS,
 } from "@repo/core";
 import { encode } from "blurhash";
 
@@ -86,7 +86,6 @@ export const getVideoMetadata = (
     video.src = URL.createObjectURL(file);
 
     video.onloadeddata = () => {
-      // Seek slightly forward to avoid extracting a purely black initial frame
       video.currentTime = 1;
     };
 
@@ -180,6 +179,7 @@ export const generateBlurHash = (file: File | Blob): Promise<string> => {
 export const compressVideoAsync = (file: File, id: string): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./video-worker.js"));
+    //  const worker = new Worker(new URL("./video-worker.js", import.meta.url));
 
     worker.onmessage = (event: WorkerMessageEvent) => {
       const { action, id: responseId, status } = event.data;
@@ -192,7 +192,7 @@ export const compressVideoAsync = (file: File, id: string): Promise<Blob> => {
           progress: event.data.progress,
         };
         const progressEvent = new CustomEvent(
-          `${QUEUE_KEYS.MEDIA_COMPRESSION}-${id}`,
+          `${STORAGE_KEYS.MEDIA_COMPRESSION}-${id}`,
           {
             detail,
           },
@@ -204,7 +204,7 @@ export const compressVideoAsync = (file: File, id: string): Promise<Blob> => {
           progress: 100,
         };
         const successEvent = new CustomEvent(
-          `${QUEUE_KEYS.MEDIA_COMPRESSION}-${id}`,
+          `${STORAGE_KEYS.MEDIA_COMPRESSION}-${id}`,
           {
             detail,
           },
@@ -221,7 +221,7 @@ export const compressVideoAsync = (file: File, id: string): Promise<Blob> => {
           error,
         };
         const errorEvent = new CustomEvent(
-          `${QUEUE_KEYS.MEDIA_COMPRESSION}-${id}`,
+          `${STORAGE_KEYS.MEDIA_COMPRESSION}-${id}`,
           {
             detail,
           },

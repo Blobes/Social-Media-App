@@ -34,16 +34,42 @@ export const userPrivateFields = (): string[] => {
  */
 export const sanitizeUserResult = <T>(userData: T, fields: string[]): T => {
   if (!userData || typeof userData !== "object") return userData;
+
   const sensitiveKeys = new Set(fields);
+
+  // Converts Mongoose documents or plain objects into sanitized plain objects.
   const sanitizeObject = (
     obj: Record<string, unknown>,
   ): Record<string, unknown> => {
-    const cleaned = { ...obj };
+    const isMongooseDoc =
+      "toObject" in obj &&
+      typeof (obj as { toObject?: unknown }).toObject === "function";
+
+    // 1. Convert Mongoose document cleanly to a plain JavaScript object
+    const plainObj: Record<string, unknown> = isMongooseDoc
+      ? (
+          obj as { toObject: (options?: unknown) => Record<string, unknown> }
+        ).toObject({
+          virtuals: true,
+          getters: true,
+        })
+      : { ...obj };
+
+    // 2. Safely preserve runtime attachments (e.g., additions) without pulling Mongoose internal state ($__, $isNew, _doc)
+    if (isMongooseDoc) {
+      if ("additions" in obj && obj.additions !== undefined) {
+        plainObj.additions = obj.additions;
+      }
+    }
+
+    // 3. Strip sensitive keys
     sensitiveKeys.forEach((key) => {
-      delete cleaned[key];
+      delete plainObj[key];
     });
-    return cleaned;
+
+    return plainObj;
   };
+
   if (Array.isArray(userData)) {
     return userData.map((item) =>
       typeof item === "object" && item !== null

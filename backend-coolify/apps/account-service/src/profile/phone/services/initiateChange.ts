@@ -8,6 +8,7 @@ import {
   MESSAGES_REGISTRY,
   fetchSingleUser,
   OtpMessageChannel,
+  checkOtpCooldown,
 } from "@repo/shared";
 
 interface IInitiatePhoneChangeInput {
@@ -20,11 +21,11 @@ interface IInitiatePhoneChangeResult {
   status:
     | "SUCCESS"
     | "NOT_FOUND"
-    | "COOLDOWN_ACTIVE"
+    | "PHONE_COOLDOWN_ACTIVE"
     | "RATE_LIMIT_ACTIVE"
     | "PHONE_ALREADY_USED"
     | "PHONE_CONFLICT";
-  transInfo: TransInfo;
+  transInfo?: TransInfo;
   daysRemaining?: number;
   secondsToWait?: number;
   payload?: any;
@@ -61,7 +62,7 @@ export const startPhoneChange = async (
         (CHANGE_COOLDOWN - timeSinceLastChange) / (1000 * 60 * 60 * 24),
       );
       return {
-        status: "COOLDOWN_ACTIVE",
+        status: "PHONE_COOLDOWN_ACTIVE",
         transInfo: MESSAGES_REGISTRY.AUTH.COOLDOWN_ACTIVE(daysRemaining),
         daysRemaining,
       };
@@ -70,18 +71,18 @@ export const startPhoneChange = async (
 
   // Enforce single-minute delay window on messaging gateways
   if (user.lastPhoneOtpSentAt) {
-    const timeSinceLastSent = Date.now() - user.lastPhoneOtpSentAt.getTime();
-    if (timeSinceLastSent < SEND_COOLDOWN) {
-      const secondsToWait = Math.ceil(
-        (SEND_COOLDOWN - timeSinceLastSent) / 1000,
-      );
+    const cooldown = checkOtpCooldown({ lastSentAt: user.lastPhoneOtpSentAt });
+    if (cooldown.isCooldownActive) {
       return {
         status: "RATE_LIMIT_ACTIVE",
-        transInfo: MESSAGES_REGISTRY.AUTH.RATE_LIMIT_ACTIVE(secondsToWait),
-        secondsToWait,
+        transInfo: cooldown.transInfo,
+        payload: {
+          retryAfter: cooldown.retryAfter || 0,
+        },
       };
     }
   }
+
   const formattedPhone = newPhoneNumber.trim();
 
   if (user.phoneNumber === formattedPhone) {

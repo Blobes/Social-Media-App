@@ -1,10 +1,16 @@
 "use client";
 
+/**
+ * Capitalizes the first character of a string and converts the remaining characters to lowercase.
+ */
 export const capitalize = (string: string): string => {
   if (!string) return "";
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 };
 
+/**
+ * Formats a phone string into standard display format with visual spacing and brackets.
+ */
 export const formatPhoneNumber = (
   value: string,
   removePlus = false,
@@ -133,4 +139,25 @@ export const processPhoneFormatting = (
     shouldReset: false,
     shouldOpenMenu,
   };
+};
+
+/**
+ * Extracts a matching country code from a phone string based on an allowed code list.
+ */
+export const extractCountryCode = (
+  phone?: string,
+  allowedCodes: string[] = [],
+): string | null => {
+  if (!phone) return null;
+
+  // Clean all non-digit characters except a leading '+'
+  const cleaned = phone.replace(/[^\d+]/g, "");
+  const digitsOnly = phone.replace(/\D/g, "");
+
+  // Match against strings with or without a '+' prefix
+  const matchedCode = allowedCodes.find(
+    (code) => cleaned.startsWith(`+${code}`) || digitsOnly.startsWith(code),
+  );
+
+  return matchedCode || null;
 };

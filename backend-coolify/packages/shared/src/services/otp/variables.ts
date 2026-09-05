@@ -49,7 +49,8 @@ export interface EmailOtpPayload {
 const APP_NAME = "Funstakes";
 const DOMAIN_URL = "https://funstakes.net";
 const SUPPORT_EMAIL = "support@funstakes.net";
-const LOGO_URL = "https://media.funstakes.net/assets/brand-logo2.svg";
+const LOGO_URL =
+  "https://media.funstakes.net/assets/logo-name-tagline-light.png";
 
 export const APP_INFO: AppInfo = {
   appName: APP_NAME,

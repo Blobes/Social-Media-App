@@ -1,8 +1,7 @@
 "use client";
 
 import { Dimensions, IMediaPayload, StorageProvider } from "./payloads/media";
-import { ElementPosition } from "./ui-props";
-import { GenericStyle } from "./ui-state";
+import { ElementPosition, GenericStyle } from "./ui-props";
 
 export type CustomizerMode = "TEXT" | "STICKER" | "FILTER";
 export type MediaType = "IMAGE" | "VIDEO" | "GIF";

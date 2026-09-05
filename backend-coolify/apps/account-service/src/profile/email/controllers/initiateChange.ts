@@ -74,7 +74,7 @@ export const initiateEmailChange = async (
     }
 
     if (
-      serviceResult.status === "COOLDOWN_ACTIVE" ||
+      serviceResult.status === "EMAIL_COOLDOWN_ACTIVE" ||
       serviceResult.status === "RATE_LIMIT_ACTIVE"
     ) {
       return res.status(429).json({

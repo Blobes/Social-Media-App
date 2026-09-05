@@ -8,6 +8,7 @@ import {
   MESSAGES_REGISTRY,
   fetchSingleUser,
   checkUserExists,
+  checkOtpCooldown,
 } from "@repo/shared";
 import { verifyEncryptedPass } from "@/auth/helpers/encrypt";
 
@@ -24,13 +25,13 @@ interface IInitiateEmailChangeResult {
     | "PASSWORD_REQUIRED"
     | "NO_USER_PASSWORD_SET"
     | "INCORRECT_PASSWORD"
-    | "COOLDOWN_ACTIVE"
+    | "EMAIL_COOLDOWN_ACTIVE"
     | "RATE_LIMIT_ACTIVE"
     | "EMAIL_ALREADY_USED"
     | "EMAIL_CONFLICT";
-  transInfo: TransInfo;
+  transInfo?: TransInfo;
   daysRemaining?: number;
-  secondsToWait?: number;
+  retryAfter?: number | null;
   payload?: unknown;
 }
 
@@ -43,7 +44,6 @@ export const startEmailChange = async (
   const { userId, newEmail, password } = input;
   const GRACE_PERIOD_MS = 15 * 60 * 1000;
   const ALLOWED_NO_OF_DAYS = 30 * 24 * 60 * 60 * 1000;
-  const EMAIL_COOLDOWN = 60 * 1000;
 
   const user = await fetchSingleUser({
     identifier: userId,
@@ -94,24 +94,23 @@ export const startEmailChange = async (
         (ALLOWED_NO_OF_DAYS - timeSinceLastChange) / (1000 * 60 * 60 * 24),
       );
       return {
-        status: "COOLDOWN_ACTIVE",
+        status: "EMAIL_COOLDOWN_ACTIVE",
         transInfo: MESSAGES_REGISTRY.AUTH.COOLDOWN_ACTIVE(daysRemaining),
         daysRemaining,
       };
     }
   }
 
-  // Prevent OTP resource exhaustion attacks
+  // Enforce single-minute delay window on messaging gateways
   if (user.lastEmailOtpSentAt) {
-    const timeSinceLastSent = Date.now() - user.lastEmailOtpSentAt.getTime();
-    if (timeSinceLastSent < EMAIL_COOLDOWN) {
-      const secondsToWait = Math.ceil(
-        (EMAIL_COOLDOWN - timeSinceLastSent) / 1000,
-      );
+    const cooldown = checkOtpCooldown({ lastSentAt: user.lastEmailOtpSentAt });
+    if (cooldown.isCooldownActive) {
       return {
         status: "RATE_LIMIT_ACTIVE",
-        transInfo: MESSAGES_REGISTRY.AUTH.RATE_LIMIT_ACTIVE(secondsToWait),
-        secondsToWait,
+        transInfo: cooldown.transInfo,
+        payload: {
+          retryAfter: cooldown.retryAfter || 0,
+        },
       };
     }
   }

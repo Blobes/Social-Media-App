@@ -1,17 +1,12 @@
 import { NextFunction, Response } from "express";
+import { forwardError, IAuthRequest, MESSAGES_REGISTRY } from "@repo/shared";
 import {
-  forwardError,
-  IAuthRequest,
-  MESSAGES_REGISTRY,
-  OtpMessageChannel,
-} from "@repo/shared";
-import { executeResetInitiation } from "../services/initiateReset";
+  executeResetInitiation,
+  IResetInitiationInput,
+} from "../services/initiateReset";
 
 interface InitiateRequest extends IAuthRequest {
-  body: {
-    identifier: string;
-    otpChannelType?: OtpMessageChannel;
-  };
+  body: IResetInitiationInput;
 }
 
 /**
@@ -22,12 +17,13 @@ export const initiatePasswordReset = async (
   res: Response,
   next: NextFunction,
 ): Promise<any> => {
-  const { identifier, otpChannelType } = req.body;
+  const { identifier, otpChannelType, resetMethod } = req.body;
 
   try {
     const serviceResult = await executeResetInitiation({
       identifier,
       otpChannelType,
+      resetMethod,
     });
 
     if (
@@ -54,6 +50,14 @@ export const initiatePasswordReset = async (
         status: "ERROR",
         ...serviceResult.transInfo,
         payload: null,
+      });
+    }
+
+    if (serviceResult.status === "RATE_LIMIT_ACTIVE") {
+      return res.status(429).json({
+        status: "ERROR",
+        ...serviceResult.transInfo,
+        payload: serviceResult.payload,
       });
     }
 

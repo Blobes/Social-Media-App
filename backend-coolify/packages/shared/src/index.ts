@@ -32,7 +32,7 @@ export * from "./services/user/deleteAccount";
 export * from "./services/user/pipelines/singleUser";
 export * from "./services/user/pipelines/userList";
 export * from "./services/user/pipelines/dataLookup";
-export * from "./services/user/retrieval/fetchUser";
+export * from "./services/user/retrieve/fetchUser";
 export * from "./services/user/settings";
 // Media
 export * from "./services/s3";

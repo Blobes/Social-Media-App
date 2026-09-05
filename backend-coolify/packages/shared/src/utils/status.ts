@@ -49,3 +49,38 @@ export const getAccountStatusMsg = (
     transInfo: MESSAGES_REGISTRY.AUTH.ACCOUNT_ACTIVE,
   };
 };
+
+interface ICheckCooldownParams {
+  lastSentAt?: Date | null;
+  cooldownSeconds?: number;
+}
+interface ICooldownCheckResult {
+  isCooldownActive: boolean;
+  retryAfter?: number;
+  transInfo?: TransInfo;
+}
+const DEFAULT_COOLDOWN_SECONDS = 60;
+/**
+ * Checks if an OTP dispatch rate-limit cooldown period is active.
+ */
+export const checkOtpCooldown = ({
+  lastSentAt,
+  cooldownSeconds = DEFAULT_COOLDOWN_SECONDS,
+}: ICheckCooldownParams): ICooldownCheckResult => {
+  if (!lastSentAt) {
+    return { isCooldownActive: false };
+  }
+
+  const elapsedSeconds = (Date.now() - new Date(lastSentAt).getTime()) / 1000;
+
+  if (elapsedSeconds < cooldownSeconds) {
+    const secondsLeft = Math.ceil(cooldownSeconds - elapsedSeconds);
+    return {
+      isCooldownActive: true,
+      retryAfter: secondsLeft,
+      transInfo: MESSAGES_REGISTRY.AUTH.RATE_LIMIT_ACTIVE(secondsLeft),
+    };
+  }
+
+  return { isCooldownActive: false };
+};

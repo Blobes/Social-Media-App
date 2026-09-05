@@ -97,7 +97,7 @@ export const useBotVerification = (options: UseBotOptions) => {
   const checkBotSessionStatus = useCallback(async (): Promise<void> => {
     setIsCheckingSession(true);
     try {
-      setCurrStep("OTP_VERIFY");
+      setCurrStep("VERIFY_IDENTITY");
     } catch {
       setCurrStep("BOT_CHALLENGE");
     } finally {
@@ -115,7 +115,7 @@ export const useBotVerification = (options: UseBotOptions) => {
   const handleBotAuthSuccess = useCallback(
     async (tokenToVerify: string): Promise<void> => {
       await verifyBot({ token: tokenToVerify });
-      setCurrStep("OTP_VERIFY");
+      setCurrStep("VERIFY_IDENTITY");
       await onSuccess?.(tokenToVerify);
     },
     [setCurrStep, onSuccess],

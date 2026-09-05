@@ -21,7 +21,8 @@ func main() {
 		asynq.Config{
 			Concurrency: 2,
 			Queues: map[string]int{
-				"critical":   3,
+				"critical":   4,
+				"media":      3,
 				"moderation": 2,
 				"low":        1,
 			},
@@ -43,6 +44,11 @@ func main() {
 		}
 		log.Printf("✅ [Handler] Task completed successfully")
 		return nil
+	})
+
+	mux.HandleFunc("process:media", func(ctx context.Context, task *asynq.Task) error {
+		log.Printf("✅ [Handler] Received media task: %s", task.Type())
+		return config.TaskDeps.HandleMediaProcessing(ctx, task)
 	})
 
 	client := asynq.NewClient(config.AsynqOpts)

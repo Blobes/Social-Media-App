@@ -27,7 +27,8 @@ export const BG_SLIDER_DATA = (
       tagline: translate(COMMON_CAROUSEL.marketing001.slide2_tagline),
       media: {
         _id: "m2",
-        url: asset.video,
+        url: asset.marketingVideo,
+        thumbnailUrl: asset.marketingPoster,
         type: "VIDEO",
       },
     },

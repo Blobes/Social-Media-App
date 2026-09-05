@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient, QueryKey } from "@tanstack/react-query";
-import { ApiError, IPost, POST_FEEDBACK, QUEUE_KEYS } from "@repo/core";
+import { ApiError, IPost, POST_FEEDBACK, STORAGE_KEYS } from "@repo/core";
 import { updateCacheItem } from "@repo/helpers";
 import { SBMessage, useStaticTranslation } from "@repo/shared-hooks";
 
@@ -42,7 +42,7 @@ export const usePostLikeMutation = (
       }
 
       if (clearPendingLike) {
-        clearPendingLike(QUEUE_KEYS.POST.PENDING_LIKES, id);
+        clearPendingLike(STORAGE_KEYS.POST.PENDING_LIKES, id);
       }
     },
     onError: (error: ApiError) => {

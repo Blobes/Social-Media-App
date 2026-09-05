@@ -8,8 +8,8 @@ import {
   SERVER_API,
   TrackedFile,
   MediaUploadPayload,
-  QUEUE_KEYS,
   CustomizedMedia,
+  STORAGE_KEYS,
 } from "@repo/core";
 import { apiClient } from "./apiClient";
 import {
@@ -50,7 +50,7 @@ interface MultipartPartSignature {
 const CHUNK_SIZE = 15 * 1024 * 1024;
 
 /**
- * Fires unified upload states directly into the browser window context.
+ * Fires unified upload progress events directly into the browser window context.
  */
 const emitUploadProgress = (
   trackingId: string,
@@ -58,14 +58,14 @@ const emitUploadProgress = (
   progress: number,
   error?: string,
 ): void => {
-  const event = new CustomEvent(`${QUEUE_KEYS.MEDIA_UPLOAD}-${trackingId}`, {
+  const event = new CustomEvent(`${STORAGE_KEYS.MEDIA_UPLOAD}-${trackingId}`, {
     detail: { status, progress, error },
   });
   window.dispatchEvent(event);
 };
 
 /**
- * Executes a monitored network push using XMLHttpRequest to surface exact progress ticks.
+ * Executes a monitored network upload using XMLHttpRequest to track exact upload percentage.
  */
 const uploadWithProgress = (
   url: string,
@@ -108,17 +108,7 @@ const uploadWithProgress = (
 };
 
 /**
- * Determines if the client device has enough hardware resources for local WebAssembly compression.
- */
-export const checkDeviceCapability = (): boolean => {
-  if (typeof navigator === "undefined") return false;
-  const cores = navigator.hardwareConcurrency || 4;
-  const deviceMemory = (navigator as any).deviceMemory || 4;
-  return cores >= 4 && deviceMemory >= 4;
-};
-
-/**
- * Auxiliary pipeline helper to request a presigned POST policy and upload an asset file via FormData.
+ * Requests a presigned POST policy and uploads an asset file via FormData.
  */
 const fetchPostPolicy = async (
   file: File | Blob,
@@ -129,7 +119,7 @@ const fetchPostPolicy = async (
     SERVER_API.mediaUpload,
     {
       method: "POST",
-      body: JSON.stringify({ fileType: mimeType }),
+      body: JSON.stringify({ fileType: mimeType, fileSize: file.size }),
       headers: { "Content-Type": "application/json" },
     },
   );
@@ -155,7 +145,7 @@ const fetchPostPolicy = async (
 };
 
 /**
- * Auxiliary pipeline helper to request a presigned PUT URL and put an asset file to S3.
+ * Requests a presigned PUT URL and uploads an asset file to R2.
  */
 const fetchUploadUrl = async (
   file: File | Blob,
@@ -166,7 +156,7 @@ const fetchUploadUrl = async (
     SERVER_API.getMediaUrl,
     {
       method: "POST",
-      body: JSON.stringify({ fileType: mimeType }),
+      body: JSON.stringify({ fileType: mimeType, fileSize: file.size }),
       headers: { "Content-Type": "application/json" },
     },
   );
@@ -190,7 +180,7 @@ const fetchUploadUrl = async (
 };
 
 /**
- * Concurrent chunk processing flows using Cloudflare R2 native multipart structures.
+ * Handles concurrent chunk processing using Cloudflare R2 multipart uploads.
  */
 export const executeMultipartUpload = async (
   file: File | Blob,
@@ -201,7 +191,7 @@ export const executeMultipartUpload = async (
     SERVER_API.initMultipart,
     {
       method: "POST",
-      body: JSON.stringify({ fileType: mimeType }),
+      body: JSON.stringify({ fileType: mimeType, fileSize: file.size }),
     },
   );
 
@@ -316,15 +306,15 @@ export const executeMultipartUpload = async (
 };
 
 /**
- * Main processing orchestrator for a single media asset file pipeline.
+ * Processing orchestrator for a single media asset file pipeline.
  */
 const processSingleFile = async (
   file: File,
   customizations?: CustomizedMedia,
 ): Promise<MediaUploadPayload> => {
-  const MAX_SINGLE_SIZE = 100 * 1024 * 1024;
+  const MAX_SINGLE_SIZE = 50 * 1024 * 1024; // 50mb
   if (file.size > MAX_SINGLE_SIZE) {
-    throw new Error(`File ${file.name} size exceeds the 100MB limit.`);
+    throw new Error(`File ${file.name} size exceeds the 500MB limit.`);
   }
 
   const trackingId =
@@ -344,14 +334,9 @@ const processSingleFile = async (
 
       let finalFileKey: string;
       let targetUrl: string;
-      const videoMimeType: AllowedMimeType = "video/mp4";
 
       if (file.size > 16 * 1024 * 1024) {
-        finalFileKey = await executeMultipartUpload(
-          file,
-          videoMimeType,
-          trackingId,
-        );
+        finalFileKey = await executeMultipartUpload(file, fileType, trackingId);
 
         const configResponse = await apiClient<ISinglePayload<PresignResponse>>(
           SERVER_API.getMediaUrl,
@@ -370,11 +355,7 @@ const processSingleFile = async (
 
         targetUrl = configResponse.payload.publicUrl;
       } else {
-        const directUpload = await fetchUploadUrl(
-          file,
-          videoMimeType,
-          trackingId,
-        );
+        const directUpload = await fetchUploadUrl(file, fileType, trackingId);
         finalFileKey = directUpload.fileKey;
         targetUrl = directUpload.publicUrl;
       }
@@ -399,7 +380,7 @@ const processSingleFile = async (
         fileKey: finalFileKey,
         type: "VIDEO",
         thumbnailUrl,
-        mimeType: videoMimeType,
+        mimeType: fileType,
         size: file.size,
         dimensions,
         blurHash,
@@ -441,20 +422,19 @@ const processSingleFile = async (
 };
 
 /**
- * Accepts single or multiple file attachments and uploads them concurrently to S3.
+ * Accepts single or multiple file attachments and uploads them directly to Cloudflare R2.
  */
 export const uploadMediaToCloud = async (
   files: File | File[],
   customizationsMap?: Record<string, CustomizedMedia>,
 ): Promise<MediaUploadPayload[]> => {
   const fileList = Array.isArray(files) ? files : [files];
-  const MAX_COMBINED_SIZE = 150 * 1024 * 1024;
+  const MAX_COMBINED_SIZE = 250 * 1024 * 1024; // 200mb
+
   const totalSize = fileList.reduce((sum, file) => sum + file.size, 0);
 
   if (totalSize > MAX_COMBINED_SIZE) {
-    throw new Error(
-      "The total size of all uploaded files exceeds the 150MB limit.",
-    );
+    throw new Error("The total size of all uploaded files exceeds the limit.");
   }
 
   const uploadPromises = fileList.map((file, idx) => {

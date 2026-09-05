@@ -2,7 +2,7 @@ import { TransInfo } from "../../../types/general";
 import { MESSAGES_REGISTRY } from "../../../constants/msgRegistry";
 import { getAccountStatusMsg } from "../../../utils/status";
 import { totpService } from "./service";
-import { fetchSingleUser } from "../../user/retrieval/fetchUser";
+import { fetchSingleUser } from "../../user/retrieve/fetchUser";
 import { determineCheckType } from "../../../utils/sanitizeData";
 
 export type TotpActionType = "AUTHENTICATE" | "CONFIGURE";

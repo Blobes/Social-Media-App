@@ -506,9 +506,9 @@ export const MESSAGES_REGISTRY = {
       message: "Verified successfully.",
     },
     OTP_PHONE_REGION_NOT_SUPPORTED: {
-      i18nKey: "auth.otp_phone_region_not_supportedd",
+      i18nKey: "auth.otp_phone_region_not_supported",
       message:
-        "Destination phone number does not belong to any of our supported African or global regions for OTP delivery.",
+        "Phone number country code is not currently supported for SMS OTP delivery.",
     },
     OTP_WHATSAPP_CONFIG_INVALID: {
       i18nKey: "auth.otp_whatsapp_config_invalid",
@@ -562,6 +562,16 @@ export const MESSAGES_REGISTRY = {
       message:
         "This account is already linked with {{provider}}. Please log in using that method.",
       interpolations: { provider },
+    }),
+    PASSWORD_RESET_INITIATED: {
+      i18nKey: "auth.password_reset_initiated",
+      message: "Password reset initiated. You will be redirected shortly.",
+    },
+    PASSWORD_RESET_INITIATED_VIA_MESSAGING: (channel: OtpMessageChannel) => ({
+      i18nKey: "auth.password_reset_initiated_via_messaging",
+      message:
+        "Password reset initiated. A verification code will be sent to your {{channel}} inbox shortly.",
+      interpolations: { channel },
     }),
     PASSWORD_ALREADY_EXISTS: {
       i18nKey: "auth.password_already_exists",
@@ -763,6 +773,14 @@ export const MESSAGES_REGISTRY = {
     WELCOME_BACK_ACCOUNT_RESTORED: {
       i18nKey: "auth.welcome_back_account_restored",
       message: "Welcome back! Your account has been fully restored.",
+    },
+    WHATSAPP_CONFIG_FAILED: {
+      i18nKey: "auth.whatsapp_config_failed",
+      message: "WhatsApp API configuration is invalid",
+    },
+    WHATSAPP_CHECK_FAILED: {
+      i18nKey: "auth.whatsapp_check_failed",
+      message: "WhatsApp status check failed",
     },
   },
 

@@ -150,6 +150,10 @@ export const auth = {
         "Enter your password to login. After <strong>{{attemptCount}}</strong> incorrect entries, your access will be locked for <strong>{{lockTime}}</strong> minutes.",
       interpolations: { lockTime, attemptCount },
     }),
+    enter_code_manually: {
+      tKey: "auth:feedback.enter_code_manually",
+      tValue: "Or enter code manually",
+    },
     few_minutes_to_setup_account: {
       tKey: "auth:feedback.few_minutes_to_setup_account",
       tValue: "It only takes a few minutes to set up your account.",
@@ -191,6 +195,10 @@ export const auth = {
     logout_confirmation: {
       tKey: "auth:feedback.logout_confirmation",
       tValue: "Do you really want to logout?",
+    },
+    mfa_activated: {
+      tKey: "auth:feedback.mfa_activated",
+      tValue: "Multifactor Authentication Activated.",
     },
     new_code_sent_tagline: (channel: string) => ({
       tKey: "auth:feedback.new_code_sent_tagline",
@@ -258,6 +266,11 @@ export const auth = {
     otp_send_code_failed: {
       tKey: "auth:feedback.otp_send_code_failed",
       tValue: "Failed to send code.",
+    },
+    otp_phone_region_not_supported: {
+      tKey: "feedback.otp_phone_region_not_supported",
+      tValue:
+        "Phone number country code is not currently supported for SMS OTP delivery.",
     },
     password_locked_headline: {
       tKey: "auth:feedback.password_locked_headline",
@@ -344,6 +357,15 @@ export const auth = {
       tKey: "auth:feedback.session_expired",
       tValue: "Set up your legal names and unique username.",
     },
+    setup_authenticator_headline: {
+      tKey: "auth:feedback.setup_authenticator_headline",
+      tValue: "Set up MFA with Authenticator",
+    },
+    setup_authenticator_tagline: {
+      tKey: "auth:feedback.setup_authenticator_tagline",
+      tValue:
+        "Scan the QR code below with your authenticator app (like Google Authenticator or 1Password) to generate your verification code.",
+    },
     unsupported_verification_method: {
       tKey: "auth:feedback.unsupported_verification_method",
       tValue: "Unsupported verification method.",
@@ -379,6 +401,14 @@ export const auth = {
       tKey: "auth:feedback.verify_your_account_tagline",
       tValue:
         "You're almost there! Complete your verification process to unlock full access to Funstakes.",
+    },
+    whatsapp_status_check_failed: {
+      tKey: "auth:feedback.whatsapp_status_check_failed",
+      tValue: "Failed to check WhatsApp number status",
+    },
+    whatsapp_not_registered: {
+      tKey: "auth:feedback.whatsapp_not_registered",
+      tValue: "Phone number not registered or active on WhatsApp",
     },
   },
 
@@ -1122,9 +1152,9 @@ export const common = {
       signup: { tKey: "common:list_item.nav.signup", tValue: "Signup" },
       support: { tKey: "common:list_item.nav.support", tValue: "Support" },
       terms: { tKey: "common:list_item.nav.terms", tValue: "Terms" },
-      verifyOtp: {
+      verifyIdentity: {
         tKey: "common:list_item.nav.verifyOtp",
-        tValue: "Verify Otp",
+        tValue: "Verify Identity",
       },
       wallet: { tKey: "common:list_item.nav.wallet", tValue: "Wallet" },
     },

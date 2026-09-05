@@ -49,7 +49,8 @@ export const SnackBars = ({
         [theme.breakpoints.down("sm")]: {
           width: "94%",
         },
-      }}>
+      }}
+    >
       <GroupTransition>
         {snackBarMsg.messages.map((msg) => {
           return (
@@ -57,12 +58,13 @@ export const SnackBars = ({
               key={msg.id}
               type="slide"
               direction={snackBarMsg.dir}
-              timeout={300}>
+              timeout={300}
+            >
               <Paper
                 variant="elevation"
                 component={motion.div}
                 sx={{
-                  maxWidth: isExpanded ? "450px" : "400px",
+                  maxWidth: isExpanded ? "600px" : "500px",
                   [theme.breakpoints.down("sm")]: {
                     width: "100%",
                   },
@@ -92,7 +94,8 @@ export const SnackBars = ({
                         ? theme.palette.gray[0]
                         : theme.palette.error.main,
                   },
-                }}>
+                }}
+              >
                 {!isExpanded &&
                   (msg.icon ??
                     (msg.msgStatus === "SUCCESS" ? (
@@ -112,10 +115,12 @@ export const SnackBars = ({
                     gap: theme.gap(1),
                     alignItems: "flex-start",
                     width: "100%",
-                  }}>
+                  }}
+                >
                   {msg.headline && (
                     <TransText
-                      sx={{ ...theme.typography.text3, fontWeight: 600 }}>
+                      sx={{ ...theme.typography.text3, fontWeight: 600 }}
+                    >
                       {msg.headline}
                     </TransText>
                   )}
@@ -134,7 +139,8 @@ export const SnackBars = ({
                                 : theme.palette.error.main,
                           },
                         },
-                      }}>
+                      }}
+                    >
                       {msg.cta && (
                         <AppButton
                           variant="text"
@@ -149,7 +155,8 @@ export const SnackBars = ({
                               color: theme.palette.gray[0],
                               backgroundColor: "transparent",
                             },
-                          }}>
+                          }}
+                        >
                           {msg.cta.label}
                         </AppButton>
                       )}
@@ -175,7 +182,8 @@ export const SnackBars = ({
                           "dark",
                         ),
                       },
-                    }}>
+                    }}
+                  >
                     <X
                       size={18}
                       style={{

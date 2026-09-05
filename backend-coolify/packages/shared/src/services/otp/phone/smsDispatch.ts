@@ -2,6 +2,7 @@ import { MESSAGES_REGISTRY } from "../../../constants/msgRegistry";
 import {
   africanCountryCodes,
   globalCountryCodes,
+  smsDispatchCountries,
 } from "../../../constants/others";
 import { IPhoneDispatchTokens } from "../../../types/general";
 import { createDomainError } from "../../../utils/error";
@@ -123,6 +124,16 @@ export async function dispatchSmsOtp(
   }
 
   const formattedRecipient = { ...recipient, phoneNumber: recipientPhone };
+
+  // Strictly check if dispatching is permitted for this country code
+  const isDispatchPermitted = smsDispatchCountries.some((prefix) =>
+    recipientPhone.startsWith(prefix.replace(/^\+/, "")),
+  );
+
+  if (!isDispatchPermitted) {
+    const errInfo = MESSAGES_REGISTRY.AUTH.OTP_PHONE_REGION_NOT_SUPPORTED;
+    throw createDomainError(errInfo.message, errInfo.i18nKey, 400);
+  }
 
   const isAfricanPhone = africanCountryCodes.some((prefix) =>
     recipientPhone.startsWith(prefix.replace(/^\+/, "")),

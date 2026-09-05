@@ -87,16 +87,16 @@ func LoadConfig(ctx context.Context) (*AppConfig, error) {
 		"nvidia/nemotron-3-nano-omni:free",
 	}
 
-	awsRegion := os.Getenv("AWS_REGION")
-	awsAccessKey := os.Getenv("AWS_ACCESS_KEY")
-	awsSecretKey := os.Getenv("AWS_SECRET_KEY")
-	awsBucketName := os.Getenv("AWS_BUCKET_NAME")
+	storageRegion := os.Getenv("CLOUDFLARE_REGION")
+	storageAccessKey := os.Getenv("CLOUDFLARE_ACCESS_KEY")
+	storageSecretKey := os.Getenv("CLOUDFLARE_SECRET_KEY")
+	storageBucketName := os.Getenv("CLOUDFLARE_BUCKET_NAME")
 	storageClient, err := tasks.NewStorageClient(
 		ctx,
-		awsBucketName,
-		awsRegion,
-		awsAccessKey,
-		awsSecretKey,
+		storageBucketName,
+		storageRegion,
+		storageAccessKey,
+		storageSecretKey,
 	)
 	if err != nil {
 		log.Printf("❌ Failed to initialize asset bucket cloud storage connection context: %v", err)

@@ -18,8 +18,12 @@ import {
 } from "lucide-react";
 import { CLIENT_ROUTES } from "./routesConfig";
 import { COUNTRIES } from "./countries";
-import { IMenuItem } from "../types/ui-state";
-import { ICountryItem, ITranslation, ListType } from "../types/ui-props";
+import {
+  ICountryItem,
+  IMenuItem,
+  ITranslation,
+  ListType,
+} from "../types/ui-props";
 import { COMMON_LIST } from "./msgRegistry";
 import { useTheme } from "@mui/material/styles";
 
@@ -198,3 +202,5 @@ export const LISTS = (translator?: (transData: ITranslation) => string) => {
     CREATE_POST_LIST,
   };
 };
+
+export const SMS_DISPATCH_COUNTRY_CODES = ["234"];

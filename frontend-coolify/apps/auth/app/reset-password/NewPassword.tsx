@@ -155,25 +155,25 @@ export const NewPasswordStep: React.FC<ResetStepProps> = ({
           value={confirmPassword}
           error={confirmPassword !== "" && password !== confirmPassword}
         />
-      </Stack>
 
-      {/* Submit CTA */}
-      <AppButton
-        variant="contained"
-        submit
-        style={{
-          width: "100%",
-        }}
-        options={{
-          disabled: isNewPasswordSubmitDisabled,
-        }}
-      >
-        {isNewPasswordLoading ? (
-          <ProgressIcon options={{ size: 25 }} />
-        ) : (
-          <TransText {...AUTH_BUTTON_LABELS.reset_password} noComponent />
-        )}
-      </AppButton>
+        {/* Submit CTA */}
+        <AppButton
+          variant="contained"
+          submit
+          style={{
+            width: "100%",
+          }}
+          options={{
+            disabled: isNewPasswordSubmitDisabled,
+          }}
+        >
+          {isNewPasswordLoading ? (
+            <ProgressIcon options={{ size: 25 }} />
+          ) : (
+            <TransText {...AUTH_BUTTON_LABELS.reset_password} noComponent />
+          )}
+        </AppButton>
+      </Stack>
     </Stack>
   );
 };

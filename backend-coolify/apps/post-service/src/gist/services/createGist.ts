@@ -14,6 +14,7 @@ import {
   IPostModData,
   FinalizePostReq,
   ModerationTaskMode,
+  enqueueMediaTask,
 } from "@repo/shared";
 
 export interface CreateGistInput {
@@ -138,6 +139,14 @@ export const executeCreateGist = async (
       ? "MODERATE_ONLY"
       : "MODERATE_AND_EXTRACT_KEYWORDS";
   }
+
+  // Enqueue media processing task
+  if (media)
+    await enqueueMediaTask({
+      targetId: newGist._id.toString(),
+      media,
+      redisUrl,
+    });
 
   const moderationData: IPostModData = {
     postId: newGist._id.toString(),

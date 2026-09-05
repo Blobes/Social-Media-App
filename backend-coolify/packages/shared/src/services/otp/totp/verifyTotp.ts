@@ -2,7 +2,7 @@ import { TransInfo } from "../../../types/general";
 import { MESSAGES_REGISTRY } from "../../../constants/msgRegistry";
 import { totpService } from "./service";
 import { TotpActionType } from "./setupTotp";
-import { fetchSingleUser } from "../../user/retrieval/fetchUser";
+import { fetchSingleUser } from "../../user/retrieve/fetchUser";
 import { determineCheckType } from "../../../utils/sanitizeData";
 
 export interface ITotpVerificationInput {

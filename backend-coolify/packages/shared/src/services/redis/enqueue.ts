@@ -1,14 +1,30 @@
 import { Queue, QueueOptions } from "bullmq";
 import { Redis } from "ioredis";
 import { Client as AsynqClient, Task as AsynqTask } from "node-asynq";
-import { OtpJobPayload } from "../../types/general";
+import { IPostModData, OtpJobPayload } from "../../types/general";
 import { CACHE_EXPIRY } from "../../constants/cacheKeys";
+import { IMedia } from "@repo/database";
 
 export interface AsynqTaskOptions {
   queue?: string;
   maxRetry?: number;
   processAt?: number;
   retention?: number;
+}
+
+export interface ModerationTaskInput {
+  typename: string;
+  payload: IPostModData;
+  options?: Omit<AsynqTaskOptions, "queue">;
+  redisUrl?: string;
+}
+
+export interface MediaTaskInput {
+  targetId: string;
+  media: IMedia[];
+  options?: Omit<AsynqTaskOptions, "queue">;
+  purgeRawSource?: boolean;
+  redisUrl?: string;
 }
 
 export class QueueService {
@@ -194,12 +210,6 @@ export const initQueueClient = (redisUrl?: string): void =>
 export const getQueueConnection = (redisUrl?: string) =>
   QueueService.getConnection(redisUrl);
 
-export interface ModerationTaskInput {
-  typename: string;
-  payload: Record<string, any>;
-  options?: Omit<AsynqTaskOptions, "queue">;
-  redisUrl?: string;
-}
 /**
  * Pushes heavy media assets directly into the Go Asynq protocol matrix.
  */
@@ -211,6 +221,28 @@ export const enqueueModerationTask = (input: ModerationTaskInput) => {
     {
       ...options,
       queue: "moderation",
+    },
+    redisUrl,
+  );
+};
+
+/**
+ * Pushes media items to the dedicated Go media processing worker queue.
+ */
+export const enqueueMediaTask = (input: MediaTaskInput) => {
+  const {
+    targetId,
+    media,
+    options = {},
+    purgeRawSource = true,
+    redisUrl,
+  } = input;
+  return QueueService.enqueueAsynqTask(
+    "process:media",
+    { targetId, media, purgeRawSource },
+    {
+      ...options,
+      queue: "media",
     },
     redisUrl,
   );

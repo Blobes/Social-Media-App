@@ -16,7 +16,7 @@ import {
 export const useCachedData = <
   T extends { _id: string; lastViewed?: Date | string },
 >(
-  queryKeyOrKeys: string[] | string[][],
+  queryKeyOrKeys: readonly string[] | readonly string[][],
 ): T[] => {
   const queryClient = useQueryClient();
 

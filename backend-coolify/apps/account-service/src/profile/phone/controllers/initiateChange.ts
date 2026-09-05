@@ -67,7 +67,7 @@ export const initiatePhoneChange = async (
     }
 
     if (
-      serviceResult.status === "COOLDOWN_ACTIVE" ||
+      serviceResult.status === "PHONE_COOLDOWN_ACTIVE" ||
       serviceResult.status === "RATE_LIMIT_ACTIVE"
     ) {
       return res.status(429).json({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSnackbar, useStaticTranslation } from "@repo/shared-hooks";
-import { AuthSharedService } from "../service";
+import { AuthSharedService } from "./service";
 import {
   CACHE_KEYS,
   useGlobalStore,

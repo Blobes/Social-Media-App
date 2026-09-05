@@ -9,6 +9,7 @@ import {
   OtpMessageChannel,
   dispatchWhatsAppOtp,
   dispatchSmsOtp,
+  checkOtpCooldown,
 } from "@repo/shared";
 
 interface ISendOtpInput {
@@ -33,8 +34,6 @@ interface ISendOtpResult {
   };
   retryAfter?: number | null;
 }
-
-const COOLDOWN_SECONDS = 60;
 
 /**
  * Handles verification code generation, rate-limiting guards, and delivery dispatches across communication channels.
@@ -85,21 +84,16 @@ export const executeOtpDispatch = async (
     ? user.lastEmailOtpSentAt
     : user.lastPhoneOtpSentAt;
 
-  if (lastSentAt) {
-    const elapsed = (Date.now() - lastSentAt.getTime()) / 1000;
-    if (elapsed < COOLDOWN_SECONDS) {
-      const secondsLeft = Math.ceil(COOLDOWN_SECONDS - elapsed);
-      const transMsg = MESSAGES_REGISTRY.AUTH.RATE_LIMIT_ACTIVE(secondsLeft);
-      return {
-        status: "COOLDOWN_ACTIVE",
-        transInfo: transMsg,
-        retryAfter: secondsLeft,
-      };
-    }
+  const cooldown = checkOtpCooldown({ lastSentAt });
+  if (cooldown.isCooldownActive) {
+    return {
+      status: "COOLDOWN_ACTIVE",
+      transInfo: cooldown.transInfo,
+      retryAfter: cooldown.retryAfter,
+    };
   }
 
   const newCode = genVerificationCode();
-  console.log(hashCode(newCode));
   user.otpCode = hashCode(newCode);
   user.otpCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
