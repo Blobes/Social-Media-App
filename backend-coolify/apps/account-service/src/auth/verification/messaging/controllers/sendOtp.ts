@@ -11,7 +11,7 @@ import { executeOtpDispatch } from "../services/dipatchCode";
 /**
  * Controller endpoint to handle verification code requests.
  */
-export const sendChannelOtp = async (
+export const sendMsgCode = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -67,13 +67,13 @@ export const sendChannelOtp = async (
     });
   } catch (error: unknown) {
     console.error("[sendCode] Error:", error);
-    const errorObj = error as { statusCode?: number; status?: number };
-    const statusCode = errorObj?.statusCode || errorObj?.status || 500;
+    // const errorObj = error as { statusCode?: number; status?: number };
+    // const statusCode = errorObj?.statusCode || errorObj?.status || 500;
     return forwardError(
       next,
       MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
       error,
-      statusCode,
+      // statusCode,
     );
   }
 };

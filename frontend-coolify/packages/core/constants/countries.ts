@@ -14,3 +14,5 @@ export const COUNTRIES = {
   FR: { name: "France", code: "+33", iso: "FR", flag: "🇫🇷" },
   DE: { name: "Germany", code: "+49", iso: "DE", flag: "🇩🇪" },
 } satisfies Record<string, ICountryItem>;
+
+export const SMS_DISPATCH_COUNTRY_CODES = ["234"];

@@ -40,6 +40,7 @@ export const backfillExistingUserRoles = async (): Promise<void> => {
     await assignUserRole({
       userId: user._id,
       roleName: ROLES.COMMUNITY.USER,
+      assignedByType: "SYSTEM",
       reason: "Automated baseline role backfill",
     });
   }
@@ -58,7 +59,6 @@ export const seedRolesAndPermissions = async (): Promise<void> => {
       permissionDocs.push({ name, resource, action });
     }
   }
-
   await PermissionModel.bulkWrite(
     permissionDocs.map((perm) => ({
       updateOne: {

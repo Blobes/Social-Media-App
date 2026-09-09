@@ -66,7 +66,7 @@ export interface TransitPayloadMap {
 export type TransitPurpose = keyof TransitPayloadMap;
 
 export interface TransitData<P extends TransitPurpose = TransitPurpose> {
-  _id: string;
+  transitId: string;
   purpose: P;
   payload?: TransitPayloadMap[P];
 }

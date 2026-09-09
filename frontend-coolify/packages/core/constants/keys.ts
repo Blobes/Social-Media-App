@@ -28,12 +28,16 @@ export const STORAGE_KEYS = {
   MEDIA_UPLOAD: "media-upload-progress",
   MEDIA_COMPRESSION: "media-compression-progress",
 
+  TRANSIT_DATA: ["transit_data"],
   AUTH_TRANSIT: ["transit_data", "auth"],
   PASS_RESET_INIT_TRANSIT: ["transit_data", "password_reset_init"],
   PASS_RESET_FINALIZED_TRANSIT: ["transit_data", "password_reset_finalized"],
   ONBOARDING_TRANSIT: ["transit_data", "onboarding"],
   ACCOUNT_UPDATE_TRANSIT: ["transit_data", "account_update"],
   MFA_UPDATE_TRANSIT: ["transit_data", "mfa_update"],
+
+  TEMPORARY_SESSION_KEY: "temp_session_expiry",
+  SESSION_TRANSIT_KEY: "session_transit_key",
 } as const;
 
 export const CACHE_KEYS = {
@@ -53,3 +57,12 @@ export const CACHE_KEYS = {
   OFFLINE_CACHE: "offline_cache",
   CACHE_PAGE: "cache_page",
 } as const;
+
+export const TEMP_STORAGE_KEYS: readonly (readonly string[])[] = [
+  STORAGE_KEYS.AUTH_TRANSIT,
+  STORAGE_KEYS.ACCOUNT_UPDATE_TRANSIT,
+  STORAGE_KEYS.MFA_UPDATE_TRANSIT,
+  STORAGE_KEYS.PASS_RESET_INIT_TRANSIT,
+  STORAGE_KEYS.PASS_RESET_FINALIZED_TRANSIT,
+  STORAGE_KEYS.ONBOARDING_TRANSIT,
+];

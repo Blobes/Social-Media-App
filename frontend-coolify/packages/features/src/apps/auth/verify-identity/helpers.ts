@@ -17,8 +17,8 @@ export type VerificationStrategyMap = {
 };
 
 interface StrategyDependencies {
-  handleAuthOtpSuccess: (user?: IUser, cb?: () => void) => void;
-  onUpdateSuccess: () => void;
+  handleAuthSuccess: (user?: IUser, cb?: () => void) => void;
+  handleAccountUpdateSuccess: () => void;
   handlePassResetSuccess: (recipient?: string) => void;
   handleMfaActivationSuccess: () => void;
   recipient?: string;
@@ -32,12 +32,12 @@ export function createVerificationStrategies(
 ): VerificationStrategyMap {
   return {
     LOGIN_VERIFICATION: (payload, onSuccessCb) =>
-      deps.handleAuthOtpSuccess(payload as IUser, onSuccessCb),
+      deps.handleAuthSuccess(payload as IUser, onSuccessCb),
     SIGNUP_VERIFICATION: (payload, onSuccessCb) =>
-      deps.handleAuthOtpSuccess(payload as IUser, onSuccessCb),
+      deps.handleAuthSuccess(payload as IUser, onSuccessCb),
     PASSWORD_RESET: () => deps.handlePassResetSuccess(deps.recipient),
-    ACCOUNT_UPDATE: () => deps.onUpdateSuccess(),
-    IDENTIFIER_UPDATE: () => deps.onUpdateSuccess(),
+    ACCOUNT_UPDATE: () => deps.handleAccountUpdateSuccess(),
+    IDENTIFIER_UPDATE: () => deps.handleAccountUpdateSuccess(),
     MFA_ACTIVATION: () => deps.handleMfaActivationSuccess(),
   };
 }

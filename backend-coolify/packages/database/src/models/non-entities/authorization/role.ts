@@ -57,6 +57,12 @@ const UserRoleSchema = new Schema<IUserRoleDocument>(
       ref: "User",
       default: null,
     },
+    assignedByType: {
+      type: String,
+      required: true,
+      enum: ["ADMIN", "SYSTEM"],
+      default: "SYSTEM",
+    },
     assignmentReason: {
       type: String,
       default: null,

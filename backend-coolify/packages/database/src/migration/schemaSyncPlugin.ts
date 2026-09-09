@@ -1,60 +1,78 @@
 import { Schema, SchemaType } from "mongoose";
 
 /**
- * A Mongoose plugin to ensure that schema-defined default values are applied
- * to documents before saving, especially for `findOneAndUpdate` operations
- * where defaults might not be automatically set for omitted fields.
+ * Applies schema defaults on insert only.
+ * Existing documents and partial updates must not receive omitted-path defaults.
  */
 export const schemaSyncPlugin = (schema: Schema) => {
-  // Helper to check if a property is a direct property (not inherited)
-  const hasOwnProperty = (obj: any, prop: string) =>
-    Object.prototype.hasOwnProperty.call(obj, prop);
+  const resolveDefault = (schemaType: SchemaType, scope?: unknown) => {
+    const def = schemaType.options.default;
+    if (typeof def === "function") {
+      return (def as (this: unknown) => unknown).call(scope);
+    }
+    return def;
+  };
 
-  // Logic to apply defaults to a document instance (for pre('save'))
-  const applyDefaultsToDocument = (doc: any) => {
+  const applyDefaultsToDocument = (doc: {
+    isNew?: boolean;
+    get(path: string): unknown;
+    set(path: string, val: unknown): unknown;
+  }) => {
+    if (!doc.isNew) return;
+
     schema.eachPath((pathName, schemaType: SchemaType) => {
-      // Only apply if path has a default and the current document field is undefined or null
-      // We check against `doc.get(pathName)` to respect Mongoose's getter/setter logic
+      if (pathName === "_id" || pathName === "__v") return;
       if (
-        schemaType.options &&
-        hasOwnProperty(schemaType.options, "default") &&
-        (doc.get(pathName) === undefined || doc.get(pathName) === null)
+        !Object.prototype.hasOwnProperty.call(schemaType.options, "default")
       ) {
-        doc.set(pathName, schemaType.options.default);
+        return;
       }
+
+      const current = doc.get(pathName);
+      if (current !== undefined) return;
+
+      doc.set(pathName, resolveDefault(schemaType, doc));
     });
   };
 
-  // Logic to apply defaults to an update object (for pre('findOneAndUpdate'))
-  const applyDefaultsToUpdate = (update: any) => {
-    schema.eachPath((pathName, schemaType: SchemaType) => {
-      // If the field is not present in the update object (or its $set part) and has a default, add it
-      if (
-        schemaType.options &&
-        hasOwnProperty(schemaType.options, "default") &&
-        !hasOwnProperty(update, pathName) &&
-        !(update.$set && hasOwnProperty(update.$set, pathName))
-      ) {
-        const defaultValue = schemaType.options.default;
-        if (update.$set) {
-          update.$set[pathName] = defaultValue;
-        } else {
-          update[pathName] = defaultValue;
-        }
-      }
-    });
-  };
-
-  // Attach lifecycle pre-save pipeline event hooks
-  schema.pre("save", async function () {
+  schema.pre("save", function () {
     applyDefaultsToDocument(this);
   });
 
-  // Attach lifecycle pre-findOneAndUpdate pipeline event hooks
-  schema.pre("findOneAndUpdate", async function () {
-    const update: any = this.getUpdate();
-    if (update) {
-      applyDefaultsToUpdate(update);
-    }
+  schema.pre("findOneAndUpdate", function () {
+    const options = this.getOptions();
+    if (!options.upsert) return;
+
+    const update = this.getUpdate() as Record<string, unknown> | null;
+    if (!update) return;
+
+    const setOnInsert =
+      (update.$setOnInsert as Record<string, unknown> | undefined) ?? {};
+    const set = update.$set as Record<string, unknown> | undefined;
+
+    schema.eachPath((pathName, schemaType: SchemaType) => {
+      if (pathName === "_id" || pathName === "__v") return;
+      if (
+        !Object.prototype.hasOwnProperty.call(schemaType.options, "default")
+      ) {
+        return;
+      }
+
+      const inSet = Boolean(
+        set && Object.prototype.hasOwnProperty.call(set, pathName),
+      );
+      const inUpdate = Object.prototype.hasOwnProperty.call(update, pathName);
+      const inSetOnInsert = Object.prototype.hasOwnProperty.call(
+        setOnInsert,
+        pathName,
+      );
+
+      if (inSet || inUpdate || inSetOnInsert) return;
+
+      setOnInsert[pathName] = resolveDefault(schemaType);
+    });
+
+    update.$setOnInsert = setOnInsert;
+    this.setUpdate(update);
   });
 };

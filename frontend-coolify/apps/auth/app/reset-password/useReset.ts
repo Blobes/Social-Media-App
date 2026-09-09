@@ -9,15 +9,8 @@ import {
   useStaticTranslation,
 } from "@repo/shared-hooks";
 import { useMutation } from "@tanstack/react-query";
-import { useAuthNavigation, usePopup } from "@repo/features";
-import {
-  delay,
-  sanitizePhoneNumber,
-  getCookie,
-  deleteCookie,
-  setCookie,
-  queryClient,
-} from "@repo/helpers";
+import { useVerificationNavigation, usePopup } from "@repo/features";
+import { delay, sanitizePhoneNumber, getCookie } from "@repo/helpers";
 import {
   COMMON_FEEDBACK,
   ApiError,
@@ -38,7 +31,12 @@ import { CheckRequest, LoginService } from "../login/service";
  */
 export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
   const { initiateReset, setPassword } = ResetPasswordService();
-  const { handleOtpNavigation, checkTotpConfiguration } = useAuthNavigation();
+  const {
+    handleVerificationNavigation: handleOtpNavigation,
+    checkTotpConfiguration,
+    clearTemporarySession,
+    timeLeft,
+  } = useVerificationNavigation();
   const { translateTxtString } = useStaticTranslation();
   const { openPopup } = usePopup();
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
@@ -46,7 +44,6 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
   const { checkEmail, checkPhone } = LoginService();
 
   const [inlineMsg, setInlineMsg] = useState<React.ReactNode | null>(null);
-  const [timeLeft, setTimeLeft] = useState<number>(120);
   const [tempUser, setTempUser] = useState<IUser | null>(null);
 
   const transitData = useCachedData<TransitData<"PASSWORD_RESET">>(
@@ -70,45 +67,22 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
    * Purges reset cookies, removes transit queries, and resets auth status.
    */
   const clearResetSession = useCallback(() => {
-    deleteCookie("reset_session_expiry");
-    queryClient.removeQueries({
-      queryKey: STORAGE_KEYS.PASS_RESET_FINALIZED_TRANSIT,
+    clearTemporarySession({
+      transitKey: STORAGE_KEYS.PASS_RESET_FINALIZED_TRANSIT,
     });
-    setAuthStatus("UNAUTHENTICATED");
     if (step !== "CREDENTIAL") {
       setStep?.("CREDENTIAL");
     }
-  }, [step, setStep, setAuthStatus]);
+  }, [step, setStep, clearTemporarySession]);
 
   useEffect(() => {
-    const resetSession = getCookie("reset_session_expiry");
+    const resetSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION_KEY);
     if (!resetSession) {
       clearResetSession();
       return;
     }
     if (transitNextStep) setStep?.(transitNextStep);
   }, [transitNextStep, setStep, clearResetSession]);
-
-  useEffect(() => {
-    const resetSession = getCookie("reset_session_expiry");
-    if (!resetSession) return;
-
-    const interval = setInterval(() => {
-      const diff = Math.max(
-        0,
-        Math.round((parseInt(resetSession, 10) - Date.now()) / 1000),
-      );
-      setTimeLeft(diff);
-
-      if (diff <= 0) {
-        clearInterval(interval);
-        clearResetSession();
-        return;
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [clearResetSession]);
 
   const {
     input,
@@ -223,14 +197,6 @@ export const useReset = ({ existingInput, step, setStep }: ResetStepProps) => {
         const { initResetRes, userData, cleaned, isEmailReset } = data;
         const user = userData.payload;
         const identifier = initResetRes?.payload?.identifier || cleaned;
-        const sessionDurationMinutes = 10;
-        const expiryTimestamp = Date.now() + sessionDurationMinutes * 60 * 1000;
-
-        setCookie(
-          "reset_session_expiry",
-          expiryTimestamp.toString(),
-          sessionDurationMinutes,
-        );
 
         setAuthStatus("TEMPORARY");
         setTempUser(user);

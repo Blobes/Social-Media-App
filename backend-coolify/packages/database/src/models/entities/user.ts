@@ -53,6 +53,11 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
       tempBackupCodes: { type: [String], default: [] },
     },
     hasEnabledMFA: { type: Boolean, default: false },
+    securityQuestionsId: {
+      type: Schema.Types.ObjectId,
+      ref: "SecurityQuestion",
+      default: null,
+    },
 
     // --- OTP VERIFICATION ---
     otpCode: { type: String, default: null },
@@ -100,7 +105,7 @@ const UserSchema = new Schema<IUserDocument, IUserModelStatic>(
     isNotable: { type: Boolean, default: false },
     kycSubmitRequest: {
       type: Schema.Types.ObjectId,
-      ref: "IdVerificationRequest",
+      ref: "KycRequest",
       default: null,
     },
     kycReviewStatus: {

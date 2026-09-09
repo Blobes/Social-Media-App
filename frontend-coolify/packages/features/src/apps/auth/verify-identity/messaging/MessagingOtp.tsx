@@ -16,13 +16,11 @@ import {
   AUTH_FEEDBACK,
   OtpMessageChannel,
   TransitPurpose,
-  useGlobalStore,
 } from "@repo/core";
 import { useMisc } from "@repo/shared-hooks";
 import { asset } from "@repo/assets";
 import { useMessagingOtp } from "./useMessaging";
 import { BaseVerificationProps } from "../useVerifyIdentity";
-import { Logout } from "../../logout/Logout";
 
 const getChannelLabel = (ch: OtpMessageChannel): string => {
   switch (ch) {
@@ -40,9 +38,8 @@ const getChannelLabel = (ch: OtpMessageChannel): string => {
 export const MessagingOtpView = <P extends TransitPurpose>(
   props: BaseVerificationProps<P>,
 ) => {
-  const { onSwitchMethod, availableMethods, style } = props;
+  const { style } = props;
   const theme = useTheme();
-  const authStatus = useGlobalStore((state) => state.authStatus);
   const { isDesktop } = useMisc();
 
   const {
@@ -78,7 +75,6 @@ export const MessagingOtpView = <P extends TransitPurpose>(
       (ch !== "WHATSAPP" || isWhatsappActive),
   );
 
-  const supportsTotpFallback = availableMethods?.includes("TOTP");
   const isBusy = isSending || isCheckingWhatsapp;
 
   return (
@@ -246,51 +242,7 @@ export const MessagingOtpView = <P extends TransitPurpose>(
               </AppButton>
             </React.Fragment>
           ))}
-
-          {supportsTotpFallback && (
-            <>
-              {(alternativeChannels.length > 0 || isDesktop) && (
-                <Divider
-                  orientation="vertical"
-                  sx={{ height: "14px", width: "unset" }}
-                />
-              )}
-              <AppButton
-                variant="text"
-                size="small"
-                onClick={() => onSwitchMethod?.("TOTP")}
-                style={{ color: theme.palette.primary.dark }}
-                options={{ disabled: isBusy }}
-              >
-                <TransText
-                  {...AUTH_BUTTON_LABELS.use_authenticator}
-                  noComponent
-                />
-              </AppButton>
-            </>
-          )}
         </Stack>
-
-        {authStatus === "AUTHENTICATED" && (
-          <>
-            <Divider sx={{ width: "100%" }} />
-            <Logout
-              containerStyle={{
-                gap: theme.gap(4),
-                hover: {
-                  "& svg": { stroke: theme.palette.primary.dark },
-                },
-              }}
-              textStyle={{
-                ...theme.typography.text3,
-                width: "fit-content",
-                fontWeight: 600,
-                color: theme.palette.gray[200],
-              }}
-              iconStyle={{ size: 18 }}
-            />
-          </>
-        )}
       </Stack>
     </Stack>
   );

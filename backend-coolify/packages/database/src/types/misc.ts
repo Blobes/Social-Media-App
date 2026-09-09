@@ -75,3 +75,14 @@ export interface ITopicDocument extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ISecurityQuestionItem {
+  question: string;
+  answerHash: string;
+}
+export interface ISecurityQuestionDocument extends Document {
+  userId: Types.ObjectId;
+  questions: ISecurityQuestionItem[];
+  createdAt: Date;
+  updatedAt: Date;
+}

@@ -1,5 +1,5 @@
 import { MESSAGES_REGISTRY, TransInfo } from "@repo/shared";
-import { phoneDispatchTokens } from "../../envVars";
+import { phoneDispatchTokens } from "../../../envVars";
 
 interface ICheckWhatsAppNumberInput {
   phoneNumber: string;

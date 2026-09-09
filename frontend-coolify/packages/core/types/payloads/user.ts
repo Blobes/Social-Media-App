@@ -60,6 +60,7 @@ export interface IUserPayload {
   lastPasswordVerifiedAt?: Date | null;
   totpAuth?: ITotpData;
   hasEnabledMFA?: boolean;
+  securityQuestionsId?: string | null;
 
   // --- OTP VERIFICATION ---
   lastEmailCodeSentAt?: Date | string | null;

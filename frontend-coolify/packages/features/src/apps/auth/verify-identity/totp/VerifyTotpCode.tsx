@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Stack, Divider } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   AppButton,
@@ -11,31 +11,22 @@ import {
   SVGWrapper,
   TransText,
 } from "@repo/shared-ui";
-import {
-  AUTH_BUTTON_LABELS,
-  AUTH_FEEDBACK,
-  TransitPurpose,
-  useGlobalStore,
-} from "@repo/core";
+import { AUTH_BUTTON_LABELS, AUTH_FEEDBACK, TransitPurpose } from "@repo/core";
 
 import { asset } from "@repo/assets";
 import { useTotp } from "./useTotp";
 import { BaseVerificationProps } from "../useVerifyIdentity";
-import { Logout } from "../../logout/Logout";
 
 export const VerifyTotpCode = <P extends TransitPurpose>(
   props: BaseVerificationProps<P>,
 ) => {
-  const { onSwitchMethod, availableMethods, style } = props;
+  const { style } = props;
   const theme = useTheme();
-  const authStatus = useGlobalStore((state) => state.authStatus);
 
   const { code, setCode, isVerifying, handleVerify, inlineMsg } = useTotp({
     ...props,
     viewMode: "VERIFY_TOTP_CODE",
   });
-
-  const supportsMessagingFallback = availableMethods?.includes("MESSAGING");
 
   return (
     <Stack
@@ -104,50 +95,6 @@ export const VerifyTotpCode = <P extends TransitPurpose>(
             <TransText {...AUTH_BUTTON_LABELS.otp_verify_code} noComponent />
           )}
         </AppButton>
-      </Stack>
-
-      <Stack
-        sx={{
-          width: "100%",
-          gap: theme.gap(10),
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        {supportsMessagingFallback && (
-          <AppButton
-            variant="text"
-            size="small"
-            onClick={() => onSwitchMethod?.("MESSAGING")}
-            style={{ color: theme.palette.primary.dark }}
-          >
-            <TransText
-              {...AUTH_BUTTON_LABELS.verify_with_email_phone}
-              noComponent
-            />
-          </AppButton>
-        )}
-
-        {authStatus === "AUTHENTICATED" && (
-          <>
-            <Divider sx={{ width: "100%" }} />
-            <Logout
-              containerStyle={{
-                gap: theme.gap(4),
-                hover: {
-                  "& svg": { stroke: theme.palette.primary.dark },
-                },
-              }}
-              textStyle={{
-                ...theme.typography.text3,
-                width: "fit-content",
-                fontWeight: 600,
-                color: theme.palette.gray[200],
-              }}
-              iconStyle={{ size: 18 }}
-            />
-          </>
-        )}
       </Stack>
     </Stack>
   );

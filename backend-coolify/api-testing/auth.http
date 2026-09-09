@@ -3,7 +3,7 @@
 @liveBaseUrl = https://api.funstakes.net
 
 @user1ID = 69c574998b204a8d93f5783d
-@user1Email = officialblobes@gmail.com
+@user1Email = officialblobes@gmail.con
 @user1Phone = +234805658530
 @authToken = Bearer YOUR_ACCESS_TOKEN_HERE
 @refreshToken = YOUR_REFRESH_TOKEN_HERE

@@ -21,8 +21,8 @@ import {
 } from "@repo/helpers";
 import { useSnackbar } from "../useSnackbar";
 
-const MAX_ATTEMPTS = 3;
-const LOCKOUT_MIN = 2;
+const MAX_ATTEMPTS = 6;
+const LOCKOUT_MIN = 3;
 
 export interface UseValidationOptions {
   mode?: "CREATE" | "AUTHENTICATE";

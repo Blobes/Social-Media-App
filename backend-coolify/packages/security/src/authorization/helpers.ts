@@ -3,6 +3,7 @@ import {
   UserRoleModel,
   RoleName,
   PlatformRole,
+  IUserRoleDocument,
 } from "@repo/database";
 import {
   createDomainError,
@@ -15,6 +16,7 @@ interface IAssignRoleParams {
   userId: string | Types.ObjectId;
   roleName: RoleName;
   assignedBy?: string | Types.ObjectId | null;
+  assignedByType?: "ADMIN" | "SYSTEM";
   reason?: string | null;
   session?: mongoose.ClientSession;
 }
@@ -26,6 +28,7 @@ export const assignUserRole = async ({
   userId,
   roleName,
   assignedBy = null,
+  assignedByType = "SYSTEM",
   reason = null,
   session,
 }: IAssignRoleParams): Promise<void> => {
@@ -44,10 +47,11 @@ export const assignUserRole = async ({
         userId,
         roleId: role._id,
         assignedBy,
+        assignedByType,
         assignmentReason: reason,
         effectiveFrom: new Date(),
         effectiveTo: null,
-      },
+      } as IUserRoleDocument,
     },
     { upsert: true, session },
   );
@@ -72,6 +76,7 @@ export const grantManagementRole = async ({
     userId: targetUserId,
     roleName: platformRole,
     assignedBy: adminUserId,
+    assignedByType: "ADMIN",
     reason,
   });
 };

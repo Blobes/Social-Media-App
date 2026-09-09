@@ -222,6 +222,11 @@ export const TrendingPosts = ({ style }: { style?: GenericStyle }) => {
         <PostSkeleton
           quantity={1}
           bgColor={theme.palette.gray.trans.overlay(0.08)}
+          body={{ height: "100%" }}
+          containerStyle={{
+            height: "100%",
+            padding: theme.boxSpacing(5, 5, 2, 5),
+          }}
         />
       ) : carouselItems.length > 0 ? (
         <LinearCarousel

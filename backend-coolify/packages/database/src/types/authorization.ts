@@ -58,11 +58,12 @@ export interface IRolePermission {
 
 export interface IUserRole {
   _id: string;
-  userId: Types.ObjectId;
+  userId: Types.ObjectId | string;
   roleId: Types.ObjectId;
-  assignedBy?: Types.ObjectId | null; // Admin who assigned the role
+  assignedBy?: Types.ObjectId | string | null; // Admin who assigned the role
+  assignedByType?: "ADMIN" | "SYSTEM";
   assignmentReason?: string;
-  effectiveFrom: Date;
+  effectiveFrom?: Date;
   effectiveTo?: Date | null; // For temporary roles
   createdAt: Date;
   updatedAt: Date;

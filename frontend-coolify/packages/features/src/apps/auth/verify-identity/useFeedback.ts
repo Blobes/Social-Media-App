@@ -9,7 +9,7 @@ import {
   TransitData,
   useGlobalStore,
 } from "@repo/core";
-import { queryClient } from "@repo/helpers";
+import { purgeCacheKeys, queryClient } from "@repo/helpers";
 
 export const useFeedback = () => {
   const { setSBMessage } = useSnackbar();
@@ -22,16 +22,16 @@ export const useFeedback = () => {
   /**
    * Processes authentication success and updates application global store.
    */
-  const handleAuthOtpSuccess = (
-    user?: IUser,
-    onSuccessCallback?: () => void,
-  ) => {
+  const handleAuthSuccess = (user?: IUser, onSuccessCallback?: () => void) => {
     if (user) {
       const userClone = { ...user };
       setAuthUser(userClone);
       setAuthStatus("AUTHENTICATED");
 
-      queryClient.removeQueries({ queryKey: STORAGE_KEYS.AUTH_TRANSIT });
+      purgeCacheKeys({
+        queryClient,
+        queryKeys: STORAGE_KEYS.AUTH_TRANSIT,
+      });
 
       setSBMessage({
         msg: {
@@ -57,12 +57,14 @@ export const useFeedback = () => {
   };
 
   /**
-   * Processes settings or profile update completion.
+   * Processes settings or profile update verification.
    */
-  const onUpdateSuccess = () => {
-    queryClient.removeQueries({
-      queryKey: STORAGE_KEYS.ACCOUNT_UPDATE_TRANSIT,
+  const handleAccountUpdateSuccess = () => {
+    purgeCacheKeys({
+      queryClient,
+      queryKeys: STORAGE_KEYS.ACCOUNT_UPDATE_TRANSIT,
     });
+
     setSBMessage({
       msg: {
         tagline: translateTxtString(
@@ -79,7 +81,7 @@ export const useFeedback = () => {
    */
   const handlePassResetSuccess = (identifier?: string) => {
     const transitData: TransitData<"PASSWORD_RESET"> = {
-      _id: "transit:otp-auth",
+      transitId: "transit:otp-auth",
       purpose: "PASSWORD_RESET",
       payload: { nextStep: "NEW_PASSWORD", identifier },
     };
@@ -96,8 +98,10 @@ export const useFeedback = () => {
         msgStatus: "SUCCESS",
       },
     });
-    queryClient.removeQueries({
-      queryKey: STORAGE_KEYS.PASS_RESET_INIT_TRANSIT,
+
+    purgeCacheKeys({
+      queryClient,
+      queryKeys: STORAGE_KEYS.PASS_RESET_INIT_TRANSIT,
     });
 
     navigateTo(CLIENT_ROUTES.resetPassword, {
@@ -110,9 +114,11 @@ export const useFeedback = () => {
    * Processes settings or profile update completion.
    */
   const handleMfaActivationSuccess = () => {
-    queryClient.removeQueries({
-      queryKey: STORAGE_KEYS.MFA_UPDATE_TRANSIT,
+    purgeCacheKeys({
+      queryClient,
+      queryKeys: STORAGE_KEYS.MFA_UPDATE_TRANSIT,
     });
+
     setSBMessage({
       msg: {
         tagline: translateTxtString(AUTH_FEEDBACK.mfa_activated),
@@ -123,8 +129,8 @@ export const useFeedback = () => {
   };
 
   return {
-    handleAuthOtpSuccess,
-    onUpdateSuccess,
+    handleAuthSuccess,
+    handleAccountUpdateSuccess,
     handlePassResetSuccess,
     handleMfaActivationSuccess,
   };

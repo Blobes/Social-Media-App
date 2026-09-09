@@ -5,6 +5,7 @@ import { DrawerProps, ModalProps } from "@repo/core";
 import { ComfirmLogout } from "../apps/auth/logout/Logout";
 import { Theme } from "@mui/material/styles";
 import { DisplayFeedbackUI } from "@repo/shared-ui";
+import { ConfirmSessionTermination } from "../apps/auth/verify-identity/EndSession";
 
 export type PopupName =
   | "CONFIRM_LOGOUT"
@@ -12,7 +13,8 @@ export type PopupName =
   | "CREATE_POST"
   | "WEB_MOBILE_MENU"
   | "APP_MOBILE_MENU"
-  | "RESET_PASSWORD_SUCCESS";
+  | "RESET_PASSWORD_SUCCESS"
+  | "CONFIRM_SESSION_TERMINATION";
 export type PopupType = "MODAL" | "DRAWER";
 
 export interface PopupConfig {
@@ -43,6 +45,11 @@ export const POPUP_CONFIG = ({
     CONFIRM_LOGOUT: {
       type: { baseScreen: "MODAL" },
       modal: { content: <ComfirmLogout />, onClose: closeModal },
+    },
+
+    CONFIRM_SESSION_TERMINATION: {
+      type: { baseScreen: "MODAL" },
+      modal: { content: <ConfirmSessionTermination />, onClose: closeModal },
     },
 
     RESET_PASSWORD_SUCCESS: {

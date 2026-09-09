@@ -14,7 +14,6 @@ import { AuthStepName, OtpStepName, PasswordResetStepName } from "./auth";
 // ==========================================
 // COMMON ENUMS & CORE PRIMITIVES
 // ==========================================
-
 export enum ListType {
   COUNTRY = "COUNTRY",
   TOPICS = "TOPICS",

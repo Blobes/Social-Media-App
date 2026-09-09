@@ -6,6 +6,7 @@ import {
   IPage,
   NavigateOptions,
   ROUTES_REGISTRY,
+  STORAGE_KEYS,
   useGlobalStore,
 } from "@repo/core";
 import {
@@ -14,6 +15,7 @@ import {
   crossZoneCheck,
   saveToLocalStorage,
   delay,
+  getCookie,
 } from "@repo/helpers";
 import { usePathname, useRouter } from "next/navigation";
 import { useMisc } from "./useMisc";
@@ -134,11 +136,15 @@ export const usePage = () => {
    * Synchronizes route change and enforces access control.
    */
   const handlePageChange = useCallback(() => {
+    const temporarySession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION_KEY);
+
     setInlineMsg(null);
     setPendingPath(null);
     setGlobalLoading(false);
 
     if (routeGuards.isRedirecting) {
+      if (!temporarySession) return;
+
       const redirect = REDIRECT_MAP.find(({ guard }) => routeGuards[guard]);
       if (redirect)
         navigateTo(redirect.target, {

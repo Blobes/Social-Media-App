@@ -168,7 +168,10 @@ export const CredentialStep: React.FC<ResetStepProps> = ({
             }}
             options={{ disabled: isSubmitDisabled || hasTotp }}
           >
-            <TransText {...AUTH_BUTTON_LABELS.use_authenticator} noComponent />
+            <TransText
+              {...AUTH_BUTTON_LABELS.verify_with_authenticator}
+              noComponent
+            />
           </AppButton>
 
           {/* Back to Login CTA */}

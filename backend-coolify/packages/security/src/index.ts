@@ -1,8 +1,8 @@
 // Auth
-export * from "./auth/jwt";
-export * from "./auth/middlewares/userAuth";
-export * from "./auth/middlewares/internalAuth";
-export * from "./auth/tokenHelper";
+export * from "./authentication/jwt";
+export * from "./authentication/middlewares/userAuth";
+export * from "./authentication/middlewares/internalAuth";
+export * from "./authentication/tokenHelper";
 
 // Audit
 export * from "./audit/events/middleware";

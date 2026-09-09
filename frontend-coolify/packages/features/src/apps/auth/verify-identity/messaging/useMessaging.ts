@@ -31,13 +31,13 @@ import {
 } from "../helpers";
 import { BaseVerificationProps } from "../useVerifyIdentity";
 
-const HOUR_IN_MS = 12 * 60 * 60 * 1000;
+const HOUR_IN_MS = 12 * 60 * 60 * 1000; // 12 Hours
 const LAST_DISPATCH_STORAGE_KEY = "otp_last_dispatch_time";
 
 /**
  * Checks whether the required duration has elapsed since the last dispatch.
  */
-const isDispatchAllowed = (): boolean => {
+const canAutoDispatchOtp = (): boolean => {
   const lastDispatchTime = getFromLocalStorage<number>({
     key: LAST_DISPATCH_STORAGE_KEY,
   });
@@ -73,8 +73,8 @@ export const useMessagingOtp = <P extends TransitPurpose>(
   const authUser = useGlobalStore((state) => state.authUser);
   const { setSBMessage } = useSnackbar();
   const {
-    handleAuthOtpSuccess,
-    onUpdateSuccess,
+    handleAuthSuccess,
+    handleAccountUpdateSuccess,
     handlePassResetSuccess,
     handleMfaActivationSuccess,
   } = useFeedback();
@@ -85,6 +85,11 @@ export const useMessagingOtp = <P extends TransitPurpose>(
 
   const purpose = activeTransit?.purpose;
   const dispatchOnload = activeTransit?.dispatchOnload ?? true;
+
+  const hasDispatchedOnLoad = useRef(false);
+  const initialIdentifierRef = useRef(activeTransit?.identifier);
+  const hasUserCtx =
+    authUser && !authUser.isEmailVerified && !authUser.isPhoneVerified;
 
   const defaultChannel: OtpMessageChannel = useMemo(() => {
     if (purpose === "MFA_ACTIVATION") return "WHATSAPP";
@@ -97,16 +102,18 @@ export const useMessagingOtp = <P extends TransitPurpose>(
     activeTransit?.identifier,
   );
 
-  const hasDispatchedOnLoad = useRef(false);
-  const initialIdentifierRef = useRef(activeTransit?.identifier);
-  const hasUserCtx =
-    authUser && !authUser.isEmailVerified && !authUser.isPhoneVerified;
-
   const targetPhone =
     recipient ||
     activeTransit?.identifier ||
     initialIdentifierRef.current ||
     authUser?.phoneNumber;
+
+  const isAuthPurpose =
+    purpose === "LOGIN_VERIFICATION" ||
+    purpose === "SIGNUP_VERIFICATION" ||
+    purpose === "PASSWORD_RESET";
+  const isMfaActivationPurpose = purpose === "MFA_ACTIVATION";
+  const isUpdatePurpose = purpose === "IDENTIFIER_UPDATE";
 
   const {
     isWhatsappActive,
@@ -140,27 +147,20 @@ export const useMessagingOtp = <P extends TransitPurpose>(
   const verificationStrategies = useMemo(
     () =>
       createVerificationStrategies({
-        handleAuthOtpSuccess,
-        onUpdateSuccess,
+        handleAuthSuccess,
+        handleAccountUpdateSuccess,
         handlePassResetSuccess,
         handleMfaActivationSuccess,
         recipient: recipient || initialIdentifierRef.current,
       }),
     [
-      handleAuthOtpSuccess,
-      onUpdateSuccess,
+      handleAuthSuccess,
+      handleAccountUpdateSuccess,
       handlePassResetSuccess,
       handleMfaActivationSuccess,
       recipient,
     ],
   );
-
-  const isAuthPurpose =
-    purpose === "LOGIN_VERIFICATION" ||
-    purpose === "SIGNUP_VERIFICATION" ||
-    purpose === "PASSWORD_RESET";
-  const isMfaActivationPurpose = purpose === "MFA_ACTIVATION";
-  const isUpdatePurpose = purpose === "IDENTIFIER_UPDATE";
 
   useEffect(() => {
     if (activeTransit?.identifier) {
@@ -295,16 +295,21 @@ export const useMessagingOtp = <P extends TransitPurpose>(
   useEffect(() => {
     if (hasDispatchedOnLoad.current) return;
     const canDispatch = dispatchOnload && (activeTransit || hasUserCtx);
-
     if (canDispatch) {
       hasDispatchedOnLoad.current = true;
-      if (isDispatchAllowed()) {
+      if (canAutoDispatchOtp()) {
         queueMicrotask(() => {
           handleSendOtp();
         });
       }
     }
-  }, [activeTransit, hasUserCtx, dispatchOnload, handleSendOtp]);
+  }, [
+    activeTransit,
+    hasUserCtx,
+    dispatchOnload,
+    handleSendOtp,
+    canAutoDispatchOtp,
+  ]);
 
   const { mutateAsync: executeVerify, isPending: isVerifying } = useMutation({
     mutationFn: async (params: {
@@ -364,7 +369,9 @@ export const useMessagingOtp = <P extends TransitPurpose>(
       const finalCode = verificationCode || code;
 
       if (!activeTransit) {
-        setInlineMsg(translateTxtString(AUTH_FEEDBACK.otp_missing_session));
+        setInlineMsg(
+          translateTxtString(AUTH_FEEDBACK.missing_verification_session("OTP")),
+        );
         return;
       }
       if (finalCode.length < 6) return;

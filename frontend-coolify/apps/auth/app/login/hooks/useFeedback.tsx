@@ -16,7 +16,7 @@ import {
   AuthStepName,
   IdentifierType,
 } from "@repo/core";
-import { useAuthNavigation, useMessagingOtp } from "@repo/features";
+import { useVerificationNavigation } from "@repo/features";
 import { AnchorLink, TransText } from "@repo/shared-ui";
 import { Theme } from "@mui/material/styles";
 import { LoginResponse, CheckResponse } from "../service";
@@ -42,8 +42,10 @@ export interface UseFeedbackProps {
 
 export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
   const { navigateTo, isOnWeb } = usePage();
-  const { handleSendOtp } = useMessagingOtp();
-  const { handleOtpNavigation, checkTotpConfiguration } = useAuthNavigation();
+  const {
+    handleVerificationNavigation: handleOtpNavigation,
+    checkTotpConfiguration,
+  } = useVerificationNavigation();
   const { translateTxtString } = useStaticTranslation();
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading);
   const setAuthUser = useGlobalStore((state) => state.setAuthUser);
@@ -68,24 +70,18 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
 
         const hasTotp = checkTotpConfiguration(user);
         const isEmail = identifierType === "EMAIL" && !hasTotp;
-        const isPhoneNumber = identifierType === "PHONE_NUMBER" && !hasTotp;
 
         if (loginResponse.requireOtp) {
           setAccountStatus("NOT_VERIFIED");
 
-          if (isEmail || isPhoneNumber)
-            handleSendOtp({
-              recipient: user.email || user.phoneNumber || identifier,
-              purpose: "LOGIN_VERIFICATION",
-              messageChannel: isEmail ? "EMAIL" : "WHATSAPP",
-            });
-
           handleOtpNavigation({
             user,
-            identifier,
+            identifier: user.email || user.phoneNumber || identifier,
             identifierType:
               identifierType === "EMAIL" ? "EMAIL" : "PHONE_NUMBER",
+            purpose: "LOGIN_VERIFICATION",
             otpMessageChannel: isEmail ? "EMAIL" : "WHATSAPP",
+            verificationMethod: hasTotp ? "TOTP" : "MESSAGING",
             reason: loginResponse.otpReason,
           });
           return;
@@ -122,7 +118,6 @@ export const useLoginFeedback = ({ identifier, setStep }: LoginProps) => {
       setGlobalLoading,
       setAccessToken,
       setAccountStatus,
-      handleSendOtp,
       identifier,
       handleOtpNavigation,
       setAuthUser,

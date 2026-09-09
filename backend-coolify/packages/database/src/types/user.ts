@@ -48,6 +48,7 @@ export interface IUserDocument extends Document {
   lastPasswordVerifiedAt?: Date | null;
   totpAuth: ITotpData;
   hasEnabledMFA?: boolean;
+  securityQuestionsId?: Types.ObjectId | null;
 
   // --- OTP VERIFICATION ---
   otpCode?: string | null;
@@ -247,9 +248,9 @@ export interface ISubscriptionDocument extends Document {
   status: SubscriptionStatus;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
-  currentPeriodStart: Date;
-  currentPeriodEnd: Date;
-  cancelAtPeriodEnd: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  currentPeriodStart?: Date;
+  currentPeriodEnd?: Date;
+  cancelAtPeriodEnd?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

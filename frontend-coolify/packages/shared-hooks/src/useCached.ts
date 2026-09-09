@@ -1,4 +1,5 @@
 "use client";
+
 import { CACHE_KEYS } from "@repo/core";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -9,57 +10,86 @@ import {
   useEffect,
 } from "react";
 
+type EntityOrTransit =
+  | { transitId: string; lastViewed?: Date | string }
+  | { _id: string; lastViewed?: Date | string };
+
+interface InfiniteCachePage<T> {
+  data?: T[] | unknown;
+  payload?: T[];
+}
+
+interface InfiniteCacheData<T> {
+  pages?: InfiniteCachePage<T>[];
+}
+
+/**
+ * Extracts key for deduplication based on item contract (_id or transitId).
+ */
+const getItemKey = <T extends EntityOrTransit>(item: T): string | null => {
+  if ("transitId" in item && item.transitId) return item.transitId;
+  if ("_id" in item && item._id) return item._id;
+  return null;
+};
+
 /**
  * Retrieves cached data from granular TanStack Query buckets.
- * Memoizes the result array to prevent infinite re-renders.
+ * Supports both transit containers (via transitId) and standard entity payloads (via _id).
  */
-export const useCachedData = <
-  T extends { _id: string; lastViewed?: Date | string },
->(
-  queryKeyOrKeys: readonly string[] | readonly string[][],
+export const useCachedData = <T extends EntityOrTransit>(
+  queryKeyOrKeys: readonly string[] | readonly (readonly string[])[],
 ): T[] => {
   const queryClient = useQueryClient();
 
-  // Stable reference storage — only update when data truly changes
   const snapshotRef = useRef<T[]>([]);
   const snapshotKeyRef = useRef<string>("");
 
-  const normalizedKeys = useMemo(() => {
+  const normalizedKeys = useMemo<readonly (readonly string[])[]>(() => {
     if (queryKeyOrKeys.length === 0) return [];
     return typeof queryKeyOrKeys[0] === "string"
-      ? [queryKeyOrKeys as string[]]
-      : (queryKeyOrKeys as string[][]);
+      ? [queryKeyOrKeys as readonly string[]]
+      : (queryKeyOrKeys as readonly (readonly string[])[]);
   }, [queryKeyOrKeys]);
 
   /**
-   * getSnapshot — returns a stable reference by comparing a
-   * deterministic key derived from the cached data.
+   * Extracts and deduplicates cached entities/containers using their appropriate identifier.
    */
-  const getSnapshot = useCallback(() => {
-    const allData: any[] = [];
+  const getSnapshot = useCallback((): T[] => {
+    const allData: T[] = [];
 
     normalizedKeys.forEach((key) => {
-      const cachedEntries = queryClient.getQueriesData<any>({ queryKey: key });
+      const cachedEntries = queryClient.getQueriesData<
+        InfiniteCacheData<T> | T[] | T
+      >({ queryKey: key });
+
       cachedEntries.forEach(([_, data]) => {
         if (!data) return;
 
-        if (data.pages) {
-          data.pages.forEach((page: any) => {
-            const pageData = Array.isArray(page.data) ? page.data : page;
-            if (Array.isArray(pageData)) allData.push(...pageData);
+        if (
+          typeof data === "object" &&
+          "pages" in data &&
+          Array.isArray(data.pages)
+        ) {
+          data.pages.forEach((page) => {
+            if (Array.isArray(page.data)) {
+              allData.push(...(page.data as T[]));
+            } else if (Array.isArray(page.payload)) {
+              allData.push(...page.payload);
+            }
           });
         } else if (Array.isArray(data)) {
           allData.push(...data);
-        } else if (typeof data === "object" && data._id) {
-          allData.push(data);
+        } else if (typeof data === "object" && getItemKey(data as T) !== null) {
+          allData.push(data as T);
         }
       });
     });
 
     const uniqueMap = new Map<string, T>();
     allData.forEach((item) => {
-      if (item?._id) {
-        uniqueMap.set(item._id, item);
+      const itemKey = getItemKey(item);
+      if (itemKey) {
+        uniqueMap.set(itemKey, item);
       }
     });
 
@@ -69,11 +99,8 @@ export const useCachedData = <
       return timeB - timeA;
     });
 
-    // Create a deterministic key from the sorted IDs
-    // This avoids comparing array references or doing deep equality
-    const snapshotKey = sortedResult.map((item) => item._id).join(",");
+    const snapshotKey = sortedResult.map((item) => getItemKey(item)).join(",");
 
-    // Only return a new reference if the key changed
     if (snapshotKey !== snapshotKeyRef.current) {
       snapshotRef.current = sortedResult;
       snapshotKeyRef.current = snapshotKey;
@@ -92,30 +119,37 @@ export const useCachedData = <
 };
 
 /**
+ * Type contract for infinite query page payload entries.
+ */
+interface PaginatedCacheResponse<P = Record<string, unknown>> {
+  pages?: Array<{
+    payload?: P[] | null;
+  }>;
+}
+
+/**
  * Progressively persists newly fetched pages into the Cache Page layer.
  * Operates on flat data to avoid type infection.
  */
-export const usePageCache = (data: any, baseKey: string) => {
+export const usePageCache = <P>(
+  data: PaginatedCacheResponse<P> | undefined,
+  baseKey: string,
+): void => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!data?.pages) return;
 
-    /**
-     * Identify the most recently fetched page.
-     */
+    // Identify the most recently fetched page.
     const pageIndex = data.pages.length - 1;
     const latestPage = data.pages[pageIndex];
 
     if (latestPage && latestPage.payload) {
-      /**
-       * Store the raw payload array for this page index.
-       * The persister dehydrate filter will catch this "CACHE_PAGE" key.
-       */
+      // Store the raw payload array for this page index. The persister dehydrate filter catches "CACHE_PAGE".
       queryClient.setQueryData([CACHE_KEYS.CACHE_PAGE, baseKey, pageIndex], {
         payload: latestPage.payload,
         cachedAt: new Date(),
       });
     }
-  }, [data?.pages.length, baseKey, queryClient]);
+  }, [data?.pages, baseKey, queryClient]);
 };

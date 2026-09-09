@@ -34,13 +34,9 @@ export const auth = {
       tValue: "Login Now",
     },
     logout: { tKey: "auth:button.logout", tValue: "Logout" },
-    logout_not_really: {
-      tKey: "auth:button.logout_not_really",
-      tValue: "Not really",
-    },
-    logout_sure_i_do: {
-      tKey: "auth:button.logout_sure_i_do",
-      tValue: "Sure I do",
+    not_yet: {
+      tKey: "auth:button.not_yet",
+      tValue: "Not yet",
     },
     otp_resend_code_in_seconds: (seconds: number) => ({
       tKey: "auth:button.otp_resend_code_in_seconds",
@@ -90,9 +86,25 @@ export const auth = {
       tValue: "Set password",
     },
     signup: { tKey: "auth:button.signup", tValue: "Sign up" },
-    use_authenticator: {
+    sure_i_do: {
+      tKey: "auth:button.sure_i_do",
+      tValue: "Sure I do",
+    },
+    terminate_session: {
+      tKey: "auth:button.terminate_session",
+      tValue: "Terminate session",
+    },
+    verify_with_authenticator: {
       tKey: "auth:button.use_authenticator",
-      tValue: "Use Authenticator",
+      tValue: "Authenticator Code",
+    },
+    verify_with_security_questions: {
+      tKey: "auth:button.use_security_questions",
+      tValue: "Security Questions",
+    },
+    other_verification_methods: {
+      tKey: "auth:button.use_security_questions",
+      tValue: "Other verification methods",
     },
     verify_and_proceed: {
       tKey: "auth:button.verify_and_proceed",
@@ -259,10 +271,11 @@ export const auth = {
       tKey: "auth:feedback.otp_invalid_code",
       tValue: "Invalid code.",
     },
-    otp_missing_session: {
-      tKey: "auth:feedback.otp_missing_session",
-      tValue: "Missing otp session data.",
-    },
+    missing_verification_session: (method: string = "OTP") => ({
+      tKey: "auth:feedback.missing_verification_session",
+      tValue: "Missing {{method}} verification session data.",
+      interpolations: { method },
+    }),
     otp_send_code_failed: {
       tKey: "auth:feedback.otp_send_code_failed",
       tValue: "Failed to send code.",
@@ -337,6 +350,11 @@ export const auth = {
       tKey: "auth:feedback.security_details_updated_tagline",
       tValue: "Security details updated successfully.",
     },
+    security_questions_verification_failed: {
+      tKey: "auth:feedback.security_questions_verification_failed",
+      tValue: "Verification with Security Question failed",
+    },
+
     server_error: {
       tKey: "auth:feedback.server_error",
       tValue: "An unexpected error occurred during verification",
@@ -366,6 +384,19 @@ export const auth = {
       tValue:
         "Scan the QR code below with your authenticator app (like Google Authenticator or 1Password) to generate your verification code.",
     },
+    session_termination_headline: {
+      tKey: "auth:feedback.session_termination_headline",
+      tValue: "Sure about terminating this session?",
+    },
+    session_termination_tagline: {
+      tKey: "auth:feedback.session_termination_tagline",
+      tValue:
+        "Terminating this session means your current session will be cleared and your access to this page will be revoked.",
+    },
+    terminate_session_back_to_login: {
+      tKey: "auth:feedback.terminate_session_back_to_login",
+      tValue: "Terminate session and return to login",
+    },
     unsupported_verification_method: {
       tKey: "auth:feedback.unsupported_verification_method",
       tValue: "Unsupported verification method.",
@@ -381,12 +412,20 @@ export const auth = {
     },
     verify_code_from_auth_app_headline: {
       tKey: "auth:feedback.verify_code_from_auth_app_headline",
-      tValue: "Verify via Authenticator",
+      tValue: "Verify Code from Authenticator",
     },
     verify_code_from_auth_app_tagline: {
       tKey: "auth:feedback.verify_code_from_auth_app_tagline",
       tValue:
         "Enter the 6-digit code displayed in your authenticator application. Please note that you can only use this method if you've set up Multi-factor Authentication (MFA) for your {{Funstakes}} account",
+    },
+    verify_with_security_questions_headline: {
+      tKey: "auth:feedback.verify_with_security_questions_headline",
+      tValue: "Verify with Security Questions",
+    },
+    verify_with_security_questions_tagline: {
+      tKey: "auth:feedback.verify_with_security_questions_headline",
+      tValue: "Verify your identity with your chosen security questions",
     },
     verify_via_credential: (credType: string) => ({
       tKey: "auth:feedback.verify_your_credential",
@@ -518,6 +557,49 @@ export const auth = {
         tKey: "auth:input.label.re_enter_password",
         tValue: "Re-enter your password",
       },
+    },
+  },
+
+  security_questions: {
+    question_1: {
+      tKey: "auth:security_questions.question_1",
+      tValue: "What is the name of your first pet?",
+    },
+    question_2: {
+      tKey: "auth:security_questions.question_2",
+      tValue: "In what city were you born?",
+    },
+    question_3: {
+      tKey: "auth:security_questions.question_3",
+      tValue: "What is your mother's maiden name?",
+    },
+    question_4: {
+      tKey: "auth:security_questions.question_4",
+      tValue: "What was the name of your primary school?",
+    },
+    question_5: {
+      tKey: "auth:security_questions.question_5",
+      tValue: "What was the make of your first car?",
+    },
+    question_6: {
+      tKey: "auth:security_questions.question_6",
+      tValue: "What is the title of your favorite book?",
+    },
+    question_7: {
+      tKey: "auth:security_questions.question_7",
+      tValue: "In what city did your parents meet?",
+    },
+    question_8: {
+      tKey: "auth:security_questions.question_8",
+      tValue: "What is the name of the street you grew up on?",
+    },
+    question_9: {
+      tKey: "auth:security_questions.question_9",
+      tValue: "What was the name of your favorite childhood teacher?",
+    },
+    question_10: {
+      tKey: "auth:security_questions.question_10",
+      tValue: "What was the model of your first mobile phone?",
     },
   },
 } as const;
@@ -1442,6 +1524,7 @@ export const COMMON_CAROUSEL = MESSAGE_REGISTRY.common.carousel;
 export const COMMON_TOUR_GUIDES = MESSAGE_REGISTRY.common.tour_guides;
 
 export const AUTH_FEEDBACK = MESSAGE_REGISTRY.auth.feedback;
+export const AUTH_SECURITY_QUESTIONS = MESSAGE_REGISTRY.auth.security_questions;
 export const AUTH_INPUT = MESSAGE_REGISTRY.auth.input;
 export const AUTH_BUTTON_LABELS = MESSAGE_REGISTRY.auth.button;
 

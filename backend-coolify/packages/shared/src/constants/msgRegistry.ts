@@ -261,6 +261,10 @@ export const MESSAGES_REGISTRY = {
       message: "{{message}}",
       interpolations: { message },
     }),
+    CODE_EXPIRED: {
+      i18nKey: "auth.code_expired",
+      message: "Verification code has expired.",
+    },
     CODE_REQUIRED: {
       i18nKey: "auth.code_required",
       message: "Verification code is required.",
@@ -325,6 +329,10 @@ export const MESSAGES_REGISTRY = {
       message:
         "Device removed and all related sessions terminated successfully.",
     },
+    DUPLICATE_SECURITY_QUESTIONS: {
+      i18nKey: "auth.duplicate_security_questions",
+      message: "Please select three unique security questions.",
+    },
     EMAIL_CHANGE_CANCELLED: {
       i18nKey: "auth.email_change_cancelled",
       message:
@@ -346,10 +354,6 @@ export const MESSAGES_REGISTRY = {
       i18nKey: "auth.email_updated_sessions_ended",
       message:
         "Email updated successfully. Other devices have been logged out.",
-    },
-    CODE_EXPIRED: {
-      i18nKey: "auth.code_expired",
-      message: "Verification code has expired.",
     },
     FORBIDDEN: {
       i18nKey: "auth.forbidden",
@@ -449,6 +453,11 @@ export const MESSAGES_REGISTRY = {
     MISSING_TOKENS: {
       i18nKey: "auth.missing_tokens",
       message: "Provider, idToken, and deviceToken are required parameters.",
+    },
+    MISSING_REQUIRED_FIELDS: {
+      i18nKey: "auth.security_questions.missing_required_fields",
+      message:
+        "Please enter your account details and provide all required security answers.",
     },
     NO_ACTIVE_PROCESS: {
       i18nKey: "auth.no_active_process",
@@ -551,6 +560,10 @@ export const MESSAGES_REGISTRY = {
         : "Global SMS dispatch failed.",
       interpolations: { detail },
     }),
+    OTP_RESET_SUCCESS: {
+      i18nKey: "auth.otp_reset_success",
+      message: "Otp has been restored back to default.",
+    },
     PHONE_OTP_LIMIT_EXCEEDED: (duration: number): TransInfo => ({
       i18nKey: "auth.phone_otp_limit_exceeded",
       message:
@@ -651,6 +664,32 @@ export const MESSAGES_REGISTRY = {
     SECURITY_ANCHOR_ROTATED: {
       i18nKey: "auth.security_anchor_rotated",
       message: "Security anchor rotated. Please log in again.",
+    },
+    SECURITY_QUESTIONS_EXACT_THREE_REQUIRED: {
+      i18nKey: "auth.security_questions.exact_three_required",
+      message:
+        "Please select and answer exactly 3 security questions to complete setup.",
+    },
+    INVALID_SECURITY_QUESTION_INPUT: {
+      i18nKey: "auth.security_questions.invalid_input",
+      message: "Each security question and answer must be filled out.",
+    },
+    SECURITY_QUESTIONS_SETUP_SUCCESS: {
+      i18nKey: "auth.security_questions.setup_success",
+      message: "Security questions saved successfully.",
+    },
+    SECURITY_QUESTIONS_NOT_CONFIGURED: {
+      i18nKey: "auth.security_questions.not_configured",
+      message: "Security questions are not set up on this account.",
+    },
+    SECURITY_QUESTIONS_MISMATCH: {
+      i18nKey: "auth.security_questions.mismatch",
+      message:
+        "One or more answers are incorrect. Please check your responses and try again.",
+    },
+    SECURITY_QUESTIONS_VERIFIED_SUCCESS: {
+      i18nKey: "auth.security_questions.verified_success",
+      message: "Security questions verified successfully.",
     },
     SERVER_FALLBACK_ERROR: {
       i18nKey: "auth.server_fallback_error",

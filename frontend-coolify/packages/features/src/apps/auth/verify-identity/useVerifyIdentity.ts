@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { useAuthNavigation } from "@repo/features";
+import { useVerificationNavigation } from "@repo/features";
+import { getCookie } from "@repo/helpers";
 import {
   VerifyIdentityMethod,
   OtpTransitData,
   TransitPurpose,
   useGlobalStore,
+  STORAGE_KEYS,
+  AUTH_BUTTON_LABELS,
 } from "@repo/core";
 
 export interface BaseVerificationProps<
@@ -47,18 +50,33 @@ export interface UseVerifyIdentityProps<P extends TransitPurpose> {
  * Manages verification method selection, active transit session evaluation, and security restrictions.
  */
 export const useVerifyIdentity = <P extends TransitPurpose>(
-  props: UseVerifyIdentityProps<P>,
+  props: UseVerifyIdentityProps<P> = {},
 ) => {
   const { transitData, initialMethod, customMethods, setShouldRestrict } =
     props;
   const activeTransit = transitData?.[0];
   const authUser = useGlobalStore((state) => state.authUser);
-  const { checkTotpConfiguration } = useAuthNavigation();
+  const {
+    checkTotpConfiguration,
+    clearTemporarySession,
+    timeLeft,
+    storedTransitKey,
+  } = useVerificationNavigation();
 
   const userHasTotp = checkTotpConfiguration(authUser);
 
   const hasUserCtx =
     authUser && !authUser.isEmailVerified && !authUser.isPhoneVerified;
+
+  /**
+   * Checks session freshness and immediately purges cache keys when the temporary session cookie expires.
+   */
+  useEffect(() => {
+    const tempSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION_KEY);
+    if (!tempSession) {
+      clearTemporarySession({ transitKey: storedTransitKey });
+    }
+  }, [clearTemporarySession, storedTransitKey]);
 
   /**
    * Evaluates active transit session validity to update restrict state.
@@ -70,18 +88,13 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
 
   const purpose = activeTransit?.purpose;
 
-  /**
-   * Resolves supported root verification methods depending on workflow context.
-   */
   const availableMethods = useMemo<VerifyIdentityMethod[]>(() => {
     if (customMethods && customMethods.length > 0) return customMethods;
 
-    // Registration allows only messaging (email)
     if (purpose === "SIGNUP_VERIFICATION") {
       return ["MESSAGING"];
     }
 
-    // MFA Activation allows messaging (SMS/WhatsApp) and TOTP if not yet configured
     if (purpose === "MFA_ACTIVATION") {
       const methods: VerifyIdentityMethod[] = ["MESSAGING"];
       if (!userHasTotp) {
@@ -90,13 +103,15 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
       return methods;
     }
 
-    // Login or Password Reset: allow messaging and TOTP if configured
     const methods: VerifyIdentityMethod[] = ["MESSAGING"];
     if (userHasTotp) {
       methods.unshift("TOTP");
     }
+    if (authUser?.securityQuestionsId) {
+      methods.push("SECURITY_QUESTIONS");
+    }
     return methods;
-  }, [customMethods, purpose, userHasTotp]);
+  }, [customMethods, purpose, userHasTotp, authUser?.securityQuestionsId]);
 
   const defaultMethod = useMemo<VerifyIdentityMethod>(() => {
     if (initialMethod && availableMethods.includes(initialMethod)) {
@@ -128,10 +143,36 @@ export const useVerifyIdentity = <P extends TransitPurpose>(
     [availableMethods],
   );
 
+  /**
+   * Computes alternative verification methods excluding the current active method.
+   */
+  const alternativeMethods = useMemo(() => {
+    return availableMethods.filter((m) => m !== activeMethod);
+  }, [availableMethods, activeMethod]);
+
+  /**
+   * Returns corresponding button labels for a given method type.
+   */
+  const getMethodLabelProps = useCallback((method: VerifyIdentityMethod) => {
+    switch (method) {
+      case "MESSAGING":
+        return AUTH_BUTTON_LABELS.verify_with_email_phone;
+      case "TOTP":
+        return AUTH_BUTTON_LABELS.verify_with_authenticator;
+      case "SECURITY_QUESTIONS":
+        return AUTH_BUTTON_LABELS.verify_with_security_questions;
+      default:
+        return AUTH_BUTTON_LABELS.verify_with_email_phone;
+    }
+  }, []);
+
   return {
     activeMethod,
     switchMethod,
     availableMethods,
+    alternativeMethods,
+    getMethodLabelProps,
     activeTransit,
+    timeLeft,
   };
 };

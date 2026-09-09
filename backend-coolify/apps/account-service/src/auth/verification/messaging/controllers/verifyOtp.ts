@@ -17,7 +17,7 @@ const VALID_PURPOSES: OtpActionType[] = [
 /**
  * Controller endpoint to handle incoming validation requests for transactional OTP records.
  */
-export const verifyChannelOtp = async (
+export const verifyMsgOtp = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -76,13 +76,13 @@ export const verifyChannelOtp = async (
     });
   } catch (error: unknown) {
     console.error(`[OTP_ERROR] ${purpose}:`, error);
-    const errorObj = error as { statusCode?: number; status?: number };
-    const statusCode = errorObj?.statusCode || errorObj?.status || 500;
+    // const errorObj = error as { statusCode?: number; status?: number };
+    // const statusCode = errorObj?.statusCode || errorObj?.status || 500;
     return forwardError(
       next,
       MESSAGES_REGISTRY.AUTH.SERVER_FALLBACK_ERROR,
       error,
-      statusCode,
+      //  statusCode,
     );
   }
 };

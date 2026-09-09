@@ -3,10 +3,11 @@ export * from "./src/apps/auth/session/useAuthVerification";
 export * from "./src/apps/auth/logout/useLogout";
 export * from "./src/apps/auth/logout/Logout";
 export * from "./src/apps/auth/session/service";
-export * from "./src/apps/auth/session/useAuthNavigation";
+export * from "./src/apps/auth/verify-identity/useNavigation";
 // Verify Identity
 export * from "./src/apps/auth/verify-identity/useVerifyIdentity";
 export * from "./src/apps/auth/verify-identity/VerifyIdentity";
+export * from "./src/apps/auth/verify-identity/EndSession";
 export * from "./src/apps/auth/verify-identity/totp/useTotp";
 export * from "./src/apps/auth/verify-identity/totp/Totp";
 export * from "./src/apps/auth/verify-identity/messaging/useMessaging";

@@ -2,8 +2,8 @@ import express, { Router } from "express";
 import { checkEmail } from "./check/controllers/email";
 import { checkUsername } from "./check/controllers/username";
 import { createAccount } from "./registration/controllers/createAccount";
-import { verifyChannelOtp } from "./otp/messaging/controllers/verifyOtp";
-import { sendChannelOtp } from "./otp/messaging/controllers/sendOtp";
+import { verifyMsgOtp } from "./verification/messaging/controllers/verifyOtp";
+import { sendMsgCode } from "./verification/messaging/controllers/sendOtp";
 import { loginUser } from "./session/controllers/login";
 import { verifySession } from "./session/controllers/verifySession";
 import { logoutUser } from "./session/controllers/logout";
@@ -15,11 +15,11 @@ import { removeDevice } from "./device/removeDevice";
 import { authenticate, optionallyAuthenticate } from "@/envVars";
 import { updateOnboarding } from "./registration/controllers/onboarding";
 import { oauthExchange } from "./oauth/oauthExchange";
-import { verifyTotpCode } from "./otp/totp/verify";
-import { setupTotp } from "./otp/totp/setup";
+import { verifyTotpCode } from "./verification/totp/verify";
+import { setupTotp } from "./verification/totp/setup";
 import { autoInvalidateUserCache } from "@repo/shared";
 import { turnstileVerification } from "./turnstile/controller";
-import { commitAccountUpdate } from "./otp/messaging/controllers/commitUpdate";
+import { commitAccountUpdate } from "./verification/messaging/controllers/commitUpdate";
 import {
   enforcePolicy,
   requirePermission,
@@ -27,7 +27,10 @@ import {
   loadDeviceResource,
 } from "@repo/security";
 import { PERMISSIONS } from "@repo/database";
-import { checkWhatsAppStatus } from "./whatsapp/checkStatus";
+import { checkWhatsAppStatus } from "./verification/whatsapp/checkStatus";
+import { resetMessagingOtp } from "./verification/messaging/controllers/resetOtp";
+import { verifySecurityQuestions } from "./verification/security-questions/controller/verify";
+import { setupSecurityQuestions } from "./verification/security-questions/controller/setup";
 
 const router: Router = express.Router();
 
@@ -41,9 +44,8 @@ router.post("/check/email", checkEmail);
 router.post("/check/phone", checkPhone);
 router.post("/check/username", checkUsername);
 
+// --- REGISTRATION & ACCOUNT ONBOARDING ---
 router.post("/signup", createAccount);
-
-// --- ACCOUNT ONBOARDING ---
 router.post(
   "/onboarding",
   authenticate,
@@ -74,13 +76,15 @@ router.post(
 );
 router.get("/session/verify", authenticate, verifySession);
 
-// --- CODE VERIFICATION & MFA ---
-router.post("/otp/send-msg-code", sendChannelOtp);
-router.post("/otp/verify-msg-code", verifyChannelOtp);
+// --- VERIFICATION & MFA ---
+router.post("/otp/send", sendMsgCode);
+router.post("/otp/verify", verifyMsgOtp);
+router.post("/otp/reset", resetMessagingOtp);
 router.patch("/otp/update-account", commitAccountUpdate);
-router.post("/otp/setup-totp", optionallyAuthenticate, setupTotp);
-router.post("/otp/verify-totp", optionallyAuthenticate, verifyTotpCode);
-
+router.post("/totp/setup", optionallyAuthenticate, setupTotp);
+router.post("/totp/verify", optionallyAuthenticate, verifyTotpCode);
+router.post("/security-questions/setup", setupSecurityQuestions);
+router.post("/security-questions/verify", verifySecurityQuestions);
 router.post("/whatsapp-status", checkWhatsAppStatus);
 
 // --- DEVICE MANAGEMENT ---

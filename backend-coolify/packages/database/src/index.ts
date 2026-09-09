@@ -40,3 +40,5 @@ export * from "./models/entities/media";
 // Topic
 export * from "./models/non-entities/topic";
 export * from "./models/non-entities/logs";
+
+export * from "./models/non-entities/securityQuestions";

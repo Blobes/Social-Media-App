@@ -11,10 +11,15 @@ export interface IEncryptedPluginOptions {
   fields: IEncryptedFieldConfig[];
 }
 
-// Shape constraint for documents processed by field encryption routines.
-interface IEncryptedTargetDoc {
+/**
+ * Methods required to encrypt or decrypt paths on a hydrated document.
+ */
+interface IEncryptableDocument {
+  isModified(path: string): boolean;
+  unmarkModified(path: string): void;
   get(path: string): unknown;
   set(path: string, val: unknown, options?: Record<string, unknown>): unknown;
+  _doc?: Record<string, unknown>;
 }
 
 /**
@@ -26,7 +31,7 @@ export const encryptedFieldsPlugin = (
 ) => {
   const { fields } = options;
 
-  // Dynamically append shadow tracking fields into database structures
+  // Append shadow tracking fields into database structures
   fields.forEach(({ field, searchable }) => {
     if (searchable) {
       schema.add({
@@ -40,10 +45,13 @@ export const encryptedFieldsPlugin = (
   });
 
   /**
-   * Internal routine to translate field data into secure variants before database persistence.
+   * Encrypts plain text values during pre-save.
    */
-  const encryptDocumentFields = (doc: IEncryptedTargetDoc) => {
+  const encryptDocumentFields = (doc: IEncryptableDocument) => {
     fields.forEach(({ field, searchable }) => {
+      // Check direct path modification status to avoid re-encrypting unchanged paths
+      if (!doc.isModified(field)) return;
+
       const plainValue = doc.get(field);
 
       if (typeof plainValue === "string" && plainValue.length > 0) {
@@ -58,45 +66,44 @@ export const encryptedFieldsPlugin = (
   };
 
   /**
-   * Restores cipher properties back to clean payload representations across documents and plain lean objects.
+   * Decrypts ciphertext on a hydrated document without change-tracking.
    */
-  const decryptTargetPayload = (target: unknown) => {
-    if (!target || typeof target !== "object") return;
-
-    const doc = target as Record<string, unknown>;
-
+  const decryptHydratedDocument = (doc: IEncryptableDocument) => {
     fields.forEach(({ field }) => {
-      const isHydratedDoc =
-        typeof (doc as unknown as IEncryptedTargetDoc).get === "function";
-      const cipherValue = isHydratedDoc
-        ? (doc as unknown as IEncryptedTargetDoc).get(field)
-        : doc[field];
+      const cipherValue = doc._doc?.[field] ?? doc.get(field);
 
       if (typeof cipherValue === "string" && isEncryptedPattern(cipherValue)) {
         const decryptedValue = decrypt(cipherValue);
 
-        if (isHydratedDoc) {
-          (doc as unknown as IEncryptedTargetDoc).set(field, decryptedValue, {
-            strict: false,
-          });
-        } else {
-          doc[field] = decryptedValue;
+        if (doc._doc) {
+          doc._doc[field] = decryptedValue;
         }
+
+        doc.unmarkModified(field);
       }
     });
   };
 
   /**
-   * Processes query result payloads for auto-decryption on single or batch results.
+   * Safely decrypts values across plain objects and hydrated documents.
    */
-  const handleQueryQueryResult = (result: unknown) => {
-    if (!result) return;
+  const decryptTargetPayload = (target: unknown, isHydrated: boolean) => {
+    if (!target || typeof target !== "object") return;
 
-    if (Array.isArray(result)) {
-      result.forEach((item) => decryptTargetPayload(item));
-    } else {
-      decryptTargetPayload(result);
+    if (isHydrated) {
+      decryptHydratedDocument(target as IEncryptableDocument);
+      return;
     }
+
+    const plainObj = target as Record<string, unknown>;
+
+    fields.forEach(({ field }) => {
+      const cipherValue = plainObj[field];
+
+      if (typeof cipherValue === "string" && isEncryptedPattern(cipherValue)) {
+        plainObj[field] = decrypt(cipherValue);
+      }
+    });
   };
 
   // Attach lifecycle pre-save pipeline event hooks
@@ -124,19 +131,39 @@ export const encryptedFieldsPlugin = (
     });
   });
 
-  // Attach lifecycle post-retrieval pipeline event hooks for hydrated instances
+  // Decrypt post-init on document hydration
   schema.post("init", function (doc) {
-    decryptTargetPayload(doc);
+    decryptTargetPayload(doc, true);
   });
 
+  // Decrypt post-save without marking paths dirty
   schema.post("save", function (doc) {
-    decryptTargetPayload(doc);
+    decryptTargetPayload(doc, true);
   });
 
-  // Attach query post middleware to transparently auto-decrypt lean query results
-  schema.post("find", handleQueryQueryResult);
-  schema.post("findOne", handleQueryQueryResult);
-  schema.post("findOneAndUpdate", handleQueryQueryResult);
+  // Query middleware for lean executions (where doc is a plain JS object)
+  schema.post("find", function (docs) {
+    if (!docs) return;
+    if (Array.isArray(docs)) {
+      docs.forEach((doc) => {
+        if (!doc.get) decryptTargetPayload(doc, false);
+      });
+    } else if (!docs.get) {
+      decryptTargetPayload(docs, false);
+    }
+  });
+
+  schema.post("findOne", function (doc) {
+    if (doc && !doc.get) {
+      decryptTargetPayload(doc, false);
+    }
+  });
+
+  schema.post("findOneAndUpdate", function (doc) {
+    if (doc && !doc.get) {
+      decryptTargetPayload(doc, false);
+    }
+  });
 
   /**
    * Executes lookup using blind hash query chain with fallback support for unencrypted records.

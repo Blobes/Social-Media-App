@@ -18,7 +18,7 @@ export * from "./constants/routesConfig";
 export * from "./constants/countries";
 export * from "./constants/keys";
 export * from "./constants/countries";
-export * from "./constants/fileFormats";
+export * from "./constants/others";
 export * from "./constants/languages";
 export * from "./constants/msgRegistry";
 

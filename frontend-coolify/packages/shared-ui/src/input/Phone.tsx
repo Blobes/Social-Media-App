@@ -107,7 +107,8 @@ export const PhoneInput = ({
                             stroke: theme.palette.primary.dark,
                           },
                         }),
-                      }}>
+                      }}
+                    >
                       <Keyboard size={18} />
                     </IconButton>
                   )}
@@ -126,7 +127,8 @@ export const PhoneInput = ({
                           "&:hover": {
                             backgroundColor: theme.palette.gray.trans[1],
                           },
-                        }}>
+                        }}
+                      >
                         <CircleQuestionMark size={18} />
                       </Box>
                     </BasicTooltip>
@@ -185,13 +187,6 @@ export const PhoneInput = ({
               handleCountrySelect(item.code);
             }
           }}
-          // onItemClick={(item) => {
-          //   if (item?.code) {
-          //     isCountrySelectedRef.current = true;
-          //     const formattedPrefix = `(+${item.code.replace(/\+/g, "")}) `;
-          //     onPhoneChange(formattedPrefix);
-          //   }
-          // }}
         />
       )}
     </Box>

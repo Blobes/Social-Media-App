@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
-import { Stack } from "@mui/material";
+import { IconButton, Stack } from "@mui/material";
 import {
   useBotVerification,
   useCachedData,
@@ -14,6 +14,7 @@ import {
   IStep,
   OtpStepName,
   OtpTransitData,
+  STORAGE_KEYS,
   TransitPurpose,
 } from "@repo/core";
 import {
@@ -21,19 +22,24 @@ import {
   ProgressIcon,
   Stepper,
   BotVerification,
+  AppLogo,
+  BasicTooltip,
 } from "@repo/shared-ui";
-import { useLogout, VerifyIdentity } from "@repo/features";
+import { useLogout, usePopup, VerifyIdentity } from "@repo/features";
+import { ArrowLeft } from "lucide-react";
+import { VerifyIdentityPreview } from "./Preview";
 
 /**
  * Manages two-factor/OTP verification workflow, protected by bot challenge verification steps.
  */
-export default function OtpPage() {
+export default function VerificationPage() {
   const theme = useTheme();
-  const cachedEntries = useCachedData<OtpTransitData<TransitPurpose>>([
-    "transit_data",
-  ]);
+  const transitEntries = useCachedData<OtpTransitData<TransitPurpose>>(
+    STORAGE_KEYS.TRANSIT_DATA,
+  );
   const { translateTxtString } = useStaticTranslation();
   const { handleLogout } = useLogout();
+  const { openPopup } = usePopup();
 
   const [shouldRestrict, setShouldRestrict] = useState<boolean>(false);
   const [currStep, setCurrStep] = useState<OtpStepName>("BOT_CHALLENGE");
@@ -55,19 +61,20 @@ export default function OtpPage() {
       {
         name: "VERIFY_IDENTITY",
         element: (
-          <VerifyIdentity
-            transitData={cachedEntries}
-            setShouldRestrict={setShouldRestrict}
-            onRateLimitExceeded={triggerBotChallenge}
-            isBotChallengeAllowed={isBotChallengeAllowed}
-          />
+          // <VerifyIdentity
+          //   transitData={transitEntries}
+          //   setShouldRestrict={setShouldRestrict}
+          //   onRateLimitExceeded={triggerBotChallenge}
+          //   isBotChallengeAllowed={isBotChallengeAllowed}
+          // />
+          <VerifyIdentityPreview />
         ),
       },
     ],
     [
       currStep,
       setCurrStep,
-      cachedEntries,
+      transitEntries,
       setShouldRestrict,
       triggerBotChallenge,
       isBotChallengeAllowed,
@@ -100,8 +107,51 @@ export default function OtpPage() {
         minHeight: "fit-content",
       }}
     >
-      {(cachedEntries && cachedEntries.length > 0) || !shouldRestrict ? (
-        <Stepper steps={steps} currStep={currStep} setCurrStep={setCurrStep} />
+      {(transitEntries && transitEntries.length > 0) || !shouldRestrict ? (
+        <>
+          {/* App Logo & Back Button */}
+          <Stack
+            sx={{
+              flexDirection: "row",
+              gap: theme.gap(8),
+              position: "absolute",
+              top: 20,
+              left: 30,
+            }}
+          >
+            <BasicTooltip
+              title={translateTxtString(
+                AUTH_FEEDBACK.terminate_session_back_to_login,
+              )}
+            >
+              <IconButton
+                aria-label="Open modal window context"
+                aria-controls="open-modal"
+                aria-haspopup="false"
+                sx={{
+                  width: 40,
+                  height: 40,
+                  padding: theme.boxSpacing(4, 4),
+                  color: theme.palette.gray[300],
+                  flex: "none",
+                }}
+                onClick={() => {
+                  openPopup("CONFIRM_SESSION_TERMINATION");
+                }}
+              >
+                <ArrowLeft size={28} stroke={theme.palette.gray[300]} />
+              </IconButton>
+            </BasicTooltip>
+            <AppLogo />
+          </Stack>
+
+          {/* Verification UI View */}
+          <Stepper
+            steps={steps}
+            currStep={currStep}
+            setCurrStep={setCurrStep}
+          />
+        </>
       ) : (
         <DisplayFeedbackUI
           type="UNAUTHORIZED"

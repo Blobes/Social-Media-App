@@ -8,6 +8,7 @@ import {
   ApiError,
   IUser,
   AUTH_FEEDBACK,
+  STORAGE_KEYS,
 } from "@repo/core";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
@@ -28,7 +29,7 @@ export const useAuthVerification = () => {
   const { translateTxtString } = useStaticTranslation();
   const { setSBMessage } = useSnackbar();
   const { verifyAndFetchUser } = AuthSharedService();
-  const resetPassSession = getCookie("reset_session_expiry");
+  const temporarySession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION_KEY);
 
   const { refetch, isFetching } = useQuery<IUser | null, ApiError>({
     queryKey: [CACHE_KEYS.USER.SESSION],
@@ -64,8 +65,8 @@ export const useAuthVerification = () => {
           return user;
         }
 
-        if (authUser !== null) setAuthUser(null);
-        if (authStatus !== "UNAUTHENTICATED") setAuthStatus("UNAUTHENTICATED");
+        setAuthUser(null);
+        setAuthStatus("UNAUTHENTICATED");
         return null;
       } catch (err: unknown) {
         const error = err as ApiError;
@@ -76,13 +77,9 @@ export const useAuthVerification = () => {
           error.httpStatus === 403 ||
           error.status === "UNAUTHORIZED"
         ) {
-          if (authStatus !== "UNAUTHENTICATED") {
-            setAuthStatus("UNAUTHENTICATED");
-          }
+          setAuthStatus("UNAUTHENTICATED");
         } else {
-          if (authStatus !== "ERROR") {
-            setAuthStatus("ERROR");
-          }
+          setAuthStatus("ERROR");
           const errorMsg =
             error.localizedErrMsg ||
             error.message ||
@@ -95,7 +92,7 @@ export const useAuthVerification = () => {
         return null;
       }
     },
-    enabled: !resetPassSession,
+    enabled: !temporarySession,
     retry: false,
     refetchOnWindowFocus: true,
     refetchInterval: 1000 * 60 * 10, // 10 Mins
@@ -106,7 +103,7 @@ export const useAuthVerification = () => {
    * Triggers manual re-verification of active session state.
    */
   const verifyAuth = useCallback(async () => {
-    const currentResetSession = getCookie("reset_session_expiry");
+    const currentResetSession = getCookie(STORAGE_KEYS.TEMPORARY_SESSION_KEY);
     if (currentResetSession) {
       setAuthStatus("TEMPORARY");
       return;

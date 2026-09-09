@@ -34,6 +34,8 @@ export * from "./src/Text";
 export * from "./src/Keyboard";
 export * from "./src/AppLogo";
 export * from "./src/VerifyBot";
+export * from "./src/ConfirmAction";
+export * from "./src/Accordion";
 // Carousels
 export * from "./src/carousel/Linear";
 export * from "./src/carousel/Stacked";
@@ -59,3 +61,4 @@ export * from "./src/input/File";
 export * from "./src/input/TextArea";
 export * from "./src/input/Search";
 export * from "./src/input/Choice";
+export * from "./src/input/Select";

@@ -9,7 +9,8 @@ import {
   useGlobalStore,
 } from "@repo/core";
 import { SignupResponse } from "../service";
-import { useAuthNavigation, useMessagingOtp } from "@repo/features";
+import { useVerificationNavigation } from "@repo/features";
+import { useCallback } from "react";
 
 interface UseSignupFeedbackProps {
   email: string;
@@ -23,38 +24,40 @@ export const useSignupFeedback = ({ email }: UseSignupFeedbackProps) => {
   const setAccessToken = useGlobalStore((state) => state.setAccessToken);
   const setAccountStatus = useGlobalStore((state) => state.setAccountStatus);
   const setAuthStatus = useGlobalStore((state) => state.setAuthStatus);
-  const { handleSendOtp } = useMessagingOtp();
-  const { handleOtpNavigation } = useAuthNavigation();
+  const { handleVerificationNavigation: handleOtpNavigation } =
+    useVerificationNavigation();
   const { translateTxtString } = useStaticTranslation();
 
   /**
    * Caches credentials and routes user to validation views upon successful container generation.
    */
-  const handleSuccess = (res: SignupResponse) => {
-    if (res.httpStatus !== 200) return;
-    setGlobalLoading(true);
+  const handleSuccess = useCallback(
+    (res: SignupResponse) => {
+      if (res.httpStatus !== 200) return;
+      setGlobalLoading(true);
 
-    const user = res.payload as IUser;
-    if (res.status === "SUCCESS" && user) {
-      setAccessToken(res.accessToken);
-      setAuthStatus("AUTHENTICATED");
-      setAccountStatus("NOT_VERIFIED");
-      handleSendOtp({
-        recipient: user.email || email,
-        purpose: "SIGNUP_VERIFICATION",
-        messageChannel: "EMAIL",
-      });
-      handleOtpNavigation({
-        user,
-        identifier: user.email || email,
-        identifierType: "EMAIL",
-        reason: "NEW_ACCOUNT",
-        purpose: "SIGNUP_VERIFICATION",
-        transitKey: STORAGE_KEYS.AUTH_TRANSIT,
-      });
-      return;
-    }
-  };
+      const user = res.payload as IUser;
+      if (res.status === "SUCCESS" && user) {
+        setAccessToken(res.accessToken);
+        setAuthStatus("AUTHENTICATED");
+        setAccountStatus("NOT_VERIFIED");
+
+        handleOtpNavigation({
+          user,
+          identifier: user.email || email,
+          identifierType: "EMAIL",
+          otpMessageChannel: "EMAIL",
+          reason: "NEW_ACCOUNT",
+          purpose: "SIGNUP_VERIFICATION",
+          verificationMethod: "MESSAGING",
+          transitKey: STORAGE_KEYS.AUTH_TRANSIT,
+          dispatchOnload: false,
+        });
+        return;
+      }
+    },
+    [setAccessToken, setAuthStatus, setAccountStatus, handleOtpNavigation],
+  );
 
   /**
    * Catches errors during registration and surfaces the rejection messages within the view container.

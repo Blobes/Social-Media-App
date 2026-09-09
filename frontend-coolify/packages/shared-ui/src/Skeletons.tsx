@@ -3,42 +3,33 @@
 import React from "react";
 import { Skeleton, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import { GenericStyle } from "@repo/core";
 
 type Variant = "text" | "rectangular" | "rounded" | "circular";
 
-interface PostSkeletonProps {
+interface BaseProps {
   quantity?: number;
-  bgColor?: string;
-  avatar?: {
-    variant?: Variant;
-    width?: string | number;
-    height?: string | number;
-  };
-  authorInfo?: {
-    variant?: Variant;
-    width?: string | number;
-    height?: string | number;
-  };
-  body?: {
-    variant?: Variant;
-    width?: string | number;
-    height?: string | number;
-  };
-}
-interface BoxSkeletonProps {
   variant?: Variant;
-  quantity?: number;
   bgColor?: string;
   width?: string | number;
   height?: string | number;
   radius?: string | number;
+  containerStyle?: GenericStyle;
 }
+
+interface PostSkeletonProps extends BaseProps {
+  avatar?: BaseProps;
+  authorInfo?: BaseProps;
+  body?: BaseProps;
+}
+
 export const PostSkeleton = ({
   quantity = 2,
   bgColor,
   avatar,
   authorInfo,
   body,
+  containerStyle,
 }: PostSkeletonProps) => {
   const theme = useTheme();
 
@@ -62,9 +53,12 @@ export const PostSkeleton = ({
   };
 
   return (
-    <Stack sx={{ width: "100%", gap: theme.gap(8) }}>
+    <Stack sx={{ width: "100%", gap: theme.gap(8), ...containerStyle }}>
       {Array.from({ length: quantity }).map((_, index) => (
-        <Stack key={index} sx={{ width: "inherit", gap: theme.gap(4) }}>
+        <Stack
+          key={index}
+          sx={{ width: "inherit", gap: theme.gap(4), ...containerStyle }}
+        >
           {/* Post Header*/}
           <Stack
             sx={{
@@ -74,7 +68,8 @@ export const PostSkeleton = ({
               [theme.breakpoints.down("md")]: {
                 paddingX: theme.boxSpacing(6),
               },
-            }}>
+            }}
+          >
             {/* Avatar */}
             <Skeleton
               variant={avatar?.variant || "circular"}
@@ -92,6 +87,7 @@ export const PostSkeleton = ({
               />
             </Stack>
           </Stack>
+
           {/* Post Body */}
           <Skeleton
             variant={body?.variant || "rectangular"}
@@ -110,7 +106,7 @@ export const BoxSkeleton = ({
   width,
   height,
   radius,
-}: BoxSkeletonProps) => {
+}: BaseProps) => {
   const theme = useTheme();
   const style = {
     bgcolor: bgColor || theme.palette.gray.trans[1],

@@ -48,9 +48,6 @@ const getButtonSize = (size: ButtonSize = "medium", theme: Theme) => {
   const mediumSize = {
     ...theme.typography.text3,
     padding: theme.boxSpacing(6, 12),
-    // [theme.breakpoints.down("md")]: {
-    //   padding: theme.boxSpacing(6, 12),
-    // },
   };
   const largeSize = {
     ...theme.typography.text2,
@@ -135,7 +132,8 @@ export const AppButton = ({
           onMouseEnter={() => handlePrefetch(href, isCrossZone, true)}
           onMouseDown={() => handlePrefetch(href, isCrossZone)}
           onTouchStart={() => handlePrefetch(href, isCrossZone)}
-          {...buttonProps}>
+          {...buttonProps}
+        >
           {children}
         </Button>
       </A11y>
@@ -196,7 +194,8 @@ export const AnchorLink = ({
         onMouseEnter={() => handlePrefetch(href, isCrossZone, true)}
         onMouseDown={() => handlePrefetch(href, isCrossZone)}
         onTouchStart={() => handlePrefetch(href, isCrossZone)}
-        {...rest}>
+        {...rest}
+      >
         {children}
       </Link>
     </A11y>

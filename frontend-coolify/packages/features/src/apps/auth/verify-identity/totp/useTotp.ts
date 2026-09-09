@@ -16,7 +16,7 @@ import {
   createVerificationStrategies,
   executeVerificationStrategy,
 } from "../helpers";
-import { useAuthNavigation } from "../../session/useAuthNavigation";
+import { useVerificationNavigation } from "../useNavigation";
 import { BaseVerificationProps } from "../useVerifyIdentity";
 
 export type TotpViewStep = "CONFIGURE_TOTP" | "VERIFY_TOTP_CODE";
@@ -48,13 +48,13 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
   const { setupTotp, verifyTotpCode } = VerifyIdentityService();
   const { translateTxtString } = useStaticTranslation();
   const {
-    handleAuthOtpSuccess,
-    onUpdateSuccess,
+    handleAuthSuccess,
+    handleAccountUpdateSuccess,
     handlePassResetSuccess,
     handleMfaActivationSuccess,
   } = useFeedback();
 
-  const { checkTotpConfiguration } = useAuthNavigation();
+  const { checkTotpConfiguration } = useVerificationNavigation();
 
   const isMfaActivationPurpose = activeTransit?.purpose === "MFA_ACTIVATION";
   const actionType: TotpActionType = isMfaActivationPurpose
@@ -100,15 +100,15 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
   const verificationStrategies = useMemo(
     () =>
       createVerificationStrategies({
-        handleAuthOtpSuccess,
-        onUpdateSuccess,
+        handleAuthSuccess: handleAuthSuccess,
+        handleAccountUpdateSuccess: handleAccountUpdateSuccess,
         handlePassResetSuccess,
         handleMfaActivationSuccess,
         recipient: activeTransit?.identifier,
       }),
     [
-      handleAuthOtpSuccess,
-      onUpdateSuccess,
+      handleAuthSuccess,
+      handleAccountUpdateSuccess,
       handlePassResetSuccess,
       handleMfaActivationSuccess,
       activeTransit?.identifier,
@@ -163,7 +163,9 @@ export const useTotp = <P extends TransitPurpose>(props: UseTotpProps<P>) => {
 
       if (!activeTransit && !authUser) {
         return setInlineMsg(
-          translateTxtString(AUTH_FEEDBACK.otp_missing_session),
+          translateTxtString(
+            AUTH_FEEDBACK.missing_verification_session("Authenticator"),
+          ),
         );
       }
       if (finalCode.length < 6) return;

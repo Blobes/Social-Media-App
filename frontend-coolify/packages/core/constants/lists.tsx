@@ -202,5 +202,3 @@ export const LISTS = (translator?: (transData: ITranslation) => string) => {
     CREATE_POST_LIST,
   };
 };
-
-export const SMS_DISPATCH_COUNTRY_CODES = ["234"];

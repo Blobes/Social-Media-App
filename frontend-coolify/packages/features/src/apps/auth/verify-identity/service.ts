@@ -52,6 +52,28 @@ export interface IdentifierChangeResult {
   loggedOut?: boolean;
 }
 
+export interface SetupSecurityQuestionsRequest {
+  userId: string;
+  questions: {
+    question: string;
+    answer: string;
+  }[];
+}
+export interface SetupSecurityQuestionsResponse {
+  isMfaActive: boolean;
+}
+export interface VerifySecurityQuestionsRequest {
+  identifier: string;
+  answers: {
+    question: string;
+    answer: string;
+  }[];
+}
+export interface VerifySecurityQuestionsResponse {
+  verified: boolean;
+  invalidQuestions?: string[];
+}
+
 export const VerifyIdentityService = () => {
   /**
    * Dispatches an OTP code over specified messaging channels (EMAIL, WHATSAPP, SMS).
@@ -158,6 +180,50 @@ export const VerifyIdentityService = () => {
     );
   };
 
+  /**
+   * Validates Security Questions token codes.
+   */
+  const setupSecurityQuestions = async (
+    request: SetupSecurityQuestionsRequest,
+  ): Promise<ISinglePayload<SetupSecurityQuestionsResponse>> => {
+    const { userId, questions } = request;
+    return await apiClient<ISinglePayload<SetupSecurityQuestionsResponse>>(
+      SERVER_API.setupSecurityQuestions,
+      {
+        method: "POST",
+        body: JSON.stringify({ userId, questions }),
+      },
+    );
+  };
+
+  /**
+   * Validates Security Questions token codes.
+   */
+  const verifySecurityQuestions = async (
+    request: VerifySecurityQuestionsRequest,
+  ): Promise<ISinglePayload<VerifySecurityQuestionsResponse>> => {
+    const { identifier, answers } = request;
+    return await apiClient<ISinglePayload<VerifySecurityQuestionsResponse>>(
+      SERVER_API.verifySecurityQuestions,
+      {
+        method: "POST",
+        body: JSON.stringify({ identifier, answers }),
+      },
+    );
+  };
+
+  /**
+   * Reset messaging-based OTP verification code state at the backend.
+   */
+  const resetMsgCode = async (
+    recipient: string,
+  ): Promise<ISinglePayload<null>> => {
+    return await apiClient(SERVER_API.resetMsgCode, {
+      method: "POST",
+      body: JSON.stringify({ recipient }),
+    });
+  };
+
   return {
     dispatchMsgCode,
     verifyMsgCode,
@@ -166,5 +232,8 @@ export const VerifyIdentityService = () => {
     finalizePhoneUpdateOtp,
     setupTotp,
     verifyTotpCode,
+    resetMsgCode,
+    setupSecurityQuestions,
+    verifySecurityQuestions,
   };
 };

@@ -54,6 +54,7 @@ export const syncDefaultRole = async (
       await assignUserRole({
         userId: targetUserId,
         roleName: ROLES.COMMUNITY.USER,
+        assignedByType: "SYSTEM",
         reason: skipCheck
           ? "Initial user onboarding role assignment"
           : "Backfilled default role",

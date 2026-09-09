@@ -1,10 +1,9 @@
 "use client";
 
 import React from "react";
-import { AppButton, TransText } from "@repo/shared-ui";
-import { Stack } from "@mui/material";
+import { ConfirmAction, AppButton, TransText } from "@repo/shared-ui";
 import { useTheme } from "@mui/material/styles";
-import { useMisc } from "@repo/shared-hooks";
+import { useMisc, useStaticTranslation } from "@repo/shared-hooks";
 import { LogOut, LogOutIcon } from "lucide-react";
 import { useLogout } from "./useLogout";
 import { AUTH_BUTTON_LABELS, AUTH_FEEDBACK, GenericStyle } from "@repo/core";
@@ -12,31 +11,24 @@ import { usePopup } from "../../../popups/usePopup";
 
 export const ComfirmLogout = () => {
   const { closeModal } = useMisc();
-  const { handleLogout } = useLogout();
-  const theme = useTheme();
+  const { handleLogout, isLoggingOut } = useLogout();
+  const { translateTxtString } = useStaticTranslation();
+
+  const confirmLogout = () => {
+    handleLogout();
+    closeModal();
+  };
 
   return (
-    <Stack
-      sx={{
-        alignItems: "center",
-        textAlign: "center",
-        justifyContent: "center",
-      }}>
-      <LogOutIcon />
-      <TransText
-        {...AUTH_FEEDBACK.logout_confirmation}
-        component="h4"
-        sx={theme.typography.h4}
-      />
-      <Stack direction="row">
-        <AppButton variant="outlined" onClick={closeModal}>
-          <TransText {...AUTH_BUTTON_LABELS.logout_not_really} noComponent />
-        </AppButton>
-        <AppButton variant="contained" onClick={async () => handleLogout()}>
-          <TransText {...AUTH_BUTTON_LABELS.logout_sure_i_do} noComponent />
-        </AppButton>
-      </Stack>
-    </Stack>
+    <ConfirmAction
+      icon={<LogOutIcon size={32} />}
+      headline={translateTxtString(AUTH_FEEDBACK.logout_confirmation)}
+      cancelLabel={translateTxtString(AUTH_BUTTON_LABELS.not_yet)}
+      confirmLabel={translateTxtString(AUTH_BUTTON_LABELS.sure_i_do)}
+      onConfirm={confirmLogout}
+      onCancel={closeModal}
+      isLoading={isLoggingOut}
+    />
   );
 };
 
@@ -73,7 +65,8 @@ export const Logout = ({
           ...containerStyle?.hover,
         },
         ...containerStyle,
-      }}>
+      }}
+    >
       <LogOut />
       <TransText
         {...AUTH_BUTTON_LABELS.logout}
